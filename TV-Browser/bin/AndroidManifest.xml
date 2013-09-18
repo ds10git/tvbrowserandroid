@@ -2,17 +2,23 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.tvbrowser.tvbrowser"
     android:versionCode="1"
-    android:versionName="1.0" >
+    android:versionName="0.1alpha" >
 
     <uses-sdk
         android:minSdkVersion="14"
         android:targetSdkVersion="17" />
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.DOWNLOAD_WITHOUT_NOTIFICATION"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 
     <application
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <provider android:name="org.tvbrowser.content.TvBrowserContentProvider"
+            android:authorities="org.tvbrowser.tvbrowsercontentprovider" />
         <activity
             android:name="org.tvbrowser.tvbrowser.TvBrowser"
             android:label="@string/app_name" >
