@@ -1,5 +1,12 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-
+    <item
+        android:id="@+id/action_update"
+        android:orderInCategory="200"
+        android:showAsAction="always"
+        android:title="@string/update_data"
+        android:icon="@android:drawable/stat_sys_download"
+        />
+    	
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"

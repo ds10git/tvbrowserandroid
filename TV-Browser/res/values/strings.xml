@@ -3,8 +3,15 @@
 
     <string name="app_name">TV-Browser</string>
     <string name="action_settings">Settings</string>
-    <string name="title_section1">Section 1</string>
-    <string name="title_section2">Section 2</string>
-    <string name="title_section3">Section 3</string>
-
+    <string name="title_section1">Running programs</string>
+    <string name="title_section2">Program list</string>
+    <string name="title_section3">Favorites</string>
+    <string name="no_channels">No channels selected</string>
+    <string name="select_channels">Select channels now</string>
+    <string name="dont_select_channels">Don\'t select channels</string>
+    <string name="update_data">Update Data</string>
+    <string name="versionExpired">Version expired</string>
+    <string name="versionExpiredMsg">Look in the TV-Browser message board for new versions.</string>
+    <string name="program_popup_mark">Mark program</string>
+    <string name="program_popup_unmark">Unmark program</string>
 </resources>

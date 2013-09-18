@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+   <group android:id="@+id/program_popup_menu">
+       <item android:id="@+id/mark_item"
+           android:title="@string/program_popup_mark"/>
+       <item android:id="@+id/unmark_item"
+           android:title="@string/program_popup_unmark"/>
+   </group>
+</menu>
