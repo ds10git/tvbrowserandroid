@@ -2,6 +2,7 @@ package org.tvbrowser.tvbrowser;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -11,6 +12,7 @@ import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -28,6 +30,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
@@ -43,6 +46,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   
   private boolean mKeepRunning;
   private Thread mUpdateThread;
+  private int mWhereClauseID;
   
   @Override
   public void onResume() {
@@ -62,9 +66,24 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     mKeepRunning = false;
   }
   
+  public void setWhereClauseID(int id) {
+    mWhereClauseID = id;
+    
+    if(mKeepRunning) {
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          getLoaderManager().restartLoader(0, null, RunningProgramsListFragment.this);
+        }
+      });
+    }
+  }
+  
   @Override
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
+    
+    mWhereClauseID = R.id.now_button;
     
     registerForContextMenu(getListView());
     
@@ -123,7 +142,29 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           
           return true;
         }
-                
+        else if(columnIndex == 4) {
+          TextView text = (TextView)view;
+          
+          long end = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+          long start = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+          
+          if(end <= System.currentTimeMillis()) {
+            text.setTextColor(Color.rgb(200, 200, 200));
+          }
+          else if(System.currentTimeMillis() >= start && System.currentTimeMillis() <= end) {
+            text.setTextColor(getActivity().getResources().getColor(R.color.running_color));
+          }
+          else {
+            int[] attrs = new int[] { android.R.attr.textColorSecondary };
+            TypedArray a = getActivity().getTheme().obtainStyledAttributes(R.style.AppTheme, attrs);
+            int DEFAULT_TEXT_COLOR = a.getColor(0, Color.BLACK);
+            a.recycle();
+            
+            text.setTextColor(DEFAULT_TEXT_COLOR);
+          }
+          
+        }
+        
         return false;
       }
   });
@@ -175,8 +216,29 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
     };
     
-    String where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis();
-        
+    Calendar cal = Calendar.getInstance();
+    cal.set(Calendar.MINUTE, 0);
+    cal.set(Calendar.SECOND, 30);
+    
+    switch(mWhereClauseID) {
+      case R.id.button_6: 
+        cal.set(Calendar.HOUR_OF_DAY, 6);break;
+      case R.id.button_12:
+        cal.set(Calendar.HOUR_OF_DAY, 12);break;
+      case R.id.button_16:
+        cal.set(Calendar.HOUR_OF_DAY, 16);break;
+      case R.id.button_2015:
+        cal.set(Calendar.HOUR_OF_DAY, 20);
+        cal.set(Calendar.MINUTE, 15);break;
+      case R.id.button_23:
+        cal.set(Calendar.HOUR_OF_DAY, 23);break;
+      default: cal.setTimeInMillis(System.currentTimeMillis());break;
+    }
+
+    long time = ((long)cal.getTimeInMillis() / 60000) * 60000;
+
+    String where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + time + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + time;
+    
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
     return loader;
@@ -459,7 +521,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     TextView date = new TextView(row.getContext());
     date.setTextColor(Color.rgb(200, 0, 0));
-    date.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+    date.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
     
     Date start = new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
     SimpleDateFormat day = new SimpleDateFormat("EEE",Locale.getDefault());
@@ -477,7 +539,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     row0.addView(date);
     
     TextView title = new TextView(row.getContext());
-    title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+    title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
     title.setTypeface(null, Typeface.BOLD);
     title.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
     
@@ -488,7 +550,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
       TextView episode = new TextView(table.getContext());
-      episode.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+      episode.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
       episode.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)));
       episode.setTextColor(Color.GRAY);
       
@@ -502,7 +564,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       TextView desc = new TextView(table.getContext());
       desc.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION)));
      /* desc.setSingleLine(false);*/
-      desc.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+      desc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
       /*desc.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);*/
       
       TableRow rowDescription = new TableRow(table.getContext());

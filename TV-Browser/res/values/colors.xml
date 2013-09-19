@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="mark_color">#6000FF00</color>
+    <color name="running_color">#000077</color>
 </resources>

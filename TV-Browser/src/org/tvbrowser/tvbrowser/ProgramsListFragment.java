@@ -11,6 +11,7 @@ import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Intent;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Typeface;
@@ -45,6 +46,8 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   private boolean mKeepRunning;
   private Thread mUpdateThread;
   
+  private long mChannelID;
+  
   @Override
   public void onResume() {
     super.onResume();
@@ -78,9 +81,23 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     registerForContextMenu(view);
   }*/
   
+  public void setChannelID(long id) {
+    mChannelID = id;
+    
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        if(!isDetached()) {
+          getLoaderManager().restartLoader(0, null, ProgramsListFragment.this);
+        }
+      }
+    });
+  }
+  
   @Override
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
+    mChannelID = -1;
     registerForContextMenu(getListView());
     String[] projection = {
         TvBrowserContentProvider.DATA_KEY_UNIX_DATE,
@@ -146,6 +163,25 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
           text.setText(DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(date)));
           
           return true;
+        }
+        else if(columnIndex == 5) {
+          TextView text = (TextView)view;
+          
+          long end = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+          long start = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+          
+          if(System.currentTimeMillis() >= start && System.currentTimeMillis() <= end) {
+            text.setTextColor(getActivity().getResources().getColor(R.color.running_color));
+          }
+          else {
+            int[] attrs = new int[] { android.R.attr.textColorSecondary };
+            TypedArray a = getActivity().getTheme().obtainStyledAttributes(R.style.AppTheme, attrs);
+            int DEFAULT_TEXT_COLOR = a.getColor(0, Color.BLACK);
+            a.recycle();
+            
+            text.setTextColor(DEFAULT_TEXT_COLOR);
+            //text.setTextColor(getActivity().getResources().getColor(android.R.color.primary_text_dark));
+          }
         }
                 
         return false;
@@ -348,7 +384,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     
     TextView date = new TextView(row.getContext());
     date.setTextColor(Color.rgb(200, 0, 0));
-    date.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+    date.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
     
     Date start = new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
     SimpleDateFormat day = new SimpleDateFormat("EEE",Locale.getDefault());
@@ -359,14 +395,14 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     
     channel.moveToFirst();
     
-    date.setText(day.format(start) + " " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(start) + " - " + DateFormat.getTimeInstance(DateFormat.SHORT).format(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) + " " + channel.getString(0));
+    date.setText(day.format(start) + " " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(start) + " - " + DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)))) + " " + channel.getString(0));
     
     channel.close();
     
     row0.addView(date);
     
     TextView title = new TextView(row.getContext());
-    title.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 16);
+    title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
     title.setTypeface(null, Typeface.BOLD);
     title.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
     
@@ -377,7 +413,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     
     if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
       TextView episode = new TextView(table.getContext());
-      episode.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 15);
+      episode.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
       episode.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)));
       episode.setTextColor(Color.GRAY);
       
@@ -391,7 +427,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
       TextView desc = new TextView(table.getContext());
       desc.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION)));
      /* desc.setSingleLine(false);*/
-      desc.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 14);
+      desc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
       /*desc.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);*/
       
       TableRow rowDescription = new TableRow(table.getContext());
@@ -454,9 +490,13 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
         TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
     };
     
-    String where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis();
-    where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " > " + System.currentTimeMillis();
-        
+    String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis();
+    where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " > " + System.currentTimeMillis() + " ) ";
+    
+    if(mChannelID != -1) {
+      where += "AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + mChannelID;
+    }
+    
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     
     return loader;

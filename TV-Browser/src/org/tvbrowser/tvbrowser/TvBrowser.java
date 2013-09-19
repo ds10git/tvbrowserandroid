@@ -82,6 +82,7 @@ public class TvBrowser extends FragmentActivity implements
   private Thread mChannelUpdateThread;
   private HashMap<Long,ChannelUpdate> downloadIDs;
   private boolean updateRunning;
+  private boolean selectingChannels;
   
   /**
    * The {@link ViewPager} that will host the section contents.
@@ -91,11 +92,20 @@ public class TvBrowser extends FragmentActivity implements
   SimpleCursorAdapter adapter;
   
   @Override
+  protected void onSaveInstanceState(Bundle outState) {
+    outState.putBoolean("updateRunning", updateRunning);
+    outState.putBoolean("selectionChannels", selectingChannels);
+
+    super.onSaveInstanceState(outState);
+  }
+  
+  @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_tv_browser);
     
-    updateRunning = false;
+    updateRunning = savedInstanceState.getBoolean("updateRunning", false);
+    selectingChannels = savedInstanceState.getBoolean("selectionChannels", false);
 //test
     // Set up the action bar.
     final ActionBar actionBar = getActionBar();
@@ -135,7 +145,7 @@ public class TvBrowser extends FragmentActivity implements
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.YEAR, 2013);
     cal.set(Calendar.MONTH, Calendar.SEPTEMBER);
-    cal.set(Calendar.DAY_OF_MONTH, 22);
+    cal.set(Calendar.DAY_OF_MONTH, 24);
     
     if(cal.getTimeInMillis() < System.currentTimeMillis()) {    
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -162,13 +172,14 @@ public class TvBrowser extends FragmentActivity implements
     SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     Set<String> channels = preferences.getStringSet(SettingConstants.SUBSCRIBED_CHANNELS, null);
     
-    if(channels == null || channels.isEmpty()) {
+    if(!selectingChannels && (channels == null || channels.isEmpty())) {
+      selectingChannels = true;
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
       builder.setMessage(R.string.no_channels);
       builder.setPositiveButton(R.string.select_channels, new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-          selectChannels();
+          selectChannels(true);
         }
       });
       
@@ -328,9 +339,13 @@ public class TvBrowser extends FragmentActivity implements
     ContentResolver cr = getContentResolver();
     Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, null, null, null);
     
+    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    Set<String> currentChannels = preferences.getStringSet(SettingConstants.SUBSCRIBED_CHANNELS, null);
+    
     final ArrayList<ChannelSelection> channelSource = new ArrayList<TvBrowser.ChannelSelection>();
     ArrayList<CharSequence> channelNames = new ArrayList<CharSequence>();
     final ArrayList<Integer> selectedChannels = new ArrayList<Integer>();
+    boolean[] currentlySelected = new boolean[channels.getCount()];
     
     int i = 1;
     
@@ -341,11 +356,25 @@ public class TvBrowser extends FragmentActivity implements
       channelSource.add(new ChannelSelection(key, name, i));
       channelNames.add(name);
       
+      if(currentChannels != null) {
+        currentlySelected[i-1] = currentChannels.contains(String.valueOf(key));
+      }
+      else {
+        currentlySelected[i-1] = false;
+      }
+      
       i++;
       
       while(channels.moveToNext()) {
         key = channels.getInt(0);
         name = channels.getString(1);
+        
+        if(currentChannels != null) {
+          currentlySelected[i-1] = currentChannels.contains(String.valueOf(key));
+        }
+        else {
+          currentlySelected[i-1] = false;
+        }
         
         channelSource.add(new ChannelSelection(key, name, i));
         channelNames.add(name);
@@ -360,7 +389,7 @@ public class TvBrowser extends FragmentActivity implements
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
       
       builder.setTitle(R.string.select_channels);
-      builder.setMultiChoiceItems(channelNames.toArray(new CharSequence[channelNames.size()]), null, new DialogInterface.OnMultiChoiceClickListener() {
+      builder.setMultiChoiceItems(channelNames.toArray(new CharSequence[channelNames.size()]), currentlySelected, new DialogInterface.OnMultiChoiceClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which, boolean isChecked) {
           if(isChecked) {
@@ -399,6 +428,8 @@ public class TvBrowser extends FragmentActivity implements
       
       builder.show();
     }
+    
+    selectingChannels = false;
   }
   
   private static class ChannelSelection {
@@ -431,31 +462,36 @@ public class TvBrowser extends FragmentActivity implements
   
   
   
-  private void selectChannels() {
-    final DownloadManager download = (DownloadManager)getSystemService(Context.DOWNLOAD_SERVICE);
-    
-    Uri uri = Uri.parse("http://www.tvbrowser.org/listings/groups.txt");
-    
-    DownloadManager.Request request = new Request(uri);
-    
-    
-    final long reference = download.enqueue(request);
-    mToDownloadChannels = 1;
-    waitForChannelUpdate();
-    
-    BroadcastReceiver receiver = new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, android.content.Intent intent) {
-        long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-        
-        if(reference == receiveReference) {
-          unregisterReceiver(this);
-          updateGroups(download,reference);
-        }
+  private void selectChannels(boolean loadAgain) {
+    if(loadAgain || getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null).getCount() < 1) {
+      final DownloadManager download = (DownloadManager)getSystemService(Context.DOWNLOAD_SERVICE);
+      
+      Uri uri = Uri.parse("http://www.tvbrowser.org/listings/groups.txt");
+      
+      DownloadManager.Request request = new Request(uri);
+      
+      
+      final long reference = download.enqueue(request);
+      mToDownloadChannels = 1;
+      waitForChannelUpdate();
+      
+      BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, android.content.Intent intent) {
+          long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+          
+          if(reference == receiveReference) {
+            unregisterReceiver(this);
+            updateGroups(download,reference);
+          }
+        };
       };
-    };
-    
-    registerReceiver(receiver, filter);
+      
+      registerReceiver(receiver, filter);
+    }
+    else {
+      showChannelSelection();
+    }
    // HttpURLConnection.
   }
   
@@ -782,7 +818,7 @@ public class TvBrowser extends FragmentActivity implements
             
             if(summary != null) {
               ChannelFrame frame = summary.getChannelFrame(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)));
-              
+              Log.d(TAG, " CHANNEL FRAME " + String.valueOf(frame) + " " + String.valueOf(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID))));
               if(frame != null) {
                 Calendar startDate = summary.getStartDate();
                 
@@ -828,6 +864,7 @@ public class TvBrowser extends FragmentActivity implements
                         dateFile.append("_full.prog.gz");
                                               
                         downloadList.add(new ChannelUpdate(dateFile.toString(), channelKey, timeZone, startDate.getTimeInMillis()));
+                        Log.d(TAG, " DOWNLOADS " + dateFile.toString());
                       }
                     }
                   }
@@ -1136,6 +1173,8 @@ public class TvBrowser extends FragmentActivity implements
               in = new GZIPInputStream(in);
             }
             
+            in = new BufferedInputStream(in);
+            
             // Buffer the input
         //    in = new BufferedInputStream(in);
             
@@ -1272,6 +1311,7 @@ public class TvBrowser extends FragmentActivity implements
     public ChannelFrame getChannelFrame(String channelID) {
   //    Log.d(TAG, "CHANNELID " + channelID);
       for(ChannelFrame frame : mFrameList) {
+        Log.d(TAG, " FRAME ID " + frame.mChannelID);
         if(frame.mChannelID.equals(channelID)) {
           return frame;
         }
@@ -1458,7 +1498,8 @@ public class TvBrowser extends FragmentActivity implements
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.action_update: updateTvData();break;
-      case R.id.action_settings: selectChannels();break;
+      case R.id.action_load_channels_again: selectChannels(true);break;
+      case R.id.action_select_channels: selectChannels(false);break;
       case R.id.action_sort_channels: sortChannels();break;
       case R.id.action_delete_all_data: getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.KEY_ID + " > 0", null);break;
     }
@@ -1538,11 +1579,11 @@ public class TvBrowser extends FragmentActivity implements
    * A dummy fragment representing a section of the app, but that simply
    * displays dummy text.
    */
-  public static class DummySectionFragment extends Fragment {
+ /* public class DummySectionFragment extends Fragment {
     /**
      * The fragment argument representing the section number for this fragment.
      */
-    public static final String ARG_SECTION_NUMBER = "section_number";
+  /*  public static final String ARG_SECTION_NUMBER = "section_number";
 
     public DummySectionFragment() {
     }
@@ -1556,6 +1597,21 @@ public class TvBrowser extends FragmentActivity implements
       if(getArguments().getInt(ARG_SECTION_NUMBER) == 1) {
         rootView = inflater.inflate(R.layout.running_program_fragment,
             container, false);
+        Log.d(TAG, String.valueOf(rootView));
+        
+        getSupportFragmentManager().findFragmentById(R.id.runningListFragment);
+        
+        final RunningProgramsListFragment running = (RunningProgramsListFragment)rootView.findViewById(R.id.runningListFragment);
+        
+        rootView.findViewById(R.id.button_6).setOnClickListener(new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            // TODO Auto-generated method stub
+            
+          }
+        });
+        
+        
      /*   View list = rootView.findViewById(R.id.runningListFragment);
         
         Log.d(TAG, String.valueOf(list));
@@ -1577,7 +1633,7 @@ public class TvBrowser extends FragmentActivity implements
             Log.d(TAG, " value " + String.valueOf(value));
           }
         });*/
-      }
+/*      }
       else if(getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
         rootView = inflater.inflate(R.layout.program_list_fragment,
             container, false);        
@@ -1589,7 +1645,7 @@ public class TvBrowser extends FragmentActivity implements
       
       return rootView;
     }
-  }
+  }*/
 
   
 }

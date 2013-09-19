@@ -287,6 +287,13 @@ public class TvBrowserContentProvider extends ContentProvider {
                       }
                     }
                     
+                    if(selection != null && selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
+                      selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+KEY_ID);
+                    }
+                    if(selection != null && selection.contains(CHANNEL_KEY_CHANNEL_ID) && !selection.contains("."+CHANNEL_KEY_CHANNEL_ID)) {
+                      selection = selection.replace(CHANNEL_KEY_CHANNEL_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+CHANNEL_KEY_CHANNEL_ID);
+                    }
+                    
                     break;
 
       default: break;
@@ -299,6 +306,8 @@ public class TvBrowserContentProvider extends ContentProvider {
     if(!orderBy.contains("NOCASE") && !orderBy.contains("COLLATE")) {
       orderBy += " COLLATE NOCASE";
     }
+    
+    
    // Log.d("TVB", qb.buildQuery(projection, selection, null, null, sortOrder, null));
     // Apply the query to the underling database.
     Cursor c = qb.query(database, projection, selection, selectionArgs, null, null, orderBy);

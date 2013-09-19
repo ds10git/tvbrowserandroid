@@ -2,13 +2,16 @@
 <resources>
 
     <string name="app_name">TV-Browser</string>
-    <string name="action_settings">Einstellungen</string>
+    <string name="action_load_channels_again">Sender neu laden</string>
+    <string name="action_select_channels">Sender auswählen</string>
     <string name="action_sort_channels">Sender sortieren</string>
     <string name="action_delete_all_data">Daten löschen</string>
     <string name="update_complete">Datenupdate abgeschlossen</string>
     <string name="title_section1">Laufende Sendungen</string>
     <string name="title_section2">Sendungsliste</string>
     <string name="title_section3">Favoriten</string>
+    <string name="button_now">Jetzt</string>
+    <string name="button_all_channels">Alle</string>
     <string name="no_channels">Keine Sender vorhanden.</string>
     <string name="select_channels">Sender jetzt auswählen</string>
     <string name="dont_select_channels">Jetzt nicht</string>
