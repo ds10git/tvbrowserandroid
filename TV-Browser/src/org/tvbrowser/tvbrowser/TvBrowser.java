@@ -13,6 +13,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
@@ -47,13 +48,20 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
+import android.text.InputFilter.LengthFilter;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.ListView;
+import android.widget.NumberPicker;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
+import android.widget.Toast;
 
 
 public class TvBrowser extends FragmentActivity implements
@@ -73,6 +81,7 @@ public class TvBrowser extends FragmentActivity implements
   private int mToDownloadChannels;
   private Thread mChannelUpdateThread;
   private HashMap<Long,ChannelUpdate> downloadIDs;
+  private boolean updateRunning;
   
   /**
    * The {@link ViewPager} that will host the section contents.
@@ -86,6 +95,7 @@ public class TvBrowser extends FragmentActivity implements
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_tv_browser);
     
+    updateRunning = false;
 //test
     // Set up the action bar.
     final ActionBar actionBar = getActionBar();
@@ -243,15 +253,13 @@ public class TvBrowser extends FragmentActivity implements
     String[] projection = {
         TvBrowserContentProvider.KEY_ID,
         TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
-        TvBrowserContentProvider.DATA_KEY_TITLE,
         TvBrowserContentProvider.DATA_KEY_STARTTIME,
         TvBrowserContentProvider.DATA_KEY_ENDTIME,
-        TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION
     };
     
     Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, null, null, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
-  //  Log.d(TAG, "DATA-COUNT " + c.getCount());
+    Log.d(TAG, "DATA-COUNT " + c.getCount());
     
     if(c.getCount() > 0) {
       c.moveToFirst();
@@ -259,25 +267,28 @@ public class TvBrowser extends FragmentActivity implements
       do {
         long progID = c.getLong(0);
         int channelKey = c.getInt(1);
-        long end = c.getLong(4);
+        long end = c.getLong(3);
         
         c.moveToNext();
         
         if(end == 0) {
-          long nextStart = c.getLong(3);
+          long nextStart = c.getLong(2);
           
           if(c.getInt(1) == channelKey) {
             ContentValues values = new ContentValues();
             values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, nextStart);
             
             int n = getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, progID), values, null, null);
-         //   Log.d(TAG, "UPDATED " + channelKey + " end " + new Date(end) + " " + c.getString(2));
+            Log.d(TAG, "UPDATED " + channelKey + " end " + new Date(end) + " " + c.getString(2));
           }
         }
       }while(!c.isLast());
     }
     
     c.close();
+    
+    updateRunning = false;
+    Toast.makeText(getApplicationContext(), R.string.update_complete, Toast.LENGTH_LONG).show();
   }
   
   private void waitForChannelUpdate() {
@@ -321,19 +332,25 @@ public class TvBrowser extends FragmentActivity implements
     ArrayList<CharSequence> channelNames = new ArrayList<CharSequence>();
     final ArrayList<Integer> selectedChannels = new ArrayList<Integer>();
     
+    int i = 1;
+    
     if(channels.moveToFirst()) {
       int key = channels.getInt(0);
       String name = channels.getString(1);
       
-      channelSource.add(new ChannelSelection(key, name));
+      channelSource.add(new ChannelSelection(key, name, i));
       channelNames.add(name);
+      
+      i++;
       
       while(channels.moveToNext()) {
         key = channels.getInt(0);
         name = channels.getString(1);
         
-        channelSource.add(new ChannelSelection(key, name));
+        channelSource.add(new ChannelSelection(key, name, i));
         channelNames.add(name);
+        
+        i++;
       }
     }
     
@@ -387,18 +404,28 @@ public class TvBrowser extends FragmentActivity implements
   private static class ChannelSelection {
     private String mName;
     private int mKey;
+    private int mSortNumber;
     
-    public ChannelSelection(int key, String name) {
+    public ChannelSelection(int key, String name, int sortNumber) {
       mKey = key;
       mName = name;
-    }
-    
-    public String toString() {
-      return mName;
+      mSortNumber = sortNumber;
     }
     
     public int getKey() {
       return mKey;
+    }
+    
+    public void setSortNumber(int value) {
+      mSortNumber = value;
+    }
+    
+    public int getSortNumber() {
+      return mSortNumber;
+    }
+    
+    public String toString() {
+      return mSortNumber + ". " + mName;
     }
   }
   
@@ -691,156 +718,159 @@ public class TvBrowser extends FragmentActivity implements
   }
 
   private void updateTvData() {
-    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    Set<String> channels = preferences.getStringSet(SettingConstants.SUBSCRIBED_CHANNELS, null);
-    
-    if(channels != null) {
-      ContentResolver cr = getContentResolver();
+    if(!updateRunning) {
+      updateRunning = true;
+      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+      Set<String> channels = preferences.getStringSet(SettingConstants.SUBSCRIBED_CHANNELS, null);
       
-      StringBuilder where = new StringBuilder(TvBrowserContentProvider.KEY_ID);
-      where.append(" IN (");
-
-      for(String key : channels) {
-        where.append(key);
-        where.append(", ");
-      }
-      
-      where.delete(where.length()-2,where.length());
-      
-      where.append(")");
-      
-   //   Log.d(TAG, where.toString());
-      
-      ArrayList<ChannelUpdate> downloadList = new ArrayList<ChannelUpdate>();
-      
-      Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-      
-      if(channelCursor.getCount() > 0) {
-        channelCursor.moveToFirst();
+      if(channels != null) {
+        ContentResolver cr = getContentResolver();
         
-        int lastGroup = -1;
-        String mirrorURL = null;
-        String groupId = null;
-        Summary summary = null;
+        StringBuilder where = new StringBuilder(TvBrowserContentProvider.KEY_ID);
+        where.append(" IN (");
+  
+        for(String key : channels) {
+          where.append(key);
+          where.append(", ");
+        }
         
-        do {
-          int groupKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
-          int channelKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-          String timeZone = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE));
+        where.delete(where.length()-2,where.length());
+        
+        where.append(")");
+        
+     //   Log.d(TAG, where.toString());
+        
+        ArrayList<ChannelUpdate> downloadList = new ArrayList<ChannelUpdate>();
+        
+        Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+        
+        if(channelCursor.getCount() > 0) {
+          channelCursor.moveToFirst();
           
-          if(lastGroup != groupKey) {
-            Cursor group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
+          int lastGroup = -1;
+          String mirrorURL = null;
+          String groupId = null;
+          Summary summary = null;
+          
+          do {
+            int groupKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
+            int channelKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+            String timeZone = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE));
             
-            if(group.getCount() > 0) {
-              group.moveToFirst();
-              mirrorURL = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS));
+            if(lastGroup != groupKey) {
+              Cursor group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
               
-              if(mirrorURL.contains(";")) {
-                mirrorURL = mirrorURL.substring(0, mirrorURL.indexOf(";"));
+              if(group.getCount() > 0) {
+                group.moveToFirst();
+                mirrorURL = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS));
                 
-                if(!mirrorURL.endsWith("/")) {
-                  mirrorURL += "/";
+                if(mirrorURL.contains(";")) {
+                  mirrorURL = mirrorURL.substring(0, mirrorURL.indexOf(";"));
+                  
+                  if(!mirrorURL.endsWith("/")) {
+                    mirrorURL += "/";
+                  }
                 }
+                
+                groupId = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
+                
+                summary = readSummary(mirrorURL + groupId + "_summary.gz");
               }
               
-              groupId = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
-              
-              summary = readSummary(mirrorURL + groupId + "_summary.gz");
+              group.close();
             }
             
-            group.close();
-          }
-          
-          if(summary != null) {
-            ChannelFrame frame = summary.getChannelFrame(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)));
-            
-            if(frame != null) {
-              Calendar startDate = summary.getStartDate();
+            if(summary != null) {
+              ChannelFrame frame = summary.getChannelFrame(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)));
               
-              Calendar now = Calendar.getInstance();
-              now.add(Calendar.DAY_OF_MONTH, -1);
-
-              Calendar to = Calendar.getInstance();
-              to.add(Calendar.DAY_OF_MONTH, 3);
-
-              
-              for(int i = 0; i < frame.getDayCount(); i++) {
-                startDate.add(Calendar.DAY_OF_YEAR, 1);
+              if(frame != null) {
+                Calendar startDate = summary.getStartDate();
                 
-                if(startDate.compareTo(now) >= 0 && startDate.compareTo(to) <= 0) {
-                  int[] version = frame.getVersionForDay(i);
-                  // load only base files
-                  for(int level = 0; level < 1; level++) {
-                    if(version[level] > 0) {
-                      String month = String.valueOf(startDate.get(Calendar.MONTH)+1);
-                      String day = String.valueOf(startDate.get(Calendar.DAY_OF_MONTH));
-                      
-                      if(month.length() == 1) {
-                        month = "0" + month;
+                Calendar now = Calendar.getInstance();
+                now.add(Calendar.DAY_OF_MONTH, -1);
+  
+                Calendar to = Calendar.getInstance();
+                to.add(Calendar.DAY_OF_MONTH, 2);
+  
+                
+                for(int i = 0; i < frame.getDayCount(); i++) {
+                  startDate.add(Calendar.DAY_OF_YEAR, 1);
+                  
+                  if(startDate.compareTo(now) >= 0 && startDate.compareTo(to) <= 0) {
+                    int[] version = frame.getVersionForDay(i);
+                    // load only base files
+                    for(int level = 0; level < 1; level++) {
+                      if(version[level] > 0) {
+                        String month = String.valueOf(startDate.get(Calendar.MONTH)+1);
+                        String day = String.valueOf(startDate.get(Calendar.DAY_OF_MONTH));
+                        
+                        if(month.length() == 1) {
+                          month = "0" + month;
+                        }
+                        
+                        if(day.length() == 1) {
+                          day = "0" + day;
+                        }
+                        
+                        StringBuilder dateFile = new StringBuilder();
+                        dateFile.append(mirrorURL);
+                        dateFile.append(startDate.get(Calendar.YEAR));
+                        dateFile.append("-");
+                        dateFile.append(month);
+                        dateFile.append("-");
+                        dateFile.append(day);
+                        dateFile.append("_");
+                        dateFile.append(frame.getCountry());
+                        dateFile.append("_");
+                        dateFile.append(frame.getChannelID());
+                        dateFile.append("_");
+                        dateFile.append(SettingConstants.LEVEL_NAMES[level]);
+                        dateFile.append("_full.prog.gz");
+                                              
+                        downloadList.add(new ChannelUpdate(dateFile.toString(), channelKey, timeZone, startDate.getTimeInMillis()));
                       }
-                      
-                      if(day.length() == 1) {
-                        day = "0" + day;
-                      }
-                      
-                      StringBuilder dateFile = new StringBuilder();
-                      dateFile.append(mirrorURL);
-                      dateFile.append(startDate.get(Calendar.YEAR));
-                      dateFile.append("-");
-                      dateFile.append(month);
-                      dateFile.append("-");
-                      dateFile.append(day);
-                      dateFile.append("_");
-                      dateFile.append(frame.getCountry());
-                      dateFile.append("_");
-                      dateFile.append(frame.getChannelID());
-                      dateFile.append("_");
-                      dateFile.append(SettingConstants.LEVEL_NAMES[level]);
-                      dateFile.append("_full.prog.gz");
-                                            
-                      downloadList.add(new ChannelUpdate(dateFile.toString(), channelKey, timeZone, startDate.getTimeInMillis()));
                     }
                   }
                 }
               }
             }
-          }
+            
+            lastGroup = groupKey;
+          }while(channelCursor.moveToNext());
           
-          lastGroup = groupKey;
-        }while(channelCursor.moveToNext());
+        }
         
-      }
-      
-      channelCursor.close();
-      
-      final DownloadManager download = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
-      downloadIDs = new HashMap<Long,ChannelUpdate>();
-      
-      BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, android.content.Intent intent) {
-          long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-          
-          if(downloadIDs.containsKey(Long.valueOf(receiveReference))) {
-            ChannelUpdate update = downloadIDs.remove(Long.valueOf(receiveReference));
-            updateData(download,receiveReference, update);
-          }
-          
-          if(downloadIDs.isEmpty()) {
-            unregisterReceiver(this);
-          }
+        channelCursor.close();
+        
+        final DownloadManager download = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
+        downloadIDs = new HashMap<Long,ChannelUpdate>();
+        
+        BroadcastReceiver receiver = new BroadcastReceiver() {
+          @Override
+          public void onReceive(Context context, android.content.Intent intent) {
+            long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+            
+            if(downloadIDs.containsKey(Long.valueOf(receiveReference))) {
+              ChannelUpdate update = downloadIDs.remove(Long.valueOf(receiveReference));
+              updateData(download,receiveReference, update);
+            }
+            
+            if(downloadIDs.isEmpty()) {
+              unregisterReceiver(this);
+            }
+          };
         };
-      };
-      
-      registerReceiver(receiver, filter);
-      
-      for(ChannelUpdate data : downloadList) {
-        Request request = new Request(Uri.parse(data.getUrl()));
-        request.setDestinationInExternalFilesDir(getApplicationContext(), null, data.getUrl().substring(data.getUrl().lastIndexOf("/")));
-        //Environment.getExternalStorageDirectory()
         
-        long id = download.enqueue(request);
-        downloadIDs.put(id,data);
+        registerReceiver(receiver, filter);
+        
+        for(ChannelUpdate data : downloadList) {
+          Request request = new Request(Uri.parse(data.getUrl()));
+          request.setDestinationInExternalFilesDir(getApplicationContext(), null, data.getUrl().substring(data.getUrl().lastIndexOf("/")));
+          //Environment.getExternalStorageDirectory()
+          
+          long id = download.enqueue(request);
+          downloadIDs.put(id,data);
+        }
       }
     }
   }
@@ -876,8 +906,10 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   private synchronized void updateData(DownloadManager download, long reference, ChannelUpdate update) {
+    File dataFile = new File(getExternalFilesDir(null),update.getUrl().substring(update.getUrl().lastIndexOf("/")));
+    
     try {
-      File dataFile = new File(getExternalFilesDir(null),update.getUrl().substring(update.getUrl().lastIndexOf("/")));
+      
       
       BufferedInputStream in = new BufferedInputStream(new GZIPInputStream(new FileInputStream(dataFile)));
       
@@ -937,11 +969,15 @@ public class TvBrowser extends FragmentActivity implements
                             
                             cal.set(Calendar.HOUR_OF_DAY, startTime / 60);
                             cal.set(Calendar.MINUTE, startTime % 60);
-                            cal.set(Calendar.SECOND, 0);
+                            cal.set(Calendar.SECOND, 30);
                             
-                         //   Log.d(TAG, "cal " + String.valueOf(cal.getTime()));
                             
-                            values.put(TvBrowserContentProvider.DATA_KEY_STARTTIME, cal.getTimeInMillis());
+                            
+                            long time = (((long)(cal.getTimeInMillis() / 60000)) * 60000);
+                            
+                         //   Log.d(TAG, "cal " + String.valueOf(new Date(time)) + " " + time + " " + new Date(cal.getTimeInMillis()) + " " + cal.getTimeInMillis());
+                            
+                            values.put(TvBrowserContentProvider.DATA_KEY_STARTTIME, time);
                          }break;
             case 2: {
               int endTime = getIntForBytes(data);
@@ -956,7 +992,7 @@ public class TvBrowser extends FragmentActivity implements
               
               cal.set(Calendar.HOUR_OF_DAY, endTime / 60);
               cal.set(Calendar.MINUTE, endTime % 60);
-              cal.set(Calendar.SECOND, 0);
+              cal.set(Calendar.SECOND, 30);
               
               Long o = values.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
               
@@ -966,7 +1002,9 @@ public class TvBrowser extends FragmentActivity implements
                 }
               }
               
-              values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, cal.getTimeInMillis());
+              long time =  (((long)(cal.getTimeInMillis() / 60000)) * 60000);
+              
+              values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, time);
            }break;
             case 3: values.put(TvBrowserContentProvider.DATA_KEY_TITLE, new String(data));break;
             case 4: values.put(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL, new String(data));break;
@@ -1028,7 +1066,7 @@ public class TvBrowser extends FragmentActivity implements
         else {
           
           Uri inserted = getContentResolver().insert(TvBrowserContentProvider.CONTENT_URI_DATA, values);
-        //  Log.d(TAG, "INSERT: " + String.valueOf(inserted));
+          Log.d(TAG, "INSERT: " + String.valueOf(inserted));
         }
         
         values.clear();
@@ -1038,15 +1076,16 @@ public class TvBrowser extends FragmentActivity implements
       }
       
       in.close();
-      dataFile.delete();
     } catch (Exception e) {
       // TODO Auto-generated catch block
       Log.d(TAG, "UPDATE_DATA", e);
     }
-    
+    Log.d(TAG, "downloadIDs " + downloadIDs.size());
     if(downloadIDs != null && downloadIDs.isEmpty()) {
       calculateMissingEnds();
     }
+    
+    dataFile.delete();
   }
   
   
@@ -1278,11 +1317,150 @@ public class TvBrowser extends FragmentActivity implements
     }
   }
   
+  private void sortChannels() {
+    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    Set<String> channelSet = preferences.getStringSet(SettingConstants.SUBSCRIBED_CHANNELS, null);
+    
+    if(channelSet != null) {
+      ContentResolver cr = getContentResolver();
+      
+      StringBuilder where = new StringBuilder(TvBrowserContentProvider.KEY_ID);
+      where.append(" IN (");
+
+      for(String key : channelSet) {
+        where.append(key);
+        where.append(", ");
+      }
+      
+      where.delete(where.length()-2,where.length());
+      
+      where.append(")");
+      ListView channelSort = (ListView)getLayoutInflater().inflate(R.layout.channel_sort_list, null);
+      
+      
+      String[] projection = {
+          TvBrowserContentProvider.KEY_ID,
+          TvBrowserContentProvider.CHANNEL_KEY_NAME,
+          TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER
+          };
+      
+      Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+      
+      final ArrayList<ChannelSelection> channelSource = new ArrayList<TvBrowser.ChannelSelection>();
+      
+      
+      
+      if(channels.moveToFirst()) {
+        int key = channels.getInt(0);
+        String name = channels.getString(1);
+        
+        int order = 0;
+        
+        if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER))) {
+          order = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
+        }
+        
+        channelSource.add(new ChannelSelection(key, name, order));
+                
+        while(channels.moveToNext()) {
+          key = channels.getInt(0);
+          name = channels.getString(1);
+          
+          order = 0;
+          
+          if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER))) {
+            order = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
+          }
+          
+          channelSource.add(new ChannelSelection(key, name, order));
+                    
+          Log.d("TVB", order + " order ");
+        }
+        
+        
+      }
+      
+      channels.close();
+      
+      channelSort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(final AdapterView<?> adapterView, final View view, int position,
+            long id) {
+          Log.d("TVB",String.valueOf(view) + " " + position + " " + id);
+          AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+          
+          final NumberPicker number = (NumberPicker)getLayoutInflater().inflate(R.layout.sort_number_selection, null);
+          number.setMinValue(1);
+          number.setMaxValue(channelSource.size());
+          
+          builder.setView(number);
+          
+          final ChannelSelection selection = channelSource.get(position);
+          
+          if(selection.getSortNumber() > 0 && selection.getSortNumber() < channelSource.size()+1) {
+            number.setValue(selection.getSortNumber());
+          }
+          
+          builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              selection.setSortNumber(number.getValue());
+              ((TextView)view).setText(selection.toString());
+            }
+          });
+          
+          builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+            
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              // TODO Auto-generated method stub
+              
+            }
+          });
+          
+          builder.show();
+        }
+      });
+      
+      ArrayAdapter<ChannelSelection> aa = new ArrayAdapter<TvBrowser.ChannelSelection>(getApplicationContext(), R.layout.channel_row, channelSource);
+      channelSort.setAdapter(aa);
+      
+      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+      
+      builder.setTitle(R.string.action_sort_channels);
+      builder.setView(channelSort);
+      
+      builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          for(ChannelSelection selection : channelSource) {
+            ContentValues values = new ContentValues();
+            values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, selection.getSortNumber());
+            
+            int count = getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, selection.getKey()), values, null, null);
+            Log.d("TVB", " SORT " + values + " c " + count);
+          }
+        }
+      });
+      builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          
+        }
+      });
+      
+      
+      builder.show();
+    }
+  }
+  
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.action_update: updateTvData();break;
       case R.id.action_settings: selectChannels();break;
+      case R.id.action_sort_channels: sortChannels();break;
+      case R.id.action_delete_all_data: getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.KEY_ID + " > 0", null);break;
     }
     
     return super.onOptionsItemSelected(item);

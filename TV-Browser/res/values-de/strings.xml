@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <string name="app_name">TV-Browser</string>
+    <string name="action_settings">Einstellungen</string>
+    <string name="action_sort_channels">Sender sortieren</string>
+    <string name="action_delete_all_data">Daten löschen</string>
+    <string name="update_complete">Datenupdate abgeschlossen</string>
+    <string name="title_section1">Laufende Sendungen</string>
+    <string name="title_section2">Sendungsliste</string>
+    <string name="title_section3">Favoriten</string>
+    <string name="no_channels">Keine Sender vorhanden.</string>
+    <string name="select_channels">Sender jetzt auswählen</string>
+    <string name="dont_select_channels">Jetzt nicht</string>
+    <string name="update_data">Datenupdate</string>
+    <string name="versionExpired">Version abgelaufen</string>
+    <string name="versionExpiredMsg">Sehen Sie im TV-Browser Forum nach neuen Versionen.</string>
+    <string name="program_popup_mark">Sendung markieren</string>
+    <string name="program_popup_unmark">Markierung löschen</string>
+    <string name="program_add_calendar">Sendung in Kalendar eintragen</string>
+</resources>

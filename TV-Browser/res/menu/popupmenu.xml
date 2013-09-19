@@ -5,5 +5,7 @@
            android:title="@string/program_popup_mark"/>
        <item android:id="@+id/unmark_item"
            android:title="@string/program_popup_unmark"/>
+       <item android:id="@+id/create_calendar_entry"
+           android:title="@string/program_add_calendar"/>
    </group>
 </menu>

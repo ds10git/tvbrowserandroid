@@ -12,5 +12,16 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_settings"/>
-
+    
+    <item
+        android:id="@+id/action_sort_channels"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_sort_channels"/>
+    
+    <item
+        android:id="@+id/action_delete_all_data"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_delete_all_data"/>
 </menu>

@@ -19,6 +19,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final Uri CONTENT_URI_GROUPS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/groups");
   public static final Uri CONTENT_URI_CHANNELS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/channels");
   public static final Uri CONTENT_URI_DATA = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/data");
+  public static final Uri CONTENT_URI_DATA_WITH_CHANNEL = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/datachannels");
   
   private TvBrowserDataBaseHelper mDataBaseHelper;
   
@@ -31,6 +32,9 @@ public class TvBrowserContentProvider extends ContentProvider {
   private static final int DATA = 20;
   private static final int DATA_ID = 21;
 
+  private static final int DATA_CHANNELS = 30;
+  private static final int DATA_CHANNEL_ID = 31;
+  
   public static final String KEY_ID = "_id";
   
   // Column names for group table
@@ -53,6 +57,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String CHANNEL_KEY_FULL_NAME = "fullName";
   public static final String CHANNEL_KEY_ALL_COUNTRIES = "allCountries";
   public static final String CHANNEL_KEY_JOINED_CHANNEL_ID = "joinedChannelID";
+  public static final String CHANNEL_KEY_ORDER_NUMBER = "orderNumber";
   
   // Column names for the data table
   public static final String DATA_KEY_STARTTIME = "startTime";
@@ -98,7 +103,6 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_UNIX_DATE = "unixDate";
   public static final String DATA_KEY_DATE_PROG_ID = "dateProgID";
   public static final String DATA_KEY_MARKING_VALUES = "markingValues";
-  public static final String DATA_KEY_ORDER_NUMBER = "orderNumber";
   
   private static final UriMatcher uriMatcher;
   
@@ -112,6 +116,8 @@ public class TvBrowserContentProvider extends ContentProvider {
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "channels/#", CHANNEL_ID);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "data", DATA);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "data/#", DATA_ID);
+    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "datachannels", DATA_CHANNELS);
+    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "datachannels/#", DATA_CHANNEL_ID);
   }
 
   @Override
@@ -119,6 +125,8 @@ public class TvBrowserContentProvider extends ContentProvider {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
     int count;
+    
+    boolean data_with_channel = false;
     
     switch(uriMatcher.match(uri)) {
       case GROUPS: count = database.delete(TvBrowserDataBaseHelper.GROUPS_TABLE, where, whereArgs);break;
@@ -128,18 +136,22 @@ public class TvBrowserContentProvider extends ContentProvider {
       }break;
       case CHANNELS: count = database.delete(TvBrowserDataBaseHelper.CHANNEL_TABLE, where, whereArgs);break;
       case CHANNEL_ID: {String segment = uri.getPathSegments().get(1);
-      
+      data_with_channel = true;
       count = database.delete(TvBrowserDataBaseHelper.CHANNEL_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
       }break;
       case DATA: count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, where, whereArgs);break;
       case DATA_ID: {String segment = uri.getPathSegments().get(1);
-      
+      data_with_channel = true;
       count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
       }break;
       default: throw new IllegalArgumentException("Unsupported URI: " + uri);
     }
     
     getContext().getContentResolver().notifyChange(uri, null);
+    
+    if(data_with_channel) {
+      getContext().getContentResolver().notifyChange(CONTENT_URI_DATA_WITH_CHANNEL, null);
+    }
     
     return count;
   }
@@ -153,6 +165,9 @@ public class TvBrowserContentProvider extends ContentProvider {
       case CHANNEL_ID: return "vnd.andorid.cursor.item/vnd.tvbrowser.channels";
       case DATA: return "vnd.andorid.cursor.dir/vnd.tvbrowser.data";
       case DATA_ID: return "vnd.andorid.cursor.item/vnd.tvbrowser.data";
+      case DATA_CHANNELS: return "vnd.andorid.cursor.dir/vnd.tvbrowser.datachannels";
+      case DATA_CHANNEL_ID: return "vnd.andorid.cursor.item/vnd.tvbrowser.datachannels";
+      
       
       default: throw new IllegalArgumentException("Unsupported URI: " + uri);
     }
@@ -251,6 +266,29 @@ public class TvBrowserContentProvider extends ContentProvider {
       case DATA_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
       case DATA: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
                     orderBy = CHANNEL_KEY_CHANNEL_ID;break;
+      case DATA_CHANNEL_ID: qb.appendWhere(TvBrowserDataBaseHelper.DATA_TABLE + "." + KEY_ID + "=" + uri.getPathSegments().get(1));
+      case DATA_CHANNELS: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + TvBrowserDataBaseHelper.CHANNEL_TABLE);
+                    orderBy = CHANNEL_KEY_ORDER_NUMBER + " , " + CHANNEL_KEY_CHANNEL_ID;
+                    qb.appendWhere(TvBrowserDataBaseHelper.CHANNEL_TABLE + "." + KEY_ID + " = " + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID);
+
+                    if(projection != null) {
+                      for(int i = 0; i < projection.length; i++) {
+                        if(projection[i].equals(KEY_ID) || projection[i].equals(CHANNEL_KEY_CHANNEL_ID)) {
+                          projection[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + projection[i]+ " AS " + projection[i];
+                        }
+                      }
+                    }
+                    
+                    if(selectionArgs != null) {
+                      for(int i = 0; i < selectionArgs.length; i++) {
+                        if(selectionArgs[i].equals(KEY_ID)) {
+                          selectionArgs[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + selectionArgs[i];
+                        }
+                      }
+                    }
+                    
+                    break;
+
       default: break;
     }
     
@@ -261,7 +299,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     if(!orderBy.contains("NOCASE") && !orderBy.contains("COLLATE")) {
       orderBy += " COLLATE NOCASE";
     }
-    
+   // Log.d("TVB", qb.buildQuery(projection, selection, null, null, sortOrder, null));
     // Apply the query to the underling database.
     Cursor c = qb.query(database, projection, selection, selectionArgs, null, null, orderBy);
     
@@ -278,6 +316,8 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     int count;
     
+    boolean data_with_channel = false;
+    
     switch(uriMatcher.match(uri)) {
       case GROUPS: count = database.update(TvBrowserDataBaseHelper.GROUPS_TABLE, values, where, whereArgs);break;
       case GROUP_ID: {String segment = uri.getPathSegments().get(1);
@@ -286,18 +326,22 @@ public class TvBrowserContentProvider extends ContentProvider {
       }break;
       case CHANNELS: count = database.update(TvBrowserDataBaseHelper.CHANNEL_TABLE, values, where, whereArgs);break;
       case CHANNEL_ID: {String segment = uri.getPathSegments().get(1);
-      
+      data_with_channel = true;
       count = database.update(TvBrowserDataBaseHelper.CHANNEL_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
       }break;
       case DATA: count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, where, whereArgs);break;
       case DATA_ID: {String segment = uri.getPathSegments().get(1);
-      
+      data_with_channel = true;
       count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
       }break;
       default: throw new IllegalArgumentException("Unknown URI: " + uri);
     }
     
     getContext().getContentResolver().notifyChange(uri, null);
+    
+    if(data_with_channel) {
+      getContext().getContentResolver().notifyChange(CONTENT_URI_DATA_WITH_CHANNEL, null);
+    }
     
     return count;
   }
@@ -332,7 +376,8 @@ public class TvBrowserContentProvider extends ContentProvider {
         + CHANNEL_KEY_CATEGORY + " INTEGER NOT NULL, "
         + CHANNEL_KEY_FULL_NAME + " TEXT, "
         + CHANNEL_KEY_ALL_COUNTRIES + " TEXT, "
-        + CHANNEL_KEY_JOINED_CHANNEL_ID + " TEXT);";
+        + CHANNEL_KEY_JOINED_CHANNEL_ID + " TEXT, "
+        + CHANNEL_KEY_ORDER_NUMBER + " INTEGER);";
     
     private static final String CREATE_DATA_TABLE = "create table " + DATA_TABLE + " (" + KEY_ID + " integer primary key autoincrement, "
         + CHANNEL_KEY_CHANNEL_ID + " INTEGER REFERENCES " + CHANNEL_TABLE + "(" + KEY_ID + ") NOT NULL, "
@@ -375,11 +420,10 @@ public class TvBrowserContentProvider extends ContentProvider {
         + DATA_KEY_AGE_LIMIT_STRING+ " TEXT, "
         + DATA_KEY_LAST_PRODUCTION_YEAR + " INTEGER, "
         + DATA_KEY_ADDITIONAL_INFO + " TEXT, "
-        + DATA_KEY_SERIES + " TEXT,"
-        + DATA_KEY_UNIX_DATE + " INTEGER,"
-        + DATA_KEY_DATE_PROG_ID + " INTEGER,"
-        + DATA_KEY_MARKING_VALUES + " TEXT, "
-        + DATA_KEY_ORDER_NUMBER + " INTEGER);";
+        + DATA_KEY_SERIES + " TEXT, "
+        + DATA_KEY_UNIX_DATE + " INTEGER, "
+        + DATA_KEY_DATE_PROG_ID + " INTEGER, "
+        + DATA_KEY_MARKING_VALUES + " TEXT);";
     
     public TvBrowserDataBaseHelper(Context context, String name,
         CursorFactory factory, int version) {
