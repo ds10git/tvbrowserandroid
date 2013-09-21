@@ -16,7 +16,9 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.zip.GZIPInputStream;
@@ -27,9 +29,12 @@ import org.tvbrowser.settings.SettingConstants;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
+import android.app.SearchableInfo;
 import android.app.DownloadManager.Request;
 import android.app.FragmentTransaction;
+import android.app.SearchManager;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -59,6 +64,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.NumberPicker;
+import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -104,8 +110,10 @@ public class TvBrowser extends FragmentActivity implements
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_tv_browser);
     
-    updateRunning = savedInstanceState.getBoolean("updateRunning", false);
-    selectingChannels = savedInstanceState.getBoolean("selectionChannels", false);
+    if(savedInstanceState != null) {
+      updateRunning = savedInstanceState.getBoolean("updateRunning", false);
+      selectingChannels = savedInstanceState.getBoolean("selectionChannels", false);
+    }
 //test
     // Set up the action bar.
     final ActionBar actionBar = getActionBar();
@@ -290,7 +298,7 @@ public class TvBrowser extends FragmentActivity implements
             values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, nextStart);
             
             int n = getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, progID), values, null, null);
-            Log.d(TAG, "UPDATED " + channelKey + " end " + new Date(end) + " " + c.getString(2));
+//            Log.d(TAG, "UPDATED " + channelKey + " end " + new Date(end) + " " + c.getString(2));
           }
         }
       }while(!c.isLast());
@@ -344,8 +352,8 @@ public class TvBrowser extends FragmentActivity implements
     
     final ArrayList<ChannelSelection> channelSource = new ArrayList<TvBrowser.ChannelSelection>();
     ArrayList<CharSequence> channelNames = new ArrayList<CharSequence>();
-    final ArrayList<Integer> selectedChannels = new ArrayList<Integer>();
-    boolean[] currentlySelected = new boolean[channels.getCount()];
+    //final ArrayList<Integer> selectedChannels = new ArrayList<Integer>();
+    final boolean[] currentlySelected = new boolean[channels.getCount()];
     
     int i = 1;
     
@@ -392,12 +400,13 @@ public class TvBrowser extends FragmentActivity implements
       builder.setMultiChoiceItems(channelNames.toArray(new CharSequence[channelNames.size()]), currentlySelected, new DialogInterface.OnMultiChoiceClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-          if(isChecked) {
+          currentlySelected[which] = isChecked;
+          /*if(isChecked) {
             selectedChannels.add(which);
           } 
           else if(selectedChannels.contains(which)){
             selectedChannels.remove(new Integer(which));
-          }
+          }*/
         }
       });
       
@@ -409,8 +418,10 @@ public class TvBrowser extends FragmentActivity implements
           
           HashSet<String> channelSet = new HashSet<String>();
           
-          for(Integer index : selectedChannels) {
-            channelSet.add(String.valueOf(channelSource.get(index.intValue()).getKey()));
+          for(int i = 0; i < currentlySelected.length; i++) {
+            if(currentlySelected[i]) {
+              channelSet.add(String.valueOf(channelSource.get(i).getKey()));
+            }
           }
           
           editor.putStringSet(SettingConstants.SUBSCRIBED_CHANNELS, channelSet);
@@ -802,14 +813,14 @@ public class TvBrowser extends FragmentActivity implements
                 
                 if(mirrorURL.contains(";")) {
                   mirrorURL = mirrorURL.substring(0, mirrorURL.indexOf(";"));
-                  
-                  if(!mirrorURL.endsWith("/")) {
-                    mirrorURL += "/";
-                  }
+                }
+                
+                if(!mirrorURL.endsWith("/")) {
+                  mirrorURL += "/";
                 }
                 
                 groupId = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
-                
+                Log.d(TAG, " URL " + mirrorURL + groupId + "_summary.gz");
                 summary = readSummary(mirrorURL + groupId + "_summary.gz");
               }
               
@@ -1151,13 +1162,13 @@ public class TvBrowser extends FragmentActivity implements
   
   private Summary readSummary(final String summaryurl) {
     final Summary summary = new Summary();
-    
+    Log.d(TAG, "READ SUMMARY");
     Thread load = new Thread() {
       public void run() {
         URL url;
         try {
           url = new URL(summaryurl);
-        //  Log.d(TAG, summaryurl);
+          Log.d(TAG, summaryurl);
           URLConnection connection;
           connection = url.openConnection();
           
@@ -1169,7 +1180,13 @@ public class TvBrowser extends FragmentActivity implements
           //  Log.d(TAG, "HTTP_OK");
             InputStream in = httpConnection.getInputStream();
             
-            if("gzip".equalsIgnoreCase(httpConnection.getHeaderField("Content-Encoding"))) {
+            Map<String,List<String>>  map = connection.getHeaderFields();
+            
+            for(String key : map.keySet()) {
+              Log.d(TAG, key + " " + map.get(key));
+            }
+            
+            if("gzip".equalsIgnoreCase(httpConnection.getHeaderField("Content-Encoding")) || "application/octet-stream".equalsIgnoreCase(httpConnection.getHeaderField("Content-Type"))) {
               in = new GZIPInputStream(in);
             }
             
@@ -1200,7 +1217,7 @@ public class TvBrowser extends FragmentActivity implements
             
             //read file version
             summary.setVersion(in.read());
-            
+            Log.d(TAG, "VERSION " + summary.mVersion + " " + httpConnection.getHeaderField("Content-Encoding"));
             long daysSince1970 = ((in.read() & 0xFF) << 16 ) | ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
             
             summary.setStartDaySince1970(daysSince1970);
@@ -1208,7 +1225,7 @@ public class TvBrowser extends FragmentActivity implements
             summary.setLevels(in.read());
             
             int frameCount = (in.read() & 0xFF << 8) | (in.read() & 0xFF);
-            //Log.d(TAG, " days since 1970 " + summary.getStartDaySince1970());
+            Log.d(TAG, " days since 1970 " + summary.getStartDaySince1970() + " " + frameCount);
             
             for(int i = 0; i < frameCount; i++) {
               int byteCount = in.read();
@@ -1309,7 +1326,7 @@ public class TvBrowser extends FragmentActivity implements
     }
     
     public ChannelFrame getChannelFrame(String channelID) {
-  //    Log.d(TAG, "CHANNELID " + channelID);
+      Log.d(TAG, "CHANNELID " + channelID + " " +mFrameList.size());
       for(ChannelFrame frame : mFrameList) {
         Log.d(TAG, " FRAME ID " + frame.mChannelID);
         if(frame.mChannelID.equals(channelID)) {
@@ -1511,6 +1528,15 @@ public class TvBrowser extends FragmentActivity implements
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.tv_browser, menu);
+    
+    //  Associate searchable configuration with the SearchView
+    SearchManager searchManager =
+           (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+    SearchView searchView =
+            (SearchView) menu.findItem(R.id.search).getActionView();
+    searchView.setSearchableInfo(
+            searchManager.getSearchableInfo(getComponentName()));
+    
     return true;
   }
 

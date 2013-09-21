@@ -21,4 +21,7 @@
     <string name="program_popup_mark">Sendung markieren</string>
     <string name="program_popup_unmark">Markierung löschen</string>
     <string name="program_add_calendar">Sendung in Kalendar eintragen</string>
+    <string name="search_description">Suche in Sendungstitel und Episodentitel</string>
+    <string name="today">heute</string>
+    <string name="tomorrow">morgen</string>
 </resources>

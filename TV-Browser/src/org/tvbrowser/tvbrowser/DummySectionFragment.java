@@ -87,7 +87,7 @@ public class DummySectionFragment extends Fragment {
       SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
       Set<String> channels = preferences.getStringSet(SettingConstants.SUBSCRIBED_CHANNELS, null);
       
-      if(channels != null) {
+      if(channels != null && !channels.isEmpty()) {
         ContentResolver cr = getActivity().getContentResolver();
         
         StringBuilder where = new StringBuilder(TvBrowserContentProvider.KEY_ID);
@@ -103,6 +103,7 @@ public class DummySectionFragment extends Fragment {
         where.append(")");
         
      //   Log.d(TAG, where.toString());
+        
         
         Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
         

@@ -1,5 +1,8 @@
 package org.tvbrowser.content;
 
+import java.util.HashMap;
+
+import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -20,6 +23,8 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final Uri CONTENT_URI_CHANNELS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/channels");
   public static final Uri CONTENT_URI_DATA = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/data");
   public static final Uri CONTENT_URI_DATA_WITH_CHANNEL = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/datachannels");
+    
+  public static final String KEY_ID = "_id";
   
   private TvBrowserDataBaseHelper mDataBaseHelper;
   
@@ -35,7 +40,9 @@ public class TvBrowserContentProvider extends ContentProvider {
   private static final int DATA_CHANNELS = 30;
   private static final int DATA_CHANNEL_ID = 31;
   
-  public static final String KEY_ID = "_id";
+  private static final int SEARCH = 100;
+  
+  private static final HashMap<String,String> SEARCH_PROJECTION_MAP;
   
   // Column names for group table
   public static final String GROUP_KEY_DATA_SERVICE_ID = "dataServiceID";
@@ -104,6 +111,14 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_DATE_PROG_ID = "dateProgID";
   public static final String DATA_KEY_MARKING_VALUES = "markingValues";
   
+  static {
+    SEARCH_PROJECTION_MAP = new HashMap<String, String>();
+    SEARCH_PROJECTION_MAP.put(SearchManager.SUGGEST_COLUMN_TEXT_1, DATA_KEY_TITLE + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
+    SEARCH_PROJECTION_MAP.put(SearchManager.SUGGEST_COLUMN_TEXT_2, DATA_KEY_EPISODE_TITLE + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_2);
+    SEARCH_PROJECTION_MAP.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID,KEY_ID + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
+    SEARCH_PROJECTION_MAP.put("_id", KEY_ID + " AS " + "_id");
+  }
+  
   private static final UriMatcher uriMatcher;
   
   // Allocate the UriMatcher object, where a URI ending in 'earthquakes' will correspond to a request
@@ -118,6 +133,10 @@ public class TvBrowserContentProvider extends ContentProvider {
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "data/#", DATA_ID);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "datachannels", DATA_CHANNELS);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "datachannels/#", DATA_CHANNEL_ID);
+    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", SearchManager.SUGGEST_URI_PATH_QUERY, SEARCH);
+    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", SearchManager.SUGGEST_URI_PATH_QUERY + "/*", SEARCH);
+    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", SearchManager.SUGGEST_URI_PATH_SHORTCUT, SEARCH);
+    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", SearchManager.SUGGEST_URI_PATH_SHORTCUT + "/*", SEARCH);
   }
 
   @Override
@@ -167,7 +186,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       case DATA_ID: return "vnd.andorid.cursor.item/vnd.tvbrowser.data";
       case DATA_CHANNELS: return "vnd.andorid.cursor.dir/vnd.tvbrowser.datachannels";
       case DATA_CHANNEL_ID: return "vnd.andorid.cursor.item/vnd.tvbrowser.datachannels";
-      
+      case SEARCH: return SearchManager.SUGGEST_MIME_TYPE;
       
       default: throw new IllegalArgumentException("Unsupported URI: " + uri);
     }
@@ -254,9 +273,14 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     // If no sort order is specified, sort by date / time
     String orderBy = null;
-    
+    Log.d("TVB", String.valueOf(uri));
     // If this is a row query, limit the result set to teh pased in row.
     switch(uriMatcher.match(uri)) {
+      case SEARCH: qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE \"%" + uri.getPathSegments().get(1) + "%\" OR " + DATA_KEY_EPISODE_TITLE + " LIKE \"%" +  uri.getPathSegments().get(1) + "%\") AND " + DATA_KEY_STARTTIME + " >= " + System.currentTimeMillis());
+                   qb.setProjectionMap(SEARCH_PROJECTION_MAP);
+                   qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
+                   orderBy = DATA_KEY_STARTTIME;
+                   break;
       case GROUP_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
       case GROUPS: qb.setTables(TvBrowserDataBaseHelper.GROUPS_TABLE);
                    orderBy = GROUP_KEY_GROUP_ID;break;
@@ -266,7 +290,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       case DATA_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
       case DATA: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
                     orderBy = CHANNEL_KEY_CHANNEL_ID;break;
-      case DATA_CHANNEL_ID: qb.appendWhere(TvBrowserDataBaseHelper.DATA_TABLE + "." + KEY_ID + "=" + uri.getPathSegments().get(1));
+      case DATA_CHANNEL_ID: qb.appendWhere(TvBrowserDataBaseHelper.DATA_TABLE + "." + KEY_ID + "=" + uri.getPathSegments().get(1) + " AND ");
       case DATA_CHANNELS: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + TvBrowserDataBaseHelper.CHANNEL_TABLE);
                     orderBy = CHANNEL_KEY_ORDER_NUMBER + " , " + CHANNEL_KEY_CHANNEL_ID;
                     qb.appendWhere(TvBrowserDataBaseHelper.CHANNEL_TABLE + "." + KEY_ID + " = " + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID);
@@ -299,16 +323,19 @@ public class TvBrowserContentProvider extends ContentProvider {
       default: break;
     }
     
-    if(sortOrder != null) {
+    if(sortOrder != null && sortOrder.trim().length() > 0) {
       orderBy = sortOrder;
     }
     
-    if(!orderBy.contains("NOCASE") && !orderBy.contains("COLLATE")) {
+    if(orderBy != null && !orderBy.contains("NOCASE") && !orderBy.contains("COLLATE")) {
       orderBy += " COLLATE NOCASE";
     }
+   /* else if (orderBy == null) {
+      orderBy = " COLLATE NOCASE";
+    }*/
     
     
-   // Log.d("TVB", qb.buildQuery(projection, selection, null, null, sortOrder, null));
+    Log.d("TVB", qb.buildQuery(projection, selection, null, null, sortOrder, null));
     // Apply the query to the underling database.
     Cursor c = qb.query(database, projection, selection, selectionArgs, null, null, orderBy);
     

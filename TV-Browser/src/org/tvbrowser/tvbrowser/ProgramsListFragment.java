@@ -105,11 +105,12 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
         TvBrowserContentProvider.DATA_KEY_ENDTIME,
         TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
         TvBrowserContentProvider.DATA_KEY_TITLE,
+        TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
     };
     
     // Create a new Adapter an bind it to the List View
     adapter = new SimpleCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_list_entries,null,
-        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL},0);
+        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL},0);
     adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
       @Override
       public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
@@ -118,31 +119,40 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
           long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
           
           TextView text = (TextView)view;
-          text.setText(DateFormat.getDateInstance(DateFormat.SHORT).format(new Date(date)));
+          SimpleDateFormat day = new SimpleDateFormat("EEE", Locale.getDefault());
+          
+          Date progDate = new Date(date);
+          
+          TextView startDay = (TextView)((View)view.getParent()).findViewById(R.id.startDayLabelPL);
+          startDay.setText(day.format(progDate));
+          
+          long dateDay = date / 1000 / 60 / 60 / 24;
+          long todayDay = System.currentTimeMillis() / 1000 / 60 / 60 / 24;
+          
+          if(dateDay == todayDay) {
+            startDay.setText(getResources().getText(R.string.today));
+          }
+          else if(dateDay == todayDay + 1) {
+            startDay.setText(getResources().getText(R.string.tomorrow));
+          }
+          
+          text.setText(DateFormat.getDateInstance(DateFormat.SHORT).format(progDate));
 
           String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
           
           if(value != null && value.trim().length() > 0) {
-            ((LinearLayout)view.getParent()).setBackgroundResource(R.color.mark_color);
+            ((LinearLayout)view.getParent().getParent()).setBackgroundResource(R.color.mark_color);
           }
           else {
-            ((LinearLayout)view.getParent()).setBackgroundResource(android.R.drawable.list_selector_background);
+            ((LinearLayout)view.getParent().getParent()).setBackgroundResource(android.R.drawable.list_selector_background);
             //((LinearLayout)view.getParent()).setBackgroundColor(view.getBackground().get);
           }
           
           return true;
         }
         else if(columnIndex == 2) {
-          int channelID = cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
-          
-          Cursor channel = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelID), null, null, null, null);
-        //  Log.d("TVB", " CHANNELCURSOR " + channel.getCount());
-          if(channel.getCount() > 0) {
-            channel.moveToFirst();
-            TextView text = (TextView)view;
-            text.setText(channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
-          }
-          channel.close();
+          TextView text = (TextView)view;
+          text.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
           
           return true;
         }
@@ -181,6 +191,25 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
             
             text.setTextColor(DEFAULT_TEXT_COLOR);
             //text.setTextColor(getActivity().getResources().getColor(android.R.color.primary_text_dark));
+          }
+          
+          //text.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
+           /*         
+          if(!cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
+            TextView episode = new TextView(text.getContext());
+            episode.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)));
+            
+            ((LinearLayout)text.getParent()).addView(episode);
+          }*/
+          
+         // return true;
+        }
+        else if(columnIndex == 9) {
+          if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
+            view.setVisibility(View.GONE);
+          }
+          else {
+            view.setVisibility(View.VISIBLE);
           }
         }
                 
@@ -488,6 +517,8 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
         TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
         TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,
         TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
+        TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
+        TvBrowserContentProvider.CHANNEL_KEY_NAME,
     };
     
     String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis();

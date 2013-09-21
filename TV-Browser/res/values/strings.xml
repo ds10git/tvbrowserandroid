@@ -26,4 +26,8 @@
     <string name="program_popup_mark">Mark program</string>
     <string name="program_popup_unmark">Unmark program</string>
     <string name="program_add_calendar">Add program to calendar</string>
+    <string name="search_description">Search program titles and episode titles</string>
+    <string name="search_title">TV-Browser search</string>
+    <string name="today">today</string>
+    <string name="tomorrow">tomorrow</string>
 </resources>

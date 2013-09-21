@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.tvbrowser.tvbrowser"
-    android:versionCode="4"
-    android:versionName="0.1.8alpha" >
+    android:versionCode="7"
+    android:versionName="0.1.2alpha" >
 
     <uses-sdk
         android:minSdkVersion="14"
@@ -17,6 +17,8 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:theme="@style/AppTheme" >
+        <meta-data android:name="android.app.default_searchable"
+            android:value="org.tvbrowser.tvbrowser.TvBrowserSearchResults"/>
         <provider android:name="org.tvbrowser.content.TvBrowserContentProvider"
             android:authorities="org.tvbrowser.tvbrowsercontentprovider" />
         <activity
@@ -27,6 +29,19 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+			<meta-data android:name="android.app.searchable"
+            android:resource="@xml/searchable" />
+        </activity>
+        
+        <activity android:name="org.tvbrowser.tvbrowser.TvBrowserSearchResults"
+            android:label="TV-Browser Search"
+            android:launchMode="singleTop">
+            <intent-filter>
+                <action android:name="android.intent.action.SEARCH"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+            </intent-filter>
+            <meta-data android:name="android.app.searchable"
+                android:resource="@xml/searchable"/>
         </activity>
     </application>
 
