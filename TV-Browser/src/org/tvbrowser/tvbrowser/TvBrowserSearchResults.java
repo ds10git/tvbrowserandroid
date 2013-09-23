@@ -32,8 +32,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -43,7 +43,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
 
   private static String QUERY_EXTRA_KEY = "QUERY_EXTRA_KEY";
   private static String QUERY_EXTRA_ID_KEY = "QUERY_EXTRA_ID_KEY";
-
+//
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -105,10 +105,10 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
           String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
           
           if(value != null && value.trim().length() > 0) {
-            ((LinearLayout)view.getParent().getParent()).setBackgroundResource(R.color.mark_color);
+            ((RelativeLayout)view.getParent()).setBackgroundResource(R.color.mark_color);
           }
           else {
-            ((LinearLayout)view.getParent().getParent()).setBackgroundResource(android.R.drawable.list_selector_background);
+            ((RelativeLayout)view.getParent()).setBackgroundResource(android.R.drawable.list_selector_background);
             //((LinearLayout)view.getParent()).setBackgroundColor(view.getBackground().get);
           }
           

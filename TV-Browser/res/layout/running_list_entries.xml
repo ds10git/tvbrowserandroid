@@ -1,46 +1,43 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:id="@+id/running_layout"
     >
-    <LinearLayout android:layout_width="wrap_content"
-        android:layout_height="fill_parent"
-        android:orientation="vertical"
-        android:paddingRight="5dp"
-        >
-	    <TextView android:id="@+id/startTimeLabel"
-	        android:textSize="16sp"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        />
-	    <TextView android:id="@+id/endTimeLabel"
-	        android:textSize="16sp"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        />        
-    </LinearLayout>
-    <LinearLayout android:layout_width="fill_parent"
+    <TextView android:id="@+id/startTimeLabel"
+        android:textSize="16sp"
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:paddingRight="5dp"
-        >
-	    <TextView android:id="@+id/channelLabel"
-	        android:textSize="16sp"
-	        android:textStyle="italic"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"
-	        android:paddingRight="5dp"/>
-	    <TextView android:id="@+id/titleLabel"
-	        android:textSize="16sp"
-	        android:textStyle="bold"
-	        android:layout_width="fill_parent"
-	        android:layout_height="wrap_content"/>
-	    <TextView android:id="@+id/episodeLabel"
-	        android:textSize="14sp"
-	        android:textStyle="normal"
-	        android:layout_width="wrap_content"
-	        android:layout_height="wrap_content"/>
-    </LinearLayout>
-</LinearLayout>
+        android:layout_alignParentTop="true"
+        android:paddingRight="5sp"
+        />
+    <TextView android:id="@+id/endTimeLabel"
+        android:textSize="16sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@id/startTimeLabel"
+        android:paddingRight="5sp"
+        />        
+    <TextView android:id="@+id/channelLabel"
+        android:textSize="16sp"
+        android:textStyle="italic"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/startTimeLabel"
+        android:layout_alignParentTop="true"/>
+    <TextView android:id="@+id/titleLabel"
+        android:textSize="16sp"
+        android:textStyle="bold"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/endTimeLabel"
+    	android:layout_below="@id/channelLabel" />
+    <TextView android:id="@+id/episodeLabel"
+        android:textSize="14sp"
+        android:textStyle="normal"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/endTimeLabel"
+        android:layout_below="@id/titleLabel"/>
+</RelativeLayout>

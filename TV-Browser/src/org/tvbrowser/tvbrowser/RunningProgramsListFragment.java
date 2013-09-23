@@ -30,16 +30,15 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.LinearLayout;
 import android.widget.ListView;
-import android.widget.PopupMenu;
+import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
 
 public class RunningProgramsListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+  private static final String WHERE_CLAUSE_KEY = "WHERE_CLAUSE_KEY";
   SimpleCursorAdapter adapter;
   
   private Handler handler = new Handler();
@@ -82,10 +81,26 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   }
   
   @Override
+  public void onSaveInstanceState(Bundle outState) {
+    Log.d("test", "SAVE");
+    
+    
+    outState.putInt(WHERE_CLAUSE_KEY, mWhereClauseID);
+    super.onSaveInstanceState(outState);
+  }
+    
+  @Override
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     
-    mWhereClauseID = R.id.now_button;
+    Log.d("test", "bundle " + savedInstanceState);
+    
+    if(savedInstanceState != null) {
+      mWhereClauseID = savedInstanceState.getInt(WHERE_CLAUSE_KEY,R.id.now_button);
+    }
+    else {
+      mWhereClauseID = R.id.now_button;
+    }
     
     registerForContextMenu(getListView());
     
@@ -136,10 +151,10 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
           
           if(value != null && value.trim().length() > 0) {
-            ((LinearLayout)view.getParent().getParent()).setBackgroundResource(R.color.mark_color);
+            ((RelativeLayout)view.getParent()).setBackgroundResource(R.color.mark_color);
           }
           else {
-            ((LinearLayout)view.getParent().getParent()).setBackgroundResource(android.R.drawable.list_selector_background);
+            ((RelativeLayout)view.getParent()).setBackgroundResource(android.R.drawable.list_selector_background);
             //((LinearLayout)view.getParent()).setBackgroundColor(view.getBackground().get);
           }
           
@@ -153,9 +168,11 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           
           if(end <= System.currentTimeMillis()) {
             text.setTextColor(Color.rgb(200, 200, 200));
+            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.episodeLabel)).setTextColor(Color.rgb(200, 200, 200));
           }
           else if(System.currentTimeMillis() >= start && System.currentTimeMillis() <= end) {
             text.setTextColor(getActivity().getResources().getColor(R.color.running_color));
+            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.episodeLabel)).setTextColor(getActivity().getResources().getColor(R.color.running_color));
           }
           else {
             int[] attrs = new int[] { android.R.attr.textColorSecondary };
@@ -164,8 +181,9 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
             a.recycle();
             
             text.setTextColor(DEFAULT_TEXT_COLOR);
+            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.episodeLabel)).setTextColor(DEFAULT_TEXT_COLOR);
           }
-          
+          //
         }
         else if(columnIndex == 8) {
           if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
@@ -191,7 +209,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     mKeepRunning = false;
   }
-  
+    
   private void createUpdateThread() {
     mUpdateThread = new Thread() {
       public void run() {
@@ -358,7 +376,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   @Override
   public boolean onContextItemSelected(MenuItem item) {
     // TODO Auto-generated method stub
-    
+    Log.d("test", "clickde");
     long programID = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).id;
     
     Cursor info = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null,null);

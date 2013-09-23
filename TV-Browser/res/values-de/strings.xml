@@ -9,7 +9,7 @@
     <string name="update_complete">Datenupdate abgeschlossen</string>
     <string name="title_section1">Laufende Sendungen</string>
     <string name="title_section2">Sendungsliste</string>
-    <string name="title_section3">Favoriten</string>
+    <string name="title_section3">Programmtabelle</string>
     <string name="button_now">Jetzt</string>
     <string name="button_all_channels">Alle</string>
     <string name="no_channels">Keine Sender vorhanden.</string>

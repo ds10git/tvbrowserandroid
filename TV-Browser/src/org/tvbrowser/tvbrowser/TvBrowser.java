@@ -13,7 +13,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -29,12 +28,10 @@ import org.tvbrowser.settings.SettingConstants;
 import android.app.ActionBar;
 import android.app.AlertDialog;
 import android.app.DownloadManager;
-import android.app.SearchableInfo;
 import android.app.DownloadManager.Request;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
-import android.content.ComponentName;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -53,13 +50,10 @@ import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
-import android.text.InputFilter.LengthFilter;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -69,7 +63,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-
+//
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
   private IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
@@ -127,6 +121,7 @@ public class TvBrowser extends FragmentActivity implements
     // Set up the ViewPager with the sections adapter.
     mViewPager = (ViewPager) findViewById(R.id.pager);
     mViewPager.setAdapter(mSectionsPagerAdapter);
+    mViewPager.setOffscreenPageLimit(2);
 
     // When swiping between different sections, select the corresponding
     // tab. We can also use ActionBar.Tab#select() to do this if we have
@@ -153,7 +148,7 @@ public class TvBrowser extends FragmentActivity implements
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.YEAR, 2013);
     cal.set(Calendar.MONTH, Calendar.SEPTEMBER);
-    cal.set(Calendar.DAY_OF_MONTH, 24);
+    cal.set(Calendar.DAY_OF_MONTH, 29);
     
     if(cal.getTimeInMillis() < System.currentTimeMillis()) {    
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -1563,7 +1558,7 @@ public class TvBrowser extends FragmentActivity implements
    * of the sections/tabs/pages.
    */
   public class SectionsPagerAdapter extends FragmentPagerAdapter {
-
+    
     public SectionsPagerAdapter(FragmentManager fm) {
       super(fm);
     }
@@ -1573,17 +1568,26 @@ public class TvBrowser extends FragmentActivity implements
       // getItem is called to instantiate the fragment for the given page.
       // Return a DummySectionFragment (defined as a static inner class
       // below) with the page number as its lone argument.
-      Fragment fragment = new DummySectionFragment();
+      Fragment fragment = null;
+      
+      if(position < 2) {
+        fragment = new DummySectionFragment();
+      }
+      else if(position == 2) {
+        fragment = new ProgramTableFragment();
+      }
+      
       Bundle args = new Bundle();
       args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
       fragment.setArguments(args);
+      
       return fragment;
     }
 
     @Override
     public int getCount() {
       // Show 3 total pages.
-      return 2;
+      return 3;
     }
 
     @Override

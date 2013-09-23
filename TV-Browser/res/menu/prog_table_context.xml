@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+   <group android:id="@+id/prog_program_popup_menu">
+       <item android:id="@+id/prog_mark_item"
+           android:title="@string/program_popup_mark"/>
+       <item android:id="@+id/prog_unmark_item"
+           android:title="@string/program_popup_unmark"/>
+       <item android:id="@+id/prog_create_calendar_entry"
+           android:title="@string/program_add_calendar"/>
+   </group>
+</menu>

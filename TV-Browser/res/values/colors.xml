@@ -2,4 +2,5 @@
 <resources>
     <color name="mark_color">#6000FF00</color>
     <color name="running_color">#000077</color>
+    <color name="light_gray">#AAAAAA</color>
 </resources>

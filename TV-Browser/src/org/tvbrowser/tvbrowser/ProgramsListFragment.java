@@ -22,7 +22,6 @@ import android.provider.CalendarContract.Events;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
-import android.text.InputType;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -30,11 +29,10 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TableLayout;
-import android.widget.TableLayout.LayoutParams;
 import android.widget.TableRow;
 import android.widget.TextView;
 
@@ -141,10 +139,10 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
           String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
           
           if(value != null && value.trim().length() > 0) {
-            ((LinearLayout)view.getParent().getParent()).setBackgroundResource(R.color.mark_color);
+            ((RelativeLayout)view.getParent()).setBackgroundResource(R.color.mark_color);
           }
           else {
-            ((LinearLayout)view.getParent().getParent()).setBackgroundResource(android.R.drawable.list_selector_background);
+            ((RelativeLayout)view.getParent()).setBackgroundResource(android.R.drawable.list_selector_background);
             //((LinearLayout)view.getParent()).setBackgroundColor(view.getBackground().get);
           }
           
@@ -192,7 +190,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
             text.setTextColor(DEFAULT_TEXT_COLOR);
             //text.setTextColor(getActivity().getResources().getColor(android.R.color.primary_text_dark));
           }
-          
+          //
           //text.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
            /*         
           if(!cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
@@ -231,7 +229,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   @Override
   public boolean onContextItemSelected(MenuItem item) {
     // TODO Auto-generated method stub
-    
+    Log.d("test", "clickde");
     
     long programID = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).id;
     
