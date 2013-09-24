@@ -403,21 +403,19 @@ public class ProgramTableFragment extends Fragment {
     };
     mUpdateThread.setPriority(Thread.MIN_PRIORITY);
   }
-  
+    
   public void updateView(LayoutInflater inflater, ViewGroup container) {
-    Log.d("test", "v " +String.valueOf(getView()));
-    HorizontalScrollView horizontal = new HorizontalScrollView(container.getContext());
+    Log.d("neu", "hier");
+    container.removeAllViews();
+    View programTable = inflater.inflate(R.layout.program_table_layout, container);
     
-    LinearLayout universe = new LinearLayout(horizontal.getContext());
-    universe.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-    universe.setOrientation(LinearLayout.VERTICAL);
+    Calendar cal = Calendar.getInstance();
+    cal.set(2013, Calendar.DECEMBER, 31);
+    Log.d("neu", String.valueOf(cal.getTimeInMillis()));
     
-    LinearLayout channelBar = new LinearLayout(universe.getContext());
-    channelBar.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-    channelBar.setOrientation(LinearLayout.HORIZONTAL);
+    cal.add(Calendar.DAY_OF_YEAR, 1);
+    Log.d("neu", " x " + String.valueOf(cal.get(Calendar.YEAR)));
     
-    universe.addView(channelBar);
-    horizontal.addView(universe);
     
     long day = System.currentTimeMillis() / 1000 / 60 / 60 / 24;
     long dayStart = day * 24 * 60 * 60 * 1000;
@@ -430,219 +428,54 @@ public class ProgramTableFragment extends Fragment {
     mCurrentDay = day;
     
     long dayEnd = (day+1) * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000 - TimeZone.getDefault().getOffset(dayStart);
-    
-    //Log.d("test", new Date(dayStart) + " " + new Date(dayEnd));
-    
+        
     String where = TvBrowserContentProvider.DATA_KEY_STARTTIME +  " >= " + dayStart + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " < " + dayEnd;
+          
+    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
+    Set<String> channelSet = preferences.getStringSet(SettingConstants.SUBSCRIBED_CHANNELS, null);
     
+    if(channelSet != null) {
+      StringBuilder where3 = new StringBuilder(TvBrowserContentProvider.KEY_ID);
+      where3.append(" IN (");
 
-    
-    
-    
-      ScrollView vertical = new ScrollView(universe.getContext());
-     // horizontal.setBackgroundColor(Color.RED);
-      universe.addView(vertical);
+      for(String key : channelSet) {
+        where3.append(key);
+        where3.append(", ");
+      }
       
-      LinearLayout main = new LinearLayout(vertical.getContext());
-      main.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      main.setOrientation(LinearLayout.VERTICAL);
-      main.setTag("MAIN_LAYOUT");
+      where3.delete(where3.length()-2,where3.length());
       
-      vertical.addView(main);
-      
-      View timeParent = inflater.inflate(R.layout.time_label, channelBar);
-      TextView time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("");
-      
-      channelBar.addView(inflater.inflate(R.layout.separator_line, channelBar, false));
-      
-      LinearLayout zero_two = new LinearLayout(main.getContext());
-      zero_two.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      zero_two.setOrientation(LinearLayout.HORIZONTAL);
-      zero_two.setTag("zwero_two");
-      
-      timeParent = inflater.inflate(R.layout.time_label, zero_two);
-      time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("00");
-      
-      LinearLayout two_four = new LinearLayout(main.getContext());
-      two_four.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      two_four.setOrientation(LinearLayout.HORIZONTAL);
-      two_four.setBackgroundColor(Color.rgb(220, 220, 220));
-
-      timeParent = inflater.inflate(R.layout.time_label, two_four);
-      time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("02");
-      
-      LinearLayout four_six = new LinearLayout(main.getContext());
-      four_six.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      four_six.setOrientation(LinearLayout.HORIZONTAL);
-      
-      timeParent = inflater.inflate(R.layout.time_label, four_six);
-      time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("04");
-      
-      LinearLayout six_eight = new LinearLayout(main.getContext());
-      six_eight.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      six_eight.setOrientation(LinearLayout.HORIZONTAL);
-      six_eight.setBackgroundColor(Color.rgb(220, 220, 220));
-      
-      timeParent = inflater.inflate(R.layout.time_label, six_eight);
-      time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("06");
-      
-      LinearLayout eight_ten = new LinearLayout(main.getContext());
-      eight_ten.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      eight_ten.setOrientation(LinearLayout.HORIZONTAL);
-      
-      timeParent = inflater.inflate(R.layout.time_label, eight_ten);
-      time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("08");
-      
-      LinearLayout ten_twelfe = new LinearLayout(main.getContext());
-      ten_twelfe.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      ten_twelfe.setOrientation(LinearLayout.HORIZONTAL);
-      ten_twelfe.setBackgroundColor(Color.rgb(220, 220, 220));
-      
-      timeParent = inflater.inflate(R.layout.time_label, ten_twelfe);
-      time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("10");
-      
-      LinearLayout twefle_fourteen = new LinearLayout(main.getContext());
-      twefle_fourteen.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      twefle_fourteen.setOrientation(LinearLayout.HORIZONTAL);
-      
-      timeParent = inflater.inflate(R.layout.time_label, twefle_fourteen);
-      time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("12");
-      
-      LinearLayout fourteen_sixteen = new LinearLayout(main.getContext());
-      fourteen_sixteen.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      fourteen_sixteen.setOrientation(LinearLayout.HORIZONTAL);
-      fourteen_sixteen.setBackgroundColor(Color.rgb(220, 220, 220));
-      
-      timeParent = inflater.inflate(R.layout.time_label, fourteen_sixteen);
-      time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("14");
-      
-      LinearLayout sixteen_eighteen = new LinearLayout(main.getContext());
-      sixteen_eighteen.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      sixteen_eighteen.setOrientation(LinearLayout.HORIZONTAL);
-      
-      timeParent = inflater.inflate(R.layout.time_label, sixteen_eighteen);
-      time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("16");
-      
-      LinearLayout eighteen_twenty = new LinearLayout(main.getContext());
-      eighteen_twenty.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      eighteen_twenty.setOrientation(LinearLayout.HORIZONTAL);
-      eighteen_twenty.setBackgroundColor(Color.rgb(220, 220, 220));
-      
-      timeParent = inflater.inflate(R.layout.time_label, eighteen_twenty);
-      time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("18");
-      
-      LinearLayout twenty_twentytwo = new LinearLayout(main.getContext());
-      twenty_twentytwo.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      twenty_twentytwo.setOrientation(LinearLayout.HORIZONTAL);
-
-      timeParent = inflater.inflate(R.layout.time_label, twenty_twentytwo);
-      time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("20");
-      
-      LinearLayout twentytwo_twentyfour = new LinearLayout(main.getContext());
-      twentytwo_twentyfour.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      twentytwo_twentyfour.setOrientation(LinearLayout.HORIZONTAL);
-      twentytwo_twentyfour.setBackgroundColor(Color.rgb(220, 220, 220));
-      
-      timeParent = inflater.inflate(R.layout.time_label, twentytwo_twentyfour);
-      time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("22");
-
-      LinearLayout twentyfour_twentysix = new LinearLayout(main.getContext());
-      twentyfour_twentysix.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      twentyfour_twentysix.setOrientation(LinearLayout.HORIZONTAL);
-      
-      timeParent = inflater.inflate(R.layout.time_label, twentyfour_twentysix);
-      time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("00");
-
-      LinearLayout twentysix_twentyeight = new LinearLayout(main.getContext());
-      twentysix_twentyeight.setLayoutParams(new LayoutParams(android.widget.LinearLayout.LayoutParams.WRAP_CONTENT, LayoutParams.WRAP_CONTENT));
-      twentysix_twentyeight.setOrientation(LinearLayout.HORIZONTAL);
-      twentysix_twentyeight.setBackgroundColor(Color.rgb(220, 220, 220));
-      
-      timeParent = inflater.inflate(R.layout.time_label, twentysix_twentyeight);
-      time = (TextView)timeParent.findViewById(R.id.timeLabel);
-      time.setText("02");
-
-      main.addView(zero_two);
-      main.addView(two_four);
-      main.addView(four_six);
-      main.addView(six_eight);
-      main.addView(eight_ten);
-      main.addView(ten_twelfe);
-      main.addView(twefle_fourteen);
-      main.addView(fourteen_sixteen);
-      main.addView(sixteen_eighteen);
-      main.addView(eighteen_twenty);
-      main.addView(twenty_twentytwo);
-      main.addView(twentytwo_twentyfour);
-      main.addView(twentyfour_twentysix);
-      main.addView(twentysix_twentyeight);
-      
-      
-      zero_two.addView(inflater.inflate(R.layout.separator_line, zero_two, false));
-      two_four.addView(inflater.inflate(R.layout.separator_line, two_four, false));
-      four_six.addView(inflater.inflate(R.layout.separator_line, four_six, false));
-      six_eight.addView(inflater.inflate(R.layout.separator_line, six_eight, false));
-      eight_ten.addView(inflater.inflate(R.layout.separator_line, eight_ten, false));
-      ten_twelfe.addView(inflater.inflate(R.layout.separator_line, ten_twelfe, false));
-      twefle_fourteen.addView(inflater.inflate(R.layout.separator_line, twefle_fourteen, false));
-      fourteen_sixteen.addView(inflater.inflate(R.layout.separator_line, fourteen_sixteen, false));
-      sixteen_eighteen.addView(inflater.inflate(R.layout.separator_line, sixteen_eighteen, false));
-      eighteen_twenty.addView(inflater.inflate(R.layout.separator_line, eighteen_twenty, false));
-      twenty_twentytwo.addView(inflater.inflate(R.layout.separator_line, twenty_twentytwo, false));
-      twentytwo_twentyfour.addView(inflater.inflate(R.layout.separator_line, twentytwo_twentyfour, false));
-      twentyfour_twentysix.addView(inflater.inflate(R.layout.separator_line, twentyfour_twentysix, false));
-      twentysix_twentyeight.addView(inflater.inflate(R.layout.separator_line, twentysix_twentyeight, false));
-      
-      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-      Set<String> channelSet = preferences.getStringSet(SettingConstants.SUBSCRIBED_CHANNELS, null);
-      
-      if(channelSet != null) {
-        StringBuilder where3 = new StringBuilder(TvBrowserContentProvider.KEY_ID);
-        where3.append(" IN (");
-
-        for(String key : channelSet) {
-          where3.append(key);
-          where3.append(", ");
-        }
-        
-        where3.delete(where3.length()-2,where3.length());
-        
-        where3.append(")");
+      where3.append(")");
       
       Cursor channels = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, where3.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
       
       if(channels.getCount() > 0) {
         channels.moveToFirst();
         
+        LinearLayout channelBar = (LinearLayout)programTable.findViewById(R.id.program_table_channel_bar);
+        
+        LinearLayout zero_two = (LinearLayout)programTable.findViewById(R.id.zero_two);
+        LinearLayout two_four = (LinearLayout)programTable.findViewById(R.id.two_four);
+        LinearLayout four_six = (LinearLayout)programTable.findViewById(R.id.four_six);
+        LinearLayout six_eight = (LinearLayout)programTable.findViewById(R.id.six_eight);
+        LinearLayout eight_ten = (LinearLayout)programTable.findViewById(R.id.eight_ten);
+        LinearLayout ten_twelfe = (LinearLayout)programTable.findViewById(R.id.ten_twelfe);
+        LinearLayout twefle_fourteen = (LinearLayout)programTable.findViewById(R.id.twefle_fourteen);
+        LinearLayout fourteen_sixteen = (LinearLayout)programTable.findViewById(R.id.fourteen_sixteen);
+        LinearLayout sixteen_eighteen = (LinearLayout)programTable.findViewById(R.id.sixteen_eighteen);
+        LinearLayout eighteen_twenty = (LinearLayout)programTable.findViewById(R.id.eighteen_twenty);
+        LinearLayout twenty_twentytwo = (LinearLayout)programTable.findViewById(R.id.twenty_twentytwo);
+        LinearLayout twentytwo_twentyfour = (LinearLayout)programTable.findViewById(R.id.twentytwo_twentyfour);
+        LinearLayout twentyfour_twentysix = (LinearLayout)programTable.findViewById(R.id.twentyfour_twentysix);
+        LinearLayout twentysix_twentyeight = (LinearLayout)programTable.findViewById(R.id.twentysix_twentyeight);
+        
         do {
           String name = channels.getString(1);
           
-          int width = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, getResources().getDisplayMetrics());
-          
-          TextView view = new TextView(channelBar.getContext());
-          view.setLayoutParams(new LayoutParams(width, LayoutParams.MATCH_PARENT));
-          view.setText(name);
-          view.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-          view.setGravity(Gravity.CENTER_HORIZONTAL);
-          view.setTypeface(null,Typeface.BOLD);
-          view.setBackgroundColor(Color.rgb(120, 120, 120));
-          view.setTextColor(Color.WHITE);
-          
-          channelBar.addView(view);
+          TextView text = (TextView)inflater.inflate(R.layout.channel_label, channelBar,false);
+          text.setText(name);
+          channelBar.addView(text);
+
           channelBar.addView(inflater.inflate(R.layout.separator_line, channelBar, false));
           
           String where2 = where + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channels.getInt(0);
@@ -703,36 +536,7 @@ public class ProgramTableFragment extends Fragment {
       }
       
       channels.close();
-      /*
-      Cursor cursor = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, null, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
-      cursor.moveToFirst();
-      
-      if(cursor.getCount() > 0) {
-      
-      do {
-
-
-      
-      
-      /*
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      
-      cursor.close();*/
     }
-    
-    container.removeAllViews();
-    container.addView(horizontal);
   }
   
   

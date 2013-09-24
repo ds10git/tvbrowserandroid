@@ -10,6 +10,7 @@
     <string name="title_section1">Running programs</string>
     <string name="title_section2">Program list</string>
     <string name="title_section3">Program table</string>
+    <string name="title_section4">Favorites</string>
     <string name="button_now">Now</string>
     <string name="button_all_channels">All</string>
     <string name="button_6">6:00</string>
@@ -30,4 +31,12 @@
     <string name="search_title">TV-Browser search</string>
     <string name="today">today</string>
     <string name="tomorrow">tomorrow</string>
+    <string name="add">Add</string>
+    <string name="favorite_name">Name:</string>
+    <string name="favorite_name_hint">Enter name (optional)</string>
+    <string name="favorite_search">Search for:</string>
+    <string name="favorite_search_hint">Enter text to search for</string>
+    <string name="favorite_only_title">Search only in title</string>
+    <string name="favorite_edit">Edit Favorite</string>
+    <string name="favorite_delete">Delete Favorite</string>
 </resources>

@@ -35,7 +35,7 @@
     	android:layout_below="@id/channelLabel" />
     <TextView android:id="@+id/episodeLabel"
         android:textSize="16sp"
-        android:textStyle="normal"
+        android:textStyle="italic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/endTimeLabel"

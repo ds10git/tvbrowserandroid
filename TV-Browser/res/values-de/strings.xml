@@ -10,6 +10,7 @@
     <string name="title_section1">Laufende Sendungen</string>
     <string name="title_section2">Sendungsliste</string>
     <string name="title_section3">Programmtabelle</string>
+    <string name="title_section4">Lieblingssendungen</string>
     <string name="button_now">Jetzt</string>
     <string name="button_all_channels">Alle</string>
     <string name="no_channels">Keine Sender vorhanden.</string>
@@ -24,4 +25,12 @@
     <string name="search_description">Suche in Sendungstitel und Episodentitel</string>
     <string name="today">heute</string>
     <string name="tomorrow">morgen</string>
+    <string name="add">Hinzufügen</string>
+    <string name="favorite_name">Name:</string>
+    <string name="favorite_name_hint">Namen eingeben (optional)</string>
+    <string name="favorite_search">Suchen nach:</string>
+    <string name="favorite_search_hint">Suchbegriff eingeben</string>
+    <string name="favorite_only_title">Nur im Titel suchen</string>
+    <string name="favorite_edit">Lieblingssendung bearbeiten</string>
+    <string name="favorite_delete">Lieblingssendung löschen</string>
 </resources>

@@ -121,7 +121,7 @@ public class TvBrowser extends FragmentActivity implements
     // Set up the ViewPager with the sections adapter.
     mViewPager = (ViewPager) findViewById(R.id.pager);
     mViewPager.setAdapter(mSectionsPagerAdapter);
-    mViewPager.setOffscreenPageLimit(2);
+    mViewPager.setOffscreenPageLimit(3);
 
     // When swiping between different sections, select the corresponding
     // tab. We can also use ActionBar.Tab#select() to do this if we have
@@ -1576,6 +1576,9 @@ public class TvBrowser extends FragmentActivity implements
       else if(position == 2) {
         fragment = new ProgramTableFragment();
       }
+      else if(position == 3) {
+        fragment = new FavoritesFragment();
+      }
       
       Bundle args = new Bundle();
       args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
@@ -1587,7 +1590,7 @@ public class TvBrowser extends FragmentActivity implements
     @Override
     public int getCount() {
       // Show 3 total pages.
-      return 3;
+      return 4;
     }
 
     @Override
@@ -1600,6 +1603,8 @@ public class TvBrowser extends FragmentActivity implements
           return getString(R.string.title_section2).toUpperCase(l);
         case 2:
           return getString(R.string.title_section3).toUpperCase(l);
+        case 3:
+          return getString(R.string.title_section4).toUpperCase(l);
       }
       return null;
     }

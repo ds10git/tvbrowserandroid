@@ -46,6 +46,8 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   
   private long mChannelID;
   
+  private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
+  
   @Override
   public void onResume() {
     super.onResume();
@@ -106,10 +108,14 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
     };
     
+    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity());
+    
     // Create a new Adapter an bind it to the List View
     adapter = new SimpleCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_list_entries,null,
         projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL},0);
-    adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+    adapter.setViewBinder(mViewAndClickHandler);
+        /*
+        new SimpleCursorAdapter.ViewBinder() {
       @Override
       public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
        // Log.d("TVB", " COLUMN " + columnIndex);
@@ -201,7 +207,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
           }*/
           
          // return true;
-        }
+     /*   }
         else if(columnIndex == 9) {
           if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
             view.setVisibility(View.GONE);
@@ -213,7 +219,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
                 
         return false;
       }
-  });
+  });*/
     
     setListAdapter(adapter);
     
@@ -223,15 +229,16 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   @Override
   public void onCreateContextMenu(ContextMenu menu, View v,
       ContextMenuInfo menuInfo) {
-    getActivity().getMenuInflater().inflate(R.menu.popupmenu, menu);
+    mViewAndClickHandler.onCreateContextMenu(menu, v, menuInfo);
+    //getActivity().getMenuInflater().inflate(R.menu.popupmenu, menu);
   }
   
   @Override
   public boolean onContextItemSelected(MenuItem item) {
     // TODO Auto-generated method stub
     Log.d("test", "clickde");
-    
-    long programID = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).id;
+    return mViewAndClickHandler.onContextItemSelected(item);
+ /*   long programID = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).id;
     
     Cursor info = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null,null);
     
@@ -279,7 +286,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
         current = current.replace("marked", "");
       }
       */
-      
+      /*
       current = "";
       
       Log.d("TVB", String.valueOf(current));
@@ -299,7 +306,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
         if(channel.getCount() > 0) {
           channel.moveToFirst();
           // Create a new insertion Intent.
-             Intent addCalendarEntry = new Intent(Intent.ACTION_EDIT/*, CalendarContract.Events.CONTENT_URI*/);
+             Intent addCalendarEntry = new Intent(Intent.ACTION_EDIT);
              Log.d("TVB", getActivity().getContentResolver().getType(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI,1)));
              
              //Intent intent = new Intent(Intent.ACTION_INSERT);
@@ -382,19 +389,22 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
       }
       else {
         ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).targetView.setBackgroundResource(android.R.drawable.list_selector_background);//.invalidate();
-      }*/
+      }
       ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).targetView.invalidate();
      // item.get v.invalidate();
       getActivity().getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), values, null, null);
     }
     
-    return true;
+    return true;*/
   }
   
   @Override
   public void onListItemClick(ListView l, View v, int position, long id) {
     super.onListItemClick(l, v, position, id);
-    Log.d("TVB", "ID " + id);
+    
+    mViewAndClickHandler.onListItemClick(l, v, position, id);
+    
+  /*  Log.d("TVB", "ID " + id);
     Object o = v.findViewById(R.id.startTimeLabelPL).getTag();
     
     Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), null, null, null, null);
@@ -454,10 +464,10 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
       TextView desc = new TextView(table.getContext());
       desc.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION)));
      /* desc.setSingleLine(false);*/
-      desc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+   //   desc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
       /*desc.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);*/
       
-      TableRow rowDescription = new TableRow(table.getContext());
+  /*    TableRow rowDescription = new TableRow(table.getContext());
       
       rowDescription.addView(desc);
       table.addView(rowDescription);
@@ -477,7 +487,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     if(o instanceof Long) {
     //  showPopupMenu(v,(Long)o);
       Log.d("TVB", String.valueOf(o));
-    }
+    }*/
   }
   
   private void createUpdateThread() {
