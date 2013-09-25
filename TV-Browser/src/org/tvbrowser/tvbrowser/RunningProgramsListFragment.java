@@ -84,7 +84,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   public void onSaveInstanceState(Bundle outState) {
     Log.d("test", "SAVE");
     
-    
     outState.putInt(WHERE_CLAUSE_KEY, mWhereClauseID);
     super.onSaveInstanceState(outState);
   }

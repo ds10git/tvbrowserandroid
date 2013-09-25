@@ -22,9 +22,12 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final Uri CONTENT_URI_GROUPS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/groups");
   public static final Uri CONTENT_URI_CHANNELS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/channels");
   public static final Uri CONTENT_URI_DATA = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/data");
+  public static final Uri CONTENT_URI_DATA_UPDATE = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/dataupdate");
   public static final Uri CONTENT_URI_DATA_WITH_CHANNEL = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/datachannels");
     
   public static final String KEY_ID = "_id";
+  
+  public static boolean INFORM_FOR_CHANGES = true;
   
   private TvBrowserDataBaseHelper mDataBaseHelper;
   
@@ -40,7 +43,12 @@ public class TvBrowserContentProvider extends ContentProvider {
   private static final int DATA_CHANNELS = 30;
   private static final int DATA_CHANNEL_ID = 31;
   
+  private static final int DATA_UPDATE = 40;
+  private static final int DATA_UPDATE_ID = 41;    
+  
   private static final int SEARCH = 100;
+  
+  
   
   private static final HashMap<String,String> SEARCH_PROJECTION_MAP;
   
@@ -131,6 +139,8 @@ public class TvBrowserContentProvider extends ContentProvider {
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "channels/#", CHANNEL_ID);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "data", DATA);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "data/#", DATA_ID);
+    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataupdate", DATA_UPDATE);
+    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataupdate/#", DATA_UPDATE_ID);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "datachannels", DATA_CHANNELS);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "datachannels/#", DATA_CHANNEL_ID);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", SearchManager.SUGGEST_URI_PATH_QUERY, SEARCH);
@@ -163,6 +173,11 @@ public class TvBrowserContentProvider extends ContentProvider {
       data_with_channel = true;
       count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
       }break;
+      case DATA_UPDATE: count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, where, whereArgs);break;
+      case DATA_UPDATE_ID: {String segment = uri.getPathSegments().get(1);
+      data_with_channel = true;
+      count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+      }break;
       default: throw new IllegalArgumentException("Unsupported URI: " + uri);
     }
     
@@ -184,6 +199,8 @@ public class TvBrowserContentProvider extends ContentProvider {
       case CHANNEL_ID: return "vnd.andorid.cursor.item/vnd.tvbrowser.channels";
       case DATA: return "vnd.andorid.cursor.dir/vnd.tvbrowser.data";
       case DATA_ID: return "vnd.andorid.cursor.item/vnd.tvbrowser.data";
+      case DATA_UPDATE: return "vnd.andorid.cursor.dir/vnd.tvbrowser.dataupdate";
+      case DATA_UPDATE_ID: return "vnd.andorid.cursor.item/vnd.tvbrowser.dataupdate";
       case DATA_CHANNELS: return "vnd.andorid.cursor.dir/vnd.tvbrowser.datachannels";
       case DATA_CHANNEL_ID: return "vnd.andorid.cursor.item/vnd.tvbrowser.datachannels";
       case SEARCH: return SearchManager.SUGGEST_MIME_TYPE;
@@ -198,6 +215,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       case GROUPS: return insertGroup(uri, values);
       case CHANNELS: return insertChannel(uri, values);
       case DATA: return insertData(uri, values);
+      case DATA_UPDATE: return insertData(uri, values);
     }
     
     throw new SQLException("Failed to insert row into " + uri);
@@ -213,7 +231,10 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     if(rowID >= 0) {
       Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA, rowID);
-      getContext().getContentResolver().notifyChange(newUri, null);
+      
+      if(INFORM_FOR_CHANGES) {
+        getContext().getContentResolver().notifyChange(newUri, null);
+      }
       
       return newUri;
     }
@@ -231,7 +252,10 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     if(rowID >= 0) {
       Uri newUri = ContentUris.withAppendedId(CONTENT_URI_CHANNELS, rowID);
-      getContext().getContentResolver().notifyChange(newUri, null);
+      
+      if(INFORM_FOR_CHANGES) {
+        getContext().getContentResolver().notifyChange(newUri, null);
+      }
       
       return newUri;
     }
@@ -249,7 +273,10 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     if(rowID > 0) {
       Uri newUri = ContentUris.withAppendedId(CONTENT_URI_GROUPS, rowID);
-      getContext().getContentResolver().notifyChange(newUri, null);
+      
+      if(INFORM_FOR_CHANGES) {
+        getContext().getContentResolver().notifyChange(newUri, null);
+      }
       
       return newUri;
     }
@@ -287,6 +314,9 @@ public class TvBrowserContentProvider extends ContentProvider {
       case CHANNEL_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
       case CHANNELS: qb.setTables(TvBrowserDataBaseHelper.CHANNEL_TABLE);
                     orderBy = CHANNEL_KEY_NAME;break;
+      case DATA_UPDATE_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+      case DATA_UPDATE: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
+                    orderBy = CHANNEL_KEY_CHANNEL_ID;break;
       case DATA_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
       case DATA: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
                     orderBy = CHANNEL_KEY_CHANNEL_ID;break;
@@ -340,7 +370,10 @@ public class TvBrowserContentProvider extends ContentProvider {
     Cursor c = qb.query(database, projection, selection, selectionArgs, null, null, orderBy);
     
     // Register the contexts ContentResolver to be notified if the cursor result set changes.
-    c.setNotificationUri(getContext().getContentResolver(), uri);
+    
+    if(INFORM_FOR_CHANGES) {
+      c.setNotificationUri(getContext().getContentResolver(), uri);
+    }
     
     return c;
   }
@@ -365,6 +398,11 @@ public class TvBrowserContentProvider extends ContentProvider {
       data_with_channel = true;
       count = database.update(TvBrowserDataBaseHelper.CHANNEL_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
       }break;
+      case DATA_UPDATE: count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, where, whereArgs);break;
+      case DATA_UPDATE_ID: {String segment = uri.getPathSegments().get(1);
+      data_with_channel = true;
+      count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+      }break;
       case DATA: count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, where, whereArgs);break;
       case DATA_ID: {String segment = uri.getPathSegments().get(1);
       data_with_channel = true;
@@ -373,10 +411,12 @@ public class TvBrowserContentProvider extends ContentProvider {
       default: throw new IllegalArgumentException("Unknown URI: " + uri);
     }
     
-    getContext().getContentResolver().notifyChange(uri, null);
-    
-    if(data_with_channel) {
-      getContext().getContentResolver().notifyChange(CONTENT_URI_DATA_WITH_CHANNEL, null);
+    if(INFORM_FOR_CHANGES) {
+      getContext().getContentResolver().notifyChange(uri, null);
+      
+      if(data_with_channel) {
+        getContext().getContentResolver().notifyChange(CONTENT_URI_DATA_WITH_CHANNEL, null);
+      }
     }
     
     return count;

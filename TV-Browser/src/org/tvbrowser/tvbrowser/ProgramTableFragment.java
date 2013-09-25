@@ -185,7 +185,7 @@ public class ProgramTableFragment extends Fragment {
       public void run() {
         while(mKeepRunning) {
           try {
-            if(mKeepRunning) {
+            if(mKeepRunning && TvBrowserContentProvider.INFORM_FOR_CHANGES) {
               Log.d("test", String.valueOf(getView().findViewWithTag("LAYOUT")));
               /*handler.post(new Runnable() {
                 @Override
@@ -253,10 +253,11 @@ public class ProgramTableFragment extends Fragment {
                                   handler.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                      Log.d("test"," old " + String.valueOf(((TextView)internal1.findViewById(R.id.prog_panel_title))));
-                                      ((TextView)internal1.findViewById(R.id.prog_panel_start_time)).setTextColor(Color.rgb(190, 190, 190));
-                                      ((TextView)internal1.findViewById(R.id.prog_panel_title)).setTextColor(Color.rgb(190, 190, 190));
-                                      ((TextView)internal1.findViewById(R.id.prog_panel_episode)).setTextColor(Color.rgb(190, 190, 190));                                    
+                                      if(internal1 != null) {
+                                        ((TextView)internal1.findViewById(R.id.prog_panel_start_time)).setTextColor(Color.rgb(190, 190, 190));
+                                        ((TextView)internal1.findViewById(R.id.prog_panel_title)).setTextColor(Color.rgb(190, 190, 190));
+                                        ((TextView)internal1.findViewById(R.id.prog_panel_episode)).setTextColor(Color.rgb(190, 190, 190));
+                                      }
                                     }
                                   });
                                   
