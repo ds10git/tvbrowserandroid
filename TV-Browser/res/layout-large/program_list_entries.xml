@@ -11,19 +11,13 @@
         android:paddingRight="5dp"
         android:layout_alignParentTop="true"
         />
-    <TextView android:id="@+id/startDateLabelPL"
-        android:textSize="18sp"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:paddingRight="5dp"
-        android:layout_below="@id/startDayLabelPL"
-        />
     <TextView android:id="@+id/startTimeLabelPL"
         android:textSize="18sp"
+        android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:paddingRight="2dp"
-        android:layout_toRightOf="@id/startDateLabelPL"
+        android:layout_toRightOf="@id/startDayLabelPL"
         android:layout_alignParentTop="true"
         />
     <TextView 
@@ -36,14 +30,6 @@
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@id/startTimeLabelPL"
         />
-    <TextView android:id="@+id/endTimeLabelPL"
-       android:textSize="18sp"
-       android:layout_width="wrap_content"
-       android:layout_height="wrap_content"
-       android:paddingRight="5dp"
-       android:layout_alignParentTop="true"
-       android:layout_toRightOf="@id/untilLabelPL"
-       /> 
     <TextView android:id="@+id/channelLabelPL"
         android:textSize="18sp"
         android:textStyle="italic"
@@ -52,13 +38,29 @@
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@id/endTimeLabelPL"
         />
+    <TextView android:id="@+id/startDateLabelPL"
+        android:textSize="18sp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingRight="5dp"
+        
+        android:layout_below="@id/startDayLabelPL"
+        />
+    <TextView android:id="@+id/endTimeLabelPL"
+       android:textSize="18sp"
+       android:layout_width="wrap_content"
+       android:layout_height="wrap_content"
+       android:paddingRight="5dp"
+       android:layout_alignParentTop="true"
+       android:layout_toRightOf="@id/untilLabelPL"
+       /> 
     <TextView android:id="@+id/titleLabelPL"
         android:textSize="18sp"
         android:textStyle="bold"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/startDateLabelPL"
-        android:layout_below="@id/startTimeLabelPL"/>
+        android:layout_below="@id/channelLabelPL"/>
     <TextView android:id="@+id/episodeLabelPL"
         android:textSize="16sp"
         android:textStyle="italic"

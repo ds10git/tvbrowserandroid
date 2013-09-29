@@ -43,6 +43,7 @@ import android.webkit.WebView.FindListener;
 import android.widget.AdapterView;
 import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TableLayout;
 import android.widget.TableRow;
@@ -603,7 +604,12 @@ public class ProgramTableFragment extends Fragment {
       }
       
       Log.d("TVB","MARK " + programID);
-      temp.setBackgroundColor(getActivity().getResources().getColor(R.color.mark_color));
+      if(current != null && current.contains("calendar")) {
+        temp.setBackgroundColor(getActivity().getResources().getColor(R.color.mark_color_calendar));
+      }
+      else {
+        temp.setBackgroundColor(getActivity().getResources().getColor(R.color.mark_color));
+      }      
     }
     else if(item.getItemId() == R.id.prog_unmark_item){
       if(current == null || current.trim().length() == 0) {
@@ -707,6 +713,8 @@ public class ProgramTableFragment extends Fragment {
           else {
             values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current + ";calendar");
           }
+                    
+          temp.setBackgroundColor(getActivity().getResources().getColor(R.color.mark_color_calendar)); 
         }
         
         channel.close();
@@ -778,7 +786,12 @@ public class ProgramTableFragment extends Fragment {
       String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
       
       if(value != null && value.trim().length() > 0) {
-        panel.setBackgroundColor(getActivity().getResources().getColor(R.color.mark_color));
+        if(value.contains("calendar")) {
+          panel.setBackgroundColor(getActivity().getResources().getColor(R.color.mark_color_calendar));
+        }
+        else {
+          panel.setBackgroundColor(getActivity().getResources().getColor(R.color.mark_color));
+        }
       }
       else {
         panel.setBackgroundResource(android.R.drawable.list_selector_background);

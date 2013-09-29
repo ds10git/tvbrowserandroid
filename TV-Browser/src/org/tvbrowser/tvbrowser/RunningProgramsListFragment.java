@@ -150,7 +150,12 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
           
           if(value != null && value.trim().length() > 0) {
-            ((RelativeLayout)view.getParent()).setBackgroundResource(R.color.mark_color);
+            if(value.contains("calendar")) {
+              ((RelativeLayout)view.getParent()).setBackgroundResource(R.color.mark_color_calendar);
+            }
+            else {
+              ((RelativeLayout)view.getParent()).setBackgroundResource(R.color.mark_color);
+            }
           }
           else {
             ((RelativeLayout)view.getParent()).setBackgroundResource(android.R.drawable.list_selector_background);

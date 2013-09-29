@@ -39,4 +39,10 @@
     <string name="favorite_only_title">Search only in title</string>
     <string name="favorite_edit">Edit Favorite</string>
     <string name="favorite_delete">Delete Favorite</string>
+    <string name="no_network">No network connection</string>
+    <string name="no_network_info">Your network connection is disabled. Enable it before starting data download.</string>
+    <string name="action_program_table_activated">Program table activated</string>
+    <string name="update_notification_title">TV data update</string>
+    <string name="update_notification_text">A TV-Browser data update is running</string>
+    <string name="update_notification_calculate">Calculate TV data...</string>
 </resources>

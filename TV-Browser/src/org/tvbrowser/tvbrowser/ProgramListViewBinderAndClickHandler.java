@@ -62,12 +62,26 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
          startDay.setText(mActivity.getText(R.string.tomorrow));
        }
        
-       text.setText(DateFormat.getDateInstance(DateFormat.SHORT).format(progDate));
+       SimpleDateFormat df = (SimpleDateFormat)
+       DateFormat.getDateInstance(DateFormat.SHORT);
+       String pattern = df.toLocalizedPattern().replaceAll(".?[Yy].?", "");
+         
+       SimpleDateFormat mdf = new SimpleDateFormat(pattern);
+       
+       //String dateDate = DateFormat.getDateInstance(DateFormat.SHORT).format(progDate);
+       
+       
+       text.setText(mdf.format(progDate));
 
        String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
        
        if(value != null && value.trim().length() > 0) {
-         ((RelativeLayout)view.getParent()).setBackgroundResource(R.color.mark_color);
+         if(value.contains("calendar")) {
+           ((RelativeLayout)view.getParent()).setBackgroundResource(R.color.mark_color_calendar);
+         }
+         else {
+           ((RelativeLayout)view.getParent()).setBackgroundResource(R.color.mark_color);
+         }
        }
        else {
          ((RelativeLayout)view.getParent()).setBackgroundResource(android.R.drawable.list_selector_background);

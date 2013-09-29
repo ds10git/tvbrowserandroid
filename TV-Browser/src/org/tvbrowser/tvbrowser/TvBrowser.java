@@ -1,25 +1,18 @@
 package org.tvbrowser.tvbrowser;
 
-import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Locale;
-import java.util.Map;
 import java.util.Set;
-import java.util.TimeZone;
 import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -43,6 +36,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -52,9 +47,11 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
@@ -62,12 +59,12 @@ import android.widget.NumberPicker;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
-import android.widget.Toast;
 
 //
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
   private static final String TAG = "TVB";
+  private static final String PROG_TABLE_ACTIVATED = "PROG_TABLE_ACTIVATED";
   private IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
   
   /**
@@ -84,6 +81,7 @@ public class TvBrowser extends FragmentActivity implements
   private Thread mChannelUpdateThread;
   private boolean updateRunning;
   private boolean selectingChannels;
+  private ActionBar actionBar;
   
   /**
    * The {@link ViewPager} that will host the section contents.
@@ -111,7 +109,7 @@ public class TvBrowser extends FragmentActivity implements
     }
 //test
     // Set up the action bar.
-    final ActionBar actionBar = getActionBar();
+    actionBar = getActionBar();
     actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
     // Create the adapter that will return a fragment for each of the three
@@ -148,8 +146,8 @@ public class TvBrowser extends FragmentActivity implements
     // Don't allow use of version after date
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.YEAR, 2013);
-    cal.set(Calendar.MONTH, Calendar.SEPTEMBER);
-    cal.set(Calendar.DAY_OF_MONTH, 30);
+    cal.set(Calendar.MONTH, Calendar.OCTOBER);
+    cal.set(Calendar.DAY_OF_MONTH, 6);
     
     if(cal.getTimeInMillis() < System.currentTimeMillis()) {    
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -872,15 +870,65 @@ public class TvBrowser extends FragmentActivity implements
       builder.show();
     }
   }
+
+  public boolean isOnline() {
+    ConnectivityManager cm =
+        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+    NetworkInfo netInfo = cm.getActiveNetworkInfo();
+    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
+        return true;
+    }
+    return false;
+  }
+
   
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
-      case R.id.action_update: startService(new Intent(TvBrowser.this, TvDataUpdateService.class));Log.d(TvDataUpdateService.TAG, "returned from intent");break;
+      case R.id.action_update:
+        if(isOnline()) {
+          startService(new Intent(TvBrowser.this, TvDataUpdateService.class));Log.d(TvDataUpdateService.TAG, "returned from intent");
+        }
+        else {
+          AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+          
+          builder.setTitle(R.string.no_network);
+          builder.setMessage(R.string.no_network_info);
+          
+          builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              
+            }
+          });
+          
+          builder.show();
+        }
+        break;
       case R.id.action_load_channels_again: selectChannels(true);break;
       case R.id.action_select_channels: selectChannels(false);break;
       case R.id.action_sort_channels: sortChannels();break;
       case R.id.action_delete_all_data: getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.KEY_ID + " > 0", null);break;
+      case R.id.action_program_table_activated: item.setChecked(!item.isChecked());
+                                                Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+                                                edit.putBoolean(PROG_TABLE_ACTIVATED, item.isChecked());
+                                                edit.commit();
+                                                
+                                                if(!item.isChecked()) {
+                                                  //mViewPager.fi
+                                                  mSectionsPagerAdapter.destroyItem(mViewPager, 3, mSectionsPagerAdapter.getRegisteredFragment(3));
+                                                  mSectionsPagerAdapter.notifyDataSetChanged();
+                                                  actionBar.removeTabAt(3);
+                                                  
+                                                }
+                                                else {
+                                                  
+                                                  actionBar.addTab(actionBar.newTab()
+                                                      .setText(mSectionsPagerAdapter.getPageTitle(3)).setTabListener(this));
+                                                  mSectionsPagerAdapter.instantiateItem(mViewPager, 3);
+                                                  mSectionsPagerAdapter.notifyDataSetChanged();
+                                                }
+                                                break;
     }
     
     return super.onOptionsItemSelected(item);
@@ -898,6 +946,11 @@ public class TvBrowser extends FragmentActivity implements
             (SearchView) menu.findItem(R.id.search).getActionView();
     searchView.setSearchableInfo(
             searchManager.getSearchableInfo(getComponentName()));
+    
+    
+    MenuItem item = menu.findItem(R.id.action_program_table_activated);
+    
+    item.setChecked(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(PROG_TABLE_ACTIVATED, true));
     
     return true;
   }
@@ -925,6 +978,7 @@ public class TvBrowser extends FragmentActivity implements
    * of the sections/tabs/pages.
    */
   public class SectionsPagerAdapter extends FragmentPagerAdapter {
+    SparseArray<Fragment> registeredFragments = new SparseArray<Fragment>();
     
     public SectionsPagerAdapter(FragmentManager fm) {
       super(fm);
@@ -941,10 +995,10 @@ public class TvBrowser extends FragmentActivity implements
         fragment = new DummySectionFragment();
       }
       else if(position == 2) {
-        fragment = new ProgramTableFragment();
+        fragment = new FavoritesFragment();
       }
       else if(position == 3) {
-        fragment = new FavoritesFragment();
+        fragment = new ProgramTableFragment();
       }
       
       Bundle args = new Bundle();
@@ -957,23 +1011,45 @@ public class TvBrowser extends FragmentActivity implements
     @Override
     public int getCount() {
       // Show 3 total pages.
-      return 4;
+      if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(PROG_TABLE_ACTIVATED, true)) {
+        return 4;
+      }
+      
+      return 3;
     }
 
     @Override
     public CharSequence getPageTitle(int position) {
       Locale l = Locale.getDefault();
+            
       switch (position) {
         case 0:
           return getString(R.string.title_section1).toUpperCase(l);
         case 1:
           return getString(R.string.title_section2).toUpperCase(l);
         case 2:
-          return getString(R.string.title_section3).toUpperCase(l);
-        case 3:
           return getString(R.string.title_section4).toUpperCase(l);
+        case 3:
+          return getString(R.string.title_section3).toUpperCase(l);
       }
       return null;
+    }
+
+    @Override
+    public Object instantiateItem(ViewGroup container, int position) {
+        Fragment fragment = (Fragment) super.instantiateItem(container, position);
+        registeredFragments.put(position, fragment);
+        return fragment;
+    }
+
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        registeredFragments.remove(position);
+        super.destroyItem(container, position, object);
+    }
+
+    public Fragment getRegisteredFragment(int position) {
+        return registeredFragments.get(position);
     }
   }
 

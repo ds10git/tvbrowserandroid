@@ -24,7 +24,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
-import android.support.v4.widget.SimpleCursorAdapter;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -34,6 +33,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.SimpleCursorAdapter;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -43,6 +43,8 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
 
   private static String QUERY_EXTRA_KEY = "QUERY_EXTRA_KEY";
   private static String QUERY_EXTRA_ID_KEY = "QUERY_EXTRA_ID_KEY";
+  
+  private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
 //
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -73,9 +75,12 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     //adapter = new SimpleCursorAdapter(this, android.R.layout.simple_list_item_1, null, new String[] {TvBrowserContentProvider.DATA_KEY_TITLE}, new int[] {android.R.id.text1}, 0);
  // Create a new Adapter an bind it to the List View
     // Create a new Adapter an bind it to the List View
+    
+    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(this);
     adapter = new SimpleCursorAdapter(this,/*android.R.layout.simple_list_item_1*/R.layout.program_list_entries,null,
         projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL},0);
-    adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+    adapter.setViewBinder(mViewAndClickHandler);
+   /* adapter.setViewBinder(mViewAndClickHandler);/*new SimpleCursorAdapter.ViewBinder() {
       @Override
       public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
         Log.d("TEST", " COLUMN " + columnIndex);
@@ -168,7 +173,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
                 
         return false;
       }
-  });
+  });*/
     
     setListAdapter(adapter);
     
@@ -281,8 +286,8 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
   @Override
   public boolean onContextItemSelected(MenuItem item) {
     // TODO Auto-generated method stub
-    
-    long programID = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).id;
+    return mViewAndClickHandler.onContextItemSelected(item);
+   /* long programID = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).id;
     
     Cursor info = TvBrowserSearchResults.this.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null,null);
     
@@ -329,7 +334,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
         current = current.replace("marked", "");
       }
       */
-      
+    /*  
       current = "";
       
       Log.d("TVB", String.valueOf(current));
@@ -349,7 +354,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
         if(channel.getCount() > 0) {
           channel.moveToFirst();
        // Create a new insertion Intent.
-          Intent addCalendarEntry = new Intent(Intent.ACTION_EDIT/*, CalendarContract.Events.CONTENT_URI*/);
+          Intent addCalendarEntry = new Intent(Intent.ACTION_EDIT/*, CalendarContract.Events.CONTENT_U);
           Log.d("TVB",TvBrowserSearchResults.this.getContentResolver().getType(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI,1)));
           
           //Intent intent = new Intent(Intent.ACTION_INSERT);
@@ -432,18 +437,19 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
       else {
         ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).targetView.setBackgroundResource(android.R.drawable.list_selector_background);//.invalidate();
       }*/
-      ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).targetView.invalidate();
+    /*  ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).targetView.invalidate();
      // item.get v.invalidate();
       TvBrowserSearchResults.this.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), values, null, null);
     }
     
-    return true;
+    return true;*/
   }
   
   @Override
   public void onListItemClick(ListView l, View v, int position, long id) {
     super.onListItemClick(l, v, position, id);
-    
+    mViewAndClickHandler.onListItemClick(l, v, position, id);
+  /*  
     Cursor c = TvBrowserSearchResults.this.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), null, null, null, null);
     
     c.moveToFirst();
@@ -501,9 +507,9 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
       TextView desc = new TextView(table.getContext());
       desc.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION)));
      /* desc.setSingleLine(false);*/
-      desc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+  /*    desc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
       /*desc.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);*/
-      
+    /*  
       TableRow rowDescription = new TableRow(table.getContext());
       
       rowDescription.addView(desc);
@@ -519,7 +525,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     c.close();
         
     builder.setView(table);
-    builder.show();
+    builder.show();*/
     
   }
 }

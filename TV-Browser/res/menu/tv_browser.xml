@@ -35,4 +35,11 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_delete_all_data"/>
+    <item
+        android:id="@+id/action_program_table_activated"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_program_table_activated"
+        android:checkable="true"/>
+    
 </menu>
