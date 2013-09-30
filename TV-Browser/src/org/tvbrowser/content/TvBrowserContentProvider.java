@@ -24,6 +24,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final Uri CONTENT_URI_DATA = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/data");
   public static final Uri CONTENT_URI_DATA_UPDATE = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/dataupdate");
   public static final Uri CONTENT_URI_DATA_WITH_CHANNEL = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/datachannels");
+  public static final Uri CONTENT_URI_DATA_VERSION = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/dataversion");
     
   public static final String KEY_ID = "_id";
   
@@ -44,7 +45,10 @@ public class TvBrowserContentProvider extends ContentProvider {
   private static final int DATA_CHANNEL_ID = 31;
   
   private static final int DATA_UPDATE = 40;
-  private static final int DATA_UPDATE_ID = 41;    
+  private static final int DATA_UPDATE_ID = 41;
+  
+  private static final int DATA_VERSION = 50;
+  private static final int DATA_VERSION_ID = 51;
   
   private static final int SEARCH = 100;
   
@@ -119,6 +123,14 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_DATE_PROG_ID = "dateProgID";
   public static final String DATA_KEY_MARKING_VALUES = "markingValues";
   
+  // Column names for data version table
+  public static final String VERSION_KEY_DAYS_SINCE_1970 = "daysSince1970";
+  public static final String VERSION_KEY_BASE_VERSION = "baseVersion";
+  public static final String VERSION_KEY_MORE0016_VERSION = "more0016Version";
+  public static final String VERSION_KEY_MORE1600_VERSION = "more1600Version";
+  public static final String VERSION_KEY_PICTURE0016_VERSION = "picture0016Version";
+  public static final String VERSION_KEY_PICTURE1600_VERSION = "picture1600Version";
+  
   static {
     SEARCH_PROJECTION_MAP = new HashMap<String, String>();
     SEARCH_PROJECTION_MAP.put(SearchManager.SUGGEST_COLUMN_TEXT_1, DATA_KEY_TITLE + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
@@ -147,6 +159,8 @@ public class TvBrowserContentProvider extends ContentProvider {
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", SearchManager.SUGGEST_URI_PATH_QUERY + "/*", SEARCH);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", SearchManager.SUGGEST_URI_PATH_SHORTCUT, SEARCH);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", SearchManager.SUGGEST_URI_PATH_SHORTCUT + "/*", SEARCH);
+    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataversion", DATA_VERSION);
+    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataversion/#", DATA_VERSION_ID);
   }
 
   @Override
@@ -177,6 +191,11 @@ public class TvBrowserContentProvider extends ContentProvider {
       case DATA_UPDATE_ID: {String segment = uri.getPathSegments().get(1);
       data_with_channel = true;
       count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+      }break;
+      case DATA_VERSION: count = database.delete(TvBrowserDataBaseHelper.VERSION_TABLE, where, whereArgs);break;
+      case DATA_VERSION_ID: {String segment = uri.getPathSegments().get(1);
+      data_with_channel = true;
+      count = database.delete(TvBrowserDataBaseHelper.VERSION_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
       }break;
       default: throw new IllegalArgumentException("Unsupported URI: " + uri);
     }
@@ -216,10 +235,33 @@ public class TvBrowserContentProvider extends ContentProvider {
       case CHANNELS: return insertChannel(uri, values);
       case DATA: return insertData(uri, values);
       case DATA_UPDATE: return insertData(uri, values);
+      case DATA_VERSION: return insertVersion(uri, values);
     }
     
     throw new SQLException("Failed to insert row into " + uri);
   }
+  
+  private Uri insertVersion(Uri uri, ContentValues values) {
+    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+    
+    // Insert the new row. The call to databse.insert will return the row number if it is successfull.
+    long rowID = database.insert(TvBrowserDataBaseHelper.VERSION_TABLE, "version", values);
+    
+    // Return a URI to the newly inserted row on success.
+    
+    if(rowID >= 0) {
+      Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA, rowID);
+      
+      if(INFORM_FOR_CHANGES) {
+        getContext().getContentResolver().notifyChange(newUri, null);
+      }
+      
+      return newUri;
+    }
+    
+    throw new SQLException("Failed to insert row into " + uri + " " + rowID);
+  }
+
   
   private Uri insertData(Uri uri, ContentValues values) {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
@@ -314,6 +356,9 @@ public class TvBrowserContentProvider extends ContentProvider {
       case CHANNEL_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
       case CHANNELS: qb.setTables(TvBrowserDataBaseHelper.CHANNEL_TABLE);
                     orderBy = CHANNEL_KEY_NAME;break;
+      case DATA_VERSION_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+      case DATA_VERSION: qb.setTables(TvBrowserDataBaseHelper.VERSION_TABLE);
+                    orderBy = VERSION_KEY_DAYS_SINCE_1970;break;
       case DATA_UPDATE_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
       case DATA_UPDATE: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
                     orderBy = CHANNEL_KEY_CHANNEL_ID;break;
@@ -398,6 +443,11 @@ public class TvBrowserContentProvider extends ContentProvider {
       data_with_channel = true;
       count = database.update(TvBrowserDataBaseHelper.CHANNEL_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
       }break;
+      case DATA_VERSION: count = database.update(TvBrowserDataBaseHelper.VERSION_TABLE, values, where, whereArgs);break;
+      case DATA_VERSION_ID: {String segment = uri.getPathSegments().get(1);
+      data_with_channel = true;
+      count = database.update(TvBrowserDataBaseHelper.VERSION_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+      }break;
       case DATA_UPDATE: count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, where, whereArgs);break;
       case DATA_UPDATE_ID: {String segment = uri.getPathSegments().get(1);
       data_with_channel = true;
@@ -431,6 +481,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     private static final String GROUPS_TABLE = "channelGroups";
     private static final String CHANNEL_TABLE = "channels";
     private static final String DATA_TABLE = "data";
+    private static final String VERSION_TABLE = "dataVersion";
     
     private static final String CREATE_GROUPS_TABLE = "create table " + GROUPS_TABLE + " (" + KEY_ID + " integer primary key autoincrement, "
         + GROUP_KEY_DATA_SERVICE_ID + " TEXT NOT NULL, "
@@ -501,6 +552,15 @@ public class TvBrowserContentProvider extends ContentProvider {
         + DATA_KEY_DATE_PROG_ID + " INTEGER, "
         + DATA_KEY_MARKING_VALUES + " TEXT);";
     
+    private static final String CREATE_VERSION_TABLE = "create table " + VERSION_TABLE + " (" + KEY_ID + " integer primary key autoincrement, "
+        + CHANNEL_KEY_CHANNEL_ID + " INTEGER REFERENCES " + CHANNEL_TABLE + "(" + KEY_ID + ") NOT NULL, "
+        + VERSION_KEY_DAYS_SINCE_1970 + " INTEGER NOT NULL, "
+        + VERSION_KEY_BASE_VERSION + " INTEGER, "
+        + VERSION_KEY_MORE0016_VERSION + " INTEGER, "
+        + VERSION_KEY_MORE1600_VERSION + " INTEGER, "
+        + VERSION_KEY_PICTURE0016_VERSION + " INTEGER, "
+        + VERSION_KEY_PICTURE1600_VERSION + " INTEGER);";
+    
     public TvBrowserDataBaseHelper(Context context, String name,
         CursorFactory factory, int version) {
       super(context, name, factory, version);
@@ -511,6 +571,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       db.execSQL(CREATE_GROUPS_TABLE);
       db.execSQL(CREATE_CHANNEL_TABLE);
       db.execSQL(CREATE_DATA_TABLE);
+      db.execSQL(CREATE_VERSION_TABLE);
     }
 
     @Override
@@ -519,6 +580,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       db.execSQL("DROP TABLE IF EXISTS " + DATA_TABLE);
       db.execSQL("DROP TABLE IF EXISTS " + CHANNEL_TABLE);
       db.execSQL("DROP TABLE IF EXISTS " + GROUPS_TABLE);
+      db.execSQL("DROP TABLE IF EXISTS " + VERSION_TABLE);
       
       onCreate(db);
     }

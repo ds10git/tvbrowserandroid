@@ -12,6 +12,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
@@ -61,6 +62,16 @@ public class TvDataUpdateService extends Service {
   private int mNotifyID = 1;
   private NotificationCompat.Builder mBuilder;
   private int mCurrentDownloadCount;
+  
+  private static final Integer[] FRAME_ID_ARR;
+  
+  static {
+    FRAME_ID_ARR = new Integer[253];
+    
+    for(int i = 0; i < FRAME_ID_ARR.length; i++) {
+      FRAME_ID_ARR[i] = Integer.valueOf(i+2);
+    }
+  }
     
   @Override
   public void onCreate() {
@@ -212,6 +223,8 @@ public class TvDataUpdateService extends Service {
         
         Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
         
+        String[] versionColumns = {TvBrowserContentProvider.VERSION_KEY_BASE_VERSION, TvBrowserContentProvider.VERSION_KEY_MORE0016_VERSION, TvBrowserContentProvider.VERSION_KEY_MORE1600_VERSION, TvBrowserContentProvider.VERSION_KEY_PICTURE0016_VERSION, TvBrowserContentProvider.VERSION_KEY_PICTURE1600_VERSION};
+        
         if(channelCursor.getCount() > 0) {
           channelCursor.moveToFirst();
           
@@ -269,8 +282,26 @@ public class TvDataUpdateService extends Service {
                   if(startDate.compareTo(now) >= 0 && startDate.compareTo(to) <= 0) {
                     int[] version = frame.getVersionForDay(i);
                     // load only base files
+                    long daysSince1970 = startDate.getTimeInMillis() / 24 / 60 / 60000;
+                    
+                    String versionWhere = TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + " = " + daysSince1970 + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelKey;
+                    
+                    Cursor versions = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, null, versionWhere, null, null);
+                    
+                    if(versions.getCount() > 0) {
+                      versions.moveToFirst();
+                    }
+                    
                     for(int level = 0; level < 1; level++) {
-                      if(version[level] > 0) {
+                      int testVersion = 0;
+                      
+                      if(versions.getCount() > 0) {
+                        testVersion = versions.getInt(versions.getColumnIndex(versionColumns[level]));
+                      }
+                      
+                      Log.d("DOWN", testVersion +  " level version " + version[level] + " " + frame.getChannelID() + " " + startDate.getTime() + " " + daysSince1970);
+                      
+                      if(version[level] > testVersion) {
                         String month = String.valueOf(startDate.get(Calendar.MONTH)+1);
                         String day = String.valueOf(startDate.get(Calendar.DAY_OF_MONTH));
                         
@@ -301,6 +332,8 @@ public class TvDataUpdateService extends Service {
                      //   Log.d(TAG, " DOWNLOADS " + dateFile.toString());
                       }
                     }
+                    
+                    versions.close();
                   }
                 }
               }
@@ -529,6 +562,8 @@ public class TvDataUpdateService extends Service {
       
       int frameCount = in.read();
       
+      ArrayList<Integer> missingFrameIDs = new ArrayList<Integer>(Arrays.asList(FRAME_ID_ARR));
+      int maxFrameID = 0;
     //  Log.d(TAG, " FILE VERSION " + fileVersion + " DATA VERSION " + dataVersion + " FRAME COUNT " + frameCount);
       
       for(int i = 0; i < frameCount; i++) {
@@ -536,6 +571,10 @@ public class TvDataUpdateService extends Service {
         byte frameId = (byte)in.read();
         // number of program fields
         byte fieldCount = (byte)in.read();
+        
+        missingFrameIDs.remove(Integer.valueOf(frameId));
+        
+        maxFrameID = Math.max(maxFrameID, frameId);
         
         ContentValues values = new ContentValues();
         
@@ -681,7 +720,7 @@ public class TvDataUpdateService extends Service {
           cal.setTimeInMillis(startTime);
           
           if(cal.get(Calendar.HOUR_OF_DAY) >= getDayStart() && (cal.get(Calendar.HOUR_OF_DAY) < getDayEnd() || (cal.get(Calendar.HOUR_OF_DAY) == getDayEnd() && cal.get(Calendar.MINUTE) == 0))) {
-            Uri inserted = getContentResolver().insert(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, values);
+            Uri inserted = getContentResolver().insert(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, values);            
            // Log.d(TAG, "INSERT: " + String.valueOf(inserted));
           }
         }
@@ -692,6 +731,48 @@ public class TvDataUpdateService extends Service {
         test.close();
       }
       
+      updateVersionTable(update,dataVersion);
+      
+      StringBuilder where = new StringBuilder();
+      
+      for(Integer id : missingFrameIDs) {
+        if(id.intValue() > maxFrameID) {
+          break;
+        }
+        else {
+          if(where.length() > 0) {
+            where.append(" OR ");
+          }
+          else {
+            where.append(" ( ");
+          }
+          
+          where.append(" ( ");
+          where.append(TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID);
+          where.append(" = ");
+          where.append(id);
+          where.append(" ) ");
+        }
+      }
+      
+      if(where.length() > 0) {
+        where.append(" ) AND ");
+        where.append(" ( ");
+        where.append(TvBrowserContentProvider.DATA_KEY_UNIX_DATE);
+        where.append(" = ");
+        where.append(update.getDate());
+        where.append(" ) AND ( ");
+        where.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+        where.append(" = ");
+        where.append(update.getChannelID());
+        where.append(" ) ");
+        
+        Log.d(TAG, " Delete where clause " + where);
+        
+        int count = getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, where.toString(), null);
+        Log.d(TAG, " Number of deleted programs " + count + " " + update.getUrl());
+      }
+      
       in.close();
     } catch (Exception e) {
       // TODO Auto-generated catch block
@@ -699,6 +780,42 @@ public class TvDataUpdateService extends Service {
     }
     
     dataFile.delete();
+  }
+  
+  private void updateVersionTable(ChannelUpdate update, int dataVersion) {
+    long daysSince1970 = update.getDate() / 24 / 60 / 60000;
+    
+    ContentValues values = new ContentValues();
+    
+    values.put(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, update.getChannelID());
+    values.put(TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970, daysSince1970);
+    
+    if(update.getUrl().toLowerCase().contains(SettingConstants.LEVEL_NAMES[0])) {
+      values.put(TvBrowserContentProvider.VERSION_KEY_BASE_VERSION,dataVersion);
+    }
+    
+    String where = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + update.getChannelID() + " AND " + TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + " = " + daysSince1970;
+    
+    Log.d("DOWN", daysSince1970 + " " + update.getUrl() + " " + dataVersion);
+    Log.d(TAG, " Version update where: "+where);
+    Log.d(TAG, " Version update content count "+values.size());
+    
+    Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, null, where, null, null);
+    
+    // update current value
+    if(test.getCount() > 0) {
+      test.moveToFirst();
+      long id = test.getLong(test.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+      
+      int count = getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, id), values, null, null);
+      Log.d(TAG, " Number of updated versions " + count);
+    }
+    else {
+      Uri inserted = getContentResolver().insert(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, values);
+      Log.d(TAG, " Inserted version " + inserted);
+    }
+    
+    test.close();
   }
   
   /**
@@ -803,7 +920,7 @@ public class TvDataUpdateService extends Service {
     }
     
     public void setStartDaySince1970(long days) {
-      mStartDaySince1970 = days;
+      mStartDaySince1970 = days-1;
     }
     
     public void setLevels(int levels) {
@@ -812,6 +929,10 @@ public class TvDataUpdateService extends Service {
     
     public void addChannelFrame(ChannelFrame frame) {
       mFrameList.add(frame);
+    }
+    
+    public ChannelFrame[] getChannelFrames() {
+      return mFrameList.toArray(new ChannelFrame[mFrameList.size()]);
     }
     
     public int getLevels() {

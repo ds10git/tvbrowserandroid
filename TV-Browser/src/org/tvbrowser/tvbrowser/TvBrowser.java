@@ -142,6 +142,12 @@ public class TvBrowser extends FragmentActivity implements
       actionBar.addTab(actionBar.newTab()
           .setText(mSectionsPagerAdapter.getPageTitle(i)).setTabListener(this));
     }
+
+  }
+  
+  @Override
+  protected void onResume() {
+    super.onResume();
     
     // Don't allow use of version after date
     Calendar cal = Calendar.getInstance();
@@ -163,11 +169,6 @@ public class TvBrowser extends FragmentActivity implements
       AlertDialog dialog = builder.create();
       dialog.show();
     }
-  }
-  
-  @Override
-  protected void onResume() {
-    super.onResume();
     
     mToDownloadChannels = -1;
     
