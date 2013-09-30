@@ -299,7 +299,7 @@ public class TvDataUpdateService extends Service {
                         testVersion = versions.getInt(versions.getColumnIndex(versionColumns[level]));
                       }
                       
-                      Log.d("DOWN", testVersion +  " level version " + version[level] + " " + frame.getChannelID() + " " + startDate.getTime() + " " + daysSince1970);
+                      Log.d("MIRR", testVersion +  " level version " + version[level] + " " + frame.getChannelID() + " " + startDate.getTime() + " " + daysSince1970);
                       
                       if(version[level] > testVersion) {
                         String month = String.valueOf(startDate.get(Calendar.MONTH)+1);
@@ -465,9 +465,11 @@ public class TvDataUpdateService extends Service {
     URL url;
     try {
       url = new URL(summaryurl);
-      Log.d(TAG, summaryurl);
+      Log.d("MIRR", summaryurl);
       URLConnection connection;
+      
       connection = url.openConnection();
+      connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
       
       HttpURLConnection httpConnection = (HttpURLConnection)connection;
       if(httpConnection != null) {
@@ -477,15 +479,18 @@ public class TvDataUpdateService extends Service {
       //  Log.d(TAG, "HTTP_OK");
         InputStream in = httpConnection.getInputStream();
         
-        Map<String,List<String>>  map = connection.getHeaderFields();
+        Map<String,List<String>>  map = httpConnection.getHeaderFields();
         
         for(String key : map.keySet()) {
-          Log.d(TAG, key + " " + map.get(key));
+          Log.d("MIRR", key + " " + map.get(key));
         }
         
-        if("gzip".equalsIgnoreCase(httpConnection.getHeaderField("Content-Encoding")) || "application/octet-stream".equalsIgnoreCase(httpConnection.getHeaderField("Content-Type"))
-            || "application/x-gzip".equalsIgnoreCase(httpConnection.getHeaderField("Content-Type"))) {
-          in = new GZIPInputStream(in);
+        if("gzip".equalsIgnoreCase(httpConnection.getHeaderField("Content-Encoding")) || "application/x-gzip".equalsIgnoreCase(httpConnection.getHeaderField("Content-Type"))) {
+          try {
+            in = new GZIPInputStream(in);
+          }catch(IOException e2) {
+            // Guess it's not compressed if here
+          }
         }
         
         in = new BufferedInputStream(in);
@@ -543,7 +548,7 @@ public class TvDataUpdateService extends Service {
       }
     } catch (Exception e) {
       // TODO Auto-generated catch block
-      Log.d(TAG, "SUMMARY", e);
+      Log.d("BUG", "SUMMARY", e);
     }
     
     return summary;

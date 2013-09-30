@@ -909,7 +909,9 @@ public class TvBrowser extends FragmentActivity implements
       case R.id.action_load_channels_again: selectChannels(true);break;
       case R.id.action_select_channels: selectChannels(false);break;
       case R.id.action_sort_channels: sortChannels();break;
-      case R.id.action_delete_all_data: getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.KEY_ID + " > 0", null);break;
+      case R.id.action_delete_all_data: getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.KEY_ID + " > 0", null);
+                                        getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.KEY_ID + " > 0", null);
+                                        break;
       case R.id.action_program_table_activated: item.setChecked(!item.isChecked());
                                                 Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
                                                 edit.putBoolean(PROG_TABLE_ACTIVATED, item.isChecked());
