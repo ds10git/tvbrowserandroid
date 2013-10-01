@@ -39,4 +39,14 @@
     <string name="update_notification_title">TV-Daten Update</string>
     <string name="update_notification_text">Ein TV-Browser Datenupdate läuft</string>
     <string name="update_notification_calculate">TV-Daten verarbeiten...</string>
+    <string name="download_data">TV-Daten laden</string>
+    <string name="download_data_for">Daten herunterladen für:</string>
+    <string-array name="download_selections">
+        <item>Heute</item>
+        <item>Heute und morgen</item>
+        <item>Die nächsten zwei Tage</item>
+        <item>Die nächsten drei Tage</item>
+        <item>Die nächste Woche</item>
+        <item>Die nächsten zwei Wochen</item>
+    </string-array>
 </resources>
