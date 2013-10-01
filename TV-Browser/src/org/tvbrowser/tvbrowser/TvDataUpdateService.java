@@ -50,6 +50,7 @@ import android.widget.Toast;
 
 public class TvDataUpdateService extends Service {
   public static final String TAG = "TV_DATA_UPDATE_SERVICE";
+  public static final String DAYS_TO_LOAD = "DAYS_TO_LOAD";
   private IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
   
   private HashMap<Long,ChannelUpdate> downloadIDs;
@@ -62,6 +63,7 @@ public class TvDataUpdateService extends Service {
   private int mNotifyID = 1;
   private NotificationCompat.Builder mBuilder;
   private int mCurrentDownloadCount;
+  private int mDaysToLoad;
   
   private static final Integer[] FRAME_ID_ARR;
   
@@ -76,6 +78,8 @@ public class TvDataUpdateService extends Service {
   @Override
   public void onCreate() {
     super.onCreate();
+    
+    mDaysToLoad = 2;
     
     mBuilder = new NotificationCompat.Builder(this);
     mBuilder.setSmallIcon(R.drawable.ic_launcher);
@@ -94,6 +98,7 @@ public class TvDataUpdateService extends Service {
   @Override
   public int onStartCommand(Intent intent, int flags, int startId) {
     // TODO Auto-generated method stub
+    mDaysToLoad = intent.getIntExtra(DAYS_TO_LOAD, 2);
     
     new Thread() {
       public void run() {
@@ -273,7 +278,7 @@ public class TvDataUpdateService extends Service {
                 now.add(Calendar.DAY_OF_MONTH, -1);
   
                 Calendar to = Calendar.getInstance();
-                to.add(Calendar.DAY_OF_MONTH, 2);
+                to.add(Calendar.DAY_OF_MONTH, mDaysToLoad);
   
                 
                 for(int i = 0; i < frame.getDayCount(); i++) {
@@ -282,58 +287,60 @@ public class TvDataUpdateService extends Service {
                   if(startDate.compareTo(now) >= 0 && startDate.compareTo(to) <= 0) {
                     int[] version = frame.getVersionForDay(i);
                     // load only base files
-                    long daysSince1970 = startDate.getTimeInMillis() / 24 / 60 / 60000;
-                    
-                    String versionWhere = TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + " = " + daysSince1970 + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelKey;
-                    
-                    Cursor versions = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, null, versionWhere, null, null);
-                    
-                    if(versions.getCount() > 0) {
-                      versions.moveToFirst();
-                    }
-                    
-                    for(int level = 0; level < 1; level++) {
-                      int testVersion = 0;
+                    if(version != null) {
+                      long daysSince1970 = startDate.getTimeInMillis() / 24 / 60 / 60000;
+                      
+                      String versionWhere = TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + " = " + daysSince1970 + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelKey;
+                      
+                      Cursor versions = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, null, versionWhere, null, null);
                       
                       if(versions.getCount() > 0) {
-                        testVersion = versions.getInt(versions.getColumnIndex(versionColumns[level]));
+                        versions.moveToFirst();
                       }
                       
-                      Log.d("MIRR", testVersion +  " level version " + version[level] + " " + frame.getChannelID() + " " + startDate.getTime() + " " + daysSince1970);
-                      
-                      if(version[level] > testVersion) {
-                        String month = String.valueOf(startDate.get(Calendar.MONTH)+1);
-                        String day = String.valueOf(startDate.get(Calendar.DAY_OF_MONTH));
+                      for(int level = 0; level < 1; level++) {
+                        int testVersion = 0;
                         
-                        if(month.length() == 1) {
-                          month = "0" + month;
+                        if(versions.getCount() > 0) {
+                          testVersion = versions.getInt(versions.getColumnIndex(versionColumns[level]));
                         }
                         
-                        if(day.length() == 1) {
-                          day = "0" + day;
-                        }
+                        Log.d("MIRR", testVersion +  " level version " + version[level] + " " + frame.getChannelID() + " " + startDate.getTime() + " " + daysSince1970);
                         
-                        StringBuilder dateFile = new StringBuilder();
-                        dateFile.append(mirror.getUrl());
-                        dateFile.append(startDate.get(Calendar.YEAR));
-                        dateFile.append("-");
-                        dateFile.append(month);
-                        dateFile.append("-");
-                        dateFile.append(day);
-                        dateFile.append("_");
-                        dateFile.append(frame.getCountry());
-                        dateFile.append("_");
-                        dateFile.append(frame.getChannelID());
-                        dateFile.append("_");
-                        dateFile.append(SettingConstants.LEVEL_NAMES[level]);
-                        dateFile.append("_full.prog.gz");
-                                              
-                        downloadList.add(new ChannelUpdate(dateFile.toString(), channelKey, timeZone, startDate.getTimeInMillis()));
-                     //   Log.d(TAG, " DOWNLOADS " + dateFile.toString());
+                        if(version[level] > testVersion) {
+                          String month = String.valueOf(startDate.get(Calendar.MONTH)+1);
+                          String day = String.valueOf(startDate.get(Calendar.DAY_OF_MONTH));
+                          
+                          if(month.length() == 1) {
+                            month = "0" + month;
+                          }
+                          
+                          if(day.length() == 1) {
+                            day = "0" + day;
+                          }
+                          
+                          StringBuilder dateFile = new StringBuilder();
+                          dateFile.append(mirror.getUrl());
+                          dateFile.append(startDate.get(Calendar.YEAR));
+                          dateFile.append("-");
+                          dateFile.append(month);
+                          dateFile.append("-");
+                          dateFile.append(day);
+                          dateFile.append("_");
+                          dateFile.append(frame.getCountry());
+                          dateFile.append("_");
+                          dateFile.append(frame.getChannelID());
+                          dateFile.append("_");
+                          dateFile.append(SettingConstants.LEVEL_NAMES[level]);
+                          dateFile.append("_full.prog.gz");
+                                                
+                          downloadList.add(new ChannelUpdate(dateFile.toString(), channelKey, timeZone, startDate.getTimeInMillis()));
+                       //   Log.d(TAG, " DOWNLOADS " + dateFile.toString());
+                        }
                       }
+                      
+                      versions.close();
                     }
-                    
-                    versions.close();
                   }
                 }
               }

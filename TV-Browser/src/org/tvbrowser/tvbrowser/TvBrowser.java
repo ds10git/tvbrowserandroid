@@ -54,10 +54,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 //
@@ -153,7 +155,7 @@ public class TvBrowser extends FragmentActivity implements
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.YEAR, 2013);
     cal.set(Calendar.MONTH, Calendar.OCTOBER);
-    cal.set(Calendar.DAY_OF_MONTH, 6);
+    cal.set(Calendar.DAY_OF_MONTH, 8);
     
     if(cal.getTimeInMillis() < System.currentTimeMillis()) {    
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -888,7 +890,43 @@ public class TvBrowser extends FragmentActivity implements
     switch (item.getItemId()) {
       case R.id.action_update:
         if(isOnline()) {
-          startService(new Intent(TvBrowser.this, TvDataUpdateService.class));Log.d(TvDataUpdateService.TAG, "returned from intent");
+          AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+          
+          LinearLayout dataDownload = (LinearLayout)getLayoutInflater().inflate(R.layout.download_selection, null);
+          
+          final Spinner days = (Spinner)dataDownload.findViewById(R.id.download_days);
+          ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+              R.array.download_selections, android.R.layout.simple_spinner_item);
+
+          adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+          days.setAdapter(adapter);
+          
+          final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+          days.setSelection(pref.getInt(TvDataUpdateService.DAYS_TO_LOAD, 2));
+          
+          builder.setTitle(R.string.download_data);
+          builder.setView(dataDownload);
+          
+          builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              Intent startDownload = new Intent(TvBrowser.this, TvDataUpdateService.class);
+              startDownload.putExtra(TvDataUpdateService.DAYS_TO_LOAD, SettingConstants.DOWNLOAD_DAYS[days.getSelectedItemPosition()]);
+              
+              Editor settings = pref.edit();
+              settings.putInt(TvDataUpdateService.DAYS_TO_LOAD, days.getSelectedItemPosition());
+              settings.commit();
+              
+              startService(startDownload);Log.d(TvDataUpdateService.TAG, "returned from intent");
+            }
+          });
+          builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              
+            }
+          });
+          builder.show();
         }
         else {
           AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
