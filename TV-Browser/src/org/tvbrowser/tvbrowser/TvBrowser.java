@@ -1,27 +1,14 @@
 package org.tvbrowser.tvbrowser;
 
-import java.io.BufferedReader;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
-import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.app.ActionBar;
 import android.app.AlertDialog;
-import android.app.DownloadManager;
-import android.app.DownloadManager.Request;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
@@ -35,16 +22,19 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
-import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
 import android.util.SparseArray;
@@ -57,6 +47,7 @@ import android.widget.ArrayAdapter;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
+import android.widget.RelativeLayout;
 import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
@@ -67,7 +58,6 @@ public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
   private static final String TAG = "TVB";
   private static final String PROG_TABLE_ACTIVATED = "PROG_TABLE_ACTIVATED";
-  private IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
   
   /**
    * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -79,8 +69,8 @@ public class TvBrowser extends FragmentActivity implements
    */
   SectionsPagerAdapter mSectionsPagerAdapter;
   
-  private int mToDownloadChannels;
-  private Thread mChannelUpdateThread;
+  
+ // private Thread mChannelUpdateThread;
   private boolean updateRunning;
   private boolean selectingChannels;
   private ActionBar actionBar;
@@ -155,7 +145,7 @@ public class TvBrowser extends FragmentActivity implements
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.YEAR, 2013);
     cal.set(Calendar.MONTH, Calendar.OCTOBER);
-    cal.set(Calendar.DAY_OF_MONTH, 8);
+    cal.set(Calendar.DAY_OF_MONTH, 9);
     
     if(cal.getTimeInMillis() < System.currentTimeMillis()) {    
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -172,12 +162,9 @@ public class TvBrowser extends FragmentActivity implements
       dialog.show();
     }
     
-    mToDownloadChannels = -1;
+    Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + " = 1", null, null);
     
-    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    Set<String> channels = preferences.getStringSet(SettingConstants.SUBSCRIBED_CHANNELS, null);
-    
-    if(!selectingChannels && (channels == null || channels.isEmpty())) {
+    if(!selectingChannels && (channels == null || channels.getCount() == 0)) {
       selectingChannels = true;
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
       builder.setMessage(R.string.no_channels);
@@ -264,88 +251,40 @@ public class TvBrowser extends FragmentActivity implements
     }.start();
     */
   }
-
-
-  
-  private void waitForChannelUpdate() {
-    if(mChannelUpdateThread == null || !mChannelUpdateThread.isAlive()) {
-      mChannelUpdateThread = new Thread() {
-        public void run() {
-          while(mToDownloadChannels > 0) {
-            try {
-              sleep(500);
-            } catch (InterruptedException e) {
-              // TODO Auto-generated catch block
-              e.printStackTrace();
-            }
-          }
-          
-          if(mToDownloadChannels == 0) {
-            runOnUiThread(new Runnable() {
-              @Override
-              public void run() {
-                showChannelSelection();
-              }
-            });
-          }
-        }
-      };
-      mChannelUpdateThread.start();
-    }
-  }
   
   private void showChannelSelection() {
    // Log.d(TAG, "select channels");
     String[] projection = {
         TvBrowserContentProvider.KEY_ID,
-        TvBrowserContentProvider.CHANNEL_KEY_NAME
+        TvBrowserContentProvider.CHANNEL_KEY_NAME,
+        TvBrowserContentProvider.CHANNEL_KEY_SELECTION
         };
     
     ContentResolver cr = getContentResolver();
     Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, null, null, null);
     
-    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    Set<String> currentChannels = preferences.getStringSet(SettingConstants.SUBSCRIBED_CHANNELS, null);
-    
     final ArrayList<ChannelSelection> channelSource = new ArrayList<TvBrowser.ChannelSelection>();
     ArrayList<CharSequence> channelNames = new ArrayList<CharSequence>();
     //final ArrayList<Integer> selectedChannels = new ArrayList<Integer>();
     final boolean[] currentlySelected = new boolean[channels.getCount()];
+    final boolean[] toUnselect = new boolean[channels.getCount()];
     
     int i = 1;
     
     if(channels.moveToFirst()) {
-      int key = channels.getInt(0);
-      String name = channels.getString(1);
-      
-      channelSource.add(new ChannelSelection(key, name, i));
-      channelNames.add(name);
-      
-      if(currentChannels != null) {
-        currentlySelected[i-1] = currentChannels.contains(String.valueOf(key));
-      }
-      else {
-        currentlySelected[i-1] = false;
-      }
-      
-      i++;
-      
-      while(channels.moveToNext()) {
-        key = channels.getInt(0);
-        name = channels.getString(1);
+      do {
+        int key = channels.getInt(0);
+        String name = channels.getString(1);
+        int selection = channels.getInt(2);
         
-        if(currentChannels != null) {
-          currentlySelected[i-1] = currentChannels.contains(String.valueOf(key));
-        }
-        else {
-          currentlySelected[i-1] = false;
-        }
+        currentlySelected[i-1] = selection == 1;
+        toUnselect[i-1] = false;
         
         channelSource.add(new ChannelSelection(key, name, i));
         channelNames.add(name);
         
         i++;
-      }
+      }while(channels.moveToNext());
     }
     
     channels.close();
@@ -357,7 +296,14 @@ public class TvBrowser extends FragmentActivity implements
       builder.setMultiChoiceItems(channelNames.toArray(new CharSequence[channelNames.size()]), currentlySelected, new DialogInterface.OnMultiChoiceClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-          currentlySelected[which] = isChecked;
+          if(currentlySelected[which] && !isChecked) {
+            currentlySelected[which] = false;
+            toUnselect[which] = true;
+          }
+          else if(!currentlySelected[which] && isChecked){
+            currentlySelected[which] = true;
+            toUnselect[which] = false;
+          }
           /*if(isChecked) {
             selectedChannels.add(which);
           } 
@@ -369,21 +315,30 @@ public class TvBrowser extends FragmentActivity implements
       
       builder.setPositiveButton(android.R.string.ok, new OnClickListener() {        
         @Override
-        public void onClick(DialogInterface dialog, int which) {
-          SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-          Editor editor = preferences.edit();
-          
-          HashSet<String> channelSet = new HashSet<String>();
-          
+        public void onClick(DialogInterface dialog, int which) {          
           for(int i = 0; i < currentlySelected.length; i++) {
             if(currentlySelected[i]) {
-              channelSet.add(String.valueOf(channelSource.get(i).getKey()));
+              int key = channelSource.get(i).getKey();
+              
+              ContentValues values = new ContentValues();
+              
+              values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
+              
+              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, key), values, null, null);
             }
           }
           
-          editor.putStringSet(SettingConstants.SUBSCRIBED_CHANNELS, channelSet);
-          
-          editor.commit();
+          for(int i = 0; i < toUnselect.length; i++) {
+            if(toUnselect[i]) {
+              int key = channelSource.get(i).getKey();
+              
+              ContentValues values = new ContentValues();
+              
+              values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 0);
+              
+              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, key), values, null, null);
+            }
+          }
         }
       });
       
@@ -426,36 +381,30 @@ public class TvBrowser extends FragmentActivity implements
     public String toString() {
       return mSortNumber + ". " + mName;
     }
+    
+    public String getName() {
+      return mName;
+    }
   }
-  
-  
   
   private void selectChannels(boolean loadAgain) {
     if(loadAgain || getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null).getCount() < 1) {
-      final DownloadManager download = (DownloadManager)getSystemService(Context.DOWNLOAD_SERVICE);
+      Intent updateChannels = new Intent(TvBrowser.this, TvDataUpdateService.class);
+      updateChannels.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.CHANNEL_TYPE);
       
-      Uri uri = Uri.parse("http://www.tvbrowser.org/listings/groups.txt");
-      
-      DownloadManager.Request request = new Request(uri);
-      
-      
-      final long reference = download.enqueue(request);
-      mToDownloadChannels = 1;
-      waitForChannelUpdate();
+      final IntentFilter filter = new IntentFilter(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
       
       BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
-        public void onReceive(Context context, android.content.Intent intent) {
-          long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-          
-          if(reference == receiveReference) {
-            unregisterReceiver(this);
-            updateGroups(download,reference);
-          }
-        };
+        public void onReceive(Context context, Intent intent) {
+          LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(this);
+          showChannelSelection();
+        }
       };
       
-      registerReceiver(receiver, filter);
+      LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
+      
+      startService(updateChannels);
     }
     else {
       showChannelSelection();
@@ -463,214 +412,12 @@ public class TvBrowser extends FragmentActivity implements
    // HttpURLConnection.
   }
   
-  private void updateGroups(DownloadManager download, long reference) {
-    try {
-      BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(download.openDownloadedFile(reference).getFileDescriptor())));
-      
-      ContentResolver cr = TvBrowser.this.getContentResolver();
 
-      String line = null;
-      
-      while((line = in.readLine()) != null) {
-        String[] parts = line.split(";");
-        
-        // Construct a where clause to make sure we don't already have ths group in the provider.
-        String w = TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = '" + SettingConstants.EPG_FREE_KEY + "' AND " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = '" + parts[0] + "'";
-        
-        // If the group is new, insert it into the provider.
-        Cursor query = cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, w, null, null);
-        
-        ContentValues values = new ContentValues();
-        
-        values.put(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID, SettingConstants.EPG_FREE_KEY);
-        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_ID, parts[0]);
-        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME, parts[1]);
-        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER, parts[2]);
-        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION, parts[3]);
-        
-        StringBuilder builder = new StringBuilder(parts[4]);
-        
-        for(int i = 5; i < parts.length; i++) {
-          builder.append(";");
-          builder.append(parts[i]);
-        }
-        
-        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, builder.toString());
-        
-        if(query == null || query.getCount() == 0) {
-          // The group is not already known, so insert it
-          Uri insert = cr.insert(TvBrowserContentProvider.CONTENT_URI_GROUPS, values);
-          
-          loadChannelForGroup(download, cr.query(insert, null, null, null, null));
-        }
-        else {
-          cr.update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, w, null);
-          
-          loadChannelForGroup(download, cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, w, null, null));
-        }
-        
-        query.close();
-      }
-      
-      in.close();
-      
-     // cr.delete(download.getUriForDownloadedFile(reference), null, null);
-      
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    
-    mToDownloadChannels--;
-  }
   
-  private synchronized void loadChannelForGroup(final DownloadManager download, final Cursor cursor) { 
-    int index = cursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS);
-    
-    if(index >= 0) {
-      cursor.moveToFirst();
-      
-      String temp = cursor.getString(index);
-      
-      index = cursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-      final String groupId = cursor.getString(index);
-      
-      String[] mirrors = null;
-      
-      if(temp.contains(";")) {
-        mirrors = temp.split(";");
-      }
-      else {
-        mirrors = new String[1];
-        mirrors[0] = temp;
-      }
-      
-      int idIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-      final int keyID = cursor.getInt(idIndex);
-      
-      for(String mirror : mirrors) {
-        
-        if(isConnectedToServer(mirror,5000)) {
-          if(!mirror.endsWith("/")) {
-            mirror += "/";
-          }
-        //  Log.i(TAG, "LOADING: " + mirror+groupId+"_channellist.gz");
-          mToDownloadChannels++;
-          final long requestId = download.enqueue(new Request(Uri.parse(mirror+groupId+"_channellist.gz")));
-          
-          BroadcastReceiver receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, android.content.Intent intent) {
-              long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-              
-              if(requestId == receiveReference) {
-                unregisterReceiver(this);
-                addChannels(download,requestId,keyID,groupId);
-              }
-            };
-          };
-          
-          registerReceiver(receiver, filter);
-          
-          break;
-        }
-      }
-      
-      cursor.close();
-    }
-  }
+
   
-  // Cursor contains the channel group
-  public void addChannels(DownloadManager download, long reference, int uniqueGroupID,final String groupId) {
-    try {
-      BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(download.openDownloadedFile(reference).getFileDescriptor())),"ISO-8859-1"));
-      
-      String line = null;
-      
-      while((line = read.readLine()) != null) {
-        String[] parts = line.split(";");
-        
-        String baseCountry = parts[0];
-        String timeZone = parts[1];
-        String channelId = parts[2];
-        String name = parts[3];
-        String copyright = parts[4];
-        String website = parts[5];
-        String logoUrl = parts[6];
-        int category = Integer.parseInt(parts[7]);
-        
-        StringBuilder fullName = new StringBuilder();
-        
-        int i = 8;
-        
-        if(parts.length > i) {
-            do {
-              fullName.append(parts[i]);
-              fullName.append(";");
-            }while(!parts[i++].endsWith("\""));
-            
-            fullName.deleteCharAt(fullName.length()-1);
-        }
-        
-        if(fullName.length() == 0) {
-          fullName.append(name);
-        }
-        
-        String allCountries = baseCountry;
-        String joinedChannel = "";
-        
-        if(parts.length > i) {
-          allCountries = parts[i++];
-        }
-        
-        if(parts.length > i) {
-          joinedChannel = parts[i];
-        }
-        
-        String where = TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + uniqueGroupID + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = '" + channelId + "'";
-        
-        ContentResolver cr = getContentResolver();
-        
-        Cursor query = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
-        
-        ContentValues values = new ContentValues();
-        
-        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_ID, uniqueGroupID);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, channelId);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY, baseCountry);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE, timeZone);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_NAME, name);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_COPYRIGHT, copyright);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_WEBSITE, website);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_LOGO_URL, logoUrl);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_CATEGORY, category);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_FULL_NAME, fullName.toString().replaceAll("\"", ""));
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_ALL_COUNTRIES, allCountries);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_JOINED_CHANNEL_ID, joinedChannel);
-        
-        if(query == null || query.getCount() == 0) {
-          // add channel
-          cr.insert(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values);
-        }
-        else {
-          // update channel
-          cr.update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, where, null);
-        }
-        
-        query.close();
-      }
-      read.close();
-    } catch (FileNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    
-    mToDownloadChannels--;
-  }
-  
+ 
+  /*
   private class NetworkCheck extends Thread {
     private String mUrl;
     private int mTimeout;
@@ -720,7 +467,7 @@ public class TvBrowser extends FragmentActivity implements
     
     return check.success();
   }
-
+*/
   
   
 
@@ -738,38 +485,25 @@ public class TvBrowser extends FragmentActivity implements
   
   
   private void sortChannels() {
-    SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    Set<String> channelSet = preferences.getStringSet(SettingConstants.SUBSCRIBED_CHANNELS, null);
+    ContentResolver cr = getContentResolver();
     
-    if(channelSet != null) {
-      ContentResolver cr = getContentResolver();
+    StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
+    where.append(" = 1");
+    
+    ListView channelSort = (ListView)getLayoutInflater().inflate(R.layout.channel_sort_list, null);
+    
+    String[] projection = {
+        TvBrowserContentProvider.KEY_ID,
+        TvBrowserContentProvider.CHANNEL_KEY_NAME,
+        TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
+        TvBrowserContentProvider.CHANNEL_KEY_SELECTION
+        };
+    
+    Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+    
+    final ArrayList<ChannelSelection> channelSource = new ArrayList<TvBrowser.ChannelSelection>();
       
-      StringBuilder where = new StringBuilder(TvBrowserContentProvider.KEY_ID);
-      where.append(" IN (");
-
-      for(String key : channelSet) {
-        where.append(key);
-        where.append(", ");
-      }
-      
-      where.delete(where.length()-2,where.length());
-      
-      where.append(")");
-      ListView channelSort = (ListView)getLayoutInflater().inflate(R.layout.channel_sort_list, null);
-      
-      
-      String[] projection = {
-          TvBrowserContentProvider.KEY_ID,
-          TvBrowserContentProvider.CHANNEL_KEY_NAME,
-          TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER
-          };
-      
-      Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
-      
-      final ArrayList<ChannelSelection> channelSource = new ArrayList<TvBrowser.ChannelSelection>();
-      
-      
-      
+    if(channels.getCount() > 0) {
       if(channels.moveToFirst()) {
         int key = channels.getInt(0);
         String name = channels.getString(1);
@@ -809,13 +543,18 @@ public class TvBrowser extends FragmentActivity implements
           Log.d("TVB",String.valueOf(view) + " " + position + " " + id);
           AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
           
-          final NumberPicker number = (NumberPicker)getLayoutInflater().inflate(R.layout.sort_number_selection, null);
+          LinearLayout numberSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.sort_number_selection, null);
+          
+          final NumberPicker number = (NumberPicker)numberSelection.findViewById(R.id.sort_picker);
           number.setMinValue(1);
           number.setMaxValue(channelSource.size());
           
-          builder.setView(number);
+          builder.setView(numberSelection);
           
           final ChannelSelection selection = channelSource.get(position);
+          
+          TextView name = (TextView)numberSelection.findViewById(R.id.sort_picker_channel_name);
+          name.setText(selection.getName());
           
           if(selection.getSortNumber() > 0 && selection.getSortNumber() < channelSource.size()+1) {
             number.setValue(selection.getSortNumber());
@@ -911,6 +650,7 @@ public class TvBrowser extends FragmentActivity implements
             @Override
             public void onClick(DialogInterface dialog, int which) {
               Intent startDownload = new Intent(TvBrowser.this, TvDataUpdateService.class);
+              startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
               startDownload.putExtra(TvDataUpdateService.DAYS_TO_LOAD, SettingConstants.DOWNLOAD_DAYS[days.getSelectedItemPosition()]);
               
               Editor settings = pref.edit();
@@ -943,6 +683,34 @@ public class TvBrowser extends FragmentActivity implements
           
           builder.show();
         }
+        break;
+      case R.id.action_about: 
+        AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+        
+        RelativeLayout about = (RelativeLayout)getLayoutInflater().inflate(R.layout.about, null);
+        
+        try {
+          PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+          TextView version = (TextView)about.findViewById(R.id.version);
+          version.setText(pInfo.versionName);
+        } catch (NameNotFoundException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+        
+        TextView androidVersion = (TextView)about.findViewById(R.id.android_version);
+        androidVersion.setText(Build.VERSION.RELEASE);
+        
+        builder.setTitle(R.string.action_about);
+        builder.setView(about);
+        
+        builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            
+          }
+        });
+        builder.show();
         break;
       case R.id.action_load_channels_again: selectChannels(true);break;
       case R.id.action_select_channels: selectChannels(false);break;

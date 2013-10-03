@@ -45,6 +45,8 @@
     <string name="update_notification_title">TV data update</string>
     <string name="update_notification_text">A TV-Browser data update is running</string>
     <string name="update_notification_calculate">Calculate TV data...</string>
+    <string name="channel_notification_title">Get channels</string>
+    <string name="channel_notification_text">Loading available TV-Browser channels</string>
     <string name="download_data">Load TV data</string>
     <string name="download_data_for">Download data for:</string>
     <string-array name="download_selections">
@@ -55,4 +57,10 @@
         <item>The next week</item>
         <item>The next two weeks</item>
     </string-array>
+    <string name="version">Version:</string>
+    <string name="android">Android:</string>
+    <string name="copyright">Copyright (c) 2013, René Mach.</string>
+    <string name="license">TV-Browser for Android is freeware.</string>
+    <string name="name_for_android">TV-Browser for Android</string>
+    <string name="action_about">About TV-Browser</string>
 </resources>

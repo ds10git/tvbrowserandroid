@@ -114,66 +114,50 @@ public class DummySectionFragment extends Fragment {
         rootView = inflater.inflate(R.layout.program_list_fragment,
             container, false);
         
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext());
-        Set<String> channels = preferences.getStringSet(SettingConstants.SUBSCRIBED_CHANNELS, null);
+        ContentResolver cr = getActivity().getContentResolver();
         
-        if(channels != null && !channels.isEmpty()) {
-          ContentResolver cr = getActivity().getContentResolver();
+        StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
+        where.append(" = 1");
+        
+        Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+        
+        if(channelCursor.getCount() > 0) {
+          channelCursor.moveToFirst();
           
-          StringBuilder where = new StringBuilder(TvBrowserContentProvider.KEY_ID);
-          where.append(" IN (");
-    
-          for(String key : channels) {
-            where.append(key);
-            where.append(", ");
-          }
-          
-          where.delete(where.length()-2,where.length());
-          
-          where.append(")");
-          
-       //   Log.d(TAG, where.toString());
-          
-          
-          Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-          
-          if(channelCursor.getCount() > 0) {
-            channelCursor.moveToFirst();
-            
-            LinearLayout parent = (LinearLayout)rootView.findViewById(R.id.button_bar);
-            final ProgramsListFragment programList = (ProgramsListFragment)getActivity().getSupportFragmentManager().findFragmentById(R.id.programListFragment);
-            View.OnClickListener listener = new View.OnClickListener() {
-              @Override
-              public void onClick(View v) {
-                
-                
-                if(programList != null) {
-                  programList.setChannelID((Long)v.getTag());
-                }
+          LinearLayout parent = (LinearLayout)rootView.findViewById(R.id.button_bar);
+          final ProgramsListFragment programList = (ProgramsListFragment)getActivity().getSupportFragmentManager().findFragmentById(R.id.programListFragment);
+          View.OnClickListener listener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              
+              
+              if(programList != null) {
+                programList.setChannelID((Long)v.getTag());
               }
-            };
-            
-            Button all = (Button)parent.findViewById(R.id.all_channels);
-            all.setTag(Long.valueOf(-1));
-            all.setOnClickListener(listener);
-            
-            do {
-              Button channelButton = new Button(getActivity(),null,android.R.attr.buttonBarButtonStyle);
-              channelButton.setTag(channelCursor.getLong(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
-              
-              channelButton.setOnClickListener(listener);
-              //
-              //Log.d("TVB", String.valueOf(running));
-              //final RunningProgramsListFragment running = (RunningProgramsListFragment)rootView.findViewById(R.id.runningListFragment);
-              
-              channelButton.setText(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
-              
-              parent.addView(channelButton);
-            }while(channelCursor.moveToNext());
-          }
+            }
+          };
           
-          channelCursor.close();
+          Button all = (Button)parent.findViewById(R.id.all_channels);
+          all.setTag(Long.valueOf(-1));
+          all.setOnClickListener(listener);
+          
+          do {
+            Button channelButton = new Button(getActivity(),null,android.R.attr.buttonBarButtonStyle);
+            channelButton.setTag(channelCursor.getLong(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
+            
+            channelButton.setOnClickListener(listener);
+            //
+            //Log.d("TVB", String.valueOf(running));
+            //final RunningProgramsListFragment running = (RunningProgramsListFragment)rootView.findViewById(R.id.runningListFragment);
+            
+            channelButton.setText(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
+            
+            parent.addView(channelButton);
+          }while(channelCursor.moveToNext());
         }
+        
+        channelCursor.close();
+        
     //  }
     }
     else {
