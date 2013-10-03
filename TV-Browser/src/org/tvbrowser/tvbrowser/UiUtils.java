@@ -116,8 +116,21 @@ public class UiUtils {
     builder.show();
   }
   
-  public static void createContextMenu(Activity activity, ContextMenu menu) { 
+  public static void createContextMenu(Activity activity, ContextMenu menu, long id) {
     activity.getMenuInflater().inflate(R.menu.program_context, menu);
+    
+    Cursor cursor = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
+    
+    if(cursor.getCount() > 0) {
+      cursor.moveToFirst();
+      
+      boolean showMark = cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES)) || cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES)).trim().length() == 0;
+      
+      menu.findItem(R.id.prog_mark_item).setVisible(showMark);
+      menu.findItem(R.id.prog_unmark_item).setVisible(!showMark);
+    }
+    
+    cursor.close();
   }
   
   public static boolean handleContextMenuSelection(Activity activity, MenuItem item, long programID, View menuView) {

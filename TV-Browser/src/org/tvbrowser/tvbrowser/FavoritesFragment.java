@@ -266,8 +266,10 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     }
     else {
       mFavoriteContext = false;
-      return mViewAndClickHandler.onContextItemSelected(item);
+     // return mViewAndClickHandler.onContextItemSelected(item);
     }
+    
+    return false;
   }
   
   @Override

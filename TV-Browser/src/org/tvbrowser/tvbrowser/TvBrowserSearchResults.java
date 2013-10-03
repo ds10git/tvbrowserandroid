@@ -16,6 +16,7 @@ import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
@@ -62,7 +63,9 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
   @Override
   public void onCreateContextMenu(ContextMenu menu, View v,
       ContextMenuInfo menuInfo) {
-    TvBrowserSearchResults.this.getMenuInflater().inflate(R.menu.program_context, menu);
+    long programID = ((AdapterView.AdapterContextMenuInfo)menuInfo).id;
+    
+    UiUtils.createContextMenu(TvBrowserSearchResults.this, menu, programID);
   }
   
   @Override
