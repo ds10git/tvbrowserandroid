@@ -473,7 +473,9 @@ public class ProgramTableFragment extends Fragment {
   public void onCreateContextMenu(ContextMenu menu, View v,
       ContextMenuInfo menuInfo) {
     mMenuView = v;
-    UiUtils.createContextMenu(getActivity(), menu);
+    long programID = ((Long)v.getTag());
+    
+    UiUtils.createContextMenu(getActivity(), menu, programID);
   }
   
   

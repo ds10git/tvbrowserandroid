@@ -292,11 +292,13 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   @Override
   public void onCreateContextMenu(ContextMenu menu, View v,
       ContextMenuInfo menuInfo) {
-    UiUtils.createContextMenu(getActivity(), menu);
+
+    long programID = ((AdapterView.AdapterContextMenuInfo)menuInfo).id;
+    UiUtils.createContextMenu(getActivity(), menu, programID);
   }
   
-  @Override
-  public boolean onContextItemSelected(MenuItem item) {
+ // @Override
+ /* public boolean onContextItemSelected(MenuItem item) {
     if(item.getMenuInfo() != null) {
       long programID = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).id;
     
@@ -304,7 +306,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     }
     
     return false;
-  }
+  }*/
   
   @Override
   public void onListItemClick(ListView l, View v, int position, long id) {

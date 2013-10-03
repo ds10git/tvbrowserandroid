@@ -140,7 +140,9 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
   
   public void onCreateContextMenu(ContextMenu menu, View v,
       ContextMenuInfo menuInfo) {
-    UiUtils.createContextMenu(mActivity, menu);
+    long programID = ((AdapterView.AdapterContextMenuInfo)menuInfo).id;
+    Log.d("TVB", String.valueOf(programID));
+    UiUtils.createContextMenu(mActivity, menu, programID);
   }
   
   
