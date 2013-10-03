@@ -1,7 +1,6 @@
 package org.tvbrowser.tvbrowser;
 
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
 import java.util.TimeZone;
@@ -33,8 +32,6 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class ProgramTableFragment extends Fragment {
-  private ArrayList<View> mRunningPrograms;
-  
   private boolean mKeepRunning;
   private Thread mUpdateThread;
   private View.OnClickListener mClickListener;
@@ -83,7 +80,6 @@ public class ProgramTableFragment extends Fragment {
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
     
-    mRunningPrograms = new ArrayList<View>();
     mClickListener = new View.OnClickListener() {
       @Override
       public void onClick(View v) {
@@ -501,12 +497,10 @@ public class ProgramTableFragment extends Fragment {
     parent.addView(block);
 
     if(!cursor.isAfterLast()) {
-      
       Calendar cal = Calendar.getInstance();
       cal.setTimeInMillis(cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
       
       if(start >= 24) {
-        
         start -= 24;
         end -= 24;
       }
@@ -516,11 +510,7 @@ public class ProgramTableFragment extends Fragment {
         registerForContextMenu(panel);
         panel.setOnClickListener(mClickListener);
         panel.setTag(cursor.getLong(0));
-        
-        if(count == 1 && panel != null) {
-          mRunningPrograms.add(panel);
-        }
-        
+                
         count++;
         
         String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
