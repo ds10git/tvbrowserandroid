@@ -15,10 +15,16 @@
         android:textStyle="bold"
         android:layout_toRightOf="@id/prog_panel_start_time"
         android:layout_alignParentTop="true" />
+    <TextView android:id="@+id/prog_panel_genre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textStyle="italic"
+        android:layout_toRightOf="@id/prog_panel_start_time"
+        android:layout_below="@id/prog_panel_title"/>    
     <TextView android:id="@+id/prog_panel_episode"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textStyle="italic"
         android:layout_toRightOf="@id/prog_panel_start_time"
-        android:layout_below="@id/prog_panel_title"/>
+        android:layout_below="@id/prog_panel_genre"/>
 </RelativeLayout>

@@ -1,0 +1,7 @@
+<resources xmlns:android="http://schemas.android.com/apk/res/android">
+    <style name="favorite_add_button_style">
+        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:text">@string/add</item>
+    </style>
+
+</resources>

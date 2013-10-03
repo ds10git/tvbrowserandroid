@@ -56,7 +56,8 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
         TvBrowserContentProvider.DATA_KEY_ENDTIME,
         TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
         TvBrowserContentProvider.DATA_KEY_TITLE,
-        TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE
+        TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
+        TvBrowserContentProvider.DATA_KEY_GENRE
     };
   /*  
             TvBrowserContentProvider.KEY_ID,
@@ -78,7 +79,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     
     mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(this);
     adapter = new SimpleCursorAdapter(this,/*android.R.layout.simple_list_item_1*/R.layout.program_list_entries,null,
-        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL},0);
+        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl},0);
     adapter.setViewBinder(mViewAndClickHandler);
    /* adapter.setViewBinder(mViewAndClickHandler);/*new SimpleCursorAdapter.ViewBinder() {
       @Override
@@ -246,6 +247,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
         TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
         TvBrowserContentProvider.CHANNEL_KEY_NAME,
+        TvBrowserContentProvider.DATA_KEY_GENRE
     };
     /*
     String[] projection = {

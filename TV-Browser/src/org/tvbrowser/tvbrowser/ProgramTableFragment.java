@@ -100,6 +100,18 @@ public class ProgramTableFragment extends Fragment {
         table.addView(row0);
         table.addView(row);
         
+        if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
+          TextView genre = new TextView(table.getContext());
+          genre.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+          genre.setTypeface(null, Typeface.ITALIC);
+          genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)));
+          
+          TableRow rowGenre = new TableRow(table.getContext());
+          
+          rowGenre.addView(genre);
+          table.addView(rowGenre);
+        }
+        
         if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
           TextView episode = new TextView(table.getContext());
           episode.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
@@ -203,7 +215,7 @@ public class ProgramTableFragment extends Fragment {
                         if(view != null) {
                           Long tag = (Long)view.getTag();
                           Log.d("test", " TAG " + String.valueOf(tag));
-                          Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, tag), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID}, null, null, null);
+                          Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, tag), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_GENRE}, null, null, null);
                           
                           if(c.getCount() > 0) {
                             c.moveToFirst();
@@ -220,7 +232,8 @@ public class ProgramTableFragment extends Fragment {
                                   Log.d("test", " OLD PROG " + String.valueOf(((TextView)internal.findViewById(R.id.prog_panel_title)).getText()));
                                   ((TextView)internal.findViewById(R.id.prog_panel_start_time)).setTextColor(Color.rgb(190, 190, 190));
                                   ((TextView)internal.findViewById(R.id.prog_panel_title)).setTextColor(Color.rgb(190, 190, 190));
-                                  ((TextView)internal.findViewById(R.id.prog_panel_episode)).setTextColor(Color.rgb(190, 190, 190));                              
+                                  ((TextView)internal.findViewById(R.id.prog_panel_episode)).setTextColor(Color.rgb(190, 190, 190));  
+                                  ((TextView)internal.findViewById(R.id.prog_panel_genre)).setTextColor(Color.rgb(190, 190, 190));
                                 }
                               });
                               mRunningPrograms.remove(i);
@@ -248,6 +261,7 @@ public class ProgramTableFragment extends Fragment {
                                           ((TextView)internal1.findViewById(R.id.prog_panel_start_time)).setTextColor(Color.rgb(190, 190, 190));
                                           ((TextView)internal1.findViewById(R.id.prog_panel_title)).setTextColor(Color.rgb(190, 190, 190));
                                           ((TextView)internal1.findViewById(R.id.prog_panel_episode)).setTextColor(Color.rgb(190, 190, 190));
+                                          ((TextView)internal1.findViewById(R.id.prog_panel_genre)).setTextColor(Color.rgb(190, 190, 190));
                                         }
                                       }
                                     });
@@ -282,6 +296,7 @@ public class ProgramTableFragment extends Fragment {
                                   ((TextView)internal1.findViewById(R.id.prog_panel_start_time)).setTextColor(getActivity().getResources().getColor(R.color.running_color));
                                   ((TextView)internal1.findViewById(R.id.prog_panel_title)).setTextColor(getActivity().getResources().getColor(R.color.running_color));
                                   ((TextView)internal1.findViewById(R.id.prog_panel_episode)).setTextColor(getActivity().getResources().getColor(R.color.running_color));                              
+                                  ((TextView)internal1.findViewById(R.id.prog_panel_genre)).setTextColor(getActivity().getResources().getColor(R.color.running_color));
                                 }
                               });
                             }
@@ -775,6 +790,7 @@ public class ProgramTableFragment extends Fragment {
       
       TextView startTime = (TextView)panel.findViewById(R.id.prog_panel_start_time);
       TextView title = (TextView)panel.findViewById(R.id.prog_panel_title);
+      TextView genre = (TextView)panel.findViewById(R.id.prog_panel_genre);
       TextView episode = (TextView)panel.findViewById(R.id.prog_panel_episode);
       
       long endTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
@@ -783,12 +799,14 @@ public class ProgramTableFragment extends Fragment {
         startTime.setTextColor(Color.rgb(190, 190, 190));
         title.setTextColor(Color.rgb(190, 190, 190));
         episode.setTextColor(Color.rgb(190, 190, 190));
+        genre.setTextColor(Color.rgb(190, 190, 190));
       }
       else if(System.currentTimeMillis() >= cal.getTimeInMillis() && System.currentTimeMillis() <= endTime) {
       //  mRunningPrograms.add(panel);
         startTime.setTextColor(getActivity().getResources().getColor(R.color.running_color));
         title.setTextColor(getActivity().getResources().getColor(R.color.running_color));
         episode.setTextColor(getActivity().getResources().getColor(R.color.running_color));
+        genre.setTextColor(getActivity().getResources().getColor(R.color.running_color));
       }
       else {
         int[] attrs = new int[] { android.R.attr.textColorSecondary };
@@ -799,6 +817,7 @@ public class ProgramTableFragment extends Fragment {
         startTime.setTextColor(DEFAULT_TEXT_COLOR);
         title.setTextColor(DEFAULT_TEXT_COLOR);
         episode.setTextColor(DEFAULT_TEXT_COLOR);
+        genre.setTextColor(DEFAULT_TEXT_COLOR);
       }
       
       startTime.setText(DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault()).format(cal.getTime()));
@@ -810,6 +829,14 @@ public class ProgramTableFragment extends Fragment {
       }
       else {
         episode.setVisibility(TextView.GONE);
+      }
+      
+      if(!cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
+        genre.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)));
+        genre.setVisibility(TextView.VISIBLE);
+      }
+      else {
+        genre.setVisibility(TextView.GONE);
       }
       
       block.addView(panel);

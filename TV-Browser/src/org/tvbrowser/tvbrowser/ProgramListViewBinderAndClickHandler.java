@@ -41,7 +41,17 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
 
   @Override
   public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-     if(columnIndex == 1) {
+    Log.d("INFO", String.valueOf(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) + " " + columnIndex);
+
+    if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
+      long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+      Log.d("INFO", String.valueOf(date));
+      TextView text = (TextView)view;
+      text.setText(DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(date)));
+      
+      return true;
+    } 
+    else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_UNIX_DATE)) {
        long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
        
        TextView text = (TextView)view;
@@ -89,13 +99,13 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
        
        return true;
      }
-     else if(columnIndex == 2) {
+     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) {
        TextView text = (TextView)view;
        text.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
        
        return true;
      }
-     else if(columnIndex == 3) {
+     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
        long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
        
        TextView text = (TextView)view;
@@ -105,15 +115,7 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
        
        return true;
      }
-     else if(columnIndex == 4) {
-       long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
-       
-       TextView text = (TextView)view;
-       text.setText(DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(date)));
-       
-       return true;
-     }
-     else if(columnIndex == 5) {
+     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)) {
        TextView text = (TextView)view;
        
        long end = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
@@ -131,7 +133,7 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
          text.setTextColor(DEFAULT_TEXT_COLOR);
        }
      }
-     else if(columnIndex == 9) {
+     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)) {
        if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
          view.setVisibility(View.GONE);
        }
@@ -139,7 +141,14 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
          view.setVisibility(View.VISIBLE);
        }
      }
-             
+     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) {
+       if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
+         view.setVisibility(View.GONE);
+       }
+       else {
+         view.setVisibility(View.VISIBLE);
+       }
+     }     
      return false;
    }
 
@@ -359,9 +368,21 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
     title.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
     
     row.addView(title);
-    
     table.addView(row0);
     table.addView(row);
+    
+    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
+      TextView genre = new TextView(row.getContext());
+      genre.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+      genre.setTypeface(null, Typeface.ITALIC);
+      genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)));
+      
+      TableRow rowGenre = new TableRow(table.getContext());
+      
+      rowGenre.addView(genre);
+      
+      table.addView(rowGenre);
+    }
     
     if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
       TextView episode = new TextView(table.getContext());

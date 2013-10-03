@@ -108,17 +108,18 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         TvBrowserContentProvider.DATA_KEY_ENDTIME,
         TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
         TvBrowserContentProvider.DATA_KEY_TITLE,
-        TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE
+        TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
+        TvBrowserContentProvider.DATA_KEY_GENRE
     };
     
     // Create a new Adapter an bind it to the List View
     adapter = new SimpleCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.running_list_entries,null,
-        projection,new int[] {R.id.startTimeLabel,R.id.endTimeLabel,R.id.channelLabel,R.id.titleLabel,R.id.episodeLabel},0);
+        projection,new int[] {R.id.startTimeLabel,R.id.endTimeLabel,R.id.channelLabel,R.id.titleLabel,R.id.episodeLabel,R.id.genre_label},0);
     adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
       @Override
       public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-        //Log.d("TVB", " COLUMN " + columnIndex);
-        if(columnIndex == 1) {
+        Log.d("TVB", " COLUMN " + columnIndex + " " + cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+        if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) {
           int channelID = cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
           
           Cursor channel = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelID), null, null, null, null);
@@ -132,7 +133,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           
           return true;
         }
-        else if(columnIndex == 2) {
+        else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
           long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
           
           TextView text = (TextView)view;
@@ -141,7 +142,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           
           return true;
         }
-        else if(columnIndex == 3) {
+        else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
           long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
           
           TextView text = (TextView)view;
@@ -164,7 +165,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           
           return true;
         }
-        else if(columnIndex == 4) {
+        else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)) {
           TextView text = (TextView)view;
           
           long end = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
@@ -173,10 +174,12 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           if(end <= System.currentTimeMillis()) {
             text.setTextColor(Color.rgb(200, 200, 200));
             ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.episodeLabel)).setTextColor(Color.rgb(200, 200, 200));
+            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.genre_label)).setTextColor(Color.rgb(200, 200, 200));
           }
           else if(System.currentTimeMillis() >= start && System.currentTimeMillis() <= end) {
             text.setTextColor(getActivity().getResources().getColor(R.color.running_color));
             ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.episodeLabel)).setTextColor(getActivity().getResources().getColor(R.color.running_color));
+            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.genre_label)).setTextColor(getActivity().getResources().getColor(R.color.running_color));
           }
           else {
             int[] attrs = new int[] { android.R.attr.textColorSecondary };
@@ -186,15 +189,26 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
             
             text.setTextColor(DEFAULT_TEXT_COLOR);
             ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.episodeLabel)).setTextColor(DEFAULT_TEXT_COLOR);
+            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.genre_label)).setTextColor(DEFAULT_TEXT_COLOR);
           }
           //
         }
-        else if(columnIndex == 8) {
+        else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)) {
           if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
             view.setVisibility(View.GONE);
           }
           else {
             view.setVisibility(View.VISIBLE);
+          }
+        }
+        else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) {
+          TextView text = (TextView)view;
+          
+          if(cursor.isNull(columnIndex)) {
+            text.setVisibility(View.GONE);
+          }
+          else {
+            text.setVisibility(View.VISIBLE);
           }
         }
         
@@ -249,7 +263,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
         TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,
         TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
-        TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE
+        TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
+        TvBrowserContentProvider.DATA_KEY_GENRE
     };
     
     Calendar cal = Calendar.getInstance();
@@ -583,6 +598,18 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     table.addView(row0);
     table.addView(row);
+    
+    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
+      TextView genre = new TextView(table.getContext());
+      genre.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
+      genre.setTypeface(null, Typeface.ITALIC);
+      genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)));
+      
+      TableRow rowGenre = new TableRow(table.getContext());
+      
+      rowGenre.addView(genre);
+      table.addView(rowGenre);
+    }
     
     if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
       TextView episode = new TextView(table.getContext());

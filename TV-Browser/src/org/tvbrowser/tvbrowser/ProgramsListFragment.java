@@ -106,13 +106,14 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
         TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
         TvBrowserContentProvider.DATA_KEY_TITLE,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
+        TvBrowserContentProvider.DATA_KEY_GENRE
     };
     
     mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity());
     
     // Create a new Adapter an bind it to the List View
     adapter = new SimpleCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_list_entries,null,
-        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL},0);
+        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl},0);
     adapter.setViewBinder(mViewAndClickHandler);
         /*
         new SimpleCursorAdapter.ViewBinder() {
@@ -527,6 +528,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
         TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
         TvBrowserContentProvider.CHANNEL_KEY_NAME,
+        TvBrowserContentProvider.DATA_KEY_GENRE
     };
     
     String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis();
