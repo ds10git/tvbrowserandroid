@@ -52,8 +52,6 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     View v = inflater.inflate(R.layout.favorite_fragment_layout, container, false);
     
     return v;
-    // TODO Auto-generated method stub
-    //return super.onCreateView(inflater, container, savedInstanceState);
   }
   
   @Override
@@ -113,16 +111,6 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     
     registerForContextMenu(favorites);
     
-    /*favoriteProgramList.setOnItemLongClickListener(new AdapterView.OnItemLongClickListener() {
-      @Override
-      public boolean onItemLongClick(AdapterView<?> adapterView, View v, int position,
-          long id) {
-        
-
-        return false;
-      }
-    });
-    */
     Button add = (Button)getView().findViewById(R.id.add_favorite);
     add.setOnClickListener(new View.OnClickListener() {
       @Override
@@ -149,27 +137,8 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     adapter.setViewBinder(mViewAndClickHandler);
         
     favoriteProgramList.setAdapter(adapter);
-    
-    //getLoaderManager().initLoader(0, null, this);
   }
-  /*
-  @Override
-  public void onResume() {
-    ArrayAdapter<String> aa = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_activated_1,value);
-    
-    
-    ListView favorites = (ListView)getView().findViewById(R.id.favorite_list);
-    favorites.setAdapter(aa);
-    favorites.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-    
-    
-    ListView program = (ListView)getView().findViewById(R.id.favorite_program_list);
-    program.setAdapter(aa);
-    // TODO Auto-generated method stub
-    super.onResume();
-  }*/
   
-
   @Override
   public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
     String[] projection = {
@@ -277,7 +246,6 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     else {
       mViewAndClickHandler.onCreateContextMenu(menu, v, menuInfo);
     }
-    //getActivity().getMenuInflater().inflate(R.menu.popupmenu, menu);
   }
   
   @Override
@@ -292,7 +260,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       else if(item.getItemId() == R.id.edit_favorite) {
         editFavorite(mFavoriteList.get(pos));
       }
-      Log.d("neuer", String.valueOf(((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position));
+      
       mFavoriteContext = false;
       return true;
     }

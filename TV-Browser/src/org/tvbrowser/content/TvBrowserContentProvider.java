@@ -347,7 +347,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     // If no sort order is specified, sort by date / time
     String orderBy = null;
-    Log.d("TVB", String.valueOf(uri));
+    
     // If this is a row query, limit the result set to teh pased in row.
     switch(uriMatcher.match(uri)) {
       case SEARCH: qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE \"%" + uri.getPathSegments().get(1) + "%\" OR " + DATA_KEY_EPISODE_TITLE + " LIKE \"%" +  uri.getPathSegments().get(1) + "%\") AND " + DATA_KEY_STARTTIME + " >= " + System.currentTimeMillis());
@@ -410,12 +410,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     if(orderBy != null && !orderBy.contains("NOCASE") && !orderBy.contains("COLLATE")) {
       orderBy += " COLLATE NOCASE";
     }
-   /* else if (orderBy == null) {
-      orderBy = " COLLATE NOCASE";
-    }*/
     
-    
-    Log.d("TVB", qb.buildQuery(projection, selection, null, null, sortOrder, null));
     // Apply the query to the underling database.
     Cursor c = qb.query(database, projection, selection, selectionArgs, null, null, orderBy);
     
