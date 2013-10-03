@@ -153,165 +153,168 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
   public boolean onContextItemSelected(MenuItem item) {
     // TODO Auto-generated method stub
     Log.d("test", "clickde");
-    
-    long programID = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).id;
-    
-    Cursor info = mActivity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null,null);
-    
-    String current = null;
-    
-    if(info.getCount() > 0) {
-      info.moveToFirst();
+    if(item.getMenuInfo() != null) {
+      long programID = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).id;
       
-      if(!info.isNull(0)) {
-        current = info.getString(0);
-      }
-    }
-    
-    info.close();
-    
-    ContentValues values = new ContentValues();
-    
-    if(item.getItemId() == R.id.mark_item) {
-      if(current != null && current.contains("marked")) {
-        return true;
-      }
-      else if(current == null) {
-        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, "marked");
-      }
-      else {
-        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current + ";marked");
-      }
+      Cursor info = mActivity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null,null);
       
-
-      Log.d("TVB","MARK " + programID);
-      
-    }
-    else if(item.getItemId() == R.id.unmark_item){
-      if(current == null || current.trim().length() == 0) {
-        return true;
-      }
-      /*
-      if(current.contains(";marked")) {
-        current = current.replace(";marked", "");
-      }
-      else if(current.contains("marked;")) {
-        current = current.replace("marked;", "");
-      }
-      else if(current.contains("marked")) {
-        current = current.replace("marked", "");
-      }
-      */
-      
-      current = "";
-      
-      Log.d("TVB", String.valueOf(current));
-      
-      values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current);
-      
-      Log.d("TVB","UNMARK " + programID);
-    }
-    else if(item.getItemId() == R.id.create_calendar_entry) {
-      info = mActivity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
+      String current = null;
       
       if(info.getCount() > 0) {
         info.moveToFirst();
         
-        Cursor channel = mActivity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, info.getLong(info.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID))), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME}, null, null, null);
-        Log.d("TVB", "channel cursor " + channel.getCount());
-        if(channel.getCount() > 0) {
-          channel.moveToFirst();
-          // Create a new insertion Intent.
-             Intent addCalendarEntry = new Intent(Intent.ACTION_EDIT/*, CalendarContract.Events.CONTENT_URI*/);
-             Log.d("TVB", mActivity.getContentResolver().getType(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI,1)));
-             
-             //Intent intent = new Intent(Intent.ACTION_INSERT);
-             addCalendarEntry.setType(mActivity.getContentResolver().getType(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI,1)));
-                  
-             //addCalendarEntry.putExtra(Events.STATUS, 1);
-             //addCalendarEntry.putExtra(Events.VISIBLE, 0);
-             //addCalendarEntry.putExtra(Events.HAS_ALARM, 1);
-             
-             String desc = null;
-             
-             if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
-               desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
-               
-               if(desc != null && desc.trim().toLowerCase().equals("null")) {
-                 desc = null;
-               }
-             }
-             
-             String episode = null;
-             
-             if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
-               episode = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
-               
-               if(episode != null && episode.trim().toLowerCase().equals("null")) {
-                 episode = null;
-               }
-             }
-             addCalendarEntry.putExtra(Events.EVENT_LOCATION, channel.getString(0));
-             // Add the calendar event details
-             addCalendarEntry.putExtra(Events.TITLE, info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
-             
-             String description = null;
-             
-             if(episode != null) {
-               description = episode;
-             }
-             
-             if(desc != null) {
-               if(description != null) {
-                 description += "\n\n" + desc;
-               }
-               else {
-                 description = desc;
-               }
-             }
-             
-             if(description != null) {
-               addCalendarEntry.putExtra(Events.DESCRIPTION, description);
-             }
-             
-             addCalendarEntry.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,info.getLong(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
-             addCalendarEntry.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,info.getLong(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)));
-             
-             // Use the Calendar app to add the new event.
-             mActivity.startActivity(addCalendarEntry);
-             
-             if(current != null && current.contains("calendar")) {
-               return true;
-             }
-             else if(current == null) {
-               values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, "calendar");
-             }
-             else {
-               values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current + ";calendar");
-             }
-           }
-           
-           channel.close();
+        if(!info.isNull(0)) {
+          current = info.getString(0);
+        }
       }
       
       info.close();
-    }
-    
-    if(values.size() > 0) {
       
-      /*if(marked) {
-        Log.d("TVB", String.valueOf(((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).targetView));
-        ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).targetView.setBackgroundResource(R.color.mark_color);//.invalidate();
+      ContentValues values = new ContentValues();
+      
+      if(item.getItemId() == R.id.mark_item) {
+        if(current != null && current.contains("marked")) {
+          return true;
+        }
+        else if(current == null) {
+          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, "marked");
+        }
+        else {
+          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current + ";marked");
+        }
+        
+  
+        Log.d("TVB","MARK " + programID);
+        
       }
-      else {
-        ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).targetView.setBackgroundResource(android.R.drawable.list_selector_background);//.invalidate();
-      }*/
-      ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).targetView.invalidate();
-     // item.get v.invalidate();
-      mActivity.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), values, null, null);
+      else if(item.getItemId() == R.id.unmark_item){
+        if(current == null || current.trim().length() == 0) {
+          return true;
+        }
+        /*
+        if(current.contains(";marked")) {
+          current = current.replace(";marked", "");
+        }
+        else if(current.contains("marked;")) {
+          current = current.replace("marked;", "");
+        }
+        else if(current.contains("marked")) {
+          current = current.replace("marked", "");
+        }
+        */
+        
+        current = "";
+        
+        Log.d("TVB", String.valueOf(current));
+        
+        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current);
+        
+        Log.d("TVB","UNMARK " + programID);
+      }
+      else if(item.getItemId() == R.id.create_calendar_entry) {
+        info = mActivity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
+        
+        if(info.getCount() > 0) {
+          info.moveToFirst();
+          
+          Cursor channel = mActivity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, info.getLong(info.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID))), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME}, null, null, null);
+          Log.d("TVB", "channel cursor " + channel.getCount());
+          if(channel.getCount() > 0) {
+            channel.moveToFirst();
+            // Create a new insertion Intent.
+               Intent addCalendarEntry = new Intent(Intent.ACTION_EDIT/*, CalendarContract.Events.CONTENT_URI*/);
+               Log.d("TVB", mActivity.getContentResolver().getType(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI,1)));
+               
+               //Intent intent = new Intent(Intent.ACTION_INSERT);
+               addCalendarEntry.setType(mActivity.getContentResolver().getType(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI,1)));
+                    
+               //addCalendarEntry.putExtra(Events.STATUS, 1);
+               //addCalendarEntry.putExtra(Events.VISIBLE, 0);
+               //addCalendarEntry.putExtra(Events.HAS_ALARM, 1);
+               
+               String desc = null;
+               
+               if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
+                 desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
+                 
+                 if(desc != null && desc.trim().toLowerCase().equals("null")) {
+                   desc = null;
+                 }
+               }
+               
+               String episode = null;
+               
+               if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
+                 episode = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
+                 
+                 if(episode != null && episode.trim().toLowerCase().equals("null")) {
+                   episode = null;
+                 }
+               }
+               addCalendarEntry.putExtra(Events.EVENT_LOCATION, channel.getString(0));
+               // Add the calendar event details
+               addCalendarEntry.putExtra(Events.TITLE, info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
+               
+               String description = null;
+               
+               if(episode != null) {
+                 description = episode;
+               }
+               
+               if(desc != null) {
+                 if(description != null) {
+                   description += "\n\n" + desc;
+                 }
+                 else {
+                   description = desc;
+                 }
+               }
+               
+               if(description != null) {
+                 addCalendarEntry.putExtra(Events.DESCRIPTION, description);
+               }
+               
+               addCalendarEntry.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,info.getLong(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
+               addCalendarEntry.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,info.getLong(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)));
+               
+               // Use the Calendar app to add the new event.
+               mActivity.startActivity(addCalendarEntry);
+               
+               if(current != null && current.contains("calendar")) {
+                 return true;
+               }
+               else if(current == null) {
+                 values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, "calendar");
+               }
+               else {
+                 values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current + ";calendar");
+               }
+             }
+             
+             channel.close();
+        }
+        
+        info.close();
+      }
+      
+      if(values.size() > 0) {
+        
+        /*if(marked) {
+          Log.d("TVB", String.valueOf(((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).targetView));
+          ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).targetView.setBackgroundResource(R.color.mark_color);//.invalidate();
+        }
+        else {
+          ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).targetView.setBackgroundResource(android.R.drawable.list_selector_background);//.invalidate();
+        }*/
+        ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).targetView.invalidate();
+       // item.get v.invalidate();
+        mActivity.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), values, null, null);
+      }
+      
+      return true;
     }
     
-    return true;
+    return false;
   }
   
   public void onListItemClick(ListView l, View v, int position, long id) {

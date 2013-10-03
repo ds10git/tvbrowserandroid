@@ -77,6 +77,11 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String CHANNEL_KEY_ALL_COUNTRIES = "allCountries";
   public static final String CHANNEL_KEY_JOINED_CHANNEL_ID = "joinedChannelID";
   public static final String CHANNEL_KEY_ORDER_NUMBER = "orderNumber";
+  public static final String CHANNEL_KEY_SELECTION = "isSelected";
+  public static final String CHANNEL_USER_CHANNEL_NAME = "userChannelName";
+  public static final String CHANNEL_USER_ICON = "userChannelIcon";
+  public static final String CHANNEL_USER_START_TIME = "userStartTime";
+  public static final String CHANNEL_USER_END_TIME = "userEndTime";
   
   // Column names for the data table
   public static final String DATA_KEY_STARTTIME = "startTime";
@@ -504,7 +509,12 @@ public class TvBrowserContentProvider extends ContentProvider {
         + CHANNEL_KEY_FULL_NAME + " TEXT, "
         + CHANNEL_KEY_ALL_COUNTRIES + " TEXT, "
         + CHANNEL_KEY_JOINED_CHANNEL_ID + " TEXT, "
-        + CHANNEL_KEY_ORDER_NUMBER + " INTEGER);";
+        + CHANNEL_KEY_ORDER_NUMBER + " INTEGER, "
+        + CHANNEL_KEY_SELECTION + " INTEGER NOT NULL DEFAULT 0, "
+        + CHANNEL_USER_CHANNEL_NAME + " TEXT, "
+        + CHANNEL_USER_ICON + " TEXT, "
+        + CHANNEL_USER_START_TIME + " INTEGER, "
+        + CHANNEL_USER_END_TIME + " INTEGER);";
     
     private static final String CREATE_DATA_TABLE = "create table " + DATA_TABLE + " (" + KEY_ID + " integer primary key autoincrement, "
         + CHANNEL_KEY_CHANNEL_ID + " INTEGER REFERENCES " + CHANNEL_TABLE + "(" + KEY_ID + ") NOT NULL, "

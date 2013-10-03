@@ -17,7 +17,6 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -38,19 +37,23 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
-import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 import android.widget.Toast;
 
 public class TvDataUpdateService extends Service {
   public static final String TAG = "TV_DATA_UPDATE_SERVICE";
   public static final String DAYS_TO_LOAD = "DAYS_TO_LOAD";
+  
+  public static final String TYPE = "TYPE";
+  public static final int TV_DATA_TYPE = 1;
+  public static final int CHANNEL_TYPE = 2;
+  
   private IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
   
   private HashMap<Long,ChannelUpdate> downloadIDs;
@@ -64,7 +67,7 @@ public class TvDataUpdateService extends Service {
   private NotificationCompat.Builder mBuilder;
   private int mCurrentDownloadCount;
   private int mDaysToLoad;
-  
+    
   private static final Integer[] FRAME_ID_ARR;
   
   static {
@@ -83,7 +86,6 @@ public class TvDataUpdateService extends Service {
     
     mBuilder = new NotificationCompat.Builder(this);
     mBuilder.setSmallIcon(R.drawable.ic_launcher);
-    mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
     mBuilder.setOngoing(true);
     
     mHandler = new Handler();
@@ -96,21 +98,391 @@ public class TvDataUpdateService extends Service {
   }
   
   @Override
-  public int onStartCommand(Intent intent, int flags, int startId) {
+  public int onStartCommand(final Intent intent, int flags, int startId) {
     // TODO Auto-generated method stub
-    mDaysToLoad = intent.getIntExtra(DAYS_TO_LOAD, 2);
+    
     
     new Thread() {
       public void run() {
         setPriority(MIN_PRIORITY);
-        updateTvData();
+        
+        if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
+          mDaysToLoad = intent.getIntExtra(DAYS_TO_LOAD, 2);
+          updateTvData();
+        }
+        else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
+          updateChannels();
+        }
       }
     }.start();
   //  Log.d(TAG, "update started");
         
     return Service.START_NOT_STICKY;
   }
+  
+  private void updateChannels() {
+    NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+    mBuilder.setProgress(100, 0, true);
+    mBuilder.setContentTitle(getResources().getText(R.string.channel_notification_title));
+    mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
+    notification.notify(mNotifyID, mBuilder.build());
+    
+    final DownloadManager download = (DownloadManager)getSystemService(Context.DOWNLOAD_SERVICE);
+    
+    Uri uri = Uri.parse("http://www.tvbrowser.org/listings/groups.txt");
+    
+    DownloadManager.Request request = new Request(uri);
+    
+    final long reference = download.enqueue(request);
+    
+    BroadcastReceiver receiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, android.content.Intent intent) {
+        long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+        
+        if(reference == receiveReference) {
+          unregisterReceiver(this);
+          
+          new Thread() {
+            public void run() {
+              updateGroups(download,reference);
+            }
+          }.start();
+        }
+      };
+    };
+    
+    registerReceiver(receiver, filter);
+  }
+  
+  private void updateGroups(final DownloadManager download, long reference) {
+    final ArrayList<GroupInfo> channelMirrors = new ArrayList<GroupInfo>();
+    
+    try {
+      BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(download.openDownloadedFile(reference).getFileDescriptor())));
+      
+      ContentResolver cr = getContentResolver();
 
+      String line = null;
+      
+      while((line = in.readLine()) != null) {
+        String[] parts = line.split(";");
+        
+        // Construct a where clause to make sure we don't already have ths group in the provider.
+        String w = TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = '" + SettingConstants.EPG_FREE_KEY + "' AND " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = '" + parts[0] + "'";
+        
+        // If the group is new, insert it into the provider.
+        Cursor query = cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, w, null, null);
+        
+        ContentValues values = new ContentValues();
+        
+        values.put(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID, SettingConstants.EPG_FREE_KEY);
+        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_ID, parts[0]);
+        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME, parts[1]);
+        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER, parts[2]);
+        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION, parts[3]);
+        
+        StringBuilder builder = new StringBuilder(parts[4]);
+        
+        for(int i = 5; i < parts.length; i++) {
+          builder.append(";");
+          builder.append(parts[i]);
+        }
+        
+        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, builder.toString());
+        
+        
+        
+        if(query == null || query.getCount() == 0) {
+          // The group is not already known, so insert it
+          Uri insert = cr.insert(TvBrowserContentProvider.CONTENT_URI_GROUPS, values);
+          
+          GroupInfo test = loadChannelForGroup(download, cr.query(insert, null, null, null, null));
+          Log.d(TAG, " GROUPINFO " + String.valueOf(test));
+          if(test != null) {
+            channelMirrors.add(test);
+          }
+        }
+        else {
+          cr.update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, w, null);
+          
+          GroupInfo test = loadChannelForGroup(download, cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, w, null, null));
+          Log.d(TAG, " GROUPINFO " + String.valueOf(test));
+          if(test != null) {
+            channelMirrors.add(test);
+          }
+        }
+        
+        query.close();
+      }
+      
+      in.close();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      Log.d(TAG, "EXCEPTION", e);
+    }
+    
+    Log.d(TAG, String.valueOf(channelMirrors.isEmpty()));
+    if(!channelMirrors.isEmpty()) {
+      mThreadPool =  Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
+      
+      final HashMap<Long,GroupInfo> requestIDMap = new HashMap<Long, TvDataUpdateService.GroupInfo>(); 
+      
+      BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, android.content.Intent intent) {
+          long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+          
+          if(requestIDMap.containsKey(Long.valueOf(receiveReference))) {
+            final GroupInfo info = requestIDMap.remove(Long.valueOf(receiveReference));
+            final long requestId = receiveReference;
+            
+            mThreadPool.execute(new Thread() {
+              public void run() {
+                addChannels(download,requestId,info);//requestId,keyID,groupId);
+              }
+            });
+          }
+          
+          if(requestIDMap.isEmpty()) {
+            unregisterReceiver(this);
+            new Thread() {
+              public void run() {
+                mThreadPool.shutdown();
+                try {
+                  Log.d("info", "await termination for channels");
+                  mThreadPool.awaitTermination(10, TimeUnit.MINUTES);
+                } catch (InterruptedException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+                }
+                NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+                notification.cancel(mNotifyID);
+
+                LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE));
+                stopSelf();
+              }
+            }.start();
+          }
+        };
+      };
+      
+      registerReceiver(receiver, filter);
+      
+      for(GroupInfo info : channelMirrors) {
+        Log.d(TAG, info.getUrl());
+        Request request = new Request(Uri.parse(info.getUrl()));
+        long id = download.enqueue(request);
+        
+        requestIDMap.put(Long.valueOf(id), info);
+      }
+    }
+  }
+  
+  private synchronized GroupInfo loadChannelForGroup(final DownloadManager download, final Cursor cursor) { 
+    int index = cursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS);
+    
+    if(index >= 0) {
+      cursor.moveToFirst();
+      
+      String temp = cursor.getString(index);
+      
+      index = cursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+      final String groupId = cursor.getString(index);
+      
+      String[] mirrors = null;
+      
+      if(temp.contains(";")) {
+        mirrors = temp.split(";");
+      }
+      else {
+        mirrors = new String[1];
+        mirrors[0] = temp;
+      }
+      
+      int idIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+      final int keyID = cursor.getInt(idIndex);
+      
+      for(String mirror : mirrors) {
+        
+        if(isConnectedToServer(mirror,5000)) {
+          if(!mirror.endsWith("/")) {
+            mirror += "/";
+          }
+        //  Log.i(TAG, "LOADING: " + mirror+groupId+"_channellist.gz");
+
+          
+          return new GroupInfo(mirror+groupId+"_channellist.gz",keyID,groupId);
+          /*
+          final long requestId = download.enqueue(new Request(Uri.parse(mirror+groupId+"_channellist.gz")));
+          
+          BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, android.content.Intent intent) {
+              long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+              
+              if(requestId == receiveReference) {
+                unregisterReceiver(this);
+                
+                addChannels(download,requestId,keyID,groupId);
+              }
+            };
+          };
+          
+          registerReceiver(receiver, filter);
+          
+          break;*/
+        }
+      }
+      
+      cursor.close();
+    }
+    
+    return null;
+  }
+  
+  private class GroupInfo {
+    private String mUrl;
+    private int mUniqueGroupID;
+    private String mGroupID;
+    
+    public GroupInfo(String url, int uniqueGroupID, String groupID) {
+      mUrl = url;
+      mUniqueGroupID = uniqueGroupID;
+      mGroupID = groupID;
+    }
+    
+    public String getUrl() {
+      return mUrl;
+    }
+    
+    public int getUniqueGroupID() {
+      return mUniqueGroupID;
+    }
+    
+    public String getGroupID() {
+      return mGroupID;
+    }
+  }
+  
+  // Cursor contains the channel group
+  public void addChannels(DownloadManager download, long reference, GroupInfo info) {
+    try {
+      BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(download.openDownloadedFile(reference).getFileDescriptor())),"ISO-8859-1"));
+      
+      String line = null;
+      
+      while((line = read.readLine()) != null) {
+        String[] parts = line.split(";");
+        
+        String baseCountry = parts[0];
+        String timeZone = parts[1];
+        String channelId = parts[2];
+        String name = parts[3];
+        String copyright = parts[4];
+        String website = parts[5];
+        String logoUrl = parts[6];
+        int category = Integer.parseInt(parts[7]);
+        
+        StringBuilder fullName = new StringBuilder();
+        
+        int i = 8;
+        
+        if(parts.length > i) {
+            do {
+              fullName.append(parts[i]);
+              fullName.append(";");
+            }while(!parts[i++].endsWith("\""));
+            
+            fullName.deleteCharAt(fullName.length()-1);
+        }
+        
+        if(fullName.length() == 0) {
+          fullName.append(name);
+        }
+        
+        String allCountries = baseCountry;
+        String joinedChannel = "";
+        
+        if(parts.length > i) {
+          allCountries = parts[i++];
+        }
+        
+        if(parts.length > i) {
+          joinedChannel = parts[i];
+        }
+        
+        String where = TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + info.mUniqueGroupID + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = '" + channelId + "'";
+        
+        ContentResolver cr = getContentResolver();
+        
+        Cursor query = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
+        
+        ContentValues values = new ContentValues();
+        
+        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_ID, info.getUniqueGroupID());
+        values.put(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, channelId);
+        values.put(TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY, baseCountry);
+        values.put(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE, timeZone);
+        values.put(TvBrowserContentProvider.CHANNEL_KEY_NAME, name);
+        values.put(TvBrowserContentProvider.CHANNEL_KEY_COPYRIGHT, copyright);
+        values.put(TvBrowserContentProvider.CHANNEL_KEY_WEBSITE, website);
+        values.put(TvBrowserContentProvider.CHANNEL_KEY_LOGO_URL, logoUrl);
+        values.put(TvBrowserContentProvider.CHANNEL_KEY_CATEGORY, category);
+        values.put(TvBrowserContentProvider.CHANNEL_KEY_FULL_NAME, fullName.toString().replaceAll("\"", ""));
+        values.put(TvBrowserContentProvider.CHANNEL_KEY_ALL_COUNTRIES, allCountries);
+        values.put(TvBrowserContentProvider.CHANNEL_KEY_JOINED_CHANNEL_ID, joinedChannel);
+        
+        if(query == null || query.getCount() == 0) {
+          // add channel
+          cr.insert(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values);
+        }
+        else {
+          // update channel
+          cr.update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, where, null);
+        }
+        
+        query.close();
+      }
+      read.close();
+    } catch (FileNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    
+   // mToDownloadChannels--;
+    
+  /*  if(mToDownloadChannels == 0) {
+      LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE));
+    }*/
+  }
+
+  private boolean isConnectedToServer(String url, int timeout) {
+    try {
+      URL myUrl = new URL(url);
+      
+      URLConnection connection;
+      connection = myUrl.openConnection();
+      connection.setConnectTimeout(timeout);
+      
+      HttpURLConnection httpConnection = (HttpURLConnection)connection;
+      
+      if(httpConnection != null) {
+        int responseCode = httpConnection.getResponseCode();
+      
+        return responseCode == HttpURLConnection.HTTP_OK;
+      }
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    
+    return false;
+  }
+  
   /**
    * Calculate the end times of programs that are missing end time in the data.
    */
@@ -194,7 +566,7 @@ public class TvDataUpdateService extends Service {
   private void updateTvData() {
     if(!updateRunning) {
       mCurrentDownloadCount = 0;
-      
+      mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
       mBuilder.setContentText(getResources().getText(R.string.update_notification_text));
       
       final NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
@@ -203,228 +575,215 @@ public class TvDataUpdateService extends Service {
       getUserDayValues();
       TvBrowserContentProvider.INFORM_FOR_CHANGES = false;
       updateRunning = true;
-      SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-      Set<String> channels = preferences.getStringSet(SettingConstants.SUBSCRIBED_CHANNELS, null);
       
-      if(channels != null) {
-        ContentResolver cr = getContentResolver();
+      ContentResolver cr = getContentResolver();
+      
+      StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
+      where.append(" = 1");
+      
+   //   Log.d(TAG, where.toString());
+      
+      ArrayList<ChannelUpdate> downloadList = new ArrayList<ChannelUpdate>();
+      ArrayList<String> downloadMirrorList = new ArrayList<String>();
+      
+      Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+      
+      String[] versionColumns = {TvBrowserContentProvider.VERSION_KEY_BASE_VERSION, TvBrowserContentProvider.VERSION_KEY_MORE0016_VERSION, TvBrowserContentProvider.VERSION_KEY_MORE1600_VERSION, TvBrowserContentProvider.VERSION_KEY_PICTURE0016_VERSION, TvBrowserContentProvider.VERSION_KEY_PICTURE1600_VERSION};
+      
+      if(channelCursor.getCount() > 0) {
+        channelCursor.moveToFirst();
         
-        StringBuilder where = new StringBuilder(TvBrowserContentProvider.KEY_ID);
-        where.append(" IN (");
-  
-        for(String key : channels) {
-          where.append(key);
-          where.append(", ");
-        }
+        int lastGroup = -1;
+        Mirror mirror = null;
+        String groupId = null;
+        Summary summary = null;
         
-        where.delete(where.length()-2,where.length());
-        
-        where.append(")");
-        
-     //   Log.d(TAG, where.toString());
-        
-        ArrayList<ChannelUpdate> downloadList = new ArrayList<ChannelUpdate>();
-        ArrayList<String> downloadMirrorList = new ArrayList<String>();
-        
-        Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-        
-        String[] versionColumns = {TvBrowserContentProvider.VERSION_KEY_BASE_VERSION, TvBrowserContentProvider.VERSION_KEY_MORE0016_VERSION, TvBrowserContentProvider.VERSION_KEY_MORE1600_VERSION, TvBrowserContentProvider.VERSION_KEY_PICTURE0016_VERSION, TvBrowserContentProvider.VERSION_KEY_PICTURE1600_VERSION};
-        
-        if(channelCursor.getCount() > 0) {
-          channelCursor.moveToFirst();
+        do {
+          int groupKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
+          int channelKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+          String timeZone = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE));
           
-          int lastGroup = -1;
-          Mirror mirror = null;
-          String groupId = null;
-          Summary summary = null;
-          
-          do {
-            int groupKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
-            int channelKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-            String timeZone = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE));
+          if(lastGroup != groupKey) {
+            Cursor group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
             
-            if(lastGroup != groupKey) {
-              Cursor group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
+            if(group.getCount() > 0) {
+              group.moveToFirst();
               
-              if(group.getCount() > 0) {
-                group.moveToFirst();
-                
-                groupId = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
-                String mirrorURL = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS));
-                
-                Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL);
-                
-                mirror = Mirror.getMirrorToUseForGroup(mirrors, groupId);                
-                
-                Log.d(TAG, mirrorURL);
-                Log.d(TAG, " MIRROR " + mirror + " " + groupId + "_summary.gz");
-                
-                if(mirror != null) {
-                  summary = readSummary(mirror.getUrl() + groupId + "_summary.gz");
-                  downloadMirrorList.add(mirror.getUrl() + groupId + "_mirrorlist.gz");
-                }
+              groupId = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
+              String mirrorURL = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS));
+              
+              Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL);
+              
+              mirror = Mirror.getMirrorToUseForGroup(mirrors, groupId);                
+              
+              Log.d(TAG, mirrorURL);
+              Log.d(TAG, " MIRROR " + mirror + " " + groupId + "_summary.gz");
+              
+              if(mirror != null) {
+                summary = readSummary(mirror.getUrl() + groupId + "_summary.gz");
+                downloadMirrorList.add(mirror.getUrl() + groupId + "_mirrorlist.gz");
               }
-              
-              group.close();
             }
             
-            if(summary != null) {
-              ChannelFrame frame = summary.getChannelFrame(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)));
-              Log.d(TAG, " CHANNEL FRAME " + String.valueOf(frame) + " " + String.valueOf(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID))));
-              if(frame != null) {
-                Calendar startDate = summary.getStartDate();
+            group.close();
+          }
+          
+          if(summary != null) {
+            ChannelFrame frame = summary.getChannelFrame(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)));
+            Log.d(TAG, " CHANNEL FRAME " + String.valueOf(frame) + " " + String.valueOf(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID))));
+            if(frame != null) {
+              Calendar startDate = summary.getStartDate();
+              
+              Calendar now = Calendar.getInstance();
+              now.add(Calendar.DAY_OF_MONTH, -2);
+
+              Calendar to = Calendar.getInstance();
+              to.add(Calendar.DAY_OF_MONTH, mDaysToLoad);
+
+              
+              for(int i = 0; i < frame.getDayCount(); i++) {
+                startDate.add(Calendar.DAY_OF_YEAR, 1);
                 
-                Calendar now = Calendar.getInstance();
-                now.add(Calendar.DAY_OF_MONTH, -1);
-  
-                Calendar to = Calendar.getInstance();
-                to.add(Calendar.DAY_OF_MONTH, mDaysToLoad);
-  
-                
-                for(int i = 0; i < frame.getDayCount(); i++) {
-                  startDate.add(Calendar.DAY_OF_YEAR, 1);
-                  
-                  if(startDate.compareTo(now) >= 0 && startDate.compareTo(to) <= 0) {
-                    int[] version = frame.getVersionForDay(i);
-                    // load only base files
-                    if(version != null) {
-                      long daysSince1970 = startDate.getTimeInMillis() / 24 / 60 / 60000;
-                      
-                      String versionWhere = TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + " = " + daysSince1970 + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelKey;
-                      
-                      Cursor versions = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, null, versionWhere, null, null);
+                if(startDate.compareTo(now) >= 0 && startDate.compareTo(to) <= 0) {
+                  int[] version = frame.getVersionForDay(i);
+                  // load only base files
+                  if(version != null) {
+                    long daysSince1970 = startDate.getTimeInMillis() / 24 / 60 / 60000;
+                    
+                    String versionWhere = TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + " = " + daysSince1970 + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelKey;
+                    
+                    Cursor versions = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, null, versionWhere, null, null);
+                    
+                    if(versions.getCount() > 0) {
+                      versions.moveToFirst();
+                    }
+                    
+                    for(int level = 0; level < 1; level++) {
+                      int testVersion = 0;
                       
                       if(versions.getCount() > 0) {
-                        versions.moveToFirst();
+                        testVersion = versions.getInt(versions.getColumnIndex(versionColumns[level]));
                       }
                       
-                      for(int level = 0; level < 1; level++) {
-                        int testVersion = 0;
-                        
-                        if(versions.getCount() > 0) {
-                          testVersion = versions.getInt(versions.getColumnIndex(versionColumns[level]));
-                        }
-                        
-                        Log.d("MIRR", testVersion +  " level version " + version[level] + " " + frame.getChannelID() + " " + startDate.getTime() + " " + daysSince1970);
-                        
-                        if(version[level] > testVersion) {
-                          String month = String.valueOf(startDate.get(Calendar.MONTH)+1);
-                          String day = String.valueOf(startDate.get(Calendar.DAY_OF_MONTH));
-                          
-                          if(month.length() == 1) {
-                            month = "0" + month;
-                          }
-                          
-                          if(day.length() == 1) {
-                            day = "0" + day;
-                          }
-                          
-                          StringBuilder dateFile = new StringBuilder();
-                          dateFile.append(mirror.getUrl());
-                          dateFile.append(startDate.get(Calendar.YEAR));
-                          dateFile.append("-");
-                          dateFile.append(month);
-                          dateFile.append("-");
-                          dateFile.append(day);
-                          dateFile.append("_");
-                          dateFile.append(frame.getCountry());
-                          dateFile.append("_");
-                          dateFile.append(frame.getChannelID());
-                          dateFile.append("_");
-                          dateFile.append(SettingConstants.LEVEL_NAMES[level]);
-                          dateFile.append("_full.prog.gz");
-                                                
-                          downloadList.add(new ChannelUpdate(dateFile.toString(), channelKey, timeZone, startDate.getTimeInMillis()));
-                       //   Log.d(TAG, " DOWNLOADS " + dateFile.toString());
-                        }
-                      }
+                      Log.d("MIRR", testVersion +  " level version " + version[level] + " " + frame.getChannelID() + " " + startDate.getTime() + " " + daysSince1970);
                       
-                      versions.close();
+                      if(version[level] > testVersion) {
+                        String month = String.valueOf(startDate.get(Calendar.MONTH)+1);
+                        String day = String.valueOf(startDate.get(Calendar.DAY_OF_MONTH));
+                        
+                        if(month.length() == 1) {
+                          month = "0" + month;
+                        }
+                        
+                        if(day.length() == 1) {
+                          day = "0" + day;
+                        }
+                        
+                        StringBuilder dateFile = new StringBuilder();
+                        dateFile.append(mirror.getUrl());
+                        dateFile.append(startDate.get(Calendar.YEAR));
+                        dateFile.append("-");
+                        dateFile.append(month);
+                        dateFile.append("-");
+                        dateFile.append(day);
+                        dateFile.append("_");
+                        dateFile.append(frame.getCountry());
+                        dateFile.append("_");
+                        dateFile.append(frame.getChannelID());
+                        dateFile.append("_");
+                        dateFile.append(SettingConstants.LEVEL_NAMES[level]);
+                        dateFile.append("_full.prog.gz");
+                                              
+                        downloadList.add(new ChannelUpdate(dateFile.toString(), channelKey, timeZone, startDate.getTimeInMillis()));
+                     //   Log.d(TAG, " DOWNLOADS " + dateFile.toString());
+                      }
                     }
+                    
+                    versions.close();
                   }
                 }
               }
             }
-            
-            lastGroup = groupKey;
-          }while(channelCursor.moveToNext());
+          }
           
-        }
+          lastGroup = groupKey;
+        }while(channelCursor.moveToNext());
         
-        channelCursor.close();
-        
-        final DownloadManager download = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
-        
-        final int downloadCount = downloadMirrorList.size() + downloadList.size();
-        
-        final HashMap<Long, String> mirrorIDs = new HashMap<Long, String>();
-        downloadIDs = new HashMap<Long,ChannelUpdate>();
-        mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
-        
-        BroadcastReceiver receiver = new BroadcastReceiver() {
-          @Override
-          public void onReceive(Context context, android.content.Intent intent) {
-            final long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-            
-            if(downloadIDs.containsKey(Long.valueOf(receiveReference))) {
-              final ChannelUpdate update = downloadIDs.remove(Long.valueOf(receiveReference));
-              mThreadPool.execute(new Thread() {
-                public void run() {
-                  updateData(download,receiveReference, update);
-                  mCurrentDownloadCount++;
-                  mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-                  notification.notify(mNotifyID, mBuilder.build());
+      }
+      
+      channelCursor.close();
+      
+      final DownloadManager download = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
+      
+      final int downloadCount = downloadMirrorList.size() + downloadList.size();
+      
+      final HashMap<Long, String> mirrorIDs = new HashMap<Long, String>();
+      downloadIDs = new HashMap<Long,ChannelUpdate>();
+      mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
+      
+      BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, android.content.Intent intent) {
+          final long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+          
+          if(downloadIDs.containsKey(Long.valueOf(receiveReference))) {
+            final ChannelUpdate update = downloadIDs.remove(Long.valueOf(receiveReference));
+            mThreadPool.execute(new Thread() {
+              public void run() {
+                updateData(download,receiveReference, update);
+                mCurrentDownloadCount++;
+                mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+                notification.notify(mNotifyID, mBuilder.build());
+              }
+            });
+          }
+          else if(mirrorIDs.containsKey(Long.valueOf(receiveReference))) {
+            String url = mirrorIDs.remove(Long.valueOf(receiveReference));
+            updateMirror(new File(getExternalFilesDir(null),url.substring(url.lastIndexOf("/"))));
+          }
+          
+          if(downloadIDs.isEmpty()) {
+            new Thread() {
+              public void run() {
+                mThreadPool.shutdown();
+                try {
+                  Log.d("info", "await termination");
+                  mThreadPool.awaitTermination(10, TimeUnit.MINUTES);
+                } catch (InterruptedException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
                 }
-              });
-            }
-            else if(mirrorIDs.containsKey(Long.valueOf(receiveReference))) {
-              String url = mirrorIDs.remove(Long.valueOf(receiveReference));
-              updateMirror(new File(getExternalFilesDir(null),url.substring(url.lastIndexOf("/"))));
-            }
+                Log.d("info", "calculate missing length");
+                mBuilder.setProgress(100, 0, true);
+                notification.notify(mNotifyID, mBuilder.build());
+                calculateMissingEnds();
+              }
+            }.start();
             
-            if(downloadIDs.isEmpty()) {
-              new Thread() {
-                public void run() {
-                  mThreadPool.shutdown();
-                  try {
-                    Log.d("info", "await termination");
-                    mThreadPool.awaitTermination(10, TimeUnit.MINUTES);
-                  } catch (InterruptedException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
-                  }
-                  Log.d("info", "calculate missing length");
-                  mBuilder.setProgress(100, 0, true);
-                  notification.notify(mNotifyID, mBuilder.build());
-                  calculateMissingEnds();
-                }
-              }.start();
-              
-              unregisterReceiver(this);
-            }
-          };
+            unregisterReceiver(this);
+          }
         };
+      };
+      
+      registerReceiver(receiver, filter);
+      
+      mBuilder.setProgress(downloadCount, 0, false);
+      notification.notify(mNotifyID, mBuilder.build());
+      
+      for(String mirror : downloadMirrorList) {
+        Request request = new Request(Uri.parse(mirror));
+        request.setDestinationInExternalFilesDir(getApplicationContext(), null, mirror.substring(mirror.lastIndexOf("/")));
+        Log.d("MIRR", mirror);
+        long id = download.enqueue(request);
+        mirrorIDs.put(id, mirror);
+      }
+      
+      for(ChannelUpdate data : downloadList) {
+        Request request = new Request(Uri.parse(data.getUrl()));
+        request.setDestinationInExternalFilesDir(getApplicationContext(), null, data.getUrl().substring(data.getUrl().lastIndexOf("/")));
         
-        registerReceiver(receiver, filter);
-        
-        mBuilder.setProgress(downloadCount, 0, false);
-        notification.notify(mNotifyID, mBuilder.build());
-        
-        for(String mirror : downloadMirrorList) {
-          Request request = new Request(Uri.parse(mirror));
-          request.setDestinationInExternalFilesDir(getApplicationContext(), null, mirror.substring(mirror.lastIndexOf("/")));
-          Log.d("MIRR", mirror);
-          long id = download.enqueue(request);
-          mirrorIDs.put(id, mirror);
-        }
-        
-        for(ChannelUpdate data : downloadList) {
-          Request request = new Request(Uri.parse(data.getUrl()));
-          request.setDestinationInExternalFilesDir(getApplicationContext(), null, data.getUrl().substring(data.getUrl().lastIndexOf("/")));
-          
-          long id = download.enqueue(request);
-          downloadIDs.put(id,data);
-        }
+        long id = download.enqueue(request);
+        downloadIDs.put(id,data);
       }
     }
   }
