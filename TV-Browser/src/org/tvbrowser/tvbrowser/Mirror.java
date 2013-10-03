@@ -137,7 +137,6 @@ public class Mirror implements Comparable<Mirror> {
       }
     } catch (Exception e) {
         // Handle your exceptions
-   //   Log.d(TAG, "CONNECTIONCHECK", e);
       success = false;
     }
       

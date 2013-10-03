@@ -53,7 +53,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-//
+
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
   private static final String TAG = "TVB";
@@ -69,8 +69,6 @@ public class TvBrowser extends FragmentActivity implements
    */
   SectionsPagerAdapter mSectionsPagerAdapter;
   
-  
- // private Thread mChannelUpdateThread;
   private boolean updateRunning;
   private boolean selectingChannels;
   private ActionBar actionBar;
@@ -99,7 +97,7 @@ public class TvBrowser extends FragmentActivity implements
       updateRunning = savedInstanceState.getBoolean("updateRunning", false);
       selectingChannels = savedInstanceState.getBoolean("selectionChannels", false);
     }
-//test
+    
     // Set up the action bar.
     actionBar = getActionBar();
     actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -185,75 +183,9 @@ public class TvBrowser extends FragmentActivity implements
       AlertDialog dialog = builder.create();
       dialog.show();
     }
-/*    
-    new Thread() {
-      public void run() {
-
-        String[] projection = {
-            TvBrowserContentProvider.KEY_ID,
-            TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
-            TvBrowserContentProvider.DATA_KEY_TITLE,
-            TvBrowserContentProvider.DATA_KEY_STARTTIME,
-            TvBrowserContentProvider.DATA_KEY_ENDTIME,
-            TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION
-        };
-        
-        String where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis();
-        where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " > " + System.currentTimeMillis();
-        //String where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " > " + System.currentTimeMillis();
-       // String where = null;
-        Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
-        
-        
-        Log.d(TAG, "DATA-COUNT " + c.getCount());
-        
-        if(c.getCount() > 0) {
-          c.moveToFirst();
-          
-          int lastChannel = 0;
-          int count = 0;
-          
-          do {
-            String[] onlyName = {
-                TvBrowserContentProvider.CHANNEL_KEY_NAME
-            };
-            
-            int channelId = c.getInt(1);
-            
-            Cursor channel = getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelId), onlyName, null, null, null);
-            
-            String channelName = String.valueOf(c.getInt(1));
-            
-            if(channel.getCount() > 0) {
-              channel.moveToFirst();
-              
-              channelName = channel.getString(0);
-            }
-            
-            channel.close();
-            
-            if(channelId == lastChannel) {
-              count++;
-            }
-            else {
-              lastChannel = channelId;
-              count = 0;
-            }
-            
-            if(count < 2) {
-              Log.d(TAG, channelName + " " + DateFormat.getDateTimeInstance(DateFormat.SHORT,DateFormat.SHORT).format(new Date(c.getLong(3))) + " " + DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(c.getLong(4))) + " " + c.getString(2) + " LENGTH " + (c.getLong(4) - c.getLong(3)));
-            }
-          }while(c.moveToNext());
-        }
-        
-        c.close();
-      }
-    }.start();
-    */
   }
   
   private void showChannelSelection() {
-   // Log.d(TAG, "select channels");
     String[] projection = {
         TvBrowserContentProvider.KEY_ID,
         TvBrowserContentProvider.CHANNEL_KEY_NAME,
@@ -265,7 +197,7 @@ public class TvBrowser extends FragmentActivity implements
     
     final ArrayList<ChannelSelection> channelSource = new ArrayList<TvBrowser.ChannelSelection>();
     ArrayList<CharSequence> channelNames = new ArrayList<CharSequence>();
-    //final ArrayList<Integer> selectedChannels = new ArrayList<Integer>();
+    
     final boolean[] currentlySelected = new boolean[channels.getCount()];
     final boolean[] toUnselect = new boolean[channels.getCount()];
     
@@ -304,12 +236,6 @@ public class TvBrowser extends FragmentActivity implements
             currentlySelected[which] = true;
             toUnselect[which] = false;
           }
-          /*if(isChecked) {
-            selectedChannels.add(which);
-          } 
-          else if(selectedChannels.contains(which)){
-            selectedChannels.remove(new Integer(which));
-          }*/
         }
       });
       
@@ -409,80 +335,7 @@ public class TvBrowser extends FragmentActivity implements
     else {
       showChannelSelection();
     }
-   // HttpURLConnection.
   }
-  
-
-  
-
-  
- 
-  /*
-  private class NetworkCheck extends Thread {
-    private String mUrl;
-    private int mTimeout;
-    
-    private boolean mSuccess;
-    
-    public NetworkCheck(String url, int timeout) {
-      mUrl = url;
-      mTimeout = timeout;
-      mSuccess = false;
-    }
-    
-    public void run() {
-      try{
-        URL myUrl = new URL(mUrl);
-        
-        
-        URLConnection connection;
-        connection = myUrl.openConnection();
-        connection.setConnectTimeout(mTimeout);
-        
-        HttpURLConnection httpConnection = (HttpURLConnection)connection;
-        int responseCode = httpConnection.getResponseCode();
-        
-        mSuccess = responseCode == HttpURLConnection.HTTP_OK;
-    } catch (Exception e) {
-        // Handle your exceptions
-   //   Log.d(TAG, "CONNECTIONCHECK", e);
-      mSuccess = false;
-    }
-    }
-    
-    public boolean success() {
-      return mSuccess;
-    }
-  }
-  
-  public boolean isConnectedToServer(String url, int timeout) {
-    NetworkCheck check = new NetworkCheck(url,timeout);
-    check.start();
-    try {
-      check.join();
-    } catch (InterruptedException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    
-    return check.success();
-  }
-*/
-  
-  
-
-  
-  
-  
-  
-  
-
-  
-  
-  
-
-  
-  
   
   private void sortChannels() {
     ContentResolver cr = getContentResolver();
@@ -527,8 +380,6 @@ public class TvBrowser extends FragmentActivity implements
           }
           
           channelSource.add(new ChannelSelection(key, name, order));
-                    
-          Log.d("TVB", order + " order ");
         }
         
         
@@ -540,7 +391,6 @@ public class TvBrowser extends FragmentActivity implements
         @Override
         public void onItemClick(final AdapterView<?> adapterView, final View view, int position,
             long id) {
-          Log.d("TVB",String.valueOf(view) + " " + position + " " + id);
           AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
           
           LinearLayout numberSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.sort_number_selection, null);
@@ -596,8 +446,7 @@ public class TvBrowser extends FragmentActivity implements
             ContentValues values = new ContentValues();
             values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, selection.getSortNumber());
             
-            int count = getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, selection.getKey()), values, null, null);
-            Log.d("TVB", " SORT " + values + " c " + count);
+            getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, selection.getKey()), values, null, null);
           }
         }
       });
@@ -657,7 +506,7 @@ public class TvBrowser extends FragmentActivity implements
               settings.putInt(TvDataUpdateService.DAYS_TO_LOAD, days.getSelectedItemPosition());
               settings.commit();
               
-              startService(startDownload);Log.d(TvDataUpdateService.TAG, "returned from intent");
+              startService(startDownload);
             }
           });
           builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
@@ -861,78 +710,4 @@ public class TvBrowser extends FragmentActivity implements
         return registeredFragments.get(position);
     }
   }
-
-  /**
-   * A dummy fragment representing a section of the app, but that simply
-   * displays dummy text.
-   */
- /* public class DummySectionFragment extends Fragment {
-    /**
-     * The fragment argument representing the section number for this fragment.
-     */
-  /*  public static final String ARG_SECTION_NUMBER = "section_number";
-
-    public DummySectionFragment() {
-    }
-
-    @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
-        Bundle savedInstanceState) {
-      
-      View rootView = null;
-      
-      if(getArguments().getInt(ARG_SECTION_NUMBER) == 1) {
-        rootView = inflater.inflate(R.layout.running_program_fragment,
-            container, false);
-        Log.d(TAG, String.valueOf(rootView));
-        
-        getSupportFragmentManager().findFragmentById(R.id.runningListFragment);
-        
-        final RunningProgramsListFragment running = (RunningProgramsListFragment)rootView.findViewById(R.id.runningListFragment);
-        
-        rootView.findViewById(R.id.button_6).setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(View v) {
-            // TODO Auto-generated method stub
-            
-          }
-        });
-        
-        
-     /*   View list = rootView.findViewById(R.id.runningListFragment);
-        
-        Log.d(TAG, String.valueOf(list));
-        
-        /*((ListView)rootView).setOnItemClickListener(new AdapterView.OnItemClickListener() {
-
-          @Override
-          public void onItemClick(AdapterView<?> parent, View view, int position,
-              long id) {
-            // TODO Auto-generated method stub
-            
-          }
-        
-        });/*.setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(View v) {
-            Object value = v.getTag();
-            
-            Log.d(TAG, " value " + String.valueOf(value));
-          }
-        });*/
-/*      }
-      else if(getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
-        rootView = inflater.inflate(R.layout.program_list_fragment,
-            container, false);        
-      }
-      else {
-        rootView = inflater.inflate(R.layout.fragment_tv_browser_dummy,
-          container, false);
-      }
-      
-      return rootView;
-    }
-  }*/
-
-  
 }

@@ -115,7 +115,6 @@ public class TvDataUpdateService extends Service {
         }
       }
     }.start();
-  //  Log.d(TAG, "update started");
         
     return Service.START_NOT_STICKY;
   }
@@ -309,29 +308,8 @@ public class TvDataUpdateService extends Service {
           if(!mirror.endsWith("/")) {
             mirror += "/";
           }
-        //  Log.i(TAG, "LOADING: " + mirror+groupId+"_channellist.gz");
-
           
           return new GroupInfo(mirror+groupId+"_channellist.gz",keyID,groupId);
-          /*
-          final long requestId = download.enqueue(new Request(Uri.parse(mirror+groupId+"_channellist.gz")));
-          
-          BroadcastReceiver receiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, android.content.Intent intent) {
-              long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-              
-              if(requestId == receiveReference) {
-                unregisterReceiver(this);
-                
-                addChannels(download,requestId,keyID,groupId);
-              }
-            };
-          };
-          
-          registerReceiver(receiver, filter);
-          
-          break;*/
         }
       }
       
@@ -452,12 +430,6 @@ public class TvDataUpdateService extends Service {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    
-   // mToDownloadChannels--;
-    
-  /*  if(mToDownloadChannels == 0) {
-      LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE));
-    }*/
   }
 
   private boolean isConnectedToServer(String url, int timeout) {
@@ -580,8 +552,6 @@ public class TvDataUpdateService extends Service {
       
       StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
       where.append(" = 1");
-      
-   //   Log.d(TAG, where.toString());
       
       ArrayList<ChannelUpdate> downloadList = new ArrayList<ChannelUpdate>();
       ArrayList<String> downloadMirrorList = new ArrayList<String>();
@@ -842,7 +812,6 @@ public class TvDataUpdateService extends Service {
       int responseCode = httpConnection.getResponseCode();
       
       if(responseCode == HttpURLConnection.HTTP_OK) {
-      //  Log.d(TAG, "HTTP_OK");
         InputStream in = httpConnection.getInputStream();
         
         Map<String,List<String>>  map = httpConnection.getHeaderFields();
@@ -863,7 +832,7 @@ public class TvDataUpdateService extends Service {
         
         //read file version
         summary.setVersion(in.read());
-      //  Log.d(TAG, "VERSION " + summary.mVersion + " " + httpConnection.getHeaderField("Content-Encoding"));
+        
         long daysSince1970 = ((in.read() & 0xFF) << 16 ) | ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
         
         summary.setStartDaySince1970(daysSince1970);
@@ -871,7 +840,6 @@ public class TvDataUpdateService extends Service {
         summary.setLevels(in.read());
         
         int frameCount = (in.read() & 0xFF << 8) | (in.read() & 0xFF);
-        //Log.d(TAG, " days since 1970 " + summary.getStartDaySince1970() + " " + frameCount);
         
         for(int i = 0; i < frameCount; i++) {
           int byteCount = in.read();
@@ -889,14 +857,11 @@ public class TvDataUpdateService extends Service {
           in.read(value);
           
           String channelID = new String(value);
-         // Log.d(TAG, country + " " + channelID);
           
           int dayCount = in.read();
           
           ChannelFrame frame = new ChannelFrame(country, channelID, dayCount);
           
-          
-         // Log.d(TAG, String.valueOf(dayCount));
           for(int day = 0; day < dayCount; day++) {
             int[] values = new int[summary.getLevels()];
             
@@ -935,7 +900,6 @@ public class TvDataUpdateService extends Service {
       
       ArrayList<Integer> missingFrameIDs = new ArrayList<Integer>(Arrays.asList(FRAME_ID_ARR));
       int maxFrameID = 0;
-    //  Log.d(TAG, " FILE VERSION " + fileVersion + " DATA VERSION " + dataVersion + " FRAME COUNT " + frameCount);
       
       for(int i = 0; i < frameCount; i++) {
         // ID of this program frame
@@ -957,31 +921,20 @@ public class TvDataUpdateService extends Service {
             " AND " + TvBrowserContentProvider.DATA_KEY_UNIX_DATE + " = " + update.getDate() +
             " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + update.getChannelID();
         
-       // Log.d(TAG, frameId + " " + new Date(update.getDate()) + " " + update.getChannelID() + " " + update.getUrl() + " FRAME COUNT " + i);
-        
         for(byte field = 0; field < fieldCount; field++) {
           byte fieldType = (byte)in.read();
           
           int dataCount = ((in.read() & 0xFF) << 16) | ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
           
-      //    Log.d(TAG, "FIELD TYPE: " + String.valueOf(Integer.toHexString(fieldType)) + " BYTECOUNT " + dataCount);
-          
           byte[] data = new byte[dataCount];
           
-          /*for(int j = 0; j < dataCount; j++) {
-            data[j] = (byte)(in.read() & 0xFF);
-          }*/
           in.read(data);
-          
-     //     Log.d(TAG, "DATA: " + new String(data));
-          
+                    
           switch(fieldType) {
             case 1: {
                             int startTime = IOUtils.getIntForBytes(data);
-                       //     Log.d(TAG, "startTimeValue " + startTime);
                             Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
                             utc.setTimeInMillis(update.getDate());
-                     //       Log.d(TAG, "utc" + String.valueOf(utc.getTime()));
                             
                             Calendar cal = Calendar.getInstance(update.getTimeZone());
                             cal.set(Calendar.DAY_OF_MONTH, utc.get(Calendar.DAY_OF_MONTH));
@@ -992,11 +945,7 @@ public class TvDataUpdateService extends Service {
                             cal.set(Calendar.MINUTE, startTime % 60);
                             cal.set(Calendar.SECOND, 30);
                             
-                            
-                            
                             long time = (((long)(cal.getTimeInMillis() / 60000)) * 60000);
-                            
-                         //   Log.d(TAG, "cal " + String.valueOf(new Date(time)) + " " + time + " " + new Date(cal.getTimeInMillis()) + " " + cal.getTimeInMillis());
                             
                             values.put(TvBrowserContentProvider.DATA_KEY_STARTTIME, time);
                          }break;
@@ -1073,10 +1022,6 @@ public class TvDataUpdateService extends Service {
         if(values.get(TvBrowserContentProvider.DATA_KEY_ENDTIME) == null) {
           values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, 0);
         }
-        /*
-        for(String key : values.keySet()) {
-          Log.d(TAG, key + " " + values.get(key));
-        }*/
         
         Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, null, where, null, null);
         
@@ -1091,8 +1036,7 @@ public class TvDataUpdateService extends Service {
           cal.setTimeInMillis(startTime);
           
           if(cal.get(Calendar.HOUR_OF_DAY) >= getDayStart() && (cal.get(Calendar.HOUR_OF_DAY) < getDayEnd() || (cal.get(Calendar.HOUR_OF_DAY) == getDayEnd() && cal.get(Calendar.MINUTE) == 0))) {
-            Uri inserted = getContentResolver().insert(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, values);            
-           // Log.d(TAG, "INSERT: " + String.valueOf(inserted));
+            getContentResolver().insert(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, values);            
           }
         }
         

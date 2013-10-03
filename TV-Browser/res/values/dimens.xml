@@ -8,4 +8,6 @@
     <dimen name="genre_font_size">12sp</dimen>
     <item name="favorite_list_weight" format="float" type="dimen">0.7</item>
     <item name="favorite_program_weight" format="float" type="dimen">0.3</item>
+    <item name="expired_tag" format="integer" type="id">1000</item>
+    <item name="on_air_tag" format="integer" type="id">2000</item>
 </resources>
