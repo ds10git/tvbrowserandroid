@@ -21,6 +21,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
@@ -55,6 +56,12 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   }
   
   public void setWhereClauseID(int id) {
+    Button test = (Button)((View)getView().getParent()).findViewById(mWhereClauseID);
+    
+    if(test != null) {
+      test.setBackgroundResource(android.R.drawable.list_selector_background);
+    }
+    
     mWhereClauseID = id;
     
     if(mKeepRunning) {
@@ -271,6 +278,14 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       default: cal.setTimeInMillis(System.currentTimeMillis());break;
     }
 
+    if(getView().getParent() != null) {
+      Button test = (Button)((View)getView().getParent()).findViewById(mWhereClauseID);
+      
+      if(test != null) {
+        test.setBackgroundResource(R.color.filter_selection);
+      }
+    }
+    
     long time = ((long)cal.getTimeInMillis() / 60000) * 60000;
 
     String where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + time + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + time;

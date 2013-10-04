@@ -12,6 +12,7 @@ import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
@@ -53,6 +54,23 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   }
   
   public void setChannelID(long id) {
+    Button button = null;
+    
+    if(mChannelID != -1) {
+      if(getView().getParent() != null) {
+        button = (Button)((View)getView().getParent()).findViewWithTag(Long.valueOf(mChannelID));
+      }
+    }
+    else {
+      if(getView().getParent() != null) {
+        button = (Button)((View)getView().getParent()).findViewById(R.id.all_channels);
+      }
+    }
+    
+    if(button != null) {
+      button.setBackgroundResource(android.R.drawable.list_selector_background);
+    }
+    
     mChannelID = id;
     
     handler.post(new Runnable() {
@@ -153,9 +171,23 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     
     String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis();
     where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " > " + System.currentTimeMillis() + " ) ";
+    Button button = null;
     
     if(mChannelID != -1) {
       where += "AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + mChannelID;
+      
+      if(getView().getParent() != null) {
+        button = (Button)((View)getView().getParent()).findViewWithTag(Long.valueOf(mChannelID));
+      }
+    }
+    else {
+      if(getView().getParent() != null) {
+        button = (Button)((View)getView().getParent()).findViewById(R.id.all_channels);
+      }
+    }
+    
+    if(button != null) {
+      button.setBackgroundResource(R.color.filter_selection);
     }
     
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
