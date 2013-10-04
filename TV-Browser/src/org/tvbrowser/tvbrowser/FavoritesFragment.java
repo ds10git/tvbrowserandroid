@@ -7,10 +7,15 @@ import java.util.Set;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
+import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
@@ -20,6 +25,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -45,6 +51,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   private Handler handler;
   
   private boolean mFavoriteContext;
+  private BroadcastReceiver mReceiver;
   
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -140,6 +147,58 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   }
   
   @Override
+  public void onAttach(Activity activity) {
+    super.onAttach(activity);
+    
+    mReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, final Intent intent) {
+        new Thread() {
+          public void run() {
+            String oldName = intent.getStringExtra(Favorite.OLD_NAME_KEY);
+            
+            Favorite fav = null;
+            
+            if(oldName != null) {
+              for(Favorite favorite : mFavoriteList) {
+                if(favorite.getName().equals(oldName)) {
+                  fav = favorite;
+                  break;
+                }
+              }
+            }
+            
+            if(fav == null) {
+              fav = new Favorite(intent.getStringExtra(Favorite.NAME_KEY), intent.getStringExtra(Favorite.SEARCH_KEY), intent.getBooleanExtra(Favorite.ONLY_TITLE_KEY, true));
+              mFavoriteList.add(fav);
+            }
+            
+            handler.post(new Runnable() {
+              @Override
+              public void run() {
+                mFavoriteAdapter.notifyDataSetChanged();
+              }
+            });
+          }
+        }.start();
+      }
+    };
+    
+    IntentFilter filter = new IntentFilter(SettingConstants.FAVORITES_CHANGED);
+    
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mReceiver, filter);
+  }
+  
+  @Override
+  public void onDetach() {
+    super.onDetach();
+    
+    if(mReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mReceiver);
+    }
+  }
+  
+  @Override
   public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
     String[] projection = {
         TvBrowserContentProvider.KEY_ID,
@@ -188,63 +247,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   }
   
   private void editFavorite(final Favorite fav) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
-    
-    final View input = getActivity().getLayoutInflater().inflate(R.layout.add_favorite_layout, null);
-    
-    if(fav != null) {
-      ((EditText)input.findViewById(R.id.favorite_name)).setText(fav.getName());
-      ((EditText)input.findViewById(R.id.favorite_search_value)).setText(fav.getSearchValue());
-      ((CheckBox)input.findViewById(R.id.favorite_only_title)).setChecked(fav.searchOnlyTitle());
-    }
-    
-    builder.setView(input);
-    
-    builder.setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        String name = ((EditText)input.findViewById(R.id.favorite_name)).getText().toString();
-        String search = ((EditText)input.findViewById(R.id.favorite_search_value)).getText().toString();
-        boolean onlyTitle = ((CheckBox)input.findViewById(R.id.favorite_only_title)).isChecked();
-        
-        if(name == null || name.trim().length() == 0) {
-          name = search;
-        }
-        
-        if(search != null) {
-          Favorite temp = fav;
-          
-          if(fav == null) {
-            temp = new Favorite(name, search, onlyTitle);
-            mFavoriteList.add(temp);
-            mFavoriteAdapter.notifyDataSetChanged();
-          }
-          else {
-            fav.setValues(name, search, onlyTitle);
-          }
-          
-          final Favorite fav = temp;
-          
-          new Thread() {
-            public void run() {
-              Favorite.updateFavoriteMarking(getActivity().getApplicationContext(), getActivity().getContentResolver(), fav);
-            }
-          }.start();
-        }
-        
-        updateFavorites();
-      }
-    });
-    
-    builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        
-      }
-    });
-    
-    AlertDialog dialog = builder.create();
-    dialog.show();
+    UiUtils.editFavorite(fav, getActivity(), null);    
   }
   
   @Override

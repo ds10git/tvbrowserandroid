@@ -6,6 +6,7 @@ public class SettingConstants {
   public static final int[] DOWNLOAD_DAYS = {0,1,2,3,7,14};
   public static final String CHANNEL_DOWNLOAD_COMPLETE = "org.tvbrowser.CHANNEL_DOWNLOAD_COMPLETE";
   public static final String MARKINGS_CHANGED = "org.tvbrowser.MARKINGS_CHANGED";
+  public static final String FAVORITES_CHANGED = "org.tvbrowser.FAVORTES_CHANGED";
   public static final String MARKINGS_ID = "MARKINGS_ID";
   public static final String FAVORITE_LIST = "FAVORITE_LIST";
 }
