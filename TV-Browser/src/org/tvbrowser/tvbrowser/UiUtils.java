@@ -17,6 +17,7 @@ import android.database.Cursor;
 import android.graphics.AvoidXfermode;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
 import android.support.v4.content.LocalBroadcastManager;
@@ -25,6 +26,7 @@ import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -162,12 +164,13 @@ public class UiUtils {
       }
       
       if(menuView != null) {
-        if(current != null && current.contains("calendar")) {
+        UiUtils.handleMarkings(activity, null, menuView, current);
+        /*if(current != null && current.contains("calendar")) {
           menuView.setBackgroundColor(activity.getResources().getColor(R.color.mark_color_calendar));
         }
         else {
           menuView.setBackgroundColor(activity.getResources().getColor(R.color.mark_color));
-        }      
+        } */     
       }
     }
     else if(item.getItemId() == R.id.prog_unmark_item){
@@ -293,5 +296,46 @@ public class UiUtils {
     }
     
     return true;
+  }
+  
+  public static void handleMarkings(Activity activity, Cursor cursor, View view, String markingValues) {
+    String value = cursor != null ? cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES)) : markingValues;
+    
+    if(value != null && value.trim().length() > 0) {
+      String[] markings = value.split(";");
+      
+      if(markings.length > 1) {
+        int[] colors = new int[markings.length];
+        
+        for(int i = 0; i < markings.length; i++) {
+          if(markings[i].equalsIgnoreCase("marked")) {
+            colors[i] = activity.getResources().getColor(R.color.mark_color);
+          }
+          else if(markings[i].equalsIgnoreCase("calendar")) {
+            colors[i] = activity.getResources().getColor(R.color.mark_color_calendar);
+          }
+          else if(markings[i].equalsIgnoreCase("favorite")) {
+            colors[i] = activity.getResources().getColor(R.color.mark_color_favorite);
+          }
+        }
+        
+        GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,colors);
+        gd.setCornerRadius(0f);
+        
+        view.setBackgroundDrawable(gd);
+      }
+      else if(value.contains("calendar")) {
+        view.setBackgroundResource(R.color.mark_color_calendar);
+      }
+      else if(value.contains("favorite")) {
+        view.setBackgroundResource(R.color.mark_color_favorite);
+      }
+      else {
+        view.setBackgroundResource(R.color.mark_color);
+      }
+    }
+    else {
+      view.setBackgroundResource(android.R.drawable.list_selector_background);
+    }
   }
 }

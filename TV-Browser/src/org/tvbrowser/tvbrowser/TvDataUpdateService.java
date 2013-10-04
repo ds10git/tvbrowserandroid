@@ -15,8 +15,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -37,10 +39,12 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.IBinder;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
@@ -515,11 +519,27 @@ public class TvDataUpdateService extends Service {
     
     TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
     getApplicationContext().getContentResolver().notifyChange(TvBrowserContentProvider.CONTENT_URI_DATA, null);
-        
+    
+    updateFavorites();
+    
     mBuilder.setProgress(0, 0, false);
     notification.cancel(mNotifyID);
     
     stopSelf();
+  }
+  
+  private void updateFavorites() {
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    
+    Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
+        
+    for(String favorite : favoritesSet) {
+      String[] values = favorite.split(";;");
+      
+      Favorite fav = new Favorite(values[0], values[1], Boolean.valueOf(values[2]));
+      
+      Favorite.updateFavoriteMarking(getContentResolver(), fav);
+    }
   }
   
   private int getDayStart() {

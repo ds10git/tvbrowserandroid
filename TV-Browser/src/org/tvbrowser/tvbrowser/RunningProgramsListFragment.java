@@ -132,6 +132,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           TextView text = (TextView)view;
           text.setText(DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(date)));
           
+          UiUtils.handleMarkings(getActivity(), cursor, ((RelativeLayout)view.getParent()), null);
+          /*
           String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
           
           if(value != null && value.trim().length() > 0) {
@@ -145,7 +147,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           else {
             ((RelativeLayout)view.getParent()).setBackgroundResource(android.R.drawable.list_selector_background);
           }
-          
+          */
           return true;
         }
         else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)) {

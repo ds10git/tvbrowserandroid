@@ -5,8 +5,11 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.SettingConstants;
 
 import android.app.AlertDialog;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -17,7 +20,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -33,8 +35,6 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 public class FavoritesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
-  private static final String FAVORITE_LIST = "FAVORITE_LIST";
-  
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   private SimpleCursorAdapter adapter;
   private ArrayAdapter<Favorite> mFavoriteAdapter;
@@ -62,11 +62,11 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     
     mWhereClause = null;
     
-    mFavoriteList = new ArrayList<FavoritesFragment.Favorite>();
+    mFavoriteList = new ArrayList<Favorite>();
     
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
-    Set<String> favoritesSet = prefs.getStringSet(FAVORITE_LIST, new HashSet<String>());
+    Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
         
     for(String favorite : favoritesSet) {
       String[] values = favorite.split(";;");
@@ -180,7 +180,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     
     Editor edit = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
     
-    edit.putStringSet(FAVORITE_LIST, favoriteSet);
+    edit.putStringSet(SettingConstants.FAVORITE_LIST, favoriteSet);
     
     edit.commit();
     
@@ -212,13 +212,24 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         }
         
         if(search != null) {
+          Favorite temp = fav;
+          
           if(fav == null) {
-            mFavoriteList.add(new Favorite(name, search, onlyTitle));
+            temp = new Favorite(name, search, onlyTitle);
+            mFavoriteList.add(temp);
             mFavoriteAdapter.notifyDataSetChanged();
           }
           else {
             fav.setValues(name, search, onlyTitle);
           }
+          
+          final Favorite fav = temp;
+          
+          new Thread() {
+            public void run() {
+              Favorite.updateFavoriteMarking(getActivity().getContentResolver(), fav);
+            }
+          }.start();
         }
         
         updateFavorites();
@@ -281,69 +292,5 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   @Override
   public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
     adapter.swapCursor(null);
-  }
-  
-  private static class Favorite {
-    private String mName;
-    private String mSearch;
-    private boolean mOnlyTitle;
-    
-    public Favorite(String name, String search, boolean onlyTitle) {
-      mName = name;
-      mSearch = search;
-      mOnlyTitle = onlyTitle;
-    }
-    
-    public boolean searchOnlyTitle() {
-      return mOnlyTitle;
-    }
-    
-    public String getName() {
-      return mName;
-    }
-    
-    public String getSearchValue() {
-      return mSearch;
-    }
-    
-    public void setValues(String name, String search, boolean onlyTitle) {
-      mName = name;
-      mSearch = search;
-      mOnlyTitle = onlyTitle;
-    }
-    
-    public String toString() {
-      return mName;
-    }
-    
-    public String getWhereClause() {
-      StringBuilder builder = new StringBuilder();
-      
-      builder.append(" AND ((");
-      builder.append(TvBrowserContentProvider.DATA_KEY_TITLE);
-      builder.append(" LIKE \"%");
-      builder.append(mSearch);
-      builder.append("%\")");
-      
-      if(!mOnlyTitle) {
-        String[] values = {TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL};
-        
-        for(String value : values) {
-          builder.append(" OR (");
-          builder.append(value);
-          builder.append(" LIKE \"%");
-          builder.append(mSearch);
-          builder.append("%\")");
-        }
-      }
-      
-      builder.append(")");
-      
-      return builder.toString();
-    }
-    
-    public String getSaveString() {
-      return mName + ";;" + mSearch + ";;" + String.valueOf(mOnlyTitle);
-    }
   }
 }

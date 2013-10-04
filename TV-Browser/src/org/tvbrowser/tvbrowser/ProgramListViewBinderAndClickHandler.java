@@ -11,11 +11,12 @@ import android.app.Activity;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -67,20 +68,8 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
        SimpleDateFormat mdf = new SimpleDateFormat(pattern);
        
        text.setText(mdf.format(progDate));
-
-       String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
        
-       if(value != null && value.trim().length() > 0) {
-         if(value.contains("calendar")) {
-           ((RelativeLayout)view.getParent()).setBackgroundResource(R.color.mark_color_calendar);
-         }
-         else {
-           ((RelativeLayout)view.getParent()).setBackgroundResource(R.color.mark_color);
-         }
-       }
-       else {
-         ((RelativeLayout)view.getParent()).setBackgroundResource(android.R.drawable.list_selector_background);
-       }
+       UiUtils.handleMarkings(mActivity, cursor, ((RelativeLayout)view.getParent()), null);
        
        return true;
      }
