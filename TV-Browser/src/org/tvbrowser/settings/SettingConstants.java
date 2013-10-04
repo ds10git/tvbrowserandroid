@@ -7,4 +7,5 @@ public class SettingConstants {
   public static final String CHANNEL_DOWNLOAD_COMPLETE = "org.tvbrowser.CHANNEL_DOWNLOAD_COMPLETE";
   public static final String MARKINGS_CHANGED = "org.tvbrowser.MARKINGS_CHANGED";
   public static final String MARKINGS_ID = "MARKINGS_ID";
+  public static final String FAVORITE_LIST = "FAVORITE_LIST";
 }

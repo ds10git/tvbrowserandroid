@@ -57,6 +57,8 @@ public class ProgramTableFragment extends Fragment {
             if(cursor.getCount() > 0) {
               cursor.moveToFirst();
               
+              UiUtils.handleMarkings(getActivity(), cursor, view, null);
+              /*
               String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
               
               if(value != null && value.trim().length() > 0) {
@@ -69,7 +71,7 @@ public class ProgramTableFragment extends Fragment {
               }
               else {
                 view.setBackgroundResource(android.R.drawable.list_selector_background);
-              }
+              }*/
             }
           }
         }
@@ -515,6 +517,9 @@ public class ProgramTableFragment extends Fragment {
                 
         count++;
         
+        UiUtils.handleMarkings(getActivity(), cursor, panel, null);
+        
+        /*
         String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
         
         if(value != null && value.trim().length() > 0) {
@@ -528,7 +533,7 @@ public class ProgramTableFragment extends Fragment {
         else {
           panel.setBackgroundResource(android.R.drawable.list_selector_background);
         }
-        
+        */
         TextView startTime = (TextView)panel.findViewById(R.id.prog_panel_start_time);
         TextView title = (TextView)panel.findViewById(R.id.prog_panel_title);
         TextView genre = (TextView)panel.findViewById(R.id.prog_panel_genre);
