@@ -302,6 +302,10 @@ public class UiUtils {
     String value = cursor != null ? cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES)) : markingValues;
     
     if(value != null && value.trim().length() > 0) {
+      if(value.startsWith(";")) {
+        value = value.substring(1);
+      }
+      
       String[] markings = value.split(";");
       
       if(markings.length > 1) {
