@@ -287,12 +287,12 @@ public class UiUtils {
         menuView.invalidate();
       }
       
+      activity.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), values, null, null);
+      
       Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
       intent.putExtra(SettingConstants.MARKINGS_ID, programID);
       
       LocalBroadcastManager.getInstance(activity).sendBroadcast(intent);
-      
-      activity.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), values, null, null);
     }
     
     return true;

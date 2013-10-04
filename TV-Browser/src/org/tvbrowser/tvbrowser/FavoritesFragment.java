@@ -227,7 +227,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
           
           new Thread() {
             public void run() {
-              Favorite.updateFavoriteMarking(getActivity().getContentResolver(), fav);
+              Favorite.updateFavoriteMarking(getActivity().getApplicationContext(), getActivity().getContentResolver(), fav);
             }
           }.start();
         }

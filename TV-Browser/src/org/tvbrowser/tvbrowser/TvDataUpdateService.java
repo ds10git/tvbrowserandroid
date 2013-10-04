@@ -538,7 +538,7 @@ public class TvDataUpdateService extends Service {
       
       Favorite fav = new Favorite(values[0], values[1], Boolean.valueOf(values[2]));
       
-      Favorite.updateFavoriteMarking(getContentResolver(), fav);
+      Favorite.updateFavoriteMarking(getApplicationContext(), getContentResolver(), fav);
     }
   }
   
