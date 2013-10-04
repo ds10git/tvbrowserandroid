@@ -1,11 +1,15 @@
 package org.tvbrowser.tvbrowser;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.SettingConstants;
 
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.support.v4.content.LocalBroadcastManager;
 
 public class Favorite {
   private String mName;
@@ -70,7 +74,7 @@ public class Favorite {
     return mName + ";;" + mSearch + ";;" + String.valueOf(mOnlyTitle);
   }
   
-  public static void updateFavoriteMarking(ContentResolver resolver, Favorite favorite) {
+  public static void updateFavoriteMarking(Context context, ContentResolver resolver, Favorite favorite) {
     String[] projection = {
         TvBrowserContentProvider.KEY_ID,
         TvBrowserContentProvider.DATA_KEY_UNIX_DATE,
@@ -121,6 +125,11 @@ public class Favorite {
           values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, value.toString());
           
           resolver.update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), values, null, null);
+          
+          Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
+          intent.putExtra(SettingConstants.MARKINGS_ID, id);
+          
+          LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
         }
       }while(cursor.moveToNext());
     }
