@@ -57,4 +57,5 @@
     <string name="license">TV-Browser für Android ist Freeware.</string>
     <string name="name_for_android">TV-Browser für Android</string>
     <string name="action_about">Über TV-Browser</string>
+    <string name="create_favorite_item">Lieblingssendung erstellen</string>
 </resources>

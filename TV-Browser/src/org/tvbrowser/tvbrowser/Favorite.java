@@ -12,6 +12,11 @@ import android.database.Cursor;
 import android.support.v4.content.LocalBroadcastManager;
 
 public class Favorite {
+  public static final String OLD_NAME_KEY = "OLD_NAME_KEY";
+  public static final String NAME_KEY = "NAME_KEY";
+  public static final String SEARCH_KEY = "SEARCH_KEY";
+  public static final String ONLY_TITLE_KEY = "ONLY_TITLE_KEY";
+  
   private String mName;
   private String mSearch;
   private boolean mOnlyTitle;
@@ -202,5 +207,14 @@ public class Favorite {
     }
     
     cursor.close();
+  }
+  
+  @Override
+  public boolean equals(Object o) {
+    if(o instanceof Favorite) {
+      return ((Favorite)o).mName.equals(mName);
+    }
+    
+    return super.equals(o);
   }
 }

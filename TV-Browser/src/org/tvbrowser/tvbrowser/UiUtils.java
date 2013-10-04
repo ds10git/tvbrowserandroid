@@ -3,7 +3,9 @@ package org.tvbrowser.tvbrowser;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Locale;
+import java.util.Set;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
@@ -12,12 +14,15 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
-import android.graphics.AvoidXfermode;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.graphics.drawable.GradientDrawable;
+import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
 import android.support.v4.content.LocalBroadcastManager;
@@ -26,7 +31,8 @@ import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.RelativeLayout;
+import android.widget.CheckBox;
+import android.widget.EditText;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -130,15 +136,22 @@ public class UiUtils {
       
       menu.findItem(R.id.prog_mark_item).setVisible(showMark);
       menu.findItem(R.id.prog_unmark_item).setVisible(!showMark);
+      
+      if(!showMark) {
+        if(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES)).contains("favorite")) {
+          menu.findItem(R.id.create_favorite_item).setVisible(false);
+        }
+      }
     }
     
     cursor.close();
   }
   
   public static boolean handleContextMenuSelection(Activity activity, MenuItem item, long programID, View menuView) {
-    Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null,null);
+    Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null,null);
     
     String current = null;
+    String title = null;
     
     if(info.getCount() > 0) {
       info.moveToFirst();
@@ -146,13 +159,19 @@ public class UiUtils {
       if(!info.isNull(0)) {
         current = info.getString(0);
       }
+      
+      title = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
     }
     
     info.close();
     
     ContentValues values = new ContentValues();
     
-    if(item.getItemId() == R.id.prog_mark_item) {
+    if(item.getItemId() == R.id.create_favorite_item) {
+      UiUtils.editFavorite(null, activity, title);
+      return true;
+    }
+    else if(item.getItemId() == R.id.prog_mark_item) {
       if(current != null && current.contains("marked")) {
         return true;
       }
@@ -341,5 +360,93 @@ public class UiUtils {
     else {
       view.setBackgroundResource(android.R.drawable.list_selector_background);
     }
+  }
+  
+  public static void editFavorite(final Favorite fav, final Activity activity, String searchString) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+    
+    final View input = activity.getLayoutInflater().inflate(R.layout.add_favorite_layout, null);
+    
+    if(fav != null) {
+      ((EditText)input.findViewById(R.id.favorite_name)).setText(fav.getName());
+      ((EditText)input.findViewById(R.id.favorite_search_value)).setText(fav.getSearchValue());
+      ((CheckBox)input.findViewById(R.id.favorite_only_title)).setChecked(fav.searchOnlyTitle());
+    }
+    else if(searchString != null) {
+      ((EditText)input.findViewById(R.id.favorite_search_value)).setText(searchString);
+    }
+    
+    builder.setView(input);
+    
+    builder.setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        new Thread() {
+          public void run() {
+            String name = ((EditText)input.findViewById(R.id.favorite_name)).getText().toString();
+            String search = ((EditText)input.findViewById(R.id.favorite_search_value)).getText().toString();
+            boolean onlyTitle = ((CheckBox)input.findViewById(R.id.favorite_only_title)).isChecked();
+            
+            if(name == null || name.trim().length() == 0) {
+              name = search;
+            }
+            
+            if(search != null) {
+              Intent intent = new Intent(SettingConstants.FAVORITES_CHANGED);
+                       
+              if(fav != null) {
+                intent.putExtra(Favorite.OLD_NAME_KEY, fav.getName());
+              }
+              
+              SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
+              
+              Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
+              HashSet<String> newFavoriteList = new HashSet<String>();
+              
+              Favorite dummy = new Favorite(name, search, onlyTitle);
+              boolean added = false;
+              
+              for(String favorite : favoritesSet) {
+                String[] values = favorite.split(";;");
+                
+                if(fav != null && values[0].equals(fav.getName())) {                
+                  newFavoriteList.add(dummy.getSaveString());
+                  added = true;
+                }
+                else {
+                  newFavoriteList.add(favorite);
+                }
+              }
+                
+              if(!added) {
+                newFavoriteList.add(dummy.getSaveString());
+              }
+              
+              Editor edit = prefs.edit();
+              edit.putStringSet(SettingConstants.FAVORITE_LIST, newFavoriteList);
+              edit.commit();
+              
+              intent.putExtra(Favorite.NAME_KEY, name);
+              intent.putExtra(Favorite.SEARCH_KEY, search);
+              intent.putExtra(Favorite.ONLY_TITLE_KEY, onlyTitle);
+              
+              Favorite.updateFavoriteMarking(activity.getApplicationContext(), activity.getContentResolver(), dummy);
+              
+              LocalBroadcastManager.getInstance(activity).sendBroadcast(intent);
+            }
+          }
+        }.start();
+      }
+    });
+    
+    builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        
+      }
+    });
+    
+    AlertDialog dialog = builder.create();
+    dialog.show();
   }
 }

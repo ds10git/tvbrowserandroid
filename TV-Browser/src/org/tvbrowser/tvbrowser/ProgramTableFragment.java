@@ -48,7 +48,7 @@ public class ProgramTableFragment extends Fragment {
       public void onReceive(Context context, Intent intent) {
         long id = intent.getLongExtra(SettingConstants.MARKINGS_ID, 0);
         
-        if(id > 0) {
+        if(id > 0 && getView() != null) {
           View view = getView().findViewWithTag(id);
           
           if(view != null) {
