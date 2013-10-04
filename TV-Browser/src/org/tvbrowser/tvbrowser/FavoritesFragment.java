@@ -265,7 +265,14 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       int pos = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position;
       
       if(item.getItemId() == R.id.delete_favorite) {
-        mFavoriteList.remove(pos);
+        final Favorite fav = mFavoriteList.remove(pos);
+        
+        new Thread() {
+          public void run() {
+            Favorite.removeFavoriteMarking(getActivity().getApplicationContext(), getActivity().getContentResolver(), fav);
+          }
+        }.start();
+        
         updateFavorites();
       }
       else if(item.getItemId() == R.id.edit_favorite) {
