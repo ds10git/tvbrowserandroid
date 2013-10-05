@@ -161,7 +161,7 @@ public class UiUtils {
   
   @SuppressLint("NewApi")
   public static boolean handleContextMenuSelection(Activity activity, MenuItem item, long programID, View menuView) {
-    Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, null, null,null);
+    Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null,null);
     
     String current = null;
     String title = null;
@@ -169,7 +169,7 @@ public class UiUtils {
     if(info.getCount() > 0) {
       info.moveToFirst();
       
-      if(!info.isNull(0)) {
+      if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
         current = info.getString(0);
       }
       
@@ -196,7 +196,12 @@ public class UiUtils {
       }
       
       if(menuView != null) {
+        info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, null, null,null);
+        info.moveToFirst();
+        
         UiUtils.handleMarkings(activity, info, menuView, current);
+        
+        info.close();
         /*if(current != null && current.contains("calendar")) {
           menuView.setBackgroundColor(activity.getResources().getColor(R.color.mark_color_calendar));
         }

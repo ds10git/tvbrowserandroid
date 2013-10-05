@@ -735,7 +735,7 @@ public class TvDataUpdateService extends Service {
             updateMirror(new File(getExternalFilesDir(null),url.substring(url.lastIndexOf("/"))));
           }
           Log.d("info", String.valueOf(downloadIDs.isEmpty()));
-          if(downloadIDs.isEmpty()) {
+          if(downloadIDs.isEmpty() && downloadList.isEmpty()) {
             new Thread() {
               public void run() {
                 mThreadPool.shutdown();
