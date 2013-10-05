@@ -2,8 +2,8 @@
 <resources>
     <color name="mark_color">#6000FF00</color>
     <color name="mark_color_calendar">#60FFFF00</color>
-    <color name="mark_color_favorite">#50FF0000</color>
-    <color name="filter_selection">#400000FF</color>
+    <color name="mark_color_favorite">#40FF0000</color>
+    <color name="filter_selection">#480000FF</color>
     <color name="running_color">#000077</color>
     <color name="light_gray">#AAAAAA</color>
 </resources>

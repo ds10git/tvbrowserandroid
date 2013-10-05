@@ -120,6 +120,12 @@ public class TvBrowser extends FragmentActivity implements
           @Override
           public void onPageSelected(int position) {
             actionBar.setSelectedNavigationItem(position);
+            
+            Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(position);
+            
+            if(fragment instanceof ProgramTableFragment) {
+              ((ProgramTableFragment)fragment).scrollToNow();
+            }
           }
         });
 

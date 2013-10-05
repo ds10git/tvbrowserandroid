@@ -16,10 +16,12 @@ import android.content.IntentFilter;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
@@ -27,8 +29,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ViewGroup.LayoutParams;
+import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class ProgramTableFragment extends Fragment {
@@ -38,6 +42,44 @@ public class ProgramTableFragment extends Fragment {
   
   private long mCurrentDay;
   private View mMenuView;
+  
+  public void scrollToNow() {
+    StringBuilder where = new StringBuilder();
+    where.append(" (( ");
+    where.append(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+    where.append(" <= ");
+    where.append(System.currentTimeMillis());
+    where.append(" ) AND ( ");
+    where.append(System.currentTimeMillis());
+    where.append(" <= ");
+    where.append(TvBrowserContentProvider.DATA_KEY_ENDTIME);    
+    where.append(" )) ");
+    
+    Cursor c = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+    
+    if(c.getCount() > 0) {
+      c.moveToFirst();
+      long id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+      
+      if(getView() != null) {
+        final View view = getView().findViewWithTag(Long.valueOf(id));
+        
+        final ScrollView scroll = (ScrollView)getView().findViewById(R.id.vertical_program_table_scroll);
+        
+        scroll.post(new Runnable() {
+          @Override
+          public void run() {
+            int location[] = new int[2];
+            view.getLocationInWindow(location);
+            
+            scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]);            
+          }
+        });
+      }
+    }
+    
+    c.close();
+  }
   
   @Override
   public void onCreate(Bundle savedInstanceState) {
