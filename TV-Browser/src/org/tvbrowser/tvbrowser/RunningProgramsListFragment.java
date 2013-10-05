@@ -168,12 +168,12 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
             ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.episodeLabel)).setTextColor(Color.rgb(200, 200, 200));
             ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.genre_label)).setTextColor(Color.rgb(200, 200, 200));
           }
-          else if(System.currentTimeMillis() >= start && System.currentTimeMillis() <= end) {
+         /* else if(System.currentTimeMillis() >= start && System.currentTimeMillis() <= end) {
             text.setTextColor(getActivity().getResources().getColor(R.color.running_color));
             ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.episodeLabel)).setTextColor(getActivity().getResources().getColor(R.color.running_color));
             ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.genre_label)).setTextColor(getActivity().getResources().getColor(R.color.running_color));
-          }
-          else {
+          }*/
+          else if(System.currentTimeMillis() <= end) {
             int[] attrs = new int[] { android.R.attr.textColorSecondary };
             TypedArray a = getActivity().getTheme().obtainStyledAttributes(R.style.AppTheme, attrs);
             int DEFAULT_TEXT_COLOR = a.getColor(0, Color.BLACK);

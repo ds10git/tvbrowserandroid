@@ -573,7 +573,7 @@ public class TvDataUpdateService extends Service {
       StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
       where.append(" = 1");
       
-      ArrayList<ChannelUpdate> downloadList = new ArrayList<ChannelUpdate>();
+      final ArrayList<ChannelUpdate> downloadList = new ArrayList<ChannelUpdate>();
       ArrayList<String> downloadMirrorList = new ArrayList<String>();
       
       Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
@@ -595,7 +595,7 @@ public class TvDataUpdateService extends Service {
           
           if(lastGroup != groupKey) {
             Cursor group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
-            
+            Log.d("MIRR", " XXX " + String.valueOf(groupKey) + " " + String.valueOf(group.getCount()));
             if(group.getCount() > 0) {
               group.moveToFirst();
               
@@ -637,6 +637,8 @@ public class TvDataUpdateService extends Service {
                 if(startDate.compareTo(now) >= 0 && startDate.compareTo(to) <= 0) {
                   int[] version = frame.getVersionForDay(i);
                   // load only base files
+                  
+                  Log.d(TAG, " VERSION " + version); 
                   if(version != null) {
                     long daysSince1970 = startDate.getTimeInMillis() / 24 / 60 / 60000;
                     
@@ -710,7 +712,7 @@ public class TvDataUpdateService extends Service {
       final HashMap<Long, String> mirrorIDs = new HashMap<Long, String>();
       downloadIDs = new HashMap<Long,ChannelUpdate>();
       mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
-      
+      Log.d("info", " length " + String.valueOf(downloadList.size()));
       BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, android.content.Intent intent) {
@@ -718,6 +720,7 @@ public class TvDataUpdateService extends Service {
           
           if(downloadIDs.containsKey(Long.valueOf(receiveReference))) {
             final ChannelUpdate update = downloadIDs.remove(Long.valueOf(receiveReference));
+            Log.d("info", " channel update "+ update.getUrl());
             mThreadPool.execute(new Thread() {
               public void run() {
                 updateData(download,receiveReference, update);
@@ -731,7 +734,7 @@ public class TvDataUpdateService extends Service {
             String url = mirrorIDs.remove(Long.valueOf(receiveReference));
             updateMirror(new File(getExternalFilesDir(null),url.substring(url.lastIndexOf("/"))));
           }
-          
+          Log.d("info", String.valueOf(downloadIDs.isEmpty()));
           if(downloadIDs.isEmpty()) {
             new Thread() {
               public void run() {
@@ -741,7 +744,7 @@ public class TvDataUpdateService extends Service {
                   mThreadPool.awaitTermination(10, TimeUnit.MINUTES);
                 } catch (InterruptedException e) {
                   // TODO Auto-generated catch block
-                  e.printStackTrace();
+                  Log.d("info", " term ", e);
                 }
                 Log.d("info", "calculate missing length");
                 mBuilder.setProgress(100, 0, true);
@@ -768,12 +771,14 @@ public class TvDataUpdateService extends Service {
         mirrorIDs.put(id, mirror);
       }
       
-      for(ChannelUpdate data : downloadList) {
+      for(int i = downloadList.size()-1; i >= 0; i--) {
+        ChannelUpdate data = downloadList.get(i);
         Request request = new Request(Uri.parse(data.getUrl()));
         request.setDestinationInExternalFilesDir(getApplicationContext(), null, data.getUrl().substring(data.getUrl().lastIndexOf("/")));
         
         long id = download.enqueue(request);
         downloadIDs.put(id,data);
+        downloadList.remove(i);
       }
     }
   }
@@ -816,12 +821,12 @@ public class TvDataUpdateService extends Service {
   
   private Summary readSummary(final String summaryurl) {
     final Summary summary = new Summary();
-    Log.d(TAG, "READ SUMMARY");
+    Log.d("MIRR", "READ SUMMARY");
 
     URL url;
     try {
       url = new URL(summaryurl);
-      Log.d("MIRR", summaryurl);
+      Log.d("MIRR", " HIER " + summaryurl);
       URLConnection connection;
       
       connection = url.openConnection();
@@ -830,7 +835,7 @@ public class TvDataUpdateService extends Service {
       HttpURLConnection httpConnection = (HttpURLConnection)connection;
       if(httpConnection != null) {
       int responseCode = httpConnection.getResponseCode();
-      
+      Log.d("MIRR", String.valueOf(responseCode) + " " + String.valueOf(HttpURLConnection.HTTP_OK));
       if(responseCode == HttpURLConnection.HTTP_OK) {
         InputStream in = httpConnection.getInputStream();
         
@@ -840,18 +845,23 @@ public class TvDataUpdateService extends Service {
           Log.d("MIRR", key + " " + map.get(key));
         }
         
-        if("gzip".equalsIgnoreCase(httpConnection.getHeaderField("Content-Encoding")) || "application/x-gzip".equalsIgnoreCase(httpConnection.getHeaderField("Content-Type"))) {
+       // if("gzip".equalsIgnoreCase(httpConnection.getHeaderField("Content-Encoding")) || "application/x-gzip".equalsIgnoreCase(httpConnection.getHeaderField("Content-Type"))) {
           try {
             in = new GZIPInputStream(in);
           }catch(IOException e2) {
+            Log.d("MIRR", "GZIP", e2);
             // Guess it's not compressed if here
           }
-        }
+       // }
         
         in = new BufferedInputStream(in);
         
+        int version = in.read();
+        Log.d("MIRR", "VERSION " + String.valueOf(version));
+      //  in.
+        
         //read file version
-        summary.setVersion(in.read());
+        summary.setVersion(version);
         
         long daysSince1970 = ((in.read() & 0xFF) << 16 ) | ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
         
@@ -860,7 +870,7 @@ public class TvDataUpdateService extends Service {
         summary.setLevels(in.read());
         
         int frameCount = (in.read() & 0xFF << 8) | (in.read() & 0xFF);
-        
+        Log.d("MIRR", "daysSince1970 " + String.valueOf(daysSince1970) + " frameCount " + String.valueOf(frameCount));
         for(int i = 0; i < frameCount; i++) {
           int byteCount = in.read();
           
@@ -899,14 +909,15 @@ public class TvDataUpdateService extends Service {
       }
     } catch (Exception e) {
       // TODO Auto-generated catch block
-      Log.d("BUG", "SUMMARY", e);
+      Log.d("MIRR", "SUMMARY", e);
     }
     
     return summary;
   }
   
   private void updateData(DownloadManager download, long reference, ChannelUpdate update) {
-    File dataFile = new File(getExternalFilesDir(null),update.getUrl().substring(update.getUrl().lastIndexOf("/")));
+    
+    File dataFile = new File(download.getUriForDownloadedFile(reference).getPath()/*getExternalFilesDir(null),update.getUrl().substring(update.getUrl().lastIndexOf("/"))*/);
     
     try {
       
@@ -1111,7 +1122,7 @@ public class TvDataUpdateService extends Service {
       in.close();
     } catch (Exception e) {
       // TODO Auto-generated catch block
-      Log.d(TAG, "UPDATE_DATA", e);
+      Log.d("info", "UPDATE_DATA", e);
     }
     
     dataFile.delete();

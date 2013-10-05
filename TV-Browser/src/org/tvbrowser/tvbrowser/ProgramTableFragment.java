@@ -268,7 +268,7 @@ public class ProgramTableFragment extends Fragment {
                               if(blockChild instanceof RelativeLayout) {
                                 final RelativeLayout progPanel = (RelativeLayout)blockChild;
                                 
-                                if(progPanel.getTag() != null) {
+                                if(progPanel.getTag() != null && getActivity() != null) {
                                       
                                   Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
                                   
@@ -318,8 +318,8 @@ public class ProgramTableFragment extends Fragment {
                                         }
                                       });
                                     }
-                                    else if(!onAir && System.currentTimeMillis() >= startTime && System.currentTimeMillis() <= endTime) {
-                                      handler.post(new Runnable() {
+                                    else if(/*!onAir && */System.currentTimeMillis() >= startTime && System.currentTimeMillis() <= endTime) {
+                                     /* handler.post(new Runnable() {
                                         @Override
                                         public void run() {
                                           text.setTextColor(getActivity().getResources().getColor(R.color.running_color));
@@ -337,9 +337,8 @@ public class ProgramTableFragment extends Fragment {
                                           
                                           c.close();
                                         }
-                                      });
-                                    }
-                                    else if(onAir) {
+                                      });*/
+                                      
                                       handler.post(new Runnable() {
                                         @Override
                                         public void run() {
@@ -354,6 +353,21 @@ public class ProgramTableFragment extends Fragment {
                                         }
                                       });
                                     }
+                                   /* else if(onAir) {
+                                      handler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                          Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
+                                          
+                                          if(c.getCount() > 0) {
+                                            c.moveToFirst();
+                                            UiUtils.handleMarkings(getActivity(), c, progPanel, null);
+                                          }
+                                          
+                                          c.close();
+                                        }
+                                      });
+                                    }*/
                                   }
                                   
                                   c.close();
@@ -422,7 +436,7 @@ public class ProgramTableFragment extends Fragment {
       LinearLayout twentytwo_twentyfour = (LinearLayout)programTable.findViewById(R.id.twentytwo_twentyfour);
       LinearLayout twentyfour_twentysix = (LinearLayout)programTable.findViewById(R.id.twentyfour_twentysix);
       LinearLayout twentysix_twentyeight = (LinearLayout)programTable.findViewById(R.id.twentysix_twentyeight);
-      
+      channelBar.setVisibility(View.VISIBLE);
       do {
         String name = channels.getString(1);
         
@@ -581,14 +595,14 @@ public class ProgramTableFragment extends Fragment {
           episode.setTextColor(Color.rgb(190, 190, 190));
           genre.setTextColor(Color.rgb(190, 190, 190));
         }
-        else if(System.currentTimeMillis() >= cal.getTimeInMillis() && System.currentTimeMillis() <= endTime) {
+        /*else if(System.currentTimeMillis() >= cal.getTimeInMillis() && System.currentTimeMillis() <= endTime) {
           panel.setTag(R.id.on_air_tag, true);
           startTime.setTextColor(getActivity().getResources().getColor(R.color.running_color));
           title.setTextColor(getActivity().getResources().getColor(R.color.running_color));
           episode.setTextColor(getActivity().getResources().getColor(R.color.running_color));
           genre.setTextColor(getActivity().getResources().getColor(R.color.running_color));
-        }
-        else {
+        }*/
+        else if(System.currentTimeMillis() <= endTime) {
           int[] attrs = new int[] { android.R.attr.textColorSecondary };
           TypedArray a = getActivity().getTheme().obtainStyledAttributes(R.style.AppTheme, attrs);
           int DEFAULT_TEXT_COLOR = a.getColor(0, Color.BLACK);

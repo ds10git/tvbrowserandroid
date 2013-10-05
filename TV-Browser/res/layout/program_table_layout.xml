@@ -14,7 +14,12 @@
             android:layout_height="wrap_content" 
             android:orientation="horizontal">
             <TextView style="@style/time_label_style"
-                android:text=""/>
+                android:text="D"
+                android:textSize="20sp"
+    			android:textColor="#787878"
+    			android:textStyle="bold"
+    			android:background="#787878"
+            />
             <include layout="@layout/separator_line"/>
             </LinearLayout>
         <ScrollView
