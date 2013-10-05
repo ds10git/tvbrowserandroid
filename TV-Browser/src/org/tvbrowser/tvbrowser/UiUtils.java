@@ -11,6 +11,7 @@ import java.util.Set;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentUris;
@@ -29,11 +30,11 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -136,6 +137,10 @@ public class UiUtils {
     
     Cursor cursor = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
     
+    if(Build.VERSION.SDK_INT < 14) {
+      menu.findItem(R.id.prog_create_calendar_entry).setVisible(false);
+    }
+    
     if(cursor.getCount() > 0) {
       cursor.moveToFirst();
       
@@ -154,6 +159,7 @@ public class UiUtils {
     cursor.close();
   }
   
+  @SuppressLint("NewApi")
   public static boolean handleContextMenuSelection(Activity activity, MenuItem item, long programID, View menuView) {
     Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, null, null,null);
     
