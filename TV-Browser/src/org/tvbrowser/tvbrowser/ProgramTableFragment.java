@@ -52,7 +52,7 @@ public class ProgramTableFragment extends Fragment {
           View view = getView().findViewWithTag(id);
           
           if(view != null) {
-            Cursor cursor = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
+            Cursor cursor = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, null, null, null);
             
             if(cursor.getCount() > 0) {
               cursor.moveToFirst();
@@ -306,6 +306,15 @@ public class ProgramTableFragment extends Fragment {
                                           genre.setTextColor(Color.rgb(190, 190, 190));
                                           progPanel.setTag(R.id.expired_tag, true);
                                           progPanel.setTag(R.id.on_air_tag, false);
+                                          
+                                          Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
+                                          
+                                          if(c.getCount() > 0) {
+                                            c.moveToFirst();
+                                            UiUtils.handleMarkings(getActivity(), c, progPanel, null);
+                                          }
+                                          
+                                          c.close();
                                         }
                                       });
                                     }
@@ -318,6 +327,30 @@ public class ProgramTableFragment extends Fragment {
                                           episode.setTextColor(getActivity().getResources().getColor(R.color.running_color));
                                           genre.setTextColor(getActivity().getResources().getColor(R.color.running_color));
                                           progPanel.setTag(R.id.on_air_tag, true);
+                                          
+                                          Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
+                                          
+                                          if(c.getCount() > 0) {
+                                            c.moveToFirst();
+                                            UiUtils.handleMarkings(getActivity(), c, progPanel, null);
+                                          }
+                                          
+                                          c.close();
+                                        }
+                                      });
+                                    }
+                                    else if(onAir) {
+                                      handler.post(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                          Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
+                                          
+                                          if(c.getCount() > 0) {
+                                            c.moveToFirst();
+                                            UiUtils.handleMarkings(getActivity(), c, progPanel, null);
+                                          }
+                                          
+                                          c.close();
                                         }
                                       });
                                     }
