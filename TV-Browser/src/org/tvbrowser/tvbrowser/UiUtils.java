@@ -2,6 +2,7 @@ package org.tvbrowser.tvbrowser;
 
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
@@ -19,9 +20,15 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.ColorFilter;
+import android.graphics.Paint;
 import android.graphics.Typeface;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
@@ -148,7 +155,7 @@ public class UiUtils {
   }
   
   public static boolean handleContextMenuSelection(Activity activity, MenuItem item, long programID, View menuView) {
-    Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null,null);
+    Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, null, null,null);
     
     String current = null;
     String title = null;
@@ -183,7 +190,7 @@ public class UiUtils {
       }
       
       if(menuView != null) {
-        UiUtils.handleMarkings(activity, null, menuView, current);
+        UiUtils.handleMarkings(activity, info, menuView, current);
         /*if(current != null && current.contains("calendar")) {
           menuView.setBackgroundColor(activity.getResources().getColor(R.color.mark_color_calendar));
         }
@@ -317,8 +324,83 @@ public class UiUtils {
     return true;
   }
   
+  private static class RunningDrawable extends Drawable {
+    private Paint mBase;
+    private Paint mSecond;
+    private long mStartTime;
+    private long mEndTime;
+    
+    public RunningDrawable(Paint base, Paint second, long startTime, long endTime) {
+      mBase = base;
+      mSecond = second;
+      mStartTime = startTime;
+      mEndTime = endTime;
+    }
+    
+    @Override
+    public void draw(Canvas canvas) {
+      if(mStartTime <= System.currentTimeMillis() && System.currentTimeMillis() < mEndTime) {
+        long expiredSeconds = System.currentTimeMillis() - mStartTime;
+        float percent = expiredSeconds/(float)(mEndTime - mStartTime);
+        
+        int leftWidth = (int)(getBounds().width() * percent);
+        
+        canvas.drawRect(0, 0, leftWidth, getBounds().height(), mBase);
+        canvas.drawRect(leftWidth, 0, getBounds().width(), getBounds().height(), mSecond);
+      }
+    }
+
+    @Override
+    public int getOpacity() {
+      // TODO Auto-generated method stub
+      return 0;
+    }
+
+    @Override
+    public void setAlpha(int alpha) {
+      // TODO Auto-generated method stub
+      
+    }
+
+    @Override
+    public void setColorFilter(ColorFilter cf) {
+      // TODO Auto-generated method stub
+      
+    }
+    
+  }
+  
   public static void handleMarkings(Activity activity, Cursor cursor, View view, String markingValues) {
-    String value = cursor != null ? cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES)) : markingValues;
+    String value = markingValues;
+    
+    if(value == null && cursor != null && !cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
+      value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
+    }
+    
+    long startTime = cursor != null ? cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) : 0;
+    long endTime = cursor != null ? cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) : 0;
+    
+    Paint base = new Paint();
+    base.setStyle(Paint.Style.FILL_AND_STROKE);
+    
+    Paint second = null;
+        
+    if(startTime <= System.currentTimeMillis() && System.currentTimeMillis() <= endTime) {
+      base.setColor(0x400000FF);
+      second = new Paint();
+      second.setStyle(Paint.Style.FILL_AND_STROKE);
+      second.setColor(0x150000FF);
+    }
+    else {
+      base = null;
+    }
+    
+    ArrayList<Drawable> draw = new ArrayList<Drawable>();
+    
+    if(base != null) {
+      RunningDrawable running = new RunningDrawable(base, second, startTime, endTime);
+      draw.add(running);
+    }
     
     if(value != null && value.trim().length() > 0) {
       if(value.startsWith(";")) {
@@ -345,21 +427,34 @@ public class UiUtils {
         GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,colors);
         gd.setCornerRadius(0f);
         
-        view.setBackgroundDrawable(gd);
+        
+        draw.add(gd);
+        
+        
+        
       }
       else if(value.contains("calendar")) {
-        view.setBackgroundResource(R.color.mark_color_calendar);
+        draw.add(new ColorDrawable(activity.getResources().getColor(R.color.mark_color_calendar)));
+        //view.setBackgroundResource(R.color.mark_color_calendar);
       }
       else if(value.contains("favorite")) {
-        view.setBackgroundResource(R.color.mark_color_favorite);
+        draw.add(new ColorDrawable(activity.getResources().getColor(R.color.mark_color_favorite)));
+        //view.setBackgroundResource(R.color.mark_color_favorite);
       }
       else {
-        view.setBackgroundResource(R.color.mark_color);
+        draw.add(new ColorDrawable(activity.getResources().getColor(R.color.mark_color)));
+        //view.setBackgroundResource(R.color.mark_color);
       }
     }
     else {
-      view.setBackgroundResource(android.R.drawable.list_selector_background);
+      draw.add(activity.getResources().getDrawable(android.R.drawable.list_selector_background));
     }
+    
+    view.setBackgroundDrawable(new LayerDrawable(draw.toArray(new Drawable[draw.size()])));
+    /*
+    else {
+      view.setBackgroundResource(android.R.drawable.list_selector_background);
+    }*/
   }
   
   public static void editFavorite(final Favorite fav, final Activity activity, String searchString) {
