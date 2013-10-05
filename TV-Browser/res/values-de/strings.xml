@@ -13,6 +13,9 @@
     <string name="title_section4">Lieblingssendungen</string>
     <string name="button_now">Jetzt</string>
     <string name="button_all_channels">Alle</string>
+    <string name="button_after">Danach</string>
+    <string name="button_before">Davor</string>
+    <string name="button_at">Genaue Zeit</string>
     <string name="no_channels">Keine Sender vorhanden.</string>
     <string name="select_channels">Sender jetzt auswählen</string>
     <string name="dont_select_channels">Jetzt nicht</string>

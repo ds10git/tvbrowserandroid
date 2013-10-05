@@ -18,6 +18,9 @@
     <string name="button_16">16:00</string>
     <string name="button_2015">20:15</string>
     <string name="button_23">23:00</string>
+    <string name="button_after">After</string>
+    <string name="button_before">Before</string>
+    <string name="button_at">At time</string>
     <string name="no_channels">No channels selected</string>
     <string name="select_channels">Select channels now</string>
     <string name="dont_select_channels">Don\'t select channels</string>
