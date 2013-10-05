@@ -15,9 +15,7 @@ import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
-import android.util.Log;
 import android.view.ContextMenu;
-import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
@@ -36,6 +34,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private boolean mKeepRunning;
   private Thread mUpdateThread;
   private int mWhereClauseID;
+  private int mTimeRangeID;
   
   @Override
   public void onResume() {
@@ -76,6 +75,27 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     }
   }
   
+  public void setTimeRangeID(int id) {
+    Button test = (Button)((View)getView().getParent()).findViewById(mTimeRangeID);
+    
+    if(test != null) {
+      test.setBackgroundResource(android.R.drawable.list_selector_background);
+    }
+    
+    mTimeRangeID = id;
+    
+    if(mKeepRunning) {
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          if(!isDetached()) {
+            getLoaderManager().restartLoader(0, null, RunningProgramsListFragment.this);
+          }
+        }
+      });
+    }
+  }
+  
   @Override
   public void onSaveInstanceState(Bundle outState) {
     outState.putInt(WHERE_CLAUSE_KEY, mWhereClauseID);
@@ -92,6 +112,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     else {
       mWhereClauseID = R.id.now_button;
     }
+    
+    mTimeRangeID = R.id.button_at;
     
     registerForContextMenu(getListView());
     
@@ -284,11 +306,26 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       if(test != null) {
         test.setBackgroundResource(R.color.filter_selection);
       }
+      
+      test = (Button)((View)getView().getParent()).findViewById(mTimeRangeID);
+      
+      if(test != null) {
+        test.setBackgroundResource(R.color.filter_selection);
+      }
     }
     
     long time = ((long)cal.getTimeInMillis() / 60000) * 60000;
 
     String where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + time + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + time;
+    
+    switch (mTimeRangeID) {
+      case R.id.button_before:
+      
+      break;
+      case R.id.button_after:
+        
+      break;
+    }
     
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
     

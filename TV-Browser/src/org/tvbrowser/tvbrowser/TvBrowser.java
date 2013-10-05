@@ -36,7 +36,6 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -52,7 +51,6 @@ import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
-
 
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
@@ -373,29 +371,18 @@ public class TvBrowser extends FragmentActivity implements
       
     if(channels.getCount() > 0) {
       if(channels.moveToFirst()) {
-        int key = channels.getInt(0);
-        String name = channels.getString(1);
-        
-        int order = 0;
-        
-        if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER))) {
-          order = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
-        }
-        
-        channelSource.add(new ChannelSelection(key, name, order));
-                
-        while(channels.moveToNext()) {
-          key = channels.getInt(0);
-          name = channels.getString(1);
+        do {
+          int key = channels.getInt(0);
+          String name = channels.getString(1);
           
-          order = 0;
+          int order = 0;
           
           if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER))) {
             order = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
           }
-          
+                    
           channelSource.add(new ChannelSelection(key, name, order));
-        }
+        }while(channels.moveToNext());
         
         
       }

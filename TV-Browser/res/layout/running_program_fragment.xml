@@ -47,7 +47,29 @@
         android:name="org.tvbrowser.tvbrowser.RunningProgramsListFragment"
         android:id="@+id/runningListFragment"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
     />
+    <LinearLayout android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_horizontal"
+        android:visibility="gone">
+        <Button android:id="@+id/button_before"
+                android:text="@string/button_before"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <Button android:id="@+id/button_at"
+                android:text="@string/button_at"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+            <Button android:id="@+id/button_after"
+                android:text="@string/button_after"
+                style="?android:attr/buttonBarButtonStyle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"/>
+    </LinearLayout>
 
 </LinearLayout>

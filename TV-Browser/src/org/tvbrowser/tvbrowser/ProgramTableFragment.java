@@ -16,20 +16,18 @@ import android.content.IntentFilter;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.graphics.Rect;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.ContextMenu;
+import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.ViewGroup.LayoutParams;
-import android.view.animation.Animation;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -64,17 +62,21 @@ public class ProgramTableFragment extends Fragment {
       if(getView() != null) {
         final View view = getView().findViewWithTag(Long.valueOf(id));
         
-        final ScrollView scroll = (ScrollView)getView().findViewById(R.id.vertical_program_table_scroll);
-        
-        scroll.post(new Runnable() {
-          @Override
-          public void run() {
-            int location[] = new int[2];
-            view.getLocationInWindow(location);
-            
-            scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]);            
-          }
-        });
+        if(view != null) {
+          final ScrollView scroll = (ScrollView)getView().findViewById(R.id.vertical_program_table_scroll);
+          
+          scroll.post(new Runnable() {
+            @Override
+            public void run() {
+              int location[] = new int[2];
+              view.getLocationInWindow(location);
+              
+              Display display = getActivity().getWindowManager().getDefaultDisplay();
+              
+              scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]-display.getHeight()/3);
+            }
+          });
+        }
       }
     }
     
@@ -318,17 +320,12 @@ public class ProgramTableFragment extends Fragment {
                                     c.moveToFirst();
                                     
                                     boolean expiredTest = false;
-                                    boolean onAirTest = false;
                                     
                                     if(progPanel.getTag(R.id.expired_tag) != null) {
                                       expiredTest = (Boolean)progPanel.getTag(R.id.expired_tag);
                                     }
-                                    if(progPanel.getTag(R.id.on_air_tag) != null) {
-                                      onAirTest = (Boolean)progPanel.getTag(R.id.on_air_tag);
-                                    }
                                                                         
                                     final boolean expired = expiredTest;
-                                    final boolean onAir = onAirTest;
                                     
                                     long startTime = c.getLong(0);
                                     long endTime = c.getLong(1);
@@ -347,7 +344,7 @@ public class ProgramTableFragment extends Fragment {
                                           episode.setTextColor(Color.rgb(190, 190, 190));
                                           genre.setTextColor(Color.rgb(190, 190, 190));
                                           progPanel.setTag(R.id.expired_tag, true);
-                                          progPanel.setTag(R.id.on_air_tag, false);
+                                         // progPanel.setTag(R.id.on_air_tag, false);
                                           
                                           Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
                                           
@@ -464,21 +461,23 @@ public class ProgramTableFragment extends Fragment {
       
       LinearLayout channelBar = (LinearLayout)programTable.findViewById(R.id.program_table_channel_bar);
       
-      LinearLayout zero_two = (LinearLayout)programTable.findViewById(R.id.zero_two);
-      LinearLayout two_four = (LinearLayout)programTable.findViewById(R.id.two_four);
-      LinearLayout four_six = (LinearLayout)programTable.findViewById(R.id.four_six);
-      LinearLayout six_eight = (LinearLayout)programTable.findViewById(R.id.six_eight);
-      LinearLayout eight_ten = (LinearLayout)programTable.findViewById(R.id.eight_ten);
-      LinearLayout ten_twelfe = (LinearLayout)programTable.findViewById(R.id.ten_twelfe);
-      LinearLayout twefle_fourteen = (LinearLayout)programTable.findViewById(R.id.twefle_fourteen);
-      LinearLayout fourteen_sixteen = (LinearLayout)programTable.findViewById(R.id.fourteen_sixteen);
-      LinearLayout sixteen_eighteen = (LinearLayout)programTable.findViewById(R.id.sixteen_eighteen);
-      LinearLayout eighteen_twenty = (LinearLayout)programTable.findViewById(R.id.eighteen_twenty);
-      LinearLayout twenty_twentytwo = (LinearLayout)programTable.findViewById(R.id.twenty_twentytwo);
-      LinearLayout twentytwo_twentyfour = (LinearLayout)programTable.findViewById(R.id.twentytwo_twentyfour);
-      LinearLayout twentyfour_twentysix = (LinearLayout)programTable.findViewById(R.id.twentyfour_twentysix);
-      LinearLayout twentysix_twentyeight = (LinearLayout)programTable.findViewById(R.id.twentysix_twentyeight);
-      channelBar.setVisibility(View.VISIBLE);
+      LinearLayout[] timeBlockLines = new LinearLayout[14];
+      
+      timeBlockLines[0] = (LinearLayout)programTable.findViewById(R.id.zero_two);
+      timeBlockLines[1] = (LinearLayout)programTable.findViewById(R.id.two_four);
+      timeBlockLines[2] = (LinearLayout)programTable.findViewById(R.id.four_six);
+      timeBlockLines[3] = (LinearLayout)programTable.findViewById(R.id.six_eight);
+      timeBlockLines[4] = (LinearLayout)programTable.findViewById(R.id.eight_ten);
+      timeBlockLines[5] = (LinearLayout)programTable.findViewById(R.id.ten_twelfe);
+      timeBlockLines[6] = (LinearLayout)programTable.findViewById(R.id.twefle_fourteen);
+      timeBlockLines[7] = (LinearLayout)programTable.findViewById(R.id.fourteen_sixteen);
+      timeBlockLines[8] = (LinearLayout)programTable.findViewById(R.id.sixteen_eighteen);
+      timeBlockLines[9] = (LinearLayout)programTable.findViewById(R.id.eighteen_twenty);
+      timeBlockLines[10] = (LinearLayout)programTable.findViewById(R.id.twenty_twentytwo);
+      timeBlockLines[11] = (LinearLayout)programTable.findViewById(R.id.twentytwo_twentyfour);
+      timeBlockLines[12] = (LinearLayout)programTable.findViewById(R.id.twentyfour_twentysix);
+      timeBlockLines[13] = (LinearLayout)programTable.findViewById(R.id.twentysix_twentyeight);
+      
       do {
         String name = channels.getString(1);
         
@@ -496,48 +495,21 @@ public class ProgramTableFragment extends Fragment {
           cursor.moveToFirst();
           
           int count = 1;
+          int hour = 0;
           
-          count = createTimeBlockForChannel(0,2,cursor,zero_two,inflater,count);
-          zero_two.addView(inflater.inflate(R.layout.separator_line, zero_two, false));
-          
-          count = createTimeBlockForChannel(2,4,cursor,two_four,inflater,count);
-          two_four.addView(inflater.inflate(R.layout.separator_line, two_four, false));
-          
-          count = createTimeBlockForChannel(4,6,cursor,four_six,inflater,count);
-          four_six.addView(inflater.inflate(R.layout.separator_line, four_six, false));
-          
-          count = createTimeBlockForChannel(6,8,cursor,six_eight,inflater,count);
-          six_eight.addView(inflater.inflate(R.layout.separator_line, six_eight, false));
-          
-          count = createTimeBlockForChannel(8,10,cursor,eight_ten,inflater,count);
-          eight_ten.addView(inflater.inflate(R.layout.separator_line, eight_ten, false));
-          
-          count = createTimeBlockForChannel(10,12,cursor,ten_twelfe,inflater,count);
-          ten_twelfe.addView(inflater.inflate(R.layout.separator_line, ten_twelfe, false));
-          
-          count = createTimeBlockForChannel(12,14,cursor,twefle_fourteen,inflater,count);
-          twefle_fourteen.addView(inflater.inflate(R.layout.separator_line, twefle_fourteen, false));
-          
-          count = createTimeBlockForChannel(14,16,cursor,fourteen_sixteen,inflater,count);
-          fourteen_sixteen.addView(inflater.inflate(R.layout.separator_line, fourteen_sixteen, false));
-          
-          count = createTimeBlockForChannel(16,18,cursor,sixteen_eighteen,inflater,count);
-          sixteen_eighteen.addView(inflater.inflate(R.layout.separator_line, sixteen_eighteen, false));
-          
-          count = createTimeBlockForChannel(18,20,cursor,eighteen_twenty,inflater,count);
-          eighteen_twenty.addView(inflater.inflate(R.layout.separator_line, eighteen_twenty, false));
-          
-          count = createTimeBlockForChannel(20,22,cursor,twenty_twentytwo,inflater,count);
-          twenty_twentytwo.addView(inflater.inflate(R.layout.separator_line, twenty_twentytwo, false));
-          
-          count = createTimeBlockForChannel(22,24,cursor,twentytwo_twentyfour,inflater,count);
-          twentytwo_twentyfour.addView(inflater.inflate(R.layout.separator_line, twentytwo_twentyfour, false));
-          
-          count = createTimeBlockForChannel(24,26,cursor,twentyfour_twentysix,inflater,count);
-          twentyfour_twentysix.addView(inflater.inflate(R.layout.separator_line, twentyfour_twentysix, false));
-          
-          count = createTimeBlockForChannel(26,28,cursor,twentysix_twentyeight,inflater,count);
-          twentysix_twentyeight.addView(inflater.inflate(R.layout.separator_line, twentysix_twentyeight, false));
+          for(LinearLayout layoutLine : timeBlockLines) {
+            count = createTimeBlockForChannel(hour,hour+2,cursor,layoutLine,inflater,count);
+            layoutLine.addView(inflater.inflate(R.layout.separator_line, layoutLine, false));
+            
+            hour += 2;
+          }
+        }
+        else {          
+          for(LinearLayout layoutLine : timeBlockLines) {
+            LinearLayout block = (LinearLayout)inflater.inflate(R.layout.program_block, layoutLine, false);
+            layoutLine.addView(block);
+            layoutLine.addView(inflater.inflate(R.layout.separator_line, layoutLine, false));
+          }
         }
         
         cursor.close();

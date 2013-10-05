@@ -11,7 +11,6 @@ import android.app.Activity;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Color;
-import android.graphics.drawable.GradientDrawable;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -93,11 +92,7 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
        TextView text = (TextView)view;
        
        long end = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
-       long start = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
        
-       /*if(System.currentTimeMillis() >= start && System.currentTimeMillis() <= end) {
-         text.setTextColor(mActivity.getResources().getColor(R.color.running_color));
-       }*/
        if(end <= System.currentTimeMillis()) {
          int[] attrs = new int[] { android.R.attr.textColorSecondary };
          TypedArray a = mActivity.getTheme().obtainStyledAttributes(R.style.AppTheme, attrs);
