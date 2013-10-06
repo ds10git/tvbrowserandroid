@@ -8,6 +8,7 @@ import java.util.TimeZone;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -41,6 +42,8 @@ public class ProgramTableFragment extends Fragment {
   private long mCurrentDay;
   private View mMenuView;
   
+  private BroadcastReceiver mDataUpdateReceiver;
+  
   public void scrollToNow() {
     StringBuilder where = new StringBuilder();
     where.append(" (( ");
@@ -53,13 +56,18 @@ public class ProgramTableFragment extends Fragment {
     where.append(TvBrowserContentProvider.DATA_KEY_ENDTIME);    
     where.append(" )) ");
     
-    Cursor c = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+    Cursor c = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
     if(c.getCount() > 0) {
       c.moveToFirst();
-      long id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
       
-      if(getView() != null) {
+      long id = -1;
+      
+      do {
+        id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+      }while((System.currentTimeMillis() - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > (3 * 60 * 60000) && c.moveToNext());
+      
+      if(id != -1 && getView() != null) {
         final View view = getView().findViewWithTag(Long.valueOf(id));
         
         if(view != null) {
@@ -102,20 +110,6 @@ public class ProgramTableFragment extends Fragment {
               cursor.moveToFirst();
               
               UiUtils.handleMarkings(getActivity(), cursor, view, null);
-              /*
-              String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
-              
-              if(value != null && value.trim().length() > 0) {
-                if(value.contains("calendar")) {
-                  view.setBackgroundColor(getActivity().getResources().getColor(R.color.mark_color_calendar));
-                }
-                else {
-                  view.setBackgroundColor(getActivity().getResources().getColor(R.color.mark_color));
-                }
-              }
-              else {
-                view.setBackgroundResource(android.R.drawable.list_selector_background);
-              }*/
             }
           }
         }
@@ -160,10 +154,41 @@ public class ProgramTableFragment extends Fragment {
   }
   
   @Override
+  public void onAttach(Activity activity) {
+    super.onAttach(activity);
+        
+    mDataUpdateReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            if(!isDetached() && getView() != null) {
+              LinearLayout layout = (LinearLayout)getView().findViewWithTag("LAYOUT");
+              
+              if(layout != null) {
+                updateView(getActivity().getLayoutInflater(),layout);
+              }
+            }
+          }
+        });
+      }
+    };
+    
+    IntentFilter intent = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
+    
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, intent);
+  }
+  
+  @Override
   public void onDetach() {
     super.onDetach();
     
     mKeepRunning = false;
+    
+    if(mDataUpdateReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
+    }
   }
   
   private void createUpdateThread() {
@@ -346,14 +371,16 @@ public class ProgramTableFragment extends Fragment {
                                           progPanel.setTag(R.id.expired_tag, true);
                                          // progPanel.setTag(R.id.on_air_tag, false);
                                           
-                                          Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
-                                          
-                                          if(c.getCount() > 0) {
-                                            c.moveToFirst();
-                                            UiUtils.handleMarkings(getActivity(), c, progPanel, null);
+                                          if(!isDetached()) {
+                                            Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
+                                            
+                                            if(c.getCount() > 0) {
+                                              c.moveToFirst();
+                                              UiUtils.handleMarkings(getActivity(), c, progPanel, null);
+                                            }
+                                            
+                                            c.close();
                                           }
-                                          
-                                          c.close();
                                         }
                                       });
                                     }
@@ -580,21 +607,6 @@ public class ProgramTableFragment extends Fragment {
         
         UiUtils.handleMarkings(getActivity(), cursor, panel, null);
         
-        /*
-        String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
-        
-        if(value != null && value.trim().length() > 0) {
-          if(value.contains("calendar")) {
-            panel.setBackgroundColor(getActivity().getResources().getColor(R.color.mark_color_calendar));
-          }
-          else {
-            panel.setBackgroundColor(getActivity().getResources().getColor(R.color.mark_color));
-          }
-        }
-        else {
-          panel.setBackgroundResource(android.R.drawable.list_selector_background);
-        }
-        */
         TextView startTime = (TextView)panel.findViewById(R.id.prog_panel_start_time);
         TextView title = (TextView)panel.findViewById(R.id.prog_panel_title);
         TextView genre = (TextView)panel.findViewById(R.id.prog_panel_genre);
@@ -609,13 +621,6 @@ public class ProgramTableFragment extends Fragment {
           episode.setTextColor(Color.rgb(190, 190, 190));
           genre.setTextColor(Color.rgb(190, 190, 190));
         }
-        /*else if(System.currentTimeMillis() >= cal.getTimeInMillis() && System.currentTimeMillis() <= endTime) {
-          panel.setTag(R.id.on_air_tag, true);
-          startTime.setTextColor(getActivity().getResources().getColor(R.color.running_color));
-          title.setTextColor(getActivity().getResources().getColor(R.color.running_color));
-          episode.setTextColor(getActivity().getResources().getColor(R.color.running_color));
-          genre.setTextColor(getActivity().getResources().getColor(R.color.running_color));
-        }*/
         else if(System.currentTimeMillis() <= endTime) {
           int[] attrs = new int[] { android.R.attr.textColorSecondary };
           TypedArray a = getActivity().getTheme().obtainStyledAttributes(R.style.AppTheme, attrs);

@@ -43,6 +43,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
@@ -136,7 +137,6 @@ public class TvBrowser extends FragmentActivity implements
       actionBar.addTab(actionBar.newTab()
           .setText(mSectionsPagerAdapter.getPageTitle(i)).setTabListener(this));
     }
-
   }
   
   @Override
@@ -147,7 +147,7 @@ public class TvBrowser extends FragmentActivity implements
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.YEAR, 2013);
     cal.set(Calendar.MONTH, Calendar.OCTOBER);
-    cal.set(Calendar.DAY_OF_MONTH, 12);
+    cal.set(Calendar.DAY_OF_MONTH, 20);
         
     new Thread() {
       public void run() {
@@ -318,7 +318,7 @@ public class TvBrowser extends FragmentActivity implements
     }
     
     public String toString() {
-      return mSortNumber + ". " + mName;
+      return (mSortNumber == 0 ? "-" : mSortNumber) + ". " + mName;
     }
     
     public String getName() {
@@ -478,6 +478,41 @@ public class TvBrowser extends FragmentActivity implements
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
+      case R.id.action_username_password:
+      {  AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+        
+        RelativeLayout username_password_setup = (RelativeLayout)getLayoutInflater().inflate(R.layout.username_password_setup, null);
+                
+        final SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+        
+        final EditText userName = (EditText)username_password_setup.findViewById(R.id.username_entry);
+        final EditText password = (EditText)username_password_setup.findViewById(R.id.password_entry);
+        
+        userName.setText(pref.getString(SettingConstants.USER_NAME, ""));
+        password.setText(pref.getString(SettingConstants.USER_PASSWORD, ""));
+        
+        builder.setView(username_password_setup);
+        
+        builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            Editor edit = pref.edit();
+            
+            edit.putString(SettingConstants.USER_NAME, userName.getText().toString());
+            edit.putString(SettingConstants.USER_PASSWORD, password.getText().toString());
+            
+            edit.commit();
+          }
+        });
+        builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            
+          }
+        });
+        builder.show();
+    }
+      break;
       case R.id.action_update:
         if(isOnline()) {
           AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);

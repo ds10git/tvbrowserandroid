@@ -46,6 +46,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   
   private boolean mFavoriteContext;
   private BroadcastReceiver mReceiver;
+  private BroadcastReceiver mDataUpdateReceiver;
   
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -77,7 +78,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         
     mFavoriteAdapter = new ArrayAdapter<Favorite>(getActivity(), android.R.layout.simple_list_item_activated_1,mFavoriteList);
     
-    ListView favorites = (ListView)getView().findViewById(R.id.favorite_list);
+    final ListView favorites = (ListView)getView().findViewById(R.id.favorite_list);
     favorites.setAdapter(mFavoriteAdapter);
     favorites.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
     favorites.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -120,6 +121,24 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       }
     });
     
+    Button synced = (Button)getView().findViewById(R.id.show_sync_favorites);
+    synced.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        mWhereClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE \"%" + SettingConstants.MARK_VALUE_SYNC_FAVORITE + "%\" ) ";
+        
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            if(!isDetached()) {
+              favorites.setItemChecked(-1, true);
+              getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
+            }
+          }
+        });
+      }
+    });
+    
     String[] projection = {
         TvBrowserContentProvider.DATA_KEY_UNIX_DATE,
         TvBrowserContentProvider.DATA_KEY_STARTTIME,
@@ -127,7 +146,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
         TvBrowserContentProvider.DATA_KEY_TITLE,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
-        TvBrowserContentProvider.DATA_KEY_GENRE
+        TvBrowserContentProvider.DATA_KEY_GENRE,
     };
     
     mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity());
@@ -181,6 +200,24 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       }
     };
     
+    mDataUpdateReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            if(!isDetached()) {
+              getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
+            }
+          }
+        });
+      }
+    };
+    
+    IntentFilter dataUpdateFilter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
+    
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, dataUpdateFilter);
+    
     IntentFilter filter = new IntentFilter(SettingConstants.FAVORITES_CHANGED);
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mReceiver, filter);
@@ -192,6 +229,9 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     
     if(mReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mReceiver);
+    }
+    if(mDataUpdateReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
     }
   }
   

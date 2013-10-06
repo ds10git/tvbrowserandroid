@@ -120,7 +120,7 @@ public class Favorite {
         StringBuilder newValue = new StringBuilder();
         
         for(String part : parts) {
-          if(!part.equalsIgnoreCase("favorite")) {
+          if(!part.equalsIgnoreCase(SettingConstants.MARK_VALUE_FAVORITE)) {
             newValue.append(part);
             newValue.append(";");
           }
@@ -182,7 +182,7 @@ public class Favorite {
           marking = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
         }
         
-        if(!marking.contains("favorite")) {
+        if(!marking.contains(SettingConstants.MARK_VALUE_FAVORITE)) {
           StringBuilder value = new StringBuilder();
           value.append(marking.trim());
           
@@ -190,7 +190,7 @@ public class Favorite {
             value.append(";");
           }
           
-          value.append("favorite");
+          value.append(SettingConstants.MARK_VALUE_FAVORITE);
           
           ContentValues values = new ContentValues();
           

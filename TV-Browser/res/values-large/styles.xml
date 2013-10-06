@@ -3,5 +3,8 @@
         <item name="android:gravity">left|center_vertical</item>
         <item name="android:text">@string/add</item>
     </style>
-
+    <style name="favorite_show_sync_button_style">
+        <item name="android:gravity">left|center_vertical</item>
+        <item name="android:text">@string/show_sync</item>
+    </style>
 </resources>
