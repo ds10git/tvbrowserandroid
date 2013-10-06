@@ -65,7 +65,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
         handler.post(new Runnable() {
           @Override
           public void run() {
-            if(!isDetached()) {
+            if(!isDetached() && mKeepRunning) {
               getLoaderManager().restartLoader(0, null, ProgramsListFragment.this);
             }
           }
