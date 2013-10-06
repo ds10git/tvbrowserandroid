@@ -51,6 +51,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
+import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
@@ -626,17 +627,18 @@ public class TvDataUpdateService extends Service {
       c.moveToFirst();
             
       do {
-        long progID = c.getLong(0);
-        int channelKey = c.getInt(1);
-        long end = c.getLong(3);
+        long progID = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+        int channelKey = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+        long meStart = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+        long end = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
         
         c.moveToNext();
         
         // only if end is not set update it (maybe all should be updated except programs that contains a length value)
         if(end == 0) {
-          long nextStart = c.getLong(2);
+          long nextStart = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
           
-          if(c.getInt(1) == channelKey) {
+          if(((nextStart - meStart) < (12 * 60 * 60000)) && c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) == channelKey) {
             ContentValues values = new ContentValues();
             values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, nextStart);
             
@@ -698,6 +700,12 @@ public class TvDataUpdateService extends Service {
   
   private void updateTvData() {
     if(!updateRunning) {
+      File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
+      
+      if(!path.isDirectory()) {
+        path.mkdirs();
+      }
+      
       mCurrentDownloadCount = 0;
       mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
       mBuilder.setContentText(getResources().getText(R.string.update_notification_text));
@@ -862,7 +870,8 @@ public class TvDataUpdateService extends Service {
           
           if(downloadIDs.containsKey(Long.valueOf(receiveReference))) {
             final ChannelUpdate update = downloadIDs.remove(Long.valueOf(receiveReference));
-            Log.d("info", " channel update "+ update.getUrl());
+            
+            Log.d("info", "DOWNLOADED: " + receiveReference + " : channel update "+ update.getUrl() + " " + download.getUriForDownloadedFile(receiveReference).getPath() + " " + new File(download.getUriForDownloadedFile(receiveReference).getPath()).isFile());
             mThreadPool.execute(new Thread() {
               public void run() {
                 updateData(download,receiveReference, update);
@@ -873,10 +882,9 @@ public class TvDataUpdateService extends Service {
             });
           }
           else if(mirrorIDs.containsKey(Long.valueOf(receiveReference))) {
-            String url = mirrorIDs.remove(Long.valueOf(receiveReference));
-            updateMirror(new File(getExternalFilesDir(null),url.substring(url.lastIndexOf("/"))));
+            updateMirror(new File(download.getUriForDownloadedFile(receiveReference).getPath()));
           }
-          Log.d("info", String.valueOf(downloadIDs.isEmpty()));
+          //Log.d("info", String.valueOf(downloadIDs.isEmpty()));
           if(downloadIDs.isEmpty() && downloadList.isEmpty()) {
             new Thread() {
               public void run() {
@@ -907,7 +915,7 @@ public class TvDataUpdateService extends Service {
       
       for(String mirror : downloadMirrorList) {
         Request request = new Request(Uri.parse(mirror));
-        request.setDestinationInExternalFilesDir(getApplicationContext(), null, mirror.substring(mirror.lastIndexOf("/")));
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "tvbrowserdata" + mirror.substring(mirror.lastIndexOf("/")));
         Log.d("MIRR", mirror);
         long id = download.enqueue(request);
         mirrorIDs.put(id, mirror);
@@ -916,9 +924,10 @@ public class TvDataUpdateService extends Service {
       for(int i = downloadList.size()-1; i >= 0; i--) {
         ChannelUpdate data = downloadList.get(i);
         Request request = new Request(Uri.parse(data.getUrl()));
-        request.setDestinationInExternalFilesDir(getApplicationContext(), null, data.getUrl().substring(data.getUrl().lastIndexOf("/")));
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "tvbrowserdata" + data.getUrl().substring(data.getUrl().lastIndexOf("/")));
         
         long id = download.enqueue(request);
+        Log.d("info", " DOWNLOAD ID " + id + " : " + data.getUrl());
         downloadIDs.put(id,data);
         downloadList.remove(i);
       }
@@ -1060,7 +1069,7 @@ public class TvDataUpdateService extends Service {
   private void updateData(DownloadManager download, long reference, ChannelUpdate update) {
     
     File dataFile = new File(download.getUriForDownloadedFile(reference).getPath()/*getExternalFilesDir(null),update.getUrl().substring(update.getUrl().lastIndexOf("/"))*/);
-    
+    Log.d("MIRR", dataFile.toString() + " " + dataFile.isFile());
     try {
       
       
