@@ -1,13 +1,20 @@
 package org.tvbrowser.tvbrowser;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.SettingConstants;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
@@ -28,6 +35,8 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   
+  private BroadcastReceiver mDataUpdateReceiver;
+  
   @Override
   public void onResume() {
     super.onResume();
@@ -47,10 +56,37 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   }
   
   @Override
+  public void onAttach(Activity activity) {
+    super.onAttach(activity);
+    
+    mDataUpdateReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            if(!isDetached()) {
+              getLoaderManager().restartLoader(0, null, ProgramsListFragment.this);
+            }
+          }
+        });
+      }
+    };
+    
+    IntentFilter intent = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
+    
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, intent);
+  }
+  
+  @Override
   public void onDetach() {
     super.onDetach();
     
     mKeepRunning = false;
+    
+    if(mDataUpdateReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
+    }
   }
   
   public void setChannelID(long id) {

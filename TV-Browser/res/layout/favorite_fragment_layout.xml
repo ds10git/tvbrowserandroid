@@ -14,10 +14,17 @@
             android:drawableLeft="@android:drawable/btn_plus"
             style="@style/favorite_add_button_style"
             />
-    <ListView android:id="@+id/favorite_list"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        />
+	    <ListView android:id="@+id/favorite_list"
+	        android:layout_width="match_parent"
+	        android:layout_height="0dip"
+	        android:layout_weight="1"
+	        />
+		<Button android:id="@+id/show_sync_favorites"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:drawableLeft="@drawable/ic_launcher"
+            style="@style/favorite_show_sync_button_style"
+            />
     </LinearLayout>
     <ListView android:id="@+id/favorite_program_list"
         android:layout_width="match_parent"

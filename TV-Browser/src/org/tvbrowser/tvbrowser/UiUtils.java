@@ -34,6 +34,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
+import android.provider.Contacts.SettingsColumns;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -150,7 +151,7 @@ public class UiUtils {
       menu.findItem(R.id.prog_unmark_item).setVisible(!showMark);
       
       if(!showMark) {
-        if(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES)).contains("favorite")) {
+        if(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES)).contains(SettingConstants.MARK_VALUE_FAVORITE)) {
           menu.findItem(R.id.create_favorite_item).setVisible(false);
         }
       }
@@ -185,14 +186,14 @@ public class UiUtils {
       return true;
     }
     else if(item.getItemId() == R.id.prog_mark_item) {
-      if(current != null && current.contains("marked")) {
+      if(current != null && current.contains(SettingConstants.MARK_VALUE)) {
         return true;
       }
-      else if(current == null) {
-        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, "marked");
+      else if(current == null || current.trim().length() == 0) {
+        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, SettingConstants.MARK_VALUE);
       }
       else {
-        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current + ";marked");
+        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current + ";"+SettingConstants.MARK_VALUE);
       }
       
       if(menuView != null) {
@@ -201,30 +202,13 @@ public class UiUtils {
         
         UiUtils.handleMarkings(activity, info, menuView, current);
         
-        info.close();
-        /*if(current != null && current.contains("calendar")) {
-          menuView.setBackgroundColor(activity.getResources().getColor(R.color.mark_color_calendar));
-        }
-        else {
-          menuView.setBackgroundColor(activity.getResources().getColor(R.color.mark_color));
-        } */     
+        info.close();   
       }
     }
     else if(item.getItemId() == R.id.prog_unmark_item){
       if(current == null || current.trim().length() == 0) {
         return true;
       }
-      /*
-      if(current.contains(";marked")) {
-        current = current.replace(";marked", "");
-      }
-      else if(current.contains("marked;")) {
-        current = current.replace("marked;", "");
-      }
-      else if(current.contains("marked")) {
-        current = current.replace("marked", "");
-      }
-      */
       
       current = "";
       
@@ -298,18 +282,18 @@ public class UiUtils {
           // Use the Calendar app to add the new event.
           activity.startActivity(addCalendarEntry);
           
-          if(current != null && current.contains("calendar")) {
+          if(current != null && current.contains(SettingConstants.MARK_VALUE_CALENDAR)) {
             return true;
           }
-          else if(current == null) {
-            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, "calendar");
+          else if(current == null || current.trim().length() == 0) {
+            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, SettingConstants.MARK_VALUE_CALENDAR);
           }
           else {
-            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current + ";calendar");
+            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current + ";"+SettingConstants.MARK_VALUE_CALENDAR);
           }
           
           if(menuView != null) {
-            menuView.setBackgroundColor(activity.getResources().getColor(R.color.mark_color_calendar));
+            menuView.setBackgroundColor(activity.getResources().getColor(SettingConstants.MARK_COLOR_MAP.get(SettingConstants.MARK_VALUE_CALENDAR)));
           }
         }
         
@@ -424,38 +408,42 @@ public class UiUtils {
         int[] colors = new int[markings.length];
         
         for(int i = 0; i < markings.length; i++) {
-          if(markings[i].equalsIgnoreCase("marked")) {
-            colors[i] = activity.getResources().getColor(R.color.mark_color);
-          }
-          else if(markings[i].equalsIgnoreCase("calendar")) {
-            colors[i] = activity.getResources().getColor(R.color.mark_color_calendar);
-          }
-          else if(markings[i].equalsIgnoreCase("favorite")) {
-            colors[i] = activity.getResources().getColor(R.color.mark_color_favorite);
+          Integer color = SettingConstants.MARK_COLOR_MAP.get(markings[i]);
+          
+          if(color != null) {
+            colors[i] = activity.getResources().getColor(color);
           }
         }
         
         GradientDrawable gd = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,colors);
         gd.setCornerRadius(0f);
         
-        
         draw.add(gd);
-        
-        
-        
       }
-      else if(value.contains("calendar")) {
+      else {
+        Integer color = SettingConstants.MARK_COLOR_MAP.get(value);
+        
+        if(color != null) {
+          draw.add(new ColorDrawable(activity.getResources().getColor(color)));
+        }
+      }
+      /*
+      else if(value.contains(SettingConstants.MARK_VALUE_CALENDAR)) {
         draw.add(new ColorDrawable(activity.getResources().getColor(R.color.mark_color_calendar)));
         //view.setBackgroundResource(R.color.mark_color_calendar);
       }
-      else if(value.contains("favorite")) {
+      else if(value.contains(SettingConstants.MARK_VALUE_FAVORITE)) {
         draw.add(new ColorDrawable(activity.getResources().getColor(R.color.mark_color_favorite)));
         //view.setBackgroundResource(R.color.mark_color_favorite);
+      }
+      else if(value.contains(SettingConstants.MARK_VALUE_SYNC_FAVORITE)) {
+        draw.add(new ColorDrawable(activity.getResources().getColor(R.color.mark_color_sync_favorite)));
+        //view.setBackgroundResource(R.color.mark_color);
       }
       else {
         draw.add(new ColorDrawable(activity.getResources().getColor(R.color.mark_color)));
         //view.setBackgroundResource(R.color.mark_color);
-      }
+      }*/
     }
     else {
       draw.add(activity.getResources().getDrawable(android.R.drawable.list_selector_background));

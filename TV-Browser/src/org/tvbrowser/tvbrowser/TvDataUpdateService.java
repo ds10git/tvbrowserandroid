@@ -11,9 +11,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -25,8 +27,15 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
+import javax.xml.parsers.DocumentBuilder;
+import javax.xml.parsers.DocumentBuilderFactory;
+
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.w3c.dom.Document;
+import org.w3c.dom.NamedNodeMap;
+import org.w3c.dom.Node;
+import org.w3c.dom.NodeList;
 
 import android.app.DownloadManager;
 import android.app.NotificationManager;
@@ -47,6 +56,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Base64;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -73,6 +83,8 @@ public class TvDataUpdateService extends Service {
   private int mDaysToLoad;
     
   private static final Integer[] FRAME_ID_ARR;
+  
+  private NodeList mSyncFavorites;
   
   static {
     FRAME_ID_ARR = new Integer[253];
@@ -112,6 +124,8 @@ public class TvDataUpdateService extends Service {
         
         if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
           mDaysToLoad = intent.getIntExtra(DAYS_TO_LOAD, 2);
+          mDayStart = SettingConstants.DEFAULT_DAY_START;
+          mDayEnd = SettingConstants.DEFAULT_DAY_END;
           updateTvData();
         }
         else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
@@ -123,13 +137,96 @@ public class TvDataUpdateService extends Service {
     return Service.START_NOT_STICKY;
   }
   
+  private void syncFavorites() {
+    if(mSyncFavorites != null) {
+    for(int i = 0; i < mSyncFavorites.getLength(); i++) {
+      Node fav = mSyncFavorites.item(i);
+    
+    
+    NamedNodeMap map = fav.getAttributes();
+    
+    if(map != null) {
+      String time = map.getNamedItem("time").getTextContent();
+      String id = map.getNamedItem("id").getTextContent();
+      
+      String[] idParts = id.split(":");
+      
+      String where = " ( " +TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = \"" + idParts[0] + "\" ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + idParts[1] + "\" ) ";
+      
+      Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
+      
+      if(group.moveToFirst()) {
+        int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+        
+        where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + idParts[2] + "\' ) ";
+        Log.d("date", where);
+        
+        Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
+        
+        if(channel.moveToFirst()) {
+          int channelId = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+          Log.d("date", "channelid " + channelId + " " + channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
+          
+          where = " ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelId + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time + " ) ";
+          
+          Log.d("date", where);
+//          where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time;
+          Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
+          Log.d("date", String.valueOf(program.getCount()));
+          if(program.moveToFirst()) {
+            String current = program.getString(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
+            Log.d("date", String.valueOf(current));
+            boolean update = false;
+            
+            if(current == null || current.trim().length() == 0) {
+              current = SettingConstants.MARK_VALUE_SYNC_FAVORITE;
+              update = true;
+            }
+            else if(!current.contains(SettingConstants.MARK_VALUE_SYNC_FAVORITE)) {
+              current += ";" + SettingConstants.MARK_VALUE_SYNC_FAVORITE;
+              update = true;
+            }
+            
+            if(update) {
+              ContentValues values = new ContentValues();
+              values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current);
+              
+              long programID = program.getLong(program.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+              
+              
+              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA,programID), values, null, null);
+              
+              Intent indent = new Intent(SettingConstants.MARKINGS_CHANGED);
+              indent.putExtra(SettingConstants.MARKINGS_ID, programID);
+
+              LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(indent);
+              
+              Log.d("date", program.getString(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
+            }
+          }
+          
+          program.close();
+        }
+        channel.close();
+      }
+      
+      group.close();
+      Log.d("date", time);
+      Log.d("date", id);
+    }
+  }
+    }
+    
+    mSyncFavorites = null;
+  }
+  
   private void updateChannels() {
     NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
     mBuilder.setProgress(100, 0, true);
     mBuilder.setContentTitle(getResources().getText(R.string.channel_notification_title));
     mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
     notification.notify(mNotifyID, mBuilder.build());
-    
+        
     final DownloadManager download = (DownloadManager)getSystemService(Context.DOWNLOAD_SERVICE);
     
     Uri uri = Uri.parse("http://www.tvbrowser.org/listings/groups.txt");
@@ -459,6 +556,50 @@ public class TvDataUpdateService extends Service {
     return false;
   }
   
+  private void loadAccessAndFavoriteSync() {
+    try {
+      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+      DocumentBuilder builder = factory.newDocumentBuilder();
+      
+      URL documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvb.php");
+      URLConnection connection = documentUrl.openConnection();
+      
+      SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+      
+      String car = pref.getString(SettingConstants.USER_NAME, null);
+      String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+      
+      if(car != null && bicycle != null) {
+        String userpass = car + ":" + bicycle;
+        String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
+        
+        connection.setRequestProperty ("Authorization", basicAuth);
+        
+        InputStream stream = connection.getInputStream();
+        
+        Document document = builder.parse(stream);
+        
+        stream.close();
+        
+        NodeList date = document.getElementsByTagName("date");
+       
+        String dateValue = date.item(0).getTextContent();
+        
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        Date sponsoringDate = dateFormat.parse(dateValue.trim());
+        Log.d("dateinfo", String.valueOf(sponsoringDate));
+        if(sponsoringDate.getTime() < System.currentTimeMillis()) {
+          mDayStart = SettingConstants.DEFAULT_DAY_START;
+          mDayEnd = SettingConstants.DEFAULT_DAY_END;
+        }
+        else {
+          mDayStart = 0;
+          mDayEnd = 24;
+          mSyncFavorites = document.getElementsByTagName("favorite");
+        }
+      }
+    }catch(Throwable t) {}
+  }
   /**
    * Calculate the end times of programs that are missing end time in the data.
    */
@@ -509,6 +650,19 @@ public class TvDataUpdateService extends Service {
     
     updateRunning = false;
     
+    TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
+    getApplicationContext().getContentResolver().notifyChange(TvBrowserContentProvider.CONTENT_URI_DATA, null);
+    
+    updateFavorites();
+    syncFavorites();
+    
+    Intent inform = new Intent(SettingConstants.DATA_UPDATE_DONE);
+    
+    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(inform);
+    
+    mBuilder.setProgress(0, 0, false);
+    notification.cancel(mNotifyID);
+    
     // Data update complete inform user
     mHandler.post(new Runnable() {
       @Override
@@ -516,14 +670,6 @@ public class TvDataUpdateService extends Service {
         Toast.makeText(getApplicationContext(), R.string.update_complete, Toast.LENGTH_LONG).show();
       }
     });
-    
-    TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
-    getApplicationContext().getContentResolver().notifyChange(TvBrowserContentProvider.CONTENT_URI_DATA, null);
-    
-    updateFavorites();
-    
-    mBuilder.setProgress(0, 0, false);
-    notification.cancel(mNotifyID);
     
     stopSelf();
   }
@@ -550,11 +696,6 @@ public class TvDataUpdateService extends Service {
     return mDayEnd;
   }
   
-  private void getUserDayValues() {
-    mDayStart = 0;
-    mDayEnd = 24;
-  }
-  
   private void updateTvData() {
     if(!updateRunning) {
       mCurrentDownloadCount = 0;
@@ -563,8 +704,9 @@ public class TvDataUpdateService extends Service {
       
       final NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
       notification.notify(mNotifyID, mBuilder.build());
+
+      loadAccessAndFavoriteSync();
       
-      getUserDayValues();
       TvBrowserContentProvider.INFORM_FOR_CHANGES = false;
       updateRunning = true;
       

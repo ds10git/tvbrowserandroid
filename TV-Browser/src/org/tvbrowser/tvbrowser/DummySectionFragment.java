@@ -40,6 +40,14 @@ public class DummySectionFragment extends Fragment {
           }
         }
       };
+      View.OnClickListener timeRange = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          if(running != null) {
+            running.setTimeRangeID(v.getId());
+          }
+        }
+      };
       
       rootView.findViewById(R.id.now_button).setOnClickListener(listener);
       rootView.findViewById(R.id.button_6).setOnClickListener(listener);
@@ -47,6 +55,10 @@ public class DummySectionFragment extends Fragment {
       rootView.findViewById(R.id.button_16).setOnClickListener(listener);
       rootView.findViewById(R.id.button_2015).setOnClickListener(listener);
       rootView.findViewById(R.id.button_23).setOnClickListener(listener);
+      
+      rootView.findViewById(R.id.button_before).setOnClickListener(timeRange);
+      rootView.findViewById(R.id.button_at).setOnClickListener(timeRange);
+      rootView.findViewById(R.id.button_after).setOnClickListener(timeRange);
     }
     else if(getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
         rootView = inflater.inflate(R.layout.program_list_fragment,

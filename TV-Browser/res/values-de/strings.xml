@@ -6,6 +6,11 @@
     <string name="action_select_channels">Sender auswählen</string>
     <string name="action_sort_channels">Sender sortieren</string>
     <string name="action_delete_all_data">Daten löschen</string>
+    <string name="action_username_password">Benutzername und -passwort eingeben</string>
+    <string name="username">Benutzername:</string>
+    <string name="password">Passwort:</string>
+    <string name="username_hint">Benutzername eingeben</string>
+    <string name="password_hint">Passwort eingeben</string>
     <string name="update_complete">Datenupdate abgeschlossen</string>
     <string name="title_section1">Laufende Sendungen</string>
     <string name="title_section2">Sendungsliste</string>
@@ -13,8 +18,8 @@
     <string name="title_section4">Lieblingssendungen</string>
     <string name="button_now">Jetzt</string>
     <string name="button_all_channels">Alle</string>
-    <string name="button_after">Danach</string>
-    <string name="button_before">Davor</string>
+    <string name="button_after">1h danach</string>
+    <string name="button_before">1h davor</string>
     <string name="button_at">Genaue Zeit</string>
     <string name="no_channels">Keine Sender vorhanden.</string>
     <string name="select_channels">Sender jetzt auswählen</string>
@@ -61,4 +66,5 @@
     <string name="name_for_android">TV-Browser für Android</string>
     <string name="action_about">Über TV-Browser</string>
     <string name="create_favorite_item">Lieblingssendung erstellen</string>
+    <string name="show_sync">Synchronisierte</string>
 </resources>

@@ -24,5 +24,6 @@
     <style name="favorite_add_button_style">
         
     </style>
-
+	<style name="favorite_show_sync_button_style">
+    </style>
 </resources>

@@ -5,8 +5,14 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.SettingConstants;
 
+import android.app.Activity;
+import android.content.BroadcastReceiver;
 import android.content.ContentUris;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Color;
@@ -15,6 +21,7 @@ import android.os.Handler;
 import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.content.LocalBroadcastManager;
 import android.view.ContextMenu;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -36,6 +43,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private int mWhereClauseID;
   private int mTimeRangeID;
   
+  private BroadcastReceiver mDataUpdateReceiver;
+  
   @Override
   public void onResume() {
     super.onResume();
@@ -54,11 +63,38 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     mKeepRunning = false;
   }
   
+  @Override
+  public void onAttach(Activity activity) {
+    super.onAttach(activity);
+    
+    mDataUpdateReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            if(!isDetached()) {
+              getLoaderManager().restartLoader(0, null, RunningProgramsListFragment.this);
+            }
+          }
+        });
+      }
+    };
+    
+    IntentFilter intent = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
+    
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, intent);
+  }
+  
   public void setWhereClauseID(int id) {
     Button test = (Button)((View)getView().getParent()).findViewById(mWhereClauseID);
     
     if(test != null) {
       test.setBackgroundResource(android.R.drawable.list_selector_background);
+    }
+    
+    if(mDataUpdateReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
     }
     
     mWhereClauseID = id;
@@ -162,39 +198,19 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           text.setText(DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(date)));
           
           UiUtils.handleMarkings(getActivity(), cursor, ((RelativeLayout)view.getParent()), null);
-          /*
-          String value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
           
-          if(value != null && value.trim().length() > 0) {
-            if(value.contains("calendar")) {
-              ((RelativeLayout)view.getParent()).setBackgroundResource(R.color.mark_color_calendar);
-            }
-            else {
-              ((RelativeLayout)view.getParent()).setBackgroundResource(R.color.mark_color);
-            }
-          }
-          else {
-            ((RelativeLayout)view.getParent()).setBackgroundResource(android.R.drawable.list_selector_background);
-          }
-          */
           return true;
         }
         else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)) {
           TextView text = (TextView)view;
           
           long end = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
-          long start = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
           
           if(end <= System.currentTimeMillis()) {
             text.setTextColor(Color.rgb(200, 200, 200));
             ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.episodeLabel)).setTextColor(Color.rgb(200, 200, 200));
             ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.genre_label)).setTextColor(Color.rgb(200, 200, 200));
           }
-         /* else if(System.currentTimeMillis() >= start && System.currentTimeMillis() <= end) {
-            text.setTextColor(getActivity().getResources().getColor(R.color.running_color));
-            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.episodeLabel)).setTextColor(getActivity().getResources().getColor(R.color.running_color));
-            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.genre_label)).setTextColor(getActivity().getResources().getColor(R.color.running_color));
-          }*/
           else if(System.currentTimeMillis() <= end) {
             int[] attrs = new int[] { android.R.attr.textColorSecondary };
             TypedArray a = getActivity().getTheme().obtainStyledAttributes(R.style.AppTheme, attrs);
@@ -316,17 +332,13 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     long time = ((long)cal.getTimeInMillis() / 60000) * 60000;
 
-    String where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + time + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + time;
-    
     switch (mTimeRangeID) {
-      case R.id.button_before:
-      
-      break;
-      case R.id.button_after:
-        
-      break;
+      case R.id.button_before: time -= (60000 * 60);break;
+      case R.id.button_after: time += (60000 * 60);break;
     }
     
+    String where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + time + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + time;
+        
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
     return loader;

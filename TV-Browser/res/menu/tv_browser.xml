@@ -41,6 +41,10 @@
         android:showAsAction="never"
         android:title="@string/action_program_table_activated"
         android:checkable="true"/>
+    <item android:id="@+id/action_username_password"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_username_password"/>
     <item android:id="@+id/action_about"
         android:orderInCategory="100"
         android:showAsAction="never"
