@@ -73,4 +73,9 @@
     <string name="action_about">About TV-Browser</string>
     <string name="create_favorite_item">Create Favorite</string>
     <string name="show_sync">Show synced</string>
+    <string name="terms_of_use">Terms of Use</string>
+    <string name="terms_of_use_accept">Accept</string>
+    <string name="terms_of_use_text">All TV/Radio listings provided by TV-Browser (http://www.tvbrowser.org) are protected by copyright laws and may only be used within TV-Browser or other name like applications authorized by the manufacturer of TV-Browser (http://www.tvbrowser.org) for information about the upcoming program of the available channels.
+Every other manner of using, reproducing or redistributing of the TV/Radio listings is illegal and may be prosecuted on civil or criminal law. On downloading the TV/Radio listings you declare your agreement to these terms.
+If you have any questions concerning these terms please contact dev@tvbrowser.org</string>
 </resources>
