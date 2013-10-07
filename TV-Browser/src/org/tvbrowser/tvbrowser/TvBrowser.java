@@ -359,7 +359,9 @@ public class TvBrowser extends FragmentActivity implements
     StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
     where.append(" = 1");
     
-    ListView channelSort = (ListView)getLayoutInflater().inflate(R.layout.channel_sort_list, null);
+    LinearLayout main = (LinearLayout)getLayoutInflater().inflate(R.layout.channel_sort_list, null);
+    
+    ListView channelSort = (ListView)main.findViewById(R.id.channel_sort);
     
     String[] projection = {
         TvBrowserContentProvider.KEY_ID,
@@ -442,7 +444,7 @@ public class TvBrowser extends FragmentActivity implements
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
       
       builder.setTitle(R.string.action_sort_channels);
-      builder.setView(channelSort);
+      builder.setView(main);
       
       builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
         @Override
