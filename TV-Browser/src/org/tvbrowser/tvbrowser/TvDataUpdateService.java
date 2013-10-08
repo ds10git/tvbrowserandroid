@@ -533,6 +533,8 @@ public class TvDataUpdateService extends Service {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
+    
+    download.remove(reference);
   }
 
   private boolean isConnectedToServer(String url, int timeout) {
@@ -876,6 +878,7 @@ public class TvDataUpdateService extends Service {
             mThreadPool.execute(new Thread() {
               public void run() {
                 updateData(download,receiveReference, update);
+                download.remove(receiveReference);
                 mCurrentDownloadCount++;
                 mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
                 notification.notify(mNotifyID, mBuilder.build());
@@ -884,6 +887,7 @@ public class TvDataUpdateService extends Service {
           }
           else if(mirrorIDs.containsKey(Long.valueOf(receiveReference))) {
             updateMirror(new File(download.getUriForDownloadedFile(receiveReference).getPath()));
+            download.remove(receiveReference);
           }
           //Log.d("info", String.valueOf(downloadIDs.isEmpty()));
           if(downloadIDs.isEmpty() && downloadList.isEmpty()) {
@@ -966,8 +970,6 @@ public class TvDataUpdateService extends Service {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
-      
-      mirrorFile.delete();
     }
   }
   
@@ -1276,8 +1278,6 @@ public class TvDataUpdateService extends Service {
       // TODO Auto-generated catch block
       Log.d("info", "UPDATE_DATA", e);
     }
-    
-    dataFile.delete();
   }
   
   private void updateVersionTable(ChannelUpdate update, int dataVersion) {
