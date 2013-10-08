@@ -1,6 +1,5 @@
 package org.tvbrowser.tvbrowser;
 
-import java.text.DateFormat;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -22,6 +21,7 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.format.DateFormat;
 import android.view.ContextMenu;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -187,7 +187,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           
           TextView text = (TextView)view;
           text.setTag(cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
-          text.setText(DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(date)));
+          text.setText(DateFormat.getTimeFormat(getActivity()).format(new Date(date)));
           
           return true;
         }
@@ -195,7 +195,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
           
           TextView text = (TextView)view;
-          text.setText(DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(date)));
+          text.setText(DateFormat.getTimeFormat(getActivity()).format(new Date(date)));
           
           UiUtils.handleMarkings(getActivity(), cursor, ((RelativeLayout)view.getParent()), null);
           
