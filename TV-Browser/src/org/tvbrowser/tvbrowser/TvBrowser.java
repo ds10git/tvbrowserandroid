@@ -312,7 +312,7 @@ public class TvBrowser extends FragmentActivity implements
                 @Override
                 public void run() {
                   Toast.makeText(getApplicationContext(), R.string.synchronize_done, Toast.LENGTH_LONG).show();
-                  updateTvData();
+                  checkTermsAccepted();
                 }
               });
             }
