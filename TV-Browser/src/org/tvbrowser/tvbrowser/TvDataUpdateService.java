@@ -379,6 +379,8 @@ public class TvDataUpdateService extends Service {
         requestIDMap.put(Long.valueOf(id), info);
       }
     }
+    
+    download.remove(reference);
   }
   
   private synchronized GroupInfo loadChannelForGroup(final DownloadManager download, final Cursor cursor) { 
@@ -878,7 +880,6 @@ public class TvDataUpdateService extends Service {
             mThreadPool.execute(new Thread() {
               public void run() {
                 updateData(download,receiveReference, update);
-                download.remove(receiveReference);
                 mCurrentDownloadCount++;
                 mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
                 notification.notify(mNotifyID, mBuilder.build());
@@ -886,8 +887,7 @@ public class TvDataUpdateService extends Service {
             });
           }
           else if(mirrorIDs.containsKey(Long.valueOf(receiveReference))) {
-            updateMirror(new File(download.getUriForDownloadedFile(receiveReference).getPath()));
-            download.remove(receiveReference);
+            updateMirror(download,receiveReference);
           }
           //Log.d("info", String.valueOf(downloadIDs.isEmpty()));
           if(downloadIDs.isEmpty() && downloadList.isEmpty()) {
@@ -939,38 +939,45 @@ public class TvDataUpdateService extends Service {
     }
   }
   
-  private void updateMirror(File mirrorFile) {
-    if(mirrorFile.isFile()) {
-      try {
-        BufferedReader in = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(mirrorFile))));
-        
-        StringBuilder mirrors = new StringBuilder();
-        
-        String line = null;
-        
-        while((line = in.readLine()) != null) {
-          line = line.replace(";", "#");
-          mirrors.append(line);
-          mirrors.append(";");
+  private void updateMirror(DownloadManager download, long reference) {
+    Uri uri = download.getUriForDownloadedFile(reference);
+    
+    if(uri != null) {
+      File mirrorFile = new File(uri.getPath());
+      
+      if(mirrorFile.isFile()) {
+        try {
+          BufferedReader in = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(mirrorFile))));
+          
+          StringBuilder mirrors = new StringBuilder();
+          
+          String line = null;
+          
+          while((line = in.readLine()) != null) {
+            line = line.replace(";", "#");
+            mirrors.append(line);
+            mirrors.append(";");
+          }
+          
+          if(mirrors.length() > 0) {
+            mirrors.deleteCharAt(mirrors.length()-1);
+          }
+          
+          ContentValues values = new ContentValues();
+          
+          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, mirrors.toString());
+          Log.d("MIRR", mirrors.toString() + " " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + mirrorFile.getName().substring(0, mirrorFile.getName().lastIndexOf("_")));
+          getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + mirrorFile.getName().substring(0, mirrorFile.getName().lastIndexOf("_"))+"\"", null);
+        } catch (FileNotFoundException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        } catch (IOException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
         }
-        
-        if(mirrors.length() > 0) {
-          mirrors.deleteCharAt(mirrors.length()-1);
-        }
-        
-        ContentValues values = new ContentValues();
-        
-        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, mirrors.toString());
-        Log.d("MIRR", mirrors.toString() + " " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + mirrorFile.getName().substring(0, mirrorFile.getName().lastIndexOf("_")));
-        getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + mirrorFile.getName().substring(0, mirrorFile.getName().lastIndexOf("_"))+"\"", null);
-      } catch (FileNotFoundException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (IOException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
       }
     }
+    download.remove(reference);
   }
   
   private Summary readSummary(final String summaryurl) {
@@ -1070,214 +1077,219 @@ public class TvDataUpdateService extends Service {
   }
   
   private void updateData(DownloadManager download, long reference, ChannelUpdate update) {
+    Uri uri = download.getUriForDownloadedFile(reference);
     
-    File dataFile = new File(download.getUriForDownloadedFile(reference).getPath()/*getExternalFilesDir(null),update.getUrl().substring(update.getUrl().lastIndexOf("/"))*/);
-    Log.d("MIRR", dataFile.toString() + " " + dataFile.isFile());
-    try {
-      
-      
-      BufferedInputStream in = new BufferedInputStream(new GZIPInputStream(new FileInputStream(dataFile)));
-      
-      byte fileVersion = (byte)in.read();
-      byte dataVersion = (byte)in.read();
-      
-      int frameCount = in.read();
-      
-      ArrayList<Integer> missingFrameIDs = new ArrayList<Integer>(Arrays.asList(FRAME_ID_ARR));
-      int maxFrameID = 0;
-      
-      for(int i = 0; i < frameCount; i++) {
-        // ID of this program frame
-        byte frameId = (byte)in.read();
-        // number of program fields
-        byte fieldCount = (byte)in.read();
+    if(uri != null) {
+      File dataFile = new File(uri.getPath());
+      Log.d("MIRR", dataFile.toString() + " " + dataFile.isFile());
+      try {
         
-        missingFrameIDs.remove(Integer.valueOf(frameId));
         
-        maxFrameID = Math.max(maxFrameID, frameId);
+        BufferedInputStream in = new BufferedInputStream(new GZIPInputStream(new FileInputStream(dataFile)));
         
-        ContentValues values = new ContentValues();
+        byte fileVersion = (byte)in.read();
+        byte dataVersion = (byte)in.read();
         
-        values.put(TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID, frameId);
-        values.put(TvBrowserContentProvider.DATA_KEY_UNIX_DATE, update.getDate());
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, update.getChannelID());
+        int frameCount = in.read();
         
-        String where = TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID + " = " + frameId +
-            " AND " + TvBrowserContentProvider.DATA_KEY_UNIX_DATE + " = " + update.getDate() +
-            " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + update.getChannelID();
+        ArrayList<Integer> missingFrameIDs = new ArrayList<Integer>(Arrays.asList(FRAME_ID_ARR));
+        int maxFrameID = 0;
         
-        for(byte field = 0; field < fieldCount; field++) {
-          byte fieldType = (byte)in.read();
+        for(int i = 0; i < frameCount; i++) {
+          // ID of this program frame
+          byte frameId = (byte)in.read();
+          // number of program fields
+          byte fieldCount = (byte)in.read();
           
-          int dataCount = ((in.read() & 0xFF) << 16) | ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
+          missingFrameIDs.remove(Integer.valueOf(frameId));
           
-          byte[] data = new byte[dataCount];
+          maxFrameID = Math.max(maxFrameID, frameId);
           
-          in.read(data);
-                    
-          switch(fieldType) {
-            case 1: {
-                            int startTime = IOUtils.getIntForBytes(data);
-                            Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-                            utc.setTimeInMillis(update.getDate());
-                            
-                            Calendar cal = Calendar.getInstance(update.getTimeZone());
-                            cal.set(Calendar.DAY_OF_MONTH, utc.get(Calendar.DAY_OF_MONTH));
-                            cal.set(Calendar.MONTH, utc.get(Calendar.MONTH));
-                            cal.set(Calendar.YEAR, utc.get(Calendar.YEAR));
-                            
-                            cal.set(Calendar.HOUR_OF_DAY, startTime / 60);
-                            cal.set(Calendar.MINUTE, startTime % 60);
-                            cal.set(Calendar.SECOND, 30);
-                            
-                            long time = (((long)(cal.getTimeInMillis() / 60000)) * 60000);
-                            
-                            values.put(TvBrowserContentProvider.DATA_KEY_STARTTIME, time);
-                         }break;
-            case 2: {
-              int endTime = IOUtils.getIntForBytes(data);
-              
-              Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-              utc.setTimeInMillis(update.getDate());
-              
-              Calendar cal = Calendar.getInstance(update.getTimeZone());
-              cal.set(Calendar.DAY_OF_MONTH, utc.get(Calendar.DAY_OF_MONTH));
-              cal.set(Calendar.MONTH, utc.get(Calendar.MONTH));
-              cal.set(Calendar.YEAR, utc.get(Calendar.YEAR));
-              
-              cal.set(Calendar.HOUR_OF_DAY, endTime / 60);
-              cal.set(Calendar.MINUTE, endTime % 60);
-              cal.set(Calendar.SECOND, 30);
-              
-              Long o = values.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-              
-              if(o instanceof Long) {
-                if(o > cal.getTimeInMillis()) {
-                  cal.add(Calendar.DAY_OF_YEAR, 1);
+          ContentValues values = new ContentValues();
+          
+          values.put(TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID, frameId);
+          values.put(TvBrowserContentProvider.DATA_KEY_UNIX_DATE, update.getDate());
+          values.put(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, update.getChannelID());
+          
+          String where = TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID + " = " + frameId +
+              " AND " + TvBrowserContentProvider.DATA_KEY_UNIX_DATE + " = " + update.getDate() +
+              " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + update.getChannelID();
+          
+          for(byte field = 0; field < fieldCount; field++) {
+            byte fieldType = (byte)in.read();
+            
+            int dataCount = ((in.read() & 0xFF) << 16) | ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
+            
+            byte[] data = new byte[dataCount];
+            
+            in.read(data);
+                      
+            switch(fieldType) {
+              case 1: {
+                              int startTime = IOUtils.getIntForBytes(data);
+                              Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                              utc.setTimeInMillis(update.getDate());
+                              
+                              Calendar cal = Calendar.getInstance(update.getTimeZone());
+                              cal.set(Calendar.DAY_OF_MONTH, utc.get(Calendar.DAY_OF_MONTH));
+                              cal.set(Calendar.MONTH, utc.get(Calendar.MONTH));
+                              cal.set(Calendar.YEAR, utc.get(Calendar.YEAR));
+                              
+                              cal.set(Calendar.HOUR_OF_DAY, startTime / 60);
+                              cal.set(Calendar.MINUTE, startTime % 60);
+                              cal.set(Calendar.SECOND, 30);
+                              
+                              long time = (((long)(cal.getTimeInMillis() / 60000)) * 60000);
+                              
+                              values.put(TvBrowserContentProvider.DATA_KEY_STARTTIME, time);
+                           }break;
+              case 2: {
+                int endTime = IOUtils.getIntForBytes(data);
+                
+                Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                utc.setTimeInMillis(update.getDate());
+                
+                Calendar cal = Calendar.getInstance(update.getTimeZone());
+                cal.set(Calendar.DAY_OF_MONTH, utc.get(Calendar.DAY_OF_MONTH));
+                cal.set(Calendar.MONTH, utc.get(Calendar.MONTH));
+                cal.set(Calendar.YEAR, utc.get(Calendar.YEAR));
+                
+                cal.set(Calendar.HOUR_OF_DAY, endTime / 60);
+                cal.set(Calendar.MINUTE, endTime % 60);
+                cal.set(Calendar.SECOND, 30);
+                
+                Long o = values.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+                
+                if(o instanceof Long) {
+                  if(o > cal.getTimeInMillis()) {
+                    cal.add(Calendar.DAY_OF_YEAR, 1);
+                  }
                 }
-              }
-              
-              long time =  (((long)(cal.getTimeInMillis() / 60000)) * 60000);
-              
-              values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, time);
-           }break;
-            case 3: values.put(TvBrowserContentProvider.DATA_KEY_TITLE, new String(data));break;
-            case 4: values.put(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL, new String(data));break;
-            case 5: values.put(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE, new String(data));break;
-            case 6: values.put(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL, new String(data));break;
-            case 7: values.put(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION, new String(data));break;
-            case 8: values.put(TvBrowserContentProvider.DATA_KEY_DESCRIPTION, new String(data));break;
-            case 0xA: values.put(TvBrowserContentProvider.DATA_KEY_ACTORS, new String(data));break;
-            case 0xB: values.put(TvBrowserContentProvider.DATA_KEY_REGIE, new String(data));break;
-            case 0xC: values.put(TvBrowserContentProvider.DATA_KEY_CUSTOM_INFO, new String(data));break;
-            case 0xD: values.put(TvBrowserContentProvider.DATA_KEY_CATEGORIES, IOUtils.getIntForBytes(data));break;
-            case 0xE: values.put(TvBrowserContentProvider.DATA_KEY_AGE_LIMIT, IOUtils.getIntForBytes(data));break;
-            case 0xF: values.put(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK, new String(data));break;
-            case 0x10: values.put(TvBrowserContentProvider.DATA_KEY_GENRE, new String(data));break;
-            case 0x11: values.put(TvBrowserContentProvider.DATA_KEY_ORIGIN, new String(data));break;
-            case 0x12: values.put(TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME, IOUtils.getIntForBytes(data));break;
-            case 0x13: values.put(TvBrowserContentProvider.DATA_KEY_VPS, IOUtils.getIntForBytes(data));break;
-            case 0x14: values.put(TvBrowserContentProvider.DATA_KEY_SCRIPT, new String(data));break;
-            case 0x15: values.put(TvBrowserContentProvider.DATA_KEY_REPETITION_FROM, new String(data));break;
-            case 0x16: values.put(TvBrowserContentProvider.DATA_KEY_MUSIC, new String(data));break;
-            case 0x17: values.put(TvBrowserContentProvider.DATA_KEY_MODERATION, new String(data));break;
-            case 0x18: values.put(TvBrowserContentProvider.DATA_KEY_YEAR, IOUtils.getIntForBytes(data));break;
-            case 0x19: values.put(TvBrowserContentProvider.DATA_KEY_REPETITION_ON, new String(data));break;
-            case 0x1A: values.put(TvBrowserContentProvider.DATA_KEY_PICTURE, data);break;
-            case 0x1B: values.put(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT, new String(data));break;
-            case 0x1C: values.put(TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION, new String(data));break;
-            case 0x1D: values.put(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER, IOUtils.getIntForBytes(data));break;
-            case 0x1E: values.put(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT, IOUtils.getIntForBytes(data));break;
-            case 0x1F: values.put(TvBrowserContentProvider.DATA_KEY_SEASON_NUMBER, IOUtils.getIntForBytes(data));break;
-            case 0x20: values.put(TvBrowserContentProvider.DATA_KEY_PRODUCER, new String(data));break;
-            case 0x21: values.put(TvBrowserContentProvider.DATA_KEY_CAMERA, new String(data));break;
-            case 0x22: values.put(TvBrowserContentProvider.DATA_KEY_CUT, new String(data));break;
-            case 0x23: values.put(TvBrowserContentProvider.DATA_KEY_OTHER_PERSONS, new String(data));break;
-            case 0x24: values.put(TvBrowserContentProvider.DATA_KEY_RATING, IOUtils.getIntForBytes(data));break;
-            case 0x25: values.put(TvBrowserContentProvider.DATA_KEY_PRODUCTION_FIRM, new String(data));break;
-            case 0x26: values.put(TvBrowserContentProvider.DATA_KEY_AGE_LIMIT_STRING, new String(data));break;
-            case 0x27: values.put(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR, IOUtils.getIntForBytes(data));break;
-            case 0x28: values.put(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO, new String(data));break;
-            case 0x29: values.put(TvBrowserContentProvider.DATA_KEY_SERIES, new String(data));break;
+                
+                long time =  (((long)(cal.getTimeInMillis() / 60000)) * 60000);
+                
+                values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, time);
+             }break;
+              case 3: values.put(TvBrowserContentProvider.DATA_KEY_TITLE, new String(data));break;
+              case 4: values.put(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL, new String(data));break;
+              case 5: values.put(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE, new String(data));break;
+              case 6: values.put(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL, new String(data));break;
+              case 7: values.put(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION, new String(data));break;
+              case 8: values.put(TvBrowserContentProvider.DATA_KEY_DESCRIPTION, new String(data));break;
+              case 0xA: values.put(TvBrowserContentProvider.DATA_KEY_ACTORS, new String(data));break;
+              case 0xB: values.put(TvBrowserContentProvider.DATA_KEY_REGIE, new String(data));break;
+              case 0xC: values.put(TvBrowserContentProvider.DATA_KEY_CUSTOM_INFO, new String(data));break;
+              case 0xD: values.put(TvBrowserContentProvider.DATA_KEY_CATEGORIES, IOUtils.getIntForBytes(data));break;
+              case 0xE: values.put(TvBrowserContentProvider.DATA_KEY_AGE_LIMIT, IOUtils.getIntForBytes(data));break;
+              case 0xF: values.put(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK, new String(data));break;
+              case 0x10: values.put(TvBrowserContentProvider.DATA_KEY_GENRE, new String(data));break;
+              case 0x11: values.put(TvBrowserContentProvider.DATA_KEY_ORIGIN, new String(data));break;
+              case 0x12: values.put(TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME, IOUtils.getIntForBytes(data));break;
+              case 0x13: values.put(TvBrowserContentProvider.DATA_KEY_VPS, IOUtils.getIntForBytes(data));break;
+              case 0x14: values.put(TvBrowserContentProvider.DATA_KEY_SCRIPT, new String(data));break;
+              case 0x15: values.put(TvBrowserContentProvider.DATA_KEY_REPETITION_FROM, new String(data));break;
+              case 0x16: values.put(TvBrowserContentProvider.DATA_KEY_MUSIC, new String(data));break;
+              case 0x17: values.put(TvBrowserContentProvider.DATA_KEY_MODERATION, new String(data));break;
+              case 0x18: values.put(TvBrowserContentProvider.DATA_KEY_YEAR, IOUtils.getIntForBytes(data));break;
+              case 0x19: values.put(TvBrowserContentProvider.DATA_KEY_REPETITION_ON, new String(data));break;
+              case 0x1A: values.put(TvBrowserContentProvider.DATA_KEY_PICTURE, data);break;
+              case 0x1B: values.put(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT, new String(data));break;
+              case 0x1C: values.put(TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION, new String(data));break;
+              case 0x1D: values.put(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER, IOUtils.getIntForBytes(data));break;
+              case 0x1E: values.put(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT, IOUtils.getIntForBytes(data));break;
+              case 0x1F: values.put(TvBrowserContentProvider.DATA_KEY_SEASON_NUMBER, IOUtils.getIntForBytes(data));break;
+              case 0x20: values.put(TvBrowserContentProvider.DATA_KEY_PRODUCER, new String(data));break;
+              case 0x21: values.put(TvBrowserContentProvider.DATA_KEY_CAMERA, new String(data));break;
+              case 0x22: values.put(TvBrowserContentProvider.DATA_KEY_CUT, new String(data));break;
+              case 0x23: values.put(TvBrowserContentProvider.DATA_KEY_OTHER_PERSONS, new String(data));break;
+              case 0x24: values.put(TvBrowserContentProvider.DATA_KEY_RATING, IOUtils.getIntForBytes(data));break;
+              case 0x25: values.put(TvBrowserContentProvider.DATA_KEY_PRODUCTION_FIRM, new String(data));break;
+              case 0x26: values.put(TvBrowserContentProvider.DATA_KEY_AGE_LIMIT_STRING, new String(data));break;
+              case 0x27: values.put(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR, IOUtils.getIntForBytes(data));break;
+              case 0x28: values.put(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO, new String(data));break;
+              case 0x29: values.put(TvBrowserContentProvider.DATA_KEY_SERIES, new String(data));break;
+            }
+            
+            data = null;
           }
           
-          data = null;
-        }
-        
-        if(values.get(TvBrowserContentProvider.DATA_KEY_ENDTIME) == null) {
-          values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, 0);
-        }
-        
-        Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, null, where, null, null);
-        
-        if(test.getCount() > 0) {
-          // program known update it
-          getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, values, where, null);
-        }
-        else {
-          long startTime = values.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-          
-          Calendar cal = Calendar.getInstance();
-          cal.setTimeInMillis(startTime);
-          
-          if(cal.get(Calendar.HOUR_OF_DAY) >= getDayStart() && (cal.get(Calendar.HOUR_OF_DAY) < getDayEnd() || (cal.get(Calendar.HOUR_OF_DAY) == getDayEnd() && cal.get(Calendar.MINUTE) == 0))) {
-            getContentResolver().insert(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, values);            
+          if(values.get(TvBrowserContentProvider.DATA_KEY_ENDTIME) == null) {
+            values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, 0);
           }
-        }
-        
-        values.clear();
-        values = null;
-        
-        test.close();
-      }
-      
-      updateVersionTable(update,dataVersion);
-      
-      StringBuilder where = new StringBuilder();
-      
-      for(Integer id : missingFrameIDs) {
-        if(id.intValue() > maxFrameID) {
-          break;
-        }
-        else {
-          if(where.length() > 0) {
-            where.append(" OR ");
+          
+          Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, null, where, null, null);
+          
+          if(test.getCount() > 0) {
+            // program known update it
+            getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, values, where, null);
           }
           else {
-            where.append(" ( ");
+            long startTime = values.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+            
+            Calendar cal = Calendar.getInstance();
+            cal.setTimeInMillis(startTime);
+            
+            if(cal.get(Calendar.HOUR_OF_DAY) >= getDayStart() && (cal.get(Calendar.HOUR_OF_DAY) < getDayEnd() || (cal.get(Calendar.HOUR_OF_DAY) == getDayEnd() && cal.get(Calendar.MINUTE) == 0))) {
+              getContentResolver().insert(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, values);            
+            }
           }
           
-          where.append(" ( ");
-          where.append(TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID);
-          where.append(" = ");
-          where.append(id);
-          where.append(" ) ");
+          values.clear();
+          values = null;
+          
+          test.close();
         }
-      }
-      
-      if(where.length() > 0) {
-        where.append(" ) AND ");
-        where.append(" ( ");
-        where.append(TvBrowserContentProvider.DATA_KEY_UNIX_DATE);
-        where.append(" = ");
-        where.append(update.getDate());
-        where.append(" ) AND ( ");
-        where.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-        where.append(" = ");
-        where.append(update.getChannelID());
-        where.append(" ) ");
         
-        Log.d(TAG, " Delete where clause " + where);
+        updateVersionTable(update,dataVersion);
         
-        int count = getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, where.toString(), null);
-        Log.d(TAG, " Number of deleted programs " + count + " " + update.getUrl());
+        StringBuilder where = new StringBuilder();
+        
+        for(Integer id : missingFrameIDs) {
+          if(id.intValue() > maxFrameID) {
+            break;
+          }
+          else {
+            if(where.length() > 0) {
+              where.append(" OR ");
+            }
+            else {
+              where.append(" ( ");
+            }
+            
+            where.append(" ( ");
+            where.append(TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID);
+            where.append(" = ");
+            where.append(id);
+            where.append(" ) ");
+          }
+        }
+        
+        if(where.length() > 0) {
+          where.append(" ) AND ");
+          where.append(" ( ");
+          where.append(TvBrowserContentProvider.DATA_KEY_UNIX_DATE);
+          where.append(" = ");
+          where.append(update.getDate());
+          where.append(" ) AND ( ");
+          where.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+          where.append(" = ");
+          where.append(update.getChannelID());
+          where.append(" ) ");
+          
+          Log.d(TAG, " Delete where clause " + where);
+          
+          int count = getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, where.toString(), null);
+          Log.d(TAG, " Number of deleted programs " + count + " " + update.getUrl());
+        }
+        
+        in.close();
+      } catch (Exception e) {
+        // TODO Auto-generated catch block
+        Log.d("info", "UPDATE_DATA", e);
       }
-      
-      in.close();
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      Log.d("info", "UPDATE_DATA", e);
     }
+    
+    download.remove(reference);
   }
   
   private void updateVersionTable(ChannelUpdate update, int dataVersion) {
