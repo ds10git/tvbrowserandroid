@@ -321,7 +321,7 @@ public class TvBrowser extends FragmentActivity implements
                 @Override
                 public void run() {
                   Toast.makeText(getApplicationContext(), R.string.synchronize_error, Toast.LENGTH_LONG).show();
-                  updateTvData();
+                  showChannelSelectionInternal();
                 }
               });
             }
