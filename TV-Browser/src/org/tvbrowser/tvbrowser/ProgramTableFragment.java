@@ -1,8 +1,6 @@
 package org.tvbrowser.tvbrowser;
 
-import java.text.DateFormat;
 import java.util.Calendar;
-import java.util.Locale;
 import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -21,6 +19,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.format.DateFormat;
 import android.view.ContextMenu;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -633,7 +632,7 @@ public class ProgramTableFragment extends Fragment {
           genre.setTextColor(DEFAULT_TEXT_COLOR);
         }
         
-        startTime.setText(DateFormat.getTimeInstance(DateFormat.SHORT, Locale.getDefault()).format(cal.getTime()));
+        startTime.setText(DateFormat.getTimeFormat(getActivity()).format(cal.getTime()));
         title.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
         
         if(!cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {

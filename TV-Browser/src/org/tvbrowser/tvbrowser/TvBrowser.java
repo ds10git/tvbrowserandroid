@@ -1,5 +1,9 @@
 package org.tvbrowser.tvbrowser;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+import java.net.URL;
+import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
@@ -29,6 +33,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
@@ -37,6 +42,8 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.text.Html;
+import android.util.Base64;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -53,6 +60,7 @@ import android.widget.SearchView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
@@ -80,6 +88,8 @@ public class TvBrowser extends FragmentActivity implements
   
   SimpleCursorAdapter adapter;
   
+  Handler handler;
+  
   @Override
   protected void onSaveInstanceState(Bundle outState) {
     outState.putBoolean("updateRunning", updateRunning);
@@ -92,6 +102,8 @@ public class TvBrowser extends FragmentActivity implements
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.activity_tv_browser);
+    
+    handler = new Handler();
     
     if(savedInstanceState != null) {
       updateRunning = savedInstanceState.getBoolean("updateRunning", false);
@@ -183,7 +195,7 @@ public class TvBrowser extends FragmentActivity implements
       builder.setPositiveButton(R.string.select_channels, new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-          selectChannels(true);
+          selectChannels(false);
         }
       });
       
@@ -202,6 +214,132 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   private void showChannelSelection() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+    
+    builder.setTitle(R.string.search_title);
+    builder.setMessage(R.string.synchronize_text);
+    
+    builder.setPositiveButton(R.string.synchronize_ok, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        final SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+        
+        if(pref.getString(SettingConstants.USER_NAME, null) == null || pref.getString(SettingConstants.USER_PASSWORD, null) == null) {
+          showUserSetting(true);
+        }
+        else {
+          syncronizeChannels();
+        }
+      }
+    });
+    builder.setNegativeButton(R.string.synchronize_cancel, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        showChannelSelectionInternal();
+      }
+    });
+    builder.show();
+
+    
+    
+  }
+  
+  private void syncronizeChannels() {
+    new Thread() {
+      public void run() {
+        URL documentUrl;
+        try {
+          documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels.php");
+          
+          URLConnection connection = documentUrl.openConnection();
+          
+          SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+          
+          String car = pref.getString(SettingConstants.USER_NAME, null);
+          String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+          
+          if(car != null && bicycle != null) {
+            String userpass = car + ":" + bicycle;
+            String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
+            
+            connection.setRequestProperty ("Authorization", basicAuth);
+            
+            BufferedReader read = new BufferedReader(new InputStreamReader(connection.getInputStream(),"UTF-8"));
+            
+            String line = null;
+            
+            int sort = 1;
+            
+            boolean somethingSynchonized = false;
+            
+            while((line = read.readLine()) != null) {
+              if(line.trim().length() > 0) {
+                Log.d("sync", line);
+                if(line.contains(":")) {
+                  String[] parts = line.split(":");
+                  
+                  String where = " ( " + TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = '" + parts[0] + "' ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = '" + parts[1] + "' ) ";
+                  
+                  Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
+                  
+                  if(group.moveToFirst()) {
+                    int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                    
+                    where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = '" + parts[2] + "' ) ";
+                    
+                    ContentValues values = new ContentValues();
+                    
+                    values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
+                    values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, sort);
+                    
+                    int changed = getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, where, null);
+                    
+                    if(changed > 0) {
+                      somethingSynchonized = true;
+                    }
+                    Log.d("sync", String.valueOf(changed));
+                  }
+                  
+                  group.close();
+                  
+                  sort++;
+                }
+              }
+            }
+            
+            if(somethingSynchonized) {
+              handler.post(new Runnable() {
+                @Override
+                public void run() {
+                  Toast.makeText(getApplicationContext(), R.string.synchronize_done, Toast.LENGTH_LONG).show();
+                  updateTvData();
+                }
+              });
+            }
+            else {
+              handler.post(new Runnable() {
+                @Override
+                public void run() {
+                  Toast.makeText(getApplicationContext(), R.string.synchronize_error, Toast.LENGTH_LONG).show();
+                  updateTvData();
+                }
+              });
+            }
+          }
+          else {
+            showChannelSelectionInternal();
+          }
+        } catch (Exception e) {
+          Log.d("sync", "",e);
+        }
+        
+        selectingChannels = false;
+      }
+    }.start();
+    
+  }
+  
+  private void showChannelSelectionInternal() {
     String[] projection = {
         TvBrowserContentProvider.KEY_ID,
         TvBrowserContentProvider.CHANNEL_KEY_NAME,
@@ -257,7 +395,9 @@ public class TvBrowser extends FragmentActivity implements
       
       builder.setPositiveButton(android.R.string.ok, new OnClickListener() {        
         @Override
-        public void onClick(DialogInterface dialog, int which) {          
+        public void onClick(DialogInterface dialog, int which) {    
+          boolean somethingSelected = false;
+          
           for(int i = 0; i < currentlySelected.length; i++) {
             if(currentlySelected[i]) {
               int key = channelSource.get(i).getKey();
@@ -267,6 +407,8 @@ public class TvBrowser extends FragmentActivity implements
               values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
               
               getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, key), values, null, null);
+              
+              somethingSelected = true;
             }
           }
           
@@ -280,6 +422,10 @@ public class TvBrowser extends FragmentActivity implements
               
               getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, key), values, null, null);
             }
+          }
+          
+          if(somethingSelected) {
+            updateTvData();
           }
         }
       });
@@ -329,28 +475,46 @@ public class TvBrowser extends FragmentActivity implements
     }
   }
   
+  private void runChannelDownload() {
+    Intent updateChannels = new Intent(TvBrowser.this, TvDataUpdateService.class);
+    updateChannels.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.CHANNEL_TYPE);
+    
+    final IntentFilter filter = new IntentFilter(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
+    
+    BroadcastReceiver receiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(this);
+        showChannelSelection();
+      }
+    };
+    
+    LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
+    
+    startService(updateChannels);
+  }
+  
   private void selectChannels(boolean loadAgain) {
-    if(loadAgain || getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null).getCount() < 1) {
-      Intent updateChannels = new Intent(TvBrowser.this, TvDataUpdateService.class);
-      updateChannels.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.CHANNEL_TYPE);
-      
-      final IntentFilter filter = new IntentFilter(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
-      
-      BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-          LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(this);
-          showChannelSelection();
-        }
-      };
-      
-      LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
-      
-      startService(updateChannels);
+    Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null);
+    
+    if(loadAgain || channels.getCount() < 1) {
+      if(isOnline()) {
+        runChannelDownload();
+      }
+      else {
+        showNoInternetConnection(new Runnable() {
+          @Override
+          public void run() {
+            checkTermsAccepted();
+          }
+        });
+      }
     }
     else {
       showChannelSelection();
     }
+    
+    channels.close();
   }
   
   private void sortChannels() {
@@ -520,96 +684,117 @@ public class TvBrowser extends FragmentActivity implements
     builder.show();
   }
   
+  private void showUserSetting(final boolean syncChannels) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+    
+    RelativeLayout username_password_setup = (RelativeLayout)getLayoutInflater().inflate(R.layout.username_password_setup, null);
+            
+    final SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+    
+    final EditText userName = (EditText)username_password_setup.findViewById(R.id.username_entry);
+    final EditText password = (EditText)username_password_setup.findViewById(R.id.password_entry);
+    
+    userName.setText(pref.getString(SettingConstants.USER_NAME, ""));
+    password.setText(pref.getString(SettingConstants.USER_PASSWORD, ""));
+    
+    builder.setView(username_password_setup);
+    
+    builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        Editor edit = pref.edit();
+        
+        edit.putString(SettingConstants.USER_NAME, userName.getText().toString());
+        edit.putString(SettingConstants.USER_PASSWORD, password.getText().toString());
+        
+        edit.commit();
+        
+        if(syncChannels) {
+          syncronizeChannels();
+        }
+      }
+    });
+    builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        if(syncChannels) {
+          showChannelSelectionInternal();
+        }
+      }
+    });
+    builder.show();
+  }
+  
+  private void showNoInternetConnection(final Runnable callback) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+    
+    builder.setTitle(R.string.no_network);
+    builder.setMessage(R.string.no_network_info);
+    
+    builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        if(callback != null && isOnline()) {
+          callback.run();
+        }
+      }
+    });
+    
+    builder.show();
+  }
+  
+  private void checkTermsAccepted() {
+    final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    
+    String terms = pref.getString(SettingConstants.TERMS_ACCEPTED, "");
+    
+    if(terms.contains("EPG_FREE")) {
+      updateTvData();
+    }
+    else {
+      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+      
+      builder.setTitle(R.string.terms_of_use);
+      builder.setMessage(R.string.terms_of_use_text);
+      
+      builder.setPositiveButton(R.string.terms_of_use_accept, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          Editor edit = pref.edit();
+          
+          edit.putString(SettingConstants.TERMS_ACCEPTED, "EPG_FREE");
+          
+          edit.commit();
+          
+          updateTvData();
+        }
+      });
+      
+      builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          
+        }
+      });
+      
+      builder.show();
+    }
+  }
+  
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.action_username_password:
-      {  AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-        
-        RelativeLayout username_password_setup = (RelativeLayout)getLayoutInflater().inflate(R.layout.username_password_setup, null);
-                
-        final SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
-        
-        final EditText userName = (EditText)username_password_setup.findViewById(R.id.username_entry);
-        final EditText password = (EditText)username_password_setup.findViewById(R.id.password_entry);
-        
-        userName.setText(pref.getString(SettingConstants.USER_NAME, ""));
-        password.setText(pref.getString(SettingConstants.USER_PASSWORD, ""));
-        
-        builder.setView(username_password_setup);
-        
-        builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            Editor edit = pref.edit();
-            
-            edit.putString(SettingConstants.USER_NAME, userName.getText().toString());
-            edit.putString(SettingConstants.USER_PASSWORD, password.getText().toString());
-            
-            edit.commit();
-          }
-        });
-        builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            
-          }
-        });
-        builder.show();
+      {  
+        showUserSetting(false);
     }
       break;
       case R.id.action_update:
         if(isOnline()) {
-          final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-          
-          String terms = pref.getString(SettingConstants.TERMS_ACCEPTED, "");
-          
-          if(terms.contains("EPG_FREE")) {
-            updateTvData();
-          }
-          else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-            
-            builder.setTitle(R.string.terms_of_use);
-            builder.setMessage(R.string.terms_of_use_text);
-            
-            builder.setPositiveButton(R.string.terms_of_use_accept, new OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                Editor edit = pref.edit();
-                
-                edit.putString(SettingConstants.TERMS_ACCEPTED, "EPG_FREE");
-                
-                edit.commit();
-                
-                updateTvData();
-              }
-            });
-            
-            builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                
-              }
-            });
-            
-            builder.show();
-          }
+          checkTermsAccepted();
         }
         else {
-          AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-          
-          builder.setTitle(R.string.no_network);
-          builder.setMessage(R.string.no_network_info);
-          
-          builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-              
-            }
-          });
-          
-          builder.show();
+          showNoInternetConnection(null);
         }
         break;
       case R.id.action_about: 

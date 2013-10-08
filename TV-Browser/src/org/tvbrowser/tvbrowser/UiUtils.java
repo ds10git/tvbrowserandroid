@@ -1,8 +1,8 @@
 package org.tvbrowser.tvbrowser;
 
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Locale;
@@ -34,14 +34,16 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
-import android.provider.Contacts.SettingsColumns;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.format.DateFormat;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.RelativeLayout;
 import android.widget.TableLayout;
 import android.widget.TableRow;
 import android.widget.TextView;
@@ -74,7 +76,7 @@ public class UiUtils {
     
     channel.moveToFirst();
     
-    date.setText(day.format(start) + " " + DateFormat.getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT).format(start) + " - " + DateFormat.getTimeInstance(DateFormat.SHORT).format(new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)))) + " " + channel.getString(0));
+    date.setText(day.format(start) + " " + java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT).format(start) + " " + DateFormat.getTimeFormat(activity).format(start) + " - " + DateFormat.getTimeFormat(activity)/*.getTimeInstance(java.text.DateFormat.SHORT)*/.format(new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)))) + " " + channel.getString(0));
     
     channel.close();
     
@@ -542,5 +544,47 @@ public class UiUtils {
     
     AlertDialog dialog = builder.create();
     dialog.show();
+  }
+  
+  public static void formatDayView(Activity activity, Cursor cursor, View view, int startDayLabelID) {try {
+    long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+    
+    TextView text = (TextView)view;
+    SimpleDateFormat day = new SimpleDateFormat("EEE", Locale.getDefault());
+    
+    Calendar progDate = Calendar.getInstance();
+    progDate.setTimeInMillis(date);
+    
+    Calendar today = Calendar.getInstance();
+    
+    TextView startDay = (TextView)((View)view.getParent()).findViewById(/*R.id.startDayLabelPL*/startDayLabelID);
+    startDay.setText(day.format(new Date(date)));
+    
+    if(progDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
+      startDay.setText(activity.getText(R.string.today));
+    }
+    else {
+      today.add(Calendar.DAY_OF_YEAR, 1);
+      
+      if(progDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
+        startDay.setText(activity.getText(R.string.tomorrow));
+      }
+      else {
+        today.add(Calendar.DAY_OF_YEAR, -2);
+        
+        if(progDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
+          startDay.setText(activity.getText(R.string.yesterday));
+        }
+      }
+    }
+    
+    SimpleDateFormat df = (SimpleDateFormat)java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
+    String pattern = df.toLocalizedPattern().replaceAll(".?[Yy].?", "");
+      
+    SimpleDateFormat mdf = new SimpleDateFormat(pattern);
+    
+    text.setText(mdf.format(progDate.getTime()));
+    
+    UiUtils.handleMarkings(activity, cursor, ((RelativeLayout)view.getParent()), null);}catch(Throwable t) {Log.d("Exception", "", t);}
   }
 }

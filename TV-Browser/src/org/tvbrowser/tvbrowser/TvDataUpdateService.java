@@ -37,6 +37,7 @@ import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 
+import android.annotation.SuppressLint;
 import android.app.DownloadManager;
 import android.app.NotificationManager;
 import android.app.Service;
@@ -1356,6 +1357,7 @@ public class TvDataUpdateService extends Service {
    * <p>
    * @author René Mach
    */
+  @SuppressLint("UseSparseArrays")
   private static class ChannelFrame {
     private String mCountry;
     private String mChannelID;

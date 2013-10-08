@@ -37,6 +37,7 @@
     <string name="program_add_calendar">Add program to calendar</string>
     <string name="search_description">Search program titles and episode titles</string>
     <string name="search_title">TV-Browser search</string>
+    <string name="yesterday">yesterday</string>
     <string name="today">today</string>
     <string name="tomorrow">tomorrow</string>
     <string name="add">Add</string>
@@ -52,7 +53,7 @@
     <string name="action_program_table_activated">Program table activated</string>
     <string name="update_notification_title">TV data update</string>
     <string name="update_notification_text">A TV-Browser data update is running</string>
-    <string name="update_notification_calculate">Calculate TV data...</string>
+    <string name="update_notification_calculate">Calculate TV data&#8230;</string>
     <string name="channel_notification_title">Get channels</string>
     <string name="channel_notification_text">Loading available TV-Browser channels</string>
     <string name="download_data">Load TV data</string>
@@ -67,7 +68,7 @@
     </string-array>
     <string name="version">Version:</string>
     <string name="android">Android:</string>
-    <string name="copyright">Copyright (c) 2013, René Mach.</string>
+    <string name="copyright">Copyright &#169; 2013, René Mach.</string>
     <string name="license">TV-Browser for Android is freeware.</string>
     <string name="name_for_android">TV-Browser for Android</string>
     <string name="action_about">About TV-Browser</string>
@@ -79,4 +80,10 @@
 Every other manner of using, reproducing or redistributing of the TV/Radio listings is illegal and may be prosecuted on civil or criminal law. On downloading the TV/Radio listings you declare your agreement to these terms.
 If you have any questions concerning these terms please contact dev@tvbrowser.org</string>
 	<string name="channel_selection_help">Click on a channel to select sort number.</string>
+	<string name="synchronize_title">Syncronize channels?</string>
+	<string name="synchronize_text">You can synchronize your with the channels from your desktop TV-Browser.\n\nYou will have to register a user first and export your channels from your desktop TV-Browser with the Android Sync plugin.\n\nDo you wish to synchronize your channels now or do you wish to select the channels manually?</string>
+	<string name="synchronize_ok">Syncronize channels now</string>
+	<string name="synchronize_cancel">Select channels manually</string>
+	<string name="synchronize_done">Channels synchronizing done!</string>
+	<string name="synchronize_error">Channels could not be synchronized.</string>
 </resources>
