@@ -42,6 +42,9 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.text.Html;
+import android.text.SpannableString;
+import android.text.method.LinkMovementMethod;
+import android.text.util.Linkify;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
@@ -238,10 +241,12 @@ public class TvBrowser extends FragmentActivity implements
         showChannelSelectionInternal();
       }
     });
-    builder.show();
+    
+    AlertDialog d = builder.create();
+    
+    d.show();
 
-    
-    
+    ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
   }
   
   private void syncronizeChannels() {
@@ -249,7 +254,7 @@ public class TvBrowser extends FragmentActivity implements
       public void run() {
         URL documentUrl;
         try {
-          documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels.php");
+          documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels1.php");
           
           URLConnection connection = documentUrl.openConnection();
           
@@ -278,31 +283,35 @@ public class TvBrowser extends FragmentActivity implements
                 if(line.contains(":")) {
                   String[] parts = line.split(":");
                   
-                  String where = " ( " + TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = '" + parts[0] + "' ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = '" + parts[1] + "' ) ";
-                  
-                  Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
-                  
-                  if(group.moveToFirst()) {
-                    int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                  if(parts[0].equals("1")) {
+                    String dataService = "EPG_FREE";
                     
-                    where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = '" + parts[2] + "' ) ";
+                    String where = " ( " + TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = '" + dataService + "' ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = '" + parts[1] + "' ) ";
                     
-                    ContentValues values = new ContentValues();
+                    Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
                     
-                    values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
-                    values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, sort);
-                    
-                    int changed = getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, where, null);
-                    
-                    if(changed > 0) {
-                      somethingSynchonized = true;
+                    if(group.moveToFirst()) {
+                      int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                      
+                      where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = '" + parts[2] + "' ) ";
+                      
+                      ContentValues values = new ContentValues();
+                      
+                      values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
+                      values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, sort);
+                      
+                      int changed = getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, where, null);
+                      
+                      if(changed > 0) {
+                        somethingSynchonized = true;
+                      }
+                      Log.d("sync", String.valueOf(changed));
                     }
-                    Log.d("sync", String.valueOf(changed));
+                    
+                    group.close();
+                    
+                    sort++;
                   }
-                  
-                  group.close();
-                  
-                  sort++;
                 }
               }
             }
@@ -352,6 +361,7 @@ public class TvBrowser extends FragmentActivity implements
     final ArrayList<ChannelSelection> channelSource = new ArrayList<TvBrowser.ChannelSelection>();
     ArrayList<CharSequence> channelNames = new ArrayList<CharSequence>();
     
+    final boolean[] wasSelected = new boolean[channels.getCount()];
     final boolean[] currentlySelected = new boolean[channels.getCount()];
     final boolean[] toUnselect = new boolean[channels.getCount()];
     
@@ -363,7 +373,7 @@ public class TvBrowser extends FragmentActivity implements
         String name = channels.getString(1);
         int selection = channels.getInt(2);
         
-        currentlySelected[i-1] = selection == 1;
+        wasSelected[i-1] = currentlySelected[i-1] = (selection == 1);
         toUnselect[i-1] = false;
         
         channelSource.add(new ChannelSelection(key, name, i));
@@ -382,14 +392,7 @@ public class TvBrowser extends FragmentActivity implements
       builder.setMultiChoiceItems(channelNames.toArray(new CharSequence[channelNames.size()]), currentlySelected, new DialogInterface.OnMultiChoiceClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-          if(currentlySelected[which] && !isChecked) {
-            currentlySelected[which] = false;
-            toUnselect[which] = true;
-          }
-          else if(!currentlySelected[which] && isChecked){
-            currentlySelected[which] = true;
-            toUnselect[which] = false;
-          }
+          toUnselect[which] = !isChecked;
         }
       });
       
@@ -408,7 +411,9 @@ public class TvBrowser extends FragmentActivity implements
               
               getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, key), values, null, null);
               
-              somethingSelected = true;
+              if(!wasSelected[i]) {
+                somethingSelected = true;
+              }
             }
           }
           
@@ -421,11 +426,14 @@ public class TvBrowser extends FragmentActivity implements
               values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 0);
               
               getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, key), values, null, null);
+
+              getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + key, null);
+              getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + key, null);
             }
           }
           
           if(somethingSelected) {
-            updateTvData();
+            checkTermsAccepted();
           }
         }
       });
@@ -777,7 +785,11 @@ public class TvBrowser extends FragmentActivity implements
         }
       });
       
-      builder.show();
+      AlertDialog d = builder.create();
+            
+      d.show();
+
+      ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
     }
   }
   

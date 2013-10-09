@@ -64,7 +64,7 @@ public class ProgramTableFragment extends Fragment {
       
       do {
         id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-      }while((System.currentTimeMillis() - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > (3 * 60 * 60000) && c.moveToNext());
+      }while((System.currentTimeMillis() - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > (2 * 60 * 60000) && c.moveToNext());
       
       if(id != -1 && getView() != null) {
         final View view = getView().findViewWithTag(Long.valueOf(id));
@@ -370,7 +370,7 @@ public class ProgramTableFragment extends Fragment {
                                           progPanel.setTag(R.id.expired_tag, true);
                                          // progPanel.setTag(R.id.on_air_tag, false);
                                           
-                                          if(!isDetached()) {
+                                          if(!isDetached() && mKeepRunning && !isRemoving()) {
                                             Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
                                             
                                             if(c.getCount() > 0) {
