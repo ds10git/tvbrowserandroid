@@ -86,4 +86,6 @@ If you have any questions concerning these terms please contact dev@tvbrowser.or
 	<string name="synchronize_cancel">Select channels manually</string>
 	<string name="synchronize_done">Channels synchronizing done!</string>
 	<string name="synchronize_error">Channels could not be synchronized.</string>
+	<string name="previous_day">Previous</string>
+	<string name="next_day">Next</string>
 </resources>

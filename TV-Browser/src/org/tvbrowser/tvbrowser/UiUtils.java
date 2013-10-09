@@ -49,6 +49,8 @@ import android.widget.TableRow;
 import android.widget.TextView;
 
 public class UiUtils {
+  public static final SimpleDateFormat LONG_DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.getDefault());
+  
   public static void showProgramInfo(Activity activity, long id) {
 
     Cursor c = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), null, null, null, null);
