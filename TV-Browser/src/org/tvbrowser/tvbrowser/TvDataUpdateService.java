@@ -27,15 +27,8 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
 
 import android.annotation.SuppressLint;
 import android.app.DownloadManager;
@@ -86,7 +79,7 @@ public class TvDataUpdateService extends Service {
     
   private static final Integer[] FRAME_ID_ARR;
   
-  private NodeList mSyncFavorites;
+  private ArrayList<String> mSyncFavorites;
   
   static {
     FRAME_ID_ARR = new Integer[253];
@@ -141,82 +134,81 @@ public class TvDataUpdateService extends Service {
   
   private void syncFavorites() {
     if(mSyncFavorites != null) {
-    for(int i = 0; i < mSyncFavorites.getLength(); i++) {
-      Node fav = mSyncFavorites.item(i);
-    
-    
-    NamedNodeMap map = fav.getAttributes();
-    
-    if(map != null) {
-      String time = map.getNamedItem("time").getTextContent();
-      String id = map.getNamedItem("id").getTextContent();
-      
-      String[] idParts = id.split(":");
-      
-      String where = " ( " +TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = \"" + idParts[0] + "\" ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + idParts[1] + "\" ) ";
-      
-      Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
-      
-      if(group.moveToFirst()) {
-        int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-        
-        where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + idParts[2] + "\' ) ";
-        Log.d("date", where);
-        
-        Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
-        
-        if(channel.moveToFirst()) {
-          int channelId = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-          Log.d("date", "channelid " + channelId + " " + channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
+      for(String fav : mSyncFavorites) {
+        if(fav != null && fav.contains(";") && fav.contains(":")) {
+          String[] parts = fav.split(";");
           
-          where = " ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelId + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time + " ) ";
-          
-          Log.d("date", where);
-//          where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time;
-          Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
-          Log.d("date", String.valueOf(program.getCount()));
-          if(program.moveToFirst()) {
-            String current = program.getString(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
-            Log.d("date", String.valueOf(current));
-            boolean update = false;
+          long time = Long.parseLong(parts[0]) * 60000;
+          String[] idParts = parts[1].split(":");
+        
+          if(idParts[0].equals("1")) {
+            String dataService = "EPG_FREE";
             
-            if(current == null || current.trim().length() == 0) {
-              current = SettingConstants.MARK_VALUE_SYNC_FAVORITE;
-              update = true;
-            }
-            else if(!current.contains(SettingConstants.MARK_VALUE_SYNC_FAVORITE)) {
-              current += ";" + SettingConstants.MARK_VALUE_SYNC_FAVORITE;
-              update = true;
+            String where = " ( " +TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = \"" + dataService + "\" ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + idParts[1] + "\" ) ";
+            
+            Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
+            
+            if(group.moveToFirst()) {
+              int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+              
+              where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + idParts[2] + "\' ) ";
+              Log.d("date", where);
+              
+              Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
+              
+              if(channel.moveToFirst()) {
+                int channelId = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                Log.d("date", "channelid " + channelId + " " + channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
+                
+                where = " ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelId + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time + " ) ";
+                
+                Log.d("date", where);
+      //          where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time;
+                Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
+                Log.d("date", String.valueOf(program.getCount()));
+                if(program.moveToFirst()) {
+                  String current = program.getString(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
+                  Log.d("date", String.valueOf(current));
+                  boolean update = false;
+                  
+                  if(current == null || current.trim().length() == 0) {
+                    current = SettingConstants.MARK_VALUE_SYNC_FAVORITE;
+                    update = true;
+                  }
+                  else if(!current.contains(SettingConstants.MARK_VALUE_SYNC_FAVORITE)) {
+                    current += ";" + SettingConstants.MARK_VALUE_SYNC_FAVORITE;
+                    update = true;
+                  }
+                  
+                  if(update) {
+                    ContentValues values = new ContentValues();
+                    values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current);
+                    
+                    long programID = program.getLong(program.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                    
+                    
+                    getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA,programID), values, null, null);
+                    
+                    Intent indent = new Intent(SettingConstants.MARKINGS_CHANGED);
+                    indent.putExtra(SettingConstants.MARKINGS_ID, programID);
+      
+                    LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(indent);
+                    
+                    Log.d("date", program.getString(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
+                  }
+                }
+                
+                program.close();
+              }
+              channel.close();
             }
             
-            if(update) {
-              ContentValues values = new ContentValues();
-              values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current);
-              
-              long programID = program.getLong(program.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-              
-              
-              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA,programID), values, null, null);
-              
-              Intent indent = new Intent(SettingConstants.MARKINGS_CHANGED);
-              indent.putExtra(SettingConstants.MARKINGS_ID, programID);
-
-              LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(indent);
-              
-              Log.d("date", program.getString(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
-            }
+            group.close();
+            Log.d("date", String.valueOf(time));
+            Log.d("date", parts[1]);
           }
-          
-          program.close();
         }
-        channel.close();
       }
-      
-      group.close();
-      Log.d("date", time);
-      Log.d("date", id);
-    }
-  }
     }
     
     mSyncFavorites = null;
@@ -228,12 +220,19 @@ public class TvDataUpdateService extends Service {
     mBuilder.setContentTitle(getResources().getText(R.string.channel_notification_title));
     mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
     notification.notify(mNotifyID, mBuilder.build());
-        
+    
+    File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
+    
+    if(!path.isDirectory()) {
+      path.mkdirs();
+    }
+    
     final DownloadManager download = (DownloadManager)getSystemService(Context.DOWNLOAD_SERVICE);
     
     Uri uri = Uri.parse("http://www.tvbrowser.org/listings/groups.txt");
     
     DownloadManager.Request request = new Request(uri);
+    request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "tvbrowserdata/groups.txt");
     
     final long reference = download.enqueue(request);
     
@@ -308,11 +307,16 @@ public class TvDataUpdateService extends Service {
         else {
           cr.update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, w, null);
           
-          GroupInfo test = loadChannelForGroup(download, cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, w, null, null));
+          Cursor groupTest = cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, w, null, null);
+          
+          GroupInfo test = loadChannelForGroup(download, groupTest);
           Log.d(TAG, " GROUPINFO " + String.valueOf(test));
           if(test != null) {
             channelMirrors.add(test);
           }
+          
+          groupTest.close();
+          
         }
         
         query.close();
@@ -374,6 +378,7 @@ public class TvDataUpdateService extends Service {
       for(GroupInfo info : channelMirrors) {
         Log.d(TAG, info.getUrl());
         Request request = new Request(Uri.parse(info.getUrl()));
+        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "tvbrowserdata" + info.getUrl().substring(info.getUrl().lastIndexOf("/")));
         long id = download.enqueue(request);
         
         requestIDMap.put(Long.valueOf(id), info);
@@ -563,11 +568,8 @@ public class TvDataUpdateService extends Service {
   }
   
   private void loadAccessAndFavoriteSync() {
-    try {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder builder = factory.newDocumentBuilder();
-      
-      URL documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvb.php");
+    try {      
+      URL documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvb1.php");
       URLConnection connection = documentUrl.openConnection();
       
       SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
@@ -581,15 +583,9 @@ public class TvDataUpdateService extends Service {
         
         connection.setRequestProperty ("Authorization", basicAuth);
         
-        InputStream stream = connection.getInputStream();
+        BufferedReader read = new BufferedReader(new InputStreamReader(connection.getInputStream(),"UTF-8"));
         
-        Document document = builder.parse(stream);
-        
-        stream.close();
-        
-        NodeList date = document.getElementsByTagName("date");
-       
-        String dateValue = date.item(0).getTextContent();
+        String dateValue = read.readLine();
         
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
         Date sponsoringDate = dateFormat.parse(dateValue.trim());
@@ -601,8 +597,17 @@ public class TvDataUpdateService extends Service {
         else {
           mDayStart = 0;
           mDayEnd = 24;
-          mSyncFavorites = document.getElementsByTagName("favorite");
+          
+          mSyncFavorites = new ArrayList<String>();
+          
+          String line = null;
+          
+          while((line = read.readLine()) != null) {
+            mSyncFavorites.add(line);
+          }
         }
+        
+        read.close();
       }
     }catch(Throwable t) {}
   }
