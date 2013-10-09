@@ -79,4 +79,6 @@
 	<string name="synchronize_cancel">Sender manuell auswählen</string>
 	<string name="synchronize_done">Synchronisation der Sender abgeschlossen!</string>
 	<string name="synchronize_error">Sender konnten nicht synchronisiert werden.</string>
+	<string name="previous_day">Vorheriger</string>
+	<string name="next_day">Nächster</string>
 </resources>

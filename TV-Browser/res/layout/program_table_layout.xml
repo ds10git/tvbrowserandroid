@@ -1,142 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
-    android:id="@+id/horizontal_program_table_scroll" >
+<RelativeLayout android:layout_width="match_parent"
+    android:layout_height="match_parent"
+     xmlns:android="http://schemas.android.com/apk/res/android"
+     >
+     
+    <RelativeLayout android:id="@+id/button_panel"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_height="50dip"
+        android:background="#DDDDDD">
+    <Button
+	    android:id="@+id/switch_to_previous_day"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentBottom="true"
+	    android:layout_alignParentLeft="true"
+	    android:drawableLeft="@android:drawable/arrow_down_float"
+	    android:gravity="left|center_vertical"
+	    android:text="@string/previous_day" />
+    
+    <TextView
+	    android:id="@+id/show_current_day"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignBottom="@+id/switch_to_previous_day"
+	    android:layout_alignTop="@+id/switch_to_previous_day"
+	    android:layout_toLeftOf="@+id/switch_to_next_day"
+	    android:layout_toRightOf="@+id/switch_to_previous_day"
+	    android:gravity="center_horizontal|center_vertical"
+	    android:text="Sonntag\n20. November"
+	    android:clickable="true" />
+    
+     <Button
+	    android:id="@+id/switch_to_next_day"
+	    android:layout_width="wrap_content"
+	    android:layout_height="wrap_content"
+	    android:layout_alignParentRight="true"
+	    android:layout_alignTop="@+id/show_current_day"
+	    android:drawableRight="@android:drawable/arrow_up_float"
+	    android:gravity="right|center_vertical"
+	    android:text="@string/next_day"
+	     />
+     </RelativeLayout>
+	 <RelativeLayout android:id="@+id/program_table_base"
+	     android:layout_width="wrap_content"
+	     android:layout_height="match_parent"
+	     android:layout_above="@id/button_panel"/>
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:orientation="vertical" >
-        <LinearLayout
-            android:id="@+id/program_table_channel_bar"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content" 
-            android:orientation="horizontal">
-            <TextView style="@style/time_label_style"
-                android:text="D"
-                android:textSize="20sp"
-    			android:textColor="#787878"
-    			android:textStyle="bold"
-    			android:background="#787878"
-            />
-            <include layout="@layout/separator_line"/>
-            </LinearLayout>
-        <ScrollView
-            android:id="@+id/vertical_program_table_scroll"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            >
-            <LinearLayout android:id="@+id/MAIN_LAYOUT"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:orientation="vertical">
-                <LinearLayout android:id="@+id/zero_two"
-                	android:layout_width="wrap_content"
-                	android:layout_height="wrap_content">
-                    <TextView style="@style/time_label_style"
-                		android:text="00"/>
-            		<include layout="@layout/separator_line"/>
-                </LinearLayout>
-                <LinearLayout android:id="@+id/two_four"
-                	android:layout_width="wrap_content"
-                	android:layout_height="wrap_content"
-                	android:background="#DCDCDC">
-                    <TextView style="@style/time_label_style"
-                		android:text="02"/>
-            		<include layout="@layout/separator_line"/>
-                </LinearLayout>
-                <LinearLayout android:id="@+id/four_six"
-                	android:layout_width="wrap_content"
-                	android:layout_height="wrap_content">
-                    <TextView style="@style/time_label_style"
-                		android:text="04"/>
-            		<include layout="@layout/separator_line"/>
-                </LinearLayout>
-                <LinearLayout android:id="@+id/six_eight"
-                	android:layout_width="wrap_content"
-                	android:layout_height="wrap_content"
-                	android:background="#DCDCDC">
-                    <TextView style="@style/time_label_style"
-                		android:text="06"/>
-            		<include layout="@layout/separator_line"/>
-                </LinearLayout>
-                <LinearLayout android:id="@+id/eight_ten"
-                	android:layout_width="wrap_content"
-                	android:layout_height="wrap_content">
-                    <TextView style="@style/time_label_style"
-                		android:text="08"/>
-            		<include layout="@layout/separator_line"/>
-                </LinearLayout>
-                <LinearLayout android:id="@+id/ten_twelfe"
-                	android:layout_width="wrap_content"
-                	android:layout_height="wrap_content"
-                	android:background="#DCDCDC">
-                    <TextView style="@style/time_label_style"
-                		android:text="10"/>
-            		<include layout="@layout/separator_line"/>
-                </LinearLayout>
-                <LinearLayout android:id="@+id/twefle_fourteen"
-                	android:layout_width="wrap_content"
-                	android:layout_height="wrap_content">
-                    <TextView style="@style/time_label_style"
-                		android:text="12"/>
-            		<include layout="@layout/separator_line"/>
-                </LinearLayout>
-                <LinearLayout android:id="@+id/fourteen_sixteen"
-                	android:layout_width="wrap_content"
-                	android:layout_height="wrap_content"
-                	android:background="#DCDCDC">
-                    <TextView style="@style/time_label_style"
-                		android:text="14"/>
-            		<include layout="@layout/separator_line"/>
-                </LinearLayout>
-                <LinearLayout android:id="@+id/sixteen_eighteen"
-                	android:layout_width="wrap_content"
-                	android:layout_height="wrap_content">
-                    <TextView style="@style/time_label_style"
-                		android:text="16"/>
-            		<include layout="@layout/separator_line"/>
-                </LinearLayout>
-                <LinearLayout android:id="@+id/eighteen_twenty"
-                	android:layout_width="wrap_content"
-                	android:layout_height="wrap_content"
-                	android:background="#DCDCDC">
-                    <TextView style="@style/time_label_style"
-                		android:text="18"/>
-            		<include layout="@layout/separator_line"/>
-                </LinearLayout>
-                <LinearLayout android:id="@+id/twenty_twentytwo"
-                	android:layout_width="wrap_content"
-                	android:layout_height="wrap_content">
-                    <TextView style="@style/time_label_style"
-                		android:text="20"/>
-            		<include layout="@layout/separator_line"/>
-                </LinearLayout>
-                <LinearLayout android:id="@+id/twentytwo_twentyfour"
-                	android:layout_width="wrap_content"
-                	android:layout_height="wrap_content"
-                	android:background="#DCDCDC">
-                    <TextView style="@style/time_label_style"
-                		android:text="22"/>
-            		<include layout="@layout/separator_line"/>
-                </LinearLayout>
-                <LinearLayout android:id="@+id/twentyfour_twentysix"
-                	android:layout_width="wrap_content"
-                	android:layout_height="wrap_content">
-                    <TextView style="@style/time_label_style"
-                		android:text="00"/>
-            		<include layout="@layout/separator_line"/>
-                </LinearLayout>
-                <LinearLayout android:id="@+id/twentysix_twentyeight"
-                	android:layout_width="wrap_content"
-                	android:layout_height="wrap_content"
-                	android:background="#DCDCDC">
-                    <TextView style="@style/time_label_style"
-                		android:text="02"/>
-            		<include layout="@layout/separator_line"/>
-                </LinearLayout>
-            </LinearLayout>
-        </ScrollView>        
-    </LinearLayout>
-</HorizontalScrollView>
+
+
+</RelativeLayout>

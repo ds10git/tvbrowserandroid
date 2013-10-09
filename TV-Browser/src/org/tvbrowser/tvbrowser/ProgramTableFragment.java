@@ -1,6 +1,7 @@
 package org.tvbrowser.tvbrowser;
 
 import java.util.Calendar;
+import java.util.Date;
 import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -20,6 +21,7 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Display;
 import android.view.LayoutInflater;
@@ -93,6 +95,8 @@ public class ProgramTableFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    
+    mCurrentDay = 0;
   
     BroadcastReceiver receiver = new BroadcastReceiver() {
       @Override
@@ -163,7 +167,7 @@ public class ProgramTableFragment extends Fragment {
           @Override
           public void run() {
             if(!isDetached() && getView() != null) {
-              LinearLayout layout = (LinearLayout)getView().findViewWithTag("LAYOUT");
+              RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
               
               if(layout != null) {
                 updateView(getActivity().getLayoutInflater(),layout);
@@ -453,27 +457,26 @@ public class ProgramTableFragment extends Fragment {
     };
     mUpdateThread.setPriority(Thread.MIN_PRIORITY);
   }
-    
+      
   public void updateView(LayoutInflater inflater, ViewGroup container) {
     container.removeAllViews();
-    View programTable = inflater.inflate(R.layout.program_table_layout, container);
+    
+    View programTable = inflater.inflate(R.layout.program_table, container);
     
     Calendar cal = Calendar.getInstance();
     cal.set(2013, Calendar.DECEMBER, 31);
     
     cal.add(Calendar.DAY_OF_YEAR, 1);
     
-    long day = System.currentTimeMillis() / 1000 / 60 / 60 / 24;
-    long dayStart = day * 24 * 60 * 60 * 1000;
+    long testDay = System.currentTimeMillis() / 1000 / 60 / 60 / 24;
+    long dayStart = mCurrentDay * 24 * 60 * 60 * 1000;
     dayStart -=  TimeZone.getDefault().getOffset(dayStart);
     
-    if(System.currentTimeMillis() - dayStart < 4 * 60 * 60 * 1000) {
-      dayStart = --day * 24 * 60 * 60 * 1000 - TimeZone.getDefault().getOffset(dayStart);
+    if(testDay == mCurrentDay && System.currentTimeMillis() - dayStart < 4 * 60 * 60 * 1000) {
+      dayStart = --mCurrentDay * 24 * 60 * 60 * 1000 - TimeZone.getDefault().getOffset(dayStart);
     }
-    
-    mCurrentDay = day;
-    
-    long dayEnd = (day+1) * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000 - TimeZone.getDefault().getOffset(dayStart);
+        
+    long dayEnd = (mCurrentDay+1) * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000 - TimeZone.getDefault().getOffset(dayStart);
         
     String where = TvBrowserContentProvider.DATA_KEY_STARTTIME +  " >= " + dayStart + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " < " + dayEnd;
     
@@ -543,19 +546,81 @@ public class ProgramTableFragment extends Fragment {
     }
     
     channels.close();
+    
+    if(testDay == mCurrentDay) {
+      scrollToNow();
+    }
   }
   
+  private void setDayString(TextView currentDay) {
+    Date date = new Date(mCurrentDay * 1000 * 60 * 60 * 24);
+    
+    String longDate = DateFormat.getLongDateFormat(getActivity()).format(date);
+    
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(date);
+    longDate = longDate.replaceAll("\\s+"+cal.get(Calendar.YEAR), "");
+    
+    currentDay.setText(UiUtils.LONG_DAY_FORMAT.format(date) + "\n" + longDate);
+  }
+  
+  private void changeDay(int count) {
+    mCurrentDay += count;
+    
+    TextView day = (TextView)getView().findViewById(R.id.show_current_day);
+    
+    setDayString(day);
+    
+    RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
+    
+    updateView(getActivity().getLayoutInflater(), layout);
+  }
   
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
+    RelativeLayout programTableLayout = (RelativeLayout)inflater.inflate(R.layout.program_table_layout, null);
+    
+    if(mCurrentDay == 0) {
+      mCurrentDay = System.currentTimeMillis() / 1000 / 60 / 60 / 24;
+    }
+    
+    TextView currentDay = (TextView)programTableLayout.findViewById(R.id.show_current_day);
+    
+    setDayString(currentDay);
+    
+    currentDay.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View view) {
+        selectDate(view);
+      }
+    });
+    
+    programTableLayout.findViewById(R.id.switch_to_previous_day).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        changeDay(-1);
+      }
+    });
+    
+    programTableLayout.findViewById(R.id.switch_to_next_day).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        changeDay(1);
+      }
+    });
+
+    RelativeLayout layout = (RelativeLayout)programTableLayout.findViewById(R.id.program_table_base);
+    layout.setTag("LAYOUT");
+    
+    /*
     LinearLayout layout = new LinearLayout(container.getContext());
     layout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
-    layout.setTag("LAYOUT");
+    layout.setTag("LAYOUT");*/
     
     updateView(inflater,layout);
     
-    return layout;
+    return programTableLayout;
   }
   
   @Override
@@ -665,4 +730,7 @@ public class ProgramTableFragment extends Fragment {
     return count;
   }
   
+  public void selectDate(View view) {
+    Log.d("clicklog", "hier");
+  }
 }
