@@ -43,6 +43,8 @@ import android.widget.TextView;
 
 public class ProgramTableFragment extends Fragment {
   private boolean mKeepRunning;
+  private boolean mUpdatingLayout;
+  private boolean mUpdatingRunningPrograms;
   private Thread mUpdateThread;
   private View.OnClickListener mClickListener;
   
@@ -102,6 +104,8 @@ public class ProgramTableFragment extends Fragment {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
+    mUpdatingRunningPrograms = false;
+    mUpdatingLayout = false;
     mCurrentDay = 0;
   
     BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -205,259 +209,110 @@ public class ProgramTableFragment extends Fragment {
       public void run() {
         while(mKeepRunning) {
           try {
-            if(mKeepRunning && TvBrowserContentProvider.INFORM_FOR_CHANGES) {
-              /*handler.post(new Runnable() {
-                @Override
-                public void run() {*/
-                  if(!isDetached()) {
-                  /*  if(mRunningPrograms.isEmpty()) {
-                        handler.post(new Runnable() {
-                          
-                          @Override
-                          public void run() {
-                            if(getView().findViewWithTag("LAYOUT") != null) {
-                              LinearLayout view = (LinearLayout)getView().findViewWithTag("LAYOUT");
-
-                            // TODO Auto-generated method stub
-                            updateView(getActivity().getLayoutInflater(), view);
-                            }
-                          }
-                        });
-                        
-
-                    }
-                    else {
-                      for(int i = mRunningPrograms.size()-1; i >= 0; i--) {
-                        View view = mRunningPrograms.get(i);
-                        Log.d("test", " running " + String.valueOf(view));
-                        if(view != null) {
-                          Long tag = (Long)view.getTag();
-                          Log.d("test", " TAG " + String.valueOf(tag));
-                          Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, tag), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_GENRE}, null, null, null);
-                          
-                          if(c.getCount() > 0) {
-                            c.moveToFirst();
-                            long endTime = c.getLong(1);
-                            long startTime = c.getLong(0);
-                          
-                            if(endTime <= System.currentTimeMillis()) {
-                              final View internal = view; 
-                              
-                              handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                  // TODO Auto-generated method stub
-                                  Log.d("test", " OLD PROG " + String.valueOf(((TextView)internal.findViewById(R.id.prog_panel_title)).getText()));
-                                  ((TextView)internal.findViewById(R.id.prog_panel_start_time)).setTextColor(Color.rgb(190, 190, 190));
-                                  ((TextView)internal.findViewById(R.id.prog_panel_title)).setTextColor(Color.rgb(190, 190, 190));
-                                  ((TextView)internal.findViewById(R.id.prog_panel_episode)).setTextColor(Color.rgb(190, 190, 190));  
-                                  ((TextView)internal.findViewById(R.id.prog_panel_genre)).setTextColor(Color.rgb(190, 190, 190));
-                                }
-                              });
-                              mRunningPrograms.remove(i);
-                              
-                              String where = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + c.getInt(3) + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " >= " + endTime;
-                              
-                              Cursor next = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID},where , null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
-                              
-                              if(next.getCount() > 0) {
-                                next.moveToFirst();
-                                Log.d("test"," ID " + next.getLong(0));
-                                view = getView().findViewWithTag(next.getLong(0));
-                                
-                                if(view != null) {
-                                  Log.d("test"," view " + String.valueOf(((TextView)view.findViewById(R.id.prog_panel_title)).getText()));
-                                  boolean add = true;
-                                  
-                                  while((endTime = next.getLong(2)) <= System.currentTimeMillis()) {
-                                    final View internal1 = view;
-                                    
-                                    handler.post(new Runnable() {
-                                      @Override
-                                      public void run() {
-                                        if(internal1 != null) {
-                                          ((TextView)internal1.findViewById(R.id.prog_panel_start_time)).setTextColor(Color.rgb(190, 190, 190));
-                                          ((TextView)internal1.findViewById(R.id.prog_panel_title)).setTextColor(Color.rgb(190, 190, 190));
-                                          ((TextView)internal1.findViewById(R.id.prog_panel_episode)).setTextColor(Color.rgb(190, 190, 190));
-                                          ((TextView)internal1.findViewById(R.id.prog_panel_genre)).setTextColor(Color.rgb(190, 190, 190));
-                                        }
-                                      }
-                                    });
-                                    
-                                    if(!next.moveToNext()) {
-                                      add = false;
-                                      break;
-                                    }
-                                    else {
-                                      view = getView().findViewWithTag(next.getLong(0));
-                                    }
-                                  }
-                                  
-                                  if(add) {
-                                    startTime = next.getLong(1);
-                                    
-                                    mRunningPrograms.add(view);
-                                  }
-                                }
-                              }
-                              
-                              next.close();
-                              //mRunningPrograms.add(panel);
-                            }
-                            
-                            if(view != null && System.currentTimeMillis() >= startTime && System.currentTimeMillis() <= endTime) {
-                              final View internal1 = view;
-                              
-                              handler.post(new Runnable() {
-                                @Override
-                                public void run() {
-                                  ((TextView)internal1.findViewById(R.id.prog_panel_start_time)).setTextColor(getActivity().getResources().getColor(R.color.running_color));
-                                  ((TextView)internal1.findViewById(R.id.prog_panel_title)).setTextColor(getActivity().getResources().getColor(R.color.running_color));
-                                  ((TextView)internal1.findViewById(R.id.prog_panel_episode)).setTextColor(getActivity().getResources().getColor(R.color.running_color));                              
-                                  ((TextView)internal1.findViewById(R.id.prog_panel_genre)).setTextColor(getActivity().getResources().getColor(R.color.running_color));
-                                }
-                              });
-                            }
-                          }
-                          c.close();
-                        }
-                        else {
-                          mRunningPrograms.remove(i);
-                        }
-                      }
-                    }
-                    */
-                    LinearLayout main = (LinearLayout)getView().findViewById(R.id.MAIN_LAYOUT);
-                    for(int k = 0; k < main.getChildCount(); k++) {
-                      View mainChild = main.getChildAt(k);
+            if(mKeepRunning && TvBrowserContentProvider.INFORM_FOR_CHANGES && !mUpdatingLayout) {
+              mUpdatingRunningPrograms = true;
+              
+              if(!isDetached()) {
+                LinearLayout main = (LinearLayout)getView().findViewById(R.id.MAIN_LAYOUT);
+                
+                for(int k = 0; k < main.getChildCount(); k++) {
+                  View mainChild = main.getChildAt(k);
+                  
+                  if(mainChild instanceof LinearLayout) {
+                    LinearLayout layout = (LinearLayout)mainChild;
+                    
+                    for(int i = 0; i < layout.getChildCount(); i++) {
+                      View child = layout.getChildAt(i);
                       
-                      if(mainChild instanceof LinearLayout) {
-                        LinearLayout layout = (LinearLayout)mainChild;
+                      if(child instanceof LinearLayout) {
+                        LinearLayout block = (LinearLayout)child;
                         
-                        for(int i = 0; i < layout.getChildCount(); i++) {
-                          View child = layout.getChildAt(i);
+                        for(int j = 0; j < block.getChildCount(); j++) {
+                          View blockChild = block.getChildAt(j);
                           
-                          if(child instanceof LinearLayout) {
-                            LinearLayout block = (LinearLayout)child;
+                          if(blockChild instanceof RelativeLayout) {
+                            final RelativeLayout progPanel = (RelativeLayout)blockChild;
                             
-                            for(int j = 0; j < block.getChildCount(); j++) {
-                              View blockChild = block.getChildAt(j);
+                            if(progPanel.getTag() != null && getActivity() != null) {
+                                  
+                              Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
                               
-                              if(blockChild instanceof RelativeLayout) {
-                                final RelativeLayout progPanel = (RelativeLayout)blockChild;
+                              if(c.getCount() > 0) {
+                                c.moveToFirst();
                                 
-                                if(progPanel.getTag() != null && getActivity() != null) {
+                                boolean expiredTest = false;
+                                
+                                if(progPanel.getTag(R.id.expired_tag) != null) {
+                                  expiredTest = (Boolean)progPanel.getTag(R.id.expired_tag);
+                                }
+                                                                    
+                                final boolean expired = expiredTest;
+                                
+                                long startTime = c.getLong(0);
+                                long endTime = c.getLong(1);
+                                
+                                final TextView title = (TextView)progPanel.findViewById(R.id.prog_panel_title);
+                                final TextView text = (TextView)progPanel.findViewById(R.id.prog_panel_start_time);
+                                final TextView genre = (TextView)progPanel.findViewById(R.id.prog_panel_genre);
+                                final TextView episode = (TextView)progPanel.findViewById(R.id.prog_panel_episode);
+                                
+                                if(!expired && endTime <= System.currentTimeMillis()) {
+                                  handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                      text.setTextColor(Color.rgb(190, 190, 190));
+                                      title.setTextColor(Color.rgb(190, 190, 190));
+                                      episode.setTextColor(Color.rgb(190, 190, 190));
+                                      genre.setTextColor(Color.rgb(190, 190, 190));
                                       
-                                  Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
-                                  
-                                  if(c.getCount() > 0) {
-                                    c.moveToFirst();
-                                    
-                                    boolean expiredTest = false;
-                                    
-                                    if(progPanel.getTag(R.id.expired_tag) != null) {
-                                      expiredTest = (Boolean)progPanel.getTag(R.id.expired_tag);
-                                    }
-                                                                        
-                                    final boolean expired = expiredTest;
-                                    
-                                    long startTime = c.getLong(0);
-                                    long endTime = c.getLong(1);
-                                    
-                                    final TextView title = (TextView)progPanel.findViewById(R.id.prog_panel_title);
-                                    final TextView text = (TextView)progPanel.findViewById(R.id.prog_panel_start_time);
-                                    final TextView genre = (TextView)progPanel.findViewById(R.id.prog_panel_genre);
-                                    final TextView episode = (TextView)progPanel.findViewById(R.id.prog_panel_episode);
-                                    
-                                    if(!expired && endTime <= System.currentTimeMillis()) {
-                                      handler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                          text.setTextColor(Color.rgb(190, 190, 190));
-                                          title.setTextColor(Color.rgb(190, 190, 190));
-                                          episode.setTextColor(Color.rgb(190, 190, 190));
-                                          genre.setTextColor(Color.rgb(190, 190, 190));
-                                          progPanel.setTag(R.id.expired_tag, true);
-                                         // progPanel.setTag(R.id.on_air_tag, false);
-                                          
-                                          if(!isDetached() && mKeepRunning && !isRemoving()) {
-                                            Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
-                                            
-                                            if(c.getCount() > 0) {
-                                              c.moveToFirst();
-                                              UiUtils.handleMarkings(getActivity(), c, progPanel, null);
-                                            }
-                                            
-                                            c.close();
-                                          }
+                                      if(!isDetached() && mKeepRunning && !isRemoving()) {
+                                        Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
+                                        
+                                        if(c.getCount() > 0) {
+                                          c.moveToFirst();
+                                          UiUtils.handleMarkings(getActivity(), c, progPanel, null);
                                         }
-                                      });
+                                        
+                                        c.close();
+                                        
+                                        progPanel.setTag(R.id.expired_tag, true);
+                                      }
                                     }
-                                    else if(/*!onAir && */System.currentTimeMillis() >= startTime && System.currentTimeMillis() <= endTime) {
-                                     /* handler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                          text.setTextColor(getActivity().getResources().getColor(R.color.running_color));
-                                          title.setTextColor(getActivity().getResources().getColor(R.color.running_color));
-                                          episode.setTextColor(getActivity().getResources().getColor(R.color.running_color));
-                                          genre.setTextColor(getActivity().getResources().getColor(R.color.running_color));
-                                          progPanel.setTag(R.id.on_air_tag, true);
-                                          
-                                          Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
-                                          
-                                          if(c.getCount() > 0) {
-                                            c.moveToFirst();
-                                            UiUtils.handleMarkings(getActivity(), c, progPanel, null);
-                                          }
-                                          
-                                          c.close();
-                                        }
-                                      });*/
+                                  });
+                                }
+                                else if(System.currentTimeMillis() >= startTime && System.currentTimeMillis() <= endTime) {
+                                  handler.post(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                      Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
                                       
-                                      handler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                          Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
-                                          
-                                          if(c.getCount() > 0) {
-                                            c.moveToFirst();
-                                            UiUtils.handleMarkings(getActivity(), c, progPanel, null);
-                                          }
-                                          
-                                          c.close();
-                                        }
-                                      });
+                                      if(c.getCount() > 0) {
+                                        c.moveToFirst();
+                                        UiUtils.handleMarkings(getActivity(), c, progPanel, null);
+                                      }
+                                      
+                                      c.close();
                                     }
-                                   /* else if(onAir) {
-                                      handler.post(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                          Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
-                                          
-                                          if(c.getCount() > 0) {
-                                            c.moveToFirst();
-                                            UiUtils.handleMarkings(getActivity(), c, progPanel, null);
-                                          }
-                                          
-                                          c.close();
-                                        }
-                                      });
-                                    }*/
-                                  }
-                                  
-                                  c.close();
-                                }                            
+                                  });
+                                }
                               }
-                            }
+                              
+                              c.close();
+                            }                            
                           }
                         }
                       }
                     }
                   }
                 }
+              }
+            }
+          
+            mUpdatingRunningPrograms = false;
             sleep(60000);
           } catch (InterruptedException e) {
           }
+          mUpdatingRunningPrograms = false;
         }
       }
     };
@@ -465,6 +320,28 @@ public class ProgramTableFragment extends Fragment {
   }
       
   public void updateView(LayoutInflater inflater, ViewGroup container) {
+    if(mUpdatingRunningPrograms) {
+      Thread t = new Thread() {
+        public void run() {
+          while(mUpdatingRunningPrograms) {
+            try {
+              sleep(200);
+            } catch (InterruptedException e) {
+              e.printStackTrace();
+            }
+          }
+        }
+      };
+      t.start();
+      try {
+        t.join();
+      } catch (InterruptedException e) {
+        e.printStackTrace();
+      }
+    }
+    
+    mUpdatingLayout = true;
+    
     container.removeAllViews();
     
     View programTable = inflater.inflate(R.layout.program_table, container);
@@ -556,6 +433,8 @@ public class ProgramTableFragment extends Fragment {
     if(testDay == mCurrentDay) {
       scrollToNow();
     }
+    
+    mUpdatingLayout = false;
   }
   
   private void setDayString(TextView currentDay) {
