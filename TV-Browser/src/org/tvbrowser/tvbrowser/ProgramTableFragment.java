@@ -7,15 +7,20 @@ import java.util.TimeZone;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.os.Build;
+import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
@@ -23,13 +28,14 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.ViewGroup.LayoutParams;
+import android.widget.DatePicker;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
@@ -730,7 +736,53 @@ public class ProgramTableFragment extends Fragment {
     return count;
   }
   
-  public void selectDate(View view) {
-    Log.d("clicklog", "hier");
+  @SuppressLint("NewApi")
+  public void selectDate(View view) {try {
+    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+    
+    long testDay = System.currentTimeMillis() / 1000 / 60 / 60 / 24;
+    long dayStart = testDay * 24 * 60 * 60 * 1000;
+    
+    if(System.currentTimeMillis() - dayStart < 4 * 60 * 60 * 1000) {
+      dayStart = --testDay * 24 * 60 * 60 * 1000 - TimeZone.getDefault().getOffset(dayStart);
+    }
+    
+    final DatePicker select = new DatePicker(getActivity());
+        
+    Calendar cal = Calendar.getInstance();
+    cal.setTimeInMillis(mCurrentDay * 24 * 60 * 60 * 1000);
+    
+    if (Build.VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB_MR1) {
+      select.getCalendarView().setFirstDayOfWeek(Calendar.MONDAY);
+    }
+    
+    select.setMinDate(dayStart - 24 * 60 * 60 * 1000);
+    select.setMaxDate(dayStart + 14 * (24 * 60 * 60 * 1000));
+    select.init(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), null);
+    
+    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(select.getYear(), select.getMonth(), select.getDayOfMonth());
+        
+        mCurrentDay = cal.getTimeInMillis() / 24 / 60 / 60 / 1000;
+
+        setDayString((TextView)getView().findViewById(R.id.show_current_day));
+        updateView(getActivity().getLayoutInflater(), (RelativeLayout)getView().findViewWithTag("LAYOUT"));
+      }
+    });
+    
+    builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {}
+    });
+    
+    HorizontalScrollView scroll = new HorizontalScrollView(getActivity());
+    scroll.addView(select);
+    
+    builder.setView(scroll);
+    
+    builder.show();}catch(Throwable t) {Log.d("dateselect", "", t);}
   }
 }
