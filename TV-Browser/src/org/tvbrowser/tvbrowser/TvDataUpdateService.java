@@ -700,11 +700,27 @@ public class TvDataUpdateService extends Service {
     }
   }
   
-  private int getDayStart() {
+  private int getDayStart(String name) {
+    if(mDayStart != 0) {
+      if(name.contains("_ard_") || name.contains("_zdf_") || name.contains("_bfs_") || name.contains("_hr_") || name.contains("_mdr-sn_") 
+      || name.contains("_mdr_") || name.contains("_mdr-th_") || name.contains("_ndr-hh_") || name.contains("_ndr-mv_") || name.contains("_ndr_")
+      || name.contains("_ndr_") || name.contains("_ndr-sh_") || name.contains("_rbbberlin_") || name.contains("_rbbbrandenburg_") || name.contains("_swr_")
+      || name.contains("_swrrp_") || name.contains("_swrsr_") || name.contains("_wdr_") || name.contains("_orf1_") || name.contains("_sfdrs1_")) {
+        return 0;
+      }
+    }
     return mDayStart;
   }
   
-  private int getDayEnd() {
+  private int getDayEnd(String name) {
+    if(mDayEnd != 24) {
+      if(name.contains("_ard_") || name.contains("_zdf_") || name.contains("_bfs_") || name.contains("_hr_") || name.contains("_mdr-sn_") 
+      || name.contains("_mdr_") || name.contains("_mdr-th_") || name.contains("_ndr-hh_") || name.contains("_ndr-mv_") || name.contains("_ndr_")
+      || name.contains("_ndr_") || name.contains("_ndr-sh_") || name.contains("_rbbberlin_") || name.contains("_rbbbrandenburg_") || name.contains("_swr_")
+      || name.contains("_swrrp_") || name.contains("_swrsr_") || name.contains("_wdr_") || name.contains("_orf1_") || name.contains("_sfdrs1_")) {
+        return 24;
+      }
+    }
     return mDayEnd;
   }
   
@@ -1234,7 +1250,7 @@ public class TvDataUpdateService extends Service {
             Calendar cal = Calendar.getInstance();
             cal.setTimeInMillis(startTime);
             
-            if(cal.get(Calendar.HOUR_OF_DAY) >= getDayStart() && (cal.get(Calendar.HOUR_OF_DAY) < getDayEnd() || (cal.get(Calendar.HOUR_OF_DAY) == getDayEnd() && cal.get(Calendar.MINUTE) == 0))) {
+            if(cal.get(Calendar.HOUR_OF_DAY) >= getDayStart(dataFile.getName()) && (cal.get(Calendar.HOUR_OF_DAY) < getDayEnd(dataFile.getName()) || (cal.get(Calendar.HOUR_OF_DAY) == getDayEnd(dataFile.getName()) && cal.get(Calendar.MINUTE) == 0))) {
               getContentResolver().insert(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, values);            
             }
           }
