@@ -569,7 +569,7 @@ public class TvDataUpdateService extends Service {
   
   private void loadAccessAndFavoriteSync() {
     try {      
-      URL documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvb1.php");
+      URL documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvb2.php");
       URLConnection connection = documentUrl.openConnection();
       
       SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
@@ -583,7 +583,7 @@ public class TvDataUpdateService extends Service {
         
         connection.setRequestProperty ("Authorization", basicAuth);
         
-        BufferedReader read = new BufferedReader(new InputStreamReader(connection.getInputStream(),"UTF-8"));
+        BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
         
         String dateValue = read.readLine();
         
@@ -609,7 +609,7 @@ public class TvDataUpdateService extends Service {
         
         read.close();
       }
-    }catch(Throwable t) {}
+    }catch(Throwable t) {Log.d("dateinfo", "",t);}
   }
   /**
    * Calculate the end times of programs that are missing end time in the data.

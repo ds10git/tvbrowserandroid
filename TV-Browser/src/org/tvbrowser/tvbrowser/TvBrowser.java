@@ -7,6 +7,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
@@ -254,7 +255,7 @@ public class TvBrowser extends FragmentActivity implements
       public void run() {
         URL documentUrl;
         try {
-          documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels1.php");
+          documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels2.php");
           
           URLConnection connection = documentUrl.openConnection();
           
@@ -269,7 +270,7 @@ public class TvBrowser extends FragmentActivity implements
             
             connection.setRequestProperty ("Authorization", basicAuth);
             
-            BufferedReader read = new BufferedReader(new InputStreamReader(connection.getInputStream(),"UTF-8"));
+            BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
             
             String line = null;
             
@@ -339,6 +340,7 @@ public class TvBrowser extends FragmentActivity implements
             showChannelSelectionInternal();
           }
         } catch (Exception e) {
+          showChannelSelectionInternal();
           Log.d("sync", "",e);
         }
         
