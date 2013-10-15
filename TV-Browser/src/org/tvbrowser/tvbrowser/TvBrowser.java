@@ -42,10 +42,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
-import android.text.Html;
-import android.text.SpannableString;
 import android.text.method.LinkMovementMethod;
-import android.text.util.Linkify;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
@@ -714,8 +711,8 @@ public class TvBrowser extends FragmentActivity implements
       public void onClick(DialogInterface dialog, int which) {
         Editor edit = pref.edit();
         
-        edit.putString(SettingConstants.USER_NAME, userName.getText().toString());
-        edit.putString(SettingConstants.USER_PASSWORD, password.getText().toString());
+        edit.putString(SettingConstants.USER_NAME, userName.getText().toString().trim());
+        edit.putString(SettingConstants.USER_PASSWORD, password.getText().toString().trim());
         
         edit.commit();
         
