@@ -253,14 +253,14 @@ public class TvBrowser extends FragmentActivity implements
         URL documentUrl;
         try {
           documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels2.php");
-          
+          //documentUrl = new URL("http://android.tvbrowser.org/webtest/android-tvb/data/scripts//hurtzAndroidTvbChannels.php");
           URLConnection connection = documentUrl.openConnection();
           
           SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
           
           String car = pref.getString(SettingConstants.USER_NAME, null);
           String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
-          
+          Log.d("dateinfo", car + " " + bicycle);
           if(car != null && bicycle != null) {
             String userpass = car + ":" + bicycle;
             String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
@@ -338,7 +338,7 @@ public class TvBrowser extends FragmentActivity implements
           }
         } catch (Exception e) {
           showChannelSelectionInternal();
-          Log.d("sync", "",e);
+          Log.d("dateinfo", "",e);
         }
         
         selectingChannels = false;
