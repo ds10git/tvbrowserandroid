@@ -7,4 +7,5 @@
     <color name="filter_selection">#480000FF</color>
     <color name="running_color">#000077</color>
     <color name="light_gray">#AAAAAA</color>
+    <color name="detail_date_channel_color">#AA0000</color>
 </resources>

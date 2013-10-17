@@ -59,15 +59,13 @@ public class UiUtils {
     
     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     
-    TableLayout table = new TableLayout(builder.getContext());
-    table.setShrinkAllColumns(true);
+    View layout = activity.getLayoutInflater().inflate(R.layout.detail_layout, null);
     
-    TableRow row = new TableRow(table.getContext());
-    TableRow row0 = new TableRow(table.getContext());
-    
-    TextView date = new TextView(row.getContext());
-    date.setTextColor(Color.rgb(200, 0, 0));
-    date.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+    TextView date = (TextView)layout.findViewById(R.id.detail_date_channel);
+    TextView title = (TextView)layout.findViewById(R.id.detail_title);
+    TextView genre = (TextView)layout.findViewById(R.id.detail_genre);
+    TextView episode = (TextView)layout.findViewById(R.id.detail_episode_title);
+    TextView shortDescription = (TextView)layout.findViewById(R.id.detail_short_description);
     
     Date start = new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
     SimpleDateFormat day = new SimpleDateFormat("EEE",Locale.getDefault());
@@ -82,58 +80,32 @@ public class UiUtils {
     
     channel.close();
     
-    row0.addView(date);
-    
-    TextView title = new TextView(row.getContext());
-    title.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
-    title.setTypeface(null, Typeface.BOLD);
     title.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
     
-    row.addView(title);
-    
-    table.addView(row0);
-    table.addView(row);
-    
     if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
-      TextView genre = new TextView(table.getContext());
-      genre.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-      genre.setTypeface(null, Typeface.ITALIC);
       genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)));
-      
-      TableRow rowGenre = new TableRow(table.getContext());
-      
-      rowGenre.addView(genre);
-      table.addView(rowGenre);
+    }
+    else {
+      genre.setVisibility(View.GONE);
     }
     
     if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
-      TextView episode = new TextView(table.getContext());
-      episode.setTextSize(TypedValue.COMPLEX_UNIT_SP, 18);
       episode.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)));
-      episode.setTextColor(Color.GRAY);
-      
-      TableRow rowEpisode = new TableRow(table.getContext());
-      
-      rowEpisode.addView(episode);
-      table.addView(rowEpisode);
+    }
+    else {
+      episode.setVisibility(View.GONE);
     }
     
     if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
-      TextView desc = new TextView(table.getContext());
-      desc.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION)));
-     /* desc.setSingleLine(false);*/
-      desc.setTextSize(TypedValue.COMPLEX_UNIT_SP, 16);
-      /*desc.setInputType(InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE);*/
-      
-      TableRow rowDescription = new TableRow(table.getContext());
-      
-      rowDescription.addView(desc);
-      table.addView(rowDescription);
+      shortDescription.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION)));
+    }
+    else {
+      shortDescription.setVisibility(View.GONE);
     }
     
     c.close();
         
-    builder.setView(table);
+    builder.setView(layout);
     builder.show();
   }
   

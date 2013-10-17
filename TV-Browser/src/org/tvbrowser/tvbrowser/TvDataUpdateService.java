@@ -119,8 +119,18 @@ public class TvDataUpdateService extends Service {
         
         if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
           mDaysToLoad = intent.getIntExtra(DAYS_TO_LOAD, 2);
-          mDayStart = SettingConstants.DEFAULT_DAY_START;
-          mDayEnd = SettingConstants.DEFAULT_DAY_END;
+          
+          Calendar cal = Calendar.getInstance();
+          cal.set(2014, Calendar.JANUARY, 5);
+          
+          if(cal.getTimeInMillis() > System.currentTimeMillis()) {
+            mDayStart = 0;
+            mDayEnd = 24;
+          }
+          else {
+            mDayStart = 19;
+            mDayEnd = 23;
+          }
           updateTvData();
         }
         else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
@@ -570,6 +580,7 @@ public class TvDataUpdateService extends Service {
   private void loadAccessAndFavoriteSync() {
     try {      
       URL documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvb2.php");
+      //URL documentUrl = new URL("http://android.tvbrowser.org/webtest/android-tvb/data/scripts/hurtzAndroidTvb.php");
       URLConnection connection = documentUrl.openConnection();
       
       SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
@@ -578,7 +589,7 @@ public class TvDataUpdateService extends Service {
       String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
       
       if(car != null && bicycle != null) {
-        String userpass = car + ":" + bicycle;
+        String userpass = car.trim() + ":" + bicycle.trim();
         String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
         
         connection.setRequestProperty ("Authorization", basicAuth);
@@ -591,8 +602,8 @@ public class TvDataUpdateService extends Service {
         Date sponsoringDate = dateFormat.parse(dateValue.trim());
         Log.d("dateinfo", String.valueOf(sponsoringDate));
         if(sponsoringDate.getTime() < System.currentTimeMillis()) {
-          mDayStart = SettingConstants.DEFAULT_DAY_START;
-          mDayEnd = SettingConstants.DEFAULT_DAY_END;
+          mDayStart = 19;
+          mDayEnd = 23;
         }
         else {
           mDayStart = 0;

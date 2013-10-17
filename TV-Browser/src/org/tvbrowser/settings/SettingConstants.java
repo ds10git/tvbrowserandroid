@@ -25,10 +25,7 @@ public class SettingConstants {
   public static final String SPONSORING_DATE = "SPONSORING_DATE";
   
   public static final String TERMS_ACCEPTED = "TERMS_ACCEPTED";
-  
-  public static final int DEFAULT_DAY_START = 0;
-  public static final int DEFAULT_DAY_END = 24;
-  
+    
   public static final HashMap<String, Integer> MARK_COLOR_MAP = new HashMap<String, Integer>();
   
   static {

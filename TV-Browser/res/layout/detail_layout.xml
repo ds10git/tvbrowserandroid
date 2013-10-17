@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+	<RelativeLayout 
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content" >
+	    <TextView android:id="@+id/detail_date_channel"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:textColor="@color/detail_date_channel_color"
+	        android:textSize="20sp"/>
+	    <TextView android:id="@+id/detail_title"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:textStyle="bold"
+	        android:textSize="20sp"
+	        android:layout_below="@id/detail_date_channel"/>
+	    <TextView android:id="@+id/detail_genre"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:textSize="16sp"
+	        android:layout_below="@id/detail_title"/>
+	    <TextView android:id="@+id/detail_episode_title"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:textSize="18sp"
+	        android:textColor="@color/light_gray"
+	        android:layout_below="@id/detail_genre"/>
+	    <TextView android:id="@+id/detail_short_description"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:textSize="16sp"
+	        android:layout_below="@id/detail_episode_title"/>
+	</RelativeLayout>
+</ScrollView>
