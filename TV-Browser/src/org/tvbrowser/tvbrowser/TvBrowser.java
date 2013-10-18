@@ -161,7 +161,7 @@ public class TvBrowser extends FragmentActivity implements
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.YEAR, 2013);
     cal.set(Calendar.MONTH, Calendar.OCTOBER);
-    cal.set(Calendar.DAY_OF_MONTH, 20);
+    cal.set(Calendar.DAY_OF_MONTH, 27);
         
     new Thread() {
       public void run() {

@@ -22,10 +22,8 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
-import android.graphics.Typeface;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -37,15 +35,12 @@ import android.provider.CalendarContract.Events;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
-import android.widget.TableLayout;
-import android.widget.TableRow;
 import android.widget.TextView;
 
 public class UiUtils {
@@ -64,6 +59,7 @@ public class UiUtils {
     TextView date = (TextView)layout.findViewById(R.id.detail_date_channel);
     TextView title = (TextView)layout.findViewById(R.id.detail_title);
     TextView genre = (TextView)layout.findViewById(R.id.detail_genre);
+    TextView info = (TextView)layout.findViewById(R.id.detail_info);
     TextView episode = (TextView)layout.findViewById(R.id.detail_episode_title);
     TextView shortDescription = (TextView)layout.findViewById(R.id.detail_short_description);
     
@@ -80,7 +76,12 @@ public class UiUtils {
     
     channel.close();
     
-    title.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
+    if(c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL))) {
+      title.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
+    }
+    else {
+      title.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)) + "/" + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL)));
+    }
     
     if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
       genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)));
@@ -89,8 +90,36 @@ public class UiUtils {
       genre.setVisibility(View.GONE);
     }
     
+    String infoValue = IOUtils.getInfoString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)), activity.getResources());
+    
+    if(infoValue.length() > 0) {
+      info.setText(infoValue);
+    }
+    else {
+      info.setVisibility(View.GONE);
+    }
+    
+    String number = "";
+    
+    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER))) {
+      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT))) {
+        number = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER)) + "/" + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT)) + " ";
+      }
+      else {
+        number = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER)) + " ";
+      }
+    }
+    
     if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
-      episode.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)));
+      if(c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL))) {
+        episode.setText(number + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)));
+      }
+      else {
+        episode.setText(number + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)) + "/" + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL)));
+      }
+    }
+    else if(number.trim().length() > 0) {
+      episode.setText(number);
     }
     else {
       episode.setVisibility(View.GONE);
