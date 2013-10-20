@@ -25,6 +25,9 @@ public class SettingConstants {
   public static final String SPONSORING_DATE = "SPONSORING_DATE";
   
   public static final String TERMS_ACCEPTED = "TERMS_ACCEPTED";
+  
+  public static final String PROG_TABLE_ACTIVATED = "PROG_TABLE_ACTIVATED";
+  public static final String LOAD_FULL_DATA = "LOAD_FULL_DATA";
     
   public static final HashMap<String, Integer> MARK_COLOR_MAP = new HashMap<String, Integer>();
   

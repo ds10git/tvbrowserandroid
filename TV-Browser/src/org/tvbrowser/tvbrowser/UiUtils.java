@@ -62,6 +62,7 @@ public class UiUtils {
     TextView info = (TextView)layout.findViewById(R.id.detail_info);
     TextView episode = (TextView)layout.findViewById(R.id.detail_episode_title);
     TextView shortDescription = (TextView)layout.findViewById(R.id.detail_short_description);
+    TextView description = (TextView)layout.findViewById(R.id.detail_description);
     
     Date start = new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
     SimpleDateFormat day = new SimpleDateFormat("EEE",Locale.getDefault());
@@ -125,11 +126,29 @@ public class UiUtils {
       episode.setVisibility(View.GONE);
     }
     
+    String shortDescriptionValue = null;
+    String descriptionValue = null;
+    
     if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
-      shortDescription.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION)));
+      shortDescriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
+    }
+    
+    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION))) {
+      descriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
+    }
+    
+    if(shortDescriptionValue == null || (descriptionValue != null && descriptionValue.startsWith(shortDescriptionValue))) {
+      shortDescription.setVisibility(View.GONE);
     }
     else {
-      shortDescription.setVisibility(View.GONE);
+      shortDescription.setText(shortDescriptionValue);
+    }
+    
+    if(descriptionValue != null) {
+      description.setText(descriptionValue);
+    }
+    else {
+      description.setVisibility(View.GONE);
     }
     
     c.close();

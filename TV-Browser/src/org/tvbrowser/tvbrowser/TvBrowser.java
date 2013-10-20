@@ -36,6 +36,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.provider.Contacts.SettingsColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -66,7 +67,6 @@ import android.widget.Toast;
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
   private static final String TAG = "TVB";
-  private static final String PROG_TABLE_ACTIVATED = "PROG_TABLE_ACTIVATED";
   
   /**
    * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -839,12 +839,20 @@ public class TvBrowser extends FragmentActivity implements
       case R.id.action_load_channels_again: selectChannels(true);break;
       case R.id.action_select_channels: selectChannels(false);break;
       case R.id.action_sort_channels: sortChannels();break;
+      case R.id.action_load_full_data:
+      {
+        item.setChecked(!item.isChecked());
+        Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+        edit.putBoolean(SettingConstants.LOAD_FULL_DATA, item.isChecked());
+        edit.commit();
+      }
+        break;
       case R.id.action_delete_all_data: getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.KEY_ID + " > 0", null);
                                         getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.KEY_ID + " > 0", null);
                                         break;
       case R.id.action_program_table_activated: item.setChecked(!item.isChecked());
                                                 Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-                                                edit.putBoolean(PROG_TABLE_ACTIVATED, item.isChecked());
+                                                edit.putBoolean(SettingConstants.PROG_TABLE_ACTIVATED, item.isChecked());
                                                 edit.commit();
                                                 
                                                 if(!item.isChecked()) {
@@ -883,7 +891,11 @@ public class TvBrowser extends FragmentActivity implements
     
     MenuItem item = menu.findItem(R.id.action_program_table_activated);
     
-    item.setChecked(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(PROG_TABLE_ACTIVATED, true));
+    item.setChecked(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.PROG_TABLE_ACTIVATED, true));
+    
+    item = menu.findItem(R.id.action_load_full_data);
+    
+    item.setChecked(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.LOAD_FULL_DATA, false));
     
     return true;
   }
@@ -944,7 +956,7 @@ public class TvBrowser extends FragmentActivity implements
     @Override
     public int getCount() {
       // Show 3 total pages.
-      if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(PROG_TABLE_ACTIVATED, true)) {
+      if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.PROG_TABLE_ACTIVATED, true)) {
         return 4;
       }
       
