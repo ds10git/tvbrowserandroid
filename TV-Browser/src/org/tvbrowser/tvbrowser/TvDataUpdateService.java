@@ -898,7 +898,7 @@ public class TvDataUpdateService extends Service {
               Log.d("testdata", updateFile.getAbsolutePath() + " " + update.getUrl());
               
               IOUtils.saveUrl(updateFile.getAbsolutePath(), update.getUrl());
-              updateData(updateFile, update);
+              updateData(updateFile, update, true);
               mCurrentDownloadCount++;
               mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
               notification.notify(mNotifyID, mBuilder.build());
@@ -916,7 +916,7 @@ public class TvDataUpdateService extends Service {
             
             try {
               IOUtils.saveUrl(updateFile.getAbsolutePath(), update.getUrl());
-              updateData(updateFile, update);
+              updateData(updateFile, update, false);
               mCurrentDownloadCount++;
               mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
               notification.notify(mNotifyID, mBuilder.build());
@@ -1077,13 +1077,9 @@ public class TvDataUpdateService extends Service {
     return summary;
   }
   
-  private void updateData(File dataFile, ChannelUpdate update) {
-    Log.d("MIRR", dataFile.toString() + " " + dataFile.isFile());
+  private void updateData(File dataFile, ChannelUpdate update, boolean baseLevel) {
     if(dataFile.isFile()) {
-      Log.d("MIRR", dataFile.toString() + " " + dataFile.isFile());
       try {
-        
-        
         BufferedInputStream in = new BufferedInputStream(new GZIPInputStream(new FileInputStream(dataFile)));
         
         byte fileVersion = (byte)in.read();
@@ -1241,44 +1237,44 @@ public class TvDataUpdateService extends Service {
         
         updateVersionTable(update,dataVersion);
         
-        StringBuilder where = new StringBuilder();
-        
-        for(Integer id : missingFrameIDs) {
-          if(id.intValue() > maxFrameID) {
-            break;
-          }
-          else {
-            if(where.length() > 0) {
-              where.append(" OR ");
+        if(baseLevel) {
+          StringBuilder where = new StringBuilder();
+          
+          for(Integer id : missingFrameIDs) {
+            if(id.intValue() > maxFrameID) {
+              break;
             }
             else {
+              if(where.length() > 0) {
+                where.append(" OR ");
+              }
+              else {
+                where.append(" ( ");
+              }
+              
               where.append(" ( ");
+              where.append(TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID);
+              where.append(" = ");
+              where.append(id);
+              where.append(" ) ");
             }
-            
-            where.append(" ( ");
-            where.append(TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID);
-            where.append(" = ");
-            where.append(id);
-            where.append(" ) ");
           }
-        }
-        
-        if(where.length() > 0) {
-          where.append(" ) AND ");
-          where.append(" ( ");
-          where.append(TvBrowserContentProvider.DATA_KEY_UNIX_DATE);
-          where.append(" = ");
-          where.append(update.getDate());
-          where.append(" ) AND ( ");
-          where.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-          where.append(" = ");
-          where.append(update.getChannelID());
-          where.append(" ) ");
           
-          Log.d(TAG, " Delete where clause " + where);
-          
-          int count = getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, where.toString(), null);
-          Log.d(TAG, " Number of deleted programs " + count + " " + update.getUrl());
+          if(where.length() > 0) {
+            where.append(" ) AND ");
+            where.append(" ( ");
+            where.append(TvBrowserContentProvider.DATA_KEY_UNIX_DATE);
+            where.append(" = ");
+            where.append(update.getDate());
+            where.append(" ) AND ( ");
+            where.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+            where.append(" = ");
+            where.append(update.getChannelID());
+            where.append(" ) ");
+                        
+            int count = getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, where.toString(), null);
+            Log.d(TAG, " Number of deleted programs " + count + " " + update.getUrl());
+          }
         }
         
         in.close();
