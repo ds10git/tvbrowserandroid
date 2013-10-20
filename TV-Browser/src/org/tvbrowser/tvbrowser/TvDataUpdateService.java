@@ -31,17 +31,13 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.annotation.SuppressLint;
-import android.app.DownloadManager;
 import android.app.NotificationManager;
 import android.app.Service;
-import android.app.DownloadManager.Request;
-import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.net.Uri;
@@ -62,10 +58,7 @@ public class TvDataUpdateService extends Service {
   public static final String TYPE = "TYPE";
   public static final int TV_DATA_TYPE = 1;
   public static final int CHANNEL_TYPE = 2;
-  
-  private IntentFilter filter = new IntentFilter(DownloadManager.ACTION_DOWNLOAD_COMPLETE);
-  
-  private HashMap<Long,ChannelUpdate> downloadIDs;
+    
   private boolean updateRunning;
   private ExecutorService mThreadPool;
   private Handler mHandler;
@@ -231,174 +224,137 @@ public class TvDataUpdateService extends Service {
     mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
     notification.notify(mNotifyID, mBuilder.build());
     
-    File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
+    final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
     
     if(!path.isDirectory()) {
       path.mkdirs();
     }
     
-    final DownloadManager download = (DownloadManager)getSystemService(Context.DOWNLOAD_SERVICE);
-    
-    Uri uri = Uri.parse("http://www.tvbrowser.org/listings/groups.txt");
-    
-    DownloadManager.Request request = new Request(uri);
-    request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "tvbrowserdata/groups.txt");
-    
-    final long reference = download.enqueue(request);
-    
-    BroadcastReceiver receiver = new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, android.content.Intent intent) {
-        long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
+    new Thread() {
+      public void run() {
+        File groups = new File(path,"groups.txt");
         
-        if(reference == receiveReference) {
-          unregisterReceiver(this);
-          
-          new Thread() {
-            public void run() {
-              updateGroups(download,reference);
-            }
-          }.start();
-        }
-      };
-    };
-    
-    registerReceiver(receiver, filter);
+        try {
+          IOUtils.saveUrl(groups.getAbsolutePath(), "http://www.tvbrowser.org/listings/groups.txt");
+          updateGroups(groups, path);
+        } catch (Exception e) {}
+      }
+    }.start();
   }
   
-  private void updateGroups(final DownloadManager download, long reference) {
-    final ArrayList<GroupInfo> channelMirrors = new ArrayList<GroupInfo>();
-    
-    try {
-      BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(download.openDownloadedFile(reference).getFileDescriptor())));
+  private void updateGroups(File groups, final File path) {
+    if(groups.isFile()) {
+      final ArrayList<GroupInfo> channelMirrors = new ArrayList<GroupInfo>();
       
-      ContentResolver cr = getContentResolver();
-
-      String line = null;
-      
-      while((line = in.readLine()) != null) {
-        String[] parts = line.split(";");
+      try {
+        BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(groups)));
         
-        // Construct a where clause to make sure we don't already have ths group in the provider.
-        String w = TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = '" + SettingConstants.EPG_FREE_KEY + "' AND " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = '" + parts[0] + "'";
+        ContentResolver cr = getContentResolver();
+  
+        String line = null;
         
-        // If the group is new, insert it into the provider.
-        Cursor query = cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, w, null, null);
-        
-        ContentValues values = new ContentValues();
-        
-        values.put(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID, SettingConstants.EPG_FREE_KEY);
-        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_ID, parts[0]);
-        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME, parts[1]);
-        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER, parts[2]);
-        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION, parts[3]);
-        
-        StringBuilder builder = new StringBuilder(parts[4]);
-        
-        for(int i = 5; i < parts.length; i++) {
-          builder.append(";");
-          builder.append(parts[i]);
-        }
-        
-        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, builder.toString());
-        
-        
-        
-        if(query == null || query.getCount() == 0) {
-          // The group is not already known, so insert it
-          Uri insert = cr.insert(TvBrowserContentProvider.CONTENT_URI_GROUPS, values);
+        while((line = in.readLine()) != null) {
+          Log.d("infoa", line);
+          String[] parts = line.split(";");
           
-          GroupInfo test = loadChannelForGroup(download, cr.query(insert, null, null, null, null));
-          Log.d(TAG, " GROUPINFO " + String.valueOf(test));
-          if(test != null) {
-            channelMirrors.add(test);
-          }
-        }
-        else {
-          cr.update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, w, null);
+          // Construct a where clause to make sure we don't already have ths group in the provider.
+          String w = TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = '" + SettingConstants.EPG_FREE_KEY + "' AND " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = '" + parts[0] + "'";
           
-          Cursor groupTest = cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, w, null, null);
+          // If the group is new, insert it into the provider.
+          Cursor query = cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, w, null, null);
           
-          GroupInfo test = loadChannelForGroup(download, groupTest);
-          Log.d(TAG, " GROUPINFO " + String.valueOf(test));
-          if(test != null) {
-            channelMirrors.add(test);
+          ContentValues values = new ContentValues();
+          
+          values.put(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID, SettingConstants.EPG_FREE_KEY);
+          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_ID, parts[0]);
+          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME, parts[1]);
+          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER, parts[2]);
+          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION, parts[3]);
+          
+          StringBuilder builder = new StringBuilder(parts[4]);
+          
+          for(int i = 5; i < parts.length; i++) {
+            builder.append(";");
+            builder.append(parts[i]);
           }
           
-          groupTest.close();
+          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, builder.toString());
           
-        }
-        
-        query.close();
-      }
-      
-      in.close();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      Log.d(TAG, "EXCEPTION", e);
-    }
-    
-    Log.d(TAG, String.valueOf(channelMirrors.isEmpty()));
-    if(!channelMirrors.isEmpty()) {
-      mThreadPool =  Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
-      
-      final HashMap<Long,GroupInfo> requestIDMap = new HashMap<Long, TvDataUpdateService.GroupInfo>(); 
-      
-      BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, android.content.Intent intent) {
-          long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
           
-          if(requestIDMap.containsKey(Long.valueOf(receiveReference))) {
-            final GroupInfo info = requestIDMap.remove(Long.valueOf(receiveReference));
-            final long requestId = receiveReference;
+          
+          if(query == null || query.getCount() == 0) {
+            // The group is not already known, so insert it
+            Uri insert = cr.insert(TvBrowserContentProvider.CONTENT_URI_GROUPS, values);
             
-            mThreadPool.execute(new Thread() {
-              public void run() {
-                addChannels(download,requestId,info);//requestId,keyID,groupId);
-              }
-            });
+            GroupInfo test = loadChannelForGroup(cr.query(insert, null, null, null, null));
+            Log.d(TAG, " GROUPINFO " + String.valueOf(test));
+            if(test != null) {
+              channelMirrors.add(test);
+            }
+          }
+          else {
+            cr.update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, w, null);
+            
+            Cursor groupTest = cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, w, null, null);
+            
+            GroupInfo test = loadChannelForGroup(groupTest);
+            Log.d(TAG, " GROUPINFO " + String.valueOf(test));
+            if(test != null) {
+              channelMirrors.add(test);
+            }
+            
+            groupTest.close();
+            
           }
           
-          if(requestIDMap.isEmpty()) {
-            unregisterReceiver(this);
-            new Thread() {
-              public void run() {
-                mThreadPool.shutdown();
-                try {
-                  Log.d("info", "await termination for channels");
-                  mThreadPool.awaitTermination(10, TimeUnit.MINUTES);
-                } catch (InterruptedException e) {
-                  // TODO Auto-generated catch block
-                  e.printStackTrace();
-                }
-                NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-                notification.cancel(mNotifyID);
-
-                LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE));
-                stopSelf();
-              }
-            }.start();
-          }
-        };
-      };
-      
-      registerReceiver(receiver, filter);
-      
-      for(GroupInfo info : channelMirrors) {
-        Log.d(TAG, info.getUrl());
-        Request request = new Request(Uri.parse(info.getUrl()));
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "tvbrowserdata" + info.getUrl().substring(info.getUrl().lastIndexOf("/")));
-        long id = download.enqueue(request);
+          query.close();
+        }
         
-        requestIDMap.put(Long.valueOf(id), info);
+        in.close();
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        Log.d(TAG, "EXCEPTION", e);
+      }
+      
+      Log.d(TAG, String.valueOf(channelMirrors.isEmpty()));
+      if(!channelMirrors.isEmpty()) {
+        mThreadPool =  Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
+                
+        for(final GroupInfo info : channelMirrors) {
+          mThreadPool.execute(new Thread() {
+            public void run() {
+              File group = new File(path,info.getUrl().substring(info.getUrl().lastIndexOf("/")+1));
+              Log.d("infoa", group.getAbsolutePath());
+              try {
+                IOUtils.saveUrl(group.getAbsolutePath(), info.getUrl());
+                addChannels(group,info);//requestId,keyID,groupId);
+              } catch (Exception e) {}
+            }
+          });
+        }
+        
+        mThreadPool.shutdown();
+        try {
+          Log.d("info", "await termination for channels");
+          mThreadPool.awaitTermination(10, TimeUnit.MINUTES);
+        } catch (InterruptedException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+        NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+        notification.cancel(mNotifyID);
+
+        LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE));
+        stopSelf();
+      }
+      
+      if(!groups.delete()) {
+        groups.deleteOnExit();
       }
     }
-    
-    download.remove(reference);
   }
   
-  private synchronized GroupInfo loadChannelForGroup(final DownloadManager download, final Cursor cursor) { 
+  private synchronized GroupInfo loadChannelForGroup(final Cursor cursor) { 
     int index = cursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS);
     
     if(index >= 0) {
@@ -432,9 +388,9 @@ public class TvDataUpdateService extends Service {
           return new GroupInfo(mirror+groupId+"_channellist.gz",keyID,groupId);
         }
       }
-      
-      cursor.close();
     }
+    
+    cursor.close();
     
     return null;
   }
@@ -464,94 +420,98 @@ public class TvDataUpdateService extends Service {
   }
   
   // Cursor contains the channel group
-  public void addChannels(DownloadManager download, long reference, GroupInfo info) {
-    try {
-      BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(download.openDownloadedFile(reference).getFileDescriptor())),"ISO-8859-1"));
-      
-      String line = null;
-      
-      while((line = read.readLine()) != null) {
-        String[] parts = line.split(";");
+  public void addChannels(File group, GroupInfo info) {
+    if(group.isFile()) {
+      try {
+        BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(group)),"ISO-8859-1"));
         
-        String baseCountry = parts[0];
-        String timeZone = parts[1];
-        String channelId = parts[2];
-        String name = parts[3];
-        String copyright = parts[4];
-        String website = parts[5];
-        String logoUrl = parts[6];
-        int category = Integer.parseInt(parts[7]);
+        String line = null;
         
-        StringBuilder fullName = new StringBuilder();
-        
-        int i = 8;
-        
-        if(parts.length > i) {
-            do {
-              fullName.append(parts[i]);
-              fullName.append(";");
-            }while(!parts[i++].endsWith("\""));
-            
-            fullName.deleteCharAt(fullName.length()-1);
+        while((line = read.readLine()) != null) {
+          String[] parts = line.split(";");
+          
+          String baseCountry = parts[0];
+          String timeZone = parts[1];
+          String channelId = parts[2];
+          String name = parts[3];
+          String copyright = parts[4];
+          String website = parts[5];
+          String logoUrl = parts[6];
+          int category = Integer.parseInt(parts[7]);
+          
+          StringBuilder fullName = new StringBuilder();
+          
+          int i = 8;
+          
+          if(parts.length > i) {
+              do {
+                fullName.append(parts[i]);
+                fullName.append(";");
+              }while(!parts[i++].endsWith("\""));
+              
+              fullName.deleteCharAt(fullName.length()-1);
+          }
+          
+          if(fullName.length() == 0) {
+            fullName.append(name);
+          }
+          
+          String allCountries = baseCountry;
+          String joinedChannel = "";
+          
+          if(parts.length > i) {
+            allCountries = parts[i++];
+          }
+          
+          if(parts.length > i) {
+            joinedChannel = parts[i];
+          }
+          
+          String where = TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + info.mUniqueGroupID + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = '" + channelId + "'";
+          
+          ContentResolver cr = getContentResolver();
+          
+          Cursor query = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
+          
+          ContentValues values = new ContentValues();
+          
+          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_ID, info.getUniqueGroupID());
+          values.put(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, channelId);
+          values.put(TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY, baseCountry);
+          values.put(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE, timeZone);
+          values.put(TvBrowserContentProvider.CHANNEL_KEY_NAME, name);
+          values.put(TvBrowserContentProvider.CHANNEL_KEY_COPYRIGHT, copyright);
+          values.put(TvBrowserContentProvider.CHANNEL_KEY_WEBSITE, website);
+          values.put(TvBrowserContentProvider.CHANNEL_KEY_LOGO_URL, logoUrl);
+          values.put(TvBrowserContentProvider.CHANNEL_KEY_CATEGORY, category);
+          values.put(TvBrowserContentProvider.CHANNEL_KEY_FULL_NAME, fullName.toString().replaceAll("\"", ""));
+          values.put(TvBrowserContentProvider.CHANNEL_KEY_ALL_COUNTRIES, allCountries);
+          values.put(TvBrowserContentProvider.CHANNEL_KEY_JOINED_CHANNEL_ID, joinedChannel);
+          
+          if(query == null || query.getCount() == 0) {
+            // add channel
+            cr.insert(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values);
+          }
+          else {
+            // update channel
+            cr.update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, where, null);
+          }
+          
+          query.close();
         }
-        
-        if(fullName.length() == 0) {
-          fullName.append(name);
-        }
-        
-        String allCountries = baseCountry;
-        String joinedChannel = "";
-        
-        if(parts.length > i) {
-          allCountries = parts[i++];
-        }
-        
-        if(parts.length > i) {
-          joinedChannel = parts[i];
-        }
-        
-        String where = TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + info.mUniqueGroupID + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = '" + channelId + "'";
-        
-        ContentResolver cr = getContentResolver();
-        
-        Cursor query = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
-        
-        ContentValues values = new ContentValues();
-        
-        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_ID, info.getUniqueGroupID());
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, channelId);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY, baseCountry);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE, timeZone);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_NAME, name);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_COPYRIGHT, copyright);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_WEBSITE, website);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_LOGO_URL, logoUrl);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_CATEGORY, category);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_FULL_NAME, fullName.toString().replaceAll("\"", ""));
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_ALL_COUNTRIES, allCountries);
-        values.put(TvBrowserContentProvider.CHANNEL_KEY_JOINED_CHANNEL_ID, joinedChannel);
-        
-        if(query == null || query.getCount() == 0) {
-          // add channel
-          cr.insert(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values);
-        }
-        else {
-          // update channel
-          cr.update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, where, null);
-        }
-        
-        query.close();
+        read.close();
+      } catch (FileNotFoundException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
       }
-      read.close();
-    } catch (FileNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      
+      if(!group.delete()) {
+        group.deleteOnExit();
+      }
     }
-    
-    download.remove(reference);
   }
 
   private boolean isConnectedToServer(String url, int timeout) {
@@ -659,7 +619,11 @@ public class TvDataUpdateService extends Service {
         if(end == 0) {
           long nextStart = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
           
-          if(((nextStart - meStart) < (12 * 60 * 60000)) && c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) == channelKey) {
+          if(c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) == channelKey) {
+            if(((nextStart - meStart) >= (12 * 60 * 60000))) {
+              nextStart = meStart + (long)(2.5 * 60 * 60000);
+            }
+            
             ContentValues values = new ContentValues();
             values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, nextStart);
             
@@ -737,7 +701,7 @@ public class TvDataUpdateService extends Service {
   
   private void updateTvData() {
     if(!updateRunning) {
-      File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
+      final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
       
       if(!path.isDirectory()) {
         path.mkdirs();
@@ -760,7 +724,9 @@ public class TvDataUpdateService extends Service {
       StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
       where.append(" = 1");
       
-      final ArrayList<ChannelUpdate> downloadList = new ArrayList<ChannelUpdate>();
+      final ArrayList<ChannelUpdate> baseList = new ArrayList<ChannelUpdate>();
+      final ArrayList<ChannelUpdate> moreList = new ArrayList<ChannelUpdate>();
+      
       ArrayList<String> downloadMirrorList = new ArrayList<String>();
       
       Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
@@ -837,11 +803,9 @@ public class TvDataUpdateService extends Service {
                       versions.moveToFirst();
                     }
                     
-                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    int maxlevel = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.LOAD_FULL_DATA, false) ? 2 : 0;
                     
-                    int maxLevel = pref.getBoolean(SettingConstants.LOAD_FULL_DATA, false) ? 3 : 1;
-                    Log.d("maxlevel", String.valueOf(maxLevel));
-                    for(int level = 0; level < maxLevel; level++) {
+                    for(int level = 0; level <= maxlevel; level++) {
                       int testVersion = 0;
                       
                       if(versions.getCount() > 0) {
@@ -876,8 +840,13 @@ public class TvDataUpdateService extends Service {
                         dateFile.append("_");
                         dateFile.append(SettingConstants.LEVEL_NAMES[level]);
                         dateFile.append("_full.prog.gz");
-                                              
-                        downloadList.add(new ChannelUpdate(dateFile.toString(), channelKey, timeZone, startDate.getTimeInMillis()));
+                        
+                        if(level == 0) {
+                          baseList.add(new ChannelUpdate(dateFile.toString(), channelKey, timeZone, startDate.getTimeInMillis()));
+                        }
+                        else if(level == 1 || level == 2) {
+                          moreList.add(new ChannelUpdate(dateFile.toString(), channelKey, timeZone, startDate.getTimeInMillis()));
+                        }
                      //   Log.d(TAG, " DOWNLOADS " + dateFile.toString());
                       }
                     }
@@ -896,150 +865,120 @@ public class TvDataUpdateService extends Service {
       
       channelCursor.close();
       
-      final DownloadManager download = (DownloadManager)getSystemService(DOWNLOAD_SERVICE);
-      
-      final int downloadCount = downloadMirrorList.size() + downloadList.size();
-      
-      final HashMap<Long, String> mirrorIDs = new HashMap<Long, String>();
-      downloadIDs = new HashMap<Long,ChannelUpdate>();
-      
-      final HashMap<Long, ChannelUpdate> moreIDs = new HashMap<Long, ChannelUpdate>();
+      final int downloadCount = downloadMirrorList.size() + baseList.size() + moreList.size();
       
       mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
-      Log.d("info", " length " + String.valueOf(downloadList.size()));
-      BroadcastReceiver receiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, android.content.Intent intent) {
-          final long receiveReference = intent.getLongExtra(DownloadManager.EXTRA_DOWNLOAD_ID, -1);
-          
-          if(downloadIDs.containsKey(Long.valueOf(receiveReference))) {
-            final ChannelUpdate update = downloadIDs.remove(Long.valueOf(receiveReference));
-            
-            Log.d("info", "DOWNLOADED: " + receiveReference + " : channel update "+ update.getUrl() + " " + download.getUriForDownloadedFile(receiveReference).getPath() + " " + new File(download.getUriForDownloadedFile(receiveReference).getPath()).isFile());
-            
-            if(update.getUrl().contains("_more")) {
-              moreIDs.put(Long.valueOf(receiveReference), update);
-            }
-            else {
-              mThreadPool.execute(new Thread() {
-                public void run() {
-                  updateData(download,receiveReference, update);
-                  mCurrentDownloadCount++;
-                  mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-                  notification.notify(mNotifyID, mBuilder.build());
-                }
-              });
-            }
-          }
-          else if(mirrorIDs.containsKey(Long.valueOf(receiveReference))) {
-            updateMirror(download,receiveReference);
-          }
-          //Log.d("info", String.valueOf(downloadIDs.isEmpty()));
-          if(downloadIDs.isEmpty() && downloadList.isEmpty()) {
-            new Thread() {
-              public void run() {
-                if(!moreIDs.isEmpty()) {
-                  Long[] keys = moreIDs.keySet().toArray(new Long[moreIDs.keySet().size()]);
-                  
-                  for(final Long key : keys) { 
-                    final ChannelUpdate update = moreIDs.remove(key);
-                    
-                    mThreadPool.execute(new Thread() {
-                      public void run() {
-                        updateData(download, key, update);
-                        mCurrentDownloadCount++;
-                        mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-                        notification.notify(mNotifyID, mBuilder.build());
-                      }
-                    });
-                  }
-                }
-                
-                mThreadPool.shutdown();
-                try {
-                  Log.d("info", "await termination");
-                  mThreadPool.awaitTermination(10, TimeUnit.MINUTES);
-                } catch (InterruptedException e) {
-                  // TODO Auto-generated catch block
-                  Log.d("info", " term ", e);
-                }
-                Log.d("info", "calculate missing length");
-                mBuilder.setProgress(100, 0, true);
-                notification.notify(mNotifyID, mBuilder.build());
-                calculateMissingEnds();
-              }
-            }.start();
-            
-            unregisterReceiver(this);
-          }
-        };
-      };
-      
-      registerReceiver(receiver, filter);
+      Log.d("info", " length " + String.valueOf(baseList.size()));
       
       mBuilder.setProgress(downloadCount, 0, false);
       notification.notify(mNotifyID, mBuilder.build());
       
-      for(String mirror : downloadMirrorList) {
-        Request request = new Request(Uri.parse(mirror));
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "tvbrowserdata" + mirror.substring(mirror.lastIndexOf("/")));
-        Log.d("MIRR", mirror);
-        long id = download.enqueue(request);
-        mirrorIDs.put(id, mirror);
+      for(final String mirror : downloadMirrorList) {
+        final File mirrorFile = new File(path,mirror.substring(mirror.lastIndexOf("/")+1));
+        
+        mThreadPool.execute(new Thread() {
+          public void run() {
+            try {
+              IOUtils.saveUrl(mirrorFile.getAbsolutePath(), mirror);
+              updateMirror(mirrorFile);
+              mCurrentDownloadCount++;
+              mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+              notification.notify(mNotifyID, mBuilder.build());
+            } catch (Exception e) {}
+          }
+        });
       }
       
-      for(int i = downloadList.size()-1; i >= 0; i--) {
-        ChannelUpdate data = downloadList.get(i);
-        Request request = new Request(Uri.parse(data.getUrl()));
-        request.setDestinationInExternalPublicDir(Environment.DIRECTORY_DOWNLOADS, "tvbrowserdata" + data.getUrl().substring(data.getUrl().lastIndexOf("/")));
-        
-        long id = download.enqueue(request);
-        Log.d("info", " DOWNLOAD ID " + id + " : " + data.getUrl());
-        downloadIDs.put(id,data);
-        downloadList.remove(i);
+      for(final ChannelUpdate update : baseList) {
+        mThreadPool.execute(new Thread() {
+          public void run() {
+            File updateFile = new File(path,update.getUrl().substring(update.getUrl().lastIndexOf("/")+1));
+            
+            try {
+              Log.d("testdata", updateFile.getAbsolutePath() + " " + update.getUrl());
+              
+              IOUtils.saveUrl(updateFile.getAbsolutePath(), update.getUrl());
+              updateData(updateFile, update);
+              mCurrentDownloadCount++;
+              mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+              notification.notify(mNotifyID, mBuilder.build());
+            } catch (Exception e) {
+              Log.d("testdata","",e);
+            }
+          }
+        });
       }
+      
+      for(final ChannelUpdate update : moreList) {
+        mThreadPool.execute(new Thread() {
+          public void run() {
+            File updateFile = new File(path,update.getUrl().substring(update.getUrl().lastIndexOf("/")+1));
+            
+            try {
+              IOUtils.saveUrl(updateFile.getAbsolutePath(), update.getUrl());
+              updateData(updateFile, update);
+              mCurrentDownloadCount++;
+              mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+              notification.notify(mNotifyID, mBuilder.build());
+            } catch (Exception e) {}
+          }
+        });
+      }
+      
+      mThreadPool.shutdown();
+      
+      try {
+        Log.d("info", "await termination");
+        int waitTime = mDaysToLoad * 4;
+        mThreadPool.awaitTermination(moreList.isEmpty() ? waitTime : 2 * waitTime, TimeUnit.MINUTES);
+      } catch (InterruptedException e) {
+        // TODO Auto-generated catch block
+        Log.d("info", " term ", e);
+      }
+      
+      Log.d("info", "calculate missing length");
+      mBuilder.setProgress(100, 0, true);
+      notification.notify(mNotifyID, mBuilder.build());
+      calculateMissingEnds();
     }
   }
   
-  private void updateMirror(DownloadManager download, long reference) {
-    Uri uri = download.getUriForDownloadedFile(reference);
-    
-    if(uri != null) {
-      File mirrorFile = new File(uri.getPath());
-      
-      if(mirrorFile.isFile()) {
-        try {
-          BufferedReader in = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(mirrorFile))));
-          
-          StringBuilder mirrors = new StringBuilder();
-          
-          String line = null;
-          
-          while((line = in.readLine()) != null) {
-            line = line.replace(";", "#");
-            mirrors.append(line);
-            mirrors.append(";");
-          }
-          
-          if(mirrors.length() > 0) {
-            mirrors.deleteCharAt(mirrors.length()-1);
-          }
-          
-          ContentValues values = new ContentValues();
-          
-          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, mirrors.toString());
-          Log.d("MIRR", mirrors.toString() + " " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + mirrorFile.getName().substring(0, mirrorFile.getName().lastIndexOf("_")));
-          getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + mirrorFile.getName().substring(0, mirrorFile.getName().lastIndexOf("_"))+"\"", null);
-        } catch (FileNotFoundException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        } catch (IOException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
+  private void updateMirror(File mirrorFile) {
+    if(mirrorFile.isFile()) {
+      try {
+        BufferedReader in = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(mirrorFile))));
+        
+        StringBuilder mirrors = new StringBuilder();
+        
+        String line = null;
+        
+        while((line = in.readLine()) != null) {
+          line = line.replace(";", "#");
+          mirrors.append(line);
+          mirrors.append(";");
         }
+        
+        if(mirrors.length() > 0) {
+          mirrors.deleteCharAt(mirrors.length()-1);
+        }
+        
+        ContentValues values = new ContentValues();
+        
+        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, mirrors.toString());
+        Log.d("MIRR", mirrors.toString() + " " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + mirrorFile.getName().substring(0, mirrorFile.getName().lastIndexOf("_")));
+        getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + mirrorFile.getName().substring(0, mirrorFile.getName().lastIndexOf("_"))+"\"", null);
+      } catch (FileNotFoundException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      
+      if(!mirrorFile.delete()) {
+        mirrorFile.deleteOnExit();
       }
     }
-    download.remove(reference);
   }
   
   private Summary readSummary(final String summaryurl) {
@@ -1138,11 +1077,9 @@ public class TvDataUpdateService extends Service {
     return summary;
   }
   
-  private void updateData(DownloadManager download, long reference, ChannelUpdate update) {
-    Uri uri = download.getUriForDownloadedFile(reference);
-    
-    if(uri != null) {
-      File dataFile = new File(uri.getPath());
+  private void updateData(File dataFile, ChannelUpdate update) {
+    Log.d("MIRR", dataFile.toString() + " " + dataFile.isFile());
+    if(dataFile.isFile()) {
       Log.d("MIRR", dataFile.toString() + " " + dataFile.isFile());
       try {
         
@@ -1275,7 +1212,7 @@ public class TvDataUpdateService extends Service {
             data = null;
           }
           
-          if(values.get(TvBrowserContentProvider.DATA_KEY_ENDTIME) == null) {
+          if(values.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME) && !values.containsKey(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
             values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, 0);
           }
           
@@ -1285,7 +1222,7 @@ public class TvDataUpdateService extends Service {
             // program known update it
             getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, values, where, null);
           }
-          else {
+          else if(values.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
             long startTime = values.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
             
             Calendar cal = Calendar.getInstance();
@@ -1349,9 +1286,11 @@ public class TvDataUpdateService extends Service {
         // TODO Auto-generated catch block
         Log.d("info", "UPDATE_DATA", e);
       }
+      
+      if(!dataFile.delete()) {
+        dataFile.deleteOnExit();
+      }
     }
-    
-    download.remove(reference);
   }
   
   private void updateVersionTable(ChannelUpdate update, int dataVersion) {

@@ -1,5 +1,15 @@
 package org.tvbrowser.tvbrowser;
 
+import java.io.BufferedInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLConnection;
+
+import org.apache.http.HttpInetConnection;
+import org.apache.http.client.methods.HttpOptions;
+
 import android.content.res.Resources;
 
 /**
@@ -72,4 +82,36 @@ public class IOUtils {
     
     return infoString.toString().trim();
   }
+  
+  public static void saveUrl(String filename, String urlString) throws MalformedURLException, IOException {
+        BufferedInputStream in = null;
+        FileOutputStream fout = null;
+        try
+        {
+            URLConnection connection;
+          
+            connection = new URL(urlString).openConnection();
+            
+            if(filename.toLowerCase().endsWith(".gz")) {
+              connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
+            }
+            
+            in = new BufferedInputStream(connection.getInputStream());
+            fout = new FileOutputStream(filename);
+
+            byte data[] = new byte[1024];
+            int count;
+            while ((count = in.read(data, 0, 1024)) != -1)
+            {
+                fout.write(data, 0, count);
+            }
+        }
+        finally
+        {
+            if (in != null)
+                in.close();
+            if (fout != null)
+                fout.close();
+        }
+    }
 }
