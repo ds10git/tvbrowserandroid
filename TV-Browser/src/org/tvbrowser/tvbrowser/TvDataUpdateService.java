@@ -837,7 +837,11 @@ public class TvDataUpdateService extends Service {
                       versions.moveToFirst();
                     }
                     
-                    for(int level = 0; level < 1; level++) {
+                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                    
+                    int maxLevel = pref.getBoolean(SettingConstants.LOAD_FULL_DATA, false) ? 3 : 1;
+                    Log.d("maxlevel", String.valueOf(maxLevel));
+                    for(int level = 0; level < maxLevel; level++) {
                       int testVersion = 0;
                       
                       if(versions.getCount() > 0) {
@@ -898,6 +902,9 @@ public class TvDataUpdateService extends Service {
       
       final HashMap<Long, String> mirrorIDs = new HashMap<Long, String>();
       downloadIDs = new HashMap<Long,ChannelUpdate>();
+      
+      final HashMap<Long, ChannelUpdate> moreIDs = new HashMap<Long, ChannelUpdate>();
+      
       mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
       Log.d("info", " length " + String.valueOf(downloadList.size()));
       BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -909,14 +916,20 @@ public class TvDataUpdateService extends Service {
             final ChannelUpdate update = downloadIDs.remove(Long.valueOf(receiveReference));
             
             Log.d("info", "DOWNLOADED: " + receiveReference + " : channel update "+ update.getUrl() + " " + download.getUriForDownloadedFile(receiveReference).getPath() + " " + new File(download.getUriForDownloadedFile(receiveReference).getPath()).isFile());
-            mThreadPool.execute(new Thread() {
-              public void run() {
-                updateData(download,receiveReference, update);
-                mCurrentDownloadCount++;
-                mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-                notification.notify(mNotifyID, mBuilder.build());
-              }
-            });
+            
+            if(update.getUrl().contains("_more")) {
+              moreIDs.put(Long.valueOf(receiveReference), update);
+            }
+            else {
+              mThreadPool.execute(new Thread() {
+                public void run() {
+                  updateData(download,receiveReference, update);
+                  mCurrentDownloadCount++;
+                  mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+                  notification.notify(mNotifyID, mBuilder.build());
+                }
+              });
+            }
           }
           else if(mirrorIDs.containsKey(Long.valueOf(receiveReference))) {
             updateMirror(download,receiveReference);
@@ -925,6 +938,23 @@ public class TvDataUpdateService extends Service {
           if(downloadIDs.isEmpty() && downloadList.isEmpty()) {
             new Thread() {
               public void run() {
+                if(!moreIDs.isEmpty()) {
+                  Long[] keys = moreIDs.keySet().toArray(new Long[moreIDs.keySet().size()]);
+                  
+                  for(final Long key : keys) { 
+                    final ChannelUpdate update = moreIDs.remove(key);
+                    
+                    mThreadPool.execute(new Thread() {
+                      public void run() {
+                        updateData(download, key, update);
+                        mCurrentDownloadCount++;
+                        mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+                        notification.notify(mNotifyID, mBuilder.build());
+                      }
+                    });
+                  }
+                }
+                
                 mThreadPool.shutdown();
                 try {
                   Log.d("info", "await termination");

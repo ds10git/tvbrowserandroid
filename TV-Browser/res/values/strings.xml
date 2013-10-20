@@ -7,6 +7,7 @@
     <string name="action_sort_channels">Sort channels</string>
     <string name="action_delete_all_data">Delete all data</string>
     <string name="action_username_password">Set username and password</string>
+    <string name="action_load_full_data">Downlooad full descriptions</string>
     <string name="username">Username:</string>
     <string name="password">Password:</string>
     <string name="username_hint">Enter your username</string>
