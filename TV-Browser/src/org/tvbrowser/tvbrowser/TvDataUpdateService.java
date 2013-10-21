@@ -1300,6 +1300,12 @@ public class TvDataUpdateService extends Service {
     if(update.getUrl().toLowerCase().contains(SettingConstants.LEVEL_NAMES[0])) {
       values.put(TvBrowserContentProvider.VERSION_KEY_BASE_VERSION,dataVersion);
     }
+    else if(update.getUrl().toLowerCase().contains(SettingConstants.LEVEL_NAMES[1])) {
+      values.put(TvBrowserContentProvider.VERSION_KEY_MORE0016_VERSION,dataVersion);
+    }
+    else if(update.getUrl().toLowerCase().contains(SettingConstants.LEVEL_NAMES[2])) {
+      values.put(TvBrowserContentProvider.VERSION_KEY_MORE1600_VERSION,dataVersion);
+    }    
     
     String where = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + update.getChannelID() + " AND " + TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + " = " + daysSince1970;
     
