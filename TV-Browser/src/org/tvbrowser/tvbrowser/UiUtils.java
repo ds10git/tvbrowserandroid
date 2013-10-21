@@ -34,6 +34,7 @@ import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -63,6 +64,8 @@ public class UiUtils {
     TextView episode = (TextView)layout.findViewById(R.id.detail_episode_title);
     TextView shortDescription = (TextView)layout.findViewById(R.id.detail_short_description);
     TextView description = (TextView)layout.findViewById(R.id.detail_description);
+    TextView actors = (TextView)layout.findViewById(R.id.detail_actors);
+    TextView link = (TextView)layout.findViewById(R.id.detail_link);
     
     Date start = new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
     SimpleDateFormat day = new SimpleDateFormat("EEE",Locale.getDefault());
@@ -77,6 +80,20 @@ public class UiUtils {
     
     channel.close();
     
+    String year = "";
+        
+    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN))) {
+      year = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN));
+    }
+    
+    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR))) {
+      if(year.length() > 0) {
+        year += " ";
+      }
+      
+      year += c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR));
+    }
+    
     if(c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL))) {
       title.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
     }
@@ -85,7 +102,10 @@ public class UiUtils {
     }
     
     if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
-      genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)));
+      genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) + " - " + year);
+    }
+    else if(year.length() > 0) {
+      genre.setText(year);
     }
     else {
       genre.setVisibility(View.GONE);
@@ -151,8 +171,24 @@ public class UiUtils {
       description.setVisibility(View.GONE);
     }
     
+    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK))) {
+      String linkText = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK));
+      link.setText(linkText);
+      link.setMovementMethod(LinkMovementMethod.getInstance());
+    }
+    else {
+      link.setVisibility(View.GONE);
+    }
+    
+    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ACTORS))) {
+      actors.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ACTORS)));
+    }
+    else {
+      actors.setVisibility(View.GONE);
+    }
+    
     c.close();
-        
+    
     builder.setView(layout);
     builder.show();
   }

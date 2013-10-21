@@ -42,5 +42,18 @@
 	        android:layout_height="wrap_content"
 	        android:textSize="16sp"
 	        android:layout_below="@id/detail_short_description"/>
+	    <TextView android:id="@+id/detail_actors"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:textSize="16sp"
+	        android:layout_below="@id/detail_description"
+	        android:paddingTop="3dp"/>
+	    <TextView android:id="@+id/detail_link"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:autoLink="web"
+	        android:textSize="16sp"
+	        android:layout_below="@id/detail_actors"
+	        android:paddingTop="3dp"/>
 	</RelativeLayout>
 </ScrollView>
