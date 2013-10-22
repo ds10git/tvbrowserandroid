@@ -225,9 +225,16 @@ public class TvDataUpdateService extends Service {
     notification.notify(mNotifyID, mBuilder.build());
     
     final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
+    File nomedia = new File(path,".nomedia");
     
     if(!path.isDirectory()) {
       path.mkdirs();
+    }
+    
+    if(!nomedia.isFile()) {
+      try {
+        nomedia.createNewFile();
+      } catch (IOException e) {}
     }
     
     new Thread() {
@@ -587,7 +594,7 @@ public class TvDataUpdateService extends Service {
    */
   private void calculateMissingEnds() {
     NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-    mBuilder.setProgress(100, 0, true);
+    try {mBuilder.setProgress(100, 0, true);
     mBuilder.setContentText(getResources().getText(R.string.update_notification_calculate));
     notification.notify(mNotifyID, mBuilder.build());
     
@@ -620,7 +627,7 @@ public class TvDataUpdateService extends Service {
           long nextStart = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
           
           if(c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) == channelKey) {
-            if(((nextStart - meStart) >= (12 * 60 * 60000))) {
+            if((nextStart - meStart) >= (12 * 60 * 60000)) {
               nextStart = meStart + (long)(2.5 * 60 * 60000);
             }
             
@@ -639,7 +646,9 @@ public class TvDataUpdateService extends Service {
     
     TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
     getApplicationContext().getContentResolver().notifyChange(TvBrowserContentProvider.CONTENT_URI_DATA, null);
-    
+  }catch(Throwable t) {
+    Log.d("dateinfo", "",t);
+  }
     updateFavorites();
     syncFavorites();
     
@@ -680,7 +689,7 @@ public class TvDataUpdateService extends Service {
       if(name.contains("_ard_") || name.contains("_zdf_") || name.contains("_bfs_") || name.contains("_hr_") || name.contains("_mdr-sn_") 
       || name.contains("_mdr_") || name.contains("_mdr-th_") || name.contains("_ndr-hh_") || name.contains("_ndr-mv_") || name.contains("_ndr_")
       || name.contains("_ndr_") || name.contains("_ndr-sh_") || name.contains("_rbbberlin_") || name.contains("_rbbbrandenburg_") || name.contains("_swr_")
-      || name.contains("_swrrp_") || name.contains("_swrsr_") || name.contains("_wdr_") || name.contains("_orf1_") || name.contains("_sfdrs1_")) {
+      || name.contains("_swrrp_") || name.contains("_swrsr_") || name.contains("_wdr_") || name.contains("_orf1_") || name.contains("_sfdrs1_") || name.contains("_kika_")) {
         return 0;
       }
     }
@@ -692,7 +701,7 @@ public class TvDataUpdateService extends Service {
       if(name.contains("_ard_") || name.contains("_zdf_") || name.contains("_bfs_") || name.contains("_hr_") || name.contains("_mdr-sn_") 
       || name.contains("_mdr_") || name.contains("_mdr-th_") || name.contains("_ndr-hh_") || name.contains("_ndr-mv_") || name.contains("_ndr_")
       || name.contains("_ndr_") || name.contains("_ndr-sh_") || name.contains("_rbbberlin_") || name.contains("_rbbbrandenburg_") || name.contains("_swr_")
-      || name.contains("_swrrp_") || name.contains("_swrsr_") || name.contains("_wdr_") || name.contains("_orf1_") || name.contains("_sfdrs1_")) {
+      || name.contains("_swrrp_") || name.contains("_swrsr_") || name.contains("_wdr_") || name.contains("_orf1_") || name.contains("_sfdrs1_") || name.contains("_kika_")) {
         return 24;
       }
     }
@@ -702,9 +711,16 @@ public class TvDataUpdateService extends Service {
   private void updateTvData() {
     if(!updateRunning) {
       final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
+      File nomedia = new File(path,".nomedia");
       
       if(!path.isDirectory()) {
         path.mkdirs();
+      }
+      
+      if(!nomedia.isFile()) {
+        try {
+          nomedia.createNewFile();
+        } catch (IOException e) {}
       }
       
       mCurrentDownloadCount = 0;
@@ -928,14 +944,14 @@ public class TvDataUpdateService extends Service {
       mThreadPool.shutdown();
       
       try {
-        Log.d("info", "await termination");
-        int waitTime = mDaysToLoad * 4;
+        Log.d("info", "await termination " + mDaysToLoad);
+        int waitTime = (mDaysToLoad + 1) * 4;
         mThreadPool.awaitTermination(moreList.isEmpty() ? waitTime : 2 * waitTime, TimeUnit.MINUTES);
       } catch (InterruptedException e) {
         // TODO Auto-generated catch block
         Log.d("info", " term ", e);
       }
-      
+      Log.d("info", "Terminated " + mThreadPool.isTerminated());
       Log.d("info", "calculate missing length");
       mBuilder.setProgress(100, 0, true);
       notification.notify(mNotifyID, mBuilder.build());
@@ -1221,7 +1237,7 @@ public class TvDataUpdateService extends Service {
           else if(values.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
             long startTime = values.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
             
-            Calendar cal = Calendar.getInstance();
+            Calendar cal = Calendar.getInstance(update.getTimeZone());
             cal.setTimeInMillis(startTime);
             
             if(cal.get(Calendar.HOUR_OF_DAY) >= getDayStart(dataFile.getName()) && (cal.get(Calendar.HOUR_OF_DAY) < getDayEnd(dataFile.getName()) || (cal.get(Calendar.HOUR_OF_DAY) == getDayEnd(dataFile.getName()) && cal.get(Calendar.MINUTE) == 0))) {
