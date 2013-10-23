@@ -45,7 +45,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract.DataUsageFeedback;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Base64;
@@ -288,8 +287,6 @@ public class TvDataUpdateService extends Service {
           
           values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, builder.toString());
           
-          
-          
           if(query == null || query.getCount() == 0) {
             // The group is not already known, so insert it
             Uri insert = cr.insert(TvBrowserContentProvider.CONTENT_URI_GROUPS, values);
@@ -495,6 +492,14 @@ public class TvDataUpdateService extends Service {
           values.put(TvBrowserContentProvider.CHANNEL_KEY_FULL_NAME, fullName.toString().replaceAll("\"", ""));
           values.put(TvBrowserContentProvider.CHANNEL_KEY_ALL_COUNTRIES, allCountries);
           values.put(TvBrowserContentProvider.CHANNEL_KEY_JOINED_CHANNEL_ID, joinedChannel);
+          
+          if(logoUrl != null && logoUrl.length() > 0) {
+            try {
+              byte[] blob = IOUtils.loadUrl(logoUrl);
+              
+              values.put(TvBrowserContentProvider.CHANNEL_KEY_LOGO, blob);
+            }catch(Exception e1) {}
+          }
           
           if(query == null || query.getCount() == 0) {
             // add channel

@@ -105,6 +105,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     
     if(button != null) {
       button.setBackgroundResource(android.R.drawable.list_selector_background);
+      button.setPadding(15, 0, 15, 0);
     }
     
     mChannelID = id;

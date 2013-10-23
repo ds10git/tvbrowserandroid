@@ -18,7 +18,10 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
@@ -27,6 +30,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Display;
@@ -284,14 +288,16 @@ public class ProgramTableFragment extends Fragment {
                                   handler.post(new Runnable() {
                                     @Override
                                     public void run() {
-                                      Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
-                                      
-                                      if(c.getCount() > 0) {
-                                        c.moveToFirst();
-                                        UiUtils.handleMarkings(getActivity(), c, progPanel, null);
+                                      if(!isDetached() && mKeepRunning) {
+                                        Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
+                                        
+                                        if(c.getCount() > 0) {
+                                          c.moveToFirst();
+                                          UiUtils.handleMarkings(getActivity(), c, progPanel, null);
+                                        }
+                                        
+                                        c.close();
                                       }
-                                      
-                                      c.close();
                                     }
                                   });
                                 }
@@ -318,7 +324,7 @@ public class ProgramTableFragment extends Fragment {
     };
     mUpdateThread.setPriority(Thread.MIN_PRIORITY);
   }
-      
+  
   public void updateView(LayoutInflater inflater, ViewGroup container) {
     if(mUpdatingRunningPrograms) {
       Thread t = new Thread() {
@@ -366,7 +372,7 @@ public class ProgramTableFragment extends Fragment {
     StringBuilder where3 = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
     where3.append(" = 1");
     
-    Cursor channels = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, where3.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+    Cursor channels = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, where3.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
     
     if(channels.getCount() > 0) {
       channels.moveToFirst();
@@ -390,11 +396,41 @@ public class ProgramTableFragment extends Fragment {
       timeBlockLines[12] = (LinearLayout)programTable.findViewById(R.id.twentyfour_twentysix);
       timeBlockLines[13] = (LinearLayout)programTable.findViewById(R.id.twentysix_twentyeight);
       
+      int columnWidth = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, getResources().getDisplayMetrics());
+      int padding = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics());
+      
       do {
-        String name = channels.getString(1);
+        String name = channels.getString(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
         
         TextView text = (TextView)inflater.inflate(R.layout.channel_label, channelBar,false);
         text.setText(name);
+        
+        if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))) {
+          byte[] logoData = channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+          Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+          BitmapDrawable l = new BitmapDrawable(getResources(), logo);
+          
+          int height = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, getResources().getDisplayMetrics());
+          
+          float percent = height / (float)logo.getHeight(); 
+          
+          if(percent < 1) {
+            l.setBounds(0, 0, (int)(logo.getWidth() * percent), height);
+          }
+          else {
+            l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+          }
+          
+          text.setCompoundDrawables(l, null, null, null);
+          
+          int leftPadding = (int)(columnWidth - (l.getBounds().width() + text.getPaint().measureText(name) + 2 * padding));
+          Log.d("info", "padding " + leftPadding + " " + columnWidth);
+          
+          if(leftPadding > 0) {
+            text.setPadding(leftPadding / 2, 0, leftPadding / 2, 0);
+          }
+        }
+        
         channelBar.addView(text);
 
         channelBar.addView(inflater.inflate(R.layout.separator_line, channelBar, false));

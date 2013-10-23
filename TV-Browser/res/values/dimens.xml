@@ -6,6 +6,8 @@
     <dimen name="title_font_size">16sp</dimen>
     <dimen name="episode_font_size">14sp</dimen>
     <dimen name="genre_font_size">12sp</dimen>
+    <dimen name="picture_desc_font_size">11sp</dimen>
+    <dimen name="picture_copyright_font_size">10sp</dimen>
     <item name="favorite_list_weight" format="float" type="dimen">0.7</item>
     <item name="favorite_program_weight" format="float" type="dimen">0.3</item>
     <item name="expired_tag" format="integer" type="id">1000</item>
