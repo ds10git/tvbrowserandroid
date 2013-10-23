@@ -847,6 +847,14 @@ public class TvBrowser extends FragmentActivity implements
         edit.commit();
       }
         break;
+      case R.id.action_load_picture_data:
+      {
+        item.setChecked(!item.isChecked());
+        Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+        edit.putBoolean(SettingConstants.LOAD_PICTURE_DATA, item.isChecked());
+        edit.commit();
+      }
+        break;
       case R.id.action_delete_all_data: getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.KEY_ID + " > 0", null);
                                         getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.KEY_ID + " > 0", null);
                                         break;
@@ -896,6 +904,10 @@ public class TvBrowser extends FragmentActivity implements
     item = menu.findItem(R.id.action_load_full_data);
     
     item.setChecked(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.LOAD_FULL_DATA, false));
+    
+    item = menu.findItem(R.id.action_load_picture_data);
+    
+    item.setChecked(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.LOAD_PICTURE_DATA, false));
     
     return true;
   }

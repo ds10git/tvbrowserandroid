@@ -21,9 +21,12 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
@@ -67,6 +70,9 @@ public class UiUtils {
     TextView actors = (TextView)layout.findViewById(R.id.detail_actors);
     TextView link = (TextView)layout.findViewById(R.id.detail_link);
     
+    TextView pictureDescription = (TextView)layout.findViewById(R.id.detail_picture_description);
+    TextView pictureCopyright = (TextView)layout.findViewById(R.id.detail_picture_copyright);
+    
     Date start = new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
     SimpleDateFormat day = new SimpleDateFormat("EEE",Locale.getDefault());
     
@@ -99,6 +105,27 @@ public class UiUtils {
     }
     else {
       title.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)) + "/" + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL)));
+    }
+    
+    if(c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)) || c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT))) {
+      pictureCopyright.setVisibility(View.GONE);
+      pictureDescription.setVisibility(View.GONE);
+    }
+    else {
+      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION))) {
+        pictureDescription.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION)));
+      }
+      
+      pictureCopyright.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)));
+      
+      byte[] pictureData = c.getBlob(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE));
+      
+      Bitmap image = BitmapFactory.decodeByteArray(pictureData,0,pictureData.length);
+      
+      BitmapDrawable b = new BitmapDrawable(activity.getResources(),image);
+      b.setBounds(0, 0, (int)(image.getWidth() * 1.4), (int)(image.getHeight() * 1.4));
+      
+      pictureDescription.setCompoundDrawables(b, null, null, null);
     }
     
     if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
