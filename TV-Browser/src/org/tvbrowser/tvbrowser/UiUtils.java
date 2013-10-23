@@ -674,6 +674,10 @@ public class UiUtils {
     
     SimpleDateFormat df = (SimpleDateFormat)java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
     String pattern = df.toLocalizedPattern().replaceAll(".?[Yy].?", "");
+    
+    if(pattern.contains(".")) {
+      pattern += ".";
+    }
       
     SimpleDateFormat mdf = new SimpleDateFormat(pattern);
     

@@ -223,7 +223,7 @@ public class TvDataUpdateService extends Service {
     mBuilder.setContentTitle(getResources().getText(R.string.channel_notification_title));
     mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
     notification.notify(mNotifyID, mBuilder.build());
-    
+    Log.d("info", "updateChannels");
     final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
     File nomedia = new File(path,".nomedia");
     
@@ -240,11 +240,13 @@ public class TvDataUpdateService extends Service {
     new Thread() {
       public void run() {
         File groups = new File(path,"groups.txt");
-        
+        Log.d("info", "file " + groups);
         try {
           IOUtils.saveUrl(groups.getAbsolutePath(), "http://www.tvbrowser.org/listings/groups.txt");
           updateGroups(groups, path);
-        } catch (Exception e) {}
+        } catch (Exception e) {
+          Log.d("info", "", e);
+        }
       }
     }.start();
   }
@@ -500,6 +502,8 @@ public class TvDataUpdateService extends Service {
               values.put(TvBrowserContentProvider.CHANNEL_KEY_LOGO, blob);
             }catch(Exception e1) {}
           }
+          
+          Log.d("info", name);
           
           if(query == null || query.getCount() == 0) {
             // add channel
@@ -859,9 +863,11 @@ public class TvDataUpdateService extends Service {
                         testVersion = versions.getInt(versions.getColumnIndex(versionColumns[level]));
                       }
                       
-                      Log.d("MIRR", testVersion +  " level version " + version[level] + " " + frame.getChannelID() + " " + startDate.getTime() + " " + daysSince1970);
+                      if(version.length > level) {
+                        Log.d("MIRR", testVersion +  " level version " + version[level] + " " + frame.getChannelID() + " " + startDate.getTime() + " " + daysSince1970);
+                      }
                       
-                      if(version[level] > testVersion) {
+                      if(version.length > level && version[level] > testVersion) {
                         String month = String.valueOf(startDate.get(Calendar.MONTH)+1);
                         String day = String.valueOf(startDate.get(Calendar.DAY_OF_MONTH));
                         
