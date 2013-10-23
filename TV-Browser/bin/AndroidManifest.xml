@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.tvbrowser.tvbrowser"
-    android:versionCode="59"
-    android:versionName="0.1.30.0beta" >
+    android:versionCode="60"
+    android:versionName="0.1.30.1beta" >
 
     <uses-sdk
         android:minSdkVersion="11"
