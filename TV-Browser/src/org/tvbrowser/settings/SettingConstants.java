@@ -12,6 +12,7 @@ public class SettingConstants {
   public static final String MARKINGS_CHANGED = "org.tvbrowser.MARKINGS_CHANGED";
   public static final String FAVORITES_CHANGED = "org.tvbrowser.FAVORTES_CHANGED";
   public static final String DATA_UPDATE_DONE = "org.tvbrowser.DATA_UPDATE_DONE";
+  public static final String CHANNEL_UPDATE_DONE = "org.tvbrowser.CHANNEL_UPDATE_DONE";
   public static final String MARKINGS_ID = "MARKINGS_ID";
   public static final String FAVORITE_LIST = "FAVORITE_LIST";
   public static final String MARK_VALUE = "marked";

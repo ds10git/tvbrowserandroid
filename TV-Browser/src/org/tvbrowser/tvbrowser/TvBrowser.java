@@ -247,6 +247,12 @@ public class TvBrowser extends FragmentActivity implements
     ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
   }
   
+  private void updateProgramListChannelBar() {
+    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(TvBrowser.this);
+    
+    localBroadcastManager.sendBroadcast(new Intent(SettingConstants.CHANNEL_UPDATE_DONE));
+  }
+  
   private void syncronizeChannels() {
     new Thread() {
       public void run() {
@@ -318,6 +324,7 @@ public class TvBrowser extends FragmentActivity implements
               handler.post(new Runnable() {
                 @Override
                 public void run() {
+                  updateProgramListChannelBar();
                   Toast.makeText(getApplicationContext(), R.string.synchronize_done, Toast.LENGTH_LONG).show();
                   checkTermsAccepted();
                 }
@@ -432,6 +439,7 @@ public class TvBrowser extends FragmentActivity implements
           }
           
           if(somethingSelected) {
+            updateProgramListChannelBar();
             checkTermsAccepted();
           }
         }

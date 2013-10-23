@@ -1,14 +1,12 @@
 package org.tvbrowser.tvbrowser;
 
 import java.io.BufferedInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
-
-import org.apache.http.HttpInetConnection;
-import org.apache.http.client.methods.HttpOptions;
 
 import android.content.res.Resources;
 
@@ -83,35 +81,51 @@ public class IOUtils {
     return infoString.toString().trim();
   }
   
-  public static void saveUrl(String filename, String urlString) throws MalformedURLException, IOException {
-        BufferedInputStream in = null;
-        FileOutputStream fout = null;
-        try
-        {
-            URLConnection connection;
-          
-            connection = new URL(urlString).openConnection();
-            
-            if(filename.toLowerCase().endsWith(".gz")) {
-              connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
-            }
-            
-            in = new BufferedInputStream(connection.getInputStream());
-            fout = new FileOutputStream(filename);
-
-            byte data[] = new byte[1024];
-            int count;
-            while ((count = in.read(data, 0, 1024)) != -1)
-            {
-                fout.write(data, 0, count);
-            }
-        }
-        finally
-        {
-            if (in != null)
-                in.close();
-            if (fout != null)
-                fout.close();
-        }
+  public static byte[] loadUrl(String urlString) throws MalformedURLException, IOException {
+    BufferedInputStream in = null;
+    ByteArrayOutputStream out = new ByteArrayOutputStream();
+    
+    try {
+      URLConnection connection;
+      
+      connection = new URL(urlString).openConnection();
+      
+      if(urlString.toLowerCase().endsWith(".gz")) {
+        connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
+      }
+      
+      in = new BufferedInputStream(connection.getInputStream());
+      
+      byte temp[] = new byte[1024];
+      int count;
+      
+      while ((count = in.read(temp, 0, 1024)) != -1) {
+        out.write(temp, 0, count);
+      }
+    } 
+    finally {
+      if (in != null) {
+        in.close();
+      }
     }
+
+    return out.toByteArray();
+
+  }
+  
+  public static void saveUrl(String filename, String urlString) throws MalformedURLException, IOException {
+    FileOutputStream fout = null;
+    
+    try {
+      byte[] byteArr = loadUrl(urlString);
+      
+      fout = new FileOutputStream(filename);
+      fout.write(byteArr, 0, byteArr.length);
+    }
+    finally {
+      if (fout != null) {
+        fout.close();
+      }
+    }
+  }
 }

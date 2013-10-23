@@ -78,11 +78,20 @@ public class UiUtils {
     
     long channelID = c.getLong(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
     
-    Cursor channel = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelID), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME}, null, null, null);
+    Cursor channel = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelID), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, null, null, null);
     
     channel.moveToFirst();
     
     date.setText(day.format(start) + " " + java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT).format(start) + " " + DateFormat.getTimeFormat(activity).format(start) + " - " + DateFormat.getTimeFormat(activity)/*.getTimeInstance(java.text.DateFormat.SHORT)*/.format(new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)))) + " " + channel.getString(0));
+    
+    if(!channel.isNull(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))) {
+      byte[] logoData = channel.getBlob(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+      Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+      BitmapDrawable l = new BitmapDrawable(activity.getResources(), logo);
+      l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+      
+      date.setCompoundDrawables(l, null, null, null);
+    }
     
     channel.close();
     
