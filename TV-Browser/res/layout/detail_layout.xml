@@ -11,7 +11,9 @@
 	        android:textColor="@color/detail_date_channel_color"
 	        android:textSize="20sp"
 	        android:drawablePadding="5dp"
-	        android:paddingLeft="1dp"/>
+	        android:gravity="center_vertical"
+	        android:paddingLeft="1dp"
+	        android:paddingTop="1dp"/>
 	    <TextView android:id="@+id/detail_title"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
