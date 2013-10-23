@@ -109,11 +109,18 @@ public class UiUtils {
       year += c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR));
     }
     
-    if(c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL))) {
-      title.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
+    String originalTitle = null;
+    String titleTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
+    
+    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL))) {
+      originalTitle = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL));
+    }
+    
+    if(originalTitle == null || originalTitle.equals(titleTest)) {
+      title.setText(titleTest);
     }
     else {
-      title.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)) + "/" + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL)));
+      title.setText(titleTest + "/" + originalTitle);
     }
     
     if(c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)) || c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT))) {
@@ -167,12 +174,20 @@ public class UiUtils {
       }
     }
     
+    String originalEpisode = null;
+    
+    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL))) {
+      originalEpisode = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL));
+    }
+    
     if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
-      if(c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL))) {
-        episode.setText(number + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)));
+      String episodeTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
+      
+      if(originalEpisode == null || episodeTest.equals(originalEpisode)) {
+        episode.setText(number + episodeTest);
       }
       else {
-        episode.setText(number + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)) + "/" + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL)));
+        episode.setText(number + episodeTest + "/" + originalEpisode);
       }
     }
     else if(number.trim().length() > 0) {
@@ -523,33 +538,12 @@ public class UiUtils {
           draw.add(new ColorDrawable(activity.getResources().getColor(color)));
         }
       }
-      /*
-      else if(value.contains(SettingConstants.MARK_VALUE_CALENDAR)) {
-        draw.add(new ColorDrawable(activity.getResources().getColor(R.color.mark_color_calendar)));
-        //view.setBackgroundResource(R.color.mark_color_calendar);
-      }
-      else if(value.contains(SettingConstants.MARK_VALUE_FAVORITE)) {
-        draw.add(new ColorDrawable(activity.getResources().getColor(R.color.mark_color_favorite)));
-        //view.setBackgroundResource(R.color.mark_color_favorite);
-      }
-      else if(value.contains(SettingConstants.MARK_VALUE_SYNC_FAVORITE)) {
-        draw.add(new ColorDrawable(activity.getResources().getColor(R.color.mark_color_sync_favorite)));
-        //view.setBackgroundResource(R.color.mark_color);
-      }
-      else {
-        draw.add(new ColorDrawable(activity.getResources().getColor(R.color.mark_color)));
-        //view.setBackgroundResource(R.color.mark_color);
-      }*/
     }
     else {
       draw.add(activity.getResources().getDrawable(android.R.drawable.list_selector_background));
     }
     
     view.setBackgroundDrawable(new LayerDrawable(draw.toArray(new Drawable[draw.size()])));
-    /*
-    else {
-      view.setBackgroundResource(android.R.drawable.list_selector_background);
-    }*/
   }
   
   public static void editFavorite(final Favorite fav, final Activity activity, String searchString) {
