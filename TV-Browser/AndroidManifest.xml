@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.tvbrowser.tvbrowser"
-    android:versionCode="61"
-    android:versionName="0.1.30.2beta" >
+    android:versionCode="62"
+    android:versionName="0.1.31.0beta" >
 
     <uses-sdk
         android:minSdkVersion="11"
@@ -48,6 +48,8 @@
             <meta-data android:name="android.app.searchable"
                 android:resource="@xml/searchable"/>
         </activity>
+        <activity android:name="org.tvbrowser.settings.TvbPreferencesActivity"
+            android:label="@string/pref_summary"></activity>
     </application>
 
 </manifest>

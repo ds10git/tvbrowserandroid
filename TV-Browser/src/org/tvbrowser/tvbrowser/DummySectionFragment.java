@@ -8,14 +8,17 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
-import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -80,8 +83,7 @@ public class DummySectionFragment extends Fragment {
         
         IntentFilter channelUpdateFilter = new IntentFilter(SettingConstants.CHANNEL_UPDATE_DONE);
         
-        BroadcastReceiver receiver = new BroadcastReceiver() {
-          
+        final BroadcastReceiver receiver = new BroadcastReceiver() {
           @Override
           public void onReceive(Context context, Intent intent) {
             Button all = (Button)parent.findViewById(R.id.all_channels);
@@ -116,16 +118,24 @@ public class DummySectionFragment extends Fragment {
               all.setTag(Long.valueOf(-1));
               all.setOnClickListener(listener);
               
+              SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+              
+              int logoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST), "0"));
+                            
               do {
+                boolean hasLogo = !channelCursor.isNull(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+                
                 Button channelButton = new Button(getActivity(),null,android.R.attr.buttonBarButtonStyle);
                 channelButton.setTag(channelCursor.getLong(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
                 channelButton.setPadding(15, 0, 15, 0);
                 channelButton.setCompoundDrawablePadding(10);
                 channelButton.setOnClickListener(listener);
                 
-                channelButton.setText(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
+                if(logoValue == 0 || logoValue == 2 || !hasLogo) {
+                  channelButton.setText(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
+                }
                 
-                if(!channelCursor.isNull(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))) {
+                if((logoValue == 0 || logoValue == 1) && hasLogo) {
                   byte[] logoData = channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
                   Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
                   BitmapDrawable l = new BitmapDrawable(getResources(), logo);
@@ -144,7 +154,6 @@ public class DummySectionFragment extends Fragment {
         
         localBroadcastManager.registerReceiver(receiver, channelUpdateFilter);
         receiver.onReceive(null, null);
-        
     }
     else {
       rootView = inflater.inflate(R.layout.fragment_tv_browser_dummy,

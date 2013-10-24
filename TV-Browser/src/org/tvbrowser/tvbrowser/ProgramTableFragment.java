@@ -16,6 +16,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -26,6 +27,7 @@ import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
@@ -57,6 +59,8 @@ public class ProgramTableFragment extends Fragment {
   
   private BroadcastReceiver mDataUpdateReceiver;
   
+  private int mCurrentLogoValue;
+  
   public void scrollToNow() {
     StringBuilder where = new StringBuilder();
     where.append(" (( ");
@@ -78,7 +82,7 @@ public class ProgramTableFragment extends Fragment {
       
       do {
         id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-      }while((System.currentTimeMillis() - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > (2 * 60 * 60000) && c.moveToNext());
+      }while((System.currentTimeMillis() - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1.5 * 60 * 60000)) && c.moveToNext());
       
       if(id != -1 && getView() != null) {
         final View view = getView().findViewWithTag(Long.valueOf(id));
@@ -268,7 +272,13 @@ public class ProgramTableFragment extends Fragment {
                                       title.setTextColor(Color.rgb(190, 190, 190));
                                       episode.setTextColor(Color.rgb(190, 190, 190));
                                       genre.setTextColor(Color.rgb(190, 190, 190));
+                                     /* 
+                                      Drawable[] compoundDrawables = title.getCompoundDrawables();
                                       
+                                      if(compoundDrawables != null && compoundDrawables[3] != null) {
+                                        compoundDrawables[3].setColorFilter(getActivity().getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
+                                      }
+                                      */
                                       if(!isDetached() && mKeepRunning && !isRemoving()) {
                                         Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
                                         
@@ -374,6 +384,33 @@ public class ProgramTableFragment extends Fragment {
     
     Cursor channels = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, where3.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
     
+    int columnWidth = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, getResources().getDisplayMetrics());
+    int padding = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics());
+
+    String[] projection = null;
+    
+    if(false) {
+      projection = new String[9];
+      
+      projection[7] = TvBrowserContentProvider.DATA_KEY_PICTURE;
+      projection[8] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
+    }
+    else {
+      projection = new String[7];
+    }
+    
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    
+    int logoValue = mCurrentLogoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE), "0"));
+    
+    projection[0] = TvBrowserContentProvider.KEY_ID;
+    projection[1] = TvBrowserContentProvider.DATA_KEY_STARTTIME;
+    projection[2] = TvBrowserContentProvider.DATA_KEY_ENDTIME;
+    projection[3] = TvBrowserContentProvider.DATA_KEY_TITLE;
+    projection[4] = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE;
+    projection[5] = TvBrowserContentProvider.DATA_KEY_GENRE;
+    projection[6] = TvBrowserContentProvider.DATA_KEY_MARKING_VALUES;
+    
     if(channels.getCount() > 0) {
       channels.moveToFirst();
       
@@ -396,16 +433,19 @@ public class ProgramTableFragment extends Fragment {
       timeBlockLines[12] = (LinearLayout)programTable.findViewById(R.id.twentyfour_twentysix);
       timeBlockLines[13] = (LinearLayout)programTable.findViewById(R.id.twentysix_twentyeight);
       
-      int columnWidth = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, getResources().getDisplayMetrics());
-      int padding = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics());
-      
       do {
         String name = channels.getString(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
         
-        TextView text = (TextView)inflater.inflate(R.layout.channel_label, channelBar,false);
-        text.setText(name);
+        boolean hasLogo = !channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
         
-        if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))) {
+        TextView text = (TextView)inflater.inflate(R.layout.channel_label, channelBar,false);
+        text.setTag(channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
+        
+        if(logoValue == 0 || logoValue == 2 || !hasLogo) {
+          text.setText(name);
+        }
+        
+        if((logoValue == 0 || logoValue == 1) && hasLogo) {
           byte[] logoData = channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
           Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
           BitmapDrawable l = new BitmapDrawable(getResources(), logo);
@@ -423,7 +463,16 @@ public class ProgramTableFragment extends Fragment {
           
           text.setCompoundDrawables(l, null, null, null);
           
-          int leftPadding = (int)(columnWidth - (l.getBounds().width() + text.getPaint().measureText(name) + 2 * padding));
+          int leftPadding = 2 * padding;
+          
+          if(logoValue == 0 || logoValue == 2 || !hasLogo) {
+            leftPadding += text.getPaint().measureText(name);
+          }
+          if((logoValue == 0 || logoValue == 1) && hasLogo) {
+            leftPadding += l.getBounds().width();
+          }
+          
+          leftPadding = (int)(columnWidth - leftPadding);
           Log.d("info", "padding " + leftPadding + " " + columnWidth);
           
           if(leftPadding > 0) {
@@ -437,7 +486,7 @@ public class ProgramTableFragment extends Fragment {
         
         String where2 = where + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channels.getInt(0);
         
-        Cursor cursor = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where2, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+        Cursor cursor = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where2, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
         
         if(cursor.getCount() > 0) {
           cursor.moveToFirst();
@@ -568,6 +617,90 @@ public class ProgramTableFragment extends Fragment {
     return false;
   }
   
+  public void updateChannelBar() {
+    LinearLayout channelBar = (LinearLayout)getView().findViewById(R.id.program_table_channel_bar);
+    
+    String[] projection = {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.CHANNEL_KEY_NAME, TvBrowserContentProvider.CHANNEL_KEY_LOGO};
+    
+    int columnWidth = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, getResources().getDisplayMetrics());
+    int padding = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics());
+
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    
+    int logoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE), "0"));
+    
+    if(channelBar != null && logoValue != mCurrentLogoValue) {
+      mCurrentLogoValue = logoValue;
+      
+      for(int i = 0; i < channelBar.getChildCount(); i++) {
+        View view = channelBar.getChildAt(i);
+        
+        if(view instanceof TextView && view.getTag() instanceof Integer) {
+          TextView text = (TextView)view;
+          Integer channelKey = (Integer)text.getTag();
+          
+          Cursor channel = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelKey), projection, null, null, null);
+          
+          if(channel.moveToFirst()) {
+            boolean hasLogo = !channel.isNull(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+            String name = channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+            
+            if(logoValue == 0 || logoValue == 2 || !hasLogo) {
+              text.setText(name);
+            }
+            else {
+              text.setText("");
+            }
+            
+            if((logoValue == 0 || logoValue == 1) && hasLogo) {
+              byte[] logoData = channel.getBlob(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+              Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+              BitmapDrawable l = new BitmapDrawable(getResources(), logo);
+              
+              int height = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, getResources().getDisplayMetrics());
+              
+              float percent = height / (float)logo.getHeight(); 
+              
+              if(percent < 1) {
+                l.setBounds(0, 0, (int)(logo.getWidth() * percent), height);
+              }
+              else {
+                l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+              }
+              
+              text.setCompoundDrawables(l, null, null, null);
+              
+              int leftPadding = 2 * padding;
+              
+              if(logoValue == 0 || logoValue == 2 || !hasLogo) {
+                leftPadding += text.getPaint().measureText(name);
+              }
+              if((logoValue == 0 || logoValue == 1) && hasLogo) {
+                leftPadding += l.getBounds().width();
+              }
+              
+              leftPadding = (int)(columnWidth - leftPadding);
+              Log.d("info", "padding " + leftPadding + " " + columnWidth);
+              
+              if(leftPadding > 0) {
+                text.setPadding(leftPadding / 2, 0, leftPadding / 2, 0);
+              }
+              else {
+                text.setPadding(2, 0, 0, 0);
+              }
+            }
+            else {
+              text.setPadding(2, 0, 0, 0);
+              text.setCompoundDrawables(null, null, null, null);
+            }
+          }
+          
+          channel.close();
+        }
+      }
+    }
+  }
+  
   private int createTimeBlockForChannel(int start, int end, Cursor cursor, LinearLayout parent, LayoutInflater inflater, int count) {
     LinearLayout block = (LinearLayout)inflater.inflate(R.layout.program_block, parent, false);
     
@@ -586,7 +719,7 @@ public class ProgramTableFragment extends Fragment {
         View panel = inflater.inflate(R.layout.program_panel, block, false);
         registerForContextMenu(panel);
         panel.setOnClickListener(mClickListener);
-        panel.setTag(cursor.getLong(0));
+        panel.setTag(cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
                 
         count++;
         
@@ -599,12 +732,15 @@ public class ProgramTableFragment extends Fragment {
         
         long endTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
         
+        boolean expired = false;
+        
         if(endTime <= System.currentTimeMillis()) {
           panel.setTag(R.id.expired_tag, true);
           startTime.setTextColor(Color.rgb(190, 190, 190));
           title.setTextColor(Color.rgb(190, 190, 190));
           episode.setTextColor(Color.rgb(190, 190, 190));
           genre.setTextColor(Color.rgb(190, 190, 190));
+          expired = true;
         }
         else if(System.currentTimeMillis() <= endTime) {
           int[] attrs = new int[] { android.R.attr.textColorSecondary };
@@ -620,6 +756,23 @@ public class ProgramTableFragment extends Fragment {
         
         startTime.setText(DateFormat.getTimeFormat(getActivity()).format(cal.getTime()));
         title.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
+        /*
+        int pictureColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
+        
+        if(pictureColumn != -1 && !cursor.isNull(pictureColumn)) {
+          byte[] logoData = cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE));
+          Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+                    
+          BitmapDrawable l = new BitmapDrawable(getResources(), logo);
+          
+          if(expired) {
+            l.setColorFilter(getActivity().getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
+          }
+          
+          l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+          
+          title.setCompoundDrawables(null, null, null, l);
+        }*/
         
         if(!cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
           episode.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)));

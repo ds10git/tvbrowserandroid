@@ -139,7 +139,10 @@ public class UiUtils {
       Bitmap image = BitmapFactory.decodeByteArray(pictureData,0,pictureData.length);
       
       BitmapDrawable b = new BitmapDrawable(activity.getResources(),image);
-      b.setBounds(0, 0, (int)(image.getWidth() * 1.4), (int)(image.getHeight() * 1.4));
+      
+      float zoom = Float.parseFloat(PreferenceManager.getDefaultSharedPreferences(activity).getString(activity.getResources().getString(R.string.DETAIL_PICTURE_ZOOM), "1.4"));
+      
+      b.setBounds(0, 0, (int)(image.getWidth() * zoom), (int)(image.getHeight() * zoom));
       
       pictureDescription.setCompoundDrawables(b, null, null, null);
     }

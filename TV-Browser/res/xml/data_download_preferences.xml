@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >   
+    <PreferenceCategory android:title="@string/pref_download_category"> 
+	   <ListPreference
+	       android:key="@string/DAYS_TO_DOWNLOAD"
+	       android:title="@string/download_data_for"
+	       android:defaultValue="2"
+	       android:entries="@array/download_selections"
+	       android:entryValues="@array/download_days"
+	       android:summary="%s"/>
+	    <CheckBoxPreference android:key="@string/LOAD_FULL_DATA"
+	        android:title="@string/pref_load_full_data"
+	        android:defaultValue="false"
+	        android:summaryOn="@string/pref_load_full_data_summary_on"
+	        android:summaryOff="@string/pref_load_full_data_summary_off"/>
+	    <CheckBoxPreference android:key="@string/LOAD_PICTURE_DATA"
+	        android:title="@string/pref_load_picture_data"
+	        android:defaultValue="false"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/title_programs_list">
+        <ListPreference android:key="@string/CHANNEL_LOGO_NAME_PROGRAMS_LIST"
+            android:title="@string/show_logo_title"
+            android:defaultValue="0"
+            android:entries="@array/show_logo"
+            android:entryValues="@array/logo_name_values"
+            android:summary="%s"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/title_program_table">
+        <CheckBoxPreference android:key="@string/PROG_TABLE_ACTIVATED" 
+            android:title="@string/pref_activated"
+            android:defaultValue="true"
+            />
+        <ListPreference android:key="@string/CHANNEL_LOGO_NAME_PROGRAM_TABLE"
+            android:title="@string/show_logo_title"
+            android:defaultValue="0"
+            android:entries="@array/show_logo"
+            android:entryValues="@array/logo_name_values"
+            android:summary="%s"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_detail_category">
+        <ListPreference android:key="@string/DETAIL_PICTURE_ZOOM"
+            android:title="@string/pref_detail_picture_zoom"
+            android:defaultValue="1.4"
+            android:entries="@array/picture_zoom_values_names"
+            android:entryValues="@array/picture_zoom_values"
+            android:summary="%s"/>
+    </PreferenceCategory>
+</PreferenceScreen>
