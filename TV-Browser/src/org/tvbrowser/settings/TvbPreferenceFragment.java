@@ -17,14 +17,20 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-    addPreferencesFromResource(R.xml.data_download_preferences);
+    addPreferencesFromResource(R.xml.tvb_preferences);
     
     CheckBoxPreference progTable = (CheckBoxPreference) findPreference(getResources().getString(R.string.PROG_TABLE_ACTIVATED));
     
     ListPreference channelLogoName = (ListPreference) findPreference(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE));
-    Log.d("info" , " progtable " + progTable + " " + channelLogoName);
-    if(progTable != null && channelLogoName != null) {
-      channelLogoName.setEnabled(progTable.isChecked());
+    CheckBoxPreference pictures = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE));
+    
+    if(progTable != null) {
+      if(channelLogoName != null) {
+        channelLogoName.setEnabled(progTable.isChecked());
+      }
+      if(pictures != null) {
+        pictures.setEnabled(progTable.isChecked());
+      }
     }
   }
   
@@ -67,9 +73,15 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       CheckBoxPreference progTable = (CheckBoxPreference) findPreference(key);
       
       ListPreference channelLogoName = (ListPreference) findPreference(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE));
+      CheckBoxPreference pictures = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE));
       
-      if(progTable != null && channelLogoName != null) {
-        channelLogoName.setEnabled(progTable.isChecked());
+      if(progTable != null) {
+        if(channelLogoName != null) {
+          channelLogoName.setEnabled(progTable.isChecked());
+        }
+        if(pictures != null) {
+          pictures.setEnabled(progTable.isChecked());
+        }
       }
     }
   }

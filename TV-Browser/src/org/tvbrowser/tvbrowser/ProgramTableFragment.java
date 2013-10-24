@@ -22,7 +22,9 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
@@ -60,6 +62,7 @@ public class ProgramTableFragment extends Fragment {
   private BroadcastReceiver mDataUpdateReceiver;
   
   private int mCurrentLogoValue;
+  private boolean mPictureShown;
   
   public void scrollToNow() {
     StringBuilder where = new StringBuilder();
@@ -272,13 +275,13 @@ public class ProgramTableFragment extends Fragment {
                                       title.setTextColor(Color.rgb(190, 190, 190));
                                       episode.setTextColor(Color.rgb(190, 190, 190));
                                       genre.setTextColor(Color.rgb(190, 190, 190));
-                                     /* 
-                                      Drawable[] compoundDrawables = title.getCompoundDrawables();
                                       
-                                      if(compoundDrawables != null && compoundDrawables[3] != null) {
-                                        compoundDrawables[3].setColorFilter(getActivity().getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
+                                      Drawable[] compoundDrawables = genre.getCompoundDrawables();
+                                      
+                                      if(compoundDrawables != null && compoundDrawables[1] != null) {
+                                        compoundDrawables[1].setColorFilter(getActivity().getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
                                       }
-                                      */
+                                      
                                       if(!isDetached() && mKeepRunning && !isRemoving()) {
                                         Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
                                         
@@ -389,7 +392,9 @@ public class ProgramTableFragment extends Fragment {
 
     String[] projection = null;
     
-    if(false) {
+    mPictureShown = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE), false);
+    
+    if(mPictureShown) {
       projection = new String[9];
       
       projection[7] = TvBrowserContentProvider.DATA_KEY_PICTURE;
@@ -617,6 +622,16 @@ public class ProgramTableFragment extends Fragment {
     return false;
   }
   
+  public boolean updatePictures() {
+    boolean toShow = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE), false);
+    
+    if(mPictureShown != toShow) {
+      updateView(getActivity().getLayoutInflater(), (RelativeLayout)getView().findViewWithTag("LAYOUT"));
+    }
+    
+    return mPictureShown != toShow;
+  }
+  
   public void updateChannelBar() {
     LinearLayout channelBar = (LinearLayout)getView().findViewById(R.id.program_table_channel_bar);
     
@@ -756,24 +771,7 @@ public class ProgramTableFragment extends Fragment {
         
         startTime.setText(DateFormat.getTimeFormat(getActivity()).format(cal.getTime()));
         title.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
-        /*
-        int pictureColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
-        
-        if(pictureColumn != -1 && !cursor.isNull(pictureColumn)) {
-          byte[] logoData = cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE));
-          Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-                    
-          BitmapDrawable l = new BitmapDrawable(getResources(), logo);
-          
-          if(expired) {
-            l.setColorFilter(getActivity().getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
-          }
-          
-          l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
-          
-          title.setCompoundDrawables(null, null, null, l);
-        }*/
-        
+                
         if(!cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
           episode.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)));
           episode.setVisibility(TextView.VISIBLE);
@@ -788,6 +786,25 @@ public class ProgramTableFragment extends Fragment {
         }
         else {
           genre.setVisibility(TextView.GONE);
+        }
+        
+        int pictureColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
+        
+        if(pictureColumn != -1 && !cursor.isNull(pictureColumn)) {
+          byte[] logoData = cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE));
+          Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+                    
+          BitmapDrawable l = new BitmapDrawable(getResources(), logo);
+          
+          if(expired) {
+            l.setColorFilter(getActivity().getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
+          }
+          
+          l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+          
+          genre.setCompoundDrawables(null, l, null, null);
+          genre.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)) + (genre.getText() != null && genre.getText().toString().trim().length() > 0 ? "\n" + genre.getText() : ""));
+          genre.setVisibility(View.VISIBLE);
         }
         
         block.addView(panel);

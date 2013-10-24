@@ -147,13 +147,14 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         TvBrowserContentProvider.DATA_KEY_TITLE,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
         TvBrowserContentProvider.DATA_KEY_GENRE,
+        TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT
     };
     
     mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity());
     
     // Create a new Adapter an bind it to the List View
     adapter = new SimpleCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_list_entries,null,
-        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl},0);
+        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl},0);
     adapter.setViewBinder(mViewAndClickHandler);
         
     favoriteProgramList.setAdapter(adapter);
@@ -237,23 +238,30 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   
   @Override
   public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    String[] projection = {
-        TvBrowserContentProvider.KEY_ID,
-        TvBrowserContentProvider.DATA_KEY_UNIX_DATE,
-        TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
-        TvBrowserContentProvider.DATA_KEY_STARTTIME,
-        TvBrowserContentProvider.DATA_KEY_ENDTIME,
-        TvBrowserContentProvider.DATA_KEY_TITLE,
-        TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
-        TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,
-        TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
-        TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
-        TvBrowserContentProvider.CHANNEL_KEY_NAME,
-        TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
-        TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL,
-        TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL,
-        TvBrowserContentProvider.DATA_KEY_GENRE
-    };
+    String[] projection = null;
+    
+    if(PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false)) {
+      projection = new String[14];
+      
+      projection[13] = TvBrowserContentProvider.DATA_KEY_PICTURE;
+    }
+    else {
+      projection = new String[13];
+    }
+    
+    projection[0] = TvBrowserContentProvider.KEY_ID;
+    projection[1] = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID;
+    projection[2] = TvBrowserContentProvider.DATA_KEY_STARTTIME;
+    projection[3] = TvBrowserContentProvider.DATA_KEY_ENDTIME;
+    projection[4] = TvBrowserContentProvider.DATA_KEY_TITLE;
+    projection[5] = TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION;
+    projection[6] = TvBrowserContentProvider.DATA_KEY_MARKING_VALUES;
+    projection[7] = TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER;
+    projection[8] = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE;
+    projection[9] = TvBrowserContentProvider.DATA_KEY_GENRE;
+    projection[10] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
+    projection[11] = TvBrowserContentProvider.DATA_KEY_UNIX_DATE;
+    projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
     
     String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis();
     where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " > " + System.currentTimeMillis() + " ) ";

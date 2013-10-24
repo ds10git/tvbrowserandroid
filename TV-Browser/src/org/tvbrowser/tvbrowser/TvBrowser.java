@@ -682,7 +682,7 @@ public class TvBrowser extends FragmentActivity implements
       public void onClick(DialogInterface dialog, int which) {
         Intent startDownload = new Intent(TvBrowser.this, TvDataUpdateService.class);
         startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
-        startDownload.putExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), getResources().getIntArray(R.array.download_days)[days.getSelectedItemPosition()]);
+        startDownload.putExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(getResources().getStringArray(R.array.download_days)[days.getSelectedItemPosition()]));
         
         Editor settings = pref.edit();
         settings.putString(getResources().getString(R.string.DAYS_TO_DOWNLOAD), String.valueOf(days.getSelectedItemPosition()));
@@ -821,14 +821,16 @@ public class TvBrowser extends FragmentActivity implements
       mSectionsPagerAdapter.notifyDataSetChanged();
       actionBar.removeTabAt(3);
     }
-    else if(!(test instanceof ProgramTableFragment)) {
+    else if(!(test instanceof ProgramTableFragment) && programTableActivated) {
       actionBar.addTab(actionBar.newTab()
           .setText(mSectionsPagerAdapter.getPageTitle(3)).setTabListener(this));
       mSectionsPagerAdapter.instantiateItem(mViewPager, 3);
       mSectionsPagerAdapter.notifyDataSetChanged();
     }
     else if(test instanceof ProgramTableFragment) {
-      ((ProgramTableFragment)test).updateChannelBar();
+      if(!((ProgramTableFragment)test).updatePictures()) {
+        ((ProgramTableFragment)test).updateChannelBar();
+      }
     }
   }
   
