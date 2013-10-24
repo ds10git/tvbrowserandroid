@@ -10,6 +10,7 @@ import java.util.Locale;
 import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.app.ActionBar;
@@ -36,7 +37,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.provider.Contacts.SettingsColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -67,6 +67,7 @@ import android.widget.Toast;
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
   private static final String TAG = "TVB";
+  private static final int SHOW_PREFERENCES = 1;
   
   /**
    * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -671,7 +672,7 @@ public class TvBrowser extends FragmentActivity implements
     days.setAdapter(adapter);
     
     final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    days.setSelection(pref.getInt(TvDataUpdateService.DAYS_TO_LOAD, 2));
+    days.setSelection(Integer.parseInt(pref.getString(getResources().getString(R.string.DAYS_TO_DOWNLOAD), "2")));
     
     builder.setTitle(R.string.download_data);
     builder.setView(dataDownload);
@@ -681,10 +682,10 @@ public class TvBrowser extends FragmentActivity implements
       public void onClick(DialogInterface dialog, int which) {
         Intent startDownload = new Intent(TvBrowser.this, TvDataUpdateService.class);
         startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
-        startDownload.putExtra(TvDataUpdateService.DAYS_TO_LOAD, SettingConstants.DOWNLOAD_DAYS[days.getSelectedItemPosition()]);
+        startDownload.putExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), getResources().getIntArray(R.array.download_days)[days.getSelectedItemPosition()]);
         
         Editor settings = pref.edit();
-        settings.putInt(TvDataUpdateService.DAYS_TO_LOAD, days.getSelectedItemPosition());
+        settings.putString(getResources().getString(R.string.DAYS_TO_DOWNLOAD), String.valueOf(days.getSelectedItemPosition()));
         settings.commit();
         
         startService(startDownload);
@@ -801,6 +802,37 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    super.onActivityResult(requestCode, resultCode, data);
+    
+    if(requestCode == SHOW_PREFERENCES) {
+      updateFromPreferences();
+    }
+  }
+  
+  private void updateFromPreferences() {
+    LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(SettingConstants.CHANNEL_UPDATE_DONE));
+    
+    boolean programTableActivated = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getResources().getString(R.string.PROG_TABLE_ACTIVATED), true);
+    Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
+    
+    if(!programTableActivated && test instanceof ProgramTableFragment) {
+      mSectionsPagerAdapter.destroyItem(mViewPager, 3, mSectionsPagerAdapter.getRegisteredFragment(3));
+      mSectionsPagerAdapter.notifyDataSetChanged();
+      actionBar.removeTabAt(3);
+    }
+    else if(!(test instanceof ProgramTableFragment)) {
+      actionBar.addTab(actionBar.newTab()
+          .setText(mSectionsPagerAdapter.getPageTitle(3)).setTabListener(this));
+      mSectionsPagerAdapter.instantiateItem(mViewPager, 3);
+      mSectionsPagerAdapter.notifyDataSetChanged();
+    }
+    else if(test instanceof ProgramTableFragment) {
+      ((ProgramTableFragment)test).updateChannelBar();
+    }
+  }
+  
+  @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
       case R.id.action_username_password:
@@ -808,6 +840,10 @@ public class TvBrowser extends FragmentActivity implements
         showUserSetting(false);
     }
       break;
+      case R.id.action_basic_preferences:
+        Intent startPref = new Intent(this, TvbPreferencesActivity.class);
+        startActivityForResult(startPref, SHOW_PREFERENCES);
+        break;
       case R.id.action_update:
         if(isOnline()) {
           checkTermsAccepted();
@@ -847,45 +883,9 @@ public class TvBrowser extends FragmentActivity implements
       case R.id.action_load_channels_again: selectChannels(true);break;
       case R.id.action_select_channels: selectChannels(false);break;
       case R.id.action_sort_channels: sortChannels();break;
-      case R.id.action_load_full_data:
-      {
-        item.setChecked(!item.isChecked());
-        Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-        edit.putBoolean(SettingConstants.LOAD_FULL_DATA, item.isChecked());
-        edit.commit();
-      }
-        break;
-      case R.id.action_load_picture_data:
-      {
-        item.setChecked(!item.isChecked());
-        Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-        edit.putBoolean(SettingConstants.LOAD_PICTURE_DATA, item.isChecked());
-        edit.commit();
-      }
-        break;
       case R.id.action_delete_all_data: getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.KEY_ID + " > 0", null);
                                         getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.KEY_ID + " > 0", null);
                                         break;
-      case R.id.action_program_table_activated: item.setChecked(!item.isChecked());
-                                                Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-                                                edit.putBoolean(SettingConstants.PROG_TABLE_ACTIVATED, item.isChecked());
-                                                edit.commit();
-                                                
-                                                if(!item.isChecked()) {
-                                                  //mViewPager.fi
-                                                  mSectionsPagerAdapter.destroyItem(mViewPager, 3, mSectionsPagerAdapter.getRegisteredFragment(3));
-                                                  mSectionsPagerAdapter.notifyDataSetChanged();
-                                                  actionBar.removeTabAt(3);
-                                                  
-                                                }
-                                                else {
-                                                  
-                                                  actionBar.addTab(actionBar.newTab()
-                                                      .setText(mSectionsPagerAdapter.getPageTitle(3)).setTabListener(this));
-                                                  mSectionsPagerAdapter.instantiateItem(mViewPager, 3);
-                                                  mSectionsPagerAdapter.notifyDataSetChanged();
-                                                }
-                                                break;
     }
     
     return super.onOptionsItemSelected(item);
@@ -903,19 +903,6 @@ public class TvBrowser extends FragmentActivity implements
             (SearchView) menu.findItem(R.id.search).getActionView();
     searchView.setSearchableInfo(
             searchManager.getSearchableInfo(getComponentName()));
-    
-    
-    MenuItem item = menu.findItem(R.id.action_program_table_activated);
-    
-    item.setChecked(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.PROG_TABLE_ACTIVATED, true));
-    
-    item = menu.findItem(R.id.action_load_full_data);
-    
-    item.setChecked(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.LOAD_FULL_DATA, false));
-    
-    item = menu.findItem(R.id.action_load_picture_data);
-    
-    item.setChecked(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.LOAD_PICTURE_DATA, false));
     
     return true;
   }
@@ -976,7 +963,7 @@ public class TvBrowser extends FragmentActivity implements
     @Override
     public int getCount() {
       // Show 3 total pages.
-      if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.PROG_TABLE_ACTIVATED, true)) {
+      if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getResources().getString(R.string.PROG_TABLE_ACTIVATED), true)) {
         return 4;
       }
       
@@ -989,13 +976,13 @@ public class TvBrowser extends FragmentActivity implements
             
       switch (position) {
         case 0:
-          return getString(R.string.title_section1).toUpperCase(l);
+          return getString(R.string.title_running_programs).toUpperCase(l);
         case 1:
-          return getString(R.string.title_section2).toUpperCase(l);
+          return getString(R.string.title_programs_list).toUpperCase(l);
         case 2:
-          return getString(R.string.title_section4).toUpperCase(l);
+          return getString(R.string.title_favorites).toUpperCase(l);
         case 3:
-          return getString(R.string.title_section3).toUpperCase(l);
+          return getString(R.string.title_program_table).toUpperCase(l);
       }
       return null;
     }

@@ -7,17 +7,15 @@
     <string name="action_sort_channels">Sort channels</string>
     <string name="action_delete_all_data">Delete all data</string>
     <string name="action_username_password">Set username and password</string>
-    <string name="action_load_full_data">Download full descriptions</string>
-    <string name="action_load_picture_data">Download pictures</string>
     <string name="username">Username:</string>
     <string name="password">Password:</string>
     <string name="username_hint">Enter your username</string>
     <string name="password_hint">Enter your password</string>
     <string name="update_complete">Data update completed</string>
-    <string name="title_section1">Running programs</string>
-    <string name="title_section2">Program list</string>
-    <string name="title_section3">Program table</string>
-    <string name="title_section4">Favorites</string>
+    <string name="title_running_programs">Running programs</string>
+    <string name="title_programs_list">Program list</string>
+    <string name="title_program_table">Program table</string>
+    <string name="title_favorites">Favorites</string>
     <string name="button_now">Now</string>
     <string name="button_all_channels">All</string>
     <string name="button_6">6:00</string>
@@ -52,7 +50,6 @@
     <string name="favorite_delete">Delete Favorite</string>
     <string name="no_network">No network connection</string>
     <string name="no_network_info">Your network connection is disabled. Enable it before starting data download.</string>
-    <string name="action_program_table_activated">Program table activated</string>
     <string name="update_notification_title">TV data update</string>
     <string name="update_notification_text">A TV-Browser data update is running</string>
     <string name="update_notification_calculate">Calculate TV data&#8230;</string>
@@ -115,4 +112,21 @@ If you have any questions concerning these terms please contact dev@tvbrowser.or
 	<string name="info_children">Children</string>
 	<string name="info_other">Other</string>
 	<string name="info_sign_language">Sign Language</string>
+	<string name="pref_title">Settings</string>
+	<string name="pref_summary">Settings for TV-Browser</string>
+	<string name="pref_download_category">Data Download</string>
+	<string name="pref_summary_data_download">Settings for data download</string>
+    <string name="pref_load_full_data">Download full data</string>
+    <string name="pref_load_picture_data">Download pictures</string>
+	<string name="pref_load_full_data_summary_on">All available data is downloaded</string>
+	<string name="pref_load_full_data_summary_off">Only important data is downloaded</string>
+	<string name="show_logo_title">Channel icon and name</string>
+	<string-array name="show_logo">
+	    <item>Show channel icon and name</item>
+	    <item>Show only channel icon</item>
+	    <item>Show only channel name</item>
+	</string-array>
+	<string name="pref_activated">Activated</string>
+	<string name="pref_detail_category">Detail window</string>
+	<string name="pref_detail_picture_zoom">Zoom value for picture</string>
 </resources>

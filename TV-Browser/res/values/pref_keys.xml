@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="DAYS_TO_DOWNLOAD">DAYS_TO_DOWNLOAD</string>
+    <string name="LOAD_FULL_DATA">LOAD_FULL_DATA</string>
+    <string name="LOAD_PICTURE_DATA">LOAD_PICTURE_DATA</string>
+    <string name="CHANNEL_LOGO_NAME_PROGRAMS_LIST">CHANNEL_LOGO_NAME_PROGRAMS_LIST</string>
+    <string name="CHANNEL_LOGO_NAME_PROGRAM_TABLE">CHANNEL_LOGO_NAME_PROGRAM_TABLE</string>
+    <string name="PROG_TABLE_ACTIVATED">PROG_TABLE_ACTIVATED</string>
+    <string name="DETAIL_PICTURE_ZOOM">DETAIL_PICTURE_ZOOM</string>
+</resources>

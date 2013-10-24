@@ -6,8 +6,7 @@ import org.tvbrowser.tvbrowser.R;
 
 public class SettingConstants {
   public static final String EPG_FREE_KEY = "EPG_FREE";
-  public static final String[] LEVEL_NAMES = {"base","more00-16","more16-00","picture00-16","picture16-00"}; 
-  public static final int[] DOWNLOAD_DAYS = {0,1,2,3,7,14};
+  public static final String[] LEVEL_NAMES = {"base","more00-16","more16-00","picture00-16","picture16-00"};
   public static final String CHANNEL_DOWNLOAD_COMPLETE = "org.tvbrowser.CHANNEL_DOWNLOAD_COMPLETE";
   public static final String MARKINGS_CHANGED = "org.tvbrowser.MARKINGS_CHANGED";
   public static final String FAVORITES_CHANGED = "org.tvbrowser.FAVORTES_CHANGED";
@@ -19,17 +18,13 @@ public class SettingConstants {
   public static final String MARK_VALUE_FAVORITE = "favorite";
   public static final String MARK_VALUE_CALENDAR = "calendar";
   public static final String MARK_VALUE_SYNC_FAVORITE = "syncfav";
-  
+    
   public static final String USER_NAME = "CAR";
   public static final String USER_PASSWORD = "BICYCLE";
   
   public static final String SPONSORING_DATE = "SPONSORING_DATE";
   
   public static final String TERMS_ACCEPTED = "TERMS_ACCEPTED";
-  
-  public static final String PROG_TABLE_ACTIVATED = "PROG_TABLE_ACTIVATED";
-  public static final String LOAD_FULL_DATA = "LOAD_FULL_DATA";
-  public static final String LOAD_PICTURE_DATA = "LOAD_PICTURE_DATA";
     
   public static final HashMap<String, Integer> MARK_COLOR_MAP = new HashMap<String, Integer>();
   

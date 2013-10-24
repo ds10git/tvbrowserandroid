@@ -7,17 +7,15 @@
     <string name="action_sort_channels">Sender sortieren</string>
     <string name="action_delete_all_data">Daten löschen</string>
     <string name="action_username_password">Benutzername und -passwort eingeben</string>
-    <string name="action_load_full_data">Volle Beschreibung herunterladen</string>
-    <string name="action_load_picture_data">Bilder herunterladen</string>
     <string name="username">Benutzername:</string>
     <string name="password">Passwort:</string>
     <string name="username_hint">Benutzername eingeben</string>
     <string name="password_hint">Passwort eingeben</string>
     <string name="update_complete">Datenupdate abgeschlossen</string>
-    <string name="title_section1">Laufende Sendungen</string>
-    <string name="title_section2">Sendungsliste</string>
-    <string name="title_section3">Programmtabelle</string>
-    <string name="title_section4">Lieblingssendungen</string>
+    <string name="title_running_programs">Laufende Sendungen</string>
+    <string name="title_programs_list">Sendungsliste</string>
+    <string name="title_program_table">Programmtabelle</string>
+    <string name="title_favorites">Lieblingssendungen</string>
     <string name="button_now">Jetzt</string>
     <string name="button_all_channels">Alle</string>
     <string name="button_after">1h danach</string>
@@ -47,7 +45,6 @@
     <string name="favorite_delete">Lieblingssendung löschen</string>
     <string name="no_network">Keine Internet-Verbindung</string>
     <string name="no_network_info">Ihre Internet-Verbindung ist abgeschaltet. Bitte aktivieren Sie diese bevor Sie das Datenupdate starten.</string>
-    <string name="action_program_table_activated">Programmtabelle aktiviert</string>
     <string name="update_notification_title">TV-Daten Update</string>
     <string name="update_notification_text">Ein TV-Browser Datenupdate läuft</string>
     <string name="update_notification_calculate">TV-Daten verarbeiten&#8230;</string>
@@ -108,4 +105,22 @@
 	<string name="info_children">Kindersendung</string>
 	<string name="info_other">Andere</string>
 	<string name="info_sign_language">Gebärdensprache</string>
+	<string name="pref_title">Einstellungen</string>
+	<string name="pref_summary">Einstellungen für TV-Browser</string>
+	<string name="pref_download_category">Datendownload</string>
+	<string name="pref_programs_list_category">Datendownload</string>
+	<string name="pref_summary_data_download">Einstellungen für den Datendownload</string>
+	<string name="pref_load_full_data">Vollständige Daten herunterladen</string>
+    <string name="pref_load_picture_data">Bilder herunterladen</string>
+	<string name="pref_load_full_data_summary_on">Alle verfügbaren Informationen werden heruntergeladen</string>
+	<string name="pref_load_full_data_summary_off">Nur die wichtigsten Informationen werden heruntergeladen</string>
+	<string name="show_logo_title">Senderlogo und -name</string>
+	<string-array name="show_logo">
+	    <item>Senderlogo und -name anzeigen</item>
+	    <item>Nur Senderlogo anzeigen</item>
+	    <item>Nur Sendername anzeigen</item>
+	</string-array>
+	<string name="pref_activated">Aktiviert</string>
+	<string name="pref_detail_category">Detail-Fenster</string>
+	<string name="pref_detail_picture_zoom">Bild skalieren</string>
 </resources>

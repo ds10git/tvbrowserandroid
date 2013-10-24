@@ -53,7 +53,6 @@ import android.widget.Toast;
 
 public class TvDataUpdateService extends Service {
   public static final String TAG = "TV_DATA_UPDATE_SERVICE";
-  public static final String DAYS_TO_LOAD = "DAYS_TO_LOAD";
   
   public static final String TYPE = "TYPE";
   public static final int TV_DATA_TYPE = 1;
@@ -111,7 +110,7 @@ public class TvDataUpdateService extends Service {
         setPriority(MIN_PRIORITY);
         
         if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
-          mDaysToLoad = intent.getIntExtra(DAYS_TO_LOAD, 2);
+          mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), 2);
           
           Calendar cal = Calendar.getInstance();
           cal.set(2014, Calendar.JANUARY, 5);
@@ -735,8 +734,11 @@ public class TvDataUpdateService extends Service {
       
       int[] levels = null;
       
-      if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.LOAD_FULL_DATA, false)) {
-        if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.LOAD_PICTURE_DATA, false)) {
+      String prefKeyFullData = getResources().getString(R.string.LOAD_FULL_DATA);
+      String prefKeyPictures = getResources().getString(R.string.LOAD_PICTURE_DATA);
+      
+      if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(prefKeyFullData, false)) {
+        if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(prefKeyPictures, false)) {
           levels = new int[5];
         }
         else {
@@ -747,7 +749,7 @@ public class TvDataUpdateService extends Service {
           levels[j] = j;
         }
       }
-      else if (PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.LOAD_PICTURE_DATA, false)) {
+      else if (PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(prefKeyPictures, false)) {
         levels = new int[3];
         
         levels[0] = 0;
