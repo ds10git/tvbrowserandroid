@@ -672,7 +672,17 @@ public class TvBrowser extends FragmentActivity implements
     days.setAdapter(adapter);
     
     final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    days.setSelection(Integer.parseInt(pref.getString(getResources().getString(R.string.DAYS_TO_DOWNLOAD), "2")));
+    
+    String daysToDownload = pref.getString(getResources().getString(R.string.DAYS_TO_DOWNLOAD), "2");
+    
+    String[] valueArr = getResources().getStringArray(R.array.download_days);
+    
+    for(int i = 0; i < valueArr.length; i++) {
+      if(valueArr[i].equals(daysToDownload)) {
+        days.setSelection(i);
+        break;
+      }
+    }
     
     builder.setTitle(R.string.download_data);
     builder.setView(dataDownload);
@@ -682,10 +692,13 @@ public class TvBrowser extends FragmentActivity implements
       public void onClick(DialogInterface dialog, int which) {
         Intent startDownload = new Intent(TvBrowser.this, TvDataUpdateService.class);
         startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
-        startDownload.putExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(getResources().getStringArray(R.array.download_days)[days.getSelectedItemPosition()]));
+        
+        String value = getResources().getStringArray(R.array.download_days)[days.getSelectedItemPosition()];
+        
+        startDownload.putExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(value));
         
         Editor settings = pref.edit();
-        settings.putString(getResources().getString(R.string.DAYS_TO_DOWNLOAD), String.valueOf(days.getSelectedItemPosition()));
+        settings.putString(getResources().getString(R.string.DAYS_TO_DOWNLOAD), value);
         settings.commit();
         
         startService(startDownload);
