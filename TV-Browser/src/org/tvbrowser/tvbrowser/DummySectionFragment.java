@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -18,7 +17,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,63 +90,65 @@ public class DummySectionFragment extends Fragment {
             
             parent.addView(all);
             
-            ContentResolver cr = getActivity().getContentResolver();
-            
-            StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
-            where.append(" = 1");
-            
-            Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-            
-            if(channelCursor.getCount() > 0) {
-              channelCursor.moveToFirst();
+            if(getActivity() != null) {
+              ContentResolver cr = getActivity().getContentResolver();
               
-              final ProgramsListFragment programList = (ProgramsListFragment)getActivity().getSupportFragmentManager().findFragmentById(R.id.programListFragment);
-              View.OnClickListener listener = new View.OnClickListener() {
-                @Override
-                public void onClick(View v) {
-                  
-                  
-                  if(programList != null) {
-                    programList.setChannelID((Long)v.getTag());
+              StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
+              where.append(" = 1");
+              
+              Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+              
+              if(channelCursor.getCount() > 0) {
+                channelCursor.moveToFirst();
+                
+                final ProgramsListFragment programList = (ProgramsListFragment)getActivity().getSupportFragmentManager().findFragmentById(R.id.programListFragment);
+                View.OnClickListener listener = new View.OnClickListener() {
+                  @Override
+                  public void onClick(View v) {
+                    
+                    
+                    if(programList != null) {
+                      programList.setChannelID((Long)v.getTag());
+                    }
                   }
-                }
-              };
-              
-              //Button all = (Button)parent.findViewById(R.id.all_channels);
-              all.setTag(Long.valueOf(-1));
-              all.setOnClickListener(listener);
-              
-              SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-              
-              int logoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST), "0"));
-                            
-              do {
-                boolean hasLogo = !channelCursor.isNull(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+                };
                 
-                Button channelButton = new Button(getActivity(),null,android.R.attr.buttonBarButtonStyle);
-                channelButton.setTag(channelCursor.getLong(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
-                channelButton.setPadding(15, 0, 15, 0);
-                channelButton.setCompoundDrawablePadding(10);
-                channelButton.setOnClickListener(listener);
+                //Button all = (Button)parent.findViewById(R.id.all_channels);
+                all.setTag(Long.valueOf(-1));
+                all.setOnClickListener(listener);
                 
-                if(logoValue == 0 || logoValue == 2 || !hasLogo) {
-                  channelButton.setText(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
-                }
+                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 
-                if((logoValue == 0 || logoValue == 1) && hasLogo) {
-                  byte[] logoData = channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
-                  Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-                  BitmapDrawable l = new BitmapDrawable(getResources(), logo);
-                  l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+                int logoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST), "0"));
+                              
+                do {
+                  boolean hasLogo = !channelCursor.isNull(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
                   
-                  channelButton.setCompoundDrawables(l, null, null, null);
-                }
-                
-                parent.addView(channelButton);
-              }while(channelCursor.moveToNext());
+                  Button channelButton = new Button(getActivity(),null,android.R.attr.buttonBarButtonStyle);
+                  channelButton.setTag(channelCursor.getLong(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
+                  channelButton.setPadding(15, 0, 15, 0);
+                  channelButton.setCompoundDrawablePadding(10);
+                  channelButton.setOnClickListener(listener);
+                  
+                  if(logoValue == 0 || logoValue == 2 || !hasLogo) {
+                    channelButton.setText(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
+                  }
+                  
+                  if((logoValue == 0 || logoValue == 1) && hasLogo) {
+                    byte[] logoData = channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+                    Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+                    BitmapDrawable l = new BitmapDrawable(getResources(), logo);
+                    l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+                    
+                    channelButton.setCompoundDrawables(l, null, null, null);
+                  }
+                  
+                  parent.addView(channelButton);
+                }while(channelCursor.moveToNext());
+              }
+              
+              channelCursor.close();
             }
-            
-            channelCursor.close();
           }
         };
         
