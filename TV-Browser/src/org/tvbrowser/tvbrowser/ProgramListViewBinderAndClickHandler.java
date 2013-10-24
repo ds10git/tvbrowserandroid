@@ -5,6 +5,7 @@ import java.util.Date;
 import org.tvbrowser.content.TvBrowserContentProvider;
 
 import android.app.Activity;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -27,13 +28,20 @@ import android.widget.TextView;
 
 public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBinder{
   private Activity mActivity;
+  private SharedPreferences mPref;
   
   public ProgramListViewBinderAndClickHandler(Activity act) {
     mActivity = act;
+    mPref = PreferenceManager.getDefaultSharedPreferences(act);
   }
 
   @Override
   public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+    boolean showPicture = mPref.getBoolean(view.getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false);
+    boolean showGenre = mPref.getBoolean(view.getResources().getString(R.string.SHOW_GENRE_IN_LISTS), true);
+    boolean showEpisode = mPref.getBoolean(view.getResources().getString(R.string.SHOW_EPISODE_IN_LISTS), true);
+    boolean showInfo = mPref.getBoolean(view.getResources().getString(R.string.SHOW_INFO_IN_LISTS), true);
+    
     if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
       long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
       
@@ -75,8 +83,26 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
         text.setTextColor(DEFAULT_TEXT_COLOR);
       }
     }
+    else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)) {
+      if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)) || !showInfo) {
+        view.setVisibility(View.GONE);
+      }
+      else {
+        int info = cursor.getInt(columnIndex);
+        
+        if(info != 0) {
+          view.setVisibility(View.VISIBLE);
+          ((TextView)view).setText(IOUtils.getInfoString(info,view.getResources()));
+        }
+        else {
+          view.setVisibility(View.GONE);
+        }
+      }
+      
+      return true;
+    }
     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)) {
-      if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
+      if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)) || !showEpisode) {
         view.setVisibility(View.GONE);
       }
       else {
@@ -84,7 +110,7 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       }
     }
     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) {
-      if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
+      if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) || !showGenre) {
         view.setVisibility(View.GONE);
       }
       else {
@@ -95,7 +121,7 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       TextView text = (TextView)view;
       ImageView picture = (ImageView)((RelativeLayout)text.getParent()).findViewById(R.id.picture_pl);
       
-      if(!cursor.isNull(columnIndex) && PreferenceManager.getDefaultSharedPreferences(view.getContext()).getBoolean(view.getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false)) {
+      if(!cursor.isNull(columnIndex) && showPicture) {
         byte[] logoData = cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE));
         Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
         

@@ -75,13 +75,19 @@
         android:layout_toRightOf="@id/startDateLabelPL"
     	android:layout_below="@id/picture_pl"
     	android:gravity="bottom" />
+    <TextView android:id="@+id/info_label_pl"
+        android:textSize="12sp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_toRightOf="@id/startDateLabelPL"
+        android:layout_below="@id/picture_copyright_pl"/>
     <TextView android:id="@+id/genre_label_pl"
         android:textSize="@dimen/genre_font_size"
         android:textStyle="italic"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/startDateLabelPL"
-        android:layout_below="@id/picture_copyright_pl"
+        android:layout_below="@id/info_label_pl"
         />
     <TextView android:id="@+id/episodeLabelPL"
         android:textSize="@dimen/episode_font_size"

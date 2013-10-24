@@ -125,4 +125,7 @@
 	<string name="pref_detail_picture_zoom">Bild skalieren</string>
 	<string name="pref_list_category">Listen mit Sendungen</string>
 	<string name="pref_show_pictures">Bilder anzeigen</string>
+	<string name="pref_show_genre">Genre anzeigen</string>
+	<string name="pref_show_episode">Episodentitel anzeigen</string>
+	<string name="pref_show_info">Zusätzliche Informationen anzeigen</string>
 </resources>

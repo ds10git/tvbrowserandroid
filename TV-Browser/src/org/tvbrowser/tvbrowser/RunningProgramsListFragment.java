@@ -12,6 +12,7 @@ import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -166,15 +167,23 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         TvBrowserContentProvider.DATA_KEY_TITLE,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
         TvBrowserContentProvider.DATA_KEY_GENRE,
-        TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT
+        TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT,
+        TvBrowserContentProvider.DATA_KEY_CATEGORIES
     };
+    
+    final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
     // Create a new Adapter an bind it to the List View
     adapter = new SimpleCursorAdapter(getActivity(),R.layout.running_list_entries,null,
-        projection,new int[] {R.id.startTimeLabel,R.id.endTimeLabel,R.id.channelLabel,R.id.titleLabel,R.id.episodeLabel,R.id.genre_label,R.id.picture_copyright},0);
+        projection,new int[] {R.id.startTimeLabel,R.id.endTimeLabel,R.id.channelLabel,R.id.titleLabel,R.id.episodeLabel,R.id.genre_label,R.id.picture_copyright,R.id.info_label},0);
     adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
       @Override
       public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+        boolean showPicture = pref.getBoolean(view.getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false);
+        boolean showGenre = pref.getBoolean(view.getResources().getString(R.string.SHOW_GENRE_IN_LISTS), true);
+        boolean showEpisode = pref.getBoolean(view.getResources().getString(R.string.SHOW_EPISODE_IN_LISTS), true);
+        boolean showInfo = pref.getBoolean(view.getResources().getString(R.string.SHOW_INFO_IN_LISTS), true);
+        
         if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) {
           int channelID = cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
           
@@ -186,6 +195,24 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
             text.setText(channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
           }
           channel.close();
+          
+          return true;
+        }
+        else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)) {
+          if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)) || !showInfo) {
+            view.setVisibility(View.GONE);
+          }
+          else {
+            int info = cursor.getInt(columnIndex);
+            
+            if(info != 0) {
+              view.setVisibility(View.VISIBLE);
+              ((TextView)view).setText(IOUtils.getInfoString(info,view.getResources()));
+            }
+            else {
+              view.setVisibility(View.GONE);
+            }
+          }
           
           return true;
         }
@@ -217,6 +244,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
             text.setTextColor(Color.rgb(200, 200, 200));
             ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.episodeLabel)).setTextColor(Color.rgb(200, 200, 200));
             ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.genre_label)).setTextColor(Color.rgb(200, 200, 200));
+            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.info_label)).setTextColor(Color.rgb(200, 200, 200));
+            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.picture_copyright)).setTextColor(Color.rgb(200, 200, 200));
           }
           else if(System.currentTimeMillis() <= end) {
             int[] attrs = new int[] { android.R.attr.textColorSecondary };
@@ -227,11 +256,13 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
             text.setTextColor(DEFAULT_TEXT_COLOR);
             ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.episodeLabel)).setTextColor(DEFAULT_TEXT_COLOR);
             ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.genre_label)).setTextColor(DEFAULT_TEXT_COLOR);
+            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.info_label)).setTextColor(DEFAULT_TEXT_COLOR);
+            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.picture_copyright)).setTextColor(DEFAULT_TEXT_COLOR);
           }
           //
         }
         else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)) {
-          if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
+          if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)) || !showEpisode) {
             view.setVisibility(View.GONE);
           }
           else {
@@ -241,7 +272,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) {
           TextView text = (TextView)view;
           
-          if(cursor.isNull(columnIndex)) {
+          if(cursor.isNull(columnIndex) || !showGenre) {
             text.setVisibility(View.GONE);
           }
           else {
@@ -252,7 +283,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           TextView text = (TextView)view;
           ImageView picture = (ImageView)((RelativeLayout)text.getParent()).findViewById(R.id.picture);
           
-          if(!cursor.isNull(columnIndex) && cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE) != -1 && PreferenceManager.getDefaultSharedPreferences(view.getContext()).getBoolean(view.getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false)) {
+          if(!cursor.isNull(columnIndex) && cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE) != -1 && showPicture) {
             byte[] logoData = cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE));
             Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
                       
@@ -264,15 +295,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
             
             if(end <= System.currentTimeMillis()) {
               l.setColorFilter(getActivity().getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
-              text.setTextColor(Color.rgb(200, 200, 200));
-            }
-            else {
-              int[] attrs = new int[] { android.R.attr.textColorSecondary };
-              TypedArray a = getActivity().getTheme().obtainStyledAttributes(R.style.AppTheme, attrs);
-              int DEFAULT_TEXT_COLOR = a.getColor(0, Color.BLACK);
-              a.recycle();
-              
-              text.setTextColor(DEFAULT_TEXT_COLOR);
             }
             
             picture.setImageDrawable(l);
@@ -332,12 +354,12 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     String[] projection = null;
     
     if(PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false)) {
-      projection = new String[12];
+      projection = new String[13];
       
-      projection[11] = TvBrowserContentProvider.DATA_KEY_PICTURE;
+      projection[12] = TvBrowserContentProvider.DATA_KEY_PICTURE;
     }
     else {
-      projection = new String[11];
+      projection = new String[12];
     }
     
     projection[0] = TvBrowserContentProvider.KEY_ID;
@@ -351,6 +373,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     projection[8] = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE;
     projection[9] = TvBrowserContentProvider.DATA_KEY_GENRE;
     projection[10] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
+    projection[11] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
     
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.MINUTE, 0);
