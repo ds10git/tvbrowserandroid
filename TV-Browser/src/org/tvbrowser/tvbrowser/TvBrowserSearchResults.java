@@ -41,7 +41,8 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
         TvBrowserContentProvider.DATA_KEY_TITLE,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
         TvBrowserContentProvider.DATA_KEY_GENRE,
-        TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT
+        TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT,
+        TvBrowserContentProvider.DATA_KEY_CATEGORIES
     };
     
     registerForContextMenu(getListView());
@@ -50,7 +51,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     
     mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(this);
     adapter = new SimpleCursorAdapter(this,/*android.R.layout.simple_list_item_1*/R.layout.program_list_entries,null,
-        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl},0);
+        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0);
     adapter.setViewBinder(mViewAndClickHandler);
     
     setListAdapter(adapter);
@@ -118,12 +119,12 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     String[] projection = null;
     
     if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false)) {
-      projection = new String[14];
+      projection = new String[15];
       
-      projection[13] = TvBrowserContentProvider.DATA_KEY_PICTURE;
+      projection[14] = TvBrowserContentProvider.DATA_KEY_PICTURE;
     }
     else {
-      projection = new String[13];
+      projection = new String[14];
     }
     
     projection[0] = TvBrowserContentProvider.KEY_ID;
@@ -139,6 +140,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     projection[10] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
     projection[11] = TvBrowserContentProvider.DATA_KEY_UNIX_DATE;
     projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
+    projection[13] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
         
     String where = "(" + TvBrowserContentProvider.DATA_KEY_TITLE + " LIKE \"%" + query + "%\" OR " + TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE + " LIKE \"%" + query + "%\") AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " >= " + System.currentTimeMillis();
     String[] whereArgs = null;

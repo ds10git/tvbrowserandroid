@@ -9,6 +9,7 @@ import java.net.URL;
 import java.net.URLConnection;
 
 import android.content.res.Resources;
+import android.util.Log;
 
 /**
  * Helper class to supper IO.
@@ -77,7 +78,7 @@ public class IOUtils {
         infoString.append(valueArr[i]);
       }
     }
-    
+    Log.d("info", ""+valueArr[1] + " "+value+" " +res + " " + infoString.toString());
     return infoString.toString().trim();
   }
   

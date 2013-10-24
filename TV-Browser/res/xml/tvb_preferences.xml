@@ -52,5 +52,14 @@
         <CheckBoxPreference android:key="@string/SHOW_PICTURE_IN_LISTS" 
             android:title="@string/pref_show_pictures"
             android:defaultValue="false"/>
+        <CheckBoxPreference android:key="@string/SHOW_GENRE_IN_LISTS" 
+            android:title="@string/pref_show_genre"
+            android:defaultValue="true"/>
+        <CheckBoxPreference android:key="@string/SHOW_EPISODE_IN_LISTS" 
+            android:title="@string/pref_show_episode"
+            android:defaultValue="true"/>
+        <CheckBoxPreference android:key="@string/SHOW_INFO_IN_LISTS" 
+            android:title="@string/pref_show_info"
+            android:defaultValue="true"/>
     </PreferenceCategory>
 </PreferenceScreen>
