@@ -7,7 +7,11 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import android.app.Activity;
 import android.content.res.TypedArray;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.ContextMenu;
@@ -15,7 +19,9 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
@@ -84,7 +90,30 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       else {
         view.setVisibility(View.VISIBLE);
       }
-    }     
+    }
+    else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)) {
+      TextView text = (TextView)view;
+      ImageView picture = (ImageView)((RelativeLayout)text.getParent()).findViewById(R.id.picture_pl);
+      
+      if(!cursor.isNull(columnIndex) && PreferenceManager.getDefaultSharedPreferences(view.getContext()).getBoolean(view.getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false)) {
+        byte[] logoData = cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE));
+        Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+        
+        BitmapDrawable l = new BitmapDrawable(view.getResources(), logo);
+        l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+        
+        picture.setImageDrawable(l);
+        
+        text.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)));
+        text.setVisibility(View.VISIBLE);
+        picture.setVisibility(View.VISIBLE);
+      }
+      else {
+        view.setVisibility(View.GONE);
+        picture.setVisibility(View.GONE);
+      }
+    }
+    
     return false;
   }
 

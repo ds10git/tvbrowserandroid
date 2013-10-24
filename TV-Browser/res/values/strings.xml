@@ -129,4 +129,6 @@ If you have any questions concerning these terms please contact dev@tvbrowser.or
 	<string name="pref_activated">Activated</string>
 	<string name="pref_detail_category">Detail window</string>
 	<string name="pref_detail_picture_zoom">Zoom value for picture</string>
+	<string name="pref_list_category">Lists with programs</string>
+	<string name="pref_show_pictures">Show pictures</string>
 </resources>

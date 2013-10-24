@@ -123,4 +123,6 @@
 	<string name="pref_activated">Aktiviert</string>
 	<string name="pref_detail_category">Detail-Fenster</string>
 	<string name="pref_detail_picture_zoom">Bild skalieren</string>
+	<string name="pref_list_category">Listen mit Sendungen</string>
+	<string name="pref_show_pictures">Bilder anzeigen</string>
 </resources>

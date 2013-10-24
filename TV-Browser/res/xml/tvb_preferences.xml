@@ -36,6 +36,9 @@
             android:entries="@array/show_logo"
             android:entryValues="@array/logo_name_values"
             android:summary="%s"/>
+        <CheckBoxPreference android:key="@string/SHOW_PICTURE_IN_PROGRAM_TABLE" 
+            android:title="@string/pref_show_pictures"
+            android:defaultValue="false"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_detail_category">
         <ListPreference android:key="@string/DETAIL_PICTURE_ZOOM"
@@ -44,5 +47,10 @@
             android:entries="@array/picture_zoom_values_names"
             android:entryValues="@array/picture_zoom_values"
             android:summary="%s"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_list_category">
+        <CheckBoxPreference android:key="@string/SHOW_PICTURE_IN_LISTS" 
+            android:title="@string/pref_show_pictures"
+            android:defaultValue="false"/>
     </PreferenceCategory>
 </PreferenceScreen>
