@@ -25,7 +25,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
 public class ProgramsListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-  SimpleCursorAdapter adapter;
+  SimpleCursorAdapter mProgamListAdapter;
   
   private Handler handler = new Handler();
   
@@ -37,16 +37,13 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   
   private BroadcastReceiver mDataUpdateReceiver;
+  private BroadcastReceiver mRefreshReceiver;
   
   @Override
   public void onResume() {
     super.onResume();
     
     mKeepRunning = true;
-    
-    createUpdateThread();
-    
-    mUpdateThread.start();
   }
   
   @Override
@@ -63,20 +60,23 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     mDataUpdateReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            if(!isDetached() && mKeepRunning) {
-              getLoaderManager().restartLoader(0, null, ProgramsListFragment.this);
-            }
-          }
-        });
+        startUpdateThread();
       }
     };
-    
+
+    mRefreshReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        startUpdateThread();
+      }
+    };
+
     IntentFilter intent = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, intent);
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
+    
+    mKeepRunning = true;
   }
   
   @Override
@@ -87,6 +87,9 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     
     if(mDataUpdateReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
+    }
+    if(mRefreshReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mRefreshReceiver);
     }
   }
   
@@ -111,14 +114,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     
     mChannelID = id;
     
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        if(!isDetached()) {
-          getLoaderManager().restartLoader(0, null, ProgramsListFragment.this);
-        }
-      }
-    });
+    startUpdateThread();
   }
   
   @Override
@@ -142,11 +138,11 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity());
     
     // Create a new Adapter an bind it to the List View
-    adapter = new SimpleCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_list_entries,null,
+    mProgamListAdapter = new SimpleCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_list_entries,null,
         projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0);
-    adapter.setViewBinder(mViewAndClickHandler);
+    mProgamListAdapter.setViewBinder(mViewAndClickHandler);
     
-    setListAdapter(adapter);
+    setListAdapter(mProgamListAdapter);
     
     getLoaderManager().initLoader(0, null, this);
   }
@@ -169,27 +165,22 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     mViewAndClickHandler.onListItemClick(l, v, position, id);
   }
   
-  private void createUpdateThread() {
-    mUpdateThread = new Thread() {
-      public void run() {
-        while(mKeepRunning) {
-          try {
-            if(mKeepRunning) {
-              handler.post(new Runnable() {
-                @Override
-                public void run() {
-                  if(!isDetached()) {
-                    getLoaderManager().restartLoader(0, null, ProgramsListFragment.this);
-                  }
-                }
-              });
+  private void startUpdateThread() {
+    if(mUpdateThread == null || !mUpdateThread.isAlive()) {
+      mUpdateThread = new Thread() {
+        public void run() {
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              if(mKeepRunning && !isDetached() && !isRemoving()) {
+                getLoaderManager().restartLoader(0, null, ProgramsListFragment.this);
+              }
             }
-            sleep(60000);
-          } catch (InterruptedException e) {
-          }
+          });
         }
-      }
-    };
+      };
+      mUpdateThread.start();
+    }
   }
 
   @Override
@@ -249,11 +240,11 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   @Override
   public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader,
       Cursor c) {
-    adapter.swapCursor(c);
+    mProgamListAdapter.swapCursor(c);
   }
 
   @Override
   public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
-    adapter.swapCursor(null);
+    mProgamListAdapter.swapCursor(null);
   }
 }

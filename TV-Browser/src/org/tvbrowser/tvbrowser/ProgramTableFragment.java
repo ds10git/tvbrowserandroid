@@ -60,6 +60,8 @@ public class ProgramTableFragment extends Fragment {
   private View mMenuView;
   
   private BroadcastReceiver mDataUpdateReceiver;
+  private BroadcastReceiver mUpdateMarkingsReceiver;
+  private BroadcastReceiver mRefreshReceiver;
   
   private int mCurrentLogoValue;
   private boolean mPictureShown;
@@ -118,8 +120,41 @@ public class ProgramTableFragment extends Fragment {
     mUpdatingRunningPrograms = false;
     mUpdatingLayout = false;
     mCurrentDay = 0;
+    
+    mClickListener = new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Long id = (Long)v.getTag();
+        
+        if(id != null) {
+          UiUtils.showProgramInfo(getActivity(), id);
+        }
+      }
+    };
+  }
+
   
-    BroadcastReceiver receiver = new BroadcastReceiver() {
+  Handler handler = new Handler();
+  
+  @Override
+  public void onResume() {
+    super.onResume();
+    
+    mKeepRunning = true;
+  }
+  
+  @Override
+  public void onPause() {
+    super.onPause();
+    
+    mKeepRunning = false;
+  }
+  
+  @Override
+  public void onAttach(Activity activity) {
+    super.onAttach(activity);
+    
+    mUpdateMarkingsReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
         long id = intent.getLongExtra(SettingConstants.MARKINGS_ID, 0);
@@ -142,45 +177,8 @@ public class ProgramTableFragment extends Fragment {
     
     IntentFilter filter = new IntentFilter(SettingConstants.MARKINGS_CHANGED);
     
-    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, filter);
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mUpdateMarkingsReceiver, filter);
     
-    mClickListener = new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        Long id = (Long)v.getTag();
-        
-        if(id != null) {
-          UiUtils.showProgramInfo(getActivity(), id);
-        }
-      }
-    };
-  }
-
-  
-  Handler handler = new Handler();
-  
-  @Override
-  public void onResume() {
-    super.onResume();
-    
-    mKeepRunning = true;
-    
-    createUpdateThread();
-    
-    mUpdateThread.start();
-  }
-  
-  @Override
-  public void onPause() {
-    super.onPause();
-    
-    mKeepRunning = false;
-  }
-  
-  @Override
-  public void onAttach(Activity activity) {
-    super.onAttach(activity);
-        
     mDataUpdateReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
@@ -202,6 +200,17 @@ public class ProgramTableFragment extends Fragment {
     IntentFilter intent = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, intent);
+    
+    mRefreshReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        startUpdateThread();
+      }
+    };
+    
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
+    
+    mKeepRunning = true;
   }
   
   @Override
@@ -213,112 +222,116 @@ public class ProgramTableFragment extends Fragment {
     if(mDataUpdateReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
     }
+    if(mRefreshReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mRefreshReceiver);
+    }
+    if(mUpdateMarkingsReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mUpdateMarkingsReceiver);
+    }
   }
   
-  private void createUpdateThread() {
-    mUpdateThread = new Thread() {
-      public void run() {
-        while(mKeepRunning) {
-          try {
-            if(mKeepRunning && TvBrowserContentProvider.INFORM_FOR_CHANGES && !mUpdatingLayout) {
-              mUpdatingRunningPrograms = true;
+  private void startUpdateThread() {
+    if(mUpdateThread == null || !mUpdateThread.isAlive()) {
+      mUpdateThread = new Thread() {
+        public void run() {
+          if(mKeepRunning && TvBrowserContentProvider.INFORM_FOR_CHANGES && !mUpdatingLayout) {
+            mUpdatingRunningPrograms = true;
+            
+            if(!isDetached()) {
+              LinearLayout main = (LinearLayout)getView().findViewById(R.id.MAIN_LAYOUT);
               
-              if(!isDetached()) {
-                LinearLayout main = (LinearLayout)getView().findViewById(R.id.MAIN_LAYOUT);
+              for(int k = 0; k < main.getChildCount(); k++) {
+                View mainChild = main.getChildAt(k);
                 
-                for(int k = 0; k < main.getChildCount(); k++) {
-                  View mainChild = main.getChildAt(k);
+                if(mainChild instanceof LinearLayout) {
+                  LinearLayout layout = (LinearLayout)mainChild;
                   
-                  if(mainChild instanceof LinearLayout) {
-                    LinearLayout layout = (LinearLayout)mainChild;
+                  for(int i = 0; i < layout.getChildCount(); i++) {
+                    View child = layout.getChildAt(i);
                     
-                    for(int i = 0; i < layout.getChildCount(); i++) {
-                      View child = layout.getChildAt(i);
+                    if(child instanceof LinearLayout) {
+                      LinearLayout block = (LinearLayout)child;
                       
-                      if(child instanceof LinearLayout) {
-                        LinearLayout block = (LinearLayout)child;
+                      for(int j = 0; j < block.getChildCount(); j++) {
+                        View blockChild = block.getChildAt(j);
                         
-                        for(int j = 0; j < block.getChildCount(); j++) {
-                          View blockChild = block.getChildAt(j);
+                        if(blockChild instanceof RelativeLayout) {
+                          final RelativeLayout progPanel = (RelativeLayout)blockChild;
                           
-                          if(blockChild instanceof RelativeLayout) {
-                            final RelativeLayout progPanel = (RelativeLayout)blockChild;
+                          if(progPanel.getTag() != null && getActivity() != null) {
+                                
+                            Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
                             
-                            if(progPanel.getTag() != null && getActivity() != null) {
-                                  
-                              Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
+                            if(c.getCount() > 0) {
+                              c.moveToFirst();
                               
-                              if(c.getCount() > 0) {
-                                c.moveToFirst();
-                                
-                                boolean expiredTest = false;
-                                
-                                if(progPanel.getTag(R.id.expired_tag) != null) {
-                                  expiredTest = (Boolean)progPanel.getTag(R.id.expired_tag);
-                                }
-                                                                    
-                                final boolean expired = expiredTest;
-                                
-                                long startTime = c.getLong(0);
-                                long endTime = c.getLong(1);
-                                
-                                final TextView title = (TextView)progPanel.findViewById(R.id.prog_panel_title);
-                                final TextView text = (TextView)progPanel.findViewById(R.id.prog_panel_start_time);
-                                final TextView genre = (TextView)progPanel.findViewById(R.id.prog_panel_genre);
-                                final TextView episode = (TextView)progPanel.findViewById(R.id.prog_panel_episode);
-                                
-                                if(!expired && endTime <= System.currentTimeMillis()) {
-                                  handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                      text.setTextColor(Color.rgb(190, 190, 190));
-                                      title.setTextColor(Color.rgb(190, 190, 190));
-                                      episode.setTextColor(Color.rgb(190, 190, 190));
-                                      genre.setTextColor(Color.rgb(190, 190, 190));
-                                      
-                                      Drawable[] compoundDrawables = genre.getCompoundDrawables();
-                                      
-                                      if(compoundDrawables != null && compoundDrawables[1] != null) {
-                                        compoundDrawables[1].setColorFilter(getActivity().getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
-                                      }
-                                      
-                                      if(!isDetached() && mKeepRunning && !isRemoving()) {
-                                        Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
-                                        
-                                        if(c.getCount() > 0) {
-                                          c.moveToFirst();
-                                          UiUtils.handleMarkings(getActivity(), c, progPanel, null);
-                                        }
-                                        
-                                        c.close();
-                                        
-                                        progPanel.setTag(R.id.expired_tag, true);
-                                      }
-                                    }
-                                  });
-                                }
-                                else if(System.currentTimeMillis() >= startTime && System.currentTimeMillis() <= endTime) {
-                                  handler.post(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                      if(!isDetached() && mKeepRunning) {
-                                        Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
-                                        
-                                        if(c.getCount() > 0) {
-                                          c.moveToFirst();
-                                          UiUtils.handleMarkings(getActivity(), c, progPanel, null);
-                                        }
-                                        
-                                        c.close();
-                                      }
-                                    }
-                                  });
-                                }
+                              boolean expiredTest = false;
+                              
+                              if(progPanel.getTag(R.id.expired_tag) != null) {
+                                expiredTest = (Boolean)progPanel.getTag(R.id.expired_tag);
                               }
+                                                                  
+                              final boolean expired = expiredTest;
                               
-                              c.close();
-                            }                            
-                          }
+                              long startTime = c.getLong(0);
+                              long endTime = c.getLong(1);
+                              
+                              final TextView title = (TextView)progPanel.findViewById(R.id.prog_panel_title);
+                              final TextView text = (TextView)progPanel.findViewById(R.id.prog_panel_start_time);
+                              final TextView genre = (TextView)progPanel.findViewById(R.id.prog_panel_genre);
+                              final TextView episode = (TextView)progPanel.findViewById(R.id.prog_panel_episode);
+                              
+                              if(!expired && endTime <= System.currentTimeMillis()) {
+                                handler.post(new Runnable() {
+                                  @Override
+                                  public void run() {
+                                    text.setTextColor(Color.rgb(190, 190, 190));
+                                    title.setTextColor(Color.rgb(190, 190, 190));
+                                    episode.setTextColor(Color.rgb(190, 190, 190));
+                                    genre.setTextColor(Color.rgb(190, 190, 190));
+                                    
+                                    Drawable[] compoundDrawables = genre.getCompoundDrawables();
+                                    
+                                    if(compoundDrawables != null && compoundDrawables[1] != null) {
+                                      compoundDrawables[1].setColorFilter(getActivity().getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
+                                    }
+                                    
+                                    if(!isDetached() && mKeepRunning && !isRemoving()) {
+                                      Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
+                                      
+                                      if(c.getCount() > 0) {
+                                        c.moveToFirst();
+                                        UiUtils.handleMarkings(getActivity(), c, progPanel, null);
+                                      }
+                                      
+                                      c.close();
+                                      
+                                      progPanel.setTag(R.id.expired_tag, true);
+                                    }
+                                  }
+                                });
+                              }
+                              else if(System.currentTimeMillis() >= startTime && System.currentTimeMillis() <= endTime) {
+                                handler.post(new Runnable() {
+                                  @Override
+                                  public void run() {
+                                    if(!isDetached() && mKeepRunning) {
+                                      Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
+                                      
+                                      if(c.getCount() > 0) {
+                                        c.moveToFirst();
+                                        UiUtils.handleMarkings(getActivity(), c, progPanel, null);
+                                      }
+                                      
+                                      c.close();
+                                    }
+                                  }
+                                });
+                              }
+                            }
+                            
+                            c.close();
+                          }                            
                         }
                       }
                     }
@@ -326,16 +339,15 @@ public class ProgramTableFragment extends Fragment {
                 }
               }
             }
-          
-            mUpdatingRunningPrograms = false;
-            sleep(60000);
-          } catch (InterruptedException e) {
           }
+        
           mUpdatingRunningPrograms = false;
         }
-      }
-    };
-    mUpdateThread.setPriority(Thread.MIN_PRIORITY);
+      };
+      
+      mUpdateThread.setPriority(Thread.MIN_PRIORITY);
+      mUpdateThread.start();
+    }
   }
   
   public void updateView(LayoutInflater inflater, ViewGroup container) {

@@ -44,8 +44,11 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   
   private Handler handler;
   
+  private Thread mUpdateThread;
+  
   private boolean mFavoriteContext;
   private BroadcastReceiver mReceiver;
+  private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mDataUpdateReceiver;
   
   @Override
@@ -164,45 +167,62 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   @Override
   public void onAttach(Activity activity) {
     super.onAttach(activity);
-    
+        
     mReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, final Intent intent) {
-        new Thread() {
-          public void run() {
-            String oldName = intent.getStringExtra(Favorite.OLD_NAME_KEY);
-            
-            Favorite fav = null;
-            
-            if(oldName != null) {
-              for(Favorite favorite : mFavoriteList) {
-                if(favorite.getName().equals(oldName)) {
-                  fav = favorite;
-                  break;
+        if(mUpdateThread == null || !mUpdateThread.isAlive()) {
+          mUpdateThread = new Thread() {
+            public void run() {
+              String oldName = intent.getStringExtra(Favorite.OLD_NAME_KEY);
+              
+              Favorite fav = null;
+              
+              if(oldName != null) {
+                for(Favorite favorite : mFavoriteList) {
+                  if(favorite.getName().equals(oldName)) {
+                    fav = favorite;
+                    break;
+                  }
                 }
               }
-            }
-            
-            if(fav == null) {
-              fav = new Favorite(intent.getStringExtra(Favorite.NAME_KEY), intent.getStringExtra(Favorite.SEARCH_KEY), intent.getBooleanExtra(Favorite.ONLY_TITLE_KEY, true));
-              mFavoriteList.add(fav);
-            }
-            else {
-              fav.setValues(intent.getStringExtra(Favorite.NAME_KEY), intent.getStringExtra(Favorite.SEARCH_KEY), intent.getBooleanExtra(Favorite.ONLY_TITLE_KEY, true));
-            }
-            
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                mFavoriteAdapter.notifyDataSetChanged();
+              
+              if(fav == null) {
+                fav = new Favorite(intent.getStringExtra(Favorite.NAME_KEY), intent.getStringExtra(Favorite.SEARCH_KEY), intent.getBooleanExtra(Favorite.ONLY_TITLE_KEY, true));
+                mFavoriteList.add(fav);
               }
-            });
-          }
-        }.start();
+              else {
+                fav.setValues(intent.getStringExtra(Favorite.NAME_KEY), intent.getStringExtra(Favorite.SEARCH_KEY), intent.getBooleanExtra(Favorite.ONLY_TITLE_KEY, true));
+              }
+              
+              handler.post(new Runnable() {
+                @Override
+                public void run() {
+                  mFavoriteAdapter.notifyDataSetChanged();
+                }
+              });
+            }
+          };
+          mUpdateThread.start();
+        }
       }
     };
     
     mDataUpdateReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            if(!isDetached()) {
+              mFavoriteAdapter.notifyDataSetChanged();
+            }
+          }
+        });
+      }
+    };
+    
+    mRefreshReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
         handler.post(new Runnable() {
@@ -223,6 +243,8 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     IntentFilter filter = new IntentFilter(SettingConstants.FAVORITES_CHANGED);
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mReceiver, filter);
+    
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
   }
   
   @Override
@@ -234,6 +256,9 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     }
     if(mDataUpdateReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
+    }
+    if(mRefreshReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mRefreshReceiver);
     }
   }
   
