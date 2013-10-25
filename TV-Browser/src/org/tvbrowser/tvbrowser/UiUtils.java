@@ -284,6 +284,14 @@ public class UiUtils {
                 endWith = true;
               }
               
+              if(key.equals(TvBrowserContentProvider.DATA_KEY_VPS)) {
+                Calendar temp = Calendar.getInstance();
+                temp.set(Calendar.HOUR_OF_DAY, Integer.parseInt(text) / 60);
+                temp.set(Calendar.MINUTE, Integer.parseInt(text) % 60);
+                
+                text = DateFormat.getTimeFormat(activity).format(temp.getTime());
+              }
+              
               text = text.replace("\n", "<br>");
               
               name = "<b><u>" + name.replace("\n", "<br>") + "</u></b>" + (endWith ? " " : "");
