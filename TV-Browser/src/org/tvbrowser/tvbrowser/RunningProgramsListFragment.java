@@ -58,6 +58,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     super.onResume();
     
     mKeepRunning = true;
+    startUpdateThread();
   }
   
   @Override

@@ -141,6 +141,8 @@ public class ProgramTableFragment extends Fragment {
     super.onResume();
     
     mKeepRunning = true;
+    
+    startUpdateThread();
   }
   
   @Override

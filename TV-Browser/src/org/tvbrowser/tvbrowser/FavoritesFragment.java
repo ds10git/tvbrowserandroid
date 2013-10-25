@@ -60,6 +60,20 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   }
   
   @Override
+  public void onResume() {
+    super.onResume();
+    
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        if(!isDetached() && !isRemoving()) {
+          mFavoriteAdapter.notifyDataSetChanged();
+        }
+      }
+    });
+  }
+  
+  @Override
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     
@@ -214,7 +228,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         handler.post(new Runnable() {
           @Override
           public void run() {
-            if(!isDetached()) {
+            if(!isDetached() && !isRemoving()) {
               mFavoriteAdapter.notifyDataSetChanged();
             }
           }
@@ -228,7 +242,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         handler.post(new Runnable() {
           @Override
           public void run() {
-            if(!isDetached()) {
+            if(!isDetached() && !isRemoving()) {
               getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
             }
           }

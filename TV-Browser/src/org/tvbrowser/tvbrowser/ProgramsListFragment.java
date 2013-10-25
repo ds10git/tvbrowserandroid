@@ -44,6 +44,8 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     super.onResume();
     
     mKeepRunning = true;
+    
+    startUpdateThread();
   }
   
   @Override
