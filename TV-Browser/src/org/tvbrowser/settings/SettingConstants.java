@@ -4,6 +4,8 @@ import java.util.HashMap;
 
 import org.tvbrowser.tvbrowser.R;
 
+import android.content.IntentFilter;
+
 public class SettingConstants {
   public static final String EPG_FREE_KEY = "EPG_FREE";
   public static final String[] LEVEL_NAMES = {"base","more00-16","more16-00","picture00-16","picture16-00"};
@@ -12,6 +14,7 @@ public class SettingConstants {
   public static final String FAVORITES_CHANGED = "org.tvbrowser.FAVORTES_CHANGED";
   public static final String DATA_UPDATE_DONE = "org.tvbrowser.DATA_UPDATE_DONE";
   public static final String CHANNEL_UPDATE_DONE = "org.tvbrowser.CHANNEL_UPDATE_DONE";
+  public static final String REFRESH_VIEWS = "org.tvbrowser.REFRESH_VIEWS";
   public static final String MARKINGS_ID = "MARKINGS_ID";
   public static final String FAVORITE_LIST = "FAVORITE_LIST";
   public static final String MARK_VALUE = "marked";
@@ -25,6 +28,8 @@ public class SettingConstants {
   public static final String SPONSORING_DATE = "SPONSORING_DATE";
   
   public static final String TERMS_ACCEPTED = "TERMS_ACCEPTED";
+  
+  public static final IntentFilter RERESH_FILTER = new IntentFilter(REFRESH_VIEWS);
     
   public static final HashMap<String, Integer> MARK_COLOR_MAP = new HashMap<String, Integer>();
   

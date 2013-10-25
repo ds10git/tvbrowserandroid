@@ -134,4 +134,27 @@ If you have any questions concerning these terms please contact dev@tvbrowser.or
 	<string name="pref_show_genre">Show genre</string>
 	<string name="pref_show_episode">Show episode title</string>
 	<string name="pref_show_info">Show additional informations</string>
+	
+	<string name="customInfo">Custom Information:\n</string>
+	<string name="actors">Actors:\n</string>
+	<string name="regie">Regie:</string>
+	<string name="ageLimit">Age Limit:</string>
+	<string name="nettoPlayTime">Netto Play Time:</string>
+	<string name="vps">VPS:</string>
+	<string name="script">Script:</string>
+	<string name="repetitionFrom">Repetition From:</string>
+	<string name="music">Music:</string>
+	<string name="moderation">Moderation:</string>
+	<string name="repetitionOn">Repetition On:</string>
+	<string name="seasonNumber">Season:</string>
+	<string name="producer">Producer:</string>
+	<string name="camera">Camera:</string>
+	<string name="cut">Cut:</string>
+	<string name="otherPersons">Other persons:\n</string>
+	<string name="rating">Rating:</string>
+	<string name="productionFirm">Production Firm:</string>
+	<string name="ageLimitString">Age Limit:</string>
+	<string name="lastProductionYear">Last Production:</string>
+	<string name="additionalInfo">Additional information:\n</string>
+	<string name="series">Series:</string>
 </resources>

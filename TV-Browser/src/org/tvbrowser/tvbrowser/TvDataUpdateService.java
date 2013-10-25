@@ -698,7 +698,8 @@ public class TvDataUpdateService extends Service {
       if(name.contains("_ard_") || name.contains("_zdf_") || name.contains("_bfs_") || name.contains("_hr_") || name.contains("_mdr-sn_") 
       || name.contains("_mdr_") || name.contains("_mdr-th_") || name.contains("_ndr-hh_") || name.contains("_ndr-mv_") || name.contains("_ndr_")
       || name.contains("_ndr_") || name.contains("_ndr-sh_") || name.contains("_rbbberlin_") || name.contains("_rbbbrandenburg_") || name.contains("_swr_")
-      || name.contains("_swrrp_") || name.contains("_swrsr_") || name.contains("_wdr_") || name.contains("_orf1_") || name.contains("_sfdrs1_") || name.contains("_kika_")) {
+      || name.contains("_swrrp_") || name.contains("_swrsr_") || name.contains("_wdr_") || name.contains("_orf1_") || name.contains("_sfdrs1_") 
+      || name.contains("_kika_") ||  name.contains("_arte_") || name.contains("_phoenix_")) {
         return 0;
       }
     }
@@ -710,7 +711,8 @@ public class TvDataUpdateService extends Service {
       if(name.contains("_ard_") || name.contains("_zdf_") || name.contains("_bfs_") || name.contains("_hr_") || name.contains("_mdr-sn_") 
       || name.contains("_mdr_") || name.contains("_mdr-th_") || name.contains("_ndr-hh_") || name.contains("_ndr-mv_") || name.contains("_ndr_")
       || name.contains("_ndr_") || name.contains("_ndr-sh_") || name.contains("_rbbberlin_") || name.contains("_rbbbrandenburg_") || name.contains("_swr_")
-      || name.contains("_swrrp_") || name.contains("_swrsr_") || name.contains("_wdr_") || name.contains("_orf1_") || name.contains("_sfdrs1_") || name.contains("_kika_")) {
+      || name.contains("_swrrp_") || name.contains("_swrsr_") || name.contains("_wdr_") || name.contains("_orf1_") || name.contains("_sfdrs1_")
+      || name.contains("_kika_") ||  name.contains("_arte_") || name.contains("_phoenix_")) {
         return 24;
       }
     }

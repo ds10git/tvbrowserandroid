@@ -7,6 +7,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -92,6 +94,8 @@ public class TvBrowser extends FragmentActivity implements
   
   Handler handler;
   
+  Timer mTimer;
+  
   @Override
   protected void onSaveInstanceState(Bundle outState) {
     outState.putBoolean("updateRunning", updateRunning);
@@ -155,6 +159,15 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   @Override
+  protected void onPause() {
+    super.onPause();
+    
+    if(mTimer != null) {
+      mTimer.cancel();
+    }
+  }
+  
+  @Override
   protected void onResume() {
     super.onResume();
     
@@ -213,6 +226,19 @@ public class TvBrowser extends FragmentActivity implements
     }
     
     channels.close();
+    
+    Calendar now = Calendar.getInstance();
+    
+    now.add(Calendar.MINUTE, 1);
+    now.set(Calendar.SECOND, 5);
+    
+    mTimer = new Timer();
+    mTimer.schedule(new TimerTask() {
+      @Override
+      public void run() {
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
+      }
+    }, now.getTime(), 60000);
   }
   
   private void showChannelSelection() {

@@ -4,6 +4,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
@@ -36,6 +37,7 @@ import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -50,201 +52,262 @@ import android.widget.TextView;
 public class UiUtils {
   public static final SimpleDateFormat LONG_DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.getDefault());
   
+  private static final HashMap<String, Integer> VALUE_MAP;
+  
+  static {
+    VALUE_MAP = new HashMap<String, Integer>();
+    
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_ACTORS, R.id.detail_actors);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_REGIE, R.id.detail_regie);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_CUSTOM_INFO, R.id.detail_custom);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_AGE_LIMIT, R.id.detail_age_limit);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME, R.id.detail_netto_playtime);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_VPS, R.id.detail_vps);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_SCRIPT, R.id.detail_script);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_REPETITION_FROM, R.id.detail_repetition_from);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_MUSIC, R.id.detail_music);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_MODERATION, R.id.detail_moderation);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_REPETITION_ON, R.id.detail_repetition_on);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_SEASON_NUMBER, R.id.detail_season);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_PRODUCER, R.id.detail_producer);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_CAMERA, R.id.detail_camera);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_CUT, R.id.detail_cut);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_OTHER_PERSONS, R.id.detail_other_persons);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_PRODUCTION_FIRM, R.id.detail_production_firm);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_AGE_LIMIT_STRING, R.id.detail_age_limit_string);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR, R.id.detail_last_production_year);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO, R.id.detail_additional_info);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_SERIES, R.id.detail_series);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_RATING, R.id.detail_rating);
+  }
+  
   public static void showProgramInfo(Activity activity, long id) {
-
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(activity);
+    
     Cursor c = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), null, null, null, null);
     
-    c.moveToFirst();
-    
-    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-    
-    View layout = activity.getLayoutInflater().inflate(R.layout.detail_layout, null);
-    
-    TextView date = (TextView)layout.findViewById(R.id.detail_date_channel);
-    TextView title = (TextView)layout.findViewById(R.id.detail_title);
-    TextView genre = (TextView)layout.findViewById(R.id.detail_genre);
-    TextView info = (TextView)layout.findViewById(R.id.detail_info);
-    TextView episode = (TextView)layout.findViewById(R.id.detail_episode_title);
-    TextView shortDescription = (TextView)layout.findViewById(R.id.detail_short_description);
-    TextView description = (TextView)layout.findViewById(R.id.detail_description);
-    TextView actors = (TextView)layout.findViewById(R.id.detail_actors);
-    TextView link = (TextView)layout.findViewById(R.id.detail_link);
-    
-    TextView pictureDescription = (TextView)layout.findViewById(R.id.detail_picture_description);
-    TextView pictureCopyright = (TextView)layout.findViewById(R.id.detail_picture_copyright);
-    
-    Date start = new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
-    SimpleDateFormat day = new SimpleDateFormat("EEE",Locale.getDefault());
-    
-    long channelID = c.getLong(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
-    
-    Cursor channel = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelID), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, null, null, null);
-    
-    channel.moveToFirst();
-    
-    date.setText(day.format(start) + " " + java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT).format(start) + " " + DateFormat.getTimeFormat(activity).format(start) + " - " + DateFormat.getTimeFormat(activity)/*.getTimeInstance(java.text.DateFormat.SHORT)*/.format(new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)))) + " " + channel.getString(0));
-    
-    if(!channel.isNull(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))) {
-      byte[] logoData = channel.getBlob(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
-      Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-      BitmapDrawable l = new BitmapDrawable(activity.getResources(), logo);
-      l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+    if(c.moveToFirst()) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(activity);
       
-      date.setCompoundDrawables(l, null, null, null);
-    }
-    
-    channel.close();
-    
-    String year = "";
+      View layout = activity.getLayoutInflater().inflate(R.layout.detail_layout, null);
+      
+      TextView date = (TextView)layout.findViewById(R.id.detail_date_channel);
+      TextView title = (TextView)layout.findViewById(R.id.detail_title);
+      TextView genre = (TextView)layout.findViewById(R.id.detail_genre);
+      TextView info = (TextView)layout.findViewById(R.id.detail_info);
+      TextView episode = (TextView)layout.findViewById(R.id.detail_episode_title);
+      TextView shortDescription = (TextView)layout.findViewById(R.id.detail_short_description);
+      TextView description = (TextView)layout.findViewById(R.id.detail_description);
+      TextView link = (TextView)layout.findViewById(R.id.detail_link);
+          
+      TextView pictureDescription = (TextView)layout.findViewById(R.id.detail_picture_description);
+      TextView pictureCopyright = (TextView)layout.findViewById(R.id.detail_picture_copyright);
+      
+      Date start = new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
+      SimpleDateFormat day = new SimpleDateFormat("EEE",Locale.getDefault());
+      
+      long channelID = c.getLong(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+      
+      Cursor channel = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelID), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, null, null, null);
+      
+      channel.moveToFirst();
+      
+      date.setText(day.format(start) + " " + java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT).format(start) + " " + DateFormat.getTimeFormat(activity).format(start) + " - " + DateFormat.getTimeFormat(activity)/*.getTimeInstance(java.text.DateFormat.SHORT)*/.format(new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)))) + " " + channel.getString(0));
+      
+      if(!channel.isNull(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))) {
+        byte[] logoData = channel.getBlob(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+        Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+        BitmapDrawable l = new BitmapDrawable(activity.getResources(), logo);
+        l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
         
-    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN))) {
-      year = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN));
-    }
-    
-    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR))) {
-      if(year.length() > 0) {
-        year += " ";
+        date.setCompoundDrawables(l, null, null, null);
       }
       
-      year += c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR));
-    }
-    
-    String originalTitle = null;
-    String titleTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
-    
-    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL))) {
-      originalTitle = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL));
-    }
-    
-    if(originalTitle == null || originalTitle.equals(titleTest)) {
-      title.setText(titleTest);
-    }
-    else {
-      title.setText(titleTest + "/" + originalTitle);
-    }
-    
-    if(c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)) || c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT))) {
-      pictureCopyright.setVisibility(View.GONE);
-      pictureDescription.setVisibility(View.GONE);
-    }
-    else {
-      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION))) {
-        pictureDescription.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION)));
+      channel.close();
+      
+      String year = "";
+          
+      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN))) {
+        year = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN));
       }
       
-      pictureCopyright.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)));
+      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR))) {
+        if(year.length() > 0) {
+          year += " ";
+        }
+        
+        year += c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR));
+      }
       
-      byte[] pictureData = c.getBlob(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE));
+      String originalTitle = null;
+      String titleTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
       
-      Bitmap image = BitmapFactory.decodeByteArray(pictureData,0,pictureData.length);
+      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL))) {
+        originalTitle = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL));
+      }
       
-      BitmapDrawable b = new BitmapDrawable(activity.getResources(),image);
-      
-      float zoom = Float.parseFloat(PreferenceManager.getDefaultSharedPreferences(activity).getString(activity.getResources().getString(R.string.DETAIL_PICTURE_ZOOM), "1.4"));
-      
-      b.setBounds(0, 0, (int)(image.getWidth() * zoom), (int)(image.getHeight() * zoom));
-      
-      pictureDescription.setCompoundDrawables(b, null, null, null);
-    }
-    
-    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
-      genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) + (year.length() > 0 ? " - " + year : ""));
-    }
-    else if(year.length() > 0) {
-      genre.setText(year);
-    }
-    else {
-      genre.setVisibility(View.GONE);
-    }
-    
-    String infoValue = IOUtils.getInfoString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)), activity.getResources());
-    
-    if(infoValue.length() > 0) {
-      info.setText(infoValue);
-    }
-    else {
-      info.setVisibility(View.GONE);
-    }
-    
-    String number = "";
-    
-    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER))) {
-      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT))) {
-        number = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER)) + "/" + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT)) + " ";
+      if(originalTitle == null || originalTitle.equals(titleTest)) {
+        title.setText(titleTest);
       }
       else {
-        number = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER)) + " ";
+        title.setText(titleTest + "/" + originalTitle);
       }
-    }
-    
-    String originalEpisode = null;
-    
-    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL))) {
-      originalEpisode = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL));
-    }
-    
-    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
-      String episodeTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
       
-      if(originalEpisode == null || episodeTest.equals(originalEpisode)) {
-        episode.setText(number + episodeTest);
+      if(c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)) || c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT))) {
+        pictureCopyright.setVisibility(View.GONE);
+        pictureDescription.setVisibility(View.GONE);
       }
       else {
-        episode.setText(number + episodeTest + "/" + originalEpisode);
+        if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION))) {
+          pictureDescription.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION)));
+        }
+        
+        pictureCopyright.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)));
+        
+        byte[] pictureData = c.getBlob(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE));
+        
+        Bitmap image = BitmapFactory.decodeByteArray(pictureData,0,pictureData.length);
+        
+        BitmapDrawable b = new BitmapDrawable(activity.getResources(),image);
+        
+        float zoom = Float.parseFloat(PreferenceManager.getDefaultSharedPreferences(activity).getString(activity.getResources().getString(R.string.DETAIL_PICTURE_ZOOM), "1.4"));
+        
+        b.setBounds(0, 0, (int)(image.getWidth() * zoom), (int)(image.getHeight() * zoom));
+        
+        pictureDescription.setCompoundDrawables(b, null, null, null);
       }
+      
+      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
+        genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) + (year.length() > 0 ? " - " + year : ""));
+      }
+      else if(year.length() > 0) {
+        genre.setText(year);
+      }
+      else {
+        genre.setVisibility(View.GONE);
+      }
+      
+      String infoValue = IOUtils.getInfoString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)), activity.getResources());
+      
+      if(infoValue.length() > 0) {
+        info.setText(infoValue);
+      }
+      else {
+        info.setVisibility(View.GONE);
+      }
+      
+      String number = "";
+      
+      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER))) {
+        if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT))) {
+          number = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER)) + "/" + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT)) + " ";
+        }
+        else {
+          number = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER)) + " ";
+        }
+      }
+      
+      String originalEpisode = null;
+      
+      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL))) {
+        originalEpisode = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL));
+      }
+      
+      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
+        String episodeTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
+        
+        if(originalEpisode == null || episodeTest.equals(originalEpisode)) {
+          episode.setText(number + episodeTest);
+        }
+        else {
+          episode.setText(number + episodeTest + "/" + originalEpisode);
+        }
+      }
+      else if(number.trim().length() > 0) {
+        episode.setText(number);
+      }
+      else {
+        episode.setVisibility(View.GONE);
+      }
+      
+      String shortDescriptionValue = null;
+      String descriptionValue = null;
+      
+      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
+        shortDescriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
+      }
+      
+      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION))) {
+        descriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
+      }
+      
+      if(shortDescriptionValue == null || (descriptionValue != null && descriptionValue.startsWith(shortDescriptionValue))) {
+        shortDescription.setVisibility(View.GONE);
+      }
+      else {
+        shortDescription.setText(shortDescriptionValue);
+      }
+      
+      if(descriptionValue != null) {
+        description.setText(descriptionValue);
+      }
+      else {
+        description.setVisibility(View.GONE);
+      }
+      
+      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK))) {
+        String linkText = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK));
+        link.setText(linkText);
+        link.setMovementMethod(LinkMovementMethod.getInstance());
+      }
+      else {
+        link.setVisibility(View.GONE);
+      }
+      
+      Set<String> keys = VALUE_MAP.keySet();
+      
+      for(String key : keys) {
+        Log.d("info", key);
+        boolean enabled = pref.getBoolean("details_" + key, true);
+        TextView textView = (TextView)layout.findViewById(VALUE_MAP.get(key));
+        
+        if(textView != null && enabled && !c.isNull(c.getColumnIndex(key))) {
+          String text = c.getString(c.getColumnIndex(key));
+          
+          if(text.trim().length() > 0) {
+            try {
+              String name = activity.getResources().getString((Integer)R.string.class.getField(key).get(null));
+              
+              boolean endWith = false;
+              
+              if(name.endsWith(":")) {
+                endWith = true;
+              }
+              
+              text = text.replace("\n", "<br>");
+              
+              name = "<b><u>" + name.replace("\n", "<br>") + "</u></b>" + (endWith ? " " : "");
+              
+              textView.setText(Html.fromHtml(name + text));
+            } catch (Exception e) {
+              Log.d("info", "", e);
+              textView.setVisibility(View.GONE);
+            }
+          }
+          else {
+            textView.setVisibility(View.GONE);
+          }
+        }
+        else if(textView != null) {
+          textView.setVisibility(View.GONE);
+        }
+      }
+      
+      c.close();
+      
+      builder.setView(layout);
+      builder.show();
     }
-    else if(number.trim().length() > 0) {
-      episode.setText(number);
-    }
-    else {
-      episode.setVisibility(View.GONE);
-    }
-    
-    String shortDescriptionValue = null;
-    String descriptionValue = null;
-    
-    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
-      shortDescriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
-    }
-    
-    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION))) {
-      descriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
-    }
-    
-    if(shortDescriptionValue == null || (descriptionValue != null && descriptionValue.startsWith(shortDescriptionValue))) {
-      shortDescription.setVisibility(View.GONE);
-    }
-    else {
-      shortDescription.setText(shortDescriptionValue);
-    }
-    
-    if(descriptionValue != null) {
-      description.setText(descriptionValue);
-    }
-    else {
-      description.setVisibility(View.GONE);
-    }
-    
-    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK))) {
-      String linkText = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK));
-      link.setText(linkText);
-      link.setMovementMethod(LinkMovementMethod.getInstance());
-    }
-    else {
-      link.setVisibility(View.GONE);
-    }
-    
-    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ACTORS))) {
-      actors.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ACTORS)));
-    }
-    else {
-      actors.setVisibility(View.GONE);
-    }
-    
-    c.close();
-    
-    builder.setView(layout);
-    builder.show();
   }
   
   public static void createContextMenu(Activity activity, ContextMenu menu, long id) {

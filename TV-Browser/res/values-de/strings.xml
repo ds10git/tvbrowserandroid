@@ -128,4 +128,28 @@
 	<string name="pref_show_genre">Genre anzeigen</string>
 	<string name="pref_show_episode">Episodentitel anzeigen</string>
 	<string name="pref_show_info">Zusätzliche Informationen anzeigen</string>
+	
+	<string name="customInfo">Beliebige Informationen:\n</string>
+	<string name="actors">Schauspieler:\n</string>
+	<string name="regie">Regie:</string>
+	<string name="ageLimit">Alterbeschränkung:</string>
+	<string name="nettoPlayTime">Netto-Spielzeit:</string>
+	<string name="vps">VPS:</string>
+	<string name="script">Drehbuch:</string>
+	<string name="repetitionFrom">Wiederholung vom:</string>
+	<string name="music">Musik:</string>
+	<string name="moderation">Moderation:</string>
+	<string name="repetitionOn">Wiederholung am:</string>
+	<string name="seasonNumber">Staffel:</string>
+	<string name="producer">Produzent:</string>
+	<string name="camera">Kamera:</string>
+	<string name="cut">Schnitt:</string>
+	<string name="otherPersons">Andere beteiligte Personen:\n</string>
+	<string name="rating">Bewertung:</string>
+	<string name="productionFirm">Produktionsfirma:</string>
+	<string name="ageLimitString">Alterbeschränkung:</string>
+	<string name="lastProductionYear">Letztes Produktionsjahr:</string>
+	<string name="additionalInfo">Zusätzliche Informationen:\n</string>
+	<string name="series">Serie:</string>
+	
 </resources>
