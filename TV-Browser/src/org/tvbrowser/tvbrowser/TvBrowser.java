@@ -196,6 +196,7 @@ public class TvBrowser extends FragmentActivity implements
           System.exit(0);
         }
       });
+      builder.setCancelable(false);
       
       AlertDialog dialog = builder.create();
       dialog.show();
