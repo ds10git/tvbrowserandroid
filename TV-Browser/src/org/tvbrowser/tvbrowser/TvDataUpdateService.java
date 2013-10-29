@@ -61,13 +61,13 @@ public class TvDataUpdateService extends Service {
   private boolean updateRunning;
   private ExecutorService mThreadPool;
   private Handler mHandler;
-  private int mDayStart;
-  private int mDayEnd;
   
   private int mNotifyID = 1;
   private NotificationCompat.Builder mBuilder;
   private int mCurrentDownloadCount;
   private int mDaysToLoad;
+  
+  private boolean mAllChannelsDownloadable = false;
     
   private static final Integer[] FRAME_ID_ARR;
   
@@ -116,13 +116,12 @@ public class TvDataUpdateService extends Service {
           cal.set(2014, Calendar.JANUARY, 5);
           
           if(cal.getTimeInMillis() > System.currentTimeMillis()) {
-            mDayStart = 0;
-            mDayEnd = 24;
+            mAllChannelsDownloadable = true;
           }
           else {
-            mDayStart = 19;
-            mDayEnd = 23;
+            mAllChannelsDownloadable = false;
           }
+          
           updateTvData();
         }
         else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
@@ -564,7 +563,7 @@ public class TvDataUpdateService extends Service {
       String car = pref.getString(SettingConstants.USER_NAME, null);
       String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
       
-      if(car != null && bicycle != null) {
+      if(car != null && bicycle != null && car.trim().length() > 0 && bicycle.trim().length() > 0) {
         String userpass = car.trim() + ":" + bicycle.trim();
         String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
         
@@ -578,12 +577,10 @@ public class TvDataUpdateService extends Service {
         Date sponsoringDate = dateFormat.parse(dateValue.trim());
         Log.d("dateinfo", String.valueOf(sponsoringDate));
         if(sponsoringDate.getTime() < System.currentTimeMillis()) {
-          mDayStart = 19;
-          mDayEnd = 23;
+          mAllChannelsDownloadable = false;
         }
         else {
-          mDayStart = 0;
-          mDayEnd = 24;
+          mAllChannelsDownloadable = true;
           
           mSyncFavorites = new ArrayList<String>();
           
@@ -693,30 +690,17 @@ public class TvDataUpdateService extends Service {
     }
   }
   
-  private int getDayStart(String name) {
-    if(mDayStart != 0) {
-      if(name.contains("_ard_") || name.contains("_zdf_") || name.contains("_bfs_") || name.contains("_hr_") || name.contains("_mdr-sn_") 
-      || name.contains("_mdr_") || name.contains("_mdr-th_") || name.contains("_ndr-hh_") || name.contains("_ndr-mv_") || name.contains("_ndr_")
-      || name.contains("_ndr_") || name.contains("_ndr-sh_") || name.contains("_rbbberlin_") || name.contains("_rbbbrandenburg_") || name.contains("_swr_")
-      || name.contains("_swrrp_") || name.contains("_swrsr_") || name.contains("_wdr_") || name.contains("_orf1_") || name.contains("_sfdrs1_") 
-      || name.contains("_kika_") ||  name.contains("_3sat_") ||  name.contains("_arte_") || name.contains("_phoenix_")) {
-        return 0;
-      }
+  private boolean isDownloadableChannel(String groupID, String channelID) {
+    if(mAllChannelsDownloadable) {
+      return true;
     }
-    return mDayStart;
-  }
-  
-  private int getDayEnd(String name) {
-    if(mDayEnd != 24) {
-      if(name.contains("_ard_") || name.contains("_zdf_") || name.contains("_bfs_") || name.contains("_hr_") || name.contains("_mdr-sn_") 
-      || name.contains("_mdr_") || name.contains("_mdr-th_") || name.contains("_ndr-hh_") || name.contains("_ndr-mv_") || name.contains("_ndr_")
-      || name.contains("_ndr_") || name.contains("_ndr-sh_") || name.contains("_rbbberlin_") || name.contains("_rbbbrandenburg_") || name.contains("_swr_")
-      || name.contains("_swrrp_") || name.contains("_swrsr_") || name.contains("_wdr_") || name.contains("_orf1_") || name.contains("_sfdrs1_")
-      || name.contains("_kika_") ||  name.contains("_3sat_") ||  name.contains("_arte_") || name.contains("_phoenix_")) {
-        return 24;
-      }
+    else if(groupID != null && channelID != null) {
+      return groupID.equals("local") || (groupID.equals("main") && (channelID.equals("ard") || channelID.equals("zdf"))) 
+          || (groupID.equals("others") && (channelID.equals("phoenix") || channelID.equals("kika") || channelID.equals("sfdrs1")))
+          || (groupID.equals("austria") && channelID.equals("orf1"));
     }
-    return mDayEnd;
+    
+    return false;
   }
   
   private void updateTvData() {
@@ -830,9 +814,12 @@ public class TvDataUpdateService extends Service {
           }
           
           if(summary != null) {
-            ChannelFrame frame = summary.getChannelFrame(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)));
-            Log.d(TAG, " CHANNEL FRAME " + String.valueOf(frame) + " " + String.valueOf(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID))));
-            if(frame != null) {
+            String channelID = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+            
+            ChannelFrame frame = summary.getChannelFrame(channelID);
+            Log.d(TAG, " CHANNEL FRAME " + String.valueOf(frame) + " " + channelID);
+            
+            if(frame != null && isDownloadableChannel(groupId,channelID)) {
               Calendar startDate = summary.getStartDate();
               
               Calendar now = Calendar.getInstance();
@@ -1322,14 +1309,7 @@ public class TvDataUpdateService extends Service {
               getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, values, dataInfo.getWhereClause(), null);
             }
             else if(values.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
-              long startTime = values.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-              
-              Calendar cal = Calendar.getInstance(update.getTimeZone());
-              cal.setTimeInMillis(startTime);
-              
-              if(cal.get(Calendar.HOUR_OF_DAY) >= getDayStart(dataFile.getName()) && (cal.get(Calendar.HOUR_OF_DAY) < getDayEnd(dataFile.getName()) || (cal.get(Calendar.HOUR_OF_DAY) == getDayEnd(dataFile.getName()) && cal.get(Calendar.MINUTE) == 0))) {
-                getContentResolver().insert(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, values);            
-              }
+              getContentResolver().insert(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, values);
             }
             
             values.clear();

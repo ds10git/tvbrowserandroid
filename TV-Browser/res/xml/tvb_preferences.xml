@@ -40,15 +40,8 @@
             android:title="@string/pref_show_pictures"
             android:defaultValue="false"/>
     </PreferenceCategory>
-    <PreferenceCategory android:title="@string/pref_detail_category">
-        <ListPreference android:key="@string/DETAIL_PICTURE_ZOOM"
-            android:title="@string/pref_detail_picture_zoom"
-            android:defaultValue="1.4"
-            android:entries="@array/picture_zoom_values_names"
-            android:entryValues="@array/picture_zoom_values"
-            android:summary="%s"/>
-    </PreferenceCategory>
-    <PreferenceCategory android:title="@string/pref_list_category">
+    <PreferenceCategory android:title="@string/pref_list_category"
+        android:summary="@string/pref_list_category_summary">
         <CheckBoxPreference android:key="@string/SHOW_PICTURE_IN_LISTS" 
             android:title="@string/pref_show_pictures"
             android:defaultValue="false"/>
@@ -61,5 +54,121 @@
         <CheckBoxPreference android:key="@string/SHOW_INFO_IN_LISTS" 
             android:title="@string/pref_show_info"
             android:defaultValue="true"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_detail_category"
+        android:summary="@string/pref_detail_category_summary">
+        <CheckBoxPreference android:key="@string/SHOW_PICTURE_IN_DETAILS" 
+            android:title="@string/pref_show_pictures"
+            android:defaultValue="true"/>
+        <ListPreference android:key="@string/DETAIL_PICTURE_ZOOM"
+            android:title="@string/pref_detail_picture_zoom"
+            android:defaultValue="1.4"
+            android:entries="@array/picture_zoom_values_names"
+            android:entryValues="@array/picture_zoom_values"
+            android:summary="%s"/>
+        <CheckBoxPreference android:key="@string/SHOW_GENRE_IN_DETAILS" 
+            android:title="@string/pref_show_genre"
+            android:defaultValue="true"/>
+        <CheckBoxPreference android:key="@string/SHOW_EPISODE_IN_DETAILS" 
+            android:title="@string/pref_show_episode"
+            android:defaultValue="true"/>
+        <CheckBoxPreference android:key="@string/SHOW_INFO_IN_DETAILS" 
+            android:title="@string/pref_show_info"
+            android:defaultValue="true"/>
+        <PreferenceScreen android:title="@string/pref_title_other"
+            android:summary="@string/pref_title_other_summary">
+            <CheckBoxPreference android:key="@string/SHOW_LINK_IN_DETAILS"
+                android:title="@string/pref_show_link"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_actors"
+                android:title="@string/actors"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_regie"
+                android:title="@string/regie"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_customInfo"
+                android:title="@string/customInfo"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_ageLimit"
+                android:title="@string/ageLimit"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_nettoPlayTime"
+                android:title="@string/nettoPlayTime"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_vps"
+                android:title="@string/vps"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_script"
+                android:title="@string/script"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_repetitionFrom"
+                android:title="@string/repetitionFrom"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_music"
+                android:title="@string/music"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_moderation"
+                android:title="@string/moderation"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_repetitionOn"
+                android:title="@string/repetitionOn"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_seasonNumber"
+                android:title="@string/seasonNumber"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_producer"
+                android:title="@string/producer"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_camera"
+                android:title="@string/camera"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_cut"
+                android:title="@string/cut"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_otherPersons"
+                android:title="@string/otherPersons"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_productionFirm"
+                android:title="@string/productionFirm"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_ageLimitString"
+                android:title="@string/ageLimitString"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_lastProductionYear"
+                android:title="@string/lastProductionYear"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_additionalInfo"
+                android:title="@string/additionalInfo"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_series"
+                android:title="@string/series"
+                android:defaultValue="true"
+                />
+            <CheckBoxPreference android:key="details_rating"
+                android:title="@string/rating"
+                android:defaultValue="true"
+                />
+        </PreferenceScreen>
     </PreferenceCategory>
 </PreferenceScreen>

@@ -153,7 +153,7 @@ public class UiUtils {
         title.setText(titleTest + "/" + originalTitle);
       }
       
-      if(c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)) || c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT))) {
+      if(!pref.getBoolean(activity.getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS), true) ||  c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)) || c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT))) {
         pictureCopyright.setVisibility(View.GONE);
         pictureDescription.setVisibility(View.GONE);
       }
@@ -177,7 +177,7 @@ public class UiUtils {
         pictureDescription.setCompoundDrawables(b, null, null, null);
       }
       
-      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
+      if(pref.getBoolean(activity.getResources().getString(R.string.SHOW_GENRE_IN_DETAILS), true) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
         genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) + (year.length() > 0 ? " - " + year : ""));
       }
       else if(year.length() > 0) {
@@ -189,7 +189,7 @@ public class UiUtils {
       
       String infoValue = IOUtils.getInfoString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)), activity.getResources());
       
-      if(infoValue.length() > 0) {
+      if(pref.getBoolean(activity.getResources().getString(R.string.SHOW_INFO_IN_DETAILS), true) && infoValue.length() > 0) {
         info.setText(infoValue);
       }
       else {
@@ -213,7 +213,7 @@ public class UiUtils {
         originalEpisode = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL));
       }
       
-      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
+      if(pref.getBoolean(activity.getResources().getString(R.string.SHOW_EPISODE_IN_DETAILS), true) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
         String episodeTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
         
         if(originalEpisode == null || episodeTest.equals(originalEpisode)) {
@@ -223,7 +223,7 @@ public class UiUtils {
           episode.setText(number + episodeTest + "/" + originalEpisode);
         }
       }
-      else if(number.trim().length() > 0) {
+      else if(pref.getBoolean(activity.getResources().getString(R.string.SHOW_EPISODE_IN_DETAILS), true) && number.trim().length() > 0) {
         episode.setText(number);
       }
       else {
@@ -255,7 +255,7 @@ public class UiUtils {
         description.setVisibility(View.GONE);
       }
       
-      if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK))) {
+      if(pref.getBoolean(activity.getResources().getString(R.string.SHOW_LINK_IN_DETAILS), true) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK))) {
         String linkText = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK));
         link.setText(linkText);
         link.setMovementMethod(LinkMovementMethod.getInstance());

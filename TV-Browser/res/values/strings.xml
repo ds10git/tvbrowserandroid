@@ -128,13 +128,18 @@ If you have any questions concerning these terms please contact dev@tvbrowser.or
 	</string-array>
 	<string name="pref_activated">Activated</string>
 	<string name="pref_detail_category">Detail window</string>
+	<string name="pref_detail_category_summary">Which information should be shown in the details window?</string>
 	<string name="pref_detail_picture_zoom">Zoom value for picture</string>
 	<string name="pref_list_category">Lists with programs</string>
+	<string name="pref_list_category_summary">Which information should be shown in the lists with programs?</string>
 	<string name="pref_show_pictures">Show pictures</string>
-	<string name="pref_show_genre">Show genre</string>
+	<string name="pref_show_genre">Show enre</string>
 	<string name="pref_show_episode">Show episode title</string>
 	<string name="pref_show_info">Show additional informations</string>
+	<string name="pref_title_other">Select other informations</string>
+	<string name="pref_title_other_summary">Which other informations should be shown if available?</string>
 	
+	<string name="pref_show_link">Show website link:</string>
 	<string name="customInfo">Custom Information:\n</string>
 	<string name="actors">Actors:\n</string>
 	<string name="regie">Regie:</string>

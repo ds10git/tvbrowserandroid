@@ -122,13 +122,18 @@
 	</string-array>
 	<string name="pref_activated">Aktiviert</string>
 	<string name="pref_detail_category">Detail-Fenster</string>
+	<string name="pref_detail_category_summary">Welche Informationen sollen im Detail-Fenster angezeigt werden?</string>
 	<string name="pref_detail_picture_zoom">Bild skalieren</string>
 	<string name="pref_list_category">Listen mit Sendungen</string>
+	<string name="pref_list_category_summary">Welche Informationen sollen in den Listen mit Sendungen angezeigt werden?</string>
 	<string name="pref_show_pictures">Bilder anzeigen</string>
 	<string name="pref_show_genre">Genre anzeigen</string>
 	<string name="pref_show_episode">Episodentitel anzeigen</string>
 	<string name="pref_show_info">Zusätzliche Informationen anzeigen</string>
+	<string name="pref_title_other">Weitere Informationen auswählen</string>
+	<string name="pref_title_other_summary">Welche weiteren Informationen sollen angezeigt werden, wenn sie vorhanden sind?</string>
 	
+	<string name="pref_show_link">Link zur Webseite:</string>
 	<string name="customInfo">Beliebige Informationen:\n</string>
 	<string name="actors">Schauspieler:\n</string>
 	<string name="regie">Regie:</string>
