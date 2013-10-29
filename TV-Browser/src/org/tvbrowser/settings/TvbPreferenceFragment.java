@@ -10,7 +10,6 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 public class TvbPreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
   @Override
@@ -19,19 +18,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     
     addPreferencesFromResource(R.xml.tvb_preferences);
     
-    CheckBoxPreference progTable = (CheckBoxPreference) findPreference(getResources().getString(R.string.PROG_TABLE_ACTIVATED));
-    
-    ListPreference channelLogoName = (ListPreference) findPreference(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE));
-    CheckBoxPreference pictures = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE));
-    
-    if(progTable != null) {
-      if(channelLogoName != null) {
-        channelLogoName.setEnabled(progTable.isChecked());
-      }
-      if(pictures != null) {
-        pictures.setEnabled(progTable.isChecked());
-      }
-    }
+    onSharedPreferenceChanged(null,getResources().getString(R.string.PROG_TABLE_ACTIVATED));
+    onSharedPreferenceChanged(null,getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS));
   }
   
   @Override
@@ -82,6 +70,14 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         if(pictures != null) {
           pictures.setEnabled(progTable.isChecked());
         }
+      }
+    }
+    else if(key.equals(getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS))) {
+      CheckBoxPreference picturesInDetails = (CheckBoxPreference) findPreference(key);
+      ListPreference pictureZoom = (ListPreference) findPreference(getResources().getString(R.string.DETAIL_PICTURE_ZOOM));
+      
+      if(picturesInDetails != null && pictureZoom != null) {
+        pictureZoom.setEnabled(picturesInDetails.isChecked());
       }
     }
   }

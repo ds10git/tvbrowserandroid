@@ -174,8 +174,8 @@ public class TvBrowser extends FragmentActivity implements
     // Don't allow use of version after date
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.YEAR, 2013);
-    cal.set(Calendar.MONTH, Calendar.OCTOBER);
-    cal.set(Calendar.DAY_OF_MONTH, 31);
+    cal.set(Calendar.MONTH, Calendar.NOVEMBER);
+    cal.set(Calendar.DAY_OF_MONTH, 3);
         
     new Thread() {
       public void run() {
@@ -253,7 +253,7 @@ public class TvBrowser extends FragmentActivity implements
       public void onClick(DialogInterface dialog, int which) {
         final SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
         
-        if(pref.getString(SettingConstants.USER_NAME, null) == null || pref.getString(SettingConstants.USER_PASSWORD, null) == null) {
+        if(pref.getString(SettingConstants.USER_NAME, "").trim().length() == 0 || pref.getString(SettingConstants.USER_PASSWORD, "").trim().length() == 0) {
           showUserSetting(true);
         }
         else {
