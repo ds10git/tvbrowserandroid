@@ -15,6 +15,7 @@ import org.tvbrowser.settings.SettingConstants;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.app.SearchManager;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.DialogInterface;
@@ -342,15 +343,66 @@ public class UiUtils {
       }
     }
     
+    if(activity != null && activity instanceof TvBrowserSearchResults) {
+      menu.findItem(R.id.program_popup_search_repetition).setVisible(false);
+    }
+    
     cursor.close();
+  }
+  
+  public static void searchForRepetition(final Activity activity, String title, String episode) {
+    Log.d("info1", "hier");
+    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+    
+    RelativeLayout layout = (RelativeLayout)activity.getLayoutInflater().inflate(R.layout.search_repetition_layout, null);
+    
+    final EditText titleText = (EditText)layout.findViewById(R.id.search_repetition_title);
+    final EditText episodeText = (EditText)layout.findViewById(R.id.search_repetition_episode);
+    
+    if(title != null) {
+      titleText.setText(title);
+    }
+    if(episode != null) {
+      episodeText.setText(episode);
+    }
+    
+    builder.setTitle(activity.getResources().getString(R.string.program_popup_search_repetition));
+    builder.setView(layout);
+    
+    builder.setPositiveButton(activity.getResources().getString(android.R.string.search_go), new DialogInterface.OnClickListener() {      
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        Intent search = new Intent(activity,TvBrowserSearchResults.class);
+        
+        search.putExtra(SearchManager.QUERY, String.valueOf(titleText.getText()));
+        
+        String episode = String.valueOf(episodeText.getText()).trim();
+        
+        if(episode.length() > 0) {
+          search.putExtra(TvBrowserSearchResults.QUERY_EXTRA_EPISODE_KEY, episode);
+        }
+        
+        activity.startActivity(search);
+      }
+    });
+    
+    builder.setNegativeButton(activity.getResources().getString(android.R.string.cancel), new DialogInterface.OnClickListener() {      
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        
+      }
+    });
+    
+    builder.show();
   }
   
   @SuppressLint("NewApi")
   public static boolean handleContextMenuSelection(Activity activity, MenuItem item, long programID, View menuView) {
-    Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null,null);
+    Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
     
     String current = null;
     String title = null;
+    String episode = null;
     
     if(info.getCount() > 0) {
       info.moveToFirst();
@@ -360,6 +412,10 @@ public class UiUtils {
       }
       
       title = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
+      
+      if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
+        episode = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
+      }
     }
     
     info.close();
@@ -369,6 +425,9 @@ public class UiUtils {
     if(item.getItemId() == R.id.create_favorite_item) {
       UiUtils.editFavorite(null, activity, title);
       return true;
+    }
+    else if(item.getItemId() == R.id.program_popup_search_repetition) {
+      searchForRepetition(activity,title,episode);
     }
     else if(item.getItemId() == R.id.prog_mark_item) {
       if(current != null && current.contains(SettingConstants.MARK_VALUE)) {
@@ -429,15 +488,6 @@ public class UiUtils {
             }
           }
           
-          String episode = null;
-          
-          if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
-            episode = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
-            
-            if(episode != null && episode.trim().toLowerCase().equals("null")) {
-              episode = null;
-            }
-          }
           addCalendarEntry.putExtra(Events.EVENT_LOCATION, channel.getString(0));
           // Add the calendar event details
           addCalendarEntry.putExtra(Events.TITLE, info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));

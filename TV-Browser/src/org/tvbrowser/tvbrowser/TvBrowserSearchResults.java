@@ -13,6 +13,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -26,6 +27,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
 
   private static String QUERY_EXTRA_KEY = "QUERY_EXTRA_KEY";
   private static String QUERY_EXTRA_ID_KEY = "QUERY_EXTRA_ID_KEY";
+  public static String QUERY_EXTRA_EPISODE_KEY = "QUERY_EXTRA_EPISODE_KEY";
   
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   
@@ -78,6 +80,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
   }
   
   private void parseIntent(Intent intent) {
+    Log.d("info1", String.valueOf(intent));
     // If the Activity was started to service a Search request, extract the search query.
     if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
       String searchQuery = intent.getStringExtra(SearchManager.QUERY);
@@ -85,6 +88,12 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
       // Perfom the search, passing in the search query as an argument to the Cursor Loader
       Bundle args = new Bundle();
       args.putString(QUERY_EXTRA_KEY, searchQuery);
+      
+      if(intent.hasExtra(QUERY_EXTRA_EPISODE_KEY)) {
+        String episodeQuery = intent.getStringExtra(QUERY_EXTRA_EPISODE_KEY);
+        
+        args.putString(QUERY_EXTRA_EPISODE_KEY, episodeQuery);
+      }
       
       // Restart the Cursor Loader to execute the new query
       getLoaderManager().restartLoader(0, args, this);
@@ -101,19 +110,43 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
         // Ignore
       }
     }
+    else if(intent.hasExtra(SearchManager.QUERY)) {
+      Bundle args = new Bundle();
+      args.putString(QUERY_EXTRA_KEY, intent.getStringExtra(SearchManager.QUERY));
+      
+      if(intent.hasExtra(QUERY_EXTRA_EPISODE_KEY)) {
+        String episodeQuery = intent.getStringExtra(QUERY_EXTRA_EPISODE_KEY);
+        
+        args.putString(QUERY_EXTRA_EPISODE_KEY, episodeQuery);
+      }
+      
+      // Restart the Cursor Loader to execute the new query
+      getLoaderManager().restartLoader(0, args, this);
+    }
   }
   
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     String query = "0";
+    String episodeQuery = "0";
+    String operation = " OR ";
     
     long ID = -1;
     
     if(args != null) {
       // Extract the search query from the arguments.
-      query = args.getString(QUERY_EXTRA_KEY);
+      if(args.containsKey(QUERY_EXTRA_KEY)) {
+        episodeQuery = query = args.getString(QUERY_EXTRA_KEY);
+      }
+      
       ID = args.getLong(QUERY_EXTRA_ID_KEY, -1);
+            
+      if(args.containsKey(QUERY_EXTRA_EPISODE_KEY)) {
+        episodeQuery = args.getString(QUERY_EXTRA_EPISODE_KEY);
+        operation = " AND ";
+      }
     }
+    
     
     // Construct the new query in form of a Cursor Loader
     String[] projection = null;
@@ -126,6 +159,9 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     else {
       projection = new String[14];
     }
+    
+    String titleEscape = query.contains("'") ? "\"" : "'";
+    String episodeEscape = episodeQuery.contains("'") ? "\"" : "'";
     
     projection[0] = TvBrowserContentProvider.KEY_ID;
     projection[1] = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID;
@@ -142,7 +178,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
     projection[13] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
         
-    String where = "(" + TvBrowserContentProvider.DATA_KEY_TITLE + " LIKE \"%" + query + "%\" OR " + TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE + " LIKE \"%" + query + "%\") AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " >= " + System.currentTimeMillis();
+    String where = "(" + TvBrowserContentProvider.DATA_KEY_TITLE + " LIKE " + titleEscape + "%" + query + "%" + titleEscape + operation + TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE + " LIKE " + episodeEscape + "%" + episodeQuery + "%" + episodeEscape + ") AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " >= " + System.currentTimeMillis();
     String[] whereArgs = null;
     String sortOrder = TvBrowserContentProvider.DATA_KEY_STARTTIME;
     
