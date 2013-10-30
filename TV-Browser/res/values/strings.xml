@@ -34,6 +34,12 @@
     <string name="versionExpiredMsg">Look in the TV-Browser message board for new versions.</string>
     <string name="program_popup_mark">Mark program</string>
     <string name="program_popup_unmark">Unmark program</string>
+    <string name="program_popup_search_repetition">Search for repetition</string>
+    <string name="search">Search</string>
+    <string name="title">Title:</string>
+    <string name="title_hint">Enter title to search</string>
+    <string name="episode">Episode:</string>
+    <string name="episode_hint">Enter episode to search (optional)</string>
     <string name="program_add_calendar">Add program to calendar</string>
     <string name="search_description">Search program titles and episode titles</string>
     <string name="search_title">TV-Browser search</string>

@@ -29,6 +29,11 @@
     <string name="versionExpiredMsg">Sehen Sie im TV-Browser Forum nach neuen Versionen.</string>
     <string name="program_popup_mark">Sendung markieren</string>
     <string name="program_popup_unmark">Markierung löschen</string>
+    <string name="program_popup_search_repetition">Wiederholung suchen</string>
+    <string name="title">Titel:</string>
+    <string name="title_hint">Titel für Suche eingeben</string>
+    <string name="episode">Folge:</string>
+    <string name="episode_hint">Folge für Suche eingeben (optional)</string>
     <string name="program_add_calendar">Sendung in Kalendar eintragen</string>
     <string name="search_description">Suche in Sendungstitel und Episodentitel</string>
     <string name="search_title">TV-Browser Suche</string>
