@@ -175,7 +175,7 @@ public class TvBrowser extends FragmentActivity implements
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.YEAR, 2013);
     cal.set(Calendar.MONTH, Calendar.NOVEMBER);
-    cal.set(Calendar.DAY_OF_MONTH, 3);
+    cal.set(Calendar.DAY_OF_MONTH, 10);
         
     new Thread() {
       public void run() {
@@ -286,8 +286,8 @@ public class TvBrowser extends FragmentActivity implements
       public void run() {
         URL documentUrl;
         try {
-          documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels2.php");
-          //documentUrl = new URL("http://android.tvbrowser.org/webtest/android-tvb/data/scripts//hurtzAndroidTvbChannels.php");
+          //documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels2.php");
+          documentUrl = new URL("http://android.tvbrowser.org/data/scripts//hurtzAndroidTvbChannels.php");
           URLConnection connection = documentUrl.openConnection();
           
           SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);

@@ -554,8 +554,8 @@ public class TvDataUpdateService extends Service {
   
   private void loadAccessAndFavoriteSync() {
     try {      
-      URL documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvb2.php");
-      //URL documentUrl = new URL("http://android.tvbrowser.org/webtest/android-tvb/data/scripts/hurtzAndroidTvb.php");
+      //URL documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvb2.php");
+      URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/hurtzAndroidTvb.php");
       URLConnection connection = documentUrl.openConnection();
       
       SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
