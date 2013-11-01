@@ -81,12 +81,10 @@
     <string name="show_sync">Show synced</string>
     <string name="terms_of_use">Terms of Use</string>
     <string name="terms_of_use_accept">Accept</string>
-    <string name="terms_of_use_text">All TV/Radio listings provided by TV-Browser (http://www.tvbrowser.org) are protected by copyright laws and may only be used within TV-Browser or other name like applications authorized by the manufacturer of TV-Browser (http://www.tvbrowser.org) for information about the upcoming program of the available channels.
-Every other manner of using, reproducing or redistributing of the TV/Radio listings is illegal and may be prosecuted on civil or criminal law. On downloading the TV/Radio listings you declare your agreement to these terms.
-If you have any questions concerning these terms please contact dev@tvbrowser.org</string>
+    <string name="terms_of_use_text">All TV/Radio listings provided by TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) are protected by copyright laws and may only be used within TV-Browser or other name like applications authorized by the manufacturer of TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) for information about the upcoming program of the available channels.\n\nEvery other manner of using, reproducing or redistributing of the TV/Radio listings is illegal and may be prosecuted on civil or criminal law. On downloading the TV/Radio listings you declare your agreement to these terms.\n\nIf you have any questions concerning these terms please contact <a href="mailto:dev@tvbrowser.org">dev@tvbrowser.org</a></string>
 	<string name="channel_selection_help">Click on a channel to select sort number.</string>
 	<string name="synchronize_title">Syncronize channels?</string>
-	<string name="synchronize_text">You can synchronize your with the channels from your desktop TV-Browser.\n\nYou will have to <a href="http://android.tvbrowser.org">register a user first</a> and export your channels from your desktop TV-Browser with the Android Sync plugin.\n\nDo you wish to synchronize your channels now or do you wish to select the channels manually?</string>
+	<string name="synchronize_text">You can synchronize your with the channels from your desktop TV-Browser.\n\nYou will have to <a href="http://android.tvbrowser.org/index.php?id=createaccount">register a user first</a> and export your channels from your desktop TV-Browser with the Android Sync plugin.\n\nDo you wish to synchronize your channels now or do you wish to select the channels manually?</string>
 	<string name="synchronize_ok">Syncronize channels now</string>
 	<string name="synchronize_cancel">Select channels manually</string>
 	<string name="synchronize_done">Channels synchronizing done!</string>
