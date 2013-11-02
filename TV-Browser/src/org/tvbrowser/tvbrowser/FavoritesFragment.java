@@ -22,6 +22,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -56,7 +57,25 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.favorite_fragment_layout, container, false);
     
+    updateSynchroButton(v);
+    
     return v;
+  }
+  
+  public void updateSynchroButton(View view) {
+    if(view == null) {
+      view = getView();
+    }
+    
+    View button = view.findViewById(R.id.show_sync_favorites);
+    
+    
+    if(getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
+      button.setVisibility(View.VISIBLE);
+    }
+    else {
+      button.setVisibility(View.GONE);
+    }
   }
   
   @Override

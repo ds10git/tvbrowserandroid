@@ -25,8 +25,6 @@ public class SettingConstants {
   public static final String USER_NAME = "CAR";
   public static final String USER_PASSWORD = "BICYCLE";
   
-  public static final String SPONSORING_DATE = "SPONSORING_DATE";
-  
   public static final String TERMS_ACCEPTED = "TERMS_ACCEPTED";
   
   public static final IntentFilter RERESH_FILTER = new IntentFilter(REFRESH_VIEWS);
