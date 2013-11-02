@@ -765,6 +765,12 @@ public class TvBrowser extends FragmentActivity implements
         
         edit.commit();
         
+        Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
+        Log.d("info1", String.valueOf(fragment));
+        if(fragment instanceof FavoritesFragment) {
+          ((FavoritesFragment)fragment).updateSynchroButton(null);
+        }
+        
         if(syncChannels) {
           syncronizeChannels();
         }
