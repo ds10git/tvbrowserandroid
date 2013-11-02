@@ -87,7 +87,7 @@ public class ProgramTableFragment extends Fragment {
       
       do {
         id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-      }while((System.currentTimeMillis() - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1.5 * 60 * 60000)) && c.moveToNext());
+      }while((System.currentTimeMillis() - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1 * 60 * 60000)) && c.moveToNext());
       
       if(id != -1 && getView() != null) {
         final View view = getView().findViewWithTag(Long.valueOf(id));
