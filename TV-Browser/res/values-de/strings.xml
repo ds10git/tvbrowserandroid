@@ -68,17 +68,17 @@
     <string name="version">Version:</string>
     <string name="android">Android:</string>
     <string name="copyright">Copyright &#169; 2013, René Mach.</string>
-    <string name="license">Hiermit wird unentgeltlich, jeder Person, die eine Kopie der Software und der zugehörigen Dokumentationen (die "Software") erhält,
+    <string name="license"><![CDATA[<p>Hiermit wird unentgeltlich, jeder Person, die eine Kopie der Software und der zugehörigen Dokumentationen (die "Software") erhält,
   die Erlaubnis erteilt, sie zu verwenden, kopieren, ändern oder zu fusionieren, darüber hinaus sie ohne Änderungen zu verlegen und zu verbreiten
-  und Personen, die diese Software erhalten, diese Rechte zu geben, unter den folgenden Bedingungen:
+  und Personen, die diese Software erhalten, diese Rechte zu geben, unter den folgenden Bedingungen:</p>
 
-  Der obige Urheberrechtsvermerk und dieser Erlaubnisvermerk sind in allen Kopien oder Teilkopien der Software beizulegen.
+  <p>Der obige Urheberrechtsvermerk und dieser Erlaubnisvermerk sind in allen Kopien oder Teilkopien der Software beizulegen.</p>
 
-  DIE SOFTWARE WIRD OHNE JEDE AUSDRÜCKLICHE ODER IMPLIZIERTE GARANTIE BEREITGESTELLT, EINSCHLIESSLICH
+  <p>DIE SOFTWARE WIRD OHNE JEDE AUSDRÜCKLICHE ODER IMPLIZIERTE GARANTIE BEREITGESTELLT, EINSCHLIESSLICH
   DER GARANTIE ZUR BENUTZUNG FÜR DEN VORGESEHENEN ODER EINEM BESTIMMTEN ZWECK SOWIE JEGLICHER RECHTSVERLETZUNG,
   JEDOCH NICHT DARAUF BESCHRÄNKT. IN KEINEM FALL SIND DIE AUTOREN ODER COPYRIGHTINHABER FÜR JEGLICHEN SCHADEN
   ODER SONSTIGE ANSPRÜCHE HAFTBAR ZU MACHEN, OB INFOLGE DER ERFÜLLUNG EINES VERTRAGES, EINES DELIKTES ODER
-  ANDERS IM ZUSAMMENHANG MIT DER SOFTWARE ODER SONSTIGER VERWENDUNG DER SOFTWARE ENTSTANDEN.</string>
+  ANDERS IM ZUSAMMENHANG MIT DER SOFTWARE ODER SONSTIGER VERWENDUNG DER SOFTWARE ENTSTANDEN.</p></html>]]></string>
     <string name="name_for_android">TV-Browser für Android</string>
     <string name="action_about">Über TV-Browser</string>
     <string name="create_favorite_item">Lieblingssendung erstellen</string>
