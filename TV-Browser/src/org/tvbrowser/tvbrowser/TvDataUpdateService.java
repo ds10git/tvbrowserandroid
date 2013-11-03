@@ -1326,16 +1326,7 @@ public class TvDataUpdateService extends Service {
             if(missingFrameIDs != null) {
               missingFrameIDs.remove(Byte.valueOf(frameID));
             }
-          
-          /*if(dataInfo != null) {
-            missingFrameIDs.remove(Integer.valueOf(dataInfo.getFrameID()));
             
-            maxFrameID = Math.max(maxFrameID, dataInfo.getFrameID());*/
-          
-          
-            
-          //  Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, null, dataInfo.getWhereClause(), null, null);
-          
             if(programID >= 0) {
               // program known update it
               getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, programID), values, null, null);
@@ -1345,44 +1336,42 @@ public class TvDataUpdateService extends Service {
             }
             
             values.clear();
-            
-            //test.close();
-            
-            updateVersionTable(update,dataVersion);
-            
-            if(baseLevel && missingFrameIDs != null) {
-              StringBuilder where = new StringBuilder();
-              
-              for(Byte id : missingFrameIDs) {
-                if(where.length() > 0) {
-                  where.append(" OR ");
-                }
-                else {
-                  where.append(" ( ");
-                }
-                
-                where.append(" ( ");
-                where.append(TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID);
-                where.append(" = ");
-                where.append(id);
-                where.append(" ) ");
-              }
-            
-              if(where.toString().trim().length() > 0) {
-                where.append(" ) AND ");
-                where.append(" ( ");
-                where.append(TvBrowserContentProvider.DATA_KEY_UNIX_DATE);
-                where.append(" = ");
-                where.append(update.getDate());
-                where.append(" ) AND ( ");
-                where.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-                where.append(" = ");
-                where.append(update.getChannelID());
-                where.append(" ) ");
-                Log.d("info5", " DELETE WHERE " + where);
-                getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, where.toString(), null);
-              }
+          }
+        }
+        
+        updateVersionTable(update,dataVersion);
+        
+        if(baseLevel && missingFrameIDs != null) {
+          StringBuilder where = new StringBuilder();
+          
+          for(Byte id : missingFrameIDs) {
+            if(where.length() > 0) {
+              where.append(" OR ");
             }
+            else {
+              where.append(" ( ");
+            }
+            
+            where.append(" ( ");
+            where.append(TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID);
+            where.append(" = ");
+            where.append(id);
+            where.append(" ) ");
+          }
+        
+          if(where.toString().trim().length() > 0) {
+            where.append(" ) AND ");
+            where.append(" ( ");
+            where.append(TvBrowserContentProvider.DATA_KEY_UNIX_DATE);
+            where.append(" = ");
+            where.append(update.getDate());
+            where.append(" ) AND ( ");
+            where.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+            where.append(" = ");
+            where.append(update.getChannelID());
+            where.append(" ) ");
+            Log.d("info5", " DELETE WHERE " + where);
+            getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, where.toString(), null);
           }
         }
 
