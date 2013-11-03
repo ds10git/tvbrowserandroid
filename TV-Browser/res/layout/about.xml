@@ -49,10 +49,12 @@
         android:layout_below="@id/android_label"
         android:paddingBottom="5dp"
         android:text="@string/copyright"/>
-    <TextView android:id="@+id/license"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@id/copyright"
-        android:text="@string/license"/>
-
+    <ScrollView android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/copyright">
+	    <TextView android:id="@+id/license"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:text="@string/license"/>
+    </ScrollView>
 </RelativeLayout>
