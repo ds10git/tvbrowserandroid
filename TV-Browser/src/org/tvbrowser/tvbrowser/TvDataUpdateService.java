@@ -83,8 +83,6 @@ public class TvDataUpdateService extends Service {
   private int mCurrentDownloadCount;
   private int mDaysToLoad;
   
-  private boolean mAllChannelsDownloadable = false;
-  
   private Hashtable<String, Hashtable<Byte, Long>> mCurrentData;
   
   private ArrayList<String> mSyncFavorites;
@@ -119,17 +117,7 @@ public class TvDataUpdateService extends Service {
         
         if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
           mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), 2);
-          
-          Calendar cal = Calendar.getInstance();
-          cal.set(2014, Calendar.JANUARY, 5);
-          
-          if(cal.getTimeInMillis() > System.currentTimeMillis()) {
-            mAllChannelsDownloadable = true;
-          }
-          else {
-            mAllChannelsDownloadable = false;
-          }
-          
+                    
           updateTvData();
         }
         else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
@@ -542,8 +530,7 @@ public class TvDataUpdateService extends Service {
   }
   
   private void loadAccessAndFavoriteSync() {
-    try {      
-      //URL documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvb2.php");
+    try {
       URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/hurtzAndroidTvb.php");
       URLConnection connection = documentUrl.openConnection();
       
@@ -563,14 +550,9 @@ public class TvDataUpdateService extends Service {
         String dateValue = read.readLine();
         
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
-        Date sponsoringDate = dateFormat.parse(dateValue.trim());
+        Date syncDate = dateFormat.parse(dateValue.trim());
         
-        if(sponsoringDate.getTime() < System.currentTimeMillis()) {
-          mAllChannelsDownloadable = false;
-        }
-        else {
-          mAllChannelsDownloadable = true;
-          
+        if(syncDate.getTime() > System.currentTimeMillis()) {
           mSyncFavorites = new ArrayList<String>();
           
           String line = null;
@@ -674,20 +656,7 @@ public class TvDataUpdateService extends Service {
       Favorite.updateFavoriteMarking(getApplicationContext(), getContentResolver(), fav);
     }
   }
-  
-  private boolean isDownloadableChannel(String groupID, String channelID) {
-    if(mAllChannelsDownloadable) {
-      return true;
-    }
-    else if(groupID != null && channelID != null) {
-      return groupID.equals("local") || (groupID.equals("main") && (channelID.equals("ard") || channelID.equals("zdf"))) 
-          || (groupID.equals("others") && (channelID.equals("phoenix") || channelID.equals("kika") || channelID.equals("sfdrs1")))
-          || (groupID.equals("austria") && channelID.equals("orf1"));
-    }
     
-    return false;
-  }
-  
   private void updateTvData() {
     if(!updateRunning) {
       final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
@@ -800,7 +769,7 @@ public class TvDataUpdateService extends Service {
             
             ChannelFrame frame = summary.getChannelFrame(channelID);
             
-            if(frame != null && isDownloadableChannel(groupId,channelID)) {
+            if(frame != null) {
               Calendar startDate = summary.getStartDate();
               
               Calendar now = Calendar.getInstance();
