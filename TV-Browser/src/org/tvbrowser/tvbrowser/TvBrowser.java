@@ -61,6 +61,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.text.Html;
 import android.text.method.LinkMovementMethod;
 import android.util.Base64;
 import android.util.Log;
@@ -929,6 +930,8 @@ public class TvBrowser extends FragmentActivity implements
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
+        
+        ((TextView)about.findViewById(R.id.license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
         
         TextView androidVersion = (TextView)about.findViewById(R.id.android_version);
         androidVersion.setText(Build.VERSION.RELEASE);

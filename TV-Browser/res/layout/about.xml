@@ -50,11 +50,10 @@
         android:paddingBottom="5dp"
         android:text="@string/copyright"/>
     <ScrollView android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:layout_below="@id/copyright">
 	    <TextView android:id="@+id/license"
 	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        android:text="@string/license"/>
+	        android:layout_height="wrap_content"/>
     </ScrollView>
 </RelativeLayout>
