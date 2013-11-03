@@ -1,3 +1,19 @@
+/*
+ * TV-Browser for Android
+ * Copyright (C) 2013 René Mach (rene@tvbrowser.org)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to use, copy, modify or merge the Software,
+ * furthermore to publish and distribute the Software without modifications and to permit persons to whom
+ * the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package org.tvbrowser.tvbrowser;
 
 import java.text.SimpleDateFormat;
@@ -41,7 +57,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -268,7 +283,6 @@ public class UiUtils {
       Set<String> keys = VALUE_MAP.keySet();
       
       for(String key : keys) {
-        Log.d("info", key);
         boolean enabled = pref.getBoolean("details_" + key, true);
         TextView textView = (TextView)layout.findViewById(VALUE_MAP.get(key));
         
@@ -299,7 +313,6 @@ public class UiUtils {
               
               textView.setText(Html.fromHtml(name + text));
             } catch (Exception e) {
-              Log.d("info", "", e);
               textView.setVisibility(View.GONE);
             }
           }
@@ -351,7 +364,6 @@ public class UiUtils {
   }
   
   public static void searchForRepetition(final Activity activity, String title, String episode) {
-    Log.d("info1", "hier");
     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     
     RelativeLayout layout = (RelativeLayout)activity.getLayoutInflater().inflate(R.layout.search_repetition_layout, null);
@@ -801,6 +813,6 @@ public class UiUtils {
     
     text.setText(mdf.format(progDate.getTime()));
     
-    UiUtils.handleMarkings(activity, cursor, ((RelativeLayout)view.getParent()), null);}catch(Throwable t) {Log.d("Exception", "", t);}
+    UiUtils.handleMarkings(activity, cursor, ((RelativeLayout)view.getParent()), null);}catch(Throwable t) {}
   }
 }

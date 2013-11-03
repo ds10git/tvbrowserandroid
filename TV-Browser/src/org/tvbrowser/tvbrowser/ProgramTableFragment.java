@@ -1,3 +1,19 @@
+/*
+ * TV-Browser for Android
+ * Copyright (C) 2013 René Mach (rene@tvbrowser.org)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to use, copy, modify or merge the Software,
+ * furthermore to publish and distribute the Software without modifications and to permit persons to whom
+ * the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package org.tvbrowser.tvbrowser;
 
 import java.util.Calendar;
@@ -33,7 +49,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -87,7 +102,7 @@ public class ProgramTableFragment extends Fragment {
       
       do {
         id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-      }while((System.currentTimeMillis() - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1 * 60 * 60000)) && c.moveToNext());
+      }while((System.currentTimeMillis() - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1.25 * 60 * 60000)) && c.moveToNext());
       
       if(id != -1 && getView() != null) {
         final View view = getView().findViewWithTag(Long.valueOf(id));
@@ -492,7 +507,6 @@ public class ProgramTableFragment extends Fragment {
           }
           
           leftPadding = (int)(columnWidth - leftPadding);
-          Log.d("info", "padding " + leftPadding + " " + columnWidth);
           
           if(leftPadding > 0) {
             text.setPadding(leftPadding / 2, 0, leftPadding / 2, 0);
@@ -709,7 +723,6 @@ public class ProgramTableFragment extends Fragment {
               }
               
               leftPadding = (int)(columnWidth - leftPadding);
-              Log.d("info", "padding " + leftPadding + " " + columnWidth);
               
               if(leftPadding > 0) {
                 text.setPadding(leftPadding / 2, 0, leftPadding / 2, 0);
@@ -882,6 +895,6 @@ public class ProgramTableFragment extends Fragment {
     
     builder.setView(scroll);
     
-    builder.show();}catch(Throwable t) {Log.d("dateselect", "", t);}
+    builder.show();}catch(Throwable t) {}
   }
 }
