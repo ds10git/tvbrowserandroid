@@ -27,6 +27,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
 
+import javax.xml.namespace.QName;
+
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.tvbrowser.settings.SettingConstants;
@@ -905,6 +907,29 @@ public class TvBrowser extends FragmentActivity implements
         showUserSetting(false);
     }
       break;
+      case R.id.action_exit: 
+      {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+        
+        builder.setTitle(R.string.action_exit);
+        builder.setMessage(R.string.action_exit_now);
+        
+        builder.setPositiveButton(android.R.string.yes, new OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            finish();
+          }
+        });
+        
+        builder.setNegativeButton(android.R.string.no, new OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            
+          }
+        });
+        
+        builder.show();
+      }break;
       case R.id.action_basic_preferences:
         Intent startPref = new Intent(this, TvbPreferencesActivity.class);
         startActivityForResult(startPref, SHOW_PREFERENCES);
