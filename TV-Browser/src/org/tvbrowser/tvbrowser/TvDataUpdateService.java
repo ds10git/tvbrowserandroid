@@ -569,59 +569,64 @@ public class TvDataUpdateService extends Service {
   /**
    * Calculate the end times of programs that are missing end time in the data.
    */
-  private void calculateMissingEnds() {
-    NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-    try {mBuilder.setProgress(100, 0, true);
-    mBuilder.setContentText(getResources().getText(R.string.update_notification_calculate));
-    notification.notify(mNotifyID, mBuilder.build());
-    
-    // Only ID, channel ID, start and end time are needed for update, so use only these columns
-    String[] projection = {
-        TvBrowserContentProvider.KEY_ID,
-        TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
-        TvBrowserContentProvider.DATA_KEY_STARTTIME,
-        TvBrowserContentProvider.DATA_KEY_ENDTIME,
-    };
-    
-    Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, projection, null, null, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
-    
-    // only if there are data update it
-    if(c.getCount() > 0) {
-      c.moveToFirst();
-            
-      do {
-        long progID = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-        int channelKey = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
-        long meStart = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-        long end = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
-        
-        c.moveToNext();
-        
-        // only if end is not set update it (maybe all should be updated except programs that contains a length value)
-        if(end == 0) {
-          long nextStart = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+  private void calculateMissingEnds(NotificationManager notification) {
+    try {
+      mBuilder.setProgress(100, 0, true);
+      mBuilder.setContentText(getResources().getText(R.string.update_notification_calculate));
+      notification.notify(mNotifyID, mBuilder.build());
+      
+      // Only ID, channel ID, start and end time are needed for update, so use only these columns
+      String[] projection = {
+          TvBrowserContentProvider.KEY_ID,
+          TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
+          TvBrowserContentProvider.DATA_KEY_STARTTIME,
+          TvBrowserContentProvider.DATA_KEY_ENDTIME,
+      };
+      
+      Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, projection, null, null, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      
+      // only if there are data update it
+      if(c.getCount() > 0) {
+        c.moveToFirst();
+              
+        do {
+          long progID = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+          int channelKey = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+          long meStart = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+          long end = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
           
-          if(c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) == channelKey) {
-            if((nextStart - meStart) >= (12 * 60 * 60000)) {
-              nextStart = meStart + (long)(2.5 * 60 * 60000);
+          c.moveToNext();
+          
+          // only if end is not set update it (maybe all should be updated except programs that contains a length value)
+          if(end == 0) {
+            long nextStart = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+            
+            if(c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) == channelKey) {
+              if((nextStart - meStart) >= (12 * 60 * 60000)) {
+                nextStart = meStart + (long)(2.5 * 60 * 60000);
+              }
+              
+              ContentValues values = new ContentValues();
+              values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, nextStart);
+              
+              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID), values, null, null);
             }
-            
-            ContentValues values = new ContentValues();
-            values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, nextStart);
-            
-            getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID), values, null, null);
           }
-        }
-      }while(!c.isLast());
-    }
+        }while(!c.isLast());
+      }
+      
+      c.close();
+    }catch(Throwable t) {}
     
-    c.close();
+    finishUpdate(notification);
+  }
     
+  private void finishUpdate(NotificationManager notification) {
     updateRunning = false;
     
     TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
     getApplicationContext().getContentResolver().notifyChange(TvBrowserContentProvider.CONTENT_URI_DATA, null);
-  }catch(Throwable t) {}
+  
     updateFavorites();
     syncFavorites();
     
@@ -883,6 +888,8 @@ public class TvDataUpdateService extends Service {
       
       readCurrentData();
       
+      Log.d("info5", "updateCount " + baseList.size() + " moreCount " + moreList.size() + " pictureCount " + pictureList.size());
+      
       for(final ChannelUpdate update : baseList) {
         mThreadPool.execute(new Thread() {
           public void run() {
@@ -948,7 +955,13 @@ public class TvDataUpdateService extends Service {
       
       mBuilder.setProgress(100, 0, true);
       notification.notify(mNotifyID, mBuilder.build());
-      calculateMissingEnds();
+      
+      if(baseList.size() > 0) {
+        calculateMissingEnds(notification);
+      }
+      else {
+        finishUpdate(notification);
+      }
     }
   }
   
@@ -1372,7 +1385,13 @@ public class TvDataUpdateService extends Service {
     }
     else if(update.getUrl().toLowerCase().contains(SettingConstants.LEVEL_NAMES[2])) {
       values.put(TvBrowserContentProvider.VERSION_KEY_MORE1600_VERSION,dataVersion);
-    }    
+    }
+    else if(update.getUrl().toLowerCase().contains(SettingConstants.LEVEL_NAMES[3])) {
+      values.put(TvBrowserContentProvider.VERSION_KEY_PICTURE0016_VERSION,dataVersion);
+    }
+    else if(update.getUrl().toLowerCase().contains(SettingConstants.LEVEL_NAMES[4])) {
+      values.put(TvBrowserContentProvider.VERSION_KEY_PICTURE1600_VERSION,dataVersion);
+    }
     
     String where = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + update.getChannelID() + " AND " + TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + " = " + daysSince1970;
         
