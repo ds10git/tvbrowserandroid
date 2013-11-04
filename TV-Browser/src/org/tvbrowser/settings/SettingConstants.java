@@ -47,10 +47,23 @@ public class SettingConstants {
     
   public static final HashMap<String, Integer> MARK_COLOR_MAP = new HashMap<String, Integer>();
   
+  public static final HashMap<String, String> SHORT_CHANNEL_NAMES = new HashMap<String, String>();
+  
   static {
     MARK_COLOR_MAP.put(MARK_VALUE, R.color.mark_color);
     MARK_COLOR_MAP.put(MARK_VALUE_CALENDAR, R.color.mark_color_calendar);
     MARK_COLOR_MAP.put(MARK_VALUE_FAVORITE, R.color.mark_color_favorite);
     MARK_COLOR_MAP.put(MARK_VALUE_SYNC_FAVORITE, R.color.mark_color_sync_favorite);
+    
+    SHORT_CHANNEL_NAMES.put("NDR Niedersachsen", "NDR NDS");
+    SHORT_CHANNEL_NAMES.put("NDR Mecklenburg-Vorpommern", "NDR MV");
+    SHORT_CHANNEL_NAMES.put("NDR Hamburg", "NDR HH");
+    SHORT_CHANNEL_NAMES.put("NDR Schleswig-Holstein", "NDR SH");
+    SHORT_CHANNEL_NAMES.put("MDR Sachsen-Anhalt", "MDR ST");
+    SHORT_CHANNEL_NAMES.put("MDR Sachsen", "MDR SN");
+    SHORT_CHANNEL_NAMES.put("MDR Thüringen", "MDR TH");
+    SHORT_CHANNEL_NAMES.put("RBB Berlin", "RBB BE");
+    SHORT_CHANNEL_NAMES.put("RBB Brandenburg", "RBB BB");
+    SHORT_CHANNEL_NAMES.put("Das Erste (ARD)", "Das Erste");
   }
 }

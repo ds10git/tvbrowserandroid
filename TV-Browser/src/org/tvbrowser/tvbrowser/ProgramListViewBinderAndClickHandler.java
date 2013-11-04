@@ -19,6 +19,7 @@ package org.tvbrowser.tvbrowser;
 import java.util.Date;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.SettingConstants;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
@@ -71,7 +72,15 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
     }
     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) {
       TextView text = (TextView)view;
-      text.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
+      
+      String name = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+      String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
+      
+      if(shortName != null) {
+        name = shortName;
+      }
+      
+      text.setText(name);
        
       return true;
     }
