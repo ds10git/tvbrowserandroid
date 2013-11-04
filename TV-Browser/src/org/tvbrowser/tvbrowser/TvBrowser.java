@@ -78,7 +78,6 @@ import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.SearchView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -95,7 +94,7 @@ public class TvBrowser extends FragmentActivity implements
    * it may be best to switch to a
    * {@link android.support.v4.app.FragmentStatePagerAdapter}.
    */
-  SectionsPagerAdapter mSectionsPagerAdapter;
+  private SectionsPagerAdapter mSectionsPagerAdapter;
   
   private boolean updateRunning;
   private boolean selectingChannels;
@@ -104,13 +103,13 @@ public class TvBrowser extends FragmentActivity implements
   /**
    * The {@link ViewPager} that will host the section contents.
    */
-  ViewPager mViewPager;
+  private ViewPager mViewPager;
+    
+  private Handler handler;
   
-  SimpleCursorAdapter adapter;
+  private Timer mTimer;
   
-  Handler handler;
-  
-  Timer mTimer;
+  private MenuItem mUpdateItem;
   
   @Override
   protected void onSaveInstanceState(Bundle outState) {
@@ -745,6 +744,19 @@ public class TvBrowser extends FragmentActivity implements
         settings.commit();
         
         startService(startDownload);
+        
+        mUpdateItem.setActionView(R.layout.progressbar);
+        
+        IntentFilter filter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
+        
+        LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(new BroadcastReceiver() {
+          @Override
+          public void onReceive(Context context, Intent intent) {
+            mUpdateItem.setActionView(null);
+            
+            LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(this);
+          }
+        }, filter);
       }
     });
     builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
@@ -992,6 +1004,8 @@ public class TvBrowser extends FragmentActivity implements
             (SearchView) menu.findItem(R.id.search).getActionView();
     searchView.setSearchableInfo(
             searchManager.getSearchableInfo(getComponentName()));
+    
+    mUpdateItem = menu.findItem(R.id.action_update);
     
     return true;
   }
