@@ -4,8 +4,8 @@
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to use, copy, modify or merge the Software,
- * furthermore to publish and distribute the Software without modifications and to permit persons to whom
- * the Software is furnished to do so, subject to the following conditions:
+ * furthermore to publish and distribute the Software free of charge without modifications and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
  *
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  *
@@ -26,8 +26,6 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
-
-import javax.xml.namespace.QName;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.TvbPreferencesActivity;
@@ -87,7 +85,6 @@ import android.widget.Toast;
 
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
-  private static final String TAG = "TVB";
   private static final int SHOW_PREFERENCES = 1;
   
   /**
