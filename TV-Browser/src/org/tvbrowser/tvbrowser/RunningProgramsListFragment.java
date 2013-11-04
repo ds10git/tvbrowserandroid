@@ -188,8 +188,17 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           
           if(channel.getCount() > 0) {
             channel.moveToFirst();
+            
             TextView text = (TextView)view;
-            text.setText(channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
+            
+            String name = channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+            String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
+            
+            if(shortName != null) {
+              name = shortName;
+            }
+            
+            text.setText(name);
           }
           channel.close();
           

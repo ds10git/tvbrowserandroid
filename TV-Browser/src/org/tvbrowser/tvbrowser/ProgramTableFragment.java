@@ -470,6 +470,12 @@ public class ProgramTableFragment extends Fragment {
       do {
         String name = channels.getString(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
         
+        String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
+        
+        if(shortName != null) {
+          name = shortName;
+        }
+        
         boolean hasLogo = !channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
         
         TextView text = (TextView)inflater.inflate(R.layout.channel_label, channelBar,false);
@@ -687,6 +693,12 @@ public class ProgramTableFragment extends Fragment {
           if(channel.moveToFirst()) {
             boolean hasLogo = !channel.isNull(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
             String name = channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+            
+            String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
+            
+            if(shortName != null) {
+              name = shortName;
+            }
             
             if(logoValue == 0 || logoValue == 2 || !hasLogo) {
               text.setText(name);
