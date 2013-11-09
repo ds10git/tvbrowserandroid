@@ -78,6 +78,7 @@ import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
+import android.widget.ScrollView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -197,7 +198,7 @@ public class TvBrowser extends FragmentActivity implements
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
       builder.setTitle(R.string.terms_of_use);
       
-      LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.terms_layout, null);
+      ScrollView layout = (ScrollView)getLayoutInflater().inflate(R.layout.terms_layout, null);
       
       ((TextView)layout.findViewById(R.id.terms_license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
       
@@ -209,7 +210,12 @@ public class TvBrowser extends FragmentActivity implements
           edit.putBoolean(SettingConstants.EULA_ACCEPTED, true);
           edit.commit();
           
-          handleResume();
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              handleResume();
+            }
+          });
         }
       });
       builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
