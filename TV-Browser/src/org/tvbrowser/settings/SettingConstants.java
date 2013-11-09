@@ -42,6 +42,7 @@ public class SettingConstants {
   public static final String USER_PASSWORD = "BICYCLE";
   
   public static final String TERMS_ACCEPTED = "TERMS_ACCEPTED";
+  public static final String EULA_ACCEPTED = "EULA_ACCEPTED";
   
   public static final IntentFilter RERESH_FILTER = new IntentFilter(REFRESH_VIEWS);
     
