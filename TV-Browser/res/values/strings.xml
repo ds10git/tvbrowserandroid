@@ -87,11 +87,13 @@
   OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
   IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p></html>]]></string>
+    <string name="terms">The usage time of TV-Browser for Android can be limited. You can see the limit on the about page. It is guaranteed that an update is available free of charge after the limit is reached, as long as the developers of TV-Browser for Android are able and willing to release updates.</string>
     <string name="name_for_android">TV-Browser for Android</string>
     <string name="action_about">About TV-Browser</string>
     <string name="create_favorite_item">Create Favorite</string>
     <string name="show_sync">Show synced</string>
     <string name="terms_of_use">Terms of Use</string>
+    <string name="terms_of_use_data">Terms of Use of Data</string>
     <string name="terms_of_use_accept">Accept</string>
     <string name="terms_of_use_text">All TV/Radio listings provided by TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) are protected by copyright laws and may only be used within TV-Browser or other name like applications authorized by the manufacturer of TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) for information about the upcoming program of the available channels.\n\nEvery other manner of using, reproducing or redistributing of the TV/Radio listings is illegal and may be prosecuted on civil or criminal law. On downloading the TV/Radio listings you declare your agreement to these terms.\n\nIf you have any questions concerning these terms please contact <a href="mailto:dev@tvbrowser.org">dev@tvbrowser.org</a></string>
 	<string name="channel_selection_help">Click on a channel to select sort number.</string>
@@ -178,4 +180,5 @@
 	<string name="lastProductionYear">Last Production:</string>
 	<string name="additionalInfo">Additional information:\n</string>
 	<string name="series">Series:</string>
+	<string name="rundate">Usable until:</string>
 </resources>

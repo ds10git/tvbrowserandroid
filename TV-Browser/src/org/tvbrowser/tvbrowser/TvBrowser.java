@@ -62,6 +62,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.text.Html;
+import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.util.Base64;
 import android.util.Log;
@@ -110,6 +111,15 @@ public class TvBrowser extends FragmentActivity implements
   private Timer mTimer;
   
   private MenuItem mUpdateItem;
+  
+  private static final Calendar mRundate;
+  
+  static {
+    mRundate = Calendar.getInstance();
+    mRundate.set(Calendar.YEAR, 2013);
+    mRundate.set(Calendar.MONTH, Calendar.NOVEMBER);
+    mRundate.set(Calendar.DAY_OF_MONTH, 24);
+  }
   
   @Override
   protected void onSaveInstanceState(Bundle outState) {
@@ -182,16 +192,51 @@ public class TvBrowser extends FragmentActivity implements
     }
   }
   
+  private void showTerms() {
+    if(!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.EULA_ACCEPTED, false)) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+      builder.setTitle(R.string.terms_of_use);
+      
+      LinearLayout layout = (LinearLayout)getLayoutInflater().inflate(R.layout.terms_layout, null);
+      
+      ((TextView)layout.findViewById(R.id.terms_license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
+      
+      builder.setView(layout);
+      builder.setPositiveButton(R.string.terms_of_use_accept, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+          edit.putBoolean(SettingConstants.EULA_ACCEPTED, true);
+          edit.commit();
+          
+          handleResume();
+        }
+      });
+      builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          System.exit(0);
+        }
+      });
+      builder.setCancelable(false);
+      
+      
+      AlertDialog dialog = builder.create();
+      dialog.show();
+    }
+    else {
+      handleResume();
+    }
+  }
+  
   @Override
   protected void onResume() {
     super.onResume();
     
-    // Don't allow use of version after date
-    Calendar cal = Calendar.getInstance();
-    cal.set(Calendar.YEAR, 2013);
-    cal.set(Calendar.MONTH, Calendar.NOVEMBER);
-    cal.set(Calendar.DAY_OF_MONTH, 10);
-        
+    showTerms();
+  }
+  
+  private void handleResume() {
     new Thread() {
       public void run() {
         Calendar cal2 = Calendar.getInstance();
@@ -201,7 +246,8 @@ public class TvBrowser extends FragmentActivity implements
       }
     }.start();
     
-    if(cal.getTimeInMillis() < System.currentTimeMillis()) {    
+    // Don't allow use of version after date
+    if(mRundate.getTimeInMillis() < System.currentTimeMillis()) {    
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
       builder.setTitle(R.string.versionExpired);
       builder.setMessage(R.string.versionExpiredMsg);
@@ -260,7 +306,7 @@ public class TvBrowser extends FragmentActivity implements
   private void showChannelSelection() {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     
-    builder.setTitle(R.string.search_title);
+    builder.setTitle(R.string.synchronize_title);
     builder.setMessage(R.string.synchronize_text);
     
     builder.setPositiveButton(R.string.synchronize_ok, new OnClickListener() {
@@ -844,7 +890,7 @@ public class TvBrowser extends FragmentActivity implements
     else {
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
       
-      builder.setTitle(R.string.terms_of_use);
+      builder.setTitle(R.string.terms_of_use_data);
       builder.setMessage(R.string.terms_of_use_text);
       
       builder.setPositiveButton(R.string.terms_of_use_accept, new OnClickListener() {
@@ -908,6 +954,39 @@ public class TvBrowser extends FragmentActivity implements
     }
   }
   
+  private void showAbout() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+    
+    RelativeLayout about = (RelativeLayout)getLayoutInflater().inflate(R.layout.about, null);
+    
+    try {
+      PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+      TextView version = (TextView)about.findViewById(R.id.version);
+      version.setText(pInfo.versionName);
+    } catch (NameNotFoundException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    
+    ((TextView)about.findViewById(R.id.license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
+    
+    TextView androidVersion = (TextView)about.findViewById(R.id.android_version);
+    androidVersion.setText(Build.VERSION.RELEASE);
+    
+    ((TextView)about.findViewById(R.id.rundate_value)).setText(DateFormat.getLongDateFormat(getApplicationContext()).format(mRundate.getTime()));
+    
+    builder.setTitle(R.string.action_about);
+    builder.setView(about);
+    
+    builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        
+      }
+    });
+    builder.show();
+  }
+  
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
@@ -951,36 +1030,7 @@ public class TvBrowser extends FragmentActivity implements
           showNoInternetConnection(null);
         }
         break;
-      case R.id.action_about: 
-        AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-        
-        RelativeLayout about = (RelativeLayout)getLayoutInflater().inflate(R.layout.about, null);
-        
-        try {
-          PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-          TextView version = (TextView)about.findViewById(R.id.version);
-          version.setText(pInfo.versionName);
-        } catch (NameNotFoundException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
-        
-        ((TextView)about.findViewById(R.id.license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
-        
-        TextView androidVersion = (TextView)about.findViewById(R.id.android_version);
-        androidVersion.setText(Build.VERSION.RELEASE);
-        
-        builder.setTitle(R.string.action_about);
-        builder.setView(about);
-        
-        builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            
-          }
-        });
-        builder.show();
-        break;
+      case R.id.action_about: showAbout();break;
       case R.id.action_load_channels_again: selectChannels(true);break;
       case R.id.action_select_channels: selectChannels(false);break;
       case R.id.action_sort_channels: sortChannels();break;
