@@ -344,6 +344,9 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     if(mWhereClause != null) {
       where += mWhereClause;
     }
+    else {
+      where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= 0";
+    }
     
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     
