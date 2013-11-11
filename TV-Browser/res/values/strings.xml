@@ -182,4 +182,5 @@
 	<string name="series">Series:</string>
 	<string name="rundate">Usable until:</string>
 	<string name="pref_prog_table_summary">The program table needs a lot of memory. The more channels and details you\'ve selected the more memory wil be consumed. That can leed to a crash of the TV-Browser app. So make sure not to select to many channels and details or disable the program table</string>
+	<string name="sort_enter">Alternative: Enter number (any positive number):</string>
 </resources>

@@ -115,6 +115,8 @@ public class TvBrowser extends FragmentActivity implements
   
   private static final Calendar mRundate;
   
+  private boolean mSelectionNumberChanged;
+  
   static {
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2013);
@@ -676,9 +678,19 @@ public class TvBrowser extends FragmentActivity implements
           
           LinearLayout numberSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.sort_number_selection, null);
           
+          mSelectionNumberChanged = false;
+          
           final NumberPicker number = (NumberPicker)numberSelection.findViewById(R.id.sort_picker);
           number.setMinValue(1);
           number.setMaxValue(channelSource.size());
+          number.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+            @Override
+            public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+              mSelectionNumberChanged = true;
+            }
+          });
+          
+          final EditText numberAlternative = (EditText)numberSelection.findViewById(R.id.sort_entered_number);
           
           builder.setView(numberSelection);
           
@@ -687,14 +699,29 @@ public class TvBrowser extends FragmentActivity implements
           TextView name = (TextView)numberSelection.findViewById(R.id.sort_picker_channel_name);
           name.setText(selection.getName());
           
-          if(selection.getSortNumber() > 0 && selection.getSortNumber() < channelSource.size()+1) {
-            number.setValue(selection.getSortNumber());
+          if(selection.getSortNumber() > 0) {
+            if(selection.getSortNumber() < channelSource.size()+1) {
+              number.setValue(selection.getSortNumber());
+            }
+            else {
+              numberAlternative.setText(String.valueOf(selection.getSortNumber()));
+            }
           }
           
           builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-              selection.setSortNumber(number.getValue());
+              String test = numberAlternative.getText().toString().trim();
+              
+              if(test.length() == 0 || mSelectionNumberChanged) {
+                selection.setSortNumber(number.getValue());
+              }
+              else {
+                try {
+                  selection.setSortNumber(Integer.parseInt(test));
+                }catch(NumberFormatException e1) {}
+              }
+              
               ((TextView)view).setText(selection.toString());
             }
           });
