@@ -105,6 +105,7 @@ public class IOUtils {
       URLConnection connection;
       
       connection = new URL(urlString).openConnection();
+      connection.setConnectTimeout(10000);
       
       if(urlString.toLowerCase().endsWith(".gz")) {
         connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
