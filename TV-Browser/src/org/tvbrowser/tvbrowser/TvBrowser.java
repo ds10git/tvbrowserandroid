@@ -1122,7 +1122,7 @@ public class TvBrowser extends FragmentActivity implements
     @Override
     public int getCount() {
       // Show 3 total pages.
-      if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getResources().getString(R.string.PROG_TABLE_ACTIVATED), true)) {
+      if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getResources().getString(R.string.PROG_TABLE_ACTIVATED), getResources().getBoolean(R.bool.prog_table_default))) {
         return 4;
       }
       

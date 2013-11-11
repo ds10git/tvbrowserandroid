@@ -28,7 +28,8 @@
     <PreferenceCategory android:title="@string/title_program_table">
         <CheckBoxPreference android:key="@string/PROG_TABLE_ACTIVATED" 
             android:title="@string/pref_activated"
-            android:defaultValue="true"
+            android:defaultValue="@bool/prog_table_default"
+            android:summary="@string/pref_prog_table_summary"
             />
         <ListPreference android:key="@string/CHANNEL_LOGO_NAME_PROGRAM_TABLE"
             android:title="@string/show_logo_title"
