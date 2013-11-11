@@ -69,7 +69,9 @@ public class Mirror implements Comparable<Mirror> {
           mirrorValues[0] += "/";
         }
         
-        mirrors.add(new Mirror(mirrorValues[0], Integer.valueOf(mirrorValues[1])));
+        try {
+          mirrors.add(new Mirror(mirrorValues[0], Integer.valueOf(mirrorValues[1])));
+        }catch(NumberFormatException e) {}
       }
       else {
         if(!part.endsWith("/")) {
