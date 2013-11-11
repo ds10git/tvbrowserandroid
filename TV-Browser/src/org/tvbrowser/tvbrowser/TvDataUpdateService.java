@@ -81,6 +81,7 @@ public class TvDataUpdateService extends Service {
   private int mNotifyID = 1;
   private NotificationCompat.Builder mBuilder;
   private int mCurrentDownloadCount;
+  private int mUnsuccessfulDownloads;
   private int mDaysToLoad;
   
   private Hashtable<String, Hashtable<Byte, Long>> mCurrentData;
@@ -645,6 +646,8 @@ public class TvDataUpdateService extends Service {
       }
     });
     
+    Log.d("info1", "Unsuccessful downloads: " + String.valueOf(mUnsuccessfulDownloads));
+    
     stopSelf();
   }
   
@@ -664,6 +667,8 @@ public class TvDataUpdateService extends Service {
     
   private void updateTvData() {
     if(!updateRunning) {
+      mUnsuccessfulDownloads = 0;
+      
       final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
       File nomedia = new File(path,".nomedia");
       
@@ -881,7 +886,9 @@ public class TvDataUpdateService extends Service {
               mCurrentDownloadCount++;
               mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
               notification.notify(mNotifyID, mBuilder.build());
-            } catch (Exception e) {}
+            } catch (Exception e) {
+              mUnsuccessfulDownloads++;
+            }
           }
         });
       }
@@ -901,7 +908,9 @@ public class TvDataUpdateService extends Service {
               mCurrentDownloadCount++;
               mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
               notification.notify(mNotifyID, mBuilder.build());
-            } catch (Exception e) {}
+            } catch (Exception e) {
+              mUnsuccessfulDownloads++;
+            }
           }
         });
       }
@@ -926,7 +935,9 @@ public class TvDataUpdateService extends Service {
               mCurrentDownloadCount++;
               mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
               notification.notify(mNotifyID, mBuilder.build());
-            } catch (Exception e) {}
+            } catch (Exception e) {
+              mUnsuccessfulDownloads++;
+            }
           }
         });
       }
@@ -942,7 +953,9 @@ public class TvDataUpdateService extends Service {
               mCurrentDownloadCount++;
               mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
               notification.notify(mNotifyID, mBuilder.build());
-            } catch (Exception e) {}
+            } catch (Exception e) {
+              mUnsuccessfulDownloads++;
+            }
           }
         });
       }
