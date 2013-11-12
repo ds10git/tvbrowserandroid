@@ -438,10 +438,20 @@ public class TvBrowser extends FragmentActivity implements
             }
           }
           else {
-            showChannelSelectionInternal();
+            handler.post(new Runnable() {
+              @Override
+              public void run() {
+                showChannelSelectionInternal();
+              }
+            });
           }
         } catch (Exception e) {
-          showChannelSelectionInternal();
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              showChannelSelectionInternal();
+            }
+          });
           Log.d("dateinfo", "",e);
         }
         
