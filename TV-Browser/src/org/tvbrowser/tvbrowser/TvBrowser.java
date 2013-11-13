@@ -117,6 +117,8 @@ public class TvBrowser extends FragmentActivity implements
   
   private boolean mSelectionNumberChanged;
   
+  private boolean mIsActive;
+  
   static {
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2013);
@@ -190,6 +192,8 @@ public class TvBrowser extends FragmentActivity implements
   protected void onPause() {
     super.onPause();
     
+    mIsActive = false;
+    
     if(mTimer != null) {
       mTimer.cancel();
     }
@@ -240,6 +244,8 @@ public class TvBrowser extends FragmentActivity implements
   @Override
   protected void onResume() {
     super.onResume();
+    
+    mIsActive = true;
     
     showTerms();
   }
@@ -607,7 +613,10 @@ public class TvBrowser extends FragmentActivity implements
       @Override
       public void onReceive(Context context, Intent intent) {
         LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(this);
-        showChannelSelection();
+        
+        if(mIsActive) {
+          showChannelSelection();
+        }
       }
     };
     
