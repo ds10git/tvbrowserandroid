@@ -9,6 +9,7 @@
     <string name="action_username_password">Benutzername und -passwort eingeben</string>
     <string name="action_exit">Beenden</string>
     <string name="action_exit_now">TV-Browser jetzt beenden?</string>
+    <string name="sort_alphabetically">Alphabetisch sortieren</string>
     <string name="username">Benutzername:</string>
     <string name="password">Passwort:</string>
     <string name="username_hint">Benutzername eingeben</string>
@@ -151,7 +152,8 @@
 	<string name="pref_show_info">Zusätzliche Informationen anzeigen</string>
 	<string name="pref_title_other">Weitere Informationen auswählen</string>
 	<string name="pref_title_other_summary">Welche weiteren Informationen sollen angezeigt werden, wenn sie vorhanden sind?</string>
-	
+	<string name="pref_start_category">Starten</string>
+	<string name="pref_start_tab">Mit folgenden Tab:</string>
 	<string name="pref_show_link">Link zur Webseite:</string>
 	<string name="customInfo">Beliebige Informationen:\n</string>
 	<string name="actors">Schauspieler:\n</string>

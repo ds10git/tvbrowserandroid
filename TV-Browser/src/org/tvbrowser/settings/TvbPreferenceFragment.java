@@ -36,6 +36,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     
     onSharedPreferenceChanged(null,getResources().getString(R.string.PROG_TABLE_ACTIVATED));
     onSharedPreferenceChanged(null,getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS));
+    onSharedPreferenceChanged(null,getResources().getString(R.string.TAB_TO_SHOW_AT_START));
   }
   
   @Override
@@ -58,7 +59,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     if(key.equals(getResources().getString(R.string.DAYS_TO_DOWNLOAD)) 
         || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST))
         || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE))
-        || key.equals(getResources().getString(R.string.DETAIL_PICTURE_ZOOM))) {
+        || key.equals(getResources().getString(R.string.DETAIL_PICTURE_ZOOM))
+        || key.equals(getResources().getString(R.string.TAB_TO_SHOW_AT_START))) {
       ListPreference lp = (ListPreference) findPreference(key);
       
       if(lp != null) {

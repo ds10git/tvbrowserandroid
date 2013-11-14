@@ -17,6 +17,15 @@
 	        android:title="@string/pref_load_picture_data"
 	        android:defaultValue="false"/>
     </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_start_category">
+        <ListPreference
+	       android:key="@string/TAB_TO_SHOW_AT_START"
+	       android:title="@string/pref_start_tab"
+	       android:defaultValue="0"
+	       android:entries="@array/start_labels"
+	       android:entryValues="@array/start_tab_values"
+	       android:summary="%s"/>
+    </PreferenceCategory>
     <PreferenceCategory android:title="@string/title_programs_list">
         <ListPreference android:key="@string/CHANNEL_LOGO_NAME_PROGRAMS_LIST"
             android:title="@string/show_logo_title"

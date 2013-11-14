@@ -555,7 +555,12 @@ public class ProgramTableFragment extends Fragment {
     channels.close();
     
     if(testDay == mCurrentDay) {
-      scrollToNow();
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          scrollToNow();
+        }
+      });
     }
     
     mUpdatingLayout = false;
