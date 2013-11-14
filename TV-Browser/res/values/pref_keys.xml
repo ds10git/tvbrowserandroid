@@ -20,4 +20,5 @@
     <string name="SHOW_EPISODE_IN_DETAILS">SHOW_EPISODE_IN_DETAILS</string>
     <string name="SHOW_INFO_IN_DETAILS">SHOW_INFO_IN_DETAILS</string>
     <string name="SHOW_LINK_IN_DETAILS">SHOW_LINK_IN_DETAILS</string>
+    <string name="TAB_TO_SHOW_AT_START">TAB_TO_SHOW_AT_START</string>
 </resources>

@@ -22,6 +22,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -73,6 +75,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -185,6 +188,12 @@ public class TvBrowser extends FragmentActivity implements
       // this tab is selected.
       actionBar.addTab(actionBar.newTab()
           .setText(mSectionsPagerAdapter.getPageTitle(i)).setTabListener(this));
+    }
+    
+    int startTab = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(getResources().getString(R.string.TAB_TO_SHOW_AT_START), "0"));
+    
+    if(mSectionsPagerAdapter.getCount() > startTab) {
+      mViewPager.setCurrentItem(startTab);
     }
   }
   
@@ -656,6 +665,8 @@ public class TvBrowser extends FragmentActivity implements
     
     LinearLayout main = (LinearLayout)getLayoutInflater().inflate(R.layout.channel_sort_list, null);
     
+    Button sortAlphabetically = (Button)main.findViewById(R.id.channel_sort_alpabetically);
+    
     ListView channelSort = (ListView)main.findViewById(R.id.channel_sort);
     
     String[] projection = {
@@ -758,8 +769,26 @@ public class TvBrowser extends FragmentActivity implements
         }
       });
       
-      ArrayAdapter<ChannelSelection> aa = new ArrayAdapter<TvBrowser.ChannelSelection>(getApplicationContext(), R.layout.channel_row, channelSource);
+      final ArrayAdapter<ChannelSelection> aa = new ArrayAdapter<TvBrowser.ChannelSelection>(getApplicationContext(), R.layout.channel_row, channelSource);
       channelSort.setAdapter(aa);
+      
+      sortAlphabetically.setOnClickListener(new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          Collections.sort(channelSource, new Comparator<ChannelSelection>() {
+            @Override
+            public int compare(ChannelSelection lhs, ChannelSelection rhs) {
+              return lhs.getName().compareToIgnoreCase(rhs.getName());
+            }
+          });
+          
+          for(int i = 0; i < channelSource.size(); i++) {
+            channelSource.get(i).setSortNumber(i+1);
+          }
+          
+          aa.notifyDataSetChanged();
+        }
+      });
       
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
       

@@ -8,9 +8,13 @@
         android:layout_height="wrap_content"
         android:text="@string/channel_selection_help"
         android:gravity="center_horizontal"/>
-	<ListView 
+	<Button android:id="@+id/channel_sort_alpabetically"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:text="@string/sort_alphabetically"/>
+    <ListView 
     	android:id="@+id/channel_sort"
     	android:layout_width="match_parent"
-    	android:layout_height="match_parent" >
+    	android:layout_height="match_parent">
 	</ListView>
 </LinearLayout>

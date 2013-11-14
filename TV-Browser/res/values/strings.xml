@@ -9,6 +9,7 @@
     <string name="action_username_password">Set username and password</string>
     <string name="action_exit">Exit</string>
     <string name="action_exit_now">Exit TV-Browser now?</string>
+    <string name="sort_alphabetically">Sort alphabetically</string>
     <string name="username">Username:</string>
     <string name="password">Password:</string>
     <string name="username_hint">Enter your username</string>
@@ -156,7 +157,14 @@
 	<string name="pref_show_info">Show additional informations</string>
 	<string name="pref_title_other">Select other informations</string>
 	<string name="pref_title_other_summary">Which other informations should be shown if available?</string>
-	
+	<string name="pref_start_category">Startup</string>
+	<string name="pref_start_tab">With following tab:</string>
+	<string-array name="start_labels">
+	    <item>@string/title_running_programs</item>
+	    <item>@string/title_programs_list</item>
+	    <item>@string/title_favorites</item>
+	    <item>@string/title_program_table</item>
+	</string-array>
 	<string name="pref_show_link">Show website link:</string>
 	<string name="customInfo">Custom Information:\n</string>
 	<string name="actors">Actors:\n</string>
