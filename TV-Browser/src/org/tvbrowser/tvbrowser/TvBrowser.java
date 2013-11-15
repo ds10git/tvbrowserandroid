@@ -18,6 +18,7 @@ package org.tvbrowser.tvbrowser;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -895,7 +896,101 @@ public class TvBrowser extends FragmentActivity implements
     builder.show();
   }
   
+  private void storeUserName(final String userName, final String password, final boolean syncChannels) {
+    Editor edit = getSharedPreferences("transportation", Context.MODE_PRIVATE).edit();
+    
+    edit.putString(SettingConstants.USER_NAME, userName);
+    edit.putString(SettingConstants.USER_PASSWORD, password);
+    
+    edit.commit();
+    
+    Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
+    
+    if(fragment instanceof FavoritesFragment) {
+      ((FavoritesFragment)fragment).updateSynchroButton(null);
+    }
+    
+    if(syncChannels) {
+      syncronizeChannels();
+    }
+  }
+  
+  private void showUserError(final String userName, final String password, final boolean syncChannels) {
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+        
+        builder.setTitle(R.string.userpass_error_title);
+        builder.setMessage(R.string.userpass_error);
+        
+        builder.setPositiveButton(getResources().getString(R.string.userpass_reenter), new OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            handler.post(new Runnable() {
+              @Override
+              public void run() {
+                showUserSetting(userName,password,syncChannels);
+              }
+            });
+          }
+        });
+        
+        builder.setNegativeButton(getResources().getString(R.string.userpass_save_anyway), new OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            storeUserName(userName,password,syncChannels);
+          }
+        });
+        
+        builder.show();
+      }
+    });
+  }
+  
+  private void setUserName(final String userName, final String password, final boolean syncChannels) {
+    if(userName != null && password != null && userName.length() > 0 && password.length() > 0) {
+      new Thread() {
+        public void run() {
+          URL documentUrl;
+          try {
+            //documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels2.php");
+            documentUrl = new URL("http://android.tvbrowser.org/data/scripts/testMyAccount.php");
+            URLConnection connection = documentUrl.openConnection();
+            
+            String userpass = userName + ":" + password;
+            String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
+            
+            connection.setRequestProperty ("Authorization", basicAuth);
+            
+            if(((HttpURLConnection)connection).getResponseCode() != 200) {
+              showUserError(userName,password,syncChannels);
+            }
+            else {
+              handler.post(new Runnable() {
+                @Override
+                public void run() {
+                  storeUserName(userName,password,syncChannels);    
+                }
+              });
+            }
+          
+          }catch(Throwable t) {
+            showUserError(userName,password,syncChannels);
+          }
+        }
+      }.start();
+    }
+    else if(syncChannels) {
+      syncronizeChannels();
+    }
+  }
+  
   private void showUserSetting(final boolean syncChannels) {
+    showUserSetting(null,null,syncChannels);
+  }
+  
+  private void showUserSetting(final String initiateUserName, final String initiatePassword, final boolean syncChannels) {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     
     RelativeLayout username_password_setup = (RelativeLayout)getLayoutInflater().inflate(R.layout.username_password_setup, null);
@@ -905,30 +1000,15 @@ public class TvBrowser extends FragmentActivity implements
     final EditText userName = (EditText)username_password_setup.findViewById(R.id.username_entry);
     final EditText password = (EditText)username_password_setup.findViewById(R.id.password_entry);
     
-    userName.setText(pref.getString(SettingConstants.USER_NAME, ""));
-    password.setText(pref.getString(SettingConstants.USER_PASSWORD, ""));
+    userName.setText(pref.getString(SettingConstants.USER_NAME, initiateUserName != null ? initiateUserName : ""));
+    password.setText(pref.getString(SettingConstants.USER_PASSWORD, initiatePassword != null? initiatePassword : ""));
     
     builder.setView(username_password_setup);
     
     builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
       @Override
       public void onClick(DialogInterface dialog, int which) {
-        Editor edit = pref.edit();
-        
-        edit.putString(SettingConstants.USER_NAME, userName.getText().toString().trim());
-        edit.putString(SettingConstants.USER_PASSWORD, password.getText().toString().trim());
-        
-        edit.commit();
-        
-        Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
-        Log.d("info1", String.valueOf(fragment));
-        if(fragment instanceof FavoritesFragment) {
-          ((FavoritesFragment)fragment).updateSynchroButton(null);
-        }
-        
-        if(syncChannels) {
-          syncronizeChannels();
-        }
+        setUserName(userName.getText().toString().trim(), password.getText().toString().trim(), syncChannels);
       }
     });
     builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {

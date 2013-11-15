@@ -82,14 +82,20 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       view = getView();
     }
     
-    View button = view.findViewById(R.id.show_sync_favorites);
+    final View button = view.findViewById(R.id.show_sync_favorites);
     
-    
-    if(getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
-      button.setVisibility(View.VISIBLE);
-    }
-    else {
-      button.setVisibility(View.GONE);
+    if(handler != null) {
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          if(getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
+            button.setVisibility(View.VISIBLE);
+          }
+          else {
+            button.setVisibility(View.GONE);
+          }        
+        }
+      });
     }
   }
   
