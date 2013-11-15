@@ -12,6 +12,10 @@
     <string name="sort_alphabetically">Sort alphabetically</string>
     <string name="username">Username:</string>
     <string name="password">Password:</string>
+    <string name="userpass_save_anyway">Save anyway</string>
+    <string name="userpass_reenter">Enter again</string>
+    <string name="userpass_error">Username and/or Password could not be validated.\nDo you want to enter it again?</string>
+    <string name="userpass_error_title">Username/Password error</string>
     <string name="username_hint">Enter your username</string>
     <string name="password_hint">Enter your password</string>
     <string name="update_complete">Data update completed</string>

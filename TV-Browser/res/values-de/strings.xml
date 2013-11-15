@@ -12,6 +12,10 @@
     <string name="sort_alphabetically">Alphabetisch sortieren</string>
     <string name="username">Benutzername:</string>
     <string name="password">Passwort:</string>
+    <string name="userpass_save_anyway">Trotzdem speichern</string>
+    <string name="userpass_reenter">Erneut eingeben</string>
+    <string name="userpass_error">Benutzername und/oder Passwort konnten nicht validiert werden.\nMöchten Sie sie erneut eingeben?</string>
+    <string name="userpass_error_title">Benutzername/Passwort-Fehler</string>
     <string name="username_hint">Benutzername eingeben</string>
     <string name="password_hint">Passwort eingeben</string>
     <string name="update_complete">Datenupdate abgeschlossen</string>
