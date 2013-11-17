@@ -44,6 +44,8 @@ public class SettingConstants {
   public static final String TERMS_ACCEPTED = "TERMS_ACCEPTED";
   public static final String EULA_ACCEPTED = "EULA_ACCEPTED";
   
+  public static final String CHANNEL_DOWNLOAD_SUCCESSFULLY = "CHANNEL_DOWNLOAD_SUCCESSFULLY";
+  
   public static final IntentFilter RERESH_FILTER = new IntentFilter(REFRESH_VIEWS);
     
   public static final HashMap<String, Integer> MARK_COLOR_MAP = new HashMap<String, Integer>();
