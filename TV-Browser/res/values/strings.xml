@@ -10,6 +10,8 @@
     <string name="action_exit">Exit</string>
     <string name="action_exit_now">Exit TV-Browser now?</string>
     <string name="sort_alphabetically">Sort alphabetically</string>
+    <string name="channel_download_warning_title">Channel download not complete</string>
+    <string name="channel_download_warning_text">Not all channels could be downloaded successfully.\nIf you are missing channels you should try loading the channels again.</string>
     <string name="username">Username:</string>
     <string name="password">Password:</string>
     <string name="userpass_save_anyway">Save anyway</string>

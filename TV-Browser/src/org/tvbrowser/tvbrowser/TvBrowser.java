@@ -624,8 +624,32 @@ public class TvBrowser extends FragmentActivity implements
       public void onReceive(Context context, Intent intent) {
         LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(this);
         
+        boolean success = intent.getBooleanExtra(SettingConstants.CHANNEL_DOWNLOAD_SUCCESSFULLY, true);
+        
         if(mIsActive) {
-          showChannelSelection();
+          if(success) {
+            showChannelSelection();
+          }
+          else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+            
+            builder.setTitle(R.string.channel_download_warning_title);
+            builder.setMessage(R.string.channel_download_warning_text);
+            
+            builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                handler.post(new Runnable() {
+                  @Override
+                  public void run() {
+                    showChannelSelection();
+                  }
+                });
+              }
+            });
+            
+            builder.show();
+          }
         }
       }
     };

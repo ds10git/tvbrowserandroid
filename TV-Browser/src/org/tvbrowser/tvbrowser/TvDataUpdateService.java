@@ -236,8 +236,30 @@ public class TvDataUpdateService extends Service {
     }.start();
   }
   
+  private final class ChangeableFinalBoolean {
+    private boolean mValue;
+    
+    public ChangeableFinalBoolean(boolean value) {
+      mValue = value;
+    }
+    
+    public synchronized boolean getBoolean() {
+      return mValue;
+    }
+    
+    public synchronized void andUpdateBoolean(boolean value) {
+      mValue = mValue && value;
+    }
+    
+    public void setBoolean(boolean value) {
+      mValue = value;
+    }
+  }
+  
   private void updateGroups(File groups, final File path) {
     if(groups.isFile()) {
+      final ChangeableFinalBoolean success = new ChangeableFinalBoolean(false);
+      
       final ArrayList<GroupInfo> channelMirrors = new ArrayList<GroupInfo>();
       
       try {
@@ -305,17 +327,29 @@ public class TvDataUpdateService extends Service {
       } catch (IOException e) {}
       
       if(!channelMirrors.isEmpty()) {
-        mThreadPool =  Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
+        success.setBoolean(true);
+        
+        mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
                 
         for(final GroupInfo info : channelMirrors) {
           mThreadPool.execute(new Thread() {
             public void run() {
-              File group = new File(path,info.getUrl().substring(info.getUrl().lastIndexOf("/")+1));
+              File group = new File(path,info.getFileName());
               
-              try {
-                IOUtils.saveUrl(group.getAbsolutePath(), info.getUrl());
-                addChannels(group,info);
-              } catch (Exception e) {}
+              boolean groupSucces = false;
+              
+              for(String url : info.getUrls()) {
+                try {
+                  IOUtils.saveUrl(group.getAbsolutePath(), url + info.getFileName());
+                  groupSucces = addChannels(group,info);
+                  
+                  if(groupSucces) {
+                    break;
+                  }
+                } catch (Exception e) {}
+              }
+              
+              success.andUpdateBoolean(groupSucces);
             }
           });
         }
@@ -329,14 +363,24 @@ public class TvDataUpdateService extends Service {
         NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
         notification.cancel(mNotifyID);
 
-        LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE));
-        stopSelf();
+        Intent updateDone = new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
+        updateDone.putExtra(SettingConstants.CHANNEL_DOWNLOAD_SUCCESSFULLY, success.getBoolean());
+        
+        LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
       }
       
       if(!groups.delete()) {
         groups.deleteOnExit();
       }
     }
+    else {    
+      Intent updateDone = new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
+      updateDone.putExtra(SettingConstants.CHANNEL_DOWNLOAD_SUCCESSFULLY, false);
+      
+      LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
+    }
+    
+    stopSelf();
   }
   
   private synchronized GroupInfo loadChannelForGroup(final Cursor cursor) { 
@@ -363,15 +407,20 @@ public class TvDataUpdateService extends Service {
       int idIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
       final int keyID = cursor.getInt(idIndex);
       
+      ArrayList<String> mirrorList = new ArrayList<String>();
+      
       for(String mirror : mirrors) {
-        
         if(isConnectedToServer(mirror,5000)) {
           if(!mirror.endsWith("/")) {
             mirror += "/";
           }
           
-          return new GroupInfo(mirror+groupId+"_channellist.gz",keyID,groupId);
+          mirrorList.add(mirror);
         }
+      }
+      
+      if(!mirrorList.isEmpty()) {
+        return new GroupInfo(mirrorList.toArray(new String[mirrorList.size()]),groupId+"_channellist.gz",keyID);
       }
     }
     
@@ -381,31 +430,33 @@ public class TvDataUpdateService extends Service {
   }
   
   private class GroupInfo {
-    private String mUrl;
+    private String[] mUrlArr;
     private int mUniqueGroupID;
-    private String mGroupID;
+    private String mFileName;
     
-    public GroupInfo(String url, int uniqueGroupID, String groupID) {
-      mUrl = url;
+    public GroupInfo(String[] urls, String fileName, int uniqueGroupID) {
+      mUrlArr = urls;
       mUniqueGroupID = uniqueGroupID;
-      mGroupID = groupID;
+      mFileName = fileName;
     }
     
-    public String getUrl() {
-      return mUrl;
+    public String[] getUrls() {
+      return mUrlArr;
     }
     
     public int getUniqueGroupID() {
       return mUniqueGroupID;
     }
     
-    public String getGroupID() {
-      return mGroupID;
+    public String getFileName() {
+      return mFileName;
     }
   }
   
   // Cursor contains the channel group
-  public void addChannels(File group, GroupInfo info) {
+  public boolean addChannels(File group, GroupInfo info) {
+    boolean returnValue = false;
+    
     if(group.isFile()) {
       try {
         BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(group)),"ISO-8859-1"));
@@ -483,11 +534,15 @@ public class TvDataUpdateService extends Service {
           
           if(query == null || query.getCount() == 0) {
             // add channel
-            cr.insert(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values);
+            if(cr.insert(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values) != null) {
+              returnValue = true;
+            }
           }
           else {
             // update channel
-            cr.update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, where, null);
+            if(cr.update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, where, null) > 0) {
+              returnValue = true;
+            }
           }
           
           query.close();
@@ -505,6 +560,8 @@ public class TvDataUpdateService extends Service {
         group.deleteOnExit();
       }
     }
+    
+    return returnValue;
   }
 
   private boolean isConnectedToServer(String url, int timeout) {
