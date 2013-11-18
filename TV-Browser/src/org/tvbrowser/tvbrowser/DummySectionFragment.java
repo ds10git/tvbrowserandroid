@@ -16,6 +16,12 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Date;
+
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
@@ -33,6 +39,8 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -58,12 +66,13 @@ public class DummySectionFragment extends Fragment {
           container, false);
       
       final RunningProgramsListFragment running = (RunningProgramsListFragment)getActivity().getSupportFragmentManager().findFragmentById(R.id.runningListFragment);
+      final LinearLayout timeBar = (LinearLayout)rootView.findViewById(R.id.runnning_time_bar);
       
-      View.OnClickListener listener = new View.OnClickListener() {
+      final View.OnClickListener listener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
           if(running != null) {
-            running.setWhereClauseID(v.getId());
+            running.setWhereClauseTime(v.getTag());
           }
         }
       };
@@ -76,12 +85,80 @@ public class DummySectionFragment extends Fragment {
         }
       };
       
-      rootView.findViewById(R.id.now_button).setOnClickListener(listener);
-      rootView.findViewById(R.id.button_6).setOnClickListener(listener);
-      rootView.findViewById(R.id.button_12).setOnClickListener(listener);
-      rootView.findViewById(R.id.button_16).setOnClickListener(listener);
-      rootView.findViewById(R.id.button_2015).setOnClickListener(listener);
-      rootView.findViewById(R.id.button_23).setOnClickListener(listener);
+      LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
+      
+      IntentFilter channelUpdateFilter = new IntentFilter(SettingConstants.CHANNEL_UPDATE_DONE);
+      
+      Button now = (Button)rootView.findViewById(R.id.now_button);
+      now.setTag(Integer.valueOf(-1));
+      now.setOnClickListener(listener);
+      
+      final BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+          for(int i = timeBar.getChildCount() - 1; i >= 1; i--) {
+            Button button = (Button)timeBar.getChildAt(i);
+            
+            if(button != null) {
+              button.setOnClickListener(null);
+              timeBar.removeViewAt(i);
+            }
+          }
+          
+          ArrayList<Integer> values = new ArrayList<Integer>();
+          
+          SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+          
+          for(int i = 1; i <= 6; i++) {
+            try {
+              Class<?> string = R.string.class;
+              
+              Field setting = string.getDeclaredField("TIME_BUTTON_" + i);
+              
+              
+              Integer value = Integer.valueOf(pref.getInt(getResources().getString((Integer)setting.get(string)), -2));
+              Log.d("info2", String.valueOf(value) + " " + "TIME_BUTTON_" + i);
+              if(value >= -1 && !values.contains(value)) {
+                values.add(value);
+              }
+              else if(value == -2) {
+                Integer test = null;
+                
+                switch(i) {
+                  case 1: test = Integer.valueOf(360);break;
+                  case 2: test = Integer.valueOf(720);break;
+                  case 3: test = Integer.valueOf(960);break;
+                  case 4: test = Integer.valueOf(1080);break;
+                  case 5: test = Integer.valueOf(1215);break;
+                  case 6: test = Integer.valueOf(1380);break;
+                }
+                
+                if(test != null && !values.contains(test)) {
+                  values.add(test);
+                }
+              }
+            } catch (Exception e) {}
+          }
+          
+          Collections.sort(values);
+          
+          for(Integer value : values) {
+            getActivity().getLayoutInflater().inflate(R.layout.time_button, timeBar);
+            
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.HOUR_OF_DAY, value / 60);
+            cal.set(Calendar.MINUTE, value % 60);
+            
+            Button time = (Button)timeBar.getChildAt(timeBar.getChildCount()-1);
+            time.setText(DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(cal.getTime()));
+            time.setTag(value);
+            time.setOnClickListener(listener);
+          }
+        }
+      };
+      
+      localBroadcastManager.registerReceiver(receiver, channelUpdateFilter);
+      receiver.onReceive(null, null);
       
       rootView.findViewById(R.id.button_before).setOnClickListener(timeRange);
       rootView.findViewById(R.id.button_at).setOnClickListener(timeRange);
