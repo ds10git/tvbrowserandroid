@@ -22,6 +22,7 @@ import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.view.ProgramPanel;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -33,14 +34,10 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
-import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
@@ -272,83 +269,29 @@ public class ProgramTableFragment extends Fragment {
                       for(int j = 0; j < block.getChildCount(); j++) {
                         View blockChild = block.getChildAt(j);
                         
-                        if(blockChild instanceof RelativeLayout) {
-                          final RelativeLayout progPanel = (RelativeLayout)blockChild;
+                        if(blockChild instanceof ProgramPanel) {
+                          final ProgramPanel progPanel = (ProgramPanel)blockChild;
                           
-                          if(progPanel.getTag() != null && getActivity() != null) {
-                                
-                            Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
-                            
-                            if(c.getCount() > 0) {
-                              c.moveToFirst();
-                              
-                              boolean expiredTest = false;
-                              
-                              if(progPanel.getTag(R.id.expired_tag) != null) {
-                                expiredTest = (Boolean)progPanel.getTag(R.id.expired_tag);
-                              }
-                                                                  
-                              final boolean expired = expiredTest;
-                              
-                              long startTime = c.getLong(0);
-                              long endTime = c.getLong(1);
-                              
-                              final TextView title = (TextView)progPanel.findViewById(R.id.prog_panel_title);
-                              final TextView text = (TextView)progPanel.findViewById(R.id.prog_panel_start_time);
-                              final TextView genre = (TextView)progPanel.findViewById(R.id.prog_panel_genre);
-                              final TextView episode = (TextView)progPanel.findViewById(R.id.prog_panel_episode);
-                              
-                              if(!expired && endTime <= System.currentTimeMillis()) {
-                                handler.post(new Runnable() {
-                                  @Override
-                                  public void run() {
-                                    text.setTextColor(Color.rgb(190, 190, 190));
-                                    title.setTextColor(Color.rgb(190, 190, 190));
-                                    episode.setTextColor(Color.rgb(190, 190, 190));
-                                    genre.setTextColor(Color.rgb(190, 190, 190));
-                                    
-                                    Drawable[] compoundDrawables = genre.getCompoundDrawables();
-                                    
-                                    if(compoundDrawables != null && compoundDrawables[1] != null) {
-                                      compoundDrawables[1].setColorFilter(getActivity().getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
-                                    }
-                                    
-                                    if(!isDetached() && mKeepRunning && !isRemoving()) {
-                                      Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
-                                      
-                                      if(c.getCount() > 0) {
-                                        c.moveToFirst();
-                                        UiUtils.handleMarkings(getActivity(), c, progPanel, null);
-                                      }
-                                      
-                                      c.close();
-                                      
-                                      progPanel.setTag(R.id.expired_tag, true);
-                                    }
+                          if(progPanel.isOnAir()) {
+                            handler.post(new Runnable() {
+                              @Override
+                              public void run() {
+                                if(!isDetached() && mKeepRunning) {
+                                  Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
+                                  
+                                  if(c.getCount() > 0) {
+                                    c.moveToFirst();
+                                    UiUtils.handleMarkings(getActivity(), c, progPanel, null);
                                   }
-                                });
+                                  
+                                  c.close();
+                                }
                               }
-                              else if(System.currentTimeMillis() >= startTime && System.currentTimeMillis() <= endTime) {
-                                handler.post(new Runnable() {
-                                  @Override
-                                  public void run() {
-                                    if(!isDetached() && mKeepRunning) {
-                                      Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
-                                      
-                                      if(c.getCount() > 0) {
-                                        c.moveToFirst();
-                                        UiUtils.handleMarkings(getActivity(), c, progPanel, null);
-                                      }
-                                      
-                                      c.close();
-                                    }
-                                  }
-                                });
-                              }
-                            }
-                            
-                            c.close();
-                          }                            
+                            });
+                          }
+                          else {
+                            progPanel.checkExpired(handler);
+                          }
                         }
                       }
                     }
@@ -550,6 +493,8 @@ public class ProgramTableFragment extends Fragment {
         
         cursor.close();
       }while(channels.moveToNext());
+      
+      
     }
     
     channels.close();
@@ -626,11 +571,6 @@ public class ProgramTableFragment extends Fragment {
 
     RelativeLayout layout = (RelativeLayout)programTableLayout.findViewById(R.id.program_table_base);
     layout.setTag("LAYOUT");
-    
-    /*
-    LinearLayout layout = new LinearLayout(container.getContext());
-    layout.setLayoutParams(new LayoutParams(LayoutParams.WRAP_CONTENT,LayoutParams.WRAP_CONTENT));
-    layout.setTag("LAYOUT");*/
     
     updateView(inflater,layout);
     
@@ -775,62 +715,15 @@ public class ProgramTableFragment extends Fragment {
       }
       
       while(cal.get(Calendar.HOUR_OF_DAY) >= start && cal.get(Calendar.HOUR_OF_DAY) < end) {
-        View panel = inflater.inflate(R.layout.program_panel, block, false);
-        registerForContextMenu(panel);
+        long startTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+        long endTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+        String title = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
+        
+        ProgramPanel panel = new ProgramPanel(getActivity(),startTime,endTime,title);
+        panel.setGenre(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)));
+        panel.setEpisode(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)));
         panel.setOnClickListener(mClickListener);
         panel.setTag(cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
-                
-        count++;
-        
-        UiUtils.handleMarkings(getActivity(), cursor, panel, null);
-        
-        TextView startTime = (TextView)panel.findViewById(R.id.prog_panel_start_time);
-        TextView title = (TextView)panel.findViewById(R.id.prog_panel_title);
-        TextView genre = (TextView)panel.findViewById(R.id.prog_panel_genre);
-        TextView episode = (TextView)panel.findViewById(R.id.prog_panel_episode);
-        
-        long endTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
-        
-        boolean expired = false;
-        
-        if(endTime <= System.currentTimeMillis()) {
-          panel.setTag(R.id.expired_tag, true);
-          startTime.setTextColor(Color.rgb(190, 190, 190));
-          title.setTextColor(Color.rgb(190, 190, 190));
-          episode.setTextColor(Color.rgb(190, 190, 190));
-          genre.setTextColor(Color.rgb(190, 190, 190));
-          expired = true;
-        }
-        else if(System.currentTimeMillis() <= endTime) {
-          int[] attrs = new int[] { android.R.attr.textColorSecondary };
-          TypedArray a = getActivity().getTheme().obtainStyledAttributes(R.style.AppTheme, attrs);
-          int DEFAULT_TEXT_COLOR = a.getColor(0, Color.BLACK);
-          a.recycle();
-          
-          startTime.setTextColor(DEFAULT_TEXT_COLOR);
-          title.setTextColor(DEFAULT_TEXT_COLOR);
-          episode.setTextColor(DEFAULT_TEXT_COLOR);
-          genre.setTextColor(DEFAULT_TEXT_COLOR);
-        }
-        
-        startTime.setText(DateFormat.getTimeFormat(getActivity()).format(cal.getTime()));
-        title.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
-                
-        if(!cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
-          episode.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)));
-          episode.setVisibility(TextView.VISIBLE);
-        }
-        else {
-          episode.setVisibility(TextView.GONE);
-        }
-        
-        if(!cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
-          genre.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)));
-          genre.setVisibility(TextView.VISIBLE);
-        }
-        else {
-          genre.setVisibility(TextView.GONE);
-        }
         
         int pictureColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
         
@@ -839,20 +732,16 @@ public class ProgramTableFragment extends Fragment {
           Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
                     
           BitmapDrawable l = new BitmapDrawable(getResources(), logo);
-          
-          if(expired) {
-            l.setColorFilter(getActivity().getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
-          }
-          
           l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
           
-          genre.setCompoundDrawables(null, l, null, null);
-          genre.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)) + (genre.getText() != null && genre.getText().toString().trim().length() > 0 ? "\n" + genre.getText() : ""));
-          genre.setVisibility(View.VISIBLE);
+          panel.setPicture(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)), l);
         }
         
-        block.addView(panel);
+        count++;
         
+        UiUtils.handleMarkings(getActivity(), cursor, panel, null);
+        
+        block.addView(panel);
         
         if(!cursor.moveToNext()) {
           break;

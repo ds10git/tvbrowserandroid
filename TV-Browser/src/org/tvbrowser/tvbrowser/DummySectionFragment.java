@@ -105,54 +105,41 @@ public class DummySectionFragment extends Fragment {
             }
           }
           
-          ArrayList<Integer> values = new ArrayList<Integer>();
-          
-          SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-          
-          for(int i = 1; i <= 6; i++) {
-            try {
-              Class<?> string = R.string.class;
-              
-              Field setting = string.getDeclaredField("TIME_BUTTON_" + i);
-              
-              
-              Integer value = Integer.valueOf(pref.getInt(getResources().getString((Integer)setting.get(string)), -2));
-              Log.d("info2", String.valueOf(value) + " " + "TIME_BUTTON_" + i);
-              if(value >= -1 && !values.contains(value)) {
-                values.add(value);
-              }
-              else if(value == -2) {
-                Integer test = null;
-                
-                switch(i) {
-                  case 1: test = Integer.valueOf(360);break;
-                  case 2: test = Integer.valueOf(720);break;
-                  case 3: test = Integer.valueOf(960);break;
-                  case 4: test = Integer.valueOf(1080);break;
-                  case 5: test = Integer.valueOf(1215);break;
-                  case 6: test = Integer.valueOf(1380);break;
-                }
-                
-                if(test != null && !values.contains(test)) {
-                  values.add(test);
-                }
-              }
-            } catch (Exception e) {}
-          }
-          
-          Collections.sort(values);
-          
-          for(Integer value : values) {
-            getActivity().getLayoutInflater().inflate(R.layout.time_button, timeBar);
+          if(getActivity() != null) {
+            ArrayList<Integer> values = new ArrayList<Integer>();
             
-            Calendar cal = Calendar.getInstance();
-            cal.set(Calendar.HOUR_OF_DAY, value / 60);
-            cal.set(Calendar.MINUTE, value % 60);
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
             
-            Button time = (Button)timeBar.getChildAt(timeBar.getChildCount()-1);
-            time.setText(DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(cal.getTime()));
-            time.setTag(value);
-            time.setOnClickListener(listener);
+            int[] defaultValues = getResources().getIntArray(R.array.time_button_defaults);
+            
+            for(int i = 1; i <= 6; i++) {
+              try {
+                Class<?> string = R.string.class;
+                
+                Field setting = string.getDeclaredField("TIME_BUTTON_" + i);
+                
+                Integer value = Integer.valueOf(pref.getInt(getResources().getString((Integer)setting.get(string)), defaultValues[i-1]));
+                
+                if(value >= -1 && !values.contains(value)) {
+                  values.add(value);
+                }
+              } catch (Exception e) {}
+            }
+            
+            Collections.sort(values);
+            
+            for(Integer value : values) {
+              getActivity().getLayoutInflater().inflate(R.layout.time_button, timeBar);
+              
+              Calendar cal = Calendar.getInstance();
+              cal.set(Calendar.HOUR_OF_DAY, value / 60);
+              cal.set(Calendar.MINUTE, value % 60);
+              
+              Button time = (Button)timeBar.getChildAt(timeBar.getChildCount()-1);
+              time.setText(DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(cal.getTime()));
+              time.setTag(value);
+              time.setOnClickListener(listener);
+            }
           }
         }
       };
