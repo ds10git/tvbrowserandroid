@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >   
-    <PreferenceCategory android:title="@string/pref_download_category"> 
+    <PreferenceCategory android:title="@string/pref_download_category">
 	   <ListPreference
 	       android:key="@string/DAYS_TO_DOWNLOAD"
 	       android:title="@string/download_data_for"
@@ -25,6 +25,42 @@
 	       android:entries="@array/start_labels"
 	       android:entryValues="@array/start_tab_values"
 	       android:summary="%s"/>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/title_running_programs">
+        <PreferenceScreen
+            android:title="@string/pref_time_buttons"
+            android:summary="@string/pref_time_buttons_summary">
+            <org.tvbrowser.settings.TimePreference 
+           		android:key="@string/TIME_BUTTON_1"
+           		android:defaultValue="360"
+           		android:summary="@string/pref_time_button_hint"
+            />
+            <org.tvbrowser.settings.TimePreference 
+           		android:key="@string/TIME_BUTTON_2"
+           		android:defaultValue="720"
+           		android:summary="@string/pref_time_button_hint"
+            />
+            <org.tvbrowser.settings.TimePreference 
+           		android:key="@string/TIME_BUTTON_3"
+           		android:defaultValue="960"
+           		android:summary="@string/pref_time_button_hint"
+            />
+            <org.tvbrowser.settings.TimePreference 
+           		android:key="@string/TIME_BUTTON_4"
+           		android:defaultValue="1080"
+           		android:summary="@string/pref_time_button_hint"
+            />
+            <org.tvbrowser.settings.TimePreference 
+           		android:key="@string/TIME_BUTTON_5"
+           		android:defaultValue="1215"
+           		android:summary="@string/pref_time_button_hint"
+            />
+            <org.tvbrowser.settings.TimePreference 
+           		android:key="@string/TIME_BUTTON_6"
+           		android:defaultValue="1380"
+           		android:summary="@string/pref_time_button_hint"
+            />
+        </PreferenceScreen>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/title_programs_list">
         <ListPreference android:key="@string/CHANNEL_LOGO_NAME_PROGRAMS_LIST"

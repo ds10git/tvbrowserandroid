@@ -63,7 +63,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   
   private boolean mKeepRunning;
   private Thread mUpdateThread;
-  private int mWhereClauseID;
+  private int mWhereClauseTime;
   private int mTimeRangeID;
   
   private BroadcastReceiver mDataUpdateReceiver;
@@ -108,20 +108,22 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
   }
   
-  public void setWhereClauseID(int id) {
-    Button test = (Button)((View)getView().getParent()).findViewById(mWhereClauseID);
-    
-    if(test != null) {
-      test.setBackgroundResource(android.R.drawable.list_selector_background);
+  public void setWhereClauseTime(Object time) {
+    if(time instanceof Integer) {
+      Button test = (Button)((View)getView().getParent()).findViewWithTag(mWhereClauseTime);
+      
+      if(test != null) {
+        test.setBackgroundResource(android.R.drawable.list_selector_background);
+      }
+      
+      mWhereClauseTime = ((Integer) time).intValue();
+      
+      if(mDataUpdateReceiver != null) {
+        LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
+      }
+      
+      startUpdateThread();
     }
-    
-    if(mDataUpdateReceiver != null) {
-      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
-    }
-    
-    mWhereClauseID = id;
-    
-    startUpdateThread();
   }
   
   public void setTimeRangeID(int id) {
@@ -138,7 +140,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   
   @Override
   public void onSaveInstanceState(Bundle outState) {
-    outState.putInt(WHERE_CLAUSE_KEY, mWhereClauseID);
+    outState.putInt(WHERE_CLAUSE_KEY, mWhereClauseTime);
     super.onSaveInstanceState(outState);
   }
     
@@ -147,10 +149,10 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     super.onActivityCreated(savedInstanceState);
     
     if(savedInstanceState != null) {
-      mWhereClauseID = savedInstanceState.getInt(WHERE_CLAUSE_KEY,R.id.now_button);
+      mWhereClauseTime = savedInstanceState.getInt(WHERE_CLAUSE_KEY,-1);
     }
     else {
-      mWhereClauseID = R.id.now_button;
+      mWhereClauseTime = -1;
     }
     
     mTimeRangeID = R.id.button_at;
@@ -386,23 +388,16 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     cal.set(Calendar.MINUTE, 0);
     cal.set(Calendar.SECOND, 30);
     
-    switch(mWhereClauseID) {
-      case R.id.button_6: 
-        cal.set(Calendar.HOUR_OF_DAY, 6);break;
-      case R.id.button_12:
-        cal.set(Calendar.HOUR_OF_DAY, 12);break;
-      case R.id.button_16:
-        cal.set(Calendar.HOUR_OF_DAY, 16);break;
-      case R.id.button_2015:
-        cal.set(Calendar.HOUR_OF_DAY, 20);
-        cal.set(Calendar.MINUTE, 15);break;
-      case R.id.button_23:
-        cal.set(Calendar.HOUR_OF_DAY, 23);break;
-      default: cal.setTimeInMillis(System.currentTimeMillis());break;
+    if(mWhereClauseTime >= 0) {
+      cal.set(Calendar.HOUR_OF_DAY, mWhereClauseTime / 60);
+      cal.set(Calendar.MINUTE, mWhereClauseTime % 60);
     }
-
+    else {
+      cal.setTimeInMillis(System.currentTimeMillis());
+    }
+    
     if(getView().getParent() != null) {
-      Button test = (Button)((View)getView().getParent()).findViewById(mWhereClauseID);
+      Button test = (Button)((View)getView().getParent()).findViewWithTag(Integer.valueOf(mWhereClauseTime));
       
       if(test != null) {
         test.setBackgroundResource(R.color.filter_selection);

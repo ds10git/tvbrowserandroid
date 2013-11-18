@@ -186,4 +186,8 @@
 	<string name="rundate">Lauffähig bis:</string>
 	<string name="pref_prog_table_summary">Die Programmtabelle benötigt sehr viel Speicher. Sind zu viele Sender und Details ausgewählt, kann das zum Absturz der TV-Browser App führen. Achten Sie daher auf die Anzahl der ausgewählten Sender oder deaktivieren Sie die Programmtabelle.</string>
 	<string name="sort_enter">Alternativ Nummer eingeben (beliebige positive Zahl):</string>
+	<string name="pref_time_buttons">Zeitknöpfe</string>
+	<string name="pref_time_buttons_summary">Zeitknöpfe der Laufenden Sendungen konfigurieren.</string>
+	<string name="pref_time_button_hint">Mehrfache Einträge werden ignoriert.</string>
+
 </resources>
