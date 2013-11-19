@@ -22,122 +22,13 @@
 	    			android:background="#787878"
 	            />
 	            <include layout="@layout/separator_line"/>
-	            </LinearLayout>
+	        </LinearLayout>
 	        <ScrollView
 	            android:id="@+id/vertical_program_table_scroll"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            >
-	            <LinearLayout android:id="@+id/MAIN_LAYOUT"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:orientation="vertical">
-	                <LinearLayout android:id="@+id/zero_two"
-	                	android:layout_width="wrap_content"
-	                	android:layout_height="wrap_content">
-	                    <TextView style="@style/time_label_style"
-	                		android:text="00"/>
-	            		<include layout="@layout/separator_line"/>
-	                </LinearLayout>
-	                <LinearLayout android:id="@+id/two_four"
-	                	android:layout_width="wrap_content"
-	                	android:layout_height="wrap_content"
-	                	android:background="#DCDCDC">
-	                    <TextView style="@style/time_label_style"
-	                		android:text="02"/>
-	            		<include layout="@layout/separator_line"/>
-	                </LinearLayout>
-	                <LinearLayout android:id="@+id/four_six"
-	                	android:layout_width="wrap_content"
-	                	android:layout_height="wrap_content">
-	                    <TextView style="@style/time_label_style"
-	                		android:text="04"/>
-	            		<include layout="@layout/separator_line"/>
-	                </LinearLayout>
-	                <LinearLayout android:id="@+id/six_eight"
-	                	android:layout_width="wrap_content"
-	                	android:layout_height="wrap_content"
-	                	android:background="#DCDCDC">
-	                    <TextView style="@style/time_label_style"
-	                		android:text="06"/>
-	            		<include layout="@layout/separator_line"/>
-	                </LinearLayout>
-	                <LinearLayout android:id="@+id/eight_ten"
-	                	android:layout_width="wrap_content"
-	                	android:layout_height="wrap_content">
-	                    <TextView style="@style/time_label_style"
-	                		android:text="08"/>
-	            		<include layout="@layout/separator_line"/>
-	                </LinearLayout>
-	                <LinearLayout android:id="@+id/ten_twelfe"
-	                	android:layout_width="wrap_content"
-	                	android:layout_height="wrap_content"
-	                	android:background="#DCDCDC">
-	                    <TextView style="@style/time_label_style"
-	                		android:text="10"/>
-	            		<include layout="@layout/separator_line"/>
-	                </LinearLayout>
-	                <LinearLayout android:id="@+id/twefle_fourteen"
-	                	android:layout_width="wrap_content"
-	                	android:layout_height="wrap_content">
-	                    <TextView style="@style/time_label_style"
-	                		android:text="12"/>
-	            		<include layout="@layout/separator_line"/>
-	                </LinearLayout>
-	                <LinearLayout android:id="@+id/fourteen_sixteen"
-	                	android:layout_width="wrap_content"
-	                	android:layout_height="wrap_content"
-	                	android:background="#DCDCDC">
-	                    <TextView style="@style/time_label_style"
-	                		android:text="14"/>
-	            		<include layout="@layout/separator_line"/>
-	                </LinearLayout>
-	                <LinearLayout android:id="@+id/sixteen_eighteen"
-	                	android:layout_width="wrap_content"
-	                	android:layout_height="wrap_content">
-	                    <TextView style="@style/time_label_style"
-	                		android:text="16"/>
-	            		<include layout="@layout/separator_line"/>
-	                </LinearLayout>
-	                <LinearLayout android:id="@+id/eighteen_twenty"
-	                	android:layout_width="wrap_content"
-	                	android:layout_height="wrap_content"
-	                	android:background="#DCDCDC">
-	                    <TextView style="@style/time_label_style"
-	                		android:text="18"/>
-	            		<include layout="@layout/separator_line"/>
-	                </LinearLayout>
-	                <LinearLayout android:id="@+id/twenty_twentytwo"
-	                	android:layout_width="wrap_content"
-	                	android:layout_height="wrap_content">
-	                    <TextView style="@style/time_label_style"
-	                		android:text="20"/>
-	            		<include layout="@layout/separator_line"/>
-	                </LinearLayout>
-	                <LinearLayout android:id="@+id/twentytwo_twentyfour"
-	                	android:layout_width="wrap_content"
-	                	android:layout_height="wrap_content"
-	                	android:background="#DCDCDC">
-	                    <TextView style="@style/time_label_style"
-	                		android:text="22"/>
-	            		<include layout="@layout/separator_line"/>
-	                </LinearLayout>
-	                <LinearLayout android:id="@+id/twentyfour_twentysix"
-	                	android:layout_width="wrap_content"
-	                	android:layout_height="wrap_content">
-	                    <TextView style="@style/time_label_style"
-	                		android:text="00"/>
-	            		<include layout="@layout/separator_line"/>
-	                </LinearLayout>
-	                <LinearLayout android:id="@+id/twentysix_twentyeight"
-	                	android:layout_width="wrap_content"
-	                	android:layout_height="wrap_content"
-	                	android:background="#DCDCDC">
-	                    <TextView style="@style/time_label_style"
-	                		android:text="02"/>
-	            		<include layout="@layout/separator_line"/>
-	                </LinearLayout>
-	            </LinearLayout>
+	            
 	        </ScrollView>        
 	    </LinearLayout>
 	</HorizontalScrollView>
