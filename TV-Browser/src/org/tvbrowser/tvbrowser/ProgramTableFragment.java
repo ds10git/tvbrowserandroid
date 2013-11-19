@@ -81,6 +81,8 @@ public class ProgramTableFragment extends Fragment {
   private boolean mPictureShown;
   private int mTimeBlockSize;
   
+  private ProgramPanelLayout mProgramPanelLayout;
+  
   public void scrollToNow() {
     StringBuilder where = new StringBuilder();
     where.append(" (( ");
@@ -254,11 +256,9 @@ public class ProgramTableFragment extends Fragment {
           if(mKeepRunning && TvBrowserContentProvider.INFORM_FOR_CHANGES && !mUpdatingLayout) {
             mUpdatingRunningPrograms = true;
             
-            if(!isDetached()) {
-              ProgramPanelLayout main = (ProgramPanelLayout)((ScrollView)getView().findViewById(R.id.vertical_program_table_scroll)).getChildAt(0);
-              
-              for(int k = 0; k < main.getChildCount(); k++) {
-                View mainChild = main.getChildAt(k);
+            if(!isDetached() && mProgramPanelLayout != null) {
+              for(int k = 0; k < mProgramPanelLayout.getChildCount(); k++) {
+                View mainChild = mProgramPanelLayout.getChildAt(k);
                 
                 if(mainChild instanceof ProgramPanel) {
                   final ProgramPanel progPanel = (ProgramPanel)mainChild;
@@ -444,14 +444,14 @@ public class ProgramTableFragment extends Fragment {
       Calendar day = Calendar.getInstance();
       day.setTimeInMillis(mCurrentDay * 1000 * 60 * 60 * 24);
       
-      ProgramPanelLayout programLayout = new ProgramPanelLayout(getActivity(), channelIDsOrdered, mTimeBlockSize, day);
+      mProgramPanelLayout = new ProgramPanelLayout(getActivity(), channelIDsOrdered, mTimeBlockSize, day);
       ViewGroup test = (ViewGroup)programTable.findViewById(R.id.vertical_program_table_scroll);
-      test.addView(programLayout);
+      test.addView(mProgramPanelLayout);
       
       Cursor cursor = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
       
       while(cursor.moveToNext()) {
-        addPanel(cursor, programLayout);
+        addPanel(cursor, mProgramPanelLayout);
       }
       
       cursor.close();
