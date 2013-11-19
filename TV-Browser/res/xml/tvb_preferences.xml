@@ -76,6 +76,13 @@
             android:defaultValue="@bool/prog_table_default"
             android:summary="@string/pref_prog_table_summary"
             />
+	   <ListPreference
+	       android:key="@string/PROG_PANEL_TIME_BLOCK_SIZE"
+	       android:title="@string/pref_prog_table_time_block_size"
+	       android:defaultValue="2"
+	       android:entries="@array/time_block_size"
+	       android:entryValues="@array/time_block_size"
+	       android:summary="%s"/>
         <ListPreference android:key="@string/CHANNEL_LOGO_NAME_PROGRAM_TABLE"
             android:title="@string/show_logo_title"
             android:defaultValue="0"

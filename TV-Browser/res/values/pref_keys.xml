@@ -21,6 +21,7 @@
     <string name="SHOW_INFO_IN_DETAILS">SHOW_INFO_IN_DETAILS</string>
     <string name="SHOW_LINK_IN_DETAILS">SHOW_LINK_IN_DETAILS</string>
     <string name="TAB_TO_SHOW_AT_START">TAB_TO_SHOW_AT_START</string>
+    <string name="PROG_PANEL_TIME_BLOCK_SIZE">PROG_PANEL_TIME_BLOCK_SIZE</string>
     <string name="TIME_BUTTON_1">TIME_BUTTON_ONE</string>
     <string name="TIME_BUTTON_2">TIME_BUTTON_TWO</string>
     <string name="TIME_BUTTON_3">TIME_BUTTON_THREE</string>

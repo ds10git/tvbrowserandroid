@@ -613,14 +613,18 @@ public class UiUtils {
   }
   
   public static void handleMarkings(Activity activity, Cursor cursor, View view, String markingValues) {
+    long startTime = cursor != null ? cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) : 0;
+    long endTime = cursor != null ? cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) : 0;
+    
+    handleMarkings(activity, cursor, startTime, endTime, view, markingValues);
+  }
+  
+  public static void handleMarkings(Activity activity, Cursor cursor, long startTime, long endTime, View view, String markingValues) {
     String value = markingValues;
     
     if(value == null && cursor != null && !cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
       value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
     }
-    
-    long startTime = cursor != null ? cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) : 0;
-    long endTime = cursor != null ? cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) : 0;
     
     Paint base = new Paint();
     base.setStyle(Paint.Style.FILL_AND_STROKE);
@@ -675,9 +679,8 @@ public class UiUtils {
         }
       }
     }
-    else {
-      draw.add(activity.getResources().getDrawable(android.R.drawable.list_selector_background));
-    }
+    
+    draw.add(activity.getResources().getDrawable(android.R.drawable.list_selector_background));
     
     view.setBackgroundDrawable(new LayerDrawable(draw.toArray(new Drawable[draw.size()])));
   }

@@ -43,4 +43,12 @@
         <item>1215</item>
         <item>1380</item>
     </integer-array>
+    <string-array name="time_block_size">
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
+        <item>5</item>
+        <item>6</item>
+    </string-array>
 </resources>

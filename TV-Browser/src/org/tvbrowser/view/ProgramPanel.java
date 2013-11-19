@@ -16,6 +16,7 @@
  */
 package org.tvbrowser.view;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import android.content.Context;
@@ -60,6 +61,8 @@ public class ProgramPanel extends View {
   private static final TextPaint NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT = new TextPaint();
   private static final TextPaint EXPIRED_PICTURE_COPYRIGHT_PAINT = new TextPaint();
   private boolean mIsExpired;
+  
+  private int mChannelID;
 
   static {
     NOT_EXPIRED_TITLE_PAINT.setTypeface(Typeface.DEFAULT_BOLD);
@@ -88,7 +91,9 @@ public class ProgramPanel extends View {
   
   private static int mGap;
   
-  public ProgramPanel(Context context, final long startTime, final long endTime, final String title) {
+  public static int PADDING_SIDE = 0;
+  
+  public ProgramPanel(Context context, final long startTime, final long endTime, final String title, final int channelID) {
     super(context);
     
     if(mTimeFormat == null) {
@@ -124,18 +129,21 @@ public class ProgramPanel extends View {
       
       SUPER_SMALL_FONT_DESCEND = Math.abs(NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.getFontMetricsInt().descent);
       SUPER_SMALL_MAX_FONT_HEIGHT = SUPER_SMALL_FONT_DESCEND + Math.abs(NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.getFontMetricsInt().ascent)+1;
+      
+      PADDING_SIDE = (int) (2 * scale + 0.5f);
     }
     
     mBigRowCount = 0;
     mSmallRowCount = 0;
     mSuperSmallCount = 0;
     mEndTime = endTime;
+    mChannelID = channelID;
     setStartTime(startTime);
     setTitle(title);
   }
   
   private void setTitle(String title) {
-    Object[] result = getBreakerText(title, mWidth - mStartTimeBounds.width() - mGap, NOT_EXPIRED_TITLE_PAINT);
+    Object[] result = getBreakerText(title, getTextWidth() - mStartTimeBounds.width() - mGap, NOT_EXPIRED_TITLE_PAINT);
     
     mTitle = result[0].toString();
     mBigRowCount = (Integer)result[1];
@@ -196,16 +204,20 @@ public class ProgramPanel extends View {
 
   public void setGenre(String genre) {
     if(genre != null && !genre.trim().isEmpty()) {
-      Object[] result = getBreakerText(genre.trim(), mWidth - mStartTimeBounds.width() - mGap, NOT_EXPIRED_GENRE_EPISODE_PAINT);
+      Object[] result = getBreakerText(genre.trim(), getTextWidth() - mStartTimeBounds.width() - mGap, NOT_EXPIRED_GENRE_EPISODE_PAINT);
       
       mGenre = result[0].toString();
       mSmallRowCount += (Integer)result[1];
     }
   }
   
+  public int getTextWidth() {
+    return mWidth - PADDING_SIDE * 2;
+  }
+  
   public void setEpisode(String episode) {
     if(episode != null && !episode.trim().isEmpty()) {
-      Object[] result = getBreakerText(episode.trim(), mWidth - mStartTimeBounds.width() - mGap, NOT_EXPIRED_GENRE_EPISODE_PAINT);
+      Object[] result = getBreakerText(episode.trim(), getTextWidth() - mStartTimeBounds.width() - mGap, NOT_EXPIRED_GENRE_EPISODE_PAINT);
       
       mEpisode = result[0].toString();
       mSmallRowCount += (Integer)result[1];
@@ -245,6 +257,8 @@ public class ProgramPanel extends View {
   @Override
   protected void onDraw(Canvas canvas) {
     super.onDraw(canvas);
+    
+    canvas.translate(PADDING_SIDE, 0);
     
     TextPaint toUseForTimeAndTitle = NOT_EXPIRED_TITLE_PAINT;
     TextPaint toUseForGenreAndEpisode = NOT_EXPIRED_GENRE_EPISODE_PAINT;
@@ -333,5 +347,22 @@ public class ProgramPanel extends View {
     }
     
     return mIsExpired;
+  }
+  
+  public int getChannelID() {
+    return mChannelID;
+  }
+  
+  public int getStartHour(Calendar test) {
+    Calendar cal = Calendar.getInstance();
+    cal.setTime(mStartTime);
+    
+    int hour = cal.get(Calendar.HOUR_OF_DAY);
+    
+    if(test.get(Calendar.DAY_OF_YEAR) + 1 == cal.get(Calendar.DAY_OF_YEAR)) {
+      hour += 24;
+    }
+    
+    return hour;
   }
 }
