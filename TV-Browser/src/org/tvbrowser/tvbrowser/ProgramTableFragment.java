@@ -46,6 +46,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -720,10 +721,13 @@ public class ProgramTableFragment extends Fragment {
         String title = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
         
         ProgramPanel panel = new ProgramPanel(getActivity(),startTime,endTime,title);
+        
         panel.setGenre(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)));
         panel.setEpisode(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)));
         panel.setOnClickListener(mClickListener);
         panel.setTag(cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
+        
+        registerForContextMenu(panel);
         
         int pictureColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
         
