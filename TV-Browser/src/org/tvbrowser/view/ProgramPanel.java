@@ -237,6 +237,8 @@ public class ProgramPanel extends View {
       pictureHeight = mPicture.getBounds().height();
     }
     
+    mWidth = MeasureSpec.getSize( widthMeasureSpec );
+    
     setMeasuredDimension(mWidth, BIG_MAX_FONT_HEIGHT * mBigRowCount + SMALL_MAX_FONT_HEIGHT * mSmallRowCount + pictureHeight + mSuperSmallCount * SUPER_SMALL_MAX_FONT_HEIGHT);
   }
   
