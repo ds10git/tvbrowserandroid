@@ -8,4 +8,5 @@
     <item name="favorite_program_weight" format="float" type="dimen">0.25</item>
     <item name="prog_table_default" type="bool" format="boolean">true</item>
     <dimen name="detail_padding">10dp</dimen>
+    <dimen name="running_bar_height">48dp</dimen>
 </resources>

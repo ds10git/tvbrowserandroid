@@ -25,6 +25,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.text.TextPaint;
 import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
@@ -167,5 +168,14 @@ public class ProgramPanelLayout extends ViewGroup {
     }
     
     super.dispatchDraw(canvas);
+  }
+  
+  public void clear() {
+    for(int i = getChildCount()-1; i >= 0; i--) {
+      View view = getChildAt(i);
+      removeView(view);
+      ((ProgramPanel)view).clear();
+      view = null;
+    }
   }
 }

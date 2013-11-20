@@ -79,10 +79,14 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     else if(key.equals(getResources().getString(R.string.PROG_TABLE_ACTIVATED))) {
       CheckBoxPreference progTable = (CheckBoxPreference) findPreference(key);
       
+      ListPreference blockSize = (ListPreference) findPreference(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE));
       ListPreference channelLogoName = (ListPreference) findPreference(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE));
       CheckBoxPreference pictures = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE));
       
       if(progTable != null) {
+        if(blockSize != null) {
+          blockSize.setEnabled(progTable.isChecked());
+        }
         if(channelLogoName != null) {
           channelLogoName.setEnabled(progTable.isChecked());
         }

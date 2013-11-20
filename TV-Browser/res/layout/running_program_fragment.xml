@@ -10,7 +10,7 @@
             android:id="@+id/runnning_time_bar" 
             android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/running_bar_height"
             style="?android:attr/buttonBarStyle"
             >
             <Button android:id="@+id/now_button"
@@ -29,27 +29,33 @@
     />
     <HorizontalScrollView android:layout_height="wrap_content"
         android:layout_width="wrap_content"
-        android:visibility="gone">
+        android:visibility="visible">
 	    <LinearLayout android:orientation="horizontal"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+            android:layout_height="@dimen/running_bar_height"
             style="?android:attr/buttonBarStyle"
             >
 	        <Button android:id="@+id/button_before"
 	                android:text="@string/button_before"
 	                style="?android:attr/buttonBarButtonStyle"
 	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"/>
+	                android:layout_height="wrap_content"
+	                android:paddingLeft="15px"
+	                android:paddingRight="15px"/>
 	            <Button android:id="@+id/button_at"
 	                android:text="@string/button_at"
 	                style="?android:attr/buttonBarButtonStyle"
 	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"/>
+	                android:layout_height="wrap_content"
+	                android:paddingLeft="15px"
+	                android:paddingRight="15px"/>
 	            <Button android:id="@+id/button_after"
 	                android:text="@string/button_after"
 	                style="?android:attr/buttonBarButtonStyle"
 	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"/>
+	                android:layout_height="wrap_content"
+	                android:paddingLeft="15px"
+	                android:paddingRight="15px"/>
 	    </LinearLayout>
 	</HorizontalScrollView>
 </LinearLayout>

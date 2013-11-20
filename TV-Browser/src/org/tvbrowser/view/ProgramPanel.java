@@ -365,4 +365,14 @@ public class ProgramPanel extends View {
     
     return hour;
   }
+  
+  public void clear() {
+    mEpisode = null;
+    mGenre = null;
+    mPicture = null;
+    mPictureCopyright = null;
+    mStartTimeBounds = null;
+    mStartTimeString = null;
+    mTitle = null;
+  }
 }
