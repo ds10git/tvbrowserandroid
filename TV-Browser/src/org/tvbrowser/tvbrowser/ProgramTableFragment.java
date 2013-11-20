@@ -83,6 +83,8 @@ public class ProgramTableFragment extends Fragment {
   
   private ProgramPanelLayout mProgramPanelLayout;
   
+  private boolean mDaySet;
+  
   public void scrollToNow() {
     StringBuilder where = new StringBuilder();
     where.append(" (( ");
@@ -333,9 +335,11 @@ public class ProgramTableFragment extends Fragment {
     long dayStart = mCurrentDay * 24 * 60 * 60 * 1000;
     dayStart -=  TimeZone.getDefault().getOffset(dayStart);
     
-    if(testDay == mCurrentDay && System.currentTimeMillis() - dayStart < 4 * 60 * 60 * 1000) {
+    if(!mDaySet && testDay == mCurrentDay && System.currentTimeMillis() - dayStart < 4 * 60 * 60 * 1000) {
       dayStart = --mCurrentDay * 24 * 60 * 60 * 1000 - TimeZone.getDefault().getOffset(dayStart);
     }
+    
+    mDaySet = true;
         
     long dayEnd = (mCurrentDay+1) * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000 - TimeZone.getDefault().getOffset(dayStart);
         
@@ -457,7 +461,7 @@ public class ProgramTableFragment extends Fragment {
       cursor.close();
     }
     
-    if(testDay == mCurrentDay) {
+    if(testDay == mCurrentDay || testDay - 1 == mCurrentDay) {
       handler.post(new Runnable() {
         @Override
         public void run() {
@@ -500,6 +504,7 @@ public class ProgramTableFragment extends Fragment {
     
     if(mCurrentDay == 0) {
       mCurrentDay = System.currentTimeMillis() / 1000 / 60 / 60 / 24;
+      mDaySet = false;
     }
     
     TextView currentDay = (TextView)programTableLayout.findViewById(R.id.show_current_day);
