@@ -256,7 +256,6 @@ public class TvBrowser extends FragmentActivity implements
     super.onResume();
     
     mIsActive = true;
-    
     showTerms();
   }
   

@@ -14,4 +14,5 @@
     <item name="on_air_tag" format="integer" type="id">2000</item>
     <item name="prog_table_default" type="bool" format="boolean">false</item>
     <dimen name="detail_padding">2dp</dimen>
+    <dimen name="running_bar_height">30dp</dimen>
 </resources>

@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<HorizontalScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<org.tvbrowser.view.ZoomableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+	    android:layout_height="wrap_content">
+	
+	<HorizontalScrollView 
 	    android:layout_width="wrap_content"
 	    android:layout_height="match_parent"
 	    android:id="@+id/horizontal_program_table_scroll"
@@ -32,3 +36,4 @@
 	        </ScrollView>        
 	    </LinearLayout>
 	</HorizontalScrollView>
+</org.tvbrowser.view.ZoomableFrameLayout>

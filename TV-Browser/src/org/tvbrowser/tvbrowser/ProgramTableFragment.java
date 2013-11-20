@@ -48,6 +48,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -86,50 +87,52 @@ public class ProgramTableFragment extends Fragment {
   private boolean mDaySet;
   
   public void scrollToNow() {
-    StringBuilder where = new StringBuilder();
-    where.append(" (( ");
-    where.append(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-    where.append(" <= ");
-    where.append(System.currentTimeMillis());
-    where.append(" ) AND ( ");
-    where.append(System.currentTimeMillis());
-    where.append(" <= ");
-    where.append(TvBrowserContentProvider.DATA_KEY_ENDTIME);    
-    where.append(" )) ");
-    
-    Cursor c = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
-    
-    if(c.getCount() > 0) {
-      c.moveToFirst();
+    if(isResumed()) {
+      StringBuilder where = new StringBuilder();
+      where.append(" (( ");
+      where.append(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      where.append(" <= ");
+      where.append(System.currentTimeMillis());
+      where.append(" ) AND ( ");
+      where.append(System.currentTimeMillis());
+      where.append(" <= ");
+      where.append(TvBrowserContentProvider.DATA_KEY_ENDTIME);    
+      where.append(" )) ");
       
-      long id = -1;
+      Cursor c = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
       
-      do {
-        id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-      }while((System.currentTimeMillis() - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1.25 * 60 * 60000)) && c.moveToNext());
-      
-      if(id != -1 && getView() != null) {
-        final View view = getView().findViewWithTag(Long.valueOf(id));
+      if(c.getCount() > 0) {
+        c.moveToFirst();
         
-        if(view != null) {
-          final ScrollView scroll = (ScrollView)getView().findViewById(R.id.vertical_program_table_scroll);
+        long id = -1;
+        
+        do {
+          id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+        }while((System.currentTimeMillis() - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1.25 * 60 * 60000)) && c.moveToNext());
+        
+        if(id != -1 && getView() != null) {
+          final View view = getView().findViewWithTag(Long.valueOf(id));
           
-          scroll.post(new Runnable() {
-            @Override
-            public void run() {
-              int location[] = new int[2];
-              view.getLocationInWindow(location);
-              
-              Display display = getActivity().getWindowManager().getDefaultDisplay();
-              
-              scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]-display.getHeight()/3);
-            }
-          });
+          if(view != null) {
+            final ScrollView scroll = (ScrollView)getView().findViewById(R.id.vertical_program_table_scroll);
+            
+            scroll.post(new Runnable() {
+              @Override
+              public void run() {
+                int location[] = new int[2];
+                view.getLocationInWindow(location);
+                
+                Display display = getActivity().getWindowManager().getDefaultDisplay();
+                
+                scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]-display.getHeight()/3);
+              }
+            });
+          }
         }
       }
+      
+      c.close();
     }
-    
-    c.close();
   }
   
   @Override
@@ -322,6 +325,10 @@ public class ProgramTableFragment extends Fragment {
     
     mUpdatingLayout = true;
     
+    if(mProgramPanelLayout != null) {
+      mProgramPanelLayout.clear();
+    }
+    
     container.removeAllViews();
     
     View programTable = inflater.inflate(R.layout.program_table, container);
@@ -461,7 +468,7 @@ public class ProgramTableFragment extends Fragment {
       cursor.close();
     }
     
-    if(testDay == mCurrentDay || testDay - 1 == mCurrentDay) {
+    if(isResumed() && (testDay == mCurrentDay || testDay - 1 == mCurrentDay)) {
       handler.post(new Runnable() {
         @Override
         public void run() {

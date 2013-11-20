@@ -16,6 +16,7 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 
@@ -116,6 +117,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         test.setBackgroundResource(android.R.drawable.list_selector_background);
       }
       
+      setTimeRangeID(R.id.button_at);
+            
       mWhereClauseTime = ((Integer) time).intValue();
       
       if(mDataUpdateReceiver != null) {
@@ -131,10 +134,11 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     if(test != null) {
       test.setBackgroundResource(android.R.drawable.list_selector_background);
+      test.setPadding(15, 0, 15, 0);
     }
     
     mTimeRangeID = id;
-    
+        
     startUpdateThread();
   }
   
@@ -412,14 +416,16 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     long time = ((long)cal.getTimeInMillis() / 60000) * 60000;
 
-    switch (mTimeRangeID) {
-      case R.id.button_before: time -= (60000 * 60);break;
-      case R.id.button_after: time += (60000 * 60);break;
-    }
     
     String where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + time + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + time;
+    String sort = TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC";
+    
+    switch (mTimeRangeID) {
+      case R.id.button_before: where = TvBrowserContentProvider.DATA_KEY_ENDTIME + " <= " + time + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + (time - (60000 * 60 * 12)); sort = TvBrowserContentProvider.DATA_KEY_ENDTIME + " DESC"; break;
+      case R.id.button_after: where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " > " + time + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " < " + (time + (60000 * 60 * 12));break;
+    }
         
-    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
+    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " COLLATE NOCASE, " + sort);
     
     return loader;
   }
@@ -427,6 +433,32 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   @Override
   public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader,
       Cursor c) {
+    
+    switch(mTimeRangeID) {
+      case R.id.button_before: 
+      case R.id.button_after:
+      {
+        ArrayList<Integer> channelIDList = new ArrayList<Integer>();
+        ArrayList<Integer> filterMapList = new ArrayList<Integer>();
+        
+        int channelColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+        
+        while(c.moveToNext()) {
+          int channelID = c.getInt(channelColumn);
+          
+          if(!channelIDList.contains(Integer.valueOf(channelID))) {
+            filterMapList.add(Integer.valueOf(c.getPosition()));
+            channelIDList.add(Integer.valueOf(channelID));
+          }
+        }
+        
+        RunningCursorWrapper wrapper = new RunningCursorWrapper(c);
+        wrapper.setFilterMap(filterMapList.toArray(new Integer[filterMapList.size()]));
+        c = wrapper;
+      }
+      break;
+    }
+    
     mRunningProgramListAdapter.swapCursor(c);
   }
 
@@ -442,17 +474,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     long programID = ((AdapterView.AdapterContextMenuInfo)menuInfo).id;
     UiUtils.createContextMenu(getActivity(), menu, programID);
   }
-  
- // @Override
- /* public boolean onContextItemSelected(MenuItem item) {
-    if(item.getMenuInfo() != null) {
-      long programID = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).id;
-    
-      return UiUtils.handleContextMenuSelection(getActivity(), item, programID, null);
-    }
-    
-    return false;
-  }*/
   
   @Override
   public void onListItemClick(ListView l, View v, int position, long id) {
