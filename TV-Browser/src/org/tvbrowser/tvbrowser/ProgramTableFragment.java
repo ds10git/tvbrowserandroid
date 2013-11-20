@@ -71,7 +71,6 @@ public class ProgramTableFragment extends Fragment {
   private Thread mUpdateThread;
   private View.OnClickListener mClickListener;
   
-  private long mCurrentDay;
   private View mMenuView;
   
   private BroadcastReceiver mDataUpdateReceiver;
@@ -83,6 +82,8 @@ public class ProgramTableFragment extends Fragment {
   private int mTimeBlockSize;
   
   private ProgramPanelLayout mProgramPanelLayout;
+  
+  private Calendar mCurrentDate;
   
   private boolean mDaySet;
   
@@ -141,7 +142,8 @@ public class ProgramTableFragment extends Fragment {
     
     mUpdatingRunningPrograms = false;
     mUpdatingLayout = false;
-    mCurrentDay = 0;
+    mCurrentDate = null;
+    //mCurrentDay = 0;
     
     mClickListener = new View.OnClickListener() {
       @Override
@@ -333,22 +335,37 @@ public class ProgramTableFragment extends Fragment {
     
     View programTable = inflater.inflate(R.layout.program_table, container);
     
-    Calendar cal = Calendar.getInstance();
+  /*  Calendar cal = Calendar.getInstance();
     cal.set(2013, Calendar.DECEMBER, 31);
     
-    cal.add(Calendar.DAY_OF_YEAR, 1);
+    cal.add(Calendar.DAY_OF_YEAR, 1);*/
     
-    long testDay = System.currentTimeMillis() / 1000 / 60 / 60 / 24;
-    long dayStart = mCurrentDay * 24 * 60 * 60 * 1000;
-    dayStart -=  TimeZone.getDefault().getOffset(dayStart);
+    Calendar value = Calendar.getInstance();
     
-    if(!mDaySet && testDay == mCurrentDay && System.currentTimeMillis() - dayStart < 4 * 60 * 60 * 1000) {
-      dayStart = --mCurrentDay * 24 * 60 * 60 * 1000 - TimeZone.getDefault().getOffset(dayStart);
+    if(!mDaySet && value.get(Calendar.DAY_OF_YEAR) == mCurrentDate.get(Calendar.DAY_OF_YEAR) && value.get(Calendar.HOUR_OF_DAY) < 4) {
+      value.setTime(mCurrentDate.getTime());
+      value.add(Calendar.DAY_OF_YEAR, -1);
     }
+    else {
+      value.setTime(mCurrentDate.getTime());
+    }
+    
+    value.set(Calendar.HOUR_OF_DAY, 0);
+    value.set(Calendar.MINUTE, 0);
+    value.set(Calendar.SECOND, 0);
+    value.set(Calendar.MILLISECOND, 0);
+    
+    //long testDay = System.currentTimeMillis() / 1000 / 60 / 60 / 24;
+    long dayStart = value.getTimeInMillis();
+   // dayStart -=  TimeZone.getDefault().getOffset(dayStart);
+    
+  /*  if(!mDaySet && testDay == mCurrentDay && System.currentTimeMillis() - dayStart < 4 * 60 * 60 * 1000) {
+      dayStart = --mCurrentDay * 24 * 60 * 60 * 1000 - TimeZone.getDefault().getOffset(dayStart);
+    }*/
     
     mDaySet = true;
         
-    long dayEnd = (mCurrentDay+1) * 24 * 60 * 60 * 1000 + 4 * 60 * 60 * 1000 - TimeZone.getDefault().getOffset(dayStart);
+    long dayEnd = dayStart + 28 * 60 * 60 * 1000;
         
     String where = TvBrowserContentProvider.DATA_KEY_STARTTIME +  " >= " + dayStart + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " < " + dayEnd;
     
@@ -452,10 +469,10 @@ public class ProgramTableFragment extends Fragment {
     }
         
     if(channels.getCount() > 0) {
-      Calendar day = Calendar.getInstance();
-      day.setTimeInMillis(mCurrentDay * 1000 * 60 * 60 * 24);
+      /*Calendar day = Calendar.getInstance();
+      day.setTimeInMillis(mCurrentDay * 1000 * 60 * 60 * 24);*/
       
-      mProgramPanelLayout = new ProgramPanelLayout(getActivity(), channelIDsOrdered, mTimeBlockSize, day);
+      mProgramPanelLayout = new ProgramPanelLayout(getActivity(), channelIDsOrdered, mTimeBlockSize, value);
       ViewGroup test = (ViewGroup)programTable.findViewById(R.id.vertical_program_table_scroll);
       test.addView(mProgramPanelLayout);
       
@@ -468,7 +485,9 @@ public class ProgramTableFragment extends Fragment {
       cursor.close();
     }
     
-    if(isResumed() && (testDay == mCurrentDay || testDay - 1 == mCurrentDay)) {
+    Calendar test = Calendar.getInstance();
+    
+    if(isResumed() && (test.get(Calendar.DAY_OF_YEAR) == mCurrentDate.get(Calendar.DAY_OF_YEAR) || test.get(Calendar.DAY_OF_YEAR) - 1 == mCurrentDate.get(Calendar.DAY_OF_YEAR))) {
       handler.post(new Runnable() {
         @Override
         public void run() {
@@ -481,7 +500,7 @@ public class ProgramTableFragment extends Fragment {
   }
   
   private void setDayString(TextView currentDay) {
-    Date date = new Date(mCurrentDay * 1000 * 60 * 60 * 24);
+    Date date = mCurrentDate.getTime();
     
     String longDate = DateFormat.getLongDateFormat(getActivity()).format(date);
     
@@ -493,7 +512,7 @@ public class ProgramTableFragment extends Fragment {
   }
   
   private void changeDay(int count) {
-    mCurrentDay += count;
+    mCurrentDate.add(Calendar.DAY_OF_YEAR, count);
     
     TextView day = (TextView)getView().findViewById(R.id.show_current_day);
     
@@ -509,8 +528,8 @@ public class ProgramTableFragment extends Fragment {
       Bundle savedInstanceState) {
     RelativeLayout programTableLayout = (RelativeLayout)inflater.inflate(R.layout.program_table_layout, null);
     
-    if(mCurrentDay == 0) {
-      mCurrentDay = System.currentTimeMillis() / 1000 / 60 / 60 / 24;
+    if(mCurrentDate == null) {
+      mCurrentDate = Calendar.getInstance();
       mDaySet = false;
     }
     
@@ -715,8 +734,8 @@ public class ProgramTableFragment extends Fragment {
     
     final DatePicker select = new DatePicker(getActivity());
         
-    Calendar cal = Calendar.getInstance();
-    cal.setTimeInMillis(mCurrentDay * 24 * 60 * 60 * 1000);
+   /* Calendar cal = Calendar.getInstance();
+    cal.setTimeInMillis(mCurrentDay * 24 * 60 * 60 * 1000);*/
     
     if (Build.VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB_MR1) {
       select.getCalendarView().setFirstDayOfWeek(Calendar.MONDAY);
@@ -724,15 +743,12 @@ public class ProgramTableFragment extends Fragment {
     
     select.setMinDate(dayStart - 24 * 60 * 60 * 1000);
     select.setMaxDate(dayStart + 15 * (24 * 60 * 60 * 1000));
-    select.init(cal.get(Calendar.YEAR), cal.get(Calendar.MONTH), cal.get(Calendar.DAY_OF_MONTH), null);
+    select.init(mCurrentDate.get(Calendar.YEAR), mCurrentDate.get(Calendar.MONTH), mCurrentDate.get(Calendar.DAY_OF_MONTH), null);
     
     builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
       @Override
       public void onClick(DialogInterface dialog, int which) {
-        Calendar cal = Calendar.getInstance();
-        cal.set(select.getYear(), select.getMonth(), select.getDayOfMonth());
-        
-        mCurrentDay = cal.getTimeInMillis() / 24 / 60 / 60 / 1000;
+        mCurrentDate.set(select.getYear(), select.getMonth(), select.getDayOfMonth());
 
         setDayString((TextView)getView().findViewById(R.id.show_current_day));
         updateView(getActivity().getLayoutInflater(), (RelativeLayout)getView().findViewWithTag("LAYOUT"));
