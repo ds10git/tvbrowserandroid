@@ -68,15 +68,26 @@ public class DummySectionFragment extends Fragment {
       final RunningProgramsListFragment running = (RunningProgramsListFragment)getActivity().getSupportFragmentManager().findFragmentById(R.id.runningListFragment);
       final LinearLayout timeBar = (LinearLayout)rootView.findViewById(R.id.runnning_time_bar);
       
+      final Button before = (Button)rootView.findViewById(R.id.button_before1);
+      final Button after = (Button)rootView.findViewById(R.id.button_after1);
+      
       final View.OnClickListener listener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
           if(running != null) {
+            timeBar.removeView(before);
+            timeBar.removeView(after);
+            
+            int index = timeBar.indexOfChild(v);
+            
+            timeBar.addView(after, index+1);
+            timeBar.addView(before, index);
+            
             running.setWhereClauseTime(v.getTag());
           }
         }
       };
-      View.OnClickListener timeRange = new View.OnClickListener() {
+      final View.OnClickListener timeRange = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
           if(running != null) {
@@ -89,14 +100,13 @@ public class DummySectionFragment extends Fragment {
       
       IntentFilter channelUpdateFilter = new IntentFilter(SettingConstants.CHANNEL_UPDATE_DONE);
       
-      Button now = (Button)rootView.findViewById(R.id.now_button);
+      final Button now = (Button)rootView.findViewById(R.id.now_button);
       now.setTag(Integer.valueOf(-1));
-      now.setOnClickListener(listener);
       
       final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-          for(int i = timeBar.getChildCount() - 1; i >= 1; i--) {
+          for(int i = timeBar.getChildCount() - 1; i >= 0; i--) {
             Button button = (Button)timeBar.getChildAt(i);
             
             if(button != null) {
@@ -106,6 +116,14 @@ public class DummySectionFragment extends Fragment {
           }
           
           if(getActivity() != null) {
+            before.setOnClickListener(timeRange);
+            now.setOnClickListener(listener);
+            after.setOnClickListener(timeRange);
+            
+            timeBar.addView(before);
+            timeBar.addView(now);
+            timeBar.addView(after);
+            
             ArrayList<Integer> values = new ArrayList<Integer>();
             
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -147,9 +165,8 @@ public class DummySectionFragment extends Fragment {
       localBroadcastManager.registerReceiver(receiver, channelUpdateFilter);
       receiver.onReceive(null, null);
       
-      rootView.findViewById(R.id.button_before).setOnClickListener(timeRange);
-      rootView.findViewById(R.id.button_at).setOnClickListener(timeRange);
-      rootView.findViewById(R.id.button_after).setOnClickListener(timeRange);
+    /*  rootView.findViewById(R.id.button_before1).setOnClickListener(timeRange);
+      rootView.findViewById(R.id.button_after1).setOnClickListener(timeRange);*/
     }
     else if(getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
         rootView = inflater.inflate(R.layout.program_list_fragment,

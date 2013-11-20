@@ -37,6 +37,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -58,7 +59,7 @@ import android.widget.TextView;
 
 public class RunningProgramsListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
   private static final String WHERE_CLAUSE_KEY = "WHERE_CLAUSE_KEY";
-  SimpleCursorAdapter mRunningProgramListAdapter;
+  private SimpleCursorAdapter mRunningProgramListAdapter;
   
   private Handler handler = new Handler();
   
@@ -69,6 +70,17 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   
   private BroadcastReceiver mDataUpdateReceiver;
   private BroadcastReceiver mRefreshReceiver;
+  
+  private static final GradientDrawable BEFORE_GRADIENT;
+  private static final GradientDrawable AFTER_GRADIENT;
+  
+  static {
+    BEFORE_GRADIENT = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[] {Color.argb(0x84, 0, 0, 0xff),Color.WHITE});
+    BEFORE_GRADIENT.setCornerRadius(0f);
+    
+    AFTER_GRADIENT = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[] {Color.WHITE,Color.argb(0x84, 0, 0, 0xff)});
+    AFTER_GRADIENT.setCornerRadius(0f);
+  }
   
   @Override
   public void onResume() {
@@ -117,7 +129,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         test.setBackgroundResource(android.R.drawable.list_selector_background);
       }
       
-      setTimeRangeID(R.id.button_at);
+      setTimeRangeID(-1);
             
       mWhereClauseTime = ((Integer) time).intValue();
       
@@ -138,7 +150,11 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     }
     
     mTimeRangeID = id;
-        
+    
+    switch(mTimeRangeID) {
+      case -1:  break;
+    }
+    
     startUpdateThread();
   }
   
@@ -159,7 +175,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       mWhereClauseTime = -1;
     }
     
-    mTimeRangeID = R.id.button_at;
+    mTimeRangeID = -1;
     
     registerForContextMenu(getListView());
     
@@ -403,8 +419,13 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     if(getView().getParent() != null) {
       Button test = (Button)((View)getView().getParent()).findViewWithTag(Integer.valueOf(mWhereClauseTime));
       
+      
       if(test != null) {
-        test.setBackgroundResource(R.color.filter_selection);
+        switch(mTimeRangeID) {
+          case -1: test.setBackgroundResource(R.color.filter_selection);break;
+          case R.id.button_before1: test.setBackgroundDrawable(BEFORE_GRADIENT);break;
+          case R.id.button_after1: test.setBackgroundDrawable(AFTER_GRADIENT);break;
+        }
       }
       
       test = (Button)((View)getView().getParent()).findViewById(mTimeRangeID);
@@ -421,8 +442,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     String sort = TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC";
     
     switch (mTimeRangeID) {
-      case R.id.button_before: where = TvBrowserContentProvider.DATA_KEY_ENDTIME + " <= " + time + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + (time - (60000 * 60 * 12)); sort = TvBrowserContentProvider.DATA_KEY_ENDTIME + " DESC"; break;
-      case R.id.button_after: where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " > " + time + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " < " + (time + (60000 * 60 * 12));break;
+      case R.id.button_before1: where = TvBrowserContentProvider.DATA_KEY_ENDTIME + " <= " + time + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + (time - (60000 * 60 * 12)); sort = TvBrowserContentProvider.DATA_KEY_ENDTIME + " DESC"; break;
+      case R.id.button_after1: where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " > " + time + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " < " + (time + (60000 * 60 * 12));break;
     }
         
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " COLLATE NOCASE, " + sort);
@@ -435,8 +456,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       Cursor c) {
     
     switch(mTimeRangeID) {
-      case R.id.button_before: 
-      case R.id.button_after:
+      case R.id.button_before1: 
+      case R.id.button_after1:
       {
         ArrayList<Integer> channelIDList = new ArrayList<Integer>();
         ArrayList<Integer> filterMapList = new ArrayList<Integer>();
