@@ -658,6 +658,8 @@ public class TvBrowser extends FragmentActivity implements
     BroadcastReceiver receiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
+        mUpdateItem.setActionView(null);
+        
         LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(this);
         
         boolean success = intent.getBooleanExtra(SettingConstants.CHANNEL_DOWNLOAD_SUCCESSFULLY, true);
@@ -692,6 +694,7 @@ public class TvBrowser extends FragmentActivity implements
     
     LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
     
+    mUpdateItem.setActionView(R.layout.progressbar);
     startService(updateChannels);
   }
   
