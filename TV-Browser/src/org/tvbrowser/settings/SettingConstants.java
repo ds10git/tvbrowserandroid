@@ -52,6 +52,19 @@ public class SettingConstants {
   
   public static final HashMap<String, String> SHORT_CHANNEL_NAMES = new HashMap<String, String>();
   
+  public static final int TV_CINEMA_CHANNEL_TYPE = 1;
+  public static final int RADIO_TYPE = 2;
+  
+  public static final int TV_CATEGORY = 1;
+  public static final int RADIO_CATEGORY = 1 << 1;
+  public static final int CINEMA_CATEGORY = 1 << 2;
+  public static final int DIGITAL_CATEGORY = 1 << 4;
+  public static final int MUSIC_CATEGORY = 1 << 5;
+  public static final int SPORT_CATEGORY = 1 << 6;
+  public static final int NEWS_CATEGORY = 1 << 7;
+  public static final int NICHE_CATEGORY = 1 << 8;
+  public static final int PAY_TV_CATEGORY = 1 << 9;
+  
   static {
     MARK_COLOR_MAP.put(MARK_VALUE, R.color.mark_color);
     MARK_COLOR_MAP.put(MARK_VALUE_CALENDAR, R.color.mark_color_calendar);

@@ -37,6 +37,8 @@
     <string name="button_at">At time</string>
     <string name="no_channels">No channels selected</string>
     <string name="select_channels">Select channels now</string>
+    <string name="select_tv_channels_cinemas">Select TV channels/cinemas now</string>
+    <string name="select_radios">Select radio channels now</string>
     <string name="dont_select_channels">Don\'t select channels</string>
     <string name="update_data">Update Data</string>
     <string name="versionExpired">Version expired</string>

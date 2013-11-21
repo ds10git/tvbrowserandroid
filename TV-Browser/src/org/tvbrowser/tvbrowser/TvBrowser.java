@@ -31,6 +31,7 @@ import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.filter.CursorFilter;
 import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.tvbrowser.settings.SettingConstants;
 
@@ -477,10 +478,16 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   private void showChannelSelectionInternal() {
+    showChannelSelectionInternal(SettingConstants.RADIO_TYPE, true);
+    showChannelSelectionInternal(SettingConstants.TV_CINEMA_CHANNEL_TYPE, false);
+  }
+  
+  private void showChannelSelectionInternal(final int type, final boolean showDownload) {
     String[] projection = {
         TvBrowserContentProvider.KEY_ID,
         TvBrowserContentProvider.CHANNEL_KEY_NAME,
-        TvBrowserContentProvider.CHANNEL_KEY_SELECTION
+        TvBrowserContentProvider.CHANNEL_KEY_SELECTION,
+        TvBrowserContentProvider.CHANNEL_KEY_CATEGORY
         };
     
     ContentResolver cr = getContentResolver();
@@ -488,6 +495,25 @@ public class TvBrowser extends FragmentActivity implements
     
     final ArrayList<ChannelSelection> channelSource = new ArrayList<TvBrowser.ChannelSelection>();
     ArrayList<CharSequence> channelNames = new ArrayList<CharSequence>();
+    
+    CursorFilter filter = new CursorFilter() {
+      @Override
+      public boolean accept(Cursor cursor) {
+        int value = cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CATEGORY));
+        boolean isCategory = false;
+        
+        switch(type) {
+          case SettingConstants.TV_CINEMA_CHANNEL_TYPE: isCategory = ((value & SettingConstants.TV_CATEGORY) == SettingConstants.TV_CATEGORY) || ((value & SettingConstants.CINEMA_CATEGORY) == SettingConstants.CINEMA_CATEGORY);break;
+          case SettingConstants.RADIO_TYPE: isCategory = (value & SettingConstants.RADIO_TYPE) == SettingConstants.RADIO_TYPE;break;
+        }
+        
+        return isCategory;
+      }
+    };
+    
+    FilterCursorWrapper wrapper = new FilterCursorWrapper(channels);
+    wrapper.updateFilter(filter);
+    channels = wrapper;
     
     final boolean[] wasSelected = new boolean[channels.getCount()];
     final boolean[] currentlySelected = new boolean[channels.getCount()];
@@ -516,7 +542,13 @@ public class TvBrowser extends FragmentActivity implements
     if(!channelSource.isEmpty()) {
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
       
-      builder.setTitle(R.string.select_channels);
+      if(type == SettingConstants.TV_CINEMA_CHANNEL_TYPE) {
+        builder.setTitle(R.string.select_tv_channels_cinemas);
+      }
+      else if(type == SettingConstants.RADIO_TYPE) {
+        builder.setTitle(R.string.select_radios);
+      }
+        
       builder.setMultiChoiceItems(channelNames.toArray(new CharSequence[channelNames.size()]), currentlySelected, new DialogInterface.OnMultiChoiceClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which, boolean isChecked) {
@@ -562,6 +594,9 @@ public class TvBrowser extends FragmentActivity implements
           
           if(somethingSelected) {
             updateProgramListChannelBar();
+          }
+          
+          if(showDownload) {
             checkTermsAccepted();
           }
         }
@@ -570,7 +605,9 @@ public class TvBrowser extends FragmentActivity implements
       builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {        
         @Override
         public void onClick(DialogInterface dialog, int which) {
-          
+          if(showDownload) {
+            checkTermsAccepted();
+          }
         }
       });
       

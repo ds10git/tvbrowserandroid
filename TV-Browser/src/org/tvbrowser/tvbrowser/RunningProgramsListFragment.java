@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.filter.CursorFilter;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.app.Activity;
@@ -459,9 +460,25 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       case R.id.button_before1: 
       case R.id.button_after1:
       {
-        ArrayList<Integer> channelIDList = new ArrayList<Integer>();
-        ArrayList<Integer> filterMapList = new ArrayList<Integer>();
-        
+        CursorFilter filter = new CursorFilter() {
+          ArrayList<Integer> channelIDList = new ArrayList<Integer>();
+          ArrayList<Integer> filterMapList = new ArrayList<Integer>();
+          
+          @Override
+          public boolean accept(Cursor cursor) {
+            int channelID = cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+            
+            if(!channelIDList.contains(Integer.valueOf(channelID))) {
+              filterMapList.add(Integer.valueOf(cursor.getPosition()));
+              channelIDList.add(Integer.valueOf(channelID));
+              return true;
+            }
+            
+            return false;
+          }
+        };
+
+        /*
         int channelColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
         
         while(c.moveToNext()) {
@@ -472,9 +489,10 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
             channelIDList.add(Integer.valueOf(channelID));
           }
         }
-        
-        RunningCursorWrapper wrapper = new RunningCursorWrapper(c);
-        wrapper.setFilterMap(filterMapList.toArray(new Integer[filterMapList.size()]));
+        */
+        FilterCursorWrapper wrapper = new FilterCursorWrapper(c);
+        wrapper.updateFilter(filter);
+        //wrapper.setFilterMap(filterMapList.toArray(new Integer[filterMapList.size()]));
         c = wrapper;
       }
       break;
