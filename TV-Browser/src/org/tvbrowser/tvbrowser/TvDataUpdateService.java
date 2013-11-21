@@ -30,6 +30,8 @@ import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -49,6 +51,7 @@ import org.tvbrowser.settings.SettingConstants;
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -643,6 +646,8 @@ public class TvDataUpdateService extends Service {
       
       Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, projection, null, null, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
       
+      ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+      
       // only if there are data update it
       if(c.getCount() > 0) {
         c.moveToFirst();
@@ -667,13 +672,22 @@ public class TvDataUpdateService extends Service {
               ContentValues values = new ContentValues();
               values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, nextStart);
               
-              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID), values, null, null);
+              ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
+              opBuilder.withValues(values);
+              
+              updateValuesList.add(opBuilder.build());
+              
+              //getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID), values, null, null);
             }
           }
         }while(!c.isLast());
       }
       
       c.close();
+      
+      if(!updateValuesList.isEmpty()) {
+        getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+      }
     }catch(Throwable t) {}
     
     finishUpdate(notification);
@@ -1334,6 +1348,9 @@ public class TvDataUpdateService extends Service {
   }
   
   private void updateData(File dataFile, ChannelUpdate update, boolean baseLevel) {
+    ArrayList<ContentValues> insertValueList = new ArrayList<ContentValues>();
+    ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+    
     if(dataFile.isFile()) {
       try {
         BufferedInputStream in = new BufferedInputStream(new GZIPInputStream(new FileInputStream(dataFile)));
@@ -1345,8 +1362,6 @@ public class TvDataUpdateService extends Service {
         
         ArrayList<Byte> missingFrameIDs = null;
                 
-        ContentValues values = new ContentValues();
-        
         String key = update.getChannelID() + "_" + update.getDate();
         
         Hashtable<Byte, Long> current = mCurrentData.get(key);
@@ -1362,6 +1377,8 @@ public class TvDataUpdateService extends Service {
         }
         
         for(int i = 0; i < frameCount; i++) {
+          ContentValues values = new ContentValues();
+          
           byte frameID = readValuesFromDataFile(values, in, update);
           
           long programID = -1;
@@ -1381,15 +1398,70 @@ public class TvDataUpdateService extends Service {
             
             if(programID >= 0) {
               // program known update it
-              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, programID), values, null, null);
+              ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, programID));
+              opBuilder.withValues(values);
+              
+              updateValuesList.add(opBuilder.build());
             }
             else if(values.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
-              getContentResolver().insert(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, values);
+              // program unknown insert it
+              insertValueList.add(values);
             }
-            
-            values.clear();
           }
         }
+        
+        if(baseLevel && !insertValueList.isEmpty()) {
+          Collections.sort(insertValueList, new Comparator<ContentValues>() {
+            @Override
+            public int compare(ContentValues lhs, ContentValues rhs) {
+              long lStart = lhs.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+              long rStart = rhs.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+              
+              if(lStart < rStart) {
+                return -1;
+              }
+              else if(lStart > rStart) {
+                return 1;
+              }
+              
+              return 0;
+            }
+          });
+          
+          ContentValues toAdd = insertValueList.get(0);
+          
+          for(int i = 1; i < insertValueList.size()-1; i++) {
+            if(toAdd.getAsLong(TvBrowserContentProvider.DATA_KEY_ENDTIME) == 0) {
+              long meStart = toAdd.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+              int j = i + 0;
+              
+              while(meStart == insertValueList.get(j).getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
+                j++;
+              }
+              
+              if(j < insertValueList.size()) {
+                long nextStart = insertValueList.get(j).getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+                
+                if((nextStart - meStart) >= (12 * 60 * 60000)) {
+                  nextStart = meStart + (long)(2.5 * 60 * 60000);
+                }
+                
+                toAdd.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, nextStart);
+              }
+            }
+            
+            toAdd = insertValueList.get(i);
+          }
+          
+          getContentResolver().bulkInsert(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, insertValueList.toArray(new ContentValues[insertValueList.size()]));
+        }
+        
+        if(!updateValuesList.isEmpty()) {
+          getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+        }
+        
+        insertValueList.clear();
+        insertValueList = null;
         
         updateVersionTable(update,dataVersion);
         
@@ -1426,8 +1498,7 @@ public class TvDataUpdateService extends Service {
             getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, where.toString(), null);
           }
         }
-
-        values = null;
+        
         in.close();
       } catch (Exception e) {
         Log.d("info5", "error data update", e);
