@@ -36,8 +36,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.List;
-import java.util.Map;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
@@ -1145,8 +1143,6 @@ public class TvDataUpdateService extends Service {
         if(responseCode == HttpURLConnection.HTTP_OK) {
           InputStream in = httpConnection.getInputStream();
           
-          Map<String,List<String>>  map = httpConnection.getHeaderFields();
-          
           try {
             in = new GZIPInputStream(in);
           }catch(IOException e2) {}
@@ -1205,25 +1201,7 @@ public class TvDataUpdateService extends Service {
     
     return summary;
   }
-  
-  private static class DataInfo {
-    private byte mFrameID;
-    private String mWhereClause;
     
-    public DataInfo(byte frameID, String where) {
-      mFrameID = frameID;
-      mWhereClause = where;
-    }
-    
-    public byte getFrameID() {
-      return mFrameID;
-    }
-    
-    public String getWhereClause() {
-      return mWhereClause;
-    }
-  }
-  
   private byte readValuesFromDataFile(ContentValues values, BufferedInputStream in, ChannelUpdate update) throws IOException {
     // ID of this program frame
     byte frameId = (byte)in.read();
@@ -1235,12 +1213,6 @@ public class TvDataUpdateService extends Service {
       values.put(TvBrowserContentProvider.DATA_KEY_UNIX_DATE, update.getDate());
       values.put(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, update.getChannelID());
     }
-    
-/*    String where = TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID + " = " + frameId +
-        " AND " + TvBrowserContentProvider.DATA_KEY_UNIX_DATE + " = " + update.getDate() +
-        " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + update.getChannelID();
-    
-    DataInfo dataInfo = new DataInfo(frameId, where);*/
     
     for(byte field = 0; field < fieldCount; field++) {
       byte fieldType = (byte)in.read();

@@ -20,7 +20,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
@@ -40,7 +39,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -70,6 +68,9 @@ public class DummySectionFragment extends Fragment {
       
       final Button before = (Button)rootView.findViewById(R.id.button_before1);
       final Button after = (Button)rootView.findViewById(R.id.button_after1);
+            
+      final Button now = (Button)rootView.findViewById(R.id.now_button);
+      now.setTag(Integer.valueOf(-1));
       
       final View.OnClickListener listener = new View.OnClickListener() {
         @Override
@@ -81,7 +82,12 @@ public class DummySectionFragment extends Fragment {
             int index = timeBar.indexOfChild(v);
             
             timeBar.addView(after, index+1);
-            timeBar.addView(before, index);
+            
+            before.setBackgroundResource(android.R.drawable.list_selector_background);
+            
+            if(!v.equals(now)) {
+              timeBar.addView(before, index);
+            }
             
             running.setWhereClauseTime(v.getTag());
           }
@@ -100,9 +106,6 @@ public class DummySectionFragment extends Fragment {
       
       IntentFilter channelUpdateFilter = new IntentFilter(SettingConstants.CHANNEL_UPDATE_DONE);
       
-      final Button now = (Button)rootView.findViewById(R.id.now_button);
-      now.setTag(Integer.valueOf(-1));
-      
       final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -120,7 +123,10 @@ public class DummySectionFragment extends Fragment {
             now.setOnClickListener(listener);
             after.setOnClickListener(timeRange);
             
-            timeBar.addView(before);
+            if(context != null) {
+              timeBar.addView(before);
+            }
+            
             timeBar.addView(now);
             timeBar.addView(after);
             
