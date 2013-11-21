@@ -122,11 +122,7 @@ public class DummySectionFragment extends Fragment {
             before.setOnClickListener(timeRange);
             now.setOnClickListener(listener);
             after.setOnClickListener(timeRange);
-            
-            if(context != null) {
-              timeBar.addView(before);
-            }
-            
+                                    
             timeBar.addView(now);
             timeBar.addView(after);
             
