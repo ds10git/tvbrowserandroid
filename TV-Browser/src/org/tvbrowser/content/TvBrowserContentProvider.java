@@ -16,13 +16,17 @@
  */
 package org.tvbrowser.content;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 
 import android.app.SearchManager;
 import android.content.ContentProvider;
+import android.content.ContentProviderOperation;
+import android.content.ContentProviderResult;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.content.OperationApplicationException;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -34,6 +38,7 @@ import android.net.Uri;
 import android.text.TextUtils;
 
 public class TvBrowserContentProvider extends ContentProvider {
+  public static final String AUTHORITY = "org.tvbrowser.tvbrowsercontentprovider";
   public static final Uri CONTENT_URI_GROUPS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/groups");
   public static final Uri CONTENT_URI_CHANNELS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/channels");
   public static final Uri CONTENT_URI_DATA = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/data");
@@ -260,6 +265,72 @@ public class TvBrowserContentProvider extends ContentProvider {
     }
     
     throw new SQLException("Failed to insert row into " + uri);
+  }
+  
+  @Override
+  public int bulkInsert(Uri uri, ContentValues[] values) {
+    switch(uriMatcher.match(uri)) {
+      case DATA: return bulkInsertData(uri, values);
+      case DATA_UPDATE: return bulkInsertData(uri, values);
+    }
+  
+    throw new SQLException("Failed to insert row into " + uri);
+  }
+  
+  @Override
+  public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations)
+      throws OperationApplicationException {
+    ArrayList<ContentProviderResult> result = new ArrayList<ContentProviderResult>(0);
+    
+    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+    database.beginTransaction();
+    
+    for(ContentProviderOperation op : operations) {
+      Uri uri = op.getUri();
+      ContentValues values = op.resolveValueBackReferences(null, 0);
+      
+      String segment = uri.getPathSegments().get(1);
+      
+      int count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, KEY_ID + "=" + segment, null);
+      
+      result.add(new ContentProviderResult(count));
+    }
+    
+    database.setTransactionSuccessful();
+    database.endTransaction();
+    
+    return result.toArray(new ContentProviderResult[result.size()]);
+  }
+  
+  private int bulkInsertData(Uri uri, ContentValues[] values) {
+    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+    database.beginTransaction();
+    
+    int count = 0;
+    
+    for(ContentValues value : values) {
+      long rowID = database.insert(TvBrowserDataBaseHelper.DATA_TABLE, "channel", value);
+      
+      if(rowID != -1) {
+        Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA, rowID);
+        
+        if(INFORM_FOR_CHANGES) {
+          getContext().getContentResolver().notifyChange(newUri, null);
+        }
+      
+        count++;
+      }
+    }
+    
+    database.setTransactionSuccessful();
+    database.endTransaction();
+    
+    // Return a URI to the newly inserted row on success.
+    if(count >= 0) {
+      return count;
+    }
+    
+    throw new SQLException("Failed to insert row into " + uri + " " + count);
   }
   
   private Uri insertVersion(Uri uri, ContentValues values) {
