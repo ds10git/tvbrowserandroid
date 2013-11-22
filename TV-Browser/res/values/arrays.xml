@@ -51,4 +51,10 @@
         <item>5</item>
         <item>6</item>
     </string-array>
+    <string-array name="channel_category">
+        <item>@string/filter_channel_all</item>
+        <item>@string/tv</item>
+        <item>@string/radio</item>
+        <item>@string/cinema</item>
+    </string-array>
 </resources>

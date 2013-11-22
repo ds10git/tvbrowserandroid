@@ -104,7 +104,7 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
         int DEFAULT_TEXT_COLOR = a.getColor(0, Color.BLACK);
         a.recycle();
         
-        text.setTextColor(DEFAULT_TEXT_COLOR);
+        text.setTextColor(SettingConstants.EXPIRED_COLOR);
       }
     }
     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)) {

@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -36,6 +37,7 @@ import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.app.ActionBar;
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.app.SearchManager;
@@ -53,6 +55,12 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Rect;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -68,9 +76,11 @@ import android.support.v4.view.ViewPager;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
+import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -78,7 +88,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.CheckedTextView;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
@@ -124,6 +137,8 @@ public class TvBrowser extends FragmentActivity implements
   
   private boolean mIsActive;
   
+  private static String ALL_VALUE;
+  
   static {
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2013);
@@ -145,6 +160,8 @@ public class TvBrowser extends FragmentActivity implements
     setContentView(R.layout.activity_tv_browser);
     
     handler = new Handler();
+    
+    ALL_VALUE = getResources().getString(R.string.filter_channel_all);
     
     if(savedInstanceState != null) {
       updateRunning = savedInstanceState.getBoolean("updateRunning", false);
@@ -349,7 +366,12 @@ public class TvBrowser extends FragmentActivity implements
     builder.setNegativeButton(R.string.synchronize_cancel, new OnClickListener() {
       @Override
       public void onClick(DialogInterface dialog, int which) {
-        showChannelSelectionInternal();
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            showChannelSelectionInternal();
+          }
+        });
       }
     });
     
@@ -477,126 +499,439 @@ public class TvBrowser extends FragmentActivity implements
     
   }
   
-  private void showChannelSelectionInternal() {
-    showChannelSelectionInternal(SettingConstants.RADIO_TYPE, true);
-    showChannelSelectionInternal(SettingConstants.TV_CINEMA_CHANNEL_TYPE, false);
+  private static final class ChannelSelection {
+    private int mChannelID;
+    private int mCategory;
+    private Bitmap mChannelLogo;
+    private String mCountry;
+    private String mName;
+    private boolean mIsSelected;
+    private boolean mWasSelected;
+    
+    public ChannelSelection(int channelID, String name, int category, String country, Bitmap channelLogo, boolean isSelected) {
+      mChannelID = channelID;
+      mCategory = category;
+      mCountry = country;
+      mChannelLogo = channelLogo;
+      mName = name;
+      mWasSelected = mIsSelected = isSelected;
+    }
+    
+    public boolean isCategory(int category) {
+      return category == 0 || (mCategory & category) == category;
+    }
+    
+    public boolean isCountry(String value) {
+      return value == null || mCountry.toLowerCase().contains(value.toLowerCase());
+    }
+    
+    public boolean isSelected() {
+      return mIsSelected;
+    }
+    
+    public boolean wasSelected() {
+      return mWasSelected;
+    }
+    
+    public void setSelected(boolean value) {
+      mIsSelected = value;
+    }
+    
+    public Bitmap getLogo() {
+      return mChannelLogo;
+    }
+    
+    public String toString() {
+      return mName;
+    }
+    
+    public int getChannelID() {
+      return mChannelID;
+    }
   }
   
-  private void showChannelSelectionInternal(final int type, final boolean showDownload) {
+  /**
+   * View holder for custom array adapter of channel selection.
+   * 
+   * @author René Mach
+   */
+  private static final class ViewHolder {
+    CheckBox mCheckBox;
+    TextView mTextView;
+    ImageView mLogo;
+  }
+  
+  /**
+   * Class for wrapping array list to support
+   * filtering channel selection for country and
+   * category.
+   * 
+   * @author René Mach
+   */
+  private static class ArrayListWrapper extends ArrayList<ChannelSelection> {
+    Integer[] mValueMap = null;
+    
+    @Override
+    public ChannelSelection get(int index) {
+      if(mValueMap != null) {
+        if(mValueMap.length >= 0 && index < mValueMap.length) {
+          return super.get(mValueMap[index]);
+        }
+        
+        throw new ArrayIndexOutOfBoundsException(index);
+      }
+      
+      return super.get(index);
+    }
+    
+    public void setFilter(ChannelFilter filter) {
+      ArrayList<Integer> map = new ArrayList<Integer>();
+      
+      for(int i = 0; i < super.size(); i++) {
+        ChannelSelection selection = super.get(i);
+        
+        if(selection.isCategory(filter.mCategory) && selection.isCountry(filter.mCountry)) {
+          map.add(Integer.valueOf(i));
+        }
+      }
+      
+      mValueMap = map.toArray(new Integer[map.size()]);
+    }
+    
+    @Override
+    public int size() {
+      if(mValueMap != null) {
+        return mValueMap.length;
+      }
+      
+      return super.size();
+    }
+    
+    private ChannelSelection superGet(int index) {
+      return super.get(index);
+    }
+    
+    public Iterator<ChannelSelection> superIterator() {
+      return super.iterator();
+    }
+    
+    @Override
+    public Iterator<ChannelSelection> iterator() {
+      if(mValueMap != null) {
+        Iterator<ChannelSelection> it = new Iterator<TvBrowser.ChannelSelection>() {
+          private int mCurrentIndex = 0;
+          private ChannelSelection mCurrent = null;
+          
+          @Override
+          public boolean hasNext() {
+            return mCurrentIndex < mValueMap.length-1;
+          }
+
+          @Override
+          public ChannelSelection next() {
+            mCurrent = superGet(mValueMap[++mCurrentIndex]);
+            return mCurrent;
+          }
+
+          @Override
+          public void remove() {
+            mCurrent = null;
+          }
+        };
+        
+        return it;
+      }
+      
+      return super.iterator();
+    }
+  };
+  
+  /**
+   * Class for filtering of country and category for channel selection.
+   * 
+   * @author René Mach
+   */
+  private final static class ChannelFilter {
+    public int mCategory;
+    public String mCountry;
+    
+    public ChannelFilter(int category, String country) {
+      mCategory = category;
+      mCountry = country;
+    }
+  }
+  
+  /**
+   * Class for country filtering of channel selecton.
+   * 
+   * @author René Mach
+   */
+  private final static class Country {    
+    public Locale mLocale;
+    
+    public Country(Locale locale) {
+      mLocale = locale;
+    }
+    
+    public String toString() {
+      if(mLocale == null) {
+        return ALL_VALUE;
+      }
+      
+      return mLocale.getDisplayCountry();
+    }
+    
+    public String getCountry() {
+      if(mLocale == null) {
+        return null;
+      }
+      
+      return mLocale.getCountry();
+    }
+    
+    @Override
+    public boolean equals(Object o) {
+      if(o instanceof Country) {
+        return mLocale.getCountry().equals(((Country)o).mLocale.getCountry());
+      }
+      
+      return super.equals(o);
+    }
+  }
+  
+  private void showChannelSelectionInternal() {
     String[] projection = {
         TvBrowserContentProvider.KEY_ID,
         TvBrowserContentProvider.CHANNEL_KEY_NAME,
         TvBrowserContentProvider.CHANNEL_KEY_SELECTION,
-        TvBrowserContentProvider.CHANNEL_KEY_CATEGORY
+        TvBrowserContentProvider.CHANNEL_KEY_CATEGORY,
+        TvBrowserContentProvider.CHANNEL_KEY_LOGO,
+        TvBrowserContentProvider.CHANNEL_KEY_ALL_COUNTRIES
         };
     
     ContentResolver cr = getContentResolver();
     Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, null, null, null);
     
-    final ArrayList<ChannelSelection> channelSource = new ArrayList<TvBrowser.ChannelSelection>();
-    ArrayList<CharSequence> channelNames = new ArrayList<CharSequence>();
-    
-    CursorFilter filter = new CursorFilter() {
-      @Override
-      public boolean accept(Cursor cursor) {
-        int value = cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CATEGORY));
-        boolean isCategory = false;
+    // populate array list with all available channels
+    final ArrayListWrapper channelSelectionList = new ArrayListWrapper();
+    ArrayList<Country> countryList = new ArrayList<Country>();
+            
+    while(channels.moveToNext()) {
+      int channelID = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+      int category = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CATEGORY));
+      byte[] logo = channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+      String name = channels.getString(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+      String countries = channels.getString(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ALL_COUNTRIES));
+      boolean isSelected = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_SELECTION)) == 1;
+      
+      if(countries.contains("$")) {
+        String[] values = countries.split("\\$");
         
-        switch(type) {
-          case SettingConstants.TV_CINEMA_CHANNEL_TYPE: isCategory = ((value & SettingConstants.TV_CATEGORY) == SettingConstants.TV_CATEGORY) || ((value & SettingConstants.CINEMA_CATEGORY) == SettingConstants.CINEMA_CATEGORY);break;
-          case SettingConstants.RADIO_TYPE: isCategory = (value & SettingConstants.RADIO_TYPE) == SettingConstants.RADIO_TYPE;break;
+        for(String country : values) {
+          Country test = new Country(new Locale(country, country));
+          
+          if(!countryList.contains(test) && test.mLocale.getDisplayCountry().trim().length() > 0) {
+            countryList.add(test);
+          }
         }
-        
-        return isCategory;
       }
-    };
-    
-    FilterCursorWrapper wrapper = new FilterCursorWrapper(channels);
-    wrapper.updateFilter(filter);
-    channels = wrapper;
-    
-    final boolean[] wasSelected = new boolean[channels.getCount()];
-    final boolean[] currentlySelected = new boolean[channels.getCount()];
-    final boolean[] toUnselect = new boolean[channels.getCount()];
-    
-    int i = 1;
-    
-    if(channels.moveToFirst()) {
-      do {
-        int key = channels.getInt(0);
-        String name = channels.getString(1);
-        int selection = channels.getInt(2);
+      else {
+        Country test = new Country(new Locale(countries, countries));
         
-        wasSelected[i-1] = currentlySelected[i-1] = (selection == 1);
-        toUnselect[i-1] = false;
-        
-        channelSource.add(new ChannelSelection(key, name, i));
-        channelNames.add(name);
-        
-        i++;
-      }while(channels.moveToNext());
+        if(!countryList.contains(test) && test.mLocale.getDisplayCountry().trim().length() > 0) {
+          countryList.add(test);
+        }
+      }
+      
+      Bitmap channelLogo = null;
+      
+      if(logo != null) {
+        channelLogo = BitmapFactory.decodeByteArray(logo, 0, logo.length);
+      }
+      
+      ChannelSelection selection = new ChannelSelection(channelID, name, category, countries, channelLogo, isSelected);
+      
+      channelSelectionList.add(selection);
     }
+    
+    // sort countries for filtering
+    Collections.sort(countryList, new Comparator<Country>() {
+      @Override
+      public int compare(Country lhs, Country rhs) {
+        return lhs.toString().compareToIgnoreCase(rhs.toString());
+      }
+    });
+    
+    countryList.add(0,new Country(null));
     
     channels.close();
     
-    if(!channelSource.isEmpty()) {
-      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-      
-      if(type == SettingConstants.TV_CINEMA_CHANNEL_TYPE) {
-        builder.setTitle(R.string.select_tv_channels_cinemas);
-      }
-      else if(type == SettingConstants.RADIO_TYPE) {
-        builder.setTitle(R.string.select_radios);
-      }
+    // create filter for filtering of category and country
+    final ChannelFilter filter = new ChannelFilter(SettingConstants.TV_CATEGORY, null);
+    
+    channelSelectionList.setFilter(filter);
+    
+    // create default logo for channels without logo
+    final Bitmap defaultLogo = BitmapFactory.decodeResource( getResources(), R.drawable.ic_launcher);
+    
+    // Custom array adapter for channel selection
+    final ArrayAdapter<ChannelSelection> channelSelectionAdapter = new ArrayAdapter<ChannelSelection>(TvBrowser.this, R.layout.channel_row, channelSelectionList) {
+      public View getView(int position, View convertView, ViewGroup parent) {
+        ChannelSelection value = getItem(position);
+        ViewHolder holder = null;
         
-      builder.setMultiChoiceItems(channelNames.toArray(new CharSequence[channelNames.size()]), currentlySelected, new DialogInterface.OnMultiChoiceClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-          toUnselect[which] = !isChecked;
+        if (convertView == null) {
+          LayoutInflater mInflater = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+          
+          holder = new ViewHolder();
+          
+          convertView = mInflater.inflate(R.layout.channel_row, null);
+          
+          holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_text);
+          holder.mCheckBox = (CheckBox)convertView.findViewById(R.id.row_of_channel_selection);
+          holder.mLogo = (ImageView)convertView.findViewById(R.id.row_of_channel_icon);
+          
+          convertView.setTag(holder);
+          
         }
-      });
+        else {
+          holder = (ViewHolder)convertView.getTag();
+        }
+        
+        holder.mTextView.setText(value.toString());
+        holder.mCheckBox.setChecked(value.isSelected());
+        
+        Bitmap logo = value.getLogo();
+        
+        if(logo != null) {
+          holder.mLogo.setImageBitmap(logo);
+        }
+        else {
+          holder.mLogo.setImageBitmap(defaultLogo);
+        }
+        
+        return convertView;
+      }
+    };
+    
+    // inflate channel selection view
+    View channelSelectionView = getLayoutInflater().inflate(R.layout.channel_selection_list, null);
+    
+    // get spinner for country filtering and create array adapter with all available countries
+    Spinner country = (Spinner)channelSelectionView.findViewById(R.id.channel_country_value);
+    
+    final ArrayAdapter<Country> countryListAdapter = new ArrayAdapter<Country>(this, android.R.layout.simple_spinner_item, countryList);
+    countryListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    country.setAdapter(countryListAdapter);
+    
+    // add item selection listener to react of user setting filter for country
+    country.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected (AdapterView<?> parent, View view, int position, long id) {
+        Country country = countryListAdapter.getItem(position);
+        
+        filter.mCountry = country.getCountry();
+        channelSelectionList.setFilter(filter);
+        channelSelectionAdapter.notifyDataSetChanged();
+      }
+
+      @Override
+      public void onNothingSelected (AdapterView<?> parent) {}
+    });
+    
+    // get spinner for category selection and add listener to react to user category selection
+    Spinner category = (Spinner)channelSelectionView.findViewById(R.id.channel_category_value);
+    category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected (AdapterView<?> parent, View view, int position, long id) {
+        switch(position) {
+          case 1: filter.mCategory = SettingConstants.TV_CATEGORY;break;
+          case 2: filter.mCategory = SettingConstants.RADIO_CATEGORY;break;
+          case 3: filter.mCategory = SettingConstants.CINEMA_CATEGORY;break;
+          
+          default: filter.mCategory = SettingConstants.NO_CATEGORY;break;
+        }
+        
+        channelSelectionList.setFilter(filter);
+        channelSelectionAdapter.notifyDataSetChanged();
+      }
+
+      @Override
+      public void onNothingSelected (AdapterView<?> parent) {}
+    });
+    
+    // get the list view of the layout and add adapter with available channels
+    ListView list = (ListView)channelSelectionView.findViewById(R.id.channel_selection_list);
+    list.setAdapter(channelSelectionAdapter);
+    
+    // add listener to react to user selection of channels
+    list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view, int position,
+          long id) {
+        CheckBox check = (CheckBox)view.findViewById(R.id.row_of_channel_selection);
+        
+        if(check != null) {
+          check.setChecked(!check.isChecked());
+          channelSelectionAdapter.getItem(position).setSelected(check.isChecked());
+        }        
+      }
+    });
+    
+    // show dialog only if channels are available
+    if(!channelSelectionList.isEmpty()) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+          
+      builder.setTitle(R.string.select_channels);
+      builder.setView(channelSelectionView);
       
       builder.setPositiveButton(android.R.string.ok, new OnClickListener() {        
         @Override
         public void onClick(DialogInterface dialog, int which) {    
           boolean somethingSelected = false;
+          boolean somethingChanged = false;
           
-          for(int i = 0; i < currentlySelected.length; i++) {
-            if(currentlySelected[i]) {
-              int key = channelSource.get(i).getKey();
+          Iterator<ChannelSelection> it = channelSelectionList.superIterator();
+          
+          while(it.hasNext()) {
+            ChannelSelection sel = it.next();
+            
+            if(sel.isSelected() && !sel.wasSelected()) {
+              somethingChanged = somethingSelected = true;
               
               ContentValues values = new ContentValues();
               
               values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
               
-              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, key), values, null, null);
-              
-              if(!wasSelected[i]) {
-                somethingSelected = true;
-              }
+              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, sel.getChannelID()), values, null, null);              
             }
-          }
-          
-          for(int i = 0; i < toUnselect.length; i++) {
-            if(toUnselect[i]) {
-              int key = channelSource.get(i).getKey();
+            else if(!sel.isSelected() && sel.wasSelected()) {
+              somethingChanged = true;
               
               ContentValues values = new ContentValues();
               
               values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 0);
               
-              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, key), values, null, null);
-
-              getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + key, null);
-              getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + key, null);
+              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, sel.getChannelID()), values, null, null);
+              
+              getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + sel.getChannelID(), null);
+              getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + sel.getChannelID(), null);
             }
           }
           
-          if(somethingSelected) {
+          // if something was changed we need to update channel list bar in program list and the complete program table
+          if(somethingChanged) {
             updateProgramListChannelBar();
+            
+            Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
+            
+            if(test instanceof ProgramTableFragment) {
+              ((ProgramTableFragment)test).updateView(getLayoutInflater());
+            }
           }
           
-          if(showDownload) {
+          // if something was selected we need to download new data
+          if(somethingSelected) {
             checkTermsAccepted();
           }
         }
@@ -604,11 +939,7 @@ public class TvBrowser extends FragmentActivity implements
       
       builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {        
         @Override
-        public void onClick(DialogInterface dialog, int which) {
-          if(showDownload) {
-            checkTermsAccepted();
-          }
-        }
+        public void onClick(DialogInterface dialog, int which) {}
       });
       
       builder.show();
@@ -617,12 +948,12 @@ public class TvBrowser extends FragmentActivity implements
     selectingChannels = false;
   }
   
-  private static class ChannelSelection {
+  private static class ChannelSort {
     private String mName;
     private int mKey;
     private int mSortNumber;
     
-    public ChannelSelection(int key, String name, int sortNumber) {
+    public ChannelSort(int key, String name, int sortNumber) {
       mKey = key;
       mName = name;
       mSortNumber = sortNumber;
@@ -742,7 +1073,7 @@ public class TvBrowser extends FragmentActivity implements
     
     Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
     
-    final ArrayList<ChannelSelection> channelSource = new ArrayList<TvBrowser.ChannelSelection>();
+    final ArrayList<ChannelSort> channelSource = new ArrayList<TvBrowser.ChannelSort>();
       
     if(channels.getCount() > 0) {
       if(channels.moveToFirst()) {
@@ -756,7 +1087,7 @@ public class TvBrowser extends FragmentActivity implements
             order = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
           }
                     
-          channelSource.add(new ChannelSelection(key, name, order));
+          channelSource.add(new ChannelSort(key, name, order));
         }while(channels.moveToNext());
         
         
@@ -788,7 +1119,7 @@ public class TvBrowser extends FragmentActivity implements
           
           builder.setView(numberSelection);
           
-          final ChannelSelection selection = channelSource.get(position);
+          final ChannelSort selection = channelSource.get(position);
           
           TextView name = (TextView)numberSelection.findViewById(R.id.sort_picker_channel_name);
           name.setText(selection.getName());
@@ -833,15 +1164,15 @@ public class TvBrowser extends FragmentActivity implements
         }
       });
       
-      final ArrayAdapter<ChannelSelection> aa = new ArrayAdapter<TvBrowser.ChannelSelection>(getApplicationContext(), R.layout.channel_row, channelSource);
+      final ArrayAdapter<ChannelSort> aa = new ArrayAdapter<TvBrowser.ChannelSort>(getApplicationContext(), R.layout.channel_sort_row, channelSource);
       channelSort.setAdapter(aa);
       
       sortAlphabetically.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          Collections.sort(channelSource, new Comparator<ChannelSelection>() {
+          Collections.sort(channelSource, new Comparator<ChannelSort>() {
             @Override
-            public int compare(ChannelSelection lhs, ChannelSelection rhs) {
+            public int compare(ChannelSort lhs, ChannelSort rhs) {
               return lhs.getName().compareToIgnoreCase(rhs.getName());
             }
           });
@@ -862,7 +1193,7 @@ public class TvBrowser extends FragmentActivity implements
       builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-          for(ChannelSelection selection : channelSource) {
+          for(ChannelSort selection : channelSource) {
             ContentValues values = new ContentValues();
             values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, selection.getSortNumber());
             
@@ -1078,7 +1409,12 @@ public class TvBrowser extends FragmentActivity implements
       @Override
       public void onClick(DialogInterface dialog, int which) {
         if(syncChannels) {
-          showChannelSelectionInternal();
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              showChannelSelectionInternal();
+            }
+          });
         }
       }
     });

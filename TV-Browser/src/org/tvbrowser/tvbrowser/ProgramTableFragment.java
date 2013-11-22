@@ -523,6 +523,14 @@ public class ProgramTableFragment extends Fragment {
     updateView(getActivity().getLayoutInflater(), layout);
   }
   
+  void updateView(LayoutInflater inflater) {
+    RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
+    
+    if(layout != null && inflater != null) {
+      updateView(inflater, layout);
+    }
+  }
+  
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {

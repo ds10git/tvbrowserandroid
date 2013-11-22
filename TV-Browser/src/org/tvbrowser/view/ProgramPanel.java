@@ -19,9 +19,10 @@ package org.tvbrowser.view;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.tvbrowser.settings.SettingConstants;
+
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
@@ -67,18 +68,18 @@ public class ProgramPanel extends View {
   static {
     NOT_EXPIRED_TITLE_PAINT.setTypeface(Typeface.DEFAULT_BOLD);
     
-    EXPIRED_TITLE_PAINT.setColor(Color.rgb(190, 190, 190));
+    EXPIRED_TITLE_PAINT.setColor(SettingConstants.EXPIRED_COLOR);
     EXPIRED_TITLE_PAINT.setTypeface(Typeface.DEFAULT_BOLD);
     
     NOT_EXPIRED_GENRE_EPISODE_PAINT.setTypeface(Typeface.defaultFromStyle(Typeface.ITALIC));
     
-    EXPIRED_GENRE_EPISODE_PAINT.setColor(Color.rgb(190, 190, 190));
+    EXPIRED_GENRE_EPISODE_PAINT.setColor(SettingConstants.EXPIRED_COLOR);
     EXPIRED_GENRE_EPISODE_PAINT.setTypeface(Typeface.defaultFromStyle(Typeface.ITALIC));
     
     NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.setTypeface(Typeface.DEFAULT);
     
     EXPIRED_PICTURE_COPYRIGHT_PAINT.setTypeface(Typeface.DEFAULT);
-    EXPIRED_PICTURE_COPYRIGHT_PAINT.setColor(Color.rgb(190, 190, 190));
+    EXPIRED_PICTURE_COPYRIGHT_PAINT.setColor(SettingConstants.EXPIRED_COLOR);
   }
   
   private Rect mStartTimeBounds = new Rect();

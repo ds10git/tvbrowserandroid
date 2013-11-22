@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
+    <TextView android:id="@+id/channel_country_label" 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/filter_channel_country"
+        android:paddingLeft="5dp"
+        android:textSize="20sp"
+        android:gravity="center_vertical"
+        android:layout_alignBaseline="@+id/channel_country_value"
+    />
+    <Spinner android:id="@+id/channel_country_value" 
+        android:layout_width="match_parent"
+        android:paddingTop="5dp"
+        android:layout_height="50dp"
+        android:layout_toRightOf="@+id/channel_category_label"
+        android:layout_alignParentTop="true"
+    />
+    <TextView android:id="@+id/channel_category_label" 
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/filter_channel_category"
+        android:paddingLeft="5dp"
+        android:textSize="20sp"
+        android:gravity="center_vertical"
+        android:layout_alignParentLeft="true"
+        android:layout_below="@id/channel_country_value"
+        android:layout_alignBaseline="@+id/channel_category_value"
+    />
+    <Spinner android:id="@+id/channel_category_value" 
+        android:layout_width="match_parent"
+        android:layout_height="50dp"
+        android:paddingTop="5dp"
+        android:entries="@array/channel_category"
+        android:layout_toRightOf="@id/channel_category_label"
+        android:layout_below="@id/channel_country_value"
+    />
+    <ListView android:id="@+id/channel_selection_list"
+        android:paddingTop="5dp"
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:layout_below="@id/channel_category_value"
+	    android:choiceMode="multipleChoice"
+	    android:clickable="true"
+	/>
+</RelativeLayout>

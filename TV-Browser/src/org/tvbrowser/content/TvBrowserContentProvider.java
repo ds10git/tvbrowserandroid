@@ -683,6 +683,8 @@ public class TvBrowserContentProvider extends ContentProvider {
             break;
           }
         }
+        
+        c.close();
       
         if(!logoFound) {
           db.execSQL("DROP TABLE IF EXISTS " + DATA_TABLE);
