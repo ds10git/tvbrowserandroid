@@ -270,11 +270,11 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           long end = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
           
           if(end <= System.currentTimeMillis()) {
-            text.setTextColor(Color.rgb(200, 200, 200));
-            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.episodeLabel)).setTextColor(Color.rgb(200, 200, 200));
-            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.genre_label)).setTextColor(Color.rgb(200, 200, 200));
-            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.info_label)).setTextColor(Color.rgb(200, 200, 200));
-            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.picture_copyright)).setTextColor(Color.rgb(200, 200, 200));
+            text.setTextColor(SettingConstants.EXPIRED_COLOR);
+            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.episodeLabel)).setTextColor(SettingConstants.EXPIRED_COLOR);
+            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.genre_label)).setTextColor(SettingConstants.EXPIRED_COLOR);
+            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.info_label)).setTextColor(SettingConstants.EXPIRED_COLOR);
+            ((TextView)((RelativeLayout)text.getParent()).findViewById(R.id.picture_copyright)).setTextColor(SettingConstants.EXPIRED_COLOR);
           }
           else if(System.currentTimeMillis() <= end) {
             int[] attrs = new int[] { android.R.attr.textColorSecondary };

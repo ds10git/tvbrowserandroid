@@ -1,12 +1,44 @@
-<?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/row_of_channel"
-    android:layout_width="fill_parent"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:textSize="20sp"
-    android:paddingTop="10dp"
-    android:paddingBottom="10dp"
-    android:textColor="@android:color/primary_text_light" >
+    android:paddingTop="2dp"
+	android:paddingBottom="2dp"
+	android:orientation="horizontal"
+	android:clickable="false"
+    > 
+    <ImageView android:id="@+id/row_of_channel_icon"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
+        android:gravity="left"
+        android:contentDescription="logo"
+        android:scaleType="centerInside"
+        android:src="@drawable/ic_launcher"
+        android:layout_weight="0"
+        android:paddingRight="5dp"
+        android:paddingLeft="10dp"
+        />
+    <TextView
+        android:id="@+id/row_of_channel_text"
+         android:layout_width="wrap_content"
+         android:layout_height="fill_parent"
+         android:textSize="20sp"
+         android:gravity="center_vertical|left"
+         android:layout_weight="1"
+         android:paddingLeft="10dp"
+         android:clickable="false"
+         android:focusable="false"
+        />
     
-
-</TextView>
+	<CheckBox 
+	    android:id="@+id/row_of_channel_selection"
+	    android:layout_width="wrap_content"
+	    android:layout_height="fill_parent"
+	    android:textSize="20sp"
+	    android:clickable="false"
+	    android:focusable="false"
+	    android:layout_weight="0"
+	    android:gravity="center_vertical|right"
+	    android:paddingRight="10dp"
+	     >
+	</CheckBox>
+</LinearLayout>

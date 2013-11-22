@@ -21,6 +21,7 @@ import java.util.HashMap;
 import org.tvbrowser.tvbrowser.R;
 
 import android.content.IntentFilter;
+import android.graphics.Color;
 
 public class SettingConstants {
   public static final String EPG_FREE_KEY = "EPG_FREE";
@@ -52,9 +53,7 @@ public class SettingConstants {
   
   public static final HashMap<String, String> SHORT_CHANNEL_NAMES = new HashMap<String, String>();
   
-  public static final int TV_CINEMA_CHANNEL_TYPE = 1;
-  public static final int RADIO_TYPE = 2;
-  
+  public static final int NO_CATEGORY = 0;
   public static final int TV_CATEGORY = 1;
   public static final int RADIO_CATEGORY = 1 << 1;
   public static final int CINEMA_CATEGORY = 1 << 2;
@@ -64,6 +63,10 @@ public class SettingConstants {
   public static final int NEWS_CATEGORY = 1 << 7;
   public static final int NICHE_CATEGORY = 1 << 8;
   public static final int PAY_TV_CATEGORY = 1 << 9;
+  
+  private static final int GRAY_VALUE = 155;
+  
+  public static final int EXPIRED_COLOR = Color.rgb(GRAY_VALUE, GRAY_VALUE, GRAY_VALUE);
   
   static {
     MARK_COLOR_MAP.put(MARK_VALUE, R.color.mark_color);

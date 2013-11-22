@@ -48,6 +48,8 @@ public class ProgramPanelLayout extends ViewGroup {
   
   private static int FONT_SIZE_ASCENT;
   
+  private static final int GRAY_VALUE = 230;
+  
   public ProgramPanelLayout(Context context, final ArrayList<Integer> channelIDsOrdered, int blockSize, final Calendar day) {
     super(context);
     
@@ -60,7 +62,7 @@ public class ProgramPanelLayout extends ViewGroup {
       COLUMN_WIDTH = (int) (200 * scale + 0.5f);
       GAP = (int) (1 * scale + 0.5f);
       ROW_HEADER = (int)(scale * 28);
-      BLOCK_PAINT.setColor(Color.rgb(220, 220, 220));
+      BLOCK_PAINT.setColor(Color.rgb(GRAY_VALUE, GRAY_VALUE, GRAY_VALUE));
       LINE_PAINT.setColor(Color.LTGRAY);
       
       TIME_BLOCK_TIME_PAINT.setTextSize(scale * 20);

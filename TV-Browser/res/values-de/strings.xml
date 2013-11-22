@@ -32,8 +32,12 @@
     <string name="button_at">Genaue Zeit</string>
     <string name="no_channels">Keine Sender vorhanden.</string>
     <string name="select_channels">Sender jetzt auswählen</string>
-    <string name="select_tv_channels_cinemas">Fensehsender/Kinos jetzt auswählen</string>
-    <string name="select_radios">Radiosender jetzt auswählen</string>
+    <string name="tv">Fernsehen</string>
+    <string name="radio">Radio</string>
+    <string name="cinema">Kino</string>
+    <string name="filter_channel_country">Land:</string>
+    <string name="filter_channel_all">Alle</string>
+    <string name="filter_channel_category">Kategorie:</string>
     <string name="dont_select_channels">Jetzt nicht</string>
     <string name="update_data">Datenupdate</string>
     <string name="versionExpired">Version abgelaufen</string>
