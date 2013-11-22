@@ -36,6 +36,7 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 public class TvBrowserContentProvider extends ContentProvider {
   public static final String AUTHORITY = "org.tvbrowser.tvbrowsercontentprovider";
@@ -564,7 +565,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   private static class TvBrowserDataBaseHelper extends SQLiteOpenHelper {
     private static final String TAG = "TvBrowserContentProvider";
     private static final String DATABASE_NAME = "tvbrowser.db";
-    private static final int DATABASE_VERSION = 1;
+    
     private static final String GROUPS_TABLE = "channelGroups";
     private static final String CHANNEL_TABLE = "channels";
     private static final String DATA_TABLE = "data";
@@ -667,14 +668,31 @@ public class TvBrowserContentProvider extends ContentProvider {
       db.execSQL(CREATE_VERSION_TABLE);
     }
 
+    private static final int DATABASE_VERSION = 2;
+    
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
-      db.execSQL("DROP TABLE IF EXISTS " + DATA_TABLE);
-      db.execSQL("DROP TABLE IF EXISTS " + CHANNEL_TABLE);
-      db.execSQL("DROP TABLE IF EXISTS " + GROUPS_TABLE);
-      db.execSQL("DROP TABLE IF EXISTS " + VERSION_TABLE);
+      if(oldVersion == 1 && newVersion > 1) {
+        boolean logoFound = false;
+        
+        Cursor c = db.rawQuery("PRAGMA table_info(" + CHANNEL_TABLE + ")", null);
+        
+        while(c.moveToNext()) {
+          if(c.getString(c.getColumnIndex("name")).equals(CHANNEL_KEY_LOGO)) {
+            logoFound = true;
+            break;
+          }
+        }
       
-      onCreate(db);
+        if(!logoFound) {
+          db.execSQL("DROP TABLE IF EXISTS " + DATA_TABLE);
+          db.execSQL("DROP TABLE IF EXISTS " + CHANNEL_TABLE);
+          db.execSQL("DROP TABLE IF EXISTS " + GROUPS_TABLE);
+          db.execSQL("DROP TABLE IF EXISTS " + VERSION_TABLE);
+        
+          onCreate(db);
+        }
+      }
     }
   }
 }
