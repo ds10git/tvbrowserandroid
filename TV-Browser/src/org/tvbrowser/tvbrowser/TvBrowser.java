@@ -32,7 +32,6 @@ import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.filter.CursorFilter;
 import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.tvbrowser.settings.SettingConstants;
 
@@ -57,10 +56,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Rect;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
@@ -76,7 +71,6 @@ import android.support.v4.view.ViewPager;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
-import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
@@ -89,7 +83,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CheckedTextView;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -558,6 +551,7 @@ public class TvBrowser extends FragmentActivity implements
   private static final class ViewHolder {
     CheckBox mCheckBox;
     TextView mTextView;
+    TextView mSortNumber;
     ImageView mLogo;
   }
   
@@ -952,11 +946,14 @@ public class TvBrowser extends FragmentActivity implements
     private String mName;
     private int mKey;
     private int mSortNumber;
+    private int mOldSortNumber;
+    private Bitmap mChannelLogo;
     
-    public ChannelSort(int key, String name, int sortNumber) {
+    public ChannelSort(int key, String name, int sortNumber, Bitmap channelLogo) {
       mKey = key;
       mName = name;
-      mSortNumber = sortNumber;
+      mOldSortNumber = mSortNumber = sortNumber;
+      mChannelLogo = channelLogo;
     }
     
     public int getKey() {
@@ -977,6 +974,14 @@ public class TvBrowser extends FragmentActivity implements
     
     public String getName() {
       return mName;
+    }
+    
+    public Bitmap getLogo() {
+      return mChannelLogo;
+    }
+    
+    public boolean wasChanged() {
+      return mOldSortNumber != mSortNumber;
     }
   }
   
@@ -1068,7 +1073,8 @@ public class TvBrowser extends FragmentActivity implements
         TvBrowserContentProvider.KEY_ID,
         TvBrowserContentProvider.CHANNEL_KEY_NAME,
         TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
-        TvBrowserContentProvider.CHANNEL_KEY_SELECTION
+        TvBrowserContentProvider.CHANNEL_KEY_SELECTION,
+        TvBrowserContentProvider.CHANNEL_KEY_LOGO
         };
     
     Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
@@ -1086,18 +1092,91 @@ public class TvBrowser extends FragmentActivity implements
           if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER))) {
             order = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
           }
+          
+          byte[] logo = channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+          Bitmap channelLogo = null;
+          
+          if(logo != null) {
+            channelLogo = BitmapFactory.decodeByteArray(logo, 0, logo.length);
+          }
                     
-          channelSource.add(new ChannelSort(key, name, order));
+          channelSource.add(new ChannelSort(key, name, order, channelLogo));
         }while(channels.moveToNext());
-        
-        
       }
       
       channels.close();
       
+      final Comparator<ChannelSort> sortComparator = new Comparator<TvBrowser.ChannelSort>() {
+        @Override
+        public int compare(ChannelSort lhs, ChannelSort rhs) {
+          if(lhs.getSortNumber() < rhs.getSortNumber()) {
+            return -1;
+          }
+          else if(lhs.getSortNumber() > rhs.getSortNumber()) {
+            return 1;
+          }
+          
+          return 0;
+        }
+      };
+      
+      Collections.sort(channelSource, sortComparator);
+
+      // create default logo for channels without logo
+      final Bitmap defaultLogo = BitmapFactory.decodeResource( getResources(), R.drawable.ic_launcher);
+      
+      final ArrayAdapter<ChannelSort> aa = new ArrayAdapter<TvBrowser.ChannelSort>(TvBrowser.this, R.layout.channel_sort_row, channelSource) {
+        public View getView(int position, View convertView, ViewGroup parent) {
+          ChannelSort value = getItem(position);
+          ViewHolder holder = null;
+          
+          if (convertView == null) {
+            LayoutInflater mInflater = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+            
+            holder = new ViewHolder();
+            
+            convertView = mInflater.inflate(R.layout.channel_sort_row, null);
+            
+            holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_sort_text);
+            holder.mSortNumber = (TextView)convertView.findViewById(R.id.row_of_channel_sort_number);
+            holder.mLogo = (ImageView)convertView.findViewById(R.id.row_of_channel_sort_icon);
+            
+            convertView.setTag(holder);
+            
+          }
+          else {
+            holder = (ViewHolder)convertView.getTag();
+          }
+          
+          holder.mTextView.setText(value.getName());
+          
+          String sortNumber = String.valueOf(value.getSortNumber());
+          
+          if(value.getSortNumber() == 0) {
+            sortNumber = "-";
+          }
+          
+          sortNumber += ".";
+          
+          holder.mSortNumber.setText(sortNumber);
+          
+          Bitmap logo = value.getLogo();
+          
+          if(logo != null) {
+            holder.mLogo.setImageBitmap(logo);
+          }
+          else {
+            holder.mLogo.setImageBitmap(defaultLogo);
+          }
+          
+          return convertView;
+        }
+      };
+      channelSort.setAdapter(aa);
+      
       channelSort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
         @Override
-        public void onItemClick(final AdapterView<?> adapterView, final View view, int position,
+        public void onItemClick(final AdapterView<?> adapterView, final View view, final int position,
             long id) {
           AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
           
@@ -1108,6 +1187,7 @@ public class TvBrowser extends FragmentActivity implements
           final NumberPicker number = (NumberPicker)numberSelection.findViewById(R.id.sort_picker);
           number.setMinValue(1);
           number.setMaxValue(channelSource.size());
+          number.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
           number.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
@@ -1147,7 +1227,8 @@ public class TvBrowser extends FragmentActivity implements
                 }catch(NumberFormatException e1) {}
               }
               
-              ((TextView)view).setText(selection.toString());
+              Collections.sort(channelSource, sortComparator);
+              aa.notifyDataSetChanged();
             }
           });
           
@@ -1163,9 +1244,6 @@ public class TvBrowser extends FragmentActivity implements
           builder.show();
         }
       });
-      
-      final ArrayAdapter<ChannelSort> aa = new ArrayAdapter<TvBrowser.ChannelSort>(getApplicationContext(), R.layout.channel_sort_row, channelSource);
-      channelSort.setAdapter(aa);
       
       sortAlphabetically.setOnClickListener(new View.OnClickListener() {
         @Override
@@ -1193,11 +1271,27 @@ public class TvBrowser extends FragmentActivity implements
       builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
+          boolean somethingChanged = false;
+          
           for(ChannelSort selection : channelSource) {
-            ContentValues values = new ContentValues();
-            values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, selection.getSortNumber());
+            if(selection.wasChanged()) {
+              somethingChanged = true;
+              
+              ContentValues values = new ContentValues();
+              values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, selection.getSortNumber());
+              
+              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, selection.getKey()), values, null, null);
+            }
+          }
+          
+          if(somethingChanged) {
+            updateProgramListChannelBar();
             
-            getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, selection.getKey()), values, null, null);
+            Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
+            
+            if(test instanceof ProgramTableFragment) {
+              ((ProgramTableFragment)test).updateView(getLayoutInflater());
+            }
           }
         }
       });
