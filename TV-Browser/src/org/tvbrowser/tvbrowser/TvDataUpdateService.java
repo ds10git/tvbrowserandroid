@@ -640,6 +640,11 @@ public class TvDataUpdateService extends Service {
           TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
           TvBrowserContentProvider.DATA_KEY_STARTTIME,
           TvBrowserContentProvider.DATA_KEY_ENDTIME,
+          TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME
+      };
+      
+      String[] channelProjection = {
+          TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE
       };
       
       Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, projection, null, null, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
@@ -649,21 +654,51 @@ public class TvDataUpdateService extends Service {
       // only if there are data update it
       if(c.getCount() > 0) {
         c.moveToFirst();
-              
+        
+        int nettoColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME);
+        
+        TimeZone timeZone = null;
+        
         do {
           long progID = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
           int channelKey = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
           long meStart = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
           long end = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+          long nettoPlayTime = 0;
+          
+          if(timeZone == null) {
+            Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelProjection, null, null, null);
+            
+            if(channel.moveToFirst()) {
+              timeZone = TimeZone.getTimeZone(channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE)));
+            }
+            
+            channel.close();
+          }
+          
+          if(c.isNull(nettoColumn)) {
+            nettoPlayTime = c.getLong(nettoColumn) * 60000;
+          }
           
           c.moveToNext();
           
-          // only if end is not set update it (maybe all should be updated except programs that contains a length value)
-          if(end == 0) {
-            long nextStart = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+          long nextStart = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+          
+          if(c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) == channelKey) {
+            Calendar meTest = Calendar.getInstance(timeZone);
+            meTest.setTimeInMillis(meStart);
             
-            if(c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) == channelKey) {
-              if((nextStart - meStart) >= (12 * 60 * 60000)) {
+            Calendar nextTest = Calendar.getInstance(timeZone);
+            nextTest.setTimeInMillis(nextStart);
+            
+            boolean lastProgram = meTest.get(Calendar.DAY_OF_YEAR) + 1 == nextTest.get(Calendar.DAY_OF_YEAR);
+            
+            // if end not set or netto play time larger than next start or next time not end time
+            if(end == 0 || (nettoPlayTime > (nextStart - meStart)) || (lastProgram && end != nextStart && ((nextStart - meStart) < (3 * 60 * 60000)))) {
+              if(nettoPlayTime > (nextStart - meStart)) {
+                nextStart = meStart + nettoPlayTime;
+              }
+              else if((nextStart - meStart) >= (12 * 60 * 60000)) {
                 nextStart = meStart + (long)(2.5 * 60 * 60000);
               }
               
@@ -674,9 +709,10 @@ public class TvDataUpdateService extends Service {
               opBuilder.withValues(values);
               
               updateValuesList.add(opBuilder.build());
-              
-              //getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID), values, null, null);
             }
+          }
+          else {
+            timeZone = null;
           }
         }while(!c.isLast());
       }
