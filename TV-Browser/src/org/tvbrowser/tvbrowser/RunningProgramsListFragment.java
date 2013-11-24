@@ -16,9 +16,11 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.filter.CursorFilter;
@@ -199,6 +201,13 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     mRunningProgramListAdapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
       @Override
       public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+        java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(getActivity());
+        String value = ((SimpleDateFormat)mTimeFormat).toLocalizedPattern();
+        
+        value = value.charAt(0) + value;
+        
+        mTimeFormat = new SimpleDateFormat(value, Locale.getDefault());
+        
         boolean showPicture = pref.getBoolean(view.getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false);
         boolean showGenre = pref.getBoolean(view.getResources().getString(R.string.SHOW_GENRE_IN_LISTS), true);
         boolean showEpisode = pref.getBoolean(view.getResources().getString(R.string.SHOW_EPISODE_IN_LISTS), true);
@@ -247,10 +256,10 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         }
         else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
           long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-          
+                    
           TextView text = (TextView)view;
           text.setTag(cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
-          text.setText(DateFormat.getTimeFormat(getActivity()).format(new Date(date)));
+          text.setText(mTimeFormat.format(new Date(date)));
           
           return true;
         }
@@ -258,7 +267,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
           
           TextView text = (TextView)view;
-          text.setText(DateFormat.getTimeFormat(getActivity()).format(new Date(date)));
+          text.setText(mTimeFormat.format(new Date(date)));
           
           UiUtils.handleMarkings(getActivity(), cursor, ((RelativeLayout)view.getParent()), null);
           

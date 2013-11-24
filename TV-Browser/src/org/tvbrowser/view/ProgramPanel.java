@@ -16,8 +16,10 @@
  */
 package org.tvbrowser.view;
 
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 
 import org.tvbrowser.settings.SettingConstants;
 
@@ -99,6 +101,11 @@ public class ProgramPanel extends View {
     
     if(mTimeFormat == null) {
       mTimeFormat = DateFormat.getTimeFormat(context);
+      String value = ((SimpleDateFormat)mTimeFormat).toLocalizedPattern();
+      
+      value = value.charAt(0) + value;
+      
+      mTimeFormat = new SimpleDateFormat(value, Locale.getDefault());
       
       // Get the screen's density scale
       final float scale = getResources().getDisplayMetrics().density;

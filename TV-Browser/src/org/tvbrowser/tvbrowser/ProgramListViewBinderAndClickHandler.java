@@ -16,7 +16,9 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Locale;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
@@ -86,10 +88,17 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
     }
     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
       long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-       
+      
+      java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(mActivity);
+      String value = ((SimpleDateFormat)mTimeFormat).toLocalizedPattern();
+      
+      value = value.charAt(0) + value;
+      
+      mTimeFormat = new SimpleDateFormat(value, Locale.getDefault());
+      
       TextView text = (TextView)view;
       text.setTag(cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
-      text.setText(DateFormat.getTimeFormat(mActivity).format(new Date(date)));
+      text.setText(mTimeFormat.format(new Date(date)));
        
       return true;
     }
