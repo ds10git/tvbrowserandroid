@@ -685,13 +685,17 @@ public class TvDataUpdateService extends Service {
           long nextStart = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
           
           if(c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) == channelKey) {
-            Calendar meTest = Calendar.getInstance(timeZone);
-            meTest.setTimeInMillis(meStart);
+            boolean lastProgram = false;
             
-            Calendar nextTest = Calendar.getInstance(timeZone);
-            nextTest.setTimeInMillis(nextStart);
-            
-            boolean lastProgram = meTest.get(Calendar.DAY_OF_YEAR) + 1 == nextTest.get(Calendar.DAY_OF_YEAR);
+            if(timeZone != null) {
+              Calendar meTest = Calendar.getInstance(timeZone);
+              meTest.setTimeInMillis(meStart);
+              
+              Calendar nextTest = Calendar.getInstance(timeZone);
+              nextTest.setTimeInMillis(nextStart);
+              
+              lastProgram = meTest.get(Calendar.DAY_OF_YEAR) + 1 == nextTest.get(Calendar.DAY_OF_YEAR);
+            }
             
             // if end not set or netto play time larger than next start or next time not end time
             if(end == 0 || (nettoPlayTime > (nextStart - meStart)) || (lastProgram && end != nextStart && ((nextStart - meStart) < (3 * 60 * 60000)))) {
