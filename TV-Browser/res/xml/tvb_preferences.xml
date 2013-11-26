@@ -27,6 +27,13 @@
 	       android:summary="%s"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/title_running_programs">
+        <ListPreference
+	       android:key="@string/RUNNING_PROGRAMS_LAYOUT"
+	       android:title="@string/running_layout_title"
+	       android:defaultValue="0"
+	       android:entries="@array/running_layout_values"
+	       android:entryValues="@array/running_layout_prefs"
+	       android:summary="%s"/>
         <PreferenceScreen
             android:title="@string/pref_time_buttons"
             android:summary="@string/pref_time_buttons_summary">

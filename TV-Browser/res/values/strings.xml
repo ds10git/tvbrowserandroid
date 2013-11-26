@@ -207,4 +207,10 @@
 	<string name="pref_time_buttons">Time Buttons</string>
 	<string name="pref_time_buttons_summary">Configure the time buttons in the running programs list.</string>
 	<string name="pref_time_button_hint">Dublicate entries are ignored</string>
+	<string name="running_until">, until</string>
+	<string-array name="running_layout_values">
+	    <item>Extended</item>
+	    <item>Compact</item>
+	</string-array>
+	<string name="running_layout_title">Layout</string>
 </resources>

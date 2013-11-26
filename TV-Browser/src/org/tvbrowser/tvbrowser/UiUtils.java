@@ -38,6 +38,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -817,5 +818,13 @@ public class UiUtils {
     text.setText(mdf.format(progDate.getTime()));
     
     UiUtils.handleMarkings(activity, cursor, ((RelativeLayout)view.getParent()), null);}catch(Throwable t) {}
+  }
+  
+  public static int convertDpToPixel(float dp, Resources res) {
+    // Get the screen's density scale
+    final float scale = res.getDisplayMetrics().density;
+    // Convert the dps to pixels, based on density scale
+    
+    return (int) (dp * scale + 0.5f);
   }
 }
