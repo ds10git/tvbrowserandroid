@@ -5,7 +5,7 @@
     <TextView
         android:id="@+id/running_compact_channel_label"
         android:layout_width="100dp"
-        android:layout_height="fill_parent"
+        android:layout_height="match_parent"
         android:textSize="@dimen/title_font_size"
         android:paddingRight="5dp"
         android:layout_alignParentLeft="true"
@@ -33,7 +33,7 @@
 		<TextView 
 		    android:id="@+id/running_compact_previous_start"
 		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
+		    android:layout_height="match_parent"
 		    android:textSize="@dimen/title_font_size"
 		    android:paddingRight="5dp"
 		    android:paddingLeft="2dp"
@@ -42,7 +42,7 @@
 		<TextView 
 		    android:id="@+id/running_compact_previous_title"
 		    android:layout_width="wrap_content"
-		    android:layout_height="match_parent"
+		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/title_font_size"
 		    android:paddingRight="2dp"
 		    android:layout_toRightOf="@id/running_compact_previous_start"
@@ -50,7 +50,7 @@
 		<TextView 
 		    android:id="@+id/running_compact_previous_episode"
 		    android:layout_width="wrap_content"
-		    android:layout_height="match_parent"
+		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/episode_font_size"
 		    android:textStyle="italic"
 		    android:paddingRight="2dp"
@@ -73,7 +73,7 @@
 		<TextView 
 		    android:id="@+id/running_compact_now_start"
 		    android:layout_width="wrap_content"
-		    android:layout_height="wrap_content"
+		    android:layout_height="match_parent"
 		    android:textStyle="bold"
 		    android:textSize="@dimen/title_font_size"
 		    android:paddingRight="5dp"
@@ -82,8 +82,8 @@
 		    />
 		<TextView 
 		    android:id="@+id/running_compact_now_title"
-		    android:layout_width="wrap_content"
-		    android:layout_height="match_parent"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
 		    android:textStyle="bold"
 		    android:textSize="@dimen/title_font_size"
 		    android:paddingRight="2dp"
@@ -92,8 +92,8 @@
 			/>
 		<TextView 
 		    android:id="@+id/running_compact_now_episode"
-		    android:layout_width="wrap_content"
-		    android:layout_height="match_parent"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/episode_font_size"
 		    android:textStyle="italic"
 		    android:paddingRight="2dp"
@@ -123,8 +123,8 @@
 		    />
 		<TextView 
 		    android:id="@+id/running_compact_next_title"
-		    android:layout_width="wrap_content"
-		    android:layout_height="match_parent"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/title_font_size"
 		    android:paddingRight="2dp"
 			android:layout_alignParentTop="true"
@@ -132,8 +132,8 @@
 			/>
 		<TextView 
 		    android:id="@+id/running_compact_next_episode"
-		    android:layout_width="wrap_content"
-		    android:layout_height="match_parent"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/episode_font_size"
 		    android:textStyle="italic"
 		    android:paddingRight="2dp"

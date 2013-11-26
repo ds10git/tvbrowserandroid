@@ -30,7 +30,7 @@
         <ListPreference
 	       android:key="@string/RUNNING_PROGRAMS_LAYOUT"
 	       android:title="@string/running_layout_title"
-	       android:defaultValue="0"
+	       android:defaultValue="1"
 	       android:entries="@array/running_layout_values"
 	       android:entryValues="@array/running_layout_prefs"
 	       android:summary="%s"/>
