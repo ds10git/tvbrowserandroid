@@ -57,4 +57,8 @@
         <item>@string/radio</item>
         <item>@string/cinema</item>
     </string-array>
+    <string-array name="running_layout_prefs">
+        <item>0</item>
+        <item>1</item>
+    </string-array>
 </resources>

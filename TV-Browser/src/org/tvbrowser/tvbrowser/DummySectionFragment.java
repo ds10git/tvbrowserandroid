@@ -75,18 +75,22 @@ public class DummySectionFragment extends Fragment {
       final View.OnClickListener listener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
+          SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+          
           if(running != null) {
-            timeBar.removeView(before);
-            timeBar.removeView(after);
-            
-            int index = timeBar.indexOfChild(v);
-            
-            timeBar.addView(after, index+1);
-            
-            before.setBackgroundResource(android.R.drawable.list_selector_background);
-            
-            if(!v.equals(now)) {
-              timeBar.addView(before, index);
+            if(pref.getString(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT), "0").equals("0")) {
+              timeBar.removeView(before);
+              timeBar.removeView(after);
+              
+              int index = timeBar.indexOfChild(v);
+              
+              timeBar.addView(after, index+1);
+              
+              before.setBackgroundResource(android.R.drawable.list_selector_background);
+              
+              if(!v.equals(now)) {
+                timeBar.addView(before, index);
+              }
             }
             
             running.setWhereClauseTime(v.getTag());
@@ -119,16 +123,21 @@ public class DummySectionFragment extends Fragment {
           }
           
           if(getActivity() != null) {
-            before.setOnClickListener(timeRange);
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
             now.setOnClickListener(listener);
-            after.setOnClickListener(timeRange);
-                                    
-            timeBar.addView(now);
-            timeBar.addView(after);
+            
+            if(pref.getString(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT), "0").equals("0")) {
+              before.setOnClickListener(timeRange);
+              after.setOnClickListener(timeRange);
+                                      
+              timeBar.addView(now);
+              timeBar.addView(after);
+            }
+            else {
+              timeBar.addView(now);
+            }
             
             ArrayList<Integer> values = new ArrayList<Integer>();
-            
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
             
             int[] defaultValues = getResources().getIntArray(R.array.time_button_defaults);
             

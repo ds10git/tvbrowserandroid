@@ -220,7 +220,7 @@ public class ProgramPanel extends View {
   }
   
   public int getTextWidth() {
-    return mWidth - PADDING_SIDE * 2;
+    return mWidth - PADDING_SIDE * 3;
   }
   
   public void setEpisode(String episode) {
