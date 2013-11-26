@@ -213,4 +213,6 @@
 	    <item>Compact</item>
 	</string-array>
 	<string name="running_layout_title">Layout</string>
+	<string name="pref_running_next_day">Expired times for tomorrow</string>
+	<string name="pref_running_next_day_summary">Times that are expired for 3 hours are showing the programs of tomorrow.</string>
 </resources>

@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -49,12 +50,12 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -63,6 +64,8 @@ import android.widget.TextView;
 public class RunningProgramsListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
   private static final String WHERE_CLAUSE_KEY = "WHERE_CLAUSE_KEY";
   private static final int AT_TIME_ID = -1;
+  
+  private int mOrientation;
   
   private Handler handler = new Handler();
   
@@ -83,7 +86,21 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private ArrayList<ChannelProgramBlock> mProgramBlockList;
   private ArrayList<ChannelProgramBlock> mCurrentViewList;
   
+  private SparseArray<BitmapDrawable> mLogoMap;
+  
   private long mCurrentTime;
+  
+  int mProgramIDColumn;
+  int mStartTimeColumn;
+  int mEndTimeColumn;
+  int mTitleColumn;
+  int mPictureColumn;
+  int mPictureCopyrightColumn;
+  int mCategoryColumn;
+  int mGenreColumn;
+  int mEpsiodeColumn;
+  int mChannelNameColumn;
+  int mChannelIDColumn;
   
   private boolean showPicture;
   private boolean showGenre;
@@ -91,18 +108,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private boolean showInfo;
   
   private boolean mIsCompactLayout;
-  
-  private int mProgramIDColumn;
-  private int mStartTimeColumn;
-  private int mEndTimeColumn;
-  private int mTitleColumn;
-  private int mChannelNameColumn;
-  private int mPictureColumn;
-  private int mPictureCopyrightColumn;
-  private int mCategoryColumn;
-  private int mGenreColumn;
-  private int mEpsiodeColumn;
-  
+    
   private View.OnClickListener mOnCliickListener;
   private long mContextProgramID;
   
@@ -221,7 +227,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         }
         
         for(ChannelProgramBlock block : mProgramBlockList) {
-          if(block.mNowPosition >= 0) {
+          if(block.mNowStart > 0) {
             mCurrentViewList.add(block);
           }
         }
@@ -232,7 +238,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         }
         
         for(ChannelProgramBlock block : mProgramBlockList) {
-          if(block.mPreviousPosition >= 0) {
+          if(block.mPreviousStart > 0) {
             mCurrentViewList.add(block);
           }
         }
@@ -244,7 +250,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         }
         
         for(ChannelProgramBlock block : mProgramBlockList) {
-          if(block.mNextPosition >= 0) {
+          if(block.mNextStart > 0) {
             mCurrentViewList.add(block);
           }
         }
@@ -286,11 +292,20 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   }
   
   private static final class CompactLayoutViewHolder {
+    static final int PREVIOUS = 0;
+    static final int NOW = 1;
+    static final int NEXT = 2;
+    
+    int mCurrentOrientation;
+    
     TextView mChannel;
     
     View mPrevious;
     View mNow;
     View mNext;
+    
+    View mSeparator1;
+    View mSeparator2;
     
     TextView mPreviousStartTime;
     TextView mPreviousTitle;
@@ -304,56 +319,186 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     TextView mNextTitle;
     TextView mNextEpisode;
     
-    public void setPreviousVisibility(int visibility) {
-      mPrevious.setVisibility(visibility);
-      mPreviousStartTime.setVisibility(visibility);
-      mPreviousTitle.setVisibility(visibility);
-      mPreviousEpisode.setVisibility(visibility);
+    public void setVisibility(int type, int visibility) {
+      switch(type) {
+        case PREVIOUS:
+          mPrevious.setVisibility(visibility);
+          mPreviousStartTime.setVisibility(visibility);
+          mPreviousTitle.setVisibility(visibility);
+          mPreviousEpisode.setVisibility(visibility);
+          break;
+        case NOW:
+          mNow.setVisibility(visibility);
+          mNowStartTime.setVisibility(visibility);
+          mNowTitle.setVisibility(visibility);
+          mNowEpisode.setVisibility(visibility);
+          break;
+        case NEXT:
+          mNext.setVisibility(visibility);
+          mNextStartTime.setVisibility(visibility);
+          mNextTitle.setVisibility(visibility);
+          mNextEpisode.setVisibility(visibility);
+          break;
+      }
     }
     
-    public void setPreviousColor(int color) {
-      mPreviousEpisode.setTextColor(color);
-      mPreviousTitle.setTextColor(color);
-      mPreviousStartTime.setTextColor(color);
+    public void setSeparatorVisibility(int visibility) {
+       if(mSeparator1 != null) {
+         mSeparator1.setVisibility(visibility);
+         mSeparator2.setVisibility(visibility);
+       }
     }
     
-    public void setNowVisibility(int visibility) {
-      mNow.setVisibility(visibility);
-      mNowStartTime.setVisibility(visibility);
-      mNowTitle.setVisibility(visibility);
-      mNowEpisode.setVisibility(visibility);
+    public boolean orientationChanged(int orientation) {
+      return mCurrentOrientation != orientation;
     }
     
-    public void setNowColor(int color) {
-      mNowEpisode.setTextColor(color);
-      mNowTitle.setTextColor(color);
-      mNowStartTime.setTextColor(color);
-    }
-    
-    public void setNextVisibility(int visibility) {
-      mNext.setVisibility(visibility);
-      mNextStartTime.setVisibility(visibility);
-      mNextTitle.setVisibility(visibility);
-      mNextEpisode.setVisibility(visibility);
-    }
-
-    public void setNextColor(int color) {
-      mNextEpisode.setTextColor(color);
-      mNextTitle.setTextColor(color);
-      mNextStartTime.setTextColor(color);
+    public void setColor(int type, int color) {
+      switch (type) {
+        case PREVIOUS:
+          mPreviousEpisode.setTextColor(color);
+          mPreviousTitle.setTextColor(color);
+          mPreviousStartTime.setTextColor(color);
+          break;
+        case NOW:
+          mNowEpisode.setTextColor(color);
+          mNowTitle.setTextColor(color);
+          mNowStartTime.setTextColor(color);
+          break;
+        case NEXT:
+          mNextEpisode.setTextColor(color);
+          mNextTitle.setTextColor(color);
+          mNextStartTime.setTextColor(color);
+          break;
+      }
     }
   }
   
   
+  private boolean fillCompactLayout(CompactLayoutViewHolder viewHolder, int type, ChannelProgramBlock block, java.text.DateFormat timeFormat, int DEFAULT_TEXT_COLOR, boolean channelSet) {
+    TextView startTimeView = null;
+    TextView titleView = null;
+    TextView episodeView = null;
+    View layout = null;
+    
+    long startTime = 0;
+    long endTime = 0;
+    long programID = -1;
+    String title = null;
+    String episode = null;
+    String markingValue = null;
+    
+    switch(type) {
+      case CompactLayoutViewHolder.PREVIOUS:
+        layout = viewHolder.mPrevious;
+        startTimeView = viewHolder.mPreviousStartTime;
+        titleView = viewHolder.mPreviousTitle;
+        episodeView = viewHolder.mPreviousEpisode;
+        startTime = block.mPreviousStart;
+        endTime = block.mPreviousEnd;
+        title = block.mPreviousTitle;
+        episode = block.mPreviousEpisode;
+        programID = block.mPreviousProgramID;
+        markingValue = block.mPreviousMarkingValue;
+        break;
+      case CompactLayoutViewHolder.NOW:
+        layout = viewHolder.mNow;
+        startTimeView = viewHolder.mNowStartTime;
+        titleView = viewHolder.mNowTitle;
+        episodeView = viewHolder.mNowEpisode;
+        startTime = block.mNowStart;
+        endTime = block.mNowEnd;
+        title = block.mNowTitle;
+        episode = block.mNowEpisode;
+        programID = block.mNowProgramID;
+        markingValue = block.mNowMarkingValue;
+        break;
+      case CompactLayoutViewHolder.NEXT:
+        layout = viewHolder.mNext;
+        startTimeView = viewHolder.mNextStartTime;
+        titleView = viewHolder.mNextTitle;
+        episodeView = viewHolder.mNextEpisode;
+        startTime = block.mNextStart;
+        endTime = block.mNextEnd;
+        title = block.mNextTitle;
+        episode = block.mNextEpisode;
+        programID = block.mNextProgramID;
+        markingValue = block.mNextMarkingValue;
+        break;
+    }
+    
+    if(startTime > 0 && title != null) {
+      viewHolder.setVisibility(type, View.VISIBLE);
+    
+      startTimeView.setText(timeFormat.format(startTime));
+      titleView.setText(title);
+      
+      if(!showEpisode || episode == null || episode.trim().length() == 0) {
+        episodeView.setVisibility(View.GONE);
+      }
+      else {
+        episodeView.setText(episode);
+        episodeView.setVisibility(View.VISIBLE);
+      }
+      
+      if(endTime <= System.currentTimeMillis()) {
+        viewHolder.setColor(type, SettingConstants.EXPIRED_COLOR);
+      }
+      else {
+        viewHolder.setColor(type, DEFAULT_TEXT_COLOR);
+      }
+      
+      if(!channelSet) {
+        BitmapDrawable logo = mLogoMap.get(block.mChannelID);
+        
+        viewHolder.mChannel.setCompoundDrawables(null, logo, null, null);
+        
+        String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(block.mChannelName);
+        
+        if(shortName != null) {
+          viewHolder.mChannel.setText(shortName);
+        }
+        else {
+          viewHolder.mChannel.setText(block.mChannelName);
+        }
+        
+        channelSet = true;
+      }
+      
+      layout.setTag(Long.valueOf(programID));
+      layout.setOnClickListener(mOnCliickListener);
+      
+      final long startTime1 = startTime;
+      final long endTime1 = endTime;
+      final View layout1 = layout;
+      final String markingValue1 = markingValue;
+      
+      new Thread() {
+        public void run() {
+          UiUtils.handleMarkings(getActivity(), null, startTime1, endTime1, layout1, markingValue1, handler);
+        }
+      }.start();
+    }
+    else {
+      viewHolder.setVisibility(type, View.GONE);
+    }
+    
+    return channelSet;
+  }
+  
   private View getCompactView(View convertView, ViewGroup parent, java.text.DateFormat timeFormat, ChannelProgramBlock block, int DEFAULT_TEXT_COLOR) {
     CompactLayoutViewHolder viewHolder = null;
     
-    if(convertView == null || convertView.getTag() instanceof LongLayoutViewHolder) {
+    if(convertView == null || convertView.getTag() instanceof LongLayoutViewHolder || ((CompactLayoutViewHolder)convertView.getTag()).orientationChanged(mOrientation)) {
       convertView = getActivity().getLayoutInflater().inflate(R.layout.compact_program_panel, parent, false);
       
       viewHolder = new CompactLayoutViewHolder();
       
+      viewHolder.mCurrentOrientation = mOrientation;
       viewHolder.mChannel = (TextView)convertView.findViewById(R.id.running_compact_channel_label);
+      
+      viewHolder.mSeparator1 = convertView.findViewById(R.id.running_separator_1);
+      viewHolder.mSeparator2 = convertView.findViewById(R.id.running_separator_2);
       
       viewHolder.mPrevious = convertView.findViewById(R.id.running_compact_previous);
       viewHolder.mNow = convertView.findViewById(R.id.running_compact_now);
@@ -384,162 +529,17 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     if(viewHolder != null && block != null && mCurrentCursor != null && !mCurrentCursor.isClosed()) {
       boolean channelSet = false;
       
-      if(mWhereClauseTime != -1 && block.mPreviousPosition >= 0) {
-        if(mCurrentCursor.moveToPosition(block.mPreviousPosition)) {
-          viewHolder.setPreviousVisibility(View.VISIBLE);
-          
-          long startTime = mCurrentCursor.getLong(mStartTimeColumn);
-          String title = mCurrentCursor.getString(mTitleColumn);
-          String episode = mCurrentCursor.getString(mEpsiodeColumn);
-          
-          viewHolder.mPreviousStartTime.setText(timeFormat.format(new Date(startTime)));
-          viewHolder.mPreviousTitle.setText(title);
-          
-          if(!showEpisode || episode == null || episode.trim().length() == 0) {
-            viewHolder.mPreviousEpisode.setVisibility(View.GONE);
-          }
-          else {
-            viewHolder.mPreviousEpisode.setText(episode);
-            viewHolder.mPreviousEpisode.setVisibility(View.VISIBLE);
-          }
-          
-          long endTime = mCurrentCursor.getLong(mEndTimeColumn);
-          
-          if(endTime <= System.currentTimeMillis()) {
-            viewHolder.setPreviousColor(SettingConstants.EXPIRED_COLOR);
-          }
-          else {
-            viewHolder.setPreviousColor(DEFAULT_TEXT_COLOR);
-          }
-
-          String name = mCurrentCursor.getString(mChannelNameColumn);
-          
-          String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
-          
-          if(shortName != null) {
-            viewHolder.mChannel.setText(shortName);
-          }
-          else {
-            viewHolder.mChannel.setText(name);
-          }
-          
-          viewHolder.mPrevious.setTag(Long.valueOf(mCurrentCursor.getLong(mProgramIDColumn)));
-          viewHolder.mPrevious.setOnClickListener(mOnCliickListener);
-          UiUtils.handleMarkings(getActivity(), mCurrentCursor, viewHolder.mPrevious, null);
-        }
-        else {
-          viewHolder.setPreviousVisibility(View.GONE);
-        }
+      if(mWhereClauseTime != -1) {
+        channelSet = fillCompactLayout(viewHolder, CompactLayoutViewHolder.PREVIOUS, block, timeFormat, DEFAULT_TEXT_COLOR, channelSet);
+        viewHolder.setSeparatorVisibility(View.VISIBLE);
       }
-      else {
-        viewHolder.setPreviousVisibility(View.GONE);
+      else {       
+        viewHolder.setVisibility(CompactLayoutViewHolder.PREVIOUS, View.GONE);
+        viewHolder.setSeparatorVisibility(View.GONE);
       }
       
-      if(block.mNowPosition >= 0) {
-        if(mCurrentCursor.moveToPosition(block.mNowPosition)) {
-          viewHolder.setNowVisibility(View.VISIBLE);
-          
-          long startTime = mCurrentCursor.getLong(mStartTimeColumn);
-          String title = mCurrentCursor.getString(mTitleColumn);
-          String episode = mCurrentCursor.getString(mEpsiodeColumn);
-          
-          viewHolder.mNowStartTime.setText(timeFormat.format(new Date(startTime)));
-          viewHolder.mNowTitle.setText(title);
-          
-          if(!showEpisode || episode == null || episode.trim().length() == 0) {
-            viewHolder.mNowEpisode.setVisibility(View.GONE);
-          }
-          else {
-            viewHolder.mNowEpisode.setText(episode);
-            viewHolder.mNowEpisode.setVisibility(View.VISIBLE);
-          }
-          
-          long endTime = mCurrentCursor.getLong(mEndTimeColumn);
-          
-          if(endTime <= System.currentTimeMillis()) {
-            viewHolder.setNowColor(SettingConstants.EXPIRED_COLOR);
-          }
-          else {
-            viewHolder.setNowColor(DEFAULT_TEXT_COLOR);
-          }
-
-          if(!channelSet) {
-            String name = mCurrentCursor.getString(mChannelNameColumn);
-            
-            String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
-            
-            if(shortName != null) {
-              viewHolder.mChannel.setText(shortName);
-            }
-            else {
-              viewHolder.mChannel.setText(name);
-            }
-          }
-          
-          viewHolder.mNow.setTag(Long.valueOf(mCurrentCursor.getLong(mProgramIDColumn)));
-          viewHolder.mNow.setOnClickListener(mOnCliickListener);
-          UiUtils.handleMarkings(getActivity(), mCurrentCursor, viewHolder.mNow, null);
-        }
-        else {
-          viewHolder.setNowVisibility(View.GONE);
-        }
-      }
-      else {
-        viewHolder.setNowVisibility(View.GONE);
-      }
-      
-      if(block.mNextPosition >= 0) {
-        if(mCurrentCursor.moveToPosition(block.mNextPosition)) {
-          viewHolder.setNextVisibility(View.VISIBLE);
-          
-          long startTime = mCurrentCursor.getLong(mStartTimeColumn);
-          String title = mCurrentCursor.getString(mTitleColumn);
-          String episode = mCurrentCursor.getString(mEpsiodeColumn);
-          
-          viewHolder.mNextStartTime.setText(timeFormat.format(new Date(startTime)));
-          viewHolder.mNextTitle.setText(title);
-          
-          if(!showEpisode || episode == null || episode.trim().length() == 0) {
-            viewHolder.mNextEpisode.setVisibility(View.GONE);
-          }
-          else {
-            viewHolder.mNextEpisode.setText(episode);
-            viewHolder.mNextEpisode.setVisibility(View.VISIBLE);
-          }
-          
-          long endTime = mCurrentCursor.getLong(mEndTimeColumn);
-          
-          if(endTime <= System.currentTimeMillis()) {
-            viewHolder.setNextColor(SettingConstants.EXPIRED_COLOR);
-          }
-          else {
-            viewHolder.setNextColor(DEFAULT_TEXT_COLOR);
-          }
-          
-          if(!channelSet) {
-            String name = mCurrentCursor.getString(mChannelNameColumn);
-            
-            String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
-            
-            if(shortName != null) {
-              viewHolder.mChannel.setText(shortName);
-            }
-            else {
-              viewHolder.mChannel.setText(name);
-            }
-          }
-                    
-          viewHolder.mNext.setTag(Long.valueOf(mCurrentCursor.getLong(mProgramIDColumn)));
-          viewHolder.mNext.setOnClickListener(mOnCliickListener);
-          UiUtils.handleMarkings(getActivity(), mCurrentCursor, viewHolder.mNext, null);
-        }
-        else {
-          viewHolder.setNextVisibility(View.GONE);
-        }
-      }
-      else {
-        viewHolder.setNextVisibility(View.GONE);
-      }
+      channelSet = fillCompactLayout(viewHolder, CompactLayoutViewHolder.NOW, block, timeFormat, DEFAULT_TEXT_COLOR, channelSet);
+      channelSet = fillCompactLayout(viewHolder, CompactLayoutViewHolder.NEXT, block, timeFormat, DEFAULT_TEXT_COLOR, channelSet);
     }
     
     return convertView;
@@ -574,21 +574,62 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       viewHolder = (LongLayoutViewHolder)convertView.getTag();
     }
     
-    int cursorPosition = -1;
+    long startTime = 0;
     
     switch(mTimeRangeID) {
-      case R.id.button_before1: cursorPosition = block.mPreviousPosition;break; 
-      case R.id.button_after1: cursorPosition = block.mNextPosition;break;
-      default: cursorPosition = block.mNowPosition;break;
+      case R.id.button_before1: startTime = block.mPreviousStart;break; 
+      case R.id.button_after1: startTime = block.mNextStart;break;
+      default: startTime = block.mNowStart;break;
     };
     
-    if(cursorPosition != -1 && mCurrentCursor != null && !mCurrentCursor.isClosed()) {
-      mCurrentCursor.moveToPosition(cursorPosition);
+    if(startTime > 0) {
+      long endTime = 0;
       
-      long startTime = mCurrentCursor.getLong(mStartTimeColumn);
-      long endTime = mCurrentCursor.getLong(mEndTimeColumn);
-      String title = mCurrentCursor.getString(mTitleColumn);
-      String channel = mCurrentCursor.getString(mChannelNameColumn);
+      String title = null;
+      String channel = block.mChannelName;
+      String genre = null;
+      String episode = null;
+      String category = null;
+      String pictureCopyright = null;
+      String markingValue = null;
+      byte[] picture = null;
+      long programID = -1;
+      
+      switch(mTimeRangeID) {
+      case R.id.button_before1:
+        endTime = block.mPreviousEnd;
+        title = block.mPreviousTitle;
+        genre = block.mPreviousGenre;
+        episode = block.mPreviousEpisode;
+        category = block.mPreviousCategory;
+        pictureCopyright = block.mPreviousPictureCopyright;
+        picture = block.mPreviousPicture;
+        markingValue = block.mPreviousMarkingValue;
+        programID = block.mPreviousProgramID;
+        break; 
+      case R.id.button_after1:
+        endTime = block.mNextEnd;
+        title = block.mNextTitle;
+        genre = block.mNextGenre;
+        episode = block.mNextEpisode;
+        category = block.mNextCategory;
+        pictureCopyright = block.mNextPictureCopyright;
+        picture = block.mNextPicture;
+        markingValue = block.mNextMarkingValue;
+        programID = block.mNextProgramID;
+        break;
+      default:
+        endTime = block.mNowEnd;
+        title = block.mNowTitle;
+        genre = block.mNowGenre;
+        episode = block.mNowEpisode;
+        category = block.mNowCategory;
+        pictureCopyright = block.mNowPictureCopyright;
+        picture = block.mNowPicture;
+        markingValue = block.mNowMarkingValue;
+        programID = block.mNowProgramID;
+        break;
+    };
       
       viewHolder.mStartTime.setText(timeFormat.format(new Date(startTime)));
       viewHolder.mEndTime.setText(getResources().getString(R.string.running_until) + " " + timeFormat.format(new Date(endTime)));
@@ -596,11 +637,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       viewHolder.mChannel.setText(channel);
       
       if(showPicture) {
-        String pictureCopyright = mCurrentCursor.getString(mPictureCopyrightColumn);
-        byte[] logoData = mCurrentCursor.getBlob(mPictureColumn);
-        
-        if(pictureCopyright != null && pictureCopyright.trim().length() > 0 && logoData != null && logoData.length > 0) {
-          Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+        if(pictureCopyright != null && pictureCopyright.trim().length() > 0 && picture != null && picture.length > 0) {
+          Bitmap logo = BitmapFactory.decodeByteArray(picture, 0, picture.length);
           
           BitmapDrawable l = new BitmapDrawable(getResources(), logo);
           
@@ -621,7 +659,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           viewHolder.mPictureCopyright.setVisibility(View.GONE);
         }
         
-        viewHolder.mLayout.setTag(Long.valueOf(mCurrentCursor.getLong(mProgramIDColumn)));
+        viewHolder.mLayout.setTag(programID);
         viewHolder.mLayout.setOnClickListener(mOnCliickListener);
       }
       else {
@@ -629,46 +667,25 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         viewHolder.mPictureCopyright.setVisibility(View.GONE);
       }
       
-      if(showGenre) {
-        String genre = mCurrentCursor.getString(mGenreColumn);
-        
-        if(genre != null && genre.trim().length() > 0) {
-          viewHolder.mGenreLabel.setVisibility(View.VISIBLE);
-          viewHolder.mGenreLabel.setText(genre);
-        }
-        else {
-          viewHolder.mGenreLabel.setVisibility(View.GONE);
-        }
+      if(showGenre && genre != null && genre.trim().length() > 0) {
+        viewHolder.mGenreLabel.setVisibility(View.VISIBLE);
+        viewHolder.mGenreLabel.setText(genre);
       }
       else {
         viewHolder.mGenreLabel.setVisibility(View.GONE);
       }
       
-      if(showEpisode) {
-        String episode = mCurrentCursor.getString(mEpsiodeColumn);
-        
-        if(episode != null && episode.trim().length() > 0) {
-          viewHolder.mEpisodeLabel.setVisibility(View.VISIBLE);
-          viewHolder.mEpisodeLabel.setText(episode);
-        }
-        else {
-          viewHolder.mEpisodeLabel.setVisibility(View.GONE);
-        }
+      if(showEpisode && episode != null && episode.trim().length() > 0) {
+        viewHolder.mEpisodeLabel.setVisibility(View.VISIBLE);
+        viewHolder.mEpisodeLabel.setText(episode);
       }
       else {
         viewHolder.mEpisodeLabel.setVisibility(View.GONE);
       }
       
-      if(showInfo) {
-        String info = IOUtils.getInfoString(mCurrentCursor.getInt(mCategoryColumn), getResources());
-        
-        if(info != null && info.trim().length() > 0) {
-          viewHolder.mInfoLabel.setVisibility(View.VISIBLE);
-          viewHolder.mInfoLabel.setText(info);
-        }
-        else {
-          viewHolder.mInfoLabel.setVisibility(View.GONE);
-        }
+      if(showInfo && category != null && category.trim().length() > 0) {
+        viewHolder.mInfoLabel.setVisibility(View.VISIBLE);
+        viewHolder.mInfoLabel.setText(category);
       }
       else {
         viewHolder.mInfoLabel.setVisibility(View.GONE);
@@ -681,7 +698,16 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         viewHolder.setColor(DEFAULT_TEXT_COLOR);
       }
       
-      UiUtils.handleMarkings(getActivity(), mCurrentCursor, convertView, null);
+      final long startTime1 = startTime;
+      final long endTime1 = endTime;
+      final View layout1 = convertView;
+      final String markingValue1 = markingValue;
+      
+      new Thread() {
+        public void run() {
+          UiUtils.handleMarkings(getActivity(), null, startTime1, endTime1, layout1, markingValue1, handler);
+        }
+      }.start();
     }
     
     return convertView;
@@ -698,6 +724,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       mWhereClauseTime = -1;
     }
     
+    mLogoMap = new SparseArray<BitmapDrawable>();
     mTimeRangeID = -1;
     
     mOnCliickListener = new View.OnClickListener() {
@@ -784,19 +811,19 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
-    mIsCompactLayout = pref.getString(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT), "0").equals("1");
+    mIsCompactLayout = pref.getString(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT), "1").equals("1");
     showPicture = pref.getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false);
     showGenre = pref.getBoolean(getResources().getString(R.string.SHOW_GENRE_IN_LISTS), true);
     showEpisode = pref.getBoolean(getResources().getString(R.string.SHOW_EPISODE_IN_LISTS), true);
     showInfo = pref.getBoolean(getResources().getString(R.string.SHOW_INFO_IN_LISTS), true);
     
     if(showPicture) {
-      projection = new String[14];
+      projection = new String[15];
       
-      projection[13] = TvBrowserContentProvider.DATA_KEY_PICTURE;
+      projection[14] = TvBrowserContentProvider.DATA_KEY_PICTURE;
     }
     else {
-      projection = new String[13];
+      projection = new String[14];
     }
     
     projection[0] = TvBrowserContentProvider.KEY_ID;
@@ -812,14 +839,26 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     projection[10] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
     projection[11] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
     projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
+    projection[13] = TvBrowserContentProvider.CHANNEL_KEY_LOGO;
     
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.MINUTE, 0);
     cal.set(Calendar.SECOND, 30);
     
+    Calendar now = Calendar.getInstance();
+    now.setTimeInMillis(System.currentTimeMillis());
+    
     if(mWhereClauseTime >= 0) {
       cal.set(Calendar.HOUR_OF_DAY, mWhereClauseTime / 60);
       cal.set(Calendar.MINUTE, mWhereClauseTime % 60);
+      
+      if(pref.getBoolean(getResources().getString(R.string.RUNNING_PROGRAMS_NEXT_DAY), true)) {
+        int test = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+        
+        if((test - mWhereClauseTime) > 180) {
+          cal.add(Calendar.DAY_OF_YEAR, 1);
+        }
+      }
     }
     else {
       cal.setTimeInMillis(System.currentTimeMillis());
@@ -847,26 +886,56 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   }
   
   private static final class ChannelProgramBlock {
-    public int mPreviousPosition;
-    public int mNowPosition;
-    public int mNextPosition;
+    public int mChannelID;
+    private String mChannelName;
     
+    public int mPreviousPosition;
+    public long mPreviousStart;
+    public long mPreviousEnd;
+    public long mPreviousProgramID;
+    public String mPreviousTitle;
+    public String mPreviousEpisode;
+    public String mPreviousGenre;
+    public String mPreviousCategory;
+    public String mPreviousPictureCopyright;
+    public String mPreviousMarkingValue;
+    public byte[] mPreviousPicture;
+
+    public int mNowPosition;
+    public long mNowStart;
+    public long mNowEnd;
+    public long mNowProgramID;
+    public String mNowTitle;
+    public String mNowEpisode;
+    public String mNowGenre;
+    public String mNowCategory;
+    public String mNowPictureCopyright;
+    public String mNowMarkingValue;
+    public byte[] mNowPicture;
+    
+    public int mNextPosition;
+    public long mNextStart;
+    public long mNextEnd;
+    public long mNextProgramID;
+    public String mNextTitle;
+    public String mNextEpisode;
+    public String mNextGenre;
+    public String mNextCategory;
+    public String mNextPictureCopyright;
+    public String mNextMarkingValue;
+    public byte[] mNextPicture;
+
     public boolean mIsComplete;
     
     public ChannelProgramBlock() {
-      mPreviousPosition = -1;
-     
       mIsComplete = false;
-      
-      mNowPosition = -1;
-      mNextPosition = -1;
     }
   }
 
   @Override
-  public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader,
-      Cursor c) {
-    HashMap<Integer,ChannelProgramBlock> channelProgramMap = new HashMap<Integer,ChannelProgramBlock>();
+  public synchronized void onLoadFinished(android.support.v4.content.Loader<Cursor> loader,
+      final Cursor c) {
+    SparseArray<ChannelProgramBlock> channelProgramMap = new SparseArray<ChannelProgramBlock>();
     
     mProgramBlockList.clear();
     mCurrentViewList.clear();
@@ -887,41 +956,117 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     mGenreColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE);
     mEpsiodeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
     mChannelNameColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+    mChannelIDColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     
-    int channelIDColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+    int logoColumn =  c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
+    int markingColumn =  c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES);
     
     while(c.moveToNext()) {
-      int channelID = c.getInt(channelIDColumn);
+      int channelID = c.getInt(mChannelIDColumn);
       
-      ChannelProgramBlock block = channelProgramMap.get(Integer.valueOf(channelID));
+      ChannelProgramBlock block = channelProgramMap.get(channelID);
       
       if(block == null) {
         block = new ChannelProgramBlock();
         
-        channelProgramMap.put(Integer.valueOf(channelID), block);
+        channelProgramMap.put(channelID, block);
         mProgramBlockList.add(block);
       }
       
       if(!block.mIsComplete) {
         long startTime = c.getLong(mStartTimeColumn);
         long endTime = c.getLong(mEndTimeColumn);
+        long programID = c.getLong(mProgramIDColumn);
+        String title = c.getString(mTitleColumn);
+        String episode = c.getString(mEpsiodeColumn);
+        String markingValue = c.getString(markingColumn);
+        
+        String channelName = c.getString(mChannelNameColumn);
+
+        String genre = null;
+        String category = null;
+        String pictureCopyright = null;
+        byte[] picture = null;
+
+        if(!mIsCompactLayout) {
+          genre = c.getString(mGenreColumn);
+          category = IOUtils.getInfoString(c.getInt(mCategoryColumn), getResources());
+          pictureCopyright = c.getString(mPictureCopyrightColumn);
+          picture = c.getBlob(mPictureColumn);
+        }
+        
+        BitmapDrawable logo = mLogoMap.get(channelID);
+        
+        if(logo == null) {
+          if(mLogoMap.indexOfKey(channelID) < 0) {
+            byte[] logoData = c.getBlob(logoColumn);
+            
+            if(logoData != null && logoData.length > 0) {
+              Bitmap logoBitmap = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+              
+              logo = new BitmapDrawable(getResources(), logoBitmap);
+              
+              float scale = UiUtils.convertDpToPixel(15, getResources()) / (float)logoBitmap.getHeight();
+              
+              logo.setBounds(0, 0, (int)(logoBitmap.getWidth() * scale), (int)(logoBitmap.getHeight() * scale));
+            }
+            
+            mLogoMap.put(channelID, logo);
+          }
+        }
+        
+        block.mChannelID = channelID;
+        block.mChannelName = channelName;
         
         if(startTime <= mCurrentTime) {
           if(endTime <= mCurrentTime) {
             block.mPreviousPosition = c.getPosition();
+            block.mPreviousProgramID = programID;
+            block.mPreviousStart = startTime;
+            block.mPreviousEnd = endTime;
+            block.mPreviousTitle = title;
+            block.mPreviousEpisode = episode;
+            block.mPreviousGenre = genre;
+            block.mPreviousPicture = picture;
+            block.mPreviousPictureCopyright = pictureCopyright;
+            block.mPreviousCategory = category;
+            block.mPreviousMarkingValue = markingValue;
           }
           else {
             block.mNowPosition = c.getPosition();
+            block.mNowProgramID = programID;
+            block.mNowStart = startTime;
+            block.mNowEnd = endTime;
+            block.mNowTitle = title;
+            block.mNowEpisode = episode;
+            block.mNowGenre = genre;
+            block.mNowPicture = picture;
+            block.mNowPictureCopyright = pictureCopyright;
+            block.mNowCategory = category;
+            block.mNowMarkingValue = markingValue;
+            
             mCurrentViewList.add(block);
           }
         }
         else {
           block.mNextPosition = c.getPosition();
+          block.mNextStart = startTime;
+          block.mNextEnd = endTime;
+          block.mNextProgramID = programID;
+          block.mNextTitle = title;
+          block.mNextEpisode = episode;
+          block.mNextGenre = genre;
+          block.mNextPicture = picture;
+          block.mNextPictureCopyright = pictureCopyright;
+          block.mNextCategory = category;
+          block.mNextMarkingValue = markingValue;
+          
           block.mIsComplete = true;
         }
       }
     }
     
+    channelProgramMap.clear();
     runningProgramListAdapter.notifyDataSetChanged();
   }
 
@@ -936,11 +1081,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       ContextMenuInfo menuInfo) {
     Long test = (Long)v.getTag();
     
-    if(test == null) {
-      mContextProgramID = ((AdapterView.AdapterContextMenuInfo)menuInfo).id;
-      UiUtils.createContextMenu(getActivity(), menu, mContextProgramID);
-    }
-    else {
+    if(test != null) {
       mContextProgramID = test.longValue();
       UiUtils.createContextMenu(getActivity(), menu, mContextProgramID);
     }
@@ -951,5 +1092,31 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     UiUtils.handleContextMenuSelection(getActivity(), item, mContextProgramID, null);
     
     return false;
+  }
+  
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    
+    mOrientation = newConfig.orientation;
+    
+    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          // TODO Auto-generated method stub
+          runningProgramListAdapter.notifyDataSetChanged();
+        }
+      });
+    } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+      handler.post(new Runnable() {
+        
+        @Override
+        public void run() {
+          // TODO Auto-generated method stub
+          runningProgramListAdapter.notifyDataSetChanged();
+        }
+      });
+    }
   }
 }

@@ -51,6 +51,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
@@ -621,6 +622,11 @@ public class UiUtils {
   }
   
   public static void handleMarkings(Activity activity, Cursor cursor, long startTime, long endTime, View view, String markingValues) {
+    handleMarkings(activity, cursor, startTime, endTime, view, markingValues, null);
+  }
+  
+  
+  public static void handleMarkings(Activity activity, Cursor cursor, long startTime, long endTime, final View view, String markingValues, Handler handler) {
     String value = markingValues;
     
     if(value == null && cursor != null && !cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
@@ -642,7 +648,7 @@ public class UiUtils {
       base = null;
     }
     
-    ArrayList<Drawable> draw = new ArrayList<Drawable>();
+    final ArrayList<Drawable> draw = new ArrayList<Drawable>();
     
     if(base != null) {
       RunningDrawable running = new RunningDrawable(base, second, startTime, endTime);
@@ -683,7 +689,17 @@ public class UiUtils {
     
     draw.add(activity.getResources().getDrawable(android.R.drawable.list_selector_background));
     
-    view.setBackgroundDrawable(new LayerDrawable(draw.toArray(new Drawable[draw.size()])));
+    if(handler == null) {
+      view.setBackgroundDrawable(new LayerDrawable(draw.toArray(new Drawable[draw.size()])));
+    }
+    else{
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          view.setBackgroundDrawable(new LayerDrawable(draw.toArray(new Drawable[draw.size()])));
+        }
+      });
+    }
   }
   
   public static void editFavorite(final Favorite fav, final Activity activity, String searchString) {

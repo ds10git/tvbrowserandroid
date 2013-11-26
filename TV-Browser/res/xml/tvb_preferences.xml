@@ -21,7 +21,7 @@
         <ListPreference
 	       android:key="@string/TAB_TO_SHOW_AT_START"
 	       android:title="@string/pref_start_tab"
-	       android:defaultValue="0"
+	       android:defaultValue="1"
 	       android:entries="@array/start_labels"
 	       android:entryValues="@array/start_tab_values"
 	       android:summary="%s"/>
@@ -67,6 +67,10 @@
            		android:defaultValue="1380"
            		android:summary="@string/pref_time_button_hint"
             />
+            <CheckBoxPreference android:key="@string/RUNNING_PROGRAMS_NEXT_DAY"
+                android:defaultValue="true"
+                android:title="@string/pref_running_next_day"
+                android:summary="@string/pref_running_next_day_summary"/>
         </PreferenceScreen>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/title_programs_list">
