@@ -933,8 +933,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   }
 
   @Override
-  public synchronized void onLoadFinished(android.support.v4.content.Loader<Cursor> loader,
-      final Cursor c) {
+  public synchronized void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, final Cursor c) {
     SparseArray<ChannelProgramBlock> channelProgramMap = new SparseArray<ChannelProgramBlock>();
     
     mProgramBlockList.clear();
@@ -989,10 +988,18 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         byte[] picture = null;
 
         if(!mIsCompactLayout) {
-          genre = c.getString(mGenreColumn);
-          category = IOUtils.getInfoString(c.getInt(mCategoryColumn), getResources());
-          pictureCopyright = c.getString(mPictureCopyrightColumn);
-          picture = c.getBlob(mPictureColumn);
+          if(showGenre) {
+            genre = c.getString(mGenreColumn);
+          }
+          
+          if(showInfo) {
+            category = IOUtils.getInfoString(c.getInt(mCategoryColumn), getResources());
+          }
+          
+          if(showPicture && mPictureColumn > -1) {
+            pictureCopyright = c.getString(mPictureCopyrightColumn);
+            picture = c.getBlob(mPictureColumn);
+          }
         }
         
         BitmapDrawable logo = mLogoMap.get(channelID);
