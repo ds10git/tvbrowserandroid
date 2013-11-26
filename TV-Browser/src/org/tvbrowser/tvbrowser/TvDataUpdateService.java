@@ -19,11 +19,13 @@ package org.tvbrowser.tvbrowser;
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.PushbackInputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -42,6 +44,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.ZipFile;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
@@ -460,7 +463,7 @@ public class TvDataUpdateService extends Service {
     
     if(group.isFile()) {
       try {
-        BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(group)),"ISO-8859-1"));
+        BufferedReader read = new BufferedReader(new InputStreamReader(decompressStream(new FileInputStream(group)),"ISO-8859-1"));
         
         String line = null;
         
@@ -604,7 +607,7 @@ public class TvDataUpdateService extends Service {
         
         connection.setRequestProperty ("Authorization", basicAuth);
         
-        BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+        BufferedReader read = new BufferedReader(new InputStreamReader(decompressStream(connection.getInputStream()),"UTF-8"));
         
         String dateValue = read.readLine();
         
@@ -779,6 +782,7 @@ public class TvDataUpdateService extends Service {
       mUnsuccessfulDownloads = 0;
       
       final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
+      
       File nomedia = new File(path,".nomedia");
       
       if(!path.isDirectory()) {
@@ -789,6 +793,19 @@ public class TvDataUpdateService extends Service {
         try {
           nomedia.createNewFile();
         } catch (IOException e) {}
+      }
+      
+      File[] oldDataFiles = path.listFiles(new FileFilter() {
+        @Override
+        public boolean accept(File pathname) {
+          return pathname.getName().toLowerCase().endsWith(".gz");
+        }
+      });
+      
+      for(File oldFile : oldDataFiles) {
+        if(!oldFile.delete()) {
+          oldFile.deleteOnExit();
+        }
       }
       
       int[] levels = null;
@@ -1130,7 +1147,7 @@ public class TvDataUpdateService extends Service {
   private void updateMirror(File mirrorFile) {
     if(mirrorFile.isFile()) {
       try {
-        BufferedReader in = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(mirrorFile))));
+        BufferedReader in = new BufferedReader(new InputStreamReader(decompressStream(new FileInputStream(mirrorFile))));
         
         StringBuilder mirrors = new StringBuilder();
         
@@ -1181,13 +1198,7 @@ public class TvDataUpdateService extends Service {
         int responseCode = httpConnection.getResponseCode();
         
         if(responseCode == HttpURLConnection.HTTP_OK) {
-          InputStream in = httpConnection.getInputStream();
-          
-          try {
-            in = new GZIPInputStream(in);
-          }catch(IOException e2) {}
-          
-          in = new BufferedInputStream(in);
+          BufferedInputStream in = new BufferedInputStream(decompressStream(httpConnection.getInputStream()));
           
           int version = in.read();
           
@@ -1359,13 +1370,42 @@ public class TvDataUpdateService extends Service {
     return frameId;
   }
   
+  /*
+   * Copied from http://stackoverflow.com/questions/4818468/how-to-check-if-inputstream-is-gzipped and changed.
+   * No license given on page.
+   */
+  private static InputStream decompressStream(InputStream input) throws IOException {
+    PushbackInputStream pb = new PushbackInputStream( input, 2 ); //we need a pushbackstream to look ahead
+    
+    byte [] signature = new byte[2];
+    int read = pb.read( signature ); //read the signature
+    
+    if(read == 2) {
+      pb.unread( signature ); //push back the signature to the stream
+    }
+    else if(read == 1) {
+      pb.unread(signature[0]);
+    }
+    
+    if(signature[ 0 ] == (byte) (GZIPInputStream.GZIP_MAGIC & 0xFF) && signature[ 1 ] == (byte) (GZIPInputStream.GZIP_MAGIC >> 8) ) //check if matches standard gzip maguc number
+      return new GZIPInputStream( pb );
+    else 
+      return pb;
+  }
+  
   private void updateData(File dataFile, ChannelUpdate update, boolean baseLevel) {
     ArrayList<ContentValues> insertValueList = new ArrayList<ContentValues>();
     ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
     
     if(dataFile.isFile()) {
       try {
-        BufferedInputStream in = new BufferedInputStream(new GZIPInputStream(new FileInputStream(dataFile)));
+        BufferedInputStream in = null;
+        
+        try {
+          in = new BufferedInputStream(decompressStream(new FileInputStream(dataFile)));
+        }catch(IOException ee) {
+         
+        }
         
         byte fileVersion = (byte)in.read();
         byte dataVersion = (byte)in.read();
@@ -1519,6 +1559,9 @@ public class TvDataUpdateService extends Service {
       if(!dataFile.delete()) {
         dataFile.deleteOnExit();
       }
+    }
+    else {
+      Log.d("info5", "file not available " + dataFile.getPath());
     }
   }
   
