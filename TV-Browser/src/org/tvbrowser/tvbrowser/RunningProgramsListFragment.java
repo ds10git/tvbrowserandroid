@@ -20,7 +20,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -28,6 +27,7 @@ import org.tvbrowser.settings.SettingConstants;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -48,8 +48,8 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.util.LongSparseArray;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -76,17 +76,18 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   
   private BroadcastReceiver mDataUpdateReceiver;
   private BroadcastReceiver mRefreshReceiver;
+  private BroadcastReceiver mMarkingChangeReceiver;
   
   private static final GradientDrawable BEFORE_GRADIENT;
   private static final GradientDrawable AFTER_GRADIENT;
   
   private ArrayAdapter<ChannelProgramBlock> runningProgramListAdapter;
-  private Cursor mCurrentCursor;
   
   private ArrayList<ChannelProgramBlock> mProgramBlockList;
   private ArrayList<ChannelProgramBlock> mCurrentViewList;
   
   private SparseArray<BitmapDrawable> mLogoMap;
+  private LongSparseArray<String> mMarkingsMap;
   
   private long mCurrentTime;
   
@@ -110,6 +111,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private boolean mIsCompactLayout;
     
   private View.OnClickListener mOnCliickListener;
+  private View mContextView;
   private long mContextProgramID;
   
   static {
@@ -153,22 +155,88 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           startUpdateThread();
         }
         else {
-          SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-          
-          showPicture = pref.getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false);
-          showGenre = pref.getBoolean(getResources().getString(R.string.SHOW_GENRE_IN_LISTS), true);
-          showEpisode = pref.getBoolean(getResources().getString(R.string.SHOW_EPISODE_IN_LISTS), true);
-          showInfo = pref.getBoolean(getResources().getString(R.string.SHOW_INFO_IN_LISTS), true);
-          
-          runningProgramListAdapter.notifyDataSetChanged();
+          if(mIsCompactLayout) {
+            new Thread() {
+              public void run() {
+                ViewGroup list = (ViewGroup)getListView();
+                
+                for(int i = 0; i < list.getChildCount(); i++) {
+                  CompactLayoutViewHolder holder = (CompactLayoutViewHolder) list.getChildAt(i).getTag();
+                  
+                  if(holder.mPrevious.getVisibility() == View.VISIBLE) {
+                    if(holder.mPreviousStartTimeValue <= System.currentTimeMillis()) {
+                      String markingValues = mMarkingsMap.get(holder.mPreviousProgramID);
+                      
+                      UiUtils.handleMarkings(getActivity(), null, holder.mPreviousStartTimeValue, holder.mPreviousEndTimeValue, holder.mPrevious, markingValues, handler);
+                    }
+                  }
+                  
+                  if(holder.mNowStartTimeValue <= System.currentTimeMillis()) {
+                    String markingValues = mMarkingsMap.get(holder.mNowProgramID);
+                    
+                    UiUtils.handleMarkings(getActivity(), null, holder.mNowStartTimeValue, holder.mNowEndTimeValue, holder.mNow, markingValues, handler);
+                  }
+
+                  if(holder.mNextStartTimeValue <= System.currentTimeMillis()) {
+                    String markingValues = mMarkingsMap.get(holder.mNextProgramID);
+                    
+                    UiUtils.handleMarkings(getActivity(), null, holder.mNextStartTimeValue, holder.mNextEndTimeValue, holder.mNext, markingValues, handler);
+                  }
+                }
+              }
+            }.start();
+          }
+          else {
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            
+            showPicture = pref.getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false);
+            showGenre = pref.getBoolean(getResources().getString(R.string.SHOW_GENRE_IN_LISTS), true);
+            showEpisode = pref.getBoolean(getResources().getString(R.string.SHOW_EPISODE_IN_LISTS), true);
+            showInfo = pref.getBoolean(getResources().getString(R.string.SHOW_INFO_IN_LISTS), true);
+            
+            runningProgramListAdapter.notifyDataSetChanged();
+          }
         }
       }
     };
     
+    mMarkingChangeReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, final Intent intent) {
+        new Thread() {
+          public void run() {
+            long programID = intent.getLongExtra(SettingConstants.MARKINGS_ID, -1);
+            
+            if(mMarkingsMap.indexOfKey(programID) >= 0) {
+              Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, TvBrowserContentProvider.DATA_KEY_STARTTIME, TvBrowserContentProvider.DATA_KEY_ENDTIME}, null, null, null);
+              
+              if(c.moveToFirst()) {
+                final String newMarkingValues = c.getString(0);
+                final long startTime = c.getLong(1);
+                final long endTime = c.getLong(2);
+                
+                mMarkingsMap.put(programID, newMarkingValues);
+                
+                final View view = getListView().findViewWithTag(programID);
+                
+                if(view != null) {
+                  UiUtils.handleMarkings(getActivity(), null, startTime, endTime, view, newMarkingValues, handler);
+                }
+              }
+              
+              c.close();
+            }
+          }
+        }.start();
+      }
+    };
+    
     IntentFilter intent = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
+    IntentFilter markingsFilter = new IntentFilter(SettingConstants.MARKINGS_CHANGED);
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, intent);
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMarkingChangeReceiver, markingsFilter);
   }
   
   public void setWhereClauseTime(Object time) {
@@ -186,11 +254,11 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         setTimeRangeID(-2);
               
         mWhereClauseTime = testValue;
-        
+        /*
         if(mDataUpdateReceiver != null) {
           LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
         }
-        
+        */
         startUpdateThread();
       }
       else {
@@ -199,7 +267,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     }
   }
   
-  public void setTimeRangeID(int id) {Log.d("info3","hier");
+  public void setTimeRangeID(int id) {
     Button test = (Button)((View)getView().getParent()).findViewById(mTimeRangeID);
     
     if(test != null) {
@@ -296,6 +364,18 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     static final int NOW = 1;
     static final int NEXT = 2;
     
+    long mPreviousProgramID;
+    long mNowProgramID;
+    long mNextProgramID;
+    
+    long mPreviousStartTimeValue;
+    long mNowStartTimeValue;
+    long mNextStartTimeValue;
+    
+    long mPreviousEndTimeValue;
+    long mNowEndTimeValue;
+    long mNextEndTimeValue;
+    
     int mCurrentOrientation;
     
     TextView mChannel;
@@ -375,7 +455,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   }
   
   
-  private boolean fillCompactLayout(CompactLayoutViewHolder viewHolder, int type, ChannelProgramBlock block, java.text.DateFormat timeFormat, int DEFAULT_TEXT_COLOR, boolean channelSet) {
+  private boolean fillCompactLayout(final CompactLayoutViewHolder viewHolder, final int type, final ChannelProgramBlock block, final java.text.DateFormat timeFormat, final int DEFAULT_TEXT_COLOR, boolean channelSet) {
     TextView startTimeView = null;
     TextView titleView = null;
     TextView episodeView = null;
@@ -386,7 +466,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     long programID = -1;
     String title = null;
     String episode = null;
-    String markingValue = null;
     
     switch(type) {
       case CompactLayoutViewHolder.PREVIOUS:
@@ -399,7 +478,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         title = block.mPreviousTitle;
         episode = block.mPreviousEpisode;
         programID = block.mPreviousProgramID;
-        markingValue = block.mPreviousMarkingValue;
         break;
       case CompactLayoutViewHolder.NOW:
         layout = viewHolder.mNow;
@@ -411,7 +489,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         title = block.mNowTitle;
         episode = block.mNowEpisode;
         programID = block.mNowProgramID;
-        markingValue = block.mNowMarkingValue;
         break;
       case CompactLayoutViewHolder.NEXT:
         layout = viewHolder.mNext;
@@ -423,11 +500,28 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         title = block.mNextTitle;
         episode = block.mNextEpisode;
         programID = block.mNextProgramID;
-        markingValue = block.mNextMarkingValue;
         break;
     }
     
     if(startTime > 0 && title != null) {
+      switch(type) {
+        case CompactLayoutViewHolder.PREVIOUS:
+          viewHolder.mPreviousStartTimeValue = startTime;
+          viewHolder.mPreviousEndTimeValue = endTime;
+          viewHolder.mPreviousProgramID = programID;
+          break;
+        case CompactLayoutViewHolder.NOW:
+          viewHolder.mNowStartTimeValue = startTime;
+          viewHolder.mNowEndTimeValue = endTime;
+          viewHolder.mNowProgramID = programID;
+          break;
+        case CompactLayoutViewHolder.NEXT:
+          viewHolder.mNowStartTimeValue = startTime;
+          viewHolder.mNowEndTimeValue = endTime;
+          viewHolder.mNextProgramID = programID;
+          break;
+      }
+      
       viewHolder.setVisibility(type, View.VISIBLE);
     
       startTimeView.setText(timeFormat.format(startTime));
@@ -468,19 +562,29 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       layout.setTag(Long.valueOf(programID));
       layout.setOnClickListener(mOnCliickListener);
       
-      final long startTime1 = startTime;
-      final long endTime1 = endTime;
-      final View layout1 = layout;
-      final String markingValue1 = markingValue;
+      final String markingsValue = mMarkingsMap.get(programID);
       
-      new Thread() {
-        public void run() {
-          UiUtils.handleMarkings(getActivity(), null, startTime1, endTime1, layout1, markingValue1, handler);
-        }
-      }.start();
+      if(startTime <= System.currentTimeMillis() || (markingsValue != null && markingsValue.trim().length() > 0)) {
+        final long startTime1 = startTime;
+        final long endTime1 = endTime;
+        final View layout1 = layout;
+        
+        new Thread() {
+          public void run() {
+            UiUtils.handleMarkings(getActivity(), null, startTime1, endTime1, layout1, markingsValue, handler);
+          }
+        }.start();
+      }
+      else {
+        layout.setBackgroundDrawable(getActivity().getResources().getDrawable(android.R.drawable.list_selector_background));
+      }
     }
     else {
       viewHolder.setVisibility(type, View.GONE);
+      
+      if(type == CompactLayoutViewHolder.PREVIOUS) {
+        viewHolder.setSeparatorVisibility(View.GONE);
+      }
     }
     
     return channelSet;
@@ -526,12 +630,12 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       viewHolder = (CompactLayoutViewHolder)convertView.getTag();
     }
     
-    if(viewHolder != null && block != null && mCurrentCursor != null && !mCurrentCursor.isClosed()) {
+    if(viewHolder != null && block != null /*&& mCurrentCursor != null && !mCurrentCursor.isClosed()*/) {
       boolean channelSet = false;
       
       if(mWhereClauseTime != -1) {
-        channelSet = fillCompactLayout(viewHolder, CompactLayoutViewHolder.PREVIOUS, block, timeFormat, DEFAULT_TEXT_COLOR, channelSet);
         viewHolder.setSeparatorVisibility(View.VISIBLE);
+        channelSet = fillCompactLayout(viewHolder, CompactLayoutViewHolder.PREVIOUS, block, timeFormat, DEFAULT_TEXT_COLOR, channelSet);
       }
       else {       
         viewHolder.setVisibility(CompactLayoutViewHolder.PREVIOUS, View.GONE);
@@ -575,129 +679,153 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     }
     
     long startTime = 0;
+    long endTime = 0;
+    String title = null;
+    long programID = -1;
+    String markingValue = null;
     
     switch(mTimeRangeID) {
-      case R.id.button_before1: startTime = block.mPreviousStart;break; 
-      case R.id.button_after1: startTime = block.mNextStart;break;
-      default: startTime = block.mNowStart;break;
-    };
-    
-    if(startTime > 0) {
-      long endTime = 0;
-      
-      String title = null;
-      String channel = block.mChannelName;
-      String genre = null;
-      String episode = null;
-      String category = null;
-      String pictureCopyright = null;
-      String markingValue = null;
-      byte[] picture = null;
-      long programID = -1;
-      
-      switch(mTimeRangeID) {
-      case R.id.button_before1:
+      case R.id.button_before1: 
+        startTime = block.mPreviousStart;
         endTime = block.mPreviousEnd;
         title = block.mPreviousTitle;
-        genre = block.mPreviousGenre;
-        episode = block.mPreviousEpisode;
-        category = block.mPreviousCategory;
-        pictureCopyright = block.mPreviousPictureCopyright;
-        picture = block.mPreviousPicture;
-        markingValue = block.mPreviousMarkingValue;
         programID = block.mPreviousProgramID;
         break; 
       case R.id.button_after1:
+        startTime = block.mNextStart;
         endTime = block.mNextEnd;
         title = block.mNextTitle;
-        genre = block.mNextGenre;
-        episode = block.mNextEpisode;
-        category = block.mNextCategory;
-        pictureCopyright = block.mNextPictureCopyright;
-        picture = block.mNextPicture;
-        markingValue = block.mNextMarkingValue;
         programID = block.mNextProgramID;
         break;
       default:
+        startTime = block.mNowStart;
         endTime = block.mNowEnd;
         title = block.mNowTitle;
-        genre = block.mNowGenre;
-        episode = block.mNowEpisode;
-        category = block.mNowCategory;
-        pictureCopyright = block.mNowPictureCopyright;
-        picture = block.mNowPicture;
-        markingValue = block.mNowMarkingValue;
         programID = block.mNowProgramID;
         break;
     };
+    
+    if(startTime > 0 && title != null) {
+      Long availableProgramID = (Long)viewHolder.mLayout.getTag();
       
-      viewHolder.mStartTime.setText(timeFormat.format(new Date(startTime)));
-      viewHolder.mEndTime.setText(getResources().getString(R.string.running_until) + " " + timeFormat.format(new Date(endTime)));
-      viewHolder.mTitle.setText(title);
-      viewHolder.mChannel.setText(channel);
-      
-      if(showPicture) {
-        if(pictureCopyright != null && pictureCopyright.trim().length() > 0 && picture != null && picture.length > 0) {
-          Bitmap logo = BitmapFactory.decodeByteArray(picture, 0, picture.length);
-          
-          BitmapDrawable l = new BitmapDrawable(getResources(), logo);
-          
-          l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
-          
-          if(endTime <= System.currentTimeMillis()) {
-            l.setColorFilter(getActivity().getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
+      if(availableProgramID == null || availableProgramID.longValue() != programID) {
+        String channel = block.mChannelName;
+        String genre = null;
+        String episode = null;
+        String category = null;
+        String pictureCopyright = null;
+        
+        byte[] picture = null;
+        
+        switch(mTimeRangeID) {
+          case R.id.button_before1:
+            genre = block.mPreviousGenre;
+            episode = block.mPreviousEpisode;
+            category = block.mPreviousCategory;
+            pictureCopyright = block.mPreviousPictureCopyright;
+            picture = block.mPreviousPicture;
+            break; 
+          case R.id.button_after1:
+            genre = block.mNextGenre;
+            episode = block.mNextEpisode;
+            category = block.mNextCategory;
+            pictureCopyright = block.mNextPictureCopyright;
+            picture = block.mNextPicture;
+            break;
+          default:
+            genre = block.mNowGenre;
+            episode = block.mNowEpisode;
+            category = block.mNowCategory;
+            pictureCopyright = block.mNowPictureCopyright;
+            picture = block.mNowPicture;
+            break;
+        };
+        
+        viewHolder.mStartTime.setText(timeFormat.format(new Date(startTime)));
+        viewHolder.mEndTime.setText(getResources().getString(R.string.running_until) + " " + timeFormat.format(new Date(endTime)));
+        viewHolder.mTitle.setText(title);
+        viewHolder.mChannel.setText(channel);
+        
+        if(showPicture) {
+          if(pictureCopyright != null && pictureCopyright.trim().length() > 0 && picture != null && picture.length > 0) {
+            Bitmap logo = BitmapFactory.decodeByteArray(picture, 0, picture.length);
+            
+            BitmapDrawable l = new BitmapDrawable(getResources(), logo);
+            
+            l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+            
+            if(endTime <= System.currentTimeMillis()) {
+              l.setColorFilter(getActivity().getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
+            }
+            
+            viewHolder.mPicture.setImageDrawable(l);
+            viewHolder.mPictureCopyright.setText(pictureCopyright);
+            
+            viewHolder.mPicture.setVisibility(View.VISIBLE);
+            viewHolder.mPictureCopyright.setVisibility(View.VISIBLE);
+          }
+          else {
+            viewHolder.mPicture.setVisibility(View.GONE);
+            viewHolder.mPictureCopyright.setVisibility(View.GONE);
           }
           
-          viewHolder.mPicture.setImageDrawable(l);
-          viewHolder.mPictureCopyright.setText(pictureCopyright);
-          
-          viewHolder.mPicture.setVisibility(View.VISIBLE);
-          viewHolder.mPictureCopyright.setVisibility(View.VISIBLE);
+          viewHolder.mLayout.setTag(programID);
+          viewHolder.mLayout.setOnClickListener(mOnCliickListener);
         }
         else {
           viewHolder.mPicture.setVisibility(View.GONE);
           viewHolder.mPictureCopyright.setVisibility(View.GONE);
         }
         
-        viewHolder.mLayout.setTag(programID);
-        viewHolder.mLayout.setOnClickListener(mOnCliickListener);
-      }
-      else {
-        viewHolder.mPicture.setVisibility(View.GONE);
-        viewHolder.mPictureCopyright.setVisibility(View.GONE);
-      }
-      
-      if(showGenre && genre != null && genre.trim().length() > 0) {
-        viewHolder.mGenreLabel.setVisibility(View.VISIBLE);
-        viewHolder.mGenreLabel.setText(genre);
-      }
-      else {
-        viewHolder.mGenreLabel.setVisibility(View.GONE);
-      }
-      
-      if(showEpisode && episode != null && episode.trim().length() > 0) {
-        viewHolder.mEpisodeLabel.setVisibility(View.VISIBLE);
-        viewHolder.mEpisodeLabel.setText(episode);
-      }
-      else {
-        viewHolder.mEpisodeLabel.setVisibility(View.GONE);
-      }
-      
-      if(showInfo && category != null && category.trim().length() > 0) {
-        viewHolder.mInfoLabel.setVisibility(View.VISIBLE);
-        viewHolder.mInfoLabel.setText(category);
-      }
-      else {
-        viewHolder.mInfoLabel.setVisibility(View.GONE);
-      }
-      
-      if(endTime <= System.currentTimeMillis()) {
-        viewHolder.setColor(SettingConstants.EXPIRED_COLOR);
-      }
-      else {
-        viewHolder.setColor(DEFAULT_TEXT_COLOR);
+        if(showGenre && genre != null && genre.trim().length() > 0) {
+          viewHolder.mGenreLabel.setVisibility(View.VISIBLE);
+          viewHolder.mGenreLabel.setText(genre);
+        }
+        else {
+          viewHolder.mGenreLabel.setVisibility(View.GONE);
+        }
+        
+        if(showEpisode && episode != null && episode.trim().length() > 0) {
+          viewHolder.mEpisodeLabel.setVisibility(View.VISIBLE);
+          viewHolder.mEpisodeLabel.setText(episode);
+        }
+        else {
+          viewHolder.mEpisodeLabel.setVisibility(View.GONE);
+        }
+        
+        if(showInfo && category != null && category.trim().length() > 0) {
+          viewHolder.mInfoLabel.setVisibility(View.VISIBLE);
+          viewHolder.mInfoLabel.setText(category);
+        }
+        else {
+          viewHolder.mInfoLabel.setVisibility(View.GONE);
+        }
+        
+        if(endTime <= System.currentTimeMillis()) {
+          viewHolder.setColor(SettingConstants.EXPIRED_COLOR);
+        }
+        else {
+          viewHolder.setColor(DEFAULT_TEXT_COLOR);
+        }
       }
       
+      final String markingsValue = mMarkingsMap.get(programID);
+      
+      if(startTime <= System.currentTimeMillis() || (markingsValue != null && markingsValue.trim().length() > 0)) {
+        final long startTime1 = startTime;
+        final long endTime1 = endTime;
+        final View layout1 = viewHolder.mLayout;
+        
+        new Thread() {
+          public void run() {
+            UiUtils.handleMarkings(getActivity(), null, startTime1, endTime1, layout1, markingsValue, handler);
+          }
+        }.start();
+      }
+      else {
+        viewHolder.mLayout.setBackgroundDrawable(getActivity().getResources().getDrawable(android.R.drawable.list_selector_background));
+      }
+      /*
       final long startTime1 = startTime;
       final long endTime1 = endTime;
       final View layout1 = convertView;
@@ -707,7 +835,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         public void run() {
           UiUtils.handleMarkings(getActivity(), null, startTime1, endTime1, layout1, markingValue1, handler);
         }
-      }.start();
+      }.start();*/
     }
     
     return convertView;
@@ -726,6 +854,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     mLogoMap = new SparseArray<BitmapDrawable>();
     mTimeRangeID = -1;
+    
+    mMarkingsMap = new LongSparseArray<String>();
     
     mOnCliickListener = new View.OnClickListener() {
       @Override
@@ -782,6 +912,9 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     }
     if(mRefreshReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mRefreshReceiver);
+    }
+    if(mMarkingChangeReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMarkingChangeReceiver);
     }
     
     mKeepRunning = false;
@@ -876,9 +1009,14 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
 
     String sort = TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC";
     
-    
     String where = " ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " <= " + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + (mCurrentTime - (60000 * 60 * 12)) + " ) ";
-    where += " OR ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " < " + (mCurrentTime + (60000 * 60 * 12)) + " ) ";
+    
+    if(mWhereClauseTime == -1) {
+      where = " ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " < " + (mCurrentTime + (60000 * 60 * 12)) + " ) ";
+    }
+    else {
+      where += " OR ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " < " + (mCurrentTime + (60000 * 60 * 12)) + " ) ";
+    }
     
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " COLLATE NOCASE, " + sort);
     
@@ -898,7 +1036,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     public String mPreviousGenre;
     public String mPreviousCategory;
     public String mPreviousPictureCopyright;
-    public String mPreviousMarkingValue;
     public byte[] mPreviousPicture;
 
     public int mNowPosition;
@@ -910,7 +1047,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     public String mNowGenre;
     public String mNowCategory;
     public String mNowPictureCopyright;
-    public String mNowMarkingValue;
     public byte[] mNowPicture;
     
     public int mNextPosition;
@@ -922,7 +1058,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     public String mNextGenre;
     public String mNextCategory;
     public String mNextPictureCopyright;
-    public String mNextMarkingValue;
     public byte[] mNextPicture;
 
     public boolean mIsComplete;
@@ -935,15 +1070,11 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   @Override
   public synchronized void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, final Cursor c) {
     SparseArray<ChannelProgramBlock> channelProgramMap = new SparseArray<ChannelProgramBlock>();
+    SparseArray<ChannelProgramBlock> currentProgramMap = new SparseArray<ChannelProgramBlock>();
     
     mProgramBlockList.clear();
     mCurrentViewList.clear();
-    
-    if(mCurrentCursor != null && !mCurrentCursor.isClosed()) {
-      mCurrentCursor.close();
-    }
-    
-    mCurrentCursor = c;
+    mMarkingsMap.clear();
     
     mProgramIDColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
     mStartTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
@@ -1037,9 +1168,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
             block.mPreviousPicture = picture;
             block.mPreviousPictureCopyright = pictureCopyright;
             block.mPreviousCategory = category;
-            block.mPreviousMarkingValue = markingValue;
           }
-          else {
+          else if(startTime <= mCurrentTime && mCurrentTime < endTime) {
             block.mNowPosition = c.getPosition();
             block.mNowProgramID = programID;
             block.mNowStart = startTime;
@@ -1050,9 +1180,11 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
             block.mNowPicture = picture;
             block.mNowPictureCopyright = pictureCopyright;
             block.mNowCategory = category;
-            block.mNowMarkingValue = markingValue;
             
-            mCurrentViewList.add(block);
+            if(currentProgramMap.indexOfKey(channelID) <= 0) { 
+              currentProgramMap.put(channelID, block);
+              mCurrentViewList.add(block);
+            }
           }
         }
         else {
@@ -1066,13 +1198,16 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           block.mNextPicture = picture;
           block.mNextPictureCopyright = pictureCopyright;
           block.mNextCategory = category;
-          block.mNextMarkingValue = markingValue;
           
           block.mIsComplete = true;
         }
+        
+        mMarkingsMap.put(programID, markingValue);
       }
     }
     
+    c.close();
+    currentProgramMap.clear();
     channelProgramMap.clear();
     runningProgramListAdapter.notifyDataSetChanged();
   }
@@ -1090,13 +1225,14 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     if(test != null) {
       mContextProgramID = test.longValue();
+      mContextView = v;
       UiUtils.createContextMenu(getActivity(), menu, mContextProgramID);
     }
   }
   
   @Override
   public boolean onContextItemSelected(MenuItem item) {
-    UiUtils.handleContextMenuSelection(getActivity(), item, mContextProgramID, null);
+    UiUtils.handleContextMenuSelection(getActivity(), item, mContextProgramID, mContextView);
     
     return false;
   }

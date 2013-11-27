@@ -56,13 +56,13 @@ public class ProgramPanel extends View {
   private static int SUPER_SMALL_FONT_DESCEND;
   private static int SUPER_SMALL_MAX_FONT_HEIGHT;
   
-  private static final TextPaint NOT_EXPIRED_TITLE_PAINT = new TextPaint();
-  private static final TextPaint EXPIRED_TITLE_PAINT = new TextPaint();
-  private static final TextPaint NOT_EXPIRED_GENRE_EPISODE_PAINT = new TextPaint();
-  private static final TextPaint EXPIRED_GENRE_EPISODE_PAINT = new TextPaint();
+  private static final TextPaint NOT_EXPIRED_TITLE_PAINT = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
+  private static final TextPaint EXPIRED_TITLE_PAINT = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
+  private static final TextPaint NOT_EXPIRED_GENRE_EPISODE_PAINT = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
+  private static final TextPaint EXPIRED_GENRE_EPISODE_PAINT = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
 
-  private static final TextPaint NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT = new TextPaint();
-  private static final TextPaint EXPIRED_PICTURE_COPYRIGHT_PAINT = new TextPaint();
+  private static final TextPaint NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
+  private static final TextPaint EXPIRED_PICTURE_COPYRIGHT_PAINT = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
   private boolean mIsExpired;
   
   private int mChannelID;
@@ -103,7 +103,9 @@ public class ProgramPanel extends View {
       mTimeFormat = DateFormat.getTimeFormat(context);
       String value = ((SimpleDateFormat)mTimeFormat).toLocalizedPattern();
       
-      value = value.charAt(0) + value;
+      if((value.charAt(0) == 'H' && value.charAt(1) != 'H') || (value.charAt(0) == 'h' && value.charAt(1) != 'h')) {
+        value = value.charAt(0) + value;
+      }
       
       mTimeFormat = new SimpleDateFormat(value, Locale.getDefault());
       
