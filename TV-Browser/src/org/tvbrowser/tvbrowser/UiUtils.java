@@ -59,6 +59,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -413,7 +414,7 @@ public class UiUtils {
   @SuppressLint("NewApi")
   public static boolean handleContextMenuSelection(Activity activity, MenuItem item, long programID, View menuView) {
     Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
-    
+    Log.d("info4", " menuView " + menuView);
     String current = null;
     String title = null;
     String episode = null;
@@ -452,15 +453,6 @@ public class UiUtils {
       }
       else {
         values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current + ";"+SettingConstants.MARK_VALUE);
-      }
-      
-      if(menuView != null) {
-        info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, null, null,null);
-        info.moveToFirst();
-        
-        UiUtils.handleMarkings(activity, info, menuView, current);
-        
-        info.close();   
       }
     }
     else if(item.getItemId() == R.id.prog_unmark_item){
@@ -558,6 +550,16 @@ public class UiUtils {
       }
       
       activity.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), values, null, null);
+      
+      /*if(menuView != null) {
+        info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, null, null,null);
+        info.moveToFirst();
+        
+        Log.d("info","hier");
+        UiUtils.handleMarkings(activity, info, menuView, current);
+        
+        info.close();   
+      }*/
       
       Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
       intent.putExtra(SettingConstants.MARKINGS_ID, programID);
