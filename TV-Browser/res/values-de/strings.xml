@@ -204,4 +204,20 @@
 	<string name="running_layout_title">Ansicht</string>
 	<string name="pref_running_next_day">Abgelaufende Zeiten für morgen</string>
 	<string name="pref_running_next_day_summary">Bei Zeiten die seit 3 Stunden abgelaufen sind, die Sendungen von morgen anzeigen.</string>
+	<string name="pref_debug">Debugging</string>
+	<string name="pref_write_log">Log-Datei schreiben</string>
+	<string name="pref_write_log_summary">Eine Log-Datei mit Informationen über das Datenupdate wird erstellt. Diese wird größer bis sie zu Beginn eines Datenupdates 5MB erreicht oder manuell gelöscht wird.</string>
+	<string name="pref_debug_summary">Einstellungen Beta-Tester</string>
+	<string name="action_send_log">Log-Datei verschicken</string>
+	<string name="action_delete_log">Log-Datei löschen</string>
+	<string name="no_log_file_title">Keine Log-Datei</string>
+	<string name="log_file_delete_title">Log-Datei gelöscht.</string>
+	<string name="no_log_file_delete_message">Keine Log-Datei zum Löschen vorhanden.</string>
+	<string name="log_file_delete_message">Log-Datei erfolgreich gelöscht.</string>
+	<string name="log_file_no_delete_title">Log-Datei nicht gelöscht</string>
+	<string name="log_file_no_delete_message">Log-Datei konnte nicht gelöscht werden.\nSie wird spätestens beim Beenden der App gelöscht werden.</string>
+	<string name="no_log_file_message">Keine Log-Datei zum Versenden gefunden.</string>
+	<string name="log_send_mail">E-Mail verschicken</string>
+	<string name="log_send_mail_subject">Log-Datei für TV-Browser für Android</string>
+	<string name="log_send_mail_content">Der Anhang enthält die Log-Datei für TV-Browser für Android vom </string>
 </resources>

@@ -20,9 +20,12 @@ import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.io.PushbackInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.zip.GZIPInputStream;
 
 import android.content.res.Resources;
 
@@ -144,5 +147,28 @@ public class IOUtils {
         fout.close();
       }
     }
+  }
+  
+  /*
+   * Copied from http://stackoverflow.com/questions/4818468/how-to-check-if-inputstream-is-gzipped and changed.
+   * No license given on page.
+   */
+  public static InputStream decompressStream(InputStream input) throws IOException {
+    PushbackInputStream pb = new PushbackInputStream( input, 2 ); //we need a pushbackstream to look ahead
+    
+    byte [] signature = new byte[2];
+    int read = pb.read( signature ); //read the signature
+    
+    if(read == 2) {
+      pb.unread( signature ); //push back the signature to the stream
+    }
+    else if(read == 1) {
+      pb.unread(signature[0]);
+    }
+    
+    if(signature[ 0 ] == (byte) (GZIPInputStream.GZIP_MAGIC & 0xFF) && signature[ 1 ] == (byte) (GZIPInputStream.GZIP_MAGIC >> 8) ) //check if matches standard gzip maguc number
+      return new GZIPInputStream( pb );
+    else 
+      return pb;
   }
 }
