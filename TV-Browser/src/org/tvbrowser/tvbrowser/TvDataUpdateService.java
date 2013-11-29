@@ -26,7 +26,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PushbackInputStream;
+import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
@@ -48,6 +50,7 @@ import java.util.zip.ZipFile;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.settings.TvbPreferenceFragment;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
@@ -91,7 +94,20 @@ public class TvDataUpdateService extends Service {
   private Hashtable<String, Hashtable<Byte, Long>> mCurrentData;
   
   private ArrayList<String> mSyncFavorites;
-    
+  
+  RandomAccessFile log;
+  
+  private static final String GROUP_FILE = "groups.txt";
+  
+  private static final String DEFAULT_GROUPS_URL = "http://www.tvbrowser.org/listings/";
+  
+  private static final String[] DEFAULT_GROUPS_URL_MIRRORS = {
+      "http://tvbrowser.dyndns.tv/",
+      "http://www.gamers-fusion.de/projects/tvbrowser.org/",
+      "http://tvbrowser1.sam-schwedler.de/",
+      "http://tvbrowser.nicht-langweilig.de/data/"
+  };
+  
   @Override
   public void onCreate() {
     super.onCreate();
@@ -120,9 +136,28 @@ public class TvDataUpdateService extends Service {
       public void run() {
         setPriority(MIN_PRIORITY);
         
+        if(PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getBoolean(getResources().getString(R.string.WRITE_LOG), false)) {
+          try {
+            final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
+            
+            File logFile = new File(path,"log.txt");
+            
+            log = new RandomAccessFile(logFile, "rw");
+            
+            if(log.length() < (5 * 1024 * 1024)) {
+              log.seek(log.length());
+            }
+            else {
+              log.getChannel().truncate(0);
+            }
+          }catch(IOException e) {}
+        }
+        
         if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
           mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), 2);
-                    
+          
+
+          
           updateTvData();
         }
         else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
@@ -230,14 +265,45 @@ public class TvDataUpdateService extends Service {
     
     new Thread() {
       public void run() {
-        File groups = new File(path,"groups.txt");
+        File groups = new File(path,GROUP_FILE);
         
-        try {
-          IOUtils.saveUrl(groups.getAbsolutePath(), "http://www.tvbrowser.org/listings/groups.txt");
-          updateGroups(groups, path);
-        } catch (Exception e) {}
+        String mirror = getGroupFileMirror();
+    
+        if(mirror != null) {
+          try {
+            IOUtils.saveUrl(groups.getAbsolutePath(), mirror);
+            updateGroups(groups, path);
+          } catch (Exception e) {}
+        }
       }
     }.start();
+  }
+  
+  private String getGroupFileMirror() {
+    ArrayList<String> groupUrlList = new ArrayList<String>();
+    
+    groupUrlList.add(DEFAULT_GROUPS_URL + GROUP_FILE);
+    
+    for(String url : DEFAULT_GROUPS_URL_MIRRORS) {
+      groupUrlList.add(url + GROUP_FILE);
+    }
+    
+    String choosenMirror = null;
+    
+    while(choosenMirror == null && !groupUrlList.isEmpty()) {
+      int index = (int)(Math.random() * groupUrlList.size());
+      
+      String test = groupUrlList.get(index);
+      
+      if(isConnectedToServer(test, 5000)) {
+        choosenMirror = test;
+      }
+      else {
+        groupUrlList.remove(index);
+      }
+    }
+    
+    return choosenMirror;
   }
   
   private final class ChangeableFinalBoolean {
@@ -272,8 +338,10 @@ public class TvDataUpdateService extends Service {
         ContentResolver cr = getContentResolver();
   
         String line = null;
+        doLog("Read groups from: " + groups.getName());
         
         while((line = in.readLine()) != null) {
+          doLog("GROUP LINE: " + line);
           String[] parts = line.split(";");
           
           // Construct a where clause to make sure we don't already have ths group in the provider.
@@ -296,20 +364,23 @@ public class TvDataUpdateService extends Service {
             builder.append(";");
             builder.append(parts[i]);
           }
-          
+          doLog("Mirrors for group '" + parts[0] + "': " + builder.toString());
           values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, builder.toString());
           
           if(query == null || query.getCount() == 0) {
+            doLog("Insert group '" + parts[0] + "' into database.");
             // The group is not already known, so insert it
             Uri insert = cr.insert(TvBrowserContentProvider.CONTENT_URI_GROUPS, values);
             
             GroupInfo test = loadChannelForGroup(cr.query(insert, null, null, null, null));
             
             if(test != null) {
+              doLog("Load channels for group '" + parts[0] + "' to " + test.getFileName());
               channelMirrors.add(test);
             }
           }
           else {
+            doLog("Update group '" + parts[0] + "' in database.");
             cr.update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, w, null);
             
             Cursor groupTest = cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, w, null, null);
@@ -317,6 +388,7 @@ public class TvDataUpdateService extends Service {
             GroupInfo test = loadChannelForGroup(groupTest);
             
             if(test != null) {
+              doLog("Load channels for group '" + parts[0] + "' to " + test.getFileName());
               channelMirrors.add(test);
             }
             
@@ -348,7 +420,11 @@ public class TvDataUpdateService extends Service {
                   groupSucces = addChannels(group,info);
                   
                   if(groupSucces) {
+                    doLog("Load channels for group '" + info.getUniqueGroupID() + "' successfull from: " + url);
                     break;
+                  }
+                  else {
+                    doLog("Not successfull load channels for group '" + info.getUniqueGroupID() + "' from: " + url);
                   }
                 } catch (Exception e) {}
               }
@@ -463,7 +539,7 @@ public class TvDataUpdateService extends Service {
     
     if(group.isFile()) {
       try {
-        BufferedReader read = new BufferedReader(new InputStreamReader(decompressStream(new FileInputStream(group)),"ISO-8859-1"));
+        BufferedReader read = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(new FileInputStream(group)),"ISO-8859-1"));
         
         String line = null;
         
@@ -607,7 +683,7 @@ public class TvDataUpdateService extends Service {
         
         connection.setRequestProperty ("Authorization", basicAuth);
         
-        BufferedReader read = new BufferedReader(new InputStreamReader(decompressStream(connection.getInputStream()),"UTF-8"));
+        BufferedReader read = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(connection.getInputStream()),"UTF-8"));
         
         String dateValue = read.readLine();
         
@@ -760,6 +836,12 @@ public class TvDataUpdateService extends Service {
     
     Log.d("info1", "Unsuccessful downloads: " + String.valueOf(mUnsuccessfulDownloads));
     
+    if(log != null) {
+      try {
+        log.close();
+      }catch(IOException e) {}
+    }
+    
     stopSelf();
   }
   
@@ -776,7 +858,65 @@ public class TvDataUpdateService extends Service {
       Favorite.updateFavoriteMarking(getApplicationContext(), getContentResolver(), fav);
     }
   }
+  
+  public void doLog(String value) {
+    try {
+      if(log != null) {
+        log.writeBytes(value + "\n");
+      }
+    }catch(IOException e){}
+
+  }
+  
+  private String reloadMirrors(String groupID, File path) {
+    String groupTxt = getGroupFileMirror();
+    String mirrorLine = "";
     
+    if(groupTxt != null) {
+      File groups = new File(path,GROUP_FILE);
+      
+      try {
+        IOUtils.saveUrl(groups.getAbsolutePath(), groupTxt);
+        
+        if(groups.isFile()) {
+          BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(groups)));
+          
+          String line = null;
+          
+          while((line = in.readLine()) != null && mirrorLine.trim().length() == 0) {
+            if(line.startsWith(groupID + ";")) {
+              String[] parts = line.split(";");
+              
+              StringBuilder builder = new StringBuilder(parts[4]);
+              
+              for(int i = 5; i < parts.length; i++) {
+                builder.append(";");
+                builder.append(parts[i]);
+              }
+              
+              mirrorLine = builder.toString();
+            }
+          }
+          
+          in.close();
+        }
+        
+      } catch (MalformedURLException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } catch (IOException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+      
+      if(!groups.delete()) {
+        groups.deleteOnExit();
+      }
+    }
+    
+    return mirrorLine;
+  }
+  
   private void updateTvData() {
     if(!updateRunning) {
       mUnsuccessfulDownloads = 0;
@@ -877,22 +1017,35 @@ public class TvDataUpdateService extends Service {
           int groupKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
           int channelKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
           String timeZone = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE));
-          
+          doLog("Load info for channel '" + channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
           if(lastGroup != groupKey) {
             Cursor group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
-            
+            doLog("Cursor size for groupKey '" + group.getCount());
             if(group.getCount() > 0) {
               group.moveToFirst();
               
               groupId = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
               String mirrorURL = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS));
+
+              doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
+              doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
+              
+              if(!mirrorURL.contains("http://") && !mirrorURL.contains("https://")) {
+                doLog("RELOAD MIRRORS FOR '" + groupId);
+                mirrorURL = reloadMirrors(groupId, path);
+                
+                doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
+                doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
+              }
               
               Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL);
               
-              mirror = Mirror.getMirrorToUseForGroup(mirrors, groupId);                
-              
+              mirror = Mirror.getMirrorToUseForGroup(mirrors, groupId, this);                
+              doLog("Choosen mirror for group '" + groupId + "': " + mirror);
               if(mirror != null) {
+                doLog("Donwload summary from: " + mirror.getUrl() + groupId + "_summary.gz");
                 summary = readSummary(mirror.getUrl() + groupId + "_summary.gz");
+                doLog("To download: " + mirror.getUrl() + groupId + "_mirrorlist.gz");
                 downloadMirrorList.add(mirror.getUrl() + groupId + "_mirrorlist.gz");
               }
             }
@@ -900,26 +1053,35 @@ public class TvDataUpdateService extends Service {
             group.close();
           }
           
+          doLog("Summary downloaded: " + (summary != null));
+          
           if(summary != null) {
             String channelID = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
-            
+            doLog("Load summary info for: " + channelID);
             ChannelFrame frame = summary.getChannelFrame(channelID);
-            
+            doLog("Summary frame with ID '" + channelID + "' read: " + (frame != null));
             if(frame != null) {
               Calendar startDate = summary.getStartDate();
               
+              Calendar testDate = Calendar.getInstance();
+              testDate.setTimeInMillis(startDate.getTimeInMillis());
+              testDate.set(Calendar.HOUR_OF_DAY, 0);
+              
+              doLog("Start date of data for frame with ID '" + channelID + "': " + startDate.getTime());
               Calendar now = Calendar.getInstance();
               now.add(Calendar.DAY_OF_MONTH, -2);
 
               Calendar to = Calendar.getInstance();
               to.add(Calendar.DAY_OF_MONTH, mDaysToLoad);
+              doLog("End date of data to download for frame with ID '" + channelID + "': " + to.getTime());
               
               for(int i = 0; i < frame.getDayCount(); i++) {
                 startDate.add(Calendar.DAY_OF_YEAR, 1);
+                testDate.add(Calendar.DAY_OF_YEAR, 1);
                 
-                if(startDate.compareTo(now) >= 0 && startDate.compareTo(to) <= 0) {
+                if(testDate.compareTo(now) >= 0 && testDate.compareTo(to) <= 0) {
                   int[] version = frame.getVersionForDay(i);
-                  
+                  doLog("Version found for frame with ID '" + channelID + "': " + (version != null));
                   if(version != null) {
                     long daysSince1970 = startDate.getTimeInMillis() / 24 / 60 / 60000;
                     
@@ -937,7 +1099,7 @@ public class TvDataUpdateService extends Service {
                       if(versions.getCount() > 0) {
                         testVersion = versions.getInt(versions.getColumnIndex(versionColumns[level]));
                       }
-                      
+                      doLog("Currently known version for '" + channelID + "' and days since 1970 '" + daysSince1970 + "': " + testVersion);
                       if(version.length > level && version[level] > testVersion) {
                         String month = String.valueOf(startDate.get(Calendar.MONTH)+1);
                         String day = String.valueOf(startDate.get(Calendar.DAY_OF_MONTH));
@@ -949,7 +1111,7 @@ public class TvDataUpdateService extends Service {
                         if(day.length() == 1) {
                           day = "0" + day;
                         }
-                        
+                        doLog("Version for day unknown for '" + channelID + "'");
                         StringBuilder dateFile = new StringBuilder();
                         dateFile.append(mirror.getUrl());
                         dateFile.append(startDate.get(Calendar.YEAR));
@@ -964,6 +1126,8 @@ public class TvDataUpdateService extends Service {
                         dateFile.append("_");
                         dateFile.append(SettingConstants.LEVEL_NAMES[level]);
                         dateFile.append("_full.prog.gz");
+                        
+                        doLog("Download data for '" + channelID + "' from " + dateFile.toString() + " for level: " + level);
                         
                         if(level == 0) {
                           baseList.add(new ChannelUpdate(dateFile.toString(), channelKey, timeZone, startDate.getTimeInMillis()));
@@ -995,7 +1159,7 @@ public class TvDataUpdateService extends Service {
       
       
       final int downloadCount = downloadMirrorList.size() + baseList.size() + moreList.size() + pictureList.size();
-      
+      doLog("Data files to load " + downloadCount);
       mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
       
       mBuilder.setProgress(downloadCount, 0, false);
@@ -1027,9 +1191,10 @@ public class TvDataUpdateService extends Service {
         mThreadPool.execute(new Thread() {
           public void run() {
             File updateFile = new File(path,update.getUrl().substring(update.getUrl().lastIndexOf("/")+1));
-            
+            doLog("Download from: " + update.getUrl() + " to: " +  updateFile.getAbsolutePath());
             try {
               IOUtils.saveUrl(updateFile.getAbsolutePath(), update.getUrl());
+              doLog("Data file saved from: " + update.getUrl() + " to: " +  updateFile.getAbsolutePath() + ": " + updateFile.isFile());
               updateData(updateFile, update, true);
               mCurrentDownloadCount++;
               mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
@@ -1147,27 +1312,34 @@ public class TvDataUpdateService extends Service {
   private void updateMirror(File mirrorFile) {
     if(mirrorFile.isFile()) {
       try {
-        BufferedReader in = new BufferedReader(new InputStreamReader(decompressStream(new FileInputStream(mirrorFile))));
+        BufferedReader in = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(new FileInputStream(mirrorFile)),"ISO-8859-1"));
         
         StringBuilder mirrors = new StringBuilder();
         
         String line = null;
         
+        doLog("Update mirrors from: " + mirrorFile.getName());
+        
         while((line = in.readLine()) != null) {
           line = line.replace(";", "#");
           mirrors.append(line);
           mirrors.append(";");
+          doLog("Mirror line in file :'" + mirrorFile.getName() + "': " + line);
         }
         
         if(mirrors.length() > 0) {
           mirrors.deleteCharAt(mirrors.length()-1);
         }
         
-        ContentValues values = new ContentValues();
+        doLog("Complete mirrors for database for file '" + mirrorFile.getName() + "' " + mirrors.toString());
         
-        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, mirrors.toString());
-        
-        getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + mirrorFile.getName().substring(0, mirrorFile.getName().lastIndexOf("_"))+"\"", null);
+        if(mirrors.length() > 0 && (mirrors.indexOf("http://") >= 0 || mirrors.indexOf("https://") >= 0)) {
+          ContentValues values = new ContentValues();
+          
+          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, mirrors.toString());
+          
+          getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + mirrorFile.getName().substring(0, mirrorFile.getName().lastIndexOf("_"))+"\"", null);
+        }
       } catch (FileNotFoundException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -1198,7 +1370,7 @@ public class TvDataUpdateService extends Service {
         int responseCode = httpConnection.getResponseCode();
         
         if(responseCode == HttpURLConnection.HTTP_OK) {
-          BufferedInputStream in = new BufferedInputStream(decompressStream(httpConnection.getInputStream()));
+          BufferedInputStream in = new BufferedInputStream(IOUtils.decompressStream(httpConnection.getInputStream()));
           
           int version = in.read();
           
@@ -1370,39 +1542,17 @@ public class TvDataUpdateService extends Service {
     return frameId;
   }
   
-  /*
-   * Copied from http://stackoverflow.com/questions/4818468/how-to-check-if-inputstream-is-gzipped and changed.
-   * No license given on page.
-   */
-  private static InputStream decompressStream(InputStream input) throws IOException {
-    PushbackInputStream pb = new PushbackInputStream( input, 2 ); //we need a pushbackstream to look ahead
-    
-    byte [] signature = new byte[2];
-    int read = pb.read( signature ); //read the signature
-    
-    if(read == 2) {
-      pb.unread( signature ); //push back the signature to the stream
-    }
-    else if(read == 1) {
-      pb.unread(signature[0]);
-    }
-    
-    if(signature[ 0 ] == (byte) (GZIPInputStream.GZIP_MAGIC & 0xFF) && signature[ 1 ] == (byte) (GZIPInputStream.GZIP_MAGIC >> 8) ) //check if matches standard gzip maguc number
-      return new GZIPInputStream( pb );
-    else 
-      return pb;
-  }
-  
   private void updateData(File dataFile, ChannelUpdate update, boolean baseLevel) {
     ArrayList<ContentValues> insertValueList = new ArrayList<ContentValues>();
     ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
     
     if(dataFile.isFile()) {
+      doLog("Read data from file: " +dataFile.getAbsolutePath());
       try {
         BufferedInputStream in = null;
         
         try {
-          in = new BufferedInputStream(decompressStream(new FileInputStream(dataFile)));
+          in = new BufferedInputStream(IOUtils.decompressStream(new FileInputStream(dataFile)));
         }catch(IOException ee) {
          
         }
@@ -1411,7 +1561,8 @@ public class TvDataUpdateService extends Service {
         byte dataVersion = (byte)in.read();
         
         int frameCount = in.read();
-        
+        Log.d("info5","Frame count of data file: '" +dataFile.getName() + "': " + frameCount + " " + new Date(update.getDate()));
+        doLog("Frame count of data file: '" +dataFile.getName() + "': " + frameCount);
         ArrayList<Byte> missingFrameIDs = null;
                 
         String key = update.getChannelID() + "_" + update.getDate();
@@ -1461,6 +1612,8 @@ public class TvDataUpdateService extends Service {
             }
           }
         }
+        
+        Log.d("info5", "Size of insertValueList for '" + dataFile.getName() + "' " + insertValueList.size());
         
         if(baseLevel && !insertValueList.isEmpty()) {
           Collections.sort(insertValueList, new Comparator<ContentValues>() {
@@ -1553,6 +1706,15 @@ public class TvDataUpdateService extends Service {
         
         in.close();
       } catch (Exception e) {
+        StackTraceElement[] elements = e.getStackTrace();
+        
+        StringBuilder message = new StringBuilder();
+        
+        for(StackTraceElement el : elements) {
+          message.append(el.getFileName()).append(" ").append(el.getLineNumber()).append(" ").append(el.getClassName()).append(" ").append(el.getMethodName()).append("\n");
+        }
+        
+        doLog("Error read data file: '" +dataFile.getAbsolutePath() + "': " + e.getMessage() + " " + message.toString());
         Log.d("info5", "error data update", e);
       }
       

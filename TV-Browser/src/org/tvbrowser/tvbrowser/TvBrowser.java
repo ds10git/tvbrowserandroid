@@ -17,6 +17,7 @@
 package org.tvbrowser.tvbrowser;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -25,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Timer;
@@ -58,8 +60,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Environment;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
@@ -123,6 +127,8 @@ public class TvBrowser extends FragmentActivity implements
   private Timer mTimer;
   
   private MenuItem mUpdateItem;
+  private MenuItem mSendLogItem;
+  private MenuItem mDeleteLogItem;
   
   private static final Calendar mRundate;
   
@@ -1587,7 +1593,9 @@ public class TvBrowser extends FragmentActivity implements
   private void updateFromPreferences() {
     LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(SettingConstants.CHANNEL_UPDATE_DONE));
     
-    boolean programTableActivated = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getResources().getString(R.string.PROG_TABLE_ACTIVATED), true);
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    
+    boolean programTableActivated = pref.getBoolean(getResources().getString(R.string.PROG_TABLE_ACTIVATED), true);
     Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
     
     if(!programTableActivated && test instanceof ProgramTableFragment) {
@@ -1606,6 +1614,9 @@ public class TvBrowser extends FragmentActivity implements
         ((ProgramTableFragment)test).updateChannelBar();
       }
     }
+    
+    mSendLogItem.setVisible(pref.getBoolean(getResources().getString(R.string.WRITE_LOG), false));
+    mDeleteLogItem.setVisible(mSendLogItem.isVisible());
   }
   
   private void showAbout() {
@@ -1649,6 +1660,70 @@ public class TvBrowser extends FragmentActivity implements
         showUserSetting(false);
     }
       break;
+      case R.id.action_delete_log:
+        {
+          final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
+          
+          File logFile = new File(path,"log.txt");
+                   
+          AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+          
+          if(logFile.isFile()) {  
+            if(logFile.delete()) {
+              builder.setTitle(R.string.log_file_delete_title);
+              builder.setMessage(R.string.log_file_delete_message);
+            }
+            else {
+              builder.setTitle(R.string.log_file_no_delete_title);
+              builder.setMessage(R.string.log_file_no_delete_message);
+              logFile.deleteOnExit();
+            }
+          }
+          else {
+            builder.setTitle(R.string.no_log_file_title);
+            builder.setMessage(R.string.no_log_file_delete_message);
+          }
+          
+
+          
+          builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface arg0, int arg1) {}
+          });
+          
+          builder.show();
+        }
+        break;
+      case R.id.action_send_log:
+        {
+          final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
+          
+          File logFile = new File(path,"log.txt");
+
+          if(logFile.isFile()) {
+            Intent sendMail = new Intent(Intent.ACTION_SEND);
+            
+            sendMail.putExtra(Intent.EXTRA_EMAIL, new String[]{"android@tvbrowser.org"});
+            sendMail.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.log_send_mail_subject));
+            sendMail.putExtra(Intent.EXTRA_TEXT, getResources().getString(R.string.log_send_mail_content) + " " + new Date().toString());
+            sendMail.setType("text/rtf");
+            sendMail.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + logFile.getAbsolutePath()));
+            startActivity(Intent.createChooser(sendMail, getResources().getString(R.string.log_send_mail)));
+          }
+          else {
+            AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+            
+            builder.setTitle(R.string.no_log_file_title);
+            builder.setMessage(R.string.no_log_file_message);
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface arg0, int arg1) {}
+            });
+            
+            builder.show();
+          }
+        }
+        break;
       case R.id.action_basic_preferences:
         Intent startPref = new Intent(this, TvbPreferencesActivity.class);
         startActivityForResult(startPref, SHOW_PREFERENCES);
@@ -1687,6 +1762,12 @@ public class TvBrowser extends FragmentActivity implements
             searchManager.getSearchableInfo(getComponentName()));
     
     mUpdateItem = menu.findItem(R.id.action_update);
+    
+    mSendLogItem = menu.findItem(R.id.action_send_log);
+    mDeleteLogItem = menu.findItem(R.id.action_delete_log);
+    
+    mSendLogItem.setVisible(PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getBoolean(getResources().getString(R.string.WRITE_LOG), false));
+    mDeleteLogItem.setVisible(mSendLogItem.isVisible());
     
     return true;
   }

@@ -78,7 +78,7 @@ public class DummySectionFragment extends Fragment {
           SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
           
           if(running != null) {
-            if(pref.getString(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT), "0").equals("0")) {
+            if(pref.getString(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT), SettingConstants.DEFAULT_RUNNING_PROGRAMS_LIST_LAYOUT).equals("0")) {
               timeBar.removeView(before);
               timeBar.removeView(after);
               
@@ -126,7 +126,7 @@ public class DummySectionFragment extends Fragment {
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
             now.setOnClickListener(listener);
             
-            if(pref.getString(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT), "0").equals("0")) {
+            if(pref.getString(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT), SettingConstants.DEFAULT_RUNNING_PROGRAMS_LIST_LAYOUT).equals("0")) {
               before.setOnClickListener(timeRange);
               after.setOnClickListener(timeRange);
                                       

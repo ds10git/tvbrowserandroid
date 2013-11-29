@@ -99,7 +99,7 @@ public class Mirror implements Comparable<Mirror> {
     return 0;
   }
   
-  public static Mirror getMirrorToUseForGroup(Mirror[] mirrors, String group) {
+  public static Mirror getMirrorToUseForGroup(Mirror[] mirrors, String group, TvDataUpdateService update) {
     ArrayList<Mirror> toChooseFrom = new ArrayList<Mirror>(Arrays.asList(mirrors));
     
     Mirror choosen = null;
@@ -112,16 +112,22 @@ public class Mirror implements Comparable<Mirror> {
       }
       
       int limit = new Random().nextInt(weightSum + 1);
-          
+      update.doLog("Mirror weight limit for group '" + group + "': " + limit);
       for(int i = toChooseFrom.size()-1; i >= 0; i--) {
         if(toChooseFrom.get(i).getWeight() >= limit) {
-          if(useMirror(toChooseFrom.get(i),group,5000)) {
+          update.doLog("Accepted weight for group '" + group + "': " + toChooseFrom.get(i).getWeight() + " URL: " + toChooseFrom.get(i).getUrl());
+          if(useMirror(toChooseFrom.get(i),group,5000,update)) {
+            update.doLog("Accepted miror for group '" + group + "': " + toChooseFrom.get(i).getUrl());
             choosen = toChooseFrom.get(i);
             break;
           }
           else {
+            update.doLog("NOT accepted miror for group '" + group + "': " + toChooseFrom.get(i).getUrl());
             toChooseFrom.remove(i);
           }
+        }
+        else {
+          update.doLog("NOT accepted miror for group (weigth to low) '" + group + "': " + toChooseFrom.get(i).getUrl());
         }
       }
     }
@@ -129,7 +135,7 @@ public class Mirror implements Comparable<Mirror> {
     return choosen;
   }
   
-  private static boolean useMirror(Mirror mirror, String group, int timeout) {
+  private static boolean useMirror(Mirror mirror, String group, int timeout, TvDataUpdateService update) {
     boolean success = false;
     
     try{
@@ -142,18 +148,27 @@ public class Mirror implements Comparable<Mirror> {
       
       HttpURLConnection httpConnection = (HttpURLConnection)connection;
       int responseCode = httpConnection.getResponseCode();
-      
+      update.doLog("HTTP-Response for group: '" + group + "' from URL: " + myUrl);
       if(responseCode == HttpURLConnection.HTTP_OK) {
         BufferedReader read = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
         String date = read.readLine();
         read.close();
         
         Date serverDate = DATE_FORMAT.parse(date);
-        
+        update.doLog("Date of data for: '" + group + "' from URL '" + myUrl + "' " + serverDate + " diff to now: " + (((System.currentTimeMillis() - serverDate.getTime()) / 1000 / 60 / 60 / 24)));
         // only if update date on server is  
         success = (((System.currentTimeMillis() - serverDate.getTime()) / 1000 / 60 / 60 / 24)) <= 3; 
       }
     } catch (Exception e) {
+      StackTraceElement[] elements = e.getStackTrace();
+      
+      StringBuilder message = new StringBuilder();
+      
+      for(StackTraceElement el : elements) {
+        message.append(el.getFileName()).append(" ").append(el.getLineNumber()).append(" ").append(el.getClassName()).append(" ").append(el.getMethodName()).append("\n");
+      }
+      
+      update.doLog("Exception for mirror check for '" + group + "' from URL: " + mirror.getUrl() + " ERROR: " + message.toString());
         // Handle your exceptions
       success = false;
     }

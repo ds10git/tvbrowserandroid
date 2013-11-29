@@ -30,4 +30,5 @@
     <string name="TIME_BUTTON_4">TIME_BUTTON_FOUR</string>
     <string name="TIME_BUTTON_5">TIME_BUTTON_FIVE</string>
     <string name="TIME_BUTTON_6">TIME_BUTTON_SIX</string>
+    <string name="WRITE_LOG">WRITE_LOG</string>
 </resources>
