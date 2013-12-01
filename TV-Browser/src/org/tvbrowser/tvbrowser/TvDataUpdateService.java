@@ -23,9 +23,7 @@ import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.PushbackInputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -45,12 +43,9 @@ import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.GZIPInputStream;
-import java.util.zip.ZipFile;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.settings.TvbPreferenceFragment;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
@@ -1044,7 +1039,7 @@ public class TvDataUpdateService extends Service {
               doLog("Choosen mirror for group '" + groupId + "': " + mirror);
               if(mirror != null) {
                 doLog("Donwload summary from: " + mirror.getUrl() + groupId + "_summary.gz");
-                summary = readSummary(mirror.getUrl() + groupId + "_summary.gz");
+                summary = readSummary(new File(path,groupId + "_summary.gz"), mirror.getUrl() + groupId + "_summary.gz");
                 doLog("To download: " + mirror.getUrl() + groupId + "_mirrorlist.gz");
                 downloadMirrorList.add(mirror.getUrl() + groupId + "_mirrorlist.gz");
               }
@@ -1354,70 +1349,63 @@ public class TvDataUpdateService extends Service {
     }
   }
   
-  private Summary readSummary(final String summaryurl) {
+  private Summary readSummary(final File path, final String summaryurl) {
     final Summary summary = new Summary();
-
-    URL url;
+    
     try {
-      url = new URL(summaryurl);
+      IOUtils.saveUrl(path.getAbsolutePath(), summaryurl);
       
-      URLConnection connection = url.openConnection();
-      connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
-      
-      HttpURLConnection httpConnection = (HttpURLConnection)connection;
-      
-      if(httpConnection != null) {
-        int responseCode = httpConnection.getResponseCode();
+      if(path.isFile()) {
+        BufferedInputStream in = new BufferedInputStream(IOUtils.decompressStream(new FileInputStream(path)));
         
-        if(responseCode == HttpURLConnection.HTTP_OK) {
-          BufferedInputStream in = new BufferedInputStream(IOUtils.decompressStream(httpConnection.getInputStream()));
+        int version = in.read();
+        
+        summary.setVersion(version);
+        
+        long daysSince1970 = ((in.read() & 0xFF) << 16 ) | ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
+        
+        summary.setStartDaySince1970(daysSince1970);
+        
+        summary.setLevels(in.read());
+        
+        int frameCount = (in.read() & 0xFF << 8) | (in.read() & 0xFF);
+        
+        for(int i = 0; i < frameCount; i++) {
+          int byteCount = in.read();
           
-          int version = in.read();
+          byte[] value = new byte[byteCount];
           
-          summary.setVersion(version);
+          in.read(value);
           
-          long daysSince1970 = ((in.read() & 0xFF) << 16 ) | ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
+          String country = new String(value);
           
-          summary.setStartDaySince1970(daysSince1970);
+          byteCount = in.read();
           
-          summary.setLevels(in.read());
+          value = new byte[byteCount];
           
-          int frameCount = (in.read() & 0xFF << 8) | (in.read() & 0xFF);
+          in.read(value);
           
-          for(int i = 0; i < frameCount; i++) {
-            int byteCount = in.read();
+          String channelID = new String(value);
+          
+          int dayCount = in.read();
+          
+          ChannelFrame frame = new ChannelFrame(country, channelID, dayCount);
+          
+          for(int day = 0; day < dayCount; day++) {
+            int[] values = new int[summary.getLevels()];
             
-            byte[] value = new byte[byteCount];
-            
-            in.read(value);
-            
-            String country = new String(value);
-            
-            byteCount = in.read();
-            
-            value = new byte[byteCount];
-            
-            in.read(value);
-            
-            String channelID = new String(value);
-            
-            int dayCount = in.read();
-            
-            ChannelFrame frame = new ChannelFrame(country, channelID, dayCount);
-            
-            for(int day = 0; day < dayCount; day++) {
-              int[] values = new int[summary.getLevels()];
-              
-              for(int j = 0; j < values.length; j++) {
-                values[j] = in.read();
-              }
-              
-              frame.add(day, values);
+            for(int j = 0; j < values.length; j++) {
+              values[j] = in.read();
             }
             
-            summary.addChannelFrame(frame);
+            frame.add(day, values);
           }
           
+          summary.addChannelFrame(frame);
+        }
+        
+        if(!path.delete()) {
+          path.deleteOnExit();
         }
       }
     } catch (Exception e) {}

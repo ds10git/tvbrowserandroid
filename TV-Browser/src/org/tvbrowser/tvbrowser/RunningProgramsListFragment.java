@@ -50,15 +50,19 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 public class RunningProgramsListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
@@ -377,7 +381,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     long mNextEndTimeValue;
     
     int mCurrentOrientation;
-    
+        
     TextView mChannel;
     
     View mPrevious;
@@ -516,8 +520,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           viewHolder.mNowProgramID = programID;
           break;
         case CompactLayoutViewHolder.NEXT:
-          viewHolder.mNowStartTimeValue = startTime;
-          viewHolder.mNowEndTimeValue = endTime;
+          viewHolder.mNextStartTimeValue = startTime;
+          viewHolder.mNextEndTimeValue = endTime;
           viewHolder.mNextProgramID = programID;
           break;
       }
@@ -644,6 +648,18 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       
       channelSet = fillCompactLayout(viewHolder, CompactLayoutViewHolder.NOW, block, timeFormat, DEFAULT_TEXT_COLOR, channelSet);
       channelSet = fillCompactLayout(viewHolder, CompactLayoutViewHolder.NEXT, block, timeFormat, DEFAULT_TEXT_COLOR, channelSet);
+      
+      ViewGroup group = (ViewGroup)convertView;
+      
+      for(int i = 0; i < group.getChildCount(); i++) {
+        View child = group.getChildAt(i);
+        
+        if(child instanceof LinearLayout) {
+          RelativeLayout.LayoutParams para = (RelativeLayout.LayoutParams)child.getLayoutParams();
+        
+          para.height = -2;
+        }
+      }
     }
     
     return convertView;
