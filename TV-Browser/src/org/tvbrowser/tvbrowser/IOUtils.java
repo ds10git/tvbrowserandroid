@@ -28,6 +28,7 @@ import java.net.URLConnection;
 import java.util.zip.GZIPInputStream;
 
 import android.content.res.Resources;
+import android.util.Log;
 
 /**
  * Helper class to supper IO.
@@ -140,6 +141,7 @@ public class IOUtils {
       byte[] byteArr = loadUrl(urlString);
       
       fout = new FileOutputStream(filename);
+      fout.getChannel().truncate(0);
       fout.write(byteArr, 0, byteArr.length);
     }
     finally {
@@ -166,9 +168,13 @@ public class IOUtils {
       pb.unread(signature[0]);
     }
     
-    if(signature[ 0 ] == (byte) (GZIPInputStream.GZIP_MAGIC & 0xFF) && signature[ 1 ] == (byte) (GZIPInputStream.GZIP_MAGIC >> 8) ) //check if matches standard gzip maguc number
-      return new GZIPInputStream( pb );
-    else 
+    if(signature[ 0 ] == (byte) (GZIPInputStream.GZIP_MAGIC & 0xFF) && signature[ 1 ] == (byte) (GZIPInputStream.GZIP_MAGIC >> 8) ) {//check if matches standard gzip magic number
+      Log.d("info6", "GZIP");
+      return decompressStream(new GZIPInputStream(pb));
+    }
+    else {
+      Log.d("info6", "UNZIP");
       return pb;
+    }
   }
 }
