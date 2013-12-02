@@ -575,12 +575,14 @@ public class UiUtils {
     private Paint mSecond;
     private long mStartTime;
     private long mEndTime;
+    private boolean mVertical;
     
-    public RunningDrawable(Paint base, Paint second, long startTime, long endTime) {
+    public RunningDrawable(Paint base, Paint second, long startTime, long endTime, boolean vertical) {
       mBase = base;
       mSecond = second;
       mStartTime = startTime;
       mEndTime = endTime;
+      mVertical = vertical;
     }
     
     @Override
@@ -589,10 +591,18 @@ public class UiUtils {
         long expiredSeconds = System.currentTimeMillis() - mStartTime;
         float percent = expiredSeconds/(float)(mEndTime - mStartTime);
         
-        int leftWidth = (int)(getBounds().width() * percent);
+        if(mVertical) {
+          int topHeight = (int)(getBounds().height() * percent);
+          
+          canvas.drawRect(0, 0, getBounds().width(), topHeight, mBase);
+          canvas.drawRect(0, topHeight, getBounds().width(), getBounds().height(), mSecond);
+        }
+        else {
+          int leftWidth = (int)(getBounds().width() * percent);
         
-        canvas.drawRect(0, 0, leftWidth, getBounds().height(), mBase);
-        canvas.drawRect(leftWidth, 0, getBounds().width(), getBounds().height(), mSecond);
+          canvas.drawRect(0, 0, leftWidth, getBounds().height(), mBase);
+          canvas.drawRect(leftWidth, 0, getBounds().width(), getBounds().height(), mSecond);
+        }
       }
     }
 
@@ -617,18 +627,25 @@ public class UiUtils {
   }
   
   public static void handleMarkings(Activity activity, Cursor cursor, View view, String markingValues) {
+    handleMarkings(activity, cursor, view, markingValues, null, false);
+  }
+  
+  public static void handleMarkings(Activity activity, Cursor cursor, View view, String markingValues, Handler handler, boolean vertical) {
     long startTime = cursor != null ? cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) : 0;
     long endTime = cursor != null ? cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) : 0;
     
-    handleMarkings(activity, cursor, startTime, endTime, view, markingValues);
+    handleMarkings(activity, cursor, startTime, endTime, view, markingValues,handler,vertical);
   }
   
   public static void handleMarkings(Activity activity, Cursor cursor, long startTime, long endTime, View view, String markingValues) {
     handleMarkings(activity, cursor, startTime, endTime, view, markingValues, null);
   }
   
-  
   public static void handleMarkings(Activity activity, Cursor cursor, long startTime, long endTime, final View view, String markingValues, Handler handler) {
+    handleMarkings(activity, cursor, startTime, endTime, view, markingValues, handler, false);
+  }
+  
+  public static void handleMarkings(Activity activity, Cursor cursor, long startTime, long endTime, final View view, String markingValues, Handler handler, boolean vertical) {
     String value = markingValues;
     
     if(value == null && cursor != null && !cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
@@ -653,7 +670,7 @@ public class UiUtils {
     final ArrayList<Drawable> draw = new ArrayList<Drawable>();
     
     if(base != null) {
-      RunningDrawable running = new RunningDrawable(base, second, startTime, endTime);
+      RunningDrawable running = new RunningDrawable(base, second, startTime, endTime, vertical);
       draw.add(running);
     }
     

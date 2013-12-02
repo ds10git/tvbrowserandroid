@@ -178,6 +178,7 @@
 	    <item>@string/title_program_table</item>
 	</string-array>
 	<string name="pref_show_link">Show website link:</string>
+	<string name="pref_prog_table_grow">Spread programs over block size</string>
 	<string name="customInfo">Custom Information:\n</string>
 	<string name="actors">Actors:\n</string>
 	<string name="regie">Regie:</string>

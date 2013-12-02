@@ -251,7 +251,8 @@ public class ProgramPanel extends View {
   
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    //super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+    int height = MeasureSpec.getSize(heightMeasureSpec);
     
     int pictureHeight = 0;
     
@@ -261,7 +262,9 @@ public class ProgramPanel extends View {
     
     mWidth = MeasureSpec.getSize( widthMeasureSpec );
     
-    setMeasuredDimension(mWidth, BIG_MAX_FONT_HEIGHT * mBigRowCount + SMALL_MAX_FONT_HEIGHT * mSmallRowCount + pictureHeight + mSuperSmallCount * SUPER_SMALL_MAX_FONT_HEIGHT);
+    height = Math.max(height, BIG_MAX_FONT_HEIGHT * mBigRowCount + SMALL_MAX_FONT_HEIGHT * mSmallRowCount + pictureHeight + mSuperSmallCount * SUPER_SMALL_MAX_FONT_HEIGHT);
+    
+    setMeasuredDimension(mWidth, height);
   }
   
   @Override

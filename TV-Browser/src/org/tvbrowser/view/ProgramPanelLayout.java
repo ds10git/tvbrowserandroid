@@ -50,10 +50,13 @@ public class ProgramPanelLayout extends ViewGroup {
   
   private static final int GRAY_VALUE = 230;
   
-  public ProgramPanelLayout(Context context, final ArrayList<Integer> channelIDsOrdered, int blockSize, final Calendar day) {
+  private boolean mGrowToBlock;
+  
+  public ProgramPanelLayout(Context context, final ArrayList<Integer> channelIDsOrdered, int blockSize, final Calendar day, boolean growToBlock) {
     super(context);
     
     mChannelIDsOrdered = channelIDsOrdered;
+    mGrowToBlock = growToBlock;
     
     if(COLUMN_WIDTH == -1) {
       // Get the screen's density scale
@@ -79,6 +82,9 @@ public class ProgramPanelLayout extends ViewGroup {
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     int[][] blockHeightCalc = new int[mBlockHeights.length][mChannelIDsOrdered.size()];
+    int[][] blockProgCount = new int[mBlockHeights.length][mChannelIDsOrdered.size()];
+    
+    int widthSpec = MeasureSpec.makeMeasureSpec(COLUMN_WIDTH, MeasureSpec.EXACTLY);
     
     for(int i = 0; i < getChildCount(); i++) {
       ProgramPanel progPanel = (ProgramPanel)getChildAt(i);
@@ -86,8 +92,9 @@ public class ProgramPanelLayout extends ViewGroup {
       int sortIndex = mChannelIDsOrdered.indexOf(Integer.valueOf(progPanel.getChannelID()));
       int block = progPanel.getStartHour(mDay) / mBlockSize;
       
-      progPanel.measure(COLUMN_WIDTH, heightMeasureSpec);
+      progPanel.measure(widthSpec, heightMeasureSpec);
       blockHeightCalc[block][sortIndex] += progPanel.getMeasuredHeight();
+      blockProgCount[block][sortIndex]++;
     }
     
     int height = 0;
@@ -104,6 +111,25 @@ public class ProgramPanelLayout extends ViewGroup {
       
       if(block < blockHeightCalc.length) {
         mBlockCumulatedHeights[block] = height;
+      }
+    }
+    
+    if(mGrowToBlock) {
+      for(int i = 0; i < getChildCount(); i++) {
+        ProgramPanel progPanel = (ProgramPanel)getChildAt(i);
+        
+        int sortIndex = mChannelIDsOrdered.indexOf(Integer.valueOf(progPanel.getChannelID()));
+        int block = progPanel.getStartHour(mDay) / mBlockSize;
+        
+        int maxBlockHeight = mBlockHeights[block];
+        int heightDiff = maxBlockHeight - blockHeightCalc[block][sortIndex];
+        int blockProgCountValue = blockProgCount[block][sortIndex];
+        
+        int addHeight = heightDiff/blockProgCountValue;
+        
+        int newHeightSpec = MeasureSpec.makeMeasureSpec(progPanel.getMeasuredHeight() + addHeight, MeasureSpec.EXACTLY);
+        
+        progPanel.measure(widthSpec, newHeightSpec);
       }
     }
     
