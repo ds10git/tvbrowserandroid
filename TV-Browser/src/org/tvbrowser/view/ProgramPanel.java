@@ -366,6 +366,19 @@ public class ProgramPanel extends View {
     return mChannelID;
   }
   
+  public int getEndHour(Calendar test) {
+    Calendar cal = Calendar.getInstance();
+    cal.setTimeInMillis(mEndTime);
+    
+    int hour = cal.get(Calendar.HOUR_OF_DAY);
+    
+    if(test.get(Calendar.DAY_OF_YEAR) + 1 == cal.get(Calendar.DAY_OF_YEAR)) {
+      hour += 24;
+    }
+    
+    return hour;
+  }
+  
   public int getStartHour(Calendar test) {
     Calendar cal = Calendar.getInstance();
     cal.setTime(mStartTime);
@@ -387,5 +400,10 @@ public class ProgramPanel extends View {
     mStartTimeBounds = null;
     mStartTimeString = null;
     mTitle = null;
+  }
+  
+  @Override
+  public String toString() {
+    return mStartTime + " '" + mTitle + "' on " + mChannelID;
   }
 }
