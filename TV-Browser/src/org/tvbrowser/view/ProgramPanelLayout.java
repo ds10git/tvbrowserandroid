@@ -24,6 +24,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.text.TextPaint;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
@@ -115,6 +116,8 @@ public class ProgramPanelLayout extends ViewGroup {
     }
     
     if(mGrowToBlock) {
+      int[][] blockCurrentProgCount = new int[mBlockHeights.length][mChannelIDsOrdered.size()];
+      
       for(int i = 0; i < getChildCount(); i++) {
         ProgramPanel progPanel = (ProgramPanel)getChildAt(i);
         
@@ -125,7 +128,17 @@ public class ProgramPanelLayout extends ViewGroup {
         int heightDiff = maxBlockHeight - blockHeightCalc[block][sortIndex];
         int blockProgCountValue = blockProgCount[block][sortIndex];
         
+        blockCurrentProgCount[block][sortIndex]++;
+        
         int addHeight = heightDiff/blockProgCountValue;
+        
+        int count = 1;
+        
+        int endBlock = progPanel.getEndHour(mDay) / mBlockSize;
+        
+        while(blockCurrentProgCount[block][sortIndex] == blockProgCountValue && (block + count) < (HOURS/mBlockSize) && blockProgCount[block + count][sortIndex] == 0 && endBlock > block + count) {
+          addHeight += mBlockHeights[block + count++];
+        }
         
         int newHeightSpec = MeasureSpec.makeMeasureSpec(progPanel.getMeasuredHeight() + addHeight, MeasureSpec.EXACTLY);
         
