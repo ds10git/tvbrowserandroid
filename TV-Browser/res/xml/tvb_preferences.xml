@@ -94,6 +94,9 @@
 	       android:entries="@array/time_block_size"
 	       android:entryValues="@array/time_block_size"
 	       android:summary="%s"/>
+        <CheckBoxPreference android:key="@string/PROG_PANEL_GROW" 
+            android:title="@string/pref_prog_table_grow"
+            android:defaultValue="true"/>
         <ListPreference android:key="@string/CHANNEL_LOGO_NAME_PROGRAM_TABLE"
             android:title="@string/show_logo_title"
             android:defaultValue="0"

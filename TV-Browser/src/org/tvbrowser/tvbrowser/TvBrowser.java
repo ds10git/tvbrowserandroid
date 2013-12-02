@@ -1625,7 +1625,7 @@ public class TvBrowser extends FragmentActivity implements
       mSectionsPagerAdapter.notifyDataSetChanged();
     }
     else if(test instanceof ProgramTableFragment) {
-      if(!((ProgramTableFragment)test).checkTimeBlockSize() && !((ProgramTableFragment)test).updatePictures()) {
+      if(!((ProgramTableFragment)test).checkTimeBlockSize() && !((ProgramTableFragment)test).updateTable()) {
         ((ProgramTableFragment)test).updateChannelBar();
       }
     }
