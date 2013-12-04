@@ -87,9 +87,12 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       ListPreference layout = (ListPreference) findPreference(getResources().getString(R.string.PROG_TABLE_LAYOUT));
       CheckBoxPreference pictures = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE));
             
-      boolean isTimeBlock = layout.getValue() == null || layout.getValue().equals("0");
+      boolean isTimeBlock = layout == null || layout.getValue() == null || layout.getValue().equals("0");
       
       if(progTable != null) {
+        if(layout != null) {
+          layout.setEnabled(progTable.isChecked());
+        }
         if(blockSize != null) {
           blockSize.setEnabled(progTable.isChecked() && isTimeBlock);
         }
@@ -112,7 +115,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       ListPreference blockSize = (ListPreference) findPreference(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE));
       CheckBoxPreference spreadOverBlocks = (CheckBoxPreference) findPreference(getResources().getString(R.string.PROG_PANEL_GROW));
 
-      boolean isTimeBlock = layout.getValue() == null || layout.getValue().equals("0");
+      boolean isTimeBlock = layout == null || layout.getValue() == null || layout.getValue().equals("0");
       
       if(layout != null) {
         if(blockSize != null) {
