@@ -21,63 +21,26 @@ import java.util.Calendar;
 
 import android.content.Context;
 import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.text.TextPaint;
-import android.util.Log;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
 
-public class ProgramPanelLayout extends ViewGroup {
-  private static final int HOURS = 28;
-  
-  private static int COLUMN_WIDTH = -1;
-  private static int GAP = -1;
-  private static int ROW_HEADER = -1;
-  
+public class TimeBlockProgramTableLayout extends ProgramTableLayout {
   private ArrayList<Integer> mChannelIDsOrdered;
   private int[] mBlockHeights;
   private int[] mBlockCumulatedHeights;
   private int mBlockSize;
-  private Calendar mDay;
-  
-  private static final Paint BLOCK_PAINT = new Paint();
-  private static final Paint LINE_PAINT = new Paint();
-  
-  private static final TextPaint TIME_BLOCK_TIME_PAINT = new TextPaint();
-  
-  private static int FONT_SIZE_ASCENT;
-  
-  private static final int GRAY_VALUE = 230;
+  private Calendar mCurrentShownDay;
   
   private boolean mGrowToBlock;
   
-  public ProgramPanelLayout(Context context, final ArrayList<Integer> channelIDsOrdered, int blockSize, final Calendar day, boolean growToBlock) {
+  public TimeBlockProgramTableLayout(Context context, final ArrayList<Integer> channelIDsOrdered, int blockSize, final Calendar day, boolean growToBlock) {
     super(context);
     
     mChannelIDsOrdered = channelIDsOrdered;
     mGrowToBlock = growToBlock;
-    
-    if(COLUMN_WIDTH == -1) {
-      // Get the screen's density scale
-      final float scale = getResources().getDisplayMetrics().density;
-      // Convert the dps to pixels, based on density scale
-      COLUMN_WIDTH = (int) (200 * scale + 0.5f);
-      GAP = (int) (1 * scale + 0.5f);
-      ROW_HEADER = (int)(scale * 28);
-      BLOCK_PAINT.setColor(Color.rgb(GRAY_VALUE, GRAY_VALUE, GRAY_VALUE));
-      LINE_PAINT.setColor(Color.LTGRAY);
-      
-      TIME_BLOCK_TIME_PAINT.setTextSize(scale * 20);
-      TIME_BLOCK_TIME_PAINT.setColor(new TextView(getContext()).getTextColors().getDefaultColor());
-      FONT_SIZE_ASCENT = Math.abs(TIME_BLOCK_TIME_PAINT.getFontMetricsInt().ascent);
-    }
-    
-    mBlockHeights = new int[(HOURS/blockSize) + (HOURS % blockSize > 0 ? 1 : 0)];
+        
+    mBlockHeights = new int[(ProgramTableLayoutConstants.HOURS/blockSize) + (ProgramTableLayoutConstants.HOURS % blockSize > 0 ? 1 : 0)];
     mBlockCumulatedHeights = new int[mBlockHeights.length];
     mBlockSize = blockSize;
-    mDay = day;
+    mCurrentShownDay = day;
   }
 
   @Override
@@ -85,13 +48,13 @@ public class ProgramPanelLayout extends ViewGroup {
     int[][] blockHeightCalc = new int[mBlockHeights.length][mChannelIDsOrdered.size()];
     int[][] blockProgCount = new int[mBlockHeights.length][mChannelIDsOrdered.size()];
     
-    int widthSpec = MeasureSpec.makeMeasureSpec(COLUMN_WIDTH, MeasureSpec.EXACTLY);
+    int widthSpec = MeasureSpec.makeMeasureSpec(ProgramTableLayoutConstants.COLUMN_WIDTH, MeasureSpec.EXACTLY);
     
     for(int i = 0; i < getChildCount(); i++) {
       ProgramPanel progPanel = (ProgramPanel)getChildAt(i);
       
       int sortIndex = mChannelIDsOrdered.indexOf(Integer.valueOf(progPanel.getChannelID()));
-      int block = progPanel.getStartHour(mDay) / mBlockSize;
+      int block = progPanel.getStartHour(mCurrentShownDay) / mBlockSize;
       
       progPanel.measure(widthSpec, heightMeasureSpec);
       blockHeightCalc[block][sortIndex] += progPanel.getMeasuredHeight();
@@ -122,7 +85,7 @@ public class ProgramPanelLayout extends ViewGroup {
         ProgramPanel progPanel = (ProgramPanel)getChildAt(i);
         
         int sortIndex = mChannelIDsOrdered.indexOf(Integer.valueOf(progPanel.getChannelID()));
-        int block = progPanel.getStartHour(mDay) / mBlockSize;
+        int block = progPanel.getStartHour(mCurrentShownDay) / mBlockSize;
         
         int maxBlockHeight = mBlockHeights[block];
         int heightDiff = maxBlockHeight - blockHeightCalc[block][sortIndex];
@@ -134,9 +97,9 @@ public class ProgramPanelLayout extends ViewGroup {
         
         int count = 1;
         
-        int endBlock = progPanel.getEndHour(mDay) / mBlockSize;
+        int endBlock = progPanel.getEndHour(mCurrentShownDay) / mBlockSize;
         
-        while(blockCurrentProgCount[block][sortIndex] == blockProgCountValue && (block + count) < (HOURS/mBlockSize) && blockProgCount[block + count][sortIndex] == 0 && endBlock > block + count) {
+        while(blockCurrentProgCount[block][sortIndex] == blockProgCountValue && (block + count) < (mBlockHeights.length) && blockProgCount[block + count][sortIndex] == 0 && endBlock > block + count) {
           addHeight += mBlockHeights[block + count++];
         }
         
@@ -146,7 +109,7 @@ public class ProgramPanelLayout extends ViewGroup {
       }
     }
     
-    setMeasuredDimension(ROW_HEADER + GAP + (COLUMN_WIDTH+GAP) * mChannelIDsOrdered.size(), height);
+    setMeasuredDimension(ProgramTableLayoutConstants.ROW_HEADER + ProgramTableLayoutConstants.GAP + (ProgramTableLayoutConstants.COLUMN_WIDTH+ProgramTableLayoutConstants.GAP) * mChannelIDsOrdered.size(), height);
   }
   
   @Override
@@ -157,9 +120,9 @@ public class ProgramPanelLayout extends ViewGroup {
       ProgramPanel progPanel = (ProgramPanel)getChildAt(i);
       
       int sortIndex = mChannelIDsOrdered.indexOf(Integer.valueOf(progPanel.getChannelID()));
-      int block = progPanel.getStartHour(mDay) / mBlockSize;
+      int block = progPanel.getStartHour(mCurrentShownDay) / mBlockSize;
       
-      int x = l + ROW_HEADER + GAP + sortIndex * (COLUMN_WIDTH + GAP);
+      int x = l + ProgramTableLayoutConstants.ROW_HEADER + ProgramTableLayoutConstants.GAP + sortIndex * (ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP);
       int y = t + currentBlockHeight[block][sortIndex];
       
       if(block > 0) {
@@ -168,7 +131,7 @@ public class ProgramPanelLayout extends ViewGroup {
       
       currentBlockHeight[block][sortIndex] += progPanel.getMeasuredHeight();
       
-      progPanel.layout(x, y, x + COLUMN_WIDTH + GAP, y + progPanel.getMeasuredHeight());
+      progPanel.layout(x, y, x + ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP, y + progPanel.getMeasuredHeight());
     }
   }
   
@@ -176,10 +139,10 @@ public class ProgramPanelLayout extends ViewGroup {
   protected void dispatchDraw(Canvas canvas) {
     for(int i = 0; i < mBlockHeights.length; i++) {
       if(i % 2 == 1) {
-        canvas.drawRect(0, mBlockCumulatedHeights[i-1], canvas.getWidth(), mBlockCumulatedHeights[i-1] + mBlockHeights[i], BLOCK_PAINT);
+        canvas.drawRect(0, mBlockCumulatedHeights[i-1], canvas.getWidth(), mBlockCumulatedHeights[i-1] + mBlockHeights[i], ProgramTableLayoutConstants.BLOCK_PAINT);
       }
       
-      int y = FONT_SIZE_ASCENT;
+      int y = ProgramTableLayoutConstants.FONT_SIZE_ASCENT;
       
       if(i > 0) {
         y += mBlockCumulatedHeights[i-1];
@@ -197,25 +160,16 @@ public class ProgramPanelLayout extends ViewGroup {
         value = "0" + value;
       }
       
-      float length = TIME_BLOCK_TIME_PAINT.measureText(value);
+      float length = ProgramTableLayoutConstants.TIME_BLOCK_TIME_PAINT.measureText(value);
       
-      canvas.drawText(value, ROW_HEADER / 2 - length/2, y, TIME_BLOCK_TIME_PAINT);
+      canvas.drawText(value, ProgramTableLayoutConstants.ROW_HEADER / 2 - length/2, y, ProgramTableLayoutConstants.TIME_BLOCK_TIME_PAINT);
     }
     
     for(int i = 0; i < mChannelIDsOrdered.size(); i++) {
-      int x = ROW_HEADER + i * (COLUMN_WIDTH + GAP);
-      canvas.drawLine(x, 0, x, canvas.getHeight(), LINE_PAINT);
+      int x = ProgramTableLayoutConstants.ROW_HEADER + i * (ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP);
+      canvas.drawLine(x, 0, x, canvas.getHeight(), ProgramTableLayoutConstants.LINE_PAINT);
     }
     
     super.dispatchDraw(canvas);
-  }
-  
-  public void clear() {
-    for(int i = getChildCount()-1; i >= 0; i--) {
-      View view = getChildAt(i);
-      removeView(view);
-      ((ProgramPanel)view).clear();
-      view = null;
-    }
   }
 }

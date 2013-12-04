@@ -87,6 +87,13 @@
             android:defaultValue="@bool/prog_table_default"
             android:summary="@string/pref_prog_table_summary"
             />
+        <ListPreference
+	       android:key="@string/PROG_TABLE_LAYOUT"
+	       android:title="@string/running_layout_title"
+	       android:defaultValue="0"
+	       android:entries="@array/prog_table_layout_values"
+	       android:entryValues="@array/running_layout_prefs"
+	       android:summary="%s"/>
 	   <ListPreference
 	       android:key="@string/PROG_PANEL_TIME_BLOCK_SIZE"
 	       android:title="@string/pref_prog_table_time_block_size"
@@ -238,12 +245,14 @@
                 />
         </PreferenceScreen>
     </PreferenceCategory>
-    <PreferenceScreen android:title="@string/pref_debug"
-            android:summary="@string/pref_debug_summary">
-        <CheckBoxPreference android:key="@string/WRITE_LOG"
-            android:title="@string/pref_write_log"
-            android:defaultValue="false"
-            android:summary="@string/pref_write_log_summary"
-            />
-    </PreferenceScreen>
+    <PreferenceCategory android:title="@string/pref_misc">
+	    <PreferenceScreen android:title="@string/pref_debug"
+	            android:summary="@string/pref_debug_summary">
+	        <CheckBoxPreference android:key="@string/WRITE_LOG"
+	            android:title="@string/pref_write_log"
+	            android:defaultValue="false"
+	            android:summary="@string/pref_write_log_summary"
+	            />
+	    </PreferenceScreen>
+    </PreferenceCategory>
 </PreferenceScreen>
