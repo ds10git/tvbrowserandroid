@@ -762,6 +762,9 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         viewHolder.mTitle.setText(title);
         viewHolder.mChannel.setText(channel);
         
+        viewHolder.mLayout.setTag(programID);
+        viewHolder.mLayout.setOnClickListener(mOnCliickListener);
+        
         if(showPicture) {
           if(pictureCopyright != null && pictureCopyright.trim().length() > 0 && picture != null && picture.length > 0) {
             Bitmap logo = BitmapFactory.decodeByteArray(picture, 0, picture.length);
@@ -784,9 +787,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
             viewHolder.mPicture.setVisibility(View.GONE);
             viewHolder.mPictureCopyright.setVisibility(View.GONE);
           }
-          
-          viewHolder.mLayout.setTag(programID);
-          viewHolder.mLayout.setOnClickListener(mOnCliickListener);
         }
         else {
           viewHolder.mPicture.setVisibility(View.GONE);

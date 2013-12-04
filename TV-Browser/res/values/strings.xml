@@ -213,6 +213,10 @@
 	    <item>Extended</item>
 	    <item>Compact</item>
 	</string-array>
+	<string-array name="prog_table_layout_values">
+	    <item>Time block</item>
+	    <item>Compact</item>
+	</string-array>
 	<string name="running_layout_title">Layout</string>
 	<string name="pref_running_next_day">Expired times for tomorrow</string>
 	<string name="pref_running_next_day_summary">Times that are expired for 3 hours are showing the programs of tomorrow.</string>
@@ -232,4 +236,5 @@
 	<string name="log_send_mail">Send Email</string>
 	<string name="log_send_mail_subject">Log file for TV-Browser for Android</string>
 	<string name="log_send_mail_content">The attachments contains the log file of TV-Browser for Android, from</string>
+	<string name="pref_misc">Misc</string>
 </resources>

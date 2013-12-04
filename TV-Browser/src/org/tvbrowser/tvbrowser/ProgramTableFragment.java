@@ -23,8 +23,11 @@ import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.view.CompactProgramTableLayout;
 import org.tvbrowser.view.ProgramPanel;
-import org.tvbrowser.view.ProgramPanelLayout;
+import org.tvbrowser.view.ProgramTableLayout;
+import org.tvbrowser.view.ProgramTableLayoutConstants;
+import org.tvbrowser.view.TimeBlockProgramTableLayout;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -80,7 +83,7 @@ public class ProgramTableFragment extends Fragment {
   private boolean mPictureShown;
   private int mTimeBlockSize;
   
-  private ProgramPanelLayout mProgramPanelLayout;
+  private ProgramTableLayout mProgramPanelLayout;
   
   private Calendar mCurrentDate;
   
@@ -470,12 +473,15 @@ public class ProgramTableFragment extends Fragment {
     }
         
     if(channels.getCount() > 0) {
-      /*Calendar day = Calendar.getInstance();
-      day.setTimeInMillis(mCurrentDay * 1000 * 60 * 60 * 24);*/
-      
       mGrowPanels = pref.getBoolean(getResources().getString(R.string.PROG_PANEL_GROW), true);
       
-      mProgramPanelLayout = new ProgramPanelLayout(getActivity(), channelIDsOrdered, mTimeBlockSize, value, mGrowPanels);
+      if(pref.getString(getResources().getString(R.string.PROG_TABLE_LAYOUT), "0").equals("0")) {
+        mProgramPanelLayout = new TimeBlockProgramTableLayout(getActivity(), channelIDsOrdered, mTimeBlockSize, value, mGrowPanels);
+      }
+      else {
+        mProgramPanelLayout = new CompactProgramTableLayout(getActivity(), channelIDsOrdered);
+      }
+      
       ViewGroup test = (ViewGroup)programTable.findViewById(R.id.vertical_program_table_scroll);
       test.addView(mProgramPanelLayout);
       
@@ -555,6 +561,8 @@ public class ProgramTableFragment extends Fragment {
       mDaySet = false;
     }
     
+    ProgramTableLayoutConstants.initialize(getActivity());
+    
     TextView currentDay = (TextView)programTableLayout.findViewById(R.id.show_current_day);
     
     setDayString(currentDay);
@@ -613,14 +621,18 @@ public class ProgramTableFragment extends Fragment {
   }
   
   public boolean updateTable() {
-    boolean toShow = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE), false);
-    boolean toGrow = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getResources().getString(R.string.PROG_PANEL_GROW), true);
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
-    if(mPictureShown != toShow || mGrowPanels != toGrow) {
+    boolean toShow = pref.getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE), false);
+    boolean toGrow = pref.getBoolean(getResources().getString(R.string.PROG_PANEL_GROW), true);
+    boolean updateLayout = (pref.getString(getResources().getString(R.string.PROG_TABLE_LAYOUT), "0").equals("0") && mProgramPanelLayout instanceof CompactProgramTableLayout) || 
+        (pref.getString(getResources().getString(R.string.PROG_TABLE_LAYOUT), "0").equals("1") && mProgramPanelLayout instanceof TimeBlockProgramTableLayout); 
+    
+    if(mPictureShown != toShow || mGrowPanels != toGrow || updateLayout) {
       updateView(getActivity().getLayoutInflater(), (RelativeLayout)getView().findViewWithTag("LAYOUT"));
     }
     
-    return mPictureShown != toShow || mGrowPanels != toGrow;
+    return mPictureShown != toShow || mGrowPanels != toGrow || updateLayout;
   }
   
   public void updateChannelBar() {
@@ -723,7 +735,7 @@ public class ProgramTableFragment extends Fragment {
   private int mPictureCopyrightIndex;
   private int mMarkingsIndex;
   
-  private void addPanel(final Cursor cursor, final ProgramPanelLayout layout) {
+  private void addPanel(final Cursor cursor, final ProgramTableLayout layout) {
     final long startTime = cursor.getLong(mStartTimeIndex);
     final long endTime = cursor.getLong(mEndTimeIndex);
     String title = cursor.getString(mTitleIndex);

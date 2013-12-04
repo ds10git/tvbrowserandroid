@@ -81,18 +81,45 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       CheckBoxPreference progTable = (CheckBoxPreference) findPreference(key);
       
       ListPreference blockSize = (ListPreference) findPreference(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE));
+      CheckBoxPreference spreadOverBlocks = (CheckBoxPreference) findPreference(getResources().getString(R.string.PROG_PANEL_GROW));
+      
       ListPreference channelLogoName = (ListPreference) findPreference(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE));
+      ListPreference layout = (ListPreference) findPreference(getResources().getString(R.string.PROG_TABLE_LAYOUT));
       CheckBoxPreference pictures = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE));
+            
+      boolean isTimeBlock = layout.getValue() == null || layout.getValue().equals("0");
       
       if(progTable != null) {
         if(blockSize != null) {
-          blockSize.setEnabled(progTable.isChecked());
+          blockSize.setEnabled(progTable.isChecked() && isTimeBlock);
+        }
+        if(spreadOverBlocks != null) {
+          spreadOverBlocks.setEnabled(progTable.isChecked() && isTimeBlock);
         }
         if(channelLogoName != null) {
           channelLogoName.setEnabled(progTable.isChecked());
         }
         if(pictures != null) {
           pictures.setEnabled(progTable.isChecked());
+        }
+      }
+    }
+    else if(key.equals(getResources().getString(R.string.PROG_TABLE_LAYOUT))) {
+      ListPreference layout = (ListPreference) findPreference(key);
+      
+      CheckBoxPreference progTable = (CheckBoxPreference) findPreference(getResources().getString(R.string.PROG_TABLE_ACTIVATED));
+      
+      ListPreference blockSize = (ListPreference) findPreference(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE));
+      CheckBoxPreference spreadOverBlocks = (CheckBoxPreference) findPreference(getResources().getString(R.string.PROG_PANEL_GROW));
+
+      boolean isTimeBlock = layout.getValue() == null || layout.getValue().equals("0");
+      
+      if(layout != null) {
+        if(blockSize != null) {
+          blockSize.setEnabled(progTable.isChecked() && isTimeBlock);
+        }
+        if(spreadOverBlocks != null) {
+          spreadOverBlocks.setEnabled(progTable.isChecked() && isTimeBlock);
         }
       }
     }
