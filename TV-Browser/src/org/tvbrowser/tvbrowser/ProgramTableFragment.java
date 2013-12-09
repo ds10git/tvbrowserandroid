@@ -23,6 +23,7 @@ import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.view.ChannelLabel;
 import org.tvbrowser.view.CompactProgramTableLayout;
 import org.tvbrowser.view.ProgramPanel;
 import org.tvbrowser.view.ProgramTableLayout;
@@ -51,7 +52,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
-import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Display;
@@ -77,6 +77,7 @@ public class ProgramTableFragment extends Fragment {
   
   private BroadcastReceiver mDataUpdateReceiver;
   private BroadcastReceiver mUpdateMarkingsReceiver;
+  private BroadcastReceiver mUpdateChannelsReceiver;
   private BroadcastReceiver mRefreshReceiver;
   
   private int mCurrentLogoValue;
@@ -127,9 +128,13 @@ public class ProgramTableFragment extends Fragment {
                 int location[] = new int[2];
                 view.getLocationInWindow(location);
                 
-                Display display = getActivity().getWindowManager().getDefaultDisplay();
+                Activity activity = getActivity();
                 
-                scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]-display.getHeight()/3);
+                if(activity != null && !activity.isFinishing()) {
+                  Display display = activity.getWindowManager().getDefaultDisplay();
+                  
+                  scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]-display.getHeight()/3);
+                }
               }
             });
           }
@@ -231,6 +236,26 @@ public class ProgramTableFragment extends Fragment {
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, intent);
     
+    mUpdateChannelsReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            if(!isDetached() && getView() != null) {
+              RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
+              
+              if(layout != null) {
+                updateView(getActivity().getLayoutInflater(),layout);
+              }
+            }
+          }
+        });
+      }
+    };
+    
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, new IntentFilter(SettingConstants.CHANNEL_UPDATE_DONE));
+    
     mRefreshReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
@@ -257,6 +282,9 @@ public class ProgramTableFragment extends Fragment {
     }
     if(mUpdateMarkingsReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mUpdateMarkingsReceiver);
+    }
+    if(mUpdateChannelsReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mUpdateChannelsReceiver);
     }
   }
   
@@ -378,9 +406,6 @@ public class ProgramTableFragment extends Fragment {
     
     Cursor channels = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, where3.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
     
-    int columnWidth = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, getResources().getDisplayMetrics());
-    int padding = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics());
-
     String[] projection = null;
     
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -398,8 +423,6 @@ public class ProgramTableFragment extends Fragment {
     }
     
     mTimeBlockSize = Integer.parseInt(pref.getString(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE),"2"));
-    
-    int logoValue = mCurrentLogoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE), "0"));
     
     projection[0] = TvBrowserContentProvider.KEY_ID;
     projection[1] = TvBrowserContentProvider.DATA_KEY_STARTTIME;
@@ -424,51 +447,24 @@ public class ProgramTableFragment extends Fragment {
         name = shortName;
       }
       
-      boolean hasLogo = !channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+      Bitmap logo = null;
       
-      TextView text = (TextView)inflater.inflate(R.layout.channel_label, channelBar,false);
-      text.setTag(channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
-      
-      if(logoValue == 0 || logoValue == 2 || !hasLogo) {
-        text.setText(name);
-      }
-      
-      if((logoValue == 0 || logoValue == 1) && hasLogo) {
+      if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))) {
         byte[] logoData = channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
-        Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-        BitmapDrawable l = new BitmapDrawable(getResources(), logo);
+        logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
         
-        int height = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, getResources().getDisplayMetrics());
+        int height = ProgramTableLayoutConstants.getChannelMaxFontHeight();
         
-        float percent = height / (float)logo.getHeight(); 
+        float percent = height / (float)logo.getHeight();         
         
         if(percent < 1) {
-          l.setBounds(0, 0, (int)(logo.getWidth() * percent), height);
-        }
-        else {
-          l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
-        }
-        
-        text.setCompoundDrawables(l, null, null, null);
-        
-        int leftPadding = 2 * padding;
-        
-        if(logoValue == 0 || logoValue == 2 || !hasLogo) {
-          leftPadding += text.getPaint().measureText(name);
-        }
-        if((logoValue == 0 || logoValue == 1) && hasLogo) {
-          leftPadding += l.getBounds().width();
-        }
-        
-        leftPadding = (int)(columnWidth - leftPadding);
-        
-        if(leftPadding > 0) {
-          text.setPadding(leftPadding / 2, 0, leftPadding / 2, 0);
+          logo = Bitmap.createScaledBitmap(logo, (int)(logo.getWidth() * percent), height, true);
         }
       }
       
-      channelBar.addView(text);
-
+      ChannelLabel channelLabel = new ChannelLabel(getActivity(), name, logo);
+      
+      channelBar.addView(channelLabel);
       channelBar.addView(inflater.inflate(R.layout.separator_line, channelBar, false));
     }
         
@@ -626,23 +622,25 @@ public class ProgramTableFragment extends Fragment {
     boolean toShow = pref.getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE), false);
     boolean toGrow = pref.getBoolean(getResources().getString(R.string.PROG_PANEL_GROW), true);
     boolean updateLayout = (pref.getString(getResources().getString(R.string.PROG_TABLE_LAYOUT), "0").equals("0") && mProgramPanelLayout instanceof CompactProgramTableLayout) || 
-        (pref.getString(getResources().getString(R.string.PROG_TABLE_LAYOUT), "0").equals("1") && mProgramPanelLayout instanceof TimeBlockProgramTableLayout); 
+        (pref.getString(getResources().getString(R.string.PROG_TABLE_LAYOUT), "0").equals("1") && mProgramPanelLayout instanceof TimeBlockProgramTableLayout);
+    boolean updateWidth = pref.getInt(getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH), 200) != ProgramTableLayoutConstants.getColumnWidth();
     
-    if(mPictureShown != toShow || mGrowPanels != toGrow || updateLayout) {
+    if(updateWidth) {
+      ProgramTableLayoutConstants.updateColumnWidth(getActivity());
+    }
+    
+    if(mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth) {
       updateView(getActivity().getLayoutInflater(), (RelativeLayout)getView().findViewWithTag("LAYOUT"));
     }
     
-    return mPictureShown != toShow || mGrowPanels != toGrow || updateLayout;
+    return mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth;
   }
   
   public void updateChannelBar() {
     LinearLayout channelBar = (LinearLayout)getView().findViewById(R.id.program_table_channel_bar);
     
-    String[] projection = {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.CHANNEL_KEY_NAME, TvBrowserContentProvider.CHANNEL_KEY_LOGO};
+    ProgramTableLayoutConstants.updateChannelLogoName(getActivity());
     
-    int columnWidth = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 200, getResources().getDisplayMetrics());
-    int padding = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 2, getResources().getDisplayMetrics());
-
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
     int logoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE), "0"));
@@ -653,72 +651,9 @@ public class ProgramTableFragment extends Fragment {
       for(int i = 0; i < channelBar.getChildCount(); i++) {
         View view = channelBar.getChildAt(i);
         
-        if(view instanceof TextView && view.getTag() instanceof Integer) {
-          TextView text = (TextView)view;
-          Integer channelKey = (Integer)text.getTag();
-          
-          Cursor channel = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelKey), projection, null, null, null);
-          
-          if(channel.moveToFirst()) {
-            boolean hasLogo = !channel.isNull(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
-            String name = channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-            
-            String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
-            
-            if(shortName != null) {
-              name = shortName;
-            }
-            
-            if(logoValue == 0 || logoValue == 2 || !hasLogo) {
-              text.setText(name);
-            }
-            else {
-              text.setText("");
-            }
-            
-            if((logoValue == 0 || logoValue == 1) && hasLogo) {
-              byte[] logoData = channel.getBlob(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
-              Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-              BitmapDrawable l = new BitmapDrawable(getResources(), logo);
-              
-              int height = (int)TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 20, getResources().getDisplayMetrics());
-              
-              float percent = height / (float)logo.getHeight(); 
-              
-              if(percent < 1) {
-                l.setBounds(0, 0, (int)(logo.getWidth() * percent), height);
-              }
-              else {
-                l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
-              }
-              
-              text.setCompoundDrawables(l, null, null, null);
-              
-              int leftPadding = 2 * padding;
-              
-              if(logoValue == 0 || logoValue == 2 || !hasLogo) {
-                leftPadding += text.getPaint().measureText(name);
-              }
-              if((logoValue == 0 || logoValue == 1) && hasLogo) {
-                leftPadding += l.getBounds().width();
-              }
-              
-              leftPadding = (int)(columnWidth - leftPadding);
-              
-              if(leftPadding > 0) {
-                text.setPadding(leftPadding / 2, 0, leftPadding / 2, 0);
-              }
-              else {
-                text.setPadding(2, 0, 0, 0);
-              }
-            }
-            else {
-              text.setPadding(2, 0, 0, 0);
-              text.setCompoundDrawables(null, null, null, null);
-            }
-          }
-          
-          channel.close();
+        if(view instanceof ChannelLabel) {
+          ((ChannelLabel)view).updateNameAndLogo();
+          view.invalidate();
         }
       }
     }
@@ -784,7 +719,7 @@ public class ProgramTableFragment extends Fragment {
     }
     
     select.setMinDate(dayStart - 24 * 60 * 60 * 1000);
-    select.setMaxDate(dayStart + 15 * (24 * 60 * 60 * 1000));
+    select.setMaxDate(dayStart + 21 * (24 * 60 * 60 * 1000));
     select.init(mCurrentDate.get(Calendar.YEAR), mCurrentDate.get(Calendar.MONTH), mCurrentDate.get(Calendar.DAY_OF_MONTH), null);
     
     builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {

@@ -104,6 +104,11 @@
         <CheckBoxPreference android:key="@string/PROG_PANEL_GROW" 
             android:title="@string/pref_prog_table_grow"
             android:defaultValue="true"/>
+        <org.tvbrowser.settings.ColumnWidthPreference
+       		android:key="@string/PROG_TABLE_COLUMN_WIDTH"
+       		android:defaultValue="200"
+       		android:title="@string/pref_prog_table_width_hint"
+            />
         <ListPreference android:key="@string/CHANNEL_LOGO_NAME_PROGRAM_TABLE"
             android:title="@string/show_logo_title"
             android:defaultValue="0"

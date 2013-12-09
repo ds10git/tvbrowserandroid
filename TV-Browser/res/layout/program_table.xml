@@ -20,10 +20,11 @@
 	            android:orientation="horizontal">
 	            <TextView style="@style/time_label_style"
 	                android:text="D"
-	                android:textSize="20sp"
-	    			android:textColor="#787878"
+	                android:textSize="@dimen/prog_table_channel_font_size"
+	    			android:textColor="@color/prog_table_channel_background"
 	    			android:textStyle="bold"
-	    			android:background="#787878"
+	    			android:background="@color/prog_table_channel_background"
+	    			android:layout_height="@dimen/prog_table_channel_height"
 	            />
 	            <include layout="@layout/separator_line"/>
 	        </LinearLayout>

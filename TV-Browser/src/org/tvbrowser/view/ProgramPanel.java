@@ -16,26 +16,19 @@
  */
 package org.tvbrowser.view;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
-
-import org.tvbrowser.settings.SettingConstants;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.Rect;
-import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.text.TextPaint;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.View;
-import android.widget.TextView;
 
 public class ProgramPanel extends View {
   private Date mStartTime;
@@ -45,44 +38,10 @@ public class ProgramPanel extends View {
   private String mGenre;
   private String mPictureCopyright;
   private BitmapDrawable mPicture;
-  private static int mWidth;
-  
-  private static int BIG_FONT_DESCEND;
-  private static int BIG_MAX_FONT_HEIGHT;
-  
-  private static int SMALL_FONT_DESCEND;
-  private static int SMALL_MAX_FONT_HEIGHT;
-  
-  private static int SUPER_SMALL_FONT_DESCEND;
-  private static int SUPER_SMALL_MAX_FONT_HEIGHT;
-  
-  private static final TextPaint NOT_EXPIRED_TITLE_PAINT = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
-  private static final TextPaint EXPIRED_TITLE_PAINT = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
-  private static final TextPaint NOT_EXPIRED_GENRE_EPISODE_PAINT = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
-  private static final TextPaint EXPIRED_GENRE_EPISODE_PAINT = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
 
-  private static final TextPaint NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
-  private static final TextPaint EXPIRED_PICTURE_COPYRIGHT_PAINT = new TextPaint(TextPaint.ANTI_ALIAS_FLAG);
   private boolean mIsExpired;
   
   private int mChannelID;
-
-  static {
-    NOT_EXPIRED_TITLE_PAINT.setTypeface(Typeface.DEFAULT_BOLD);
-    
-    EXPIRED_TITLE_PAINT.setColor(SettingConstants.EXPIRED_COLOR);
-    EXPIRED_TITLE_PAINT.setTypeface(Typeface.DEFAULT_BOLD);
-    
-    NOT_EXPIRED_GENRE_EPISODE_PAINT.setTypeface(Typeface.defaultFromStyle(Typeface.ITALIC));
-    
-    EXPIRED_GENRE_EPISODE_PAINT.setColor(SettingConstants.EXPIRED_COLOR);
-    EXPIRED_GENRE_EPISODE_PAINT.setTypeface(Typeface.defaultFromStyle(Typeface.ITALIC));
-    
-    NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.setTypeface(Typeface.DEFAULT);
-    
-    EXPIRED_PICTURE_COPYRIGHT_PAINT.setTypeface(Typeface.DEFAULT);
-    EXPIRED_PICTURE_COPYRIGHT_PAINT.setColor(SettingConstants.EXPIRED_COLOR);
-  }
   
   private Rect mStartTimeBounds = new Rect();
   private int mBigRowCount;
@@ -90,58 +49,9 @@ public class ProgramPanel extends View {
   private int mSuperSmallCount;
   private String mStartTimeString;
   
-  private static java.text.DateFormat mTimeFormat;
-  
-  private static int mGap;
-  
-  public static int PADDING_SIDE = 0;
   
   public ProgramPanel(Context context, final long startTime, final long endTime, final String title, final int channelID) {
     super(context);
-    
-    if(mTimeFormat == null) {
-      mTimeFormat = DateFormat.getTimeFormat(context);
-      String value = ((SimpleDateFormat)mTimeFormat).toLocalizedPattern();
-      
-      if((value.charAt(0) == 'H' && value.charAt(1) != 'H') || (value.charAt(0) == 'h' && value.charAt(1) != 'h')) {
-        value = value.charAt(0) + value;
-      }
-      
-      mTimeFormat = new SimpleDateFormat(value, Locale.getDefault());
-      
-      // Get the screen's density scale
-      final float scale = getResources().getDisplayMetrics().density;
-      // Convert the dps to pixels, based on density scale
-      mWidth = (int) (200 * scale + 0.5f);
-      mGap = (int) (5 * scale + 0.5f);
-      
-      float textSize = new TextView(getContext()).getTextSize();//NOT_EXPIRED_TITLE_PAINT.getTextSize() * scale + 0.5f;
-      int color = new TextView(getContext()).getTextColors().getDefaultColor();
-      
-      NOT_EXPIRED_TITLE_PAINT.setTextSize(textSize);
-      NOT_EXPIRED_TITLE_PAINT.setColor(color);
-      
-      NOT_EXPIRED_GENRE_EPISODE_PAINT.setTextSize(textSize);
-      NOT_EXPIRED_GENRE_EPISODE_PAINT.setColor(color);
-      
-      NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.setTextSize(10 * scale + 0.5f);
-      NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.setColor(color);
-      
-      EXPIRED_TITLE_PAINT.setTextSize(textSize);
-      EXPIRED_GENRE_EPISODE_PAINT.setTextSize(textSize);
-      EXPIRED_PICTURE_COPYRIGHT_PAINT.setTextSize(10 * scale + 0.5f);
-      
-      BIG_FONT_DESCEND = Math.abs(NOT_EXPIRED_TITLE_PAINT.getFontMetricsInt().descent);
-      BIG_MAX_FONT_HEIGHT = BIG_FONT_DESCEND + Math.abs(NOT_EXPIRED_TITLE_PAINT.getFontMetricsInt().ascent)+1;
-      
-      SMALL_FONT_DESCEND = Math.abs(NOT_EXPIRED_GENRE_EPISODE_PAINT.getFontMetricsInt().descent);
-      SMALL_MAX_FONT_HEIGHT = SMALL_FONT_DESCEND + Math.abs(NOT_EXPIRED_GENRE_EPISODE_PAINT.getFontMetricsInt().ascent)+1;
-      
-      SUPER_SMALL_FONT_DESCEND = Math.abs(NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.getFontMetricsInt().descent);
-      SUPER_SMALL_MAX_FONT_HEIGHT = SUPER_SMALL_FONT_DESCEND + Math.abs(NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.getFontMetricsInt().ascent)+1;
-      
-      PADDING_SIDE = (int) (2 * scale + 0.5f);
-    }
     
     mBigRowCount = 0;
     mSmallRowCount = 0;
@@ -153,7 +63,7 @@ public class ProgramPanel extends View {
   }
   
   private void setTitle(String title) {
-    Object[] result = getBreakerText(title, getTextWidth() - mStartTimeBounds.width() - mGap, NOT_EXPIRED_TITLE_PAINT);
+    Object[] result = getBreakerText(title, getTextWidth() - mStartTimeBounds.width() - ProgramTableLayoutConstants.TIME_TITLE_GAP, ProgramTableLayoutConstants.NOT_EXPIRED_TITLE_PAINT);
     
     mTitle = result[0].toString();
     mBigRowCount = (Integer)result[1];
@@ -162,9 +72,9 @@ public class ProgramPanel extends View {
   private void setStartTime(long startTime) {
     mStartTime = new Date(startTime);
     
-    mStartTimeString = mTimeFormat.format(mStartTime);
+    mStartTimeString = ProgramTableLayoutConstants.TIME_FORMAT.format(mStartTime);
     
-    NOT_EXPIRED_TITLE_PAINT.getTextBounds(mStartTimeString, 0, mStartTimeString.length(), mStartTimeBounds);
+    ProgramTableLayoutConstants.NOT_EXPIRED_TITLE_PAINT.getTextBounds(mStartTimeString, 0, mStartTimeString.length(), mStartTimeBounds);
   }
   
   /*
@@ -214,7 +124,7 @@ public class ProgramPanel extends View {
 
   public void setGenre(String genre) {
     if(genre != null && !genre.trim().isEmpty()) {
-      Object[] result = getBreakerText(genre.trim(), getTextWidth() - mStartTimeBounds.width() - mGap, NOT_EXPIRED_GENRE_EPISODE_PAINT);
+      Object[] result = getBreakerText(genre.trim(), getTextWidth() - mStartTimeBounds.width() - ProgramTableLayoutConstants.TIME_TITLE_GAP, ProgramTableLayoutConstants.NOT_EXPIRED_GENRE_EPISODE_PAINT);
       
       mGenre = result[0].toString();
       mSmallRowCount += (Integer)result[1];
@@ -222,12 +132,12 @@ public class ProgramPanel extends View {
   }
   
   public int getTextWidth() {
-    return mWidth - PADDING_SIDE * 3;
+    return ProgramTableLayoutConstants.COLUMN_WIDTH - ProgramTableLayoutConstants.PADDING_SIDE * 3;
   }
   
   public void setEpisode(String episode) {
     if(episode != null && !episode.trim().isEmpty()) {
-      Object[] result = getBreakerText(episode.trim(), getTextWidth() - mStartTimeBounds.width() - mGap, NOT_EXPIRED_GENRE_EPISODE_PAINT);
+      Object[] result = getBreakerText(episode.trim(), getTextWidth() - mStartTimeBounds.width() - ProgramTableLayoutConstants.TIME_TITLE_GAP, ProgramTableLayoutConstants.NOT_EXPIRED_GENRE_EPISODE_PAINT);
       
       mEpisode = result[0].toString();
       mSmallRowCount += (Integer)result[1];
@@ -236,12 +146,18 @@ public class ProgramPanel extends View {
   
   public void setPicture(String copyright, BitmapDrawable picture) {
     if(copyright != null && !copyright.trim().isEmpty() && picture != null) {
-      Object[] result = getBreakerText(copyright.trim(), mWidth - mStartTimeBounds.width() - mGap, NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT);
+      Object[] result = getBreakerText(copyright.trim(), ProgramTableLayoutConstants.COLUMN_WIDTH - mStartTimeBounds.width() - ProgramTableLayoutConstants.TIME_TITLE_GAP, ProgramTableLayoutConstants.NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT);
       
       mPictureCopyright = result[0].toString();
       mSuperSmallCount += (Integer)result[1];
       
       mPicture = picture;
+      
+      float percent = mPicture.getBounds().width() / (float)(getTextWidth() - mStartTimeBounds.width() - ProgramTableLayoutConstants.TIME_TITLE_GAP);
+      
+      if(percent > 1) {
+        mPicture.setBounds(0, 0, (int)(mPicture.getBounds().width() / percent), (int)(mPicture.getBounds().height() / percent));
+      }
       
       if(isExpired()) {
         mPicture.setColorFilter(getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
@@ -260,42 +176,40 @@ public class ProgramPanel extends View {
       pictureHeight = mPicture.getBounds().height();
     }
     
-    mWidth = MeasureSpec.getSize( widthMeasureSpec );
+    height = Math.max(height, ProgramTableLayoutConstants.BIG_MAX_FONT_HEIGHT * mBigRowCount + ProgramTableLayoutConstants.SMALL_MAX_FONT_HEIGHT * mSmallRowCount + pictureHeight + mSuperSmallCount * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT);
     
-    height = Math.max(height, BIG_MAX_FONT_HEIGHT * mBigRowCount + SMALL_MAX_FONT_HEIGHT * mSmallRowCount + pictureHeight + mSuperSmallCount * SUPER_SMALL_MAX_FONT_HEIGHT);
-    
-    setMeasuredDimension(mWidth, height);
+    setMeasuredDimension(ProgramTableLayoutConstants.COLUMN_WIDTH, height);
   }
   
   @Override
   protected void onDraw(Canvas canvas) {
     super.onDraw(canvas);
     
-    canvas.translate(PADDING_SIDE, 0);
+    canvas.translate(ProgramTableLayoutConstants.PADDING_SIDE, 0);
     
-    TextPaint toUseForTimeAndTitle = NOT_EXPIRED_TITLE_PAINT;
-    TextPaint toUseForGenreAndEpisode = NOT_EXPIRED_GENRE_EPISODE_PAINT;
-    TextPaint toUseForPictureCopyright = NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT;
+    TextPaint toUseForTimeAndTitle = ProgramTableLayoutConstants.NOT_EXPIRED_TITLE_PAINT;
+    TextPaint toUseForGenreAndEpisode = ProgramTableLayoutConstants.NOT_EXPIRED_GENRE_EPISODE_PAINT;
+    TextPaint toUseForPictureCopyright = ProgramTableLayoutConstants.NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT;
     
     if(isExpired()) {
-      toUseForTimeAndTitle = EXPIRED_TITLE_PAINT;
-      toUseForGenreAndEpisode = EXPIRED_GENRE_EPISODE_PAINT;
-      toUseForPictureCopyright = EXPIRED_PICTURE_COPYRIGHT_PAINT;
+      toUseForTimeAndTitle = ProgramTableLayoutConstants.EXPIRED_TITLE_PAINT;
+      toUseForGenreAndEpisode = ProgramTableLayoutConstants.EXPIRED_GENRE_EPISODE_PAINT;
+      toUseForPictureCopyright = ProgramTableLayoutConstants.EXPIRED_PICTURE_COPYRIGHT_PAINT;
     }
     
     // draw start time
-    canvas.drawText(mStartTimeString, 0, BIG_MAX_FONT_HEIGHT - BIG_FONT_DESCEND, toUseForTimeAndTitle);
+    canvas.drawText(mStartTimeString, 0, ProgramTableLayoutConstants.BIG_MAX_FONT_HEIGHT - ProgramTableLayoutConstants.BIG_FONT_DESCEND, toUseForTimeAndTitle);
     
-    canvas.translate(mStartTimeBounds.width() + mGap, 0);
+    canvas.translate(mStartTimeBounds.width() + ProgramTableLayoutConstants.TIME_TITLE_GAP, 0);
     
     String[] lines = mTitle.split("\n");
     
     // draw title
     for(int i = 0; i < lines.length; i++) {
-      canvas.drawText(lines[i], 0, (i+1) * BIG_MAX_FONT_HEIGHT - BIG_FONT_DESCEND, toUseForTimeAndTitle);
+      canvas.drawText(lines[i], 0, (i+1) * ProgramTableLayoutConstants.BIG_MAX_FONT_HEIGHT - ProgramTableLayoutConstants.BIG_FONT_DESCEND, toUseForTimeAndTitle);
     }
     
-    canvas.translate(0, lines.length * BIG_MAX_FONT_HEIGHT);
+    canvas.translate(0, lines.length * ProgramTableLayoutConstants.BIG_MAX_FONT_HEIGHT);
     
     // draw picture copyright and picture
     if(mPictureCopyright != null && mPicture != null) {
@@ -306,10 +220,10 @@ public class ProgramPanel extends View {
       lines = mPictureCopyright.split("\n");
       
       for(int i = 0; i < lines.length; i++) {
-        canvas.drawText(lines[i], 0, (i+1) * SUPER_SMALL_MAX_FONT_HEIGHT - SUPER_SMALL_FONT_DESCEND, toUseForPictureCopyright);
+        canvas.drawText(lines[i], 0, (i+1) * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT - ProgramTableLayoutConstants.SUPER_SMALL_FONT_DESCEND, toUseForPictureCopyright);
       }
       
-      canvas.translate(0, lines.length * SUPER_SMALL_MAX_FONT_HEIGHT);
+      canvas.translate(0, lines.length * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT);
     }
     
     // draw genre
@@ -317,10 +231,10 @@ public class ProgramPanel extends View {
       lines = mGenre.split("\n");
       
       for(int i = 0; i < lines.length; i++) {
-        canvas.drawText(lines[i], 0, (i+1) * SMALL_MAX_FONT_HEIGHT - SMALL_FONT_DESCEND, toUseForGenreAndEpisode);
+        canvas.drawText(lines[i], 0, (i+1) * ProgramTableLayoutConstants.SMALL_MAX_FONT_HEIGHT - ProgramTableLayoutConstants.SMALL_FONT_DESCEND, toUseForGenreAndEpisode);
       }
       
-      canvas.translate(0, lines.length * SMALL_MAX_FONT_HEIGHT);
+      canvas.translate(0, lines.length * ProgramTableLayoutConstants.SMALL_MAX_FONT_HEIGHT);
     }
     
     // draw episode title
@@ -328,7 +242,7 @@ public class ProgramPanel extends View {
       lines = mEpisode.split("\n");
       
       for(int i = 0; i < lines.length; i++) {
-        canvas.drawText(lines[i], 0, (i+1) * SMALL_MAX_FONT_HEIGHT - SMALL_FONT_DESCEND, toUseForGenreAndEpisode);
+        canvas.drawText(lines[i], 0, (i+1) * ProgramTableLayoutConstants.SMALL_MAX_FONT_HEIGHT - ProgramTableLayoutConstants.SMALL_FONT_DESCEND, toUseForGenreAndEpisode);
       }
     }
   }

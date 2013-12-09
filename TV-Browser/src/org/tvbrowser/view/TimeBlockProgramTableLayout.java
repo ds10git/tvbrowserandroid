@@ -56,9 +56,11 @@ public class TimeBlockProgramTableLayout extends ProgramTableLayout {
       int sortIndex = mChannelIDsOrdered.indexOf(Integer.valueOf(progPanel.getChannelID()));
       int block = progPanel.getStartHour(mCurrentShownDay) / mBlockSize;
       
-      progPanel.measure(widthSpec, heightMeasureSpec);
-      blockHeightCalc[block][sortIndex] += progPanel.getMeasuredHeight();
-      blockProgCount[block][sortIndex]++;
+      if(block >= 0) {
+        progPanel.measure(widthSpec, heightMeasureSpec);
+        blockHeightCalc[block][sortIndex] += progPanel.getMeasuredHeight();
+        blockProgCount[block][sortIndex]++;
+      }
     }
     
     int height = 0;
@@ -87,25 +89,33 @@ public class TimeBlockProgramTableLayout extends ProgramTableLayout {
         int sortIndex = mChannelIDsOrdered.indexOf(Integer.valueOf(progPanel.getChannelID()));
         int block = progPanel.getStartHour(mCurrentShownDay) / mBlockSize;
         
-        int maxBlockHeight = mBlockHeights[block];
-        int heightDiff = maxBlockHeight - blockHeightCalc[block][sortIndex];
-        int blockProgCountValue = blockProgCount[block][sortIndex];
-        
-        blockCurrentProgCount[block][sortIndex]++;
-        
-        int addHeight = heightDiff/blockProgCountValue;
-        
-        int count = 1;
-        
-        int endBlock = progPanel.getEndHour(mCurrentShownDay) / mBlockSize;
-        
-        while(blockCurrentProgCount[block][sortIndex] == blockProgCountValue && (block + count) < (mBlockHeights.length) && blockProgCount[block + count][sortIndex] == 0 && endBlock > block + count) {
-          addHeight += mBlockHeights[block + count++];
+        if(block >= 0) {
+          int maxBlockHeight = mBlockHeights[block];
+          int heightDiff = maxBlockHeight - blockHeightCalc[block][sortIndex];
+          int blockProgCountValue = blockProgCount[block][sortIndex];
+          
+          blockCurrentProgCount[block][sortIndex]++;
+          
+          int addHeight = heightDiff/blockProgCountValue;
+          
+          int count = 1;
+          
+          int endBlock = progPanel.getEndHour(mCurrentShownDay) / mBlockSize;
+          
+          if(blockCurrentProgCount[block][sortIndex] == blockProgCountValue) {
+            while((block + count) < (mBlockHeights.length) && blockProgCount[block + count][sortIndex] == 0 && endBlock > block + count) {
+              addHeight += mBlockHeights[block + count++];
+            }
+            
+            if(count == 1) {
+              addHeight +=  heightDiff%blockProgCountValue;
+            }
+          }
+          
+          int newHeightSpec = MeasureSpec.makeMeasureSpec(progPanel.getMeasuredHeight() + addHeight, MeasureSpec.EXACTLY);
+          
+          progPanel.measure(widthSpec, newHeightSpec);
         }
-        
-        int newHeightSpec = MeasureSpec.makeMeasureSpec(progPanel.getMeasuredHeight() + addHeight, MeasureSpec.EXACTLY);
-        
-        progPanel.measure(widthSpec, newHeightSpec);
       }
     }
     
@@ -122,16 +132,18 @@ public class TimeBlockProgramTableLayout extends ProgramTableLayout {
       int sortIndex = mChannelIDsOrdered.indexOf(Integer.valueOf(progPanel.getChannelID()));
       int block = progPanel.getStartHour(mCurrentShownDay) / mBlockSize;
       
-      int x = l + ProgramTableLayoutConstants.ROW_HEADER + ProgramTableLayoutConstants.GAP + sortIndex * (ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP);
-      int y = t + currentBlockHeight[block][sortIndex];
-      
-      if(block > 0) {
-        y += mBlockCumulatedHeights[block-1];
+      if(block >= 0) {
+        int x = l + ProgramTableLayoutConstants.ROW_HEADER + ProgramTableLayoutConstants.GAP + sortIndex * (ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP);
+        int y = t + currentBlockHeight[block][sortIndex];
+        
+        if(block > 0) {
+          y += mBlockCumulatedHeights[block-1];
+        }
+        
+        currentBlockHeight[block][sortIndex] += progPanel.getMeasuredHeight();
+        
+        progPanel.layout(x, y, x + ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP, y + progPanel.getMeasuredHeight());
       }
-      
-      currentBlockHeight[block][sortIndex] += progPanel.getMeasuredHeight();
-      
-      progPanel.layout(x, y, x + ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP, y + progPanel.getMeasuredHeight());
     }
   }
   
