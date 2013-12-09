@@ -1637,7 +1637,11 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   private void updateFromPreferences() {
-    LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(SettingConstants.CHANNEL_UPDATE_DONE));
+    Fragment test1 = mSectionsPagerAdapter.getRegisteredFragment(1);
+    
+    if(test1 instanceof DummySectionFragment) {
+      ((DummySectionFragment)test1).updateChannels();
+    }
     
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     
