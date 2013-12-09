@@ -45,6 +45,7 @@
     <string name="program_popup_mark">Sendung markieren</string>
     <string name="program_popup_unmark">Markierung löschen</string>
     <string name="program_popup_search_repetition">Wiederholung suchen</string>
+    <string name="pref_prog_table_width_hint">Spaltenbreite</string>
     <string name="title">Titel:</string>
     <string name="title_hint">Titel für Suche eingeben</string>
     <string name="episode">Folge:</string>
@@ -79,6 +80,7 @@
         <item>Die nächsten drei Tage</item>
         <item>Die nächste Woche</item>
         <item>Die nächsten zwei Wochen</item>
+        <item>Die nächsten drei Wochen</item>
     </string-array>
     <string name="version">Version:</string>
     <string name="android">Android:</string>
@@ -108,6 +110,10 @@
 	<string name="synchronize_text">Sie können die Sender aus dem Desktop-TV-Browser synchronisieren.\n\nDazu müssen sie sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> und die Sender aus dem Desktop-TV-Browser mit dem Android-Sync Plugin exportieren.\n\nMöchten Sie die Sender jetzt synchronisieren oder möchten Sie die Sender manuell auswählen?</string>
 	<string name="synchronize_ok">Sender jetzt synchronisieren</string>
 	<string name="synchronize_cancel">Sender manuell auswählen</string>
+	<string name="synchronize_replace_add_title">Ersetzen oder ergänzen?</string>
+	<string name="synchronize_replace_add_text">Die ausgewählten Sender können mit den Synchronisationsdaten ersetzt oder ergänzt werden.\nWas soll getan werden?</string>
+	<string name="synchronize_replace">Ausgewählte Sender ersetzen</string>
+	<string name="synchronize_add">Neue Sender ergänzen</string>
 	<string name="synchronize_done">Synchronisation der Sender abgeschlossen!</string>
 	<string name="synchronize_error">Sender konnten nicht synchronisiert werden.</string>
 	<string name="previous_day">Vorheriger</string>

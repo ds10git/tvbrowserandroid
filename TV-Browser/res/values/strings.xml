@@ -50,6 +50,7 @@
     <string name="program_popup_mark">Mark program</string>
     <string name="program_popup_unmark">Unmark program</string>
     <string name="program_popup_search_repetition">Search for repetition</string>
+    <string name="pref_prog_table_width_hint">Column width</string>
     <string name="search">Search</string>
     <string name="title">Title:</string>
     <string name="title_hint">Enter title to search</string>
@@ -85,6 +86,7 @@
         <item>The next 3 days</item>
         <item>The next week</item>
         <item>The next two weeks</item>
+        <item>The next three weeks</item>
     </string-array>
     <string name="version">Version:</string>
     <string name="android">Android:</string>
@@ -114,6 +116,10 @@
 	<string name="synchronize_text">You can synchronize your with the channels from your desktop TV-Browser.\n\nYou will have to <a href="http://android.tvbrowser.org/index.php?id=createaccount">register a user first</a> and export your channels from your desktop TV-Browser with the Android Sync plugin.\n\nDo you wish to synchronize your channels now or do you wish to select the channels manually?</string>
 	<string name="synchronize_ok">Syncronize channels now</string>
 	<string name="synchronize_cancel">Select channels manually</string>
+	<string name="synchronize_replace_add_title">Replace or add channels?</string>
+	<string name="synchronize_replace_add_text">You can replace your current selected channels with the synchronization data or only add new channels to your selected channels.\nWhat should be done?</string>
+	<string name="synchronize_replace">Replace selected channels</string>
+	<string name="synchronize_add">Add new to selected channels</string>
 	<string name="synchronize_done">Channels synchronizing done!</string>
 	<string name="synchronize_error">Channels could not be synchronized.</string>
 	<string name="previous_day">Previous</string>

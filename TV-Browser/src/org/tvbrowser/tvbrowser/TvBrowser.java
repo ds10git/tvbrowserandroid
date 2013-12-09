@@ -142,7 +142,7 @@ public class TvBrowser extends FragmentActivity implements
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2013);
     mRundate.set(Calendar.MONTH, Calendar.DECEMBER);
-    mRundate.set(Calendar.DAY_OF_MONTH, 15);
+    mRundate.set(Calendar.DAY_OF_MONTH, 22);
   }
   
   @Override
@@ -387,9 +387,54 @@ public class TvBrowser extends FragmentActivity implements
     localBroadcastManager.sendBroadcast(new Intent(SettingConstants.CHANNEL_UPDATE_DONE));
   }
   
-  private void syncronizeChannels() {
+  private void syncronizeChannels()  {
+    Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.CHANNEL_KEY_SELECTION}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + " = 1 ", null, null);
+    
+    int count = test.getCount();
+    
+    test.close();
+    
+    if(count > 0) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+      
+      builder.setTitle(R.string.synchronize_replace_add_title);
+      builder.setMessage(R.string.synchronize_replace_add_text);
+      
+      builder.setPositiveButton(R.string.synchronize_add, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          syncronizeChannels(false);
+        }
+      });
+      builder.setNegativeButton(R.string.synchronize_replace, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          syncronizeChannels(true);
+        }
+      });
+      
+      builder.show();
+    }
+    else {
+      syncronizeChannels(false);
+    }
+  }
+  
+  private void syncronizeChannels(final boolean replace) {
     new Thread() {
       public void run() {
+        boolean somethingSynchonized = false;
+        
+        if(replace) {
+          ContentValues values = new ContentValues();
+          values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 0);
+          values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, 0);
+          
+          if(getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + " = 1", null) > 0) {
+            somethingSynchonized = true;
+          }
+        }
+        
         URL documentUrl;
         try {
           //documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels2.php");
@@ -412,8 +457,6 @@ public class TvBrowser extends FragmentActivity implements
             String line = null;
             
             int sort = 1;
-            
-            boolean somethingSynchonized = false;
             
             while((line = read.readLine()) != null) {
               if(line.trim().length() > 0) {
@@ -922,12 +965,6 @@ public class TvBrowser extends FragmentActivity implements
           // if something was changed we need to update channel list bar in program list and the complete program table
           if(somethingChanged) {
             updateProgramListChannelBar();
-            
-            Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
-            
-            if(test instanceof ProgramTableFragment) {
-              ((ProgramTableFragment)test).updateView(getLayoutInflater());
-            }
           }
           
           // if something was selected we need to download new data
@@ -1292,12 +1329,6 @@ public class TvBrowser extends FragmentActivity implements
           
           if(somethingChanged) {
             updateProgramListChannelBar();
-            
-            Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
-            
-            if(test instanceof ProgramTableFragment) {
-              ((ProgramTableFragment)test).updateView(getLayoutInflater());
-            }
           }
         }
       });
