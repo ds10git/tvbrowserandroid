@@ -41,7 +41,7 @@
     <string name="dont_select_channels">Jetzt nicht</string>
     <string name="update_data">Datenupdate</string>
     <string name="versionExpired">Version abgelaufen</string>
-    <string name="versionExpiredMsg">Sehen Sie im TV-Browser Forum nach neuen Versionen.</string>
+    <string name="versionExpiredMsg">Bitte installieren Sie ein Update.</string>
     <string name="program_popup_mark">Sendung markieren</string>
     <string name="program_popup_unmark">Markierung löschen</string>
     <string name="program_popup_search_repetition">Wiederholung suchen</string>
