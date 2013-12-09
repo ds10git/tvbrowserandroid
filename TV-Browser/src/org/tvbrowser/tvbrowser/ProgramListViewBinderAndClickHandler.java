@@ -154,7 +154,9 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       TextView text = (TextView)view;
       ImageView picture = (ImageView)((RelativeLayout)text.getParent()).findViewById(R.id.picture_pl);
       
-      if(!cursor.isNull(columnIndex) && showPicture) {
+      int pictureIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
+      
+      if(pictureIndex >= 0 && !cursor.isNull(pictureIndex) && showPicture) {
         byte[] logoData = cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE));
         Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
         

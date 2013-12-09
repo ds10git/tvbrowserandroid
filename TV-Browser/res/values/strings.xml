@@ -46,7 +46,7 @@
     <string name="dont_select_channels">Don\'t select channels</string>
     <string name="update_data">Update Data</string>
     <string name="versionExpired">Version expired</string>
-    <string name="versionExpiredMsg">Look in the TV-Browser message board for new versions.</string>
+    <string name="versionExpiredMsg">Please install an update for the app.</string>
     <string name="program_popup_mark">Mark program</string>
     <string name="program_popup_unmark">Unmark program</string>
     <string name="program_popup_search_repetition">Search for repetition</string>
