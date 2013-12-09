@@ -46,6 +46,7 @@ public class ColumnWidthPreference extends DialogPreference {
     mNumberPicker = new NumberPicker(getContext());
     mNumberPicker.setMinValue(0);
     mNumberPicker.setMaxValue((MAX_VALUE - MIN_VALUE) / 10);
+    mNumberPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
     
     String[] displayedValues = new String[mNumberPicker.getMaxValue() + 1];
     
