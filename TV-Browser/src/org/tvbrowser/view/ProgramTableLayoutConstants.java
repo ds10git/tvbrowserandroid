@@ -39,6 +39,7 @@ public class ProgramTableLayoutConstants {
   
   static final Paint BLOCK_PAINT = new Paint();
   static final Paint LINE_PAINT = new Paint();
+  static final Paint CHANNEL_LINE_PAINT = new Paint();
   
   static final TextPaint TIME_BLOCK_TIME_PAINT = new TextPaint();
   
@@ -133,6 +134,8 @@ public class ProgramTableLayoutConstants {
     ROW_HEADER = (int)(scale * 28);
     BLOCK_PAINT.setColor(Color.rgb(GRAY_VALUE, GRAY_VALUE, GRAY_VALUE));
     LINE_PAINT.setColor(Color.LTGRAY);
+    CHANNEL_LINE_PAINT.setColor(context.getResources().getColor(R.color.light_gray));
+    
     PADDING_SIDE = (int) (2 * scale + 0.5f);
     
     TIME_BLOCK_TIME_PAINT.setTextSize(scale * 20);

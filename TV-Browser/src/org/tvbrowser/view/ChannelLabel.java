@@ -60,13 +60,14 @@ public class ChannelLabel extends View {
   
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    setMeasuredDimension(ProgramTableLayoutConstants.COLUMN_WIDTH, ProgramTableLayoutConstants.CHANNEL_BAR_HEIGHT);
+    setMeasuredDimension(ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP, ProgramTableLayoutConstants.CHANNEL_BAR_HEIGHT);
   }
   
   @Override
   protected void onDraw(Canvas canvas) {
-    canvas.drawRect(0, 0, getWidth(), getHeight(), ProgramTableLayoutConstants.CHANNEL_BACKGROUND_PAINT);
-    
+    canvas.drawRect(0, 0, getWidth() - ProgramTableLayoutConstants.GAP, getHeight(), ProgramTableLayoutConstants.CHANNEL_BACKGROUND_PAINT);
+    canvas.drawLine(getWidth() - ProgramTableLayoutConstants.GAP, 0, getWidth() - ProgramTableLayoutConstants.GAP, getHeight(), ProgramTableLayoutConstants.CHANNEL_LINE_PAINT);
+        
     int textWidth = 0;
     int logoWidth = 0;
         

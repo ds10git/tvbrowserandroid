@@ -49,7 +49,7 @@ public class CompactProgramTableLayout extends ProgramTableLayout {
       maxHeight = Math.max(maxHeight, currentColumnHeight[sortIndex]);
     }
     
-    setMeasuredDimension(ProgramTableLayoutConstants.ROW_HEADER + ProgramTableLayoutConstants.GAP + (ProgramTableLayoutConstants.COLUMN_WIDTH+ProgramTableLayoutConstants.GAP) * mChannelIDsOrdered.size(), maxHeight);
+    setMeasuredDimension((ProgramTableLayoutConstants.COLUMN_WIDTH+ProgramTableLayoutConstants.GAP) * mChannelIDsOrdered.size(), maxHeight);
   }
   
   @Override
@@ -61,7 +61,7 @@ public class CompactProgramTableLayout extends ProgramTableLayout {
       
       int sortIndex = mChannelIDsOrdered.indexOf(Integer.valueOf(progPanel.getChannelID()));
             
-      int x = l + ProgramTableLayoutConstants.ROW_HEADER + ProgramTableLayoutConstants.GAP + sortIndex * (ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP);
+      int x = l + sortIndex * (ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP);
       int y = t + currentColumnHeight[sortIndex];
             
       currentColumnHeight[sortIndex] += progPanel.getMeasuredHeight();
@@ -73,7 +73,7 @@ public class CompactProgramTableLayout extends ProgramTableLayout {
   @Override
   protected void dispatchDraw(Canvas canvas) {
     for(int i = 0; i < mChannelIDsOrdered.size(); i++) {
-      int x = ProgramTableLayoutConstants.ROW_HEADER + i * (ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP);
+      int x = i * (ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP);
       canvas.drawLine(x, 0, x, canvas.getHeight(), ProgramTableLayoutConstants.LINE_PAINT);
     }
     

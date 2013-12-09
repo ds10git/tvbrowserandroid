@@ -465,7 +465,7 @@ public class ProgramTableFragment extends Fragment {
       ChannelLabel channelLabel = new ChannelLabel(getActivity(), name, logo);
       
       channelBar.addView(channelLabel);
-      channelBar.addView(inflater.inflate(R.layout.separator_line, channelBar, false));
+      //channelBar.addView(inflater.inflate(R.layout.separator_line, channelBar, false));
     }
         
     if(channels.getCount() > 0) {
@@ -499,6 +499,11 @@ public class ProgramTableFragment extends Fragment {
       }
       
       cursor.close();
+    }
+    
+    if(mProgramPanelLayout instanceof CompactProgramTableLayout) {
+      channelBar.removeViewAt(0);
+      channelBar.removeViewAt(0);
     }
     
     Calendar test = Calendar.getInstance();
