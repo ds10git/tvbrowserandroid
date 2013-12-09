@@ -39,6 +39,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -51,7 +52,15 @@ public class DummySectionFragment extends Fragment {
    */
   public static final String ARG_SECTION_NUMBER = "section_number";
 
+  private BroadcastReceiver mChannelUpdateReceiver;
+  
   public DummySectionFragment() {
+  }
+  
+  public void updateChannels() {
+    if(mChannelUpdateReceiver != null) {
+      mChannelUpdateReceiver.onReceive(null, null);
+    }
   }
   
   @Override
@@ -189,7 +198,7 @@ public class DummySectionFragment extends Fragment {
         
         IntentFilter channelUpdateFilter = new IntentFilter(SettingConstants.CHANNEL_UPDATE_DONE);
         
-        final BroadcastReceiver receiver = new BroadcastReceiver() {
+        mChannelUpdateReceiver = new BroadcastReceiver() {
           @Override
           public void onReceive(Context context, Intent intent) {
             Button all = (Button)parent.findViewById(R.id.all_channels);
@@ -260,8 +269,8 @@ public class DummySectionFragment extends Fragment {
           }
         };
         
-        localBroadcastManager.registerReceiver(receiver, channelUpdateFilter);
-        receiver.onReceive(null, null);
+        localBroadcastManager.registerReceiver(mChannelUpdateReceiver, channelUpdateFilter);
+        mChannelUpdateReceiver.onReceive(null, null);
     }
     else {
       rootView = inflater.inflate(R.layout.fragment_tv_browser_dummy,
