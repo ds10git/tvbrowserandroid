@@ -204,10 +204,10 @@ public class TvBrowserContentProvider extends ContentProvider {
       
       count = database.delete(TvBrowserDataBaseHelper.GROUPS_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
       }break;
-      case CHANNELS: count = database.delete(TvBrowserDataBaseHelper.CHANNEL_TABLE, where, whereArgs);break;
+      case CHANNELS: count = database.delete(CHANNEL_TABLE, where, whereArgs);break;
       case CHANNEL_ID: {String segment = uri.getPathSegments().get(1);
       data_with_channel = true;
-      count = database.delete(TvBrowserDataBaseHelper.CHANNEL_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+      count = database.delete(CHANNEL_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
       }break;
       case DATA: count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, where, whereArgs);break;
       case DATA_ID: {String segment = uri.getPathSegments().get(1);
@@ -381,7 +381,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
     // Insert the new row. The call to databse.insert will return the row number if it is successfull.
-    long rowID = database.insert(TvBrowserDataBaseHelper.CHANNEL_TABLE, "channel", values);
+    long rowID = database.insert(CHANNEL_TABLE, "channel", values);
     
     // Return a URI to the newly inserted row on success.
     
@@ -447,7 +447,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       case GROUPS: qb.setTables(TvBrowserDataBaseHelper.GROUPS_TABLE);
                    orderBy = GROUP_KEY_GROUP_ID;break;
       case CHANNEL_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-      case CHANNELS: qb.setTables(TvBrowserDataBaseHelper.CHANNEL_TABLE);
+      case CHANNELS: qb.setTables(CHANNEL_TABLE);
                     orderBy = CHANNEL_KEY_NAME;break;
       case DATA_VERSION_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
       case DATA_VERSION: qb.setTables(TvBrowserDataBaseHelper.VERSION_TABLE);
@@ -459,9 +459,9 @@ public class TvBrowserContentProvider extends ContentProvider {
       case DATA: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
                     orderBy = CHANNEL_KEY_CHANNEL_ID;break;
       case DATA_CHANNEL_ID: qb.appendWhere(TvBrowserDataBaseHelper.DATA_TABLE + "." + KEY_ID + "=" + uri.getPathSegments().get(1) + " AND ");
-      case DATA_CHANNELS: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + TvBrowserDataBaseHelper.CHANNEL_TABLE);
+      case DATA_CHANNELS: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + CHANNEL_TABLE);
                     orderBy = CHANNEL_KEY_ORDER_NUMBER + " , " + CHANNEL_KEY_CHANNEL_ID;
-                    qb.appendWhere(TvBrowserDataBaseHelper.CHANNEL_TABLE + "." + KEY_ID + " = " + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID);
+                    qb.appendWhere(CHANNEL_TABLE + "." + KEY_ID + " = " + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID);
 
                     if(projection != null) {
                       for(int i = 0; i < projection.length; i++) {
@@ -526,10 +526,10 @@ public class TvBrowserContentProvider extends ContentProvider {
       
       count = database.update(TvBrowserDataBaseHelper.GROUPS_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
       }break;
-      case CHANNELS: count = database.update(TvBrowserDataBaseHelper.CHANNEL_TABLE, values, where, whereArgs);break;
+      case CHANNELS: count = database.update(CHANNEL_TABLE, values, where, whereArgs);break;
       case CHANNEL_ID: {String segment = uri.getPathSegments().get(1);
       data_with_channel = true;
-      count = database.update(TvBrowserDataBaseHelper.CHANNEL_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+      count = database.update(CHANNEL_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
       }break;
       case DATA_VERSION: count = database.update(TvBrowserDataBaseHelper.VERSION_TABLE, values, where, whereArgs);break;
       case DATA_VERSION_ID: {String segment = uri.getPathSegments().get(1);
@@ -560,6 +560,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     return count;
   }
 
+  public static final String CHANNEL_TABLE = "channels";
   
   // Helper class for opneing, creating, and managing database version control
   private static class TvBrowserDataBaseHelper extends SQLiteOpenHelper {
@@ -567,7 +568,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     private static final String DATABASE_NAME = "tvbrowser.db";
     
     private static final String GROUPS_TABLE = "channelGroups";
-    private static final String CHANNEL_TABLE = "channels";
+    
     private static final String DATA_TABLE = "data";
     private static final String VERSION_TABLE = "dataVersion";
     

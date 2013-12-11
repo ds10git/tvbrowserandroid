@@ -251,6 +251,27 @@
         </PreferenceScreen>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_misc">
+        <PreferenceScreen 
+            android:key="@string/PREF_SYNC_SCREEN"
+            android:title="@string/pref_sync_title"
+            android:summary="@string/pref_sync_summary_enabled">
+            <CheckBoxPreference android:key="@string/PREF_SYNC_FAV_FROM_DESKTOP"
+                android:title="@string/pref_sync_fav_from_desktop"
+                android:summary="@string/pref_sync_fav_from_desktop_summary"
+                android:defaultValue="true"/>
+            <CheckBoxPreference android:key="@string/PREF_SYNC_FAV_TO_DESKTOP"
+                android:title="@string/pref_sync_fav_to_desktop"
+                android:summary="@string/pref_sync_fav_to_desktop_summary"
+                android:defaultValue="true"/>
+            <CheckBoxPreference android:key="@string/PREF_SYNC_MARKED_TO_DESKTOP"
+                android:title="@string/pref_sync_marked_to_desktop"
+                android:summary="@string/pref_sync_marked_to_desktop_summary"
+                android:defaultValue="true"/>
+            <CheckBoxPreference android:key="@string/PREF_SYNC_CALENDAR_TO_DESKTOP"
+                android:title="@string/pref_sync_calendar_to_desktop"
+                android:summary="@string/pref_sync_calendar_to_desktop_summary"
+                android:defaultValue="true"/>
+        </PreferenceScreen>
 	    <PreferenceScreen android:title="@string/pref_debug"
 	            android:summary="@string/pref_debug_summary">
 	        <CheckBoxPreference android:key="@string/WRITE_LOG"
