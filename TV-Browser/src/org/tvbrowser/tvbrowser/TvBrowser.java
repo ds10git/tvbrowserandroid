@@ -1489,7 +1489,7 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   private void setUserName(final String userName, final String password, final boolean syncChannels) {
-    if(userName != null && password != null && userName.length() > 0 && password.length() > 0) {
+    if(userName != null && password != null) {
       new Thread() {
         public void run() {
           URL documentUrl;
@@ -1564,7 +1564,12 @@ public class TvBrowser extends FragmentActivity implements
         }
       }
     });
-    builder.show();
+
+    AlertDialog d = builder.create();
+    
+    d.show();
+
+    ((TextView)d.findViewById(R.id.user_pw_sync_info)).setMovementMethod(LinkMovementMethod.getInstance());
   }
   
   private void showNoInternetConnection(final Runnable callback) {
@@ -1645,7 +1650,13 @@ public class TvBrowser extends FragmentActivity implements
     
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     
-    boolean programTableActivated = pref.getBoolean(getResources().getString(R.string.PROG_TABLE_ACTIVATED), true);
+    Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
+    
+    if(fragment instanceof FavoritesFragment) {
+      ((FavoritesFragment)fragment).updateSynchroButton(null);
+    }
+    
+    boolean programTableActivated = pref.getBoolean(getResources().getString(R.string.PROG_TABLE_ACTIVATED), getResources().getBoolean(R.bool.prog_table_default));
     Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
     
     if(!programTableActivated && test instanceof ProgramTableFragment) {

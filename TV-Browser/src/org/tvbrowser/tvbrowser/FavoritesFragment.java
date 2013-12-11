@@ -88,7 +88,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       handler.post(new Runnable() {
         @Override
         public void run() {
-          if(getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
+          if(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getResources().getString(R.string.PREF_SYNC_FAV_FROM_DESKTOP), true) && getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
             button.setVisibility(View.VISIBLE);
           }
           else {

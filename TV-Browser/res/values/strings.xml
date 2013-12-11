@@ -243,4 +243,16 @@
 	<string name="log_send_mail_subject">Log file for TV-Browser for Android</string>
 	<string name="log_send_mail_content">The attachments contains the log file of TV-Browser for Android, from</string>
 	<string name="pref_misc">Misc</string>
+	<string name="pref_sync_title">Synchronization</string>
+	<string name="pref_sync_summary_disabled">To use the synchronization with the desktop TV-Browser you have to enter a user name and a password in the menu.</string>
+	<string name="pref_sync_summary_enabled">Settings for synchronization with the desktop TV-Browser</string>
+	<string name="pref_sync_fav_from_desktop">Exported programs</string>
+	<string name="pref_sync_fav_from_desktop_summary">Programs that are exported by the AndroidSync plugin from the desktop version.</string>
+	<string name="pref_sync_fav_to_desktop">Favorites</string>
+	<string name="pref_sync_fav_to_desktop_summary">Programs that are marked as Favorite are exported to desktop TV-Browser.</string>
+	<string name="pref_sync_marked_to_desktop">Manually marked</string>
+	<string name="pref_sync_marked_to_desktop_summary">Programs that were marked manually are exported to desktop TV-Browser.</string>
+	<string name="pref_sync_calendar_to_desktop">Added to calendar</string>
+	<string name="pref_sync_calendar_to_desktop_summary">Programs that were added to the Android calendar are exported to desktop TV-Browser.</string>
+	<string name="synchronize_user_info">You will have to <a href="http://android.tvbrowser.org/index.php?id=createaccount">register a user first</a> to use the synchronization with the desktop TV-Browser.</string>
 </resources>

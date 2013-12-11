@@ -34,4 +34,9 @@
     <string name="TIME_BUTTON_5">TIME_BUTTON_FIVE</string>
     <string name="TIME_BUTTON_6">TIME_BUTTON_SIX</string>
     <string name="WRITE_LOG">WRITE_LOG</string>
+    <string name="PREF_SYNC_SCREEN">PREF_SYNC_SCREEN</string>
+    <string name="PREF_SYNC_FAV_FROM_DESKTOP">PREF_SYNC_FAV_FROM_DESKTOP</string>
+    <string name="PREF_SYNC_FAV_TO_DESKTOP">PREF_SYNC_FAV_TO_DESKTOP</string>
+    <string name="PREF_SYNC_MARKED_TO_DESKTOP">PREF_SYNC_MARKED_TO_DESKTOP</string>
+    <string name="PREF_SYNC_CALENDAR_TO_DESKTOP">PREF_SYNC_CALENDAR_TO_DESKTOP</string>
 </resources>

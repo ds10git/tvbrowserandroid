@@ -18,12 +18,15 @@ package org.tvbrowser.tvbrowser;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -43,9 +46,11 @@ import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.zip.GZIPOutputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.settings.TvbPreferenceFragment;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
@@ -67,6 +72,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Base64;
 import android.util.Log;
+import android.util.SparseArray;
 import android.widget.Toast;
 
 public class TvDataUpdateService extends Service {
@@ -150,9 +156,7 @@ public class TvDataUpdateService extends Service {
         
         if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
           mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), 2);
-          
-
-          
+                    
           updateTvData();
         }
         else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
@@ -662,6 +666,248 @@ public class TvDataUpdateService extends Service {
     return false;
   }
   
+  private static final class SimpleGroupInfo {
+    public String mDataServiceID;
+    public String mGroupID;
+    
+    public SimpleGroupInfo(String dataServiceID, String groupID) {
+      mDataServiceID = dataServiceID;
+      mGroupID = groupID;
+    }
+  }
+  
+  private byte[] getXmlBytes(boolean syncFav, boolean syncMarkings, boolean syncCalendar) {
+    StringBuilder where = new StringBuilder();
+    
+    if(syncFav) {
+      where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES).append(" LIKE '%").append(SettingConstants.MARK_VALUE_FAVORITE).append("%' ) ") ;
+    }
+    if(syncMarkings) {
+      if(where.length() > 0) {
+        where.append(" OR ");
+      }
+      
+      where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES).append(" LIKE '%").append(SettingConstants.MARK_VALUE).append("%' ) ") ;
+    }
+    if(syncCalendar) {
+      if(where.length() > 0) {
+        where.append(" OR ");
+      }
+      
+      where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES).append(" LIKE '%").append(SettingConstants.MARK_VALUE_CALENDAR).append("%' ) ") ;
+    }
+    
+    String[] projection = {
+        TvBrowserContentProvider.DATA_KEY_STARTTIME,
+        TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,
+        TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
+        TvBrowserContentProvider.GROUP_KEY_GROUP_ID,
+        TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY
+    };
+    
+    Cursor programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+    
+    StringBuilder dat = new StringBuilder();
+    
+    SparseArray<SimpleGroupInfo> groupInfo = new SparseArray<TvDataUpdateService.SimpleGroupInfo>();
+    
+    if(programs.getCount() > 0) {
+      String[] groupProjection = {
+          TvBrowserContentProvider.KEY_ID,
+          TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID,
+          TvBrowserContentProvider.GROUP_KEY_GROUP_ID
+      };
+      
+      Cursor groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, null, null, null);
+      
+      if(groups.getCount() > 0) {
+        while(groups.moveToNext()) {
+          int groupKey = groups.getInt(0);
+          String dataServiceID = groups.getString(1);
+          String groupID = groups.getString(2);
+          
+          if(dataServiceID.equals(SettingConstants.EPG_FREE_KEY)) {
+            dataServiceID = "1";
+          }
+          
+          groupInfo.put(groupKey, new SimpleGroupInfo(dataServiceID, groupID));
+        }
+      }
+      
+      groups.close();
+      
+      if(groupInfo.size() > 0) {
+        while(programs.moveToNext()) {
+          int groupID = programs.getInt(3);
+          long startTime = programs.getLong(0) / 60000;
+          String channelID = programs.getString(2);
+          String baseCountry = programs.getString(4);
+          
+          SimpleGroupInfo info = groupInfo.get(groupID);
+          
+          dat.append(startTime).append(";").append(info.mDataServiceID).append(":").append(info.mGroupID).append(":").append(baseCountry).append(":").append(channelID).append("\n");
+        }
+      }
+    }
+    
+    programs.close();
+          
+    return getCompressedData(dat.toString().getBytes());
+  }
+  
+  private byte[] getCompressedData(byte[] uncompressed) {
+    ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+    
+    try {
+      GZIPOutputStream out = new GZIPOutputStream(bytesOut);
+      
+      // SEND THE IMAGE
+      int index = 0;
+      int size = 1024;
+      do {
+          if ((index + size) > uncompressed.length) {
+              size = uncompressed.length - index;
+          }
+          out.write(uncompressed, index, size);
+          index += size;
+      } while (index < uncompressed.length);
+      
+      out.flush();
+      out.close();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    
+    return bytesOut.toByteArray();
+  }
+  
+  public void backSyncPrograms() {
+    final String CrLf = "\r\n";
+    
+    SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+    
+    String car = pref.getString(SettingConstants.USER_NAME, null);
+    String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+    
+    SharedPreferences defaultPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+    
+    boolean syncFav = defaultPref.getBoolean(getResources().getString(R.string.PREF_SYNC_FAV_TO_DESKTOP), true);
+    boolean syncMarkings = defaultPref.getBoolean(getResources().getString(R.string.PREF_SYNC_MARKED_TO_DESKTOP), true);
+    boolean syncCalendar = defaultPref.getBoolean(getResources().getString(R.string.PREF_SYNC_CALENDAR_TO_DESKTOP), true);
+    
+    if((syncFav || syncMarkings || syncCalendar) && car != null && bicycle != null && car.trim().length() > 0 && bicycle.trim().length() > 0) {
+      String userpass = car.trim() + ":" + bicycle.trim();
+      String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
+      
+      URLConnection conn = null;
+      OutputStream os = null;
+      InputStream is = null;
+
+      try {
+          URL url = new URL("http://android.tvbrowser.org/data/scripts/backSyncMyPrograms.php");
+          
+          conn = url.openConnection();
+          
+          conn.setRequestProperty ("Authorization", basicAuth);
+          
+          conn.setDoOutput(true);
+Log.d("info8", basicAuth);
+          String postData = "";
+          
+          byte[] xmlData = getXmlBytes(syncFav, syncMarkings, syncCalendar);
+          
+          String message1 = "";
+          message1 += "-----------------------------4664151417711" + CrLf;
+          message1 += "Content-Disposition: form-data; name=\"uploadedfile\"; filename=\""+car+".gz\""
+                  + CrLf;
+          message1 += "Content-Type: text/plain" + CrLf;
+          message1 += CrLf;
+
+          // the image is sent between the messages in the multipart message.
+
+          String message2 = "";
+          message2 += CrLf + "-----------------------------4664151417711--"
+                  + CrLf;
+
+          conn.setRequestProperty("Content-Type",
+                  "multipart/form-data; boundary=---------------------------4664151417711");
+          // might not need to specify the content-length when sending chunked
+          // data.
+          conn.setRequestProperty("Content-Length", String.valueOf((message1
+                  .length() + message2.length() + xmlData.length)));
+
+          Log.d("info8","open os");
+          os = conn.getOutputStream();
+
+          Log.d("info8",message1);
+          os.write(message1.getBytes());
+          
+          // SEND THE IMAGE
+          int index = 0;
+          int size = 1024;
+          do {
+            Log.d("info8","write:" + index);
+              if ((index + size) > xmlData.length) {
+                  size = xmlData.length - index;
+              }
+              os.write(xmlData, index, size);
+              index += size;
+          } while (index < xmlData.length);
+          
+          Log.d("info8","written:" + index);
+
+          Log.d("info8",message2);
+          os.write(message2.getBytes());
+          os.flush();
+
+          Log.d("info8","open is");
+          is = conn.getInputStream();
+
+          char buff = 512;
+          int len;
+          byte[] data = new byte[buff];
+          do {
+            Log.d("info8","READ");
+              len = is.read(data);
+
+              if (len > 0) {
+                Log.d("info8",new String(data, 0, len));
+              }
+          } while (len > 0);
+
+          Log.d("info8","DONE");
+      } catch (Exception e) {
+        /*int response = 0;
+        
+        if(conn != null) {
+          try {
+            response = ((HttpURLConnection)conn).getResponseCode();
+          } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+          }
+        }*/
+        
+          Log.d("info8", "" ,e);
+      } finally {
+        Log.d("info8","Close connection");
+          try {
+              os.close();
+          } catch (Exception e) {
+          }
+          try {
+              is.close();
+          } catch (Exception e) {
+          }
+          try {
+
+          } catch (Exception e) {
+          }
+      }
+    }
+  }
+  
   private void loadAccessAndFavoriteSync() {
     try {
       URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/hurtzAndroidTvb.php");
@@ -672,7 +918,7 @@ public class TvDataUpdateService extends Service {
       String car = pref.getString(SettingConstants.USER_NAME, null);
       String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
       
-      if(car != null && bicycle != null && car.trim().length() > 0 && bicycle.trim().length() > 0) {
+      if(PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getBoolean(getResources().getString(R.string.PREF_SYNC_FAV_FROM_DESKTOP), true) && car != null && bicycle != null && car.trim().length() > 0 && bicycle.trim().length() > 0) {
         String userpass = car.trim() + ":" + bicycle.trim();
         String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
         
@@ -852,6 +1098,8 @@ public class TvDataUpdateService extends Service {
       
       Favorite.updateFavoriteMarking(getApplicationContext(), getContentResolver(), fav);
     }
+    
+    backSyncPrograms();
   }
   
   public void doLog(String value) {
@@ -1013,7 +1261,12 @@ public class TvDataUpdateService extends Service {
           int channelKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
           String timeZone = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE));
           doLog("Load info for channel '" + channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
+          
           if(lastGroup != groupKey) {
+            summary = null;
+            mirror = null;
+            groupId = null;
+            
             Cursor group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
             doLog("Cursor size for groupKey '" + group.getCount());
             if(group.getCount() > 0) {
@@ -1050,7 +1303,7 @@ public class TvDataUpdateService extends Service {
           
           doLog("Summary downloaded: " + (summary != null));
           
-          if(summary != null) {
+          if(summary != null && mirror != null) {
             String channelID = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
             doLog("Load summary info for: " + channelID);
             ChannelFrame frame = summary.getChannelFrame(channelID);

@@ -107,7 +107,7 @@
     <string name="terms_of_use_text">Die mit TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) verfügbaren TV/Radio-Programmdaten und Senderlogos sind durch Urheberrechtsgesetze geschützt und ausschließlich zur Nutzung innerhalb von TV-Browser oder der, vom Hersteller von TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) autorisierten, namensgleichen Applikationen zugänglich gemacht und dürfen nur zur Programmvorschau der verfügbaren Sender verwendet werden.\n\nJegliche andere Nutzung, Reproduktion, Archivierung oder Weitergabe der TV/Radio-Programmdaten verstößt ausdrücklich gegen das Gesetz und kann zivil- und strafrechtliche Folgen nach sich ziehen. Wenn Sie die TV/Radio-Programmdaten herunterladen, erklären Sie sich mit den Bedingungen der Nutzungsvereinbarung einverstanden.\n\nBei Fragen zu den Nutzungsbedingungen wenden Sie sich bitte per E-Mail an <a href="mailto:dev@tvbrowser.org">dev@tvbrowser.org</a></string>
     <string name="channel_selection_help">Auf Sender klicken um Sortierungsnummer auszuwählen.</string>
 	<string name="synchronize_title">Sender synchronisieren?</string>
-	<string name="synchronize_text">Sie können die Sender aus dem Desktop-TV-Browser synchronisieren.\n\nDazu müssen sie sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> und die Sender aus dem Desktop-TV-Browser mit dem Android-Sync Plugin exportieren.\n\nMöchten Sie die Sender jetzt synchronisieren oder möchten Sie die Sender manuell auswählen?</string>
+	<string name="synchronize_text">Sie können die Sender aus dem Desktop-TV-Browser synchronisieren.\n\nDazu müssen Sie sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> und die Sender aus dem Desktop-TV-Browser mit dem Android-Sync Plugin exportieren.\n\nMöchten Sie die Sender jetzt synchronisieren oder möchten Sie die Sender manuell auswählen?</string>
 	<string name="synchronize_ok">Sender jetzt synchronisieren</string>
 	<string name="synchronize_cancel">Sender manuell auswählen</string>
 	<string name="synchronize_replace_add_title">Ersetzen oder ergänzen?</string>
@@ -232,4 +232,16 @@
 	<string name="log_send_mail_subject">Log-Datei für TV-Browser für Android</string>
 	<string name="log_send_mail_content">Der Anhang enthält die Log-Datei für TV-Browser für Android vom </string>
 	<string name="pref_misc">Sonstiges</string>
+	<string name="pref_sync_title">Synchronisation</string>
+	<string name="pref_sync_summary_disabled">Um die Synchronistation mit dem Desktop-TV-Browser nutzen zu können, muss im Menü ein Benutzername und -passwort eingegeben werden.</string>
+	<string name="pref_sync_summary_enabled">Einstellungen für die Synchronistaion mit dem Desktop-TV-Browser</string>
+	<string name="pref_sync_fav_from_desktop">Exportierte Sendungen</string>
+	<string name="pref_sync_fav_from_desktop_summary">Sendungen die vom AndroidSync-Plugin aus der Desktop-Version exportiert werden.</string>
+	<string name="pref_sync_fav_to_desktop">Lieblingssendungen</string>
+	<string name="pref_sync_fav_to_desktop_summary">Sendungen die als Lieblingssendungen markiert sind, werden nach einem Datenupdate an den Desktop-TV-Browser exportiert.</string>
+	<string name="pref_sync_marked_to_desktop">Manuell markierte</string>
+	<string name="pref_sync_marked_to_desktop_summary">Sendungen die manuell markiert wurden, werden nach einem Datenupdate an den Desktop-TV-Browser exportiert.</string>
+	<string name="pref_sync_calendar_to_desktop">Dem Kalender hinzugefügte</string>
+	<string name="pref_sync_calendar_to_desktop_summary">Sendungen die dem Android-Kalender hinzugefügt wurden, werden nach einem Datenupdate an den Desktop-TV-Browser exportiert.</string>
+	<string name="synchronize_user_info">Sie müssen sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> um die Synchronisation mit dem Desktop-TV-Browser nutzen zu können.</string>
 </resources>

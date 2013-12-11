@@ -19,6 +19,7 @@ package org.tvbrowser.settings;
 import org.tvbrowser.tvbrowser.R;
 
 import android.app.Activity;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
@@ -26,6 +27,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 
 public class TvbPreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
   @Override
@@ -37,6 +39,15 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     onSharedPreferenceChanged(null,getResources().getString(R.string.PROG_TABLE_ACTIVATED));
     onSharedPreferenceChanged(null,getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS));
     onSharedPreferenceChanged(null,getResources().getString(R.string.TAB_TO_SHOW_AT_START));
+    
+    PreferenceScreen sync = (PreferenceScreen) findPreference(getResources().getString(R.string.PREF_SYNC_SCREEN));
+    
+    SharedPreferences pref = getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE);
+    
+    if(pref.getString(SettingConstants.USER_NAME, "").trim().length() == 0 || pref.getString(SettingConstants.USER_PASSWORD, "").trim().length() == 0) {
+      sync.setEnabled(false);
+      sync.setSummary(R.string.pref_sync_summary_disabled);
+    }
   }
   
   @Override
@@ -86,6 +97,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       ListPreference channelLogoName = (ListPreference) findPreference(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE));
       ListPreference layout = (ListPreference) findPreference(getResources().getString(R.string.PROG_TABLE_LAYOUT));
       CheckBoxPreference pictures = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE));
+      
+      ColumnWidthPreference columnWidth = (ColumnWidthPreference) findPreference(getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH));
             
       boolean isTimeBlock = layout == null || layout.getValue() == null || layout.getValue().equals("0");
       
@@ -104,6 +117,9 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         }
         if(pictures != null) {
           pictures.setEnabled(progTable.isChecked());
+        }
+        if(columnWidth != null) {
+          columnWidth.setEnabled(progTable.isChecked());
         }
       }
     }
