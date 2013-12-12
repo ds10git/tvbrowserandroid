@@ -244,4 +244,7 @@
 	<string name="pref_sync_calendar_to_desktop">Dem Kalender hinzugefügte</string>
 	<string name="pref_sync_calendar_to_desktop_summary">Sendungen die dem Android-Kalender hinzugefügt wurden, werden nach einem Datenupdate an den Desktop-TV-Browser exportiert.</string>
 	<string name="synchronize_user_info">Sie müssen sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> um die Synchronisation mit dem Desktop-TV-Browser nutzen zu können.</string>
+	<string name="marking_value_marked">Markiert</string>
+	<string name="marking_value_calendar">Kalender</string>
+    <string name="marking_value_sync">Sync</string>
 </resources>
