@@ -31,6 +31,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -38,6 +39,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -49,11 +51,13 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 public class FavoritesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   private SimpleCursorAdapter adapter;
   private ArrayAdapter<Favorite> mFavoriteAdapter;
+  private ArrayAdapter<String> mMarkingsAdapter;
   private ArrayList<Favorite> mFavoriteList;
   
   private String mWhereClause;
@@ -72,8 +76,6 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       Bundle savedInstanceState) {
     View v = inflater.inflate(R.layout.favorite_fragment_layout, container, false);
     
-    updateSynchroButton(v);
-    
     return v;
   }
   
@@ -82,6 +84,18 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       view = getView();
     }
     
+    if(mMarkingsAdapter != null) {
+      if(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getResources().getString(R.string.PREF_SYNC_FAV_FROM_DESKTOP), true) && getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
+        mMarkingsAdapter.add(getResources().getString(R.string.marking_value_sync));
+      }
+      else {
+        mMarkingsAdapter.remove(getResources().getString(R.string.marking_value_sync));
+      }
+      
+      mMarkingsAdapter.notifyDataSetChanged();
+    }
+    /*
+    mMarkingsAdapter.add(getResources().getString(R.string.marking_value_sync));
     final View button = view.findViewById(R.id.show_sync_favorites);
     
     if(handler != null) {
@@ -96,7 +110,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
           }        
         }
       });
-    }
+    }*/
   }
   
   @Override
@@ -135,6 +149,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         
     mFavoriteAdapter = new ArrayAdapter<Favorite>(getActivity(), android.R.layout.simple_list_item_activated_1,mFavoriteList);
     
+    final ListView markings = (ListView)getView().findViewById(R.id.select_marking_list);
     final ListView favorites = (ListView)getView().findViewById(R.id.favorite_list);
     favorites.setAdapter(mFavoriteAdapter);
     favorites.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
@@ -142,6 +157,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       @Override
       public void onItemClick(AdapterView<?> adapterView, View v, int position,
           long id) {
+        markings.setItemChecked(-1, true);
         Favorite fav = mFavoriteList.get(position);
         mWhereClause = fav.getWhereClause();
         
@@ -155,7 +171,79 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         });
       }
     });
+    
+    
+    ArrayList<String> markingList = new ArrayList<String>();
+    
+    markingList.add(getResources().getString(R.string.marking_value_marked));
+    
+    if(Build.VERSION.SDK_INT >= 14) {
+      markingList.add(getResources().getString(R.string.marking_value_calendar));
+    }
+    
+    mMarkingsAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_activated_1, markingList) {
+      @Override
+      public View getView(int position, View convertView, ViewGroup parent) {
+        if(convertView == null) {
+          convertView = getActivity().getLayoutInflater().inflate(android.R.layout.simple_list_item_activated_1, null);
+        }
         
+        ((TextView)convertView).setText(getItem(position));
+        
+        switch (position) {
+          case 0: convertView.setBackgroundResource(R.color.mark_color);break;
+          case 1: 
+            if(Build.VERSION.SDK_INT >= 14) {
+              convertView.setBackgroundResource(R.color.mark_color_calendar);
+            }
+            else {
+              convertView.setBackgroundResource(R.color.mark_color_sync_favorite);
+            }
+            break;
+          case 2: convertView.setBackgroundResource(R.color.mark_color_sync_favorite);break;
+        }
+        
+        return convertView;
+      }
+    };
+    
+    updateSynchroButton(null);
+    markings.setAdapter(mMarkingsAdapter);
+    markings.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+    markings.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+      @Override
+      public void onItemClick(AdapterView<?> adapterView, View v, int position,
+          long id) {
+        favorites.setItemChecked(-1, true);
+        
+        switch (position) {
+          case 0: mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE + "%'"; break;
+          case 1: 
+            if(Build.VERSION.SDK_INT >= 14) {
+              mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_CALENDAR + "%'"; 
+            }
+            else {
+              mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_SYNC_FAVORITE + "%'"; break;
+            }
+            break;
+          case 2: mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_SYNC_FAVORITE + "%'"; break;
+          
+          default: mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = 0 ";
+        }
+        
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            if(!isDetached()) {
+              getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
+            }
+          }
+        });
+      }
+    });
+    
+    
+    
     ListView favoriteProgramList = (ListView)getView().findViewById(R.id.favorite_program_list);
     
     registerForContextMenu(favoriteProgramList);
@@ -177,25 +265,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         editFavorite(null);
       }
     });
-    
-    Button synced = (Button)getView().findViewById(R.id.show_sync_favorites);
-    synced.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        mWhereClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE \"%" + SettingConstants.MARK_VALUE_SYNC_FAVORITE + "%\" ) ";
         
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            if(!isDetached()) {
-              favorites.setItemChecked(-1, true);
-              getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
-            }
-          }
-        });
-      }
-    });
-    
     String[] projection = {
         TvBrowserContentProvider.DATA_KEY_UNIX_DATE,
         TvBrowserContentProvider.DATA_KEY_STARTTIME,
