@@ -50,7 +50,6 @@ import java.util.zip.GZIPOutputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.settings.TvbPreferenceFragment;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
@@ -82,7 +81,7 @@ public class TvDataUpdateService extends Service {
   public static final int TV_DATA_TYPE = 1;
   public static final int CHANNEL_TYPE = 2;
     
-  private boolean updateRunning;
+  public static boolean IS_RUNNING = false;
   private ExecutorService mThreadPool;
   private Handler mHandler;
   
@@ -156,7 +155,6 @@ public class TvDataUpdateService extends Service {
         
         if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
           mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), 2);
-                    
           updateTvData();
         }
         else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
@@ -243,39 +241,43 @@ public class TvDataUpdateService extends Service {
   }
   
   private void updateChannels() {
-    NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-    mBuilder.setProgress(100, 0, true);
-    mBuilder.setContentTitle(getResources().getText(R.string.channel_notification_title));
-    mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
-    notification.notify(mNotifyID, mBuilder.build());
+    if(!IS_RUNNING) {
+      IS_RUNNING = true;
     
-    final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
-    File nomedia = new File(path,".nomedia");
-    
-    if(!path.isDirectory()) {
-      path.mkdirs();
-    }
-    
-    if(!nomedia.isFile()) {
-      try {
-        nomedia.createNewFile();
-      } catch (IOException e) {}
-    }
-    
-    new Thread() {
-      public void run() {
-        File groups = new File(path,GROUP_FILE);
-        
-        String mirror = getGroupFileMirror();
-    
-        if(mirror != null) {
-          try {
-            IOUtils.saveUrl(groups.getAbsolutePath(), mirror);
-            updateGroups(groups, path);
-          } catch (Exception e) {}
-        }
+      NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+      mBuilder.setProgress(100, 0, true);
+      mBuilder.setContentTitle(getResources().getText(R.string.channel_notification_title));
+      mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
+      notification.notify(mNotifyID, mBuilder.build());
+      
+      final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
+      File nomedia = new File(path,".nomedia");
+      
+      if(!path.isDirectory()) {
+        path.mkdirs();
       }
-    }.start();
+      
+      if(!nomedia.isFile()) {
+        try {
+          nomedia.createNewFile();
+        } catch (IOException e) {}
+      }
+      
+      new Thread() {
+        public void run() {
+          File groups = new File(path,GROUP_FILE);
+          
+          String mirror = getGroupFileMirror();
+      
+          if(mirror != null) {
+            try {
+              IOUtils.saveUrl(groups.getAbsolutePath(), mirror);
+              updateGroups(groups, path);
+            } catch (Exception e) {}
+          }
+        }
+      }.start();
+    }
   }
   
   private String getGroupFileMirror() {
@@ -459,6 +461,7 @@ public class TvDataUpdateService extends Service {
       LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
     }
     
+    IS_RUNNING = false;
     stopSelf();
   }
   
@@ -1052,8 +1055,6 @@ Log.d("info8", basicAuth);
   }
     
   private void finishUpdate(NotificationManager notification) {
-    updateRunning = false;
-    
     TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
     getApplicationContext().getContentResolver().notifyChange(TvBrowserContentProvider.CONTENT_URI_DATA, null);
   
@@ -1083,6 +1084,7 @@ Log.d("info8", basicAuth);
       }catch(IOException e) {}
     }
     
+    IS_RUNNING = false;
     stopSelf();
   }
   
@@ -1161,8 +1163,9 @@ Log.d("info8", basicAuth);
   }
   
   private void updateTvData() {
-    if(!updateRunning) {
+    if(!IS_RUNNING) {
       mUnsuccessfulDownloads = 0;
+      IS_RUNNING = true;
       
       final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
       
@@ -1231,7 +1234,6 @@ Log.d("info8", basicAuth);
       loadAccessAndFavoriteSync();
       
       TvBrowserContentProvider.INFORM_FOR_CHANGES = false;
-      updateRunning = true;
       
       ContentResolver cr = getContentResolver();
       

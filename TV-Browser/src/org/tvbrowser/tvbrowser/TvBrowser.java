@@ -142,7 +142,7 @@ public class TvBrowser extends FragmentActivity implements
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2013);
     mRundate.set(Calendar.MONTH, Calendar.DECEMBER);
-    mRundate.set(Calendar.DAY_OF_MONTH, 22);
+    mRundate.set(Calendar.DAY_OF_MONTH, 29);
   }
   
   @Override
@@ -1029,52 +1029,54 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   private void runChannelDownload() {
-    Intent updateChannels = new Intent(TvBrowser.this, TvDataUpdateService.class);
-    updateChannels.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.CHANNEL_TYPE);
-    
-    final IntentFilter filter = new IntentFilter(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
-    
-    BroadcastReceiver receiver = new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, Intent intent) {
-        mUpdateItem.setActionView(null);
-        
-        LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(this);
-        
-        boolean success = intent.getBooleanExtra(SettingConstants.CHANNEL_DOWNLOAD_SUCCESSFULLY, true);
-        
-        if(mIsActive) {
-          if(success) {
-            showChannelSelection();
-          }
-          else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-            
-            builder.setTitle(R.string.channel_download_warning_title);
-            builder.setMessage(R.string.channel_download_warning_text);
-            
-            builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                handler.post(new Runnable() {
-                  @Override
-                  public void run() {
-                    showChannelSelection();
-                  }
-                });
-              }
-            });
-            
-            builder.show();
+    if(!TvDataUpdateService.IS_RUNNING) {
+      Intent updateChannels = new Intent(TvBrowser.this, TvDataUpdateService.class);
+      updateChannels.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.CHANNEL_TYPE);
+      
+      final IntentFilter filter = new IntentFilter(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
+      
+      BroadcastReceiver receiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+          mUpdateItem.setActionView(null);
+          
+          LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(this);
+          
+          boolean success = intent.getBooleanExtra(SettingConstants.CHANNEL_DOWNLOAD_SUCCESSFULLY, true);
+          
+          if(mIsActive) {
+            if(success) {
+              showChannelSelection();
+            }
+            else {
+              AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+              
+              builder.setTitle(R.string.channel_download_warning_title);
+              builder.setMessage(R.string.channel_download_warning_text);
+              
+              builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                  handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      showChannelSelection();
+                    }
+                  });
+                }
+              });
+              
+              builder.show();
+            }
           }
         }
-      }
-    };
-    
-    LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
-    
-    mUpdateItem.setActionView(R.layout.progressbar);
-    startService(updateChannels);
+      };
+      
+      LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
+      
+      mUpdateItem.setActionView(R.layout.progressbar);
+      startService(updateChannels);
+    }
   }
   
   private void selectChannels(boolean loadAgain) {
@@ -1353,87 +1355,93 @@ public class TvBrowser extends FragmentActivity implements
     }
     return false;
   }
+  
+  private void addUpdateBroadcastReceiver() {
+    IntentFilter filter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
+    
+    LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        mUpdateItem.setActionView(null);
+        
+        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(this);
+      }
+    }, filter);
+  }
 
   private void updateTvData() {
-    Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + " = 1", null, null);
+    if(!TvDataUpdateService.IS_RUNNING) {
+      Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + " = 1", null, null);
+      
+      if(test.getCount() > 0) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+        
+        LinearLayout dataDownload = (LinearLayout)getLayoutInflater().inflate(R.layout.download_selection, null);
+        
+        final Spinner days = (Spinner)dataDownload.findViewById(R.id.download_days);
+        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
+            R.array.download_selections, android.R.layout.simple_spinner_item);
     
-    if(test.getCount() > 0) {
-      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-      
-      LinearLayout dataDownload = (LinearLayout)getLayoutInflater().inflate(R.layout.download_selection, null);
-      
-      final Spinner days = (Spinner)dataDownload.findViewById(R.id.download_days);
-      ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-          R.array.download_selections, android.R.layout.simple_spinner_item);
-  
-      adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-      days.setAdapter(adapter);
-      
-      final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-      
-      String daysToDownload = pref.getString(getResources().getString(R.string.DAYS_TO_DOWNLOAD), "2");
-      
-      String[] valueArr = getResources().getStringArray(R.array.download_days);
-      
-      for(int i = 0; i < valueArr.length; i++) {
-        if(valueArr[i].equals(daysToDownload)) {
-          days.setSelection(i);
-          break;
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        days.setAdapter(adapter);
+        
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        
+        String daysToDownload = pref.getString(getResources().getString(R.string.DAYS_TO_DOWNLOAD), "2");
+        
+        String[] valueArr = getResources().getStringArray(R.array.download_days);
+        
+        for(int i = 0; i < valueArr.length; i++) {
+          if(valueArr[i].equals(daysToDownload)) {
+            days.setSelection(i);
+            break;
+          }
         }
+        
+        builder.setTitle(R.string.download_data);
+        builder.setView(dataDownload);
+        
+        builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            Intent startDownload = new Intent(TvBrowser.this, TvDataUpdateService.class);
+            startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
+            
+            String value = getResources().getStringArray(R.array.download_days)[days.getSelectedItemPosition()];
+            
+            startDownload.putExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(value));
+            
+            Editor settings = pref.edit();
+            settings.putString(getResources().getString(R.string.DAYS_TO_DOWNLOAD), value);
+            settings.commit();
+            
+            startService(startDownload);
+            
+            mUpdateItem.setActionView(R.layout.progressbar);
+            
+            addUpdateBroadcastReceiver();
+          }
+        });
+        builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            
+          }
+        });
+        builder.show();
+      }
+      else {
+        Cursor test2 = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null);
+        
+        boolean loadAgain = test2.getCount() < 1;
+        
+        test2.close();
+        
+        selectChannels(loadAgain);
       }
       
-      builder.setTitle(R.string.download_data);
-      builder.setView(dataDownload);
-      
-      builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          Intent startDownload = new Intent(TvBrowser.this, TvDataUpdateService.class);
-          startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
-          
-          String value = getResources().getStringArray(R.array.download_days)[days.getSelectedItemPosition()];
-          
-          startDownload.putExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(value));
-          
-          Editor settings = pref.edit();
-          settings.putString(getResources().getString(R.string.DAYS_TO_DOWNLOAD), value);
-          settings.commit();
-          
-          startService(startDownload);
-          
-          mUpdateItem.setActionView(R.layout.progressbar);
-          
-          IntentFilter filter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
-          
-          LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-              mUpdateItem.setActionView(null);
-              
-              LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(this);
-            }
-          }, filter);
-        }
-      });
-      builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          
-        }
-      });
-      builder.show();
+      test.close();
     }
-    else {
-      Cursor test2 = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null);
-      
-      boolean loadAgain = test2.getCount() < 1;
-      
-      test2.close();
-      
-      selectChannels(loadAgain);
-    }
-    
-    test.close();
   }
   
   private void storeUserName(final String userName, final String password, final boolean syncChannels) {
@@ -1823,6 +1831,11 @@ public class TvBrowser extends FragmentActivity implements
             searchManager.getSearchableInfo(getComponentName()));
     
     mUpdateItem = menu.findItem(R.id.action_update);
+    
+    if(mUpdateItem != null && TvDataUpdateService.IS_RUNNING) {
+      mUpdateItem.setActionView(R.layout.progressbar);
+      addUpdateBroadcastReceiver();
+    }
     
     mSendLogItem = menu.findItem(R.id.action_send_log);
     mDeleteLogItem = menu.findItem(R.id.action_delete_log);

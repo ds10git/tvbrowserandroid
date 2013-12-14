@@ -86,7 +86,9 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     
     if(mMarkingsAdapter != null) {
       if(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getResources().getString(R.string.PREF_SYNC_FAV_FROM_DESKTOP), true) && getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
-        mMarkingsAdapter.add(getResources().getString(R.string.marking_value_sync));
+        if((Build.VERSION.SDK_INT >= 14 && mMarkingsAdapter.getCount() < 3) || mMarkingsAdapter.getCount() < 2) {
+          mMarkingsAdapter.add(getResources().getString(R.string.marking_value_sync));
+        }
       }
       else {
         mMarkingsAdapter.remove(getResources().getString(R.string.marking_value_sync));
