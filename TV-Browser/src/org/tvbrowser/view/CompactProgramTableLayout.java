@@ -22,57 +22,57 @@ import android.content.Context;
 import android.graphics.Canvas;
 
 public class CompactProgramTableLayout extends ProgramTableLayout {
-  private ArrayList<Integer> mChannelIDsOrdered;
-
   public CompactProgramTableLayout(Context context, final ArrayList<Integer> channelIDsOrdered) {
-    super(context);
-    
-    mChannelIDsOrdered = channelIDsOrdered;
+    super(context, channelIDsOrdered);
   }
 
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     int widthSpec = MeasureSpec.makeMeasureSpec(ProgramTableLayoutConstants.COLUMN_WIDTH, MeasureSpec.EXACTLY);
-    int[] currentColumnHeight = new int[mChannelIDsOrdered.size()];
+    int[] currentColumnHeight = new int[getColumnCount()];
     
     int maxHeight = 0;
     
     for(int i = 0; i < getChildCount(); i++) {
       ProgramPanel progPanel = (ProgramPanel)getChildAt(i);
       
-      int sortIndex = mChannelIDsOrdered.indexOf(Integer.valueOf(progPanel.getChannelID()));
+      int sortIndex = getIndexForChannelID(progPanel.getChannelID());
       
-      progPanel.measure(widthSpec, heightMeasureSpec);
-      
-      currentColumnHeight[sortIndex] += progPanel.getMeasuredHeight();
-      
-      maxHeight = Math.max(maxHeight, currentColumnHeight[sortIndex]);
+      if(sortIndex >= 0) {
+        progPanel.measure(widthSpec, heightMeasureSpec);
+        
+        currentColumnHeight[sortIndex] += progPanel.getMeasuredHeight();
+        
+        maxHeight = Math.max(maxHeight, currentColumnHeight[sortIndex]);
+      }
     }
     
-    setMeasuredDimension((ProgramTableLayoutConstants.COLUMN_WIDTH+ProgramTableLayoutConstants.GAP) * mChannelIDsOrdered.size(), maxHeight);
+    setMeasuredDimension((ProgramTableLayoutConstants.COLUMN_WIDTH+ProgramTableLayoutConstants.GAP) * getColumnCount(), maxHeight);
   }
   
   @Override
   protected void onLayout(boolean changed, int l, int t, int r, int b) {
-    int[] currentColumnHeight = new int[mChannelIDsOrdered.size()];
+    int[] currentColumnHeight = new int[getColumnCount()];
     
     for(int i = 0; i < getChildCount(); i++) {
       ProgramPanel progPanel = (ProgramPanel)getChildAt(i);
       
-      int sortIndex = mChannelIDsOrdered.indexOf(Integer.valueOf(progPanel.getChannelID()));
-            
-      int x = l + sortIndex * (ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP);
-      int y = t + currentColumnHeight[sortIndex];
-            
-      currentColumnHeight[sortIndex] += progPanel.getMeasuredHeight();
+      int sortIndex = getIndexForChannelID(progPanel.getChannelID());
       
-      progPanel.layout(x, y, x + ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP, y + progPanel.getMeasuredHeight());
+      if(sortIndex >= 0) {
+        int x = l + sortIndex * (ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP);
+        int y = t + currentColumnHeight[sortIndex];
+              
+        currentColumnHeight[sortIndex] += progPanel.getMeasuredHeight();
+        
+        progPanel.layout(x, y, x + ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP, y + progPanel.getMeasuredHeight());
+      }
     }
   }
   
   @Override
   protected void dispatchDraw(Canvas canvas) {
-    for(int i = 0; i < mChannelIDsOrdered.size(); i++) {
+    for(int i = 0; i < getColumnCount(); i++) {
       int x = i * (ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP);
       canvas.drawLine(x, 0, x, canvas.getHeight(), ProgramTableLayoutConstants.LINE_PAINT);
     }

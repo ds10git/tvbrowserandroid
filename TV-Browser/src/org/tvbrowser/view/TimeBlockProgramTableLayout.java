@@ -23,7 +23,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 
 public class TimeBlockProgramTableLayout extends ProgramTableLayout {
-  private ArrayList<Integer> mChannelIDsOrdered;
+  //private ArrayList<Integer> mChannelIDsOrdered;
   private int[] mBlockHeights;
   private int[] mBlockCumulatedHeights;
   private int mBlockSize;
@@ -32,9 +32,9 @@ public class TimeBlockProgramTableLayout extends ProgramTableLayout {
   private boolean mGrowToBlock;
   
   public TimeBlockProgramTableLayout(Context context, final ArrayList<Integer> channelIDsOrdered, int blockSize, final Calendar day, boolean growToBlock) {
-    super(context);
+    super(context, channelIDsOrdered);
     
-    mChannelIDsOrdered = channelIDsOrdered;
+    //mChannelIDsOrdered = channelIDsOrdered;
     mGrowToBlock = growToBlock;
         
     mBlockHeights = new int[(ProgramTableLayoutConstants.HOURS/blockSize) + (ProgramTableLayoutConstants.HOURS % blockSize > 0 ? 1 : 0)];
@@ -45,18 +45,18 @@ public class TimeBlockProgramTableLayout extends ProgramTableLayout {
 
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    int[][] blockHeightCalc = new int[mBlockHeights.length][mChannelIDsOrdered.size()];
-    int[][] blockProgCount = new int[mBlockHeights.length][mChannelIDsOrdered.size()];
+    int[][] blockHeightCalc = new int[mBlockHeights.length][getColumnCount()];
+    int[][] blockProgCount = new int[mBlockHeights.length][getColumnCount()];
     
     int widthSpec = MeasureSpec.makeMeasureSpec(ProgramTableLayoutConstants.COLUMN_WIDTH, MeasureSpec.EXACTLY);
     
     for(int i = 0; i < getChildCount(); i++) {
       ProgramPanel progPanel = (ProgramPanel)getChildAt(i);
       
-      int sortIndex = mChannelIDsOrdered.indexOf(Integer.valueOf(progPanel.getChannelID()));
+      int sortIndex = getIndexForChannelID(progPanel.getChannelID());
       int block = progPanel.getStartHour(mCurrentShownDay) / mBlockSize;
       
-      if(block >= 0) {
+      if(block >= 0 && sortIndex >= 0) {
         progPanel.measure(widthSpec, heightMeasureSpec);
         blockHeightCalc[block][sortIndex] += progPanel.getMeasuredHeight();
         blockProgCount[block][sortIndex]++;
@@ -81,15 +81,15 @@ public class TimeBlockProgramTableLayout extends ProgramTableLayout {
     }
     
     if(mGrowToBlock) {
-      int[][] blockCurrentProgCount = new int[mBlockHeights.length][mChannelIDsOrdered.size()];
+      int[][] blockCurrentProgCount = new int[mBlockHeights.length][getColumnCount()];
       
       for(int i = 0; i < getChildCount(); i++) {
         ProgramPanel progPanel = (ProgramPanel)getChildAt(i);
         
-        int sortIndex = mChannelIDsOrdered.indexOf(Integer.valueOf(progPanel.getChannelID()));
+        int sortIndex = getIndexForChannelID(progPanel.getChannelID());
         int block = progPanel.getStartHour(mCurrentShownDay) / mBlockSize;
         
-        if(block >= 0) {
+        if(block >= 0 && sortIndex >= 0) {
           int maxBlockHeight = mBlockHeights[block];
           int heightDiff = maxBlockHeight - blockHeightCalc[block][sortIndex];
           int blockProgCountValue = blockProgCount[block][sortIndex];
@@ -119,20 +119,20 @@ public class TimeBlockProgramTableLayout extends ProgramTableLayout {
       }
     }
     
-    setMeasuredDimension(ProgramTableLayoutConstants.ROW_HEADER + ProgramTableLayoutConstants.GAP + (ProgramTableLayoutConstants.COLUMN_WIDTH+ProgramTableLayoutConstants.GAP) * mChannelIDsOrdered.size(), height);
+    setMeasuredDimension(ProgramTableLayoutConstants.ROW_HEADER + ProgramTableLayoutConstants.GAP + (ProgramTableLayoutConstants.COLUMN_WIDTH+ProgramTableLayoutConstants.GAP) * getColumnCount(), height);
   }
   
   @Override
   protected void onLayout(boolean changed, int l, int t, int r, int b) {
-    int[][] currentBlockHeight = new int[mBlockHeights.length][mChannelIDsOrdered.size()];
+    int[][] currentBlockHeight = new int[mBlockHeights.length][getColumnCount()];
     
     for(int i = 0; i < getChildCount(); i++) {
       ProgramPanel progPanel = (ProgramPanel)getChildAt(i);
       
-      int sortIndex = mChannelIDsOrdered.indexOf(Integer.valueOf(progPanel.getChannelID()));
+      int sortIndex = getIndexForChannelID(progPanel.getChannelID());
       int block = progPanel.getStartHour(mCurrentShownDay) / mBlockSize;
       
-      if(block >= 0) {
+      if(block >= 0 && sortIndex >= 0) {
         int x = l + ProgramTableLayoutConstants.ROW_HEADER + ProgramTableLayoutConstants.GAP + sortIndex * (ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP);
         int y = t + currentBlockHeight[block][sortIndex];
         
@@ -177,7 +177,7 @@ public class TimeBlockProgramTableLayout extends ProgramTableLayout {
       canvas.drawText(value, ProgramTableLayoutConstants.ROW_HEADER / 2 - length/2, y, ProgramTableLayoutConstants.TIME_BLOCK_TIME_PAINT);
     }
     
-    for(int i = 0; i < mChannelIDsOrdered.size(); i++) {
+    for(int i = 0; i < getColumnCount(); i++) {
       int x = ProgramTableLayoutConstants.ROW_HEADER + i * (ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP);
       canvas.drawLine(x, 0, x, canvas.getHeight(), ProgramTableLayoutConstants.LINE_PAINT);
     }
