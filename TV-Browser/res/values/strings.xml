@@ -50,6 +50,8 @@
     <string name="program_popup_mark">Mark program</string>
     <string name="program_popup_unmark">Unmark program</string>
     <string name="program_popup_search_repetition">Search for repetition</string>
+    <string name="program_popup_reminder">Remind for program</string>
+    <string name="program_popup_reminder_remove">Remove Reminder</string>
     <string name="pref_prog_table_width_hint">Column width</string>
     <string name="search">Search</string>
     <string name="title">Title:</string>
@@ -258,4 +260,5 @@
 	<string name="marking_value_marked">Marked</string>
 	<string name="marking_value_calendar">Calendar</string>
     <string name="marking_value_sync">Sync</string>
+    <string name="marking_value_reminder">Reminder</string>
 </resources>

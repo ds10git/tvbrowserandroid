@@ -45,6 +45,8 @@
     <string name="program_popup_mark">Sendung markieren</string>
     <string name="program_popup_unmark">Markierung löschen</string>
     <string name="program_popup_search_repetition">Wiederholung suchen</string>
+    <string name="program_popup_reminder">An Sendung erinnern</string>
+    <string name="program_popup_reminder_remove">Erinnerung löschen</string>
     <string name="pref_prog_table_width_hint">Spaltenbreite</string>
     <string name="title">Titel:</string>
     <string name="title_hint">Titel für Suche eingeben</string>
@@ -247,4 +249,5 @@
 	<string name="marking_value_marked">Markiert</string>
 	<string name="marking_value_calendar">Kalender</string>
     <string name="marking_value_sync">Sync</string>
+    <string name="marking_value_reminder">Erinnerungen</string>
 </resources>

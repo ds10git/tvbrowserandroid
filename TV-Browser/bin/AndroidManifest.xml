@@ -11,6 +11,8 @@
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
 	<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+	<uses-permission android:name="android.permission.VIBRATE" />
+	<uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
 
     <application
         android:allowBackup="true"
@@ -50,7 +52,16 @@
                 android:resource="@xml/searchable"/>
         </activity>
         <activity android:name="org.tvbrowser.settings.TvbPreferencesActivity"
-            android:label="@string/pref_summary"></activity>
+            android:label="@string/pref_summary"/>
+        <activity android:name="org.tvbrowser.tvbrowser.InfoActivity"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+        <receiver android:name="org.tvbrowser.tvbrowser.ReminderBroadcastReceiver"/>
+        <receiver android:name="org.tvbrowser.tvbrowser.UpdateReminderAlarmReceiver">  
+		    <intent-filter>  
+		        <action android:name="android.intent.action.BOOT_COMPLETED" />
+		        <action android:name="android.intent.action.QUICKBOOT_POWERON" />
+		    </intent-filter>  
+		</receiver>
     </application>
 
 </manifest>

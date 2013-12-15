@@ -86,7 +86,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     
     if(mMarkingsAdapter != null) {
       if(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getResources().getString(R.string.PREF_SYNC_FAV_FROM_DESKTOP), true) && getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
-        if((Build.VERSION.SDK_INT >= 14 && mMarkingsAdapter.getCount() < 3) || mMarkingsAdapter.getCount() < 2) {
+        if(mMarkingsAdapter.getCount() < 3) {
           mMarkingsAdapter.add(getResources().getString(R.string.marking_value_sync));
         }
       }
@@ -180,7 +180,10 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     markingList.add(getResources().getString(R.string.marking_value_marked));
     
     if(Build.VERSION.SDK_INT >= 14) {
-      markingList.add(getResources().getString(R.string.marking_value_calendar));
+      markingList.add(getResources().getString(R.string.marking_value_reminder) + "/" + getResources().getString(R.string.marking_value_calendar));
+    }
+    else {
+      markingList.add(getResources().getString(R.string.marking_value_reminder));
     }
     
     mMarkingsAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_activated_1, markingList) {
@@ -194,14 +197,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         
         switch (position) {
           case 0: convertView.setBackgroundResource(R.color.mark_color);break;
-          case 1: 
-            if(Build.VERSION.SDK_INT >= 14) {
-              convertView.setBackgroundResource(R.color.mark_color_calendar);
-            }
-            else {
-              convertView.setBackgroundResource(R.color.mark_color_sync_favorite);
-            }
-            break;
+          case 1: convertView.setBackgroundResource(R.color.mark_color_calendar);break;
           case 2: convertView.setBackgroundResource(R.color.mark_color_sync_favorite);break;
         }
         
@@ -222,10 +218,10 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
           case 0: mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE + "%'"; break;
           case 1: 
             if(Build.VERSION.SDK_INT >= 14) {
-              mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_CALENDAR + "%'"; 
+              mWhereClause = " AND ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_CALENDAR + "%' ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_REMINDER + "%' ) ) "; 
             }
             else {
-              mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_SYNC_FAVORITE + "%'"; break;
+              mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_REMINDER + "%'"; break;
             }
             break;
           case 2: mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_SYNC_FAVORITE + "%'"; break;
