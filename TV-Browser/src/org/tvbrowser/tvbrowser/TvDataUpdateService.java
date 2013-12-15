@@ -250,7 +250,13 @@ public class TvDataUpdateService extends Service {
       mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
       notification.notify(mNotifyID, mBuilder.build());
       
-      final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
+      File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+      
+      if(!parent.isDirectory()) {
+        parent = getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
+      }
+      
+      final File path = new File(parent,"tvbrowserdata");
       File nomedia = new File(path,".nomedia");
       
       if(!path.isDirectory()) {
@@ -268,12 +274,20 @@ public class TvDataUpdateService extends Service {
           File groups = new File(path,GROUP_FILE);
           
           String mirror = getGroupFileMirror();
-      
+          doLog("LOAD GROUPS FROM '" + mirror + "' to '" + groups + "'");
           if(mirror != null) {
             try {
               IOUtils.saveUrl(groups.getAbsolutePath(), mirror);
+              doLog("START GROUP UPDATE");
               updateGroups(groups, path);
-            } catch (Exception e) {}
+            } catch (Exception e) {
+              Intent updateDone = new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
+              updateDone.putExtra(SettingConstants.CHANNEL_DOWNLOAD_SUCCESSFULLY, false);
+              
+              LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
+              
+              stopSelf();
+            }
           }
         }
       }.start();
@@ -1167,7 +1181,13 @@ Log.d("info8", basicAuth);
       mUnsuccessfulDownloads = 0;
       IS_RUNNING = true;
       
-      final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
+      File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+      
+      if(!parent.isDirectory()) {
+        parent = getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
+      }
+      
+      final File path = new File(parent,"tvbrowserdata");
       
       File nomedia = new File(path,".nomedia");
       

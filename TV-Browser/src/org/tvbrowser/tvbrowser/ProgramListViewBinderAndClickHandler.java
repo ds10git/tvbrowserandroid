@@ -92,7 +92,9 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(mActivity);
       String value = ((SimpleDateFormat)mTimeFormat).toLocalizedPattern();
       
-      value = value.charAt(0) + value;
+      if((value.charAt(0) == 'H' && value.charAt(1) != 'H') || (value.charAt(0) == 'h' && value.charAt(1) != 'h')) {
+        value = value.charAt(0) + value;
+      }
       
       mTimeFormat = new SimpleDateFormat(value, Locale.getDefault());
       
