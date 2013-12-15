@@ -30,10 +30,14 @@ import org.tvbrowser.settings.SettingConstants;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.PendingIntent;
 import android.app.SearchManager;
+import android.app.SearchManager.OnCancelListener;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -100,7 +104,11 @@ public class UiUtils {
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_RATING, R.id.detail_rating);
   }
   
-  public static void showProgramInfo(Activity activity, long id) {
+  public static void showProgramInfo(final Activity activity, long id) {
+    showProgramInfo(activity, id, false);
+  }
+  
+  public static void showProgramInfo(final Activity activity, long id, final boolean finish) {
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(activity);
     
     Cursor c = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), null, null, null, null);
@@ -330,6 +338,20 @@ public class UiUtils {
       
       c.close();
       
+      if(finish && activity != null) {
+        builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+          @Override
+          public void onCancel(DialogInterface dialog) {
+            activity.finish();
+          }
+        });/*.setOnDismissListener(new DialogInterface.OnDismissListener() {
+          @Override
+          public void onDismiss(DialogInterface dialog) {
+            activity.finish();
+          }
+        });*/
+      }
+      
       builder.setView(layout);
       builder.show();
     }
@@ -338,7 +360,7 @@ public class UiUtils {
   public static void createContextMenu(Activity activity, ContextMenu menu, long id) {
     activity.getMenuInflater().inflate(R.menu.program_context, menu);
     
-    Cursor cursor = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, null, null, null);
+    Cursor cursor = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, null);
     
     if(Build.VERSION.SDK_INT < 14) {
       menu.findItem(R.id.prog_create_calendar_entry).setVisible(false);
@@ -347,16 +369,29 @@ public class UiUtils {
     if(cursor.getCount() > 0) {
       cursor.moveToFirst();
       
-      boolean showMark = cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES)) || cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES)).trim().length() == 0;
+      boolean showMark = true;
+      boolean showReminder = true;
+      boolean createFavorite = true;
+      
+      if(!cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
+        String markValue = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES)).trim();
+        
+        showMark = markValue.length() == 0 || markValue.trim().equals(SettingConstants.MARK_VALUE_REMINDER);
+        showReminder = !markValue.contains(SettingConstants.MARK_VALUE_REMINDER);
+        createFavorite = !markValue.contains(SettingConstants.MARK_VALUE_FAVORITE);
+      }
+      
+      long startTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+      
+      boolean isFutureReminder = startTime > System.currentTimeMillis() - 5 * 60000;
+      boolean isFutureCalendar = startTime > System.currentTimeMillis();
       
       menu.findItem(R.id.prog_mark_item).setVisible(showMark);
       menu.findItem(R.id.prog_unmark_item).setVisible(!showMark);
-      
-      if(!showMark) {
-        if(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES)).contains(SettingConstants.MARK_VALUE_FAVORITE)) {
-          menu.findItem(R.id.create_favorite_item).setVisible(false);
-        }
-      }
+      menu.findItem(R.id.prog_add_reminder).setVisible(showReminder && isFutureReminder);
+      menu.findItem(R.id.prog_remove_reminder).setVisible(!showReminder);
+      menu.findItem(R.id.prog_create_calendar_entry).setVisible(isFutureCalendar);
+      menu.findItem(R.id.create_favorite_item).setVisible(createFavorite);
     }
     
     if(activity != null && activity instanceof TvBrowserSearchResults) {
@@ -414,7 +449,7 @@ public class UiUtils {
   @SuppressLint("NewApi")
   public static boolean handleContextMenuSelection(Activity activity, MenuItem item, long programID, View menuView) {
     Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
-    Log.d("info4", " menuView " + menuView);
+    
     String current = null;
     String title = null;
     String episode = null;
@@ -444,7 +479,7 @@ public class UiUtils {
     else if(item.getItemId() == R.id.program_popup_search_repetition) {
       searchForRepetition(activity,title,episode);
     }
-    else if(item.getItemId() == R.id.prog_mark_item) {
+    else if(item.getItemId() == R.id.prog_mark_item) {Log.d("info1", current);
       if(current != null && current.contains(SettingConstants.MARK_VALUE)) {
         return true;
       }
@@ -460,12 +495,22 @@ public class UiUtils {
         return true;
       }
       
-      current = "";
+      if(current.contains(SettingConstants.MARK_VALUE_REMINDER)) {
+        current = SettingConstants.MARK_VALUE_REMINDER;
+      }
+      else {
+        current = "";
+      }
       
       values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current);
       
       if(menuView != null) {
-        menuView.setBackgroundResource(android.R.drawable.list_selector_background);
+        if(current.trim().length() == 0) {
+          menuView.setBackgroundResource(android.R.drawable.list_selector_background);  
+        }
+        else {
+          handleMarkings(activity, null, menuView, current);
+        }
       }
     }
     else if(item.getItemId() == R.id.prog_create_calendar_entry) {
@@ -543,6 +588,43 @@ public class UiUtils {
       
       info.close();
     }
+    else if(item.getItemId() == R.id.prog_add_reminder) {
+      if(current != null && current.contains(SettingConstants.MARK_VALUE_REMINDER)) {
+        return true;
+      }
+      else if(current == null || current.trim().length() == 0) {
+        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, SettingConstants.MARK_VALUE_REMINDER);
+      }
+      else {
+        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current + ";"+SettingConstants.MARK_VALUE_REMINDER);
+      }
+      
+      addReminder(activity.getApplicationContext(),programID,0);
+    }
+    else if(item.getItemId() == R.id.prog_remove_reminder) {
+      if(current == null || current.trim().length() == 0 || !current.contains(SettingConstants.MARK_VALUE_REMINDER)) {
+        return true;
+      }
+      
+      current = current.replace(SettingConstants.MARK_VALUE_REMINDER, "").replace(";;", ";");
+      
+      if(current.endsWith(";")) {
+        current = current.substring(0,current.length()-1);
+      }
+      
+      values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current);
+      
+      if(menuView != null) {
+        if(current.trim().length() == 0) {
+          menuView.setBackgroundResource(android.R.drawable.list_selector_background);  
+        }
+        else {
+          handleMarkings(activity, null, menuView, current);
+        }
+      }
+      
+      removeReminder(activity.getApplicationContext(),programID);
+    }
     
     if(values.size() > 0) {
       if(menuView != null) {
@@ -568,6 +650,39 @@ public class UiUtils {
     }
     
     return true;
+  }
+  //TODO
+  public static void addReminder(Context context, long programID, long startTime) {try {
+    AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+    
+    Intent remind = new Intent(context,ReminderBroadcastReceiver.class);
+    remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
+    
+    if(startTime <= 0) {
+      Cursor time = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, null);
+      
+      if(time.moveToFirst()) {
+        startTime = time.getLong(0);
+      }
+      
+      time.close();
+    }
+    
+    PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
+    
+    alarmManager.set(AlarmManager.RTC, startTime, pending);
+  }catch(Throwable t) {t.printStackTrace();}
+  }
+  //TODO
+  public static void removeReminder(Context context, long programID) {
+    AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+    
+    Intent remind = new Intent(context,ReminderBroadcastReceiver.class);
+    remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
+    
+    PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
+    
+    alarmManager.cancel(pending);
   }
   
   private static class RunningDrawable extends Drawable {

@@ -9,6 +9,10 @@
            android:title="@string/create_favorite_item"/>
        <item android:id="@+id/prog_create_calendar_entry"
            android:title="@string/program_add_calendar"/>
+       <item android:id="@+id/prog_add_reminder"
+           android:title="@string/program_popup_reminder"/>
+       <item android:id="@+id/prog_remove_reminder"
+           android:title="@string/program_popup_reminder_remove"/>
        <item android:id="@+id/program_popup_search_repetition"
            android:title="@string/program_popup_search_repetition"/>
    </group>

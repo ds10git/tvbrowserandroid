@@ -18,6 +18,7 @@ package org.tvbrowser.settings;
 
 import java.util.HashMap;
 
+import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.tvbrowser.R;
 
 import android.content.IntentFilter;
@@ -32,12 +33,29 @@ public class SettingConstants {
   public static final String DATA_UPDATE_DONE = "org.tvbrowser.DATA_UPDATE_DONE";
   public static final String CHANNEL_UPDATE_DONE = "org.tvbrowser.CHANNEL_UPDATE_DONE";
   public static final String REFRESH_VIEWS = "org.tvbrowser.REFRESH_VIEWS";
+  public static final String REMINDER_INTENT = "org.tvbrowser.REMINDER_INTENT";
+  public static final String REMINDER_PROGRAM_ID_EXTRA = "REMINDER_PROGRAM_ID_EXTRA";
+  
+  public static final String[] REMINDER_PROJECTION = new String[] {
+    TvBrowserContentProvider.CHANNEL_KEY_NAME,
+    TvBrowserContentProvider.CHANNEL_KEY_LOGO,
+    TvBrowserContentProvider.DATA_KEY_STARTTIME,
+    TvBrowserContentProvider.DATA_KEY_ENDTIME,
+    TvBrowserContentProvider.DATA_KEY_TITLE,
+    TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE
+    };
+  
   public static final String MARKINGS_ID = "MARKINGS_ID";
   public static final String FAVORITE_LIST = "FAVORITE_LIST";
   public static final String MARK_VALUE = "marked";
   public static final String MARK_VALUE_FAVORITE = "favorite";
   public static final String MARK_VALUE_CALENDAR = "calendar";
   public static final String MARK_VALUE_SYNC_FAVORITE = "syncfav";
+  public static final String MARK_VALUE_REMINDER = "reminder";
+
+  /*AlarmManager alarmManager = (AlarmManager) getActivity().getApplicationContext().getSystemService(Context.ALARM_SERVICE);
+  
+  PendingIntent.get*/
     
   public static final String USER_NAME = "CAR";
   public static final String USER_PASSWORD = "BICYCLE";
@@ -73,6 +91,7 @@ public class SettingConstants {
   static {
     MARK_COLOR_MAP.put(MARK_VALUE, R.color.mark_color);
     MARK_COLOR_MAP.put(MARK_VALUE_CALENDAR, R.color.mark_color_calendar);
+    MARK_COLOR_MAP.put(MARK_VALUE_REMINDER, R.color.mark_color_calendar);
     MARK_COLOR_MAP.put(MARK_VALUE_FAVORITE, R.color.mark_color_favorite);
     MARK_COLOR_MAP.put(MARK_VALUE_SYNC_FAVORITE, R.color.mark_color_sync_favorite);
     
