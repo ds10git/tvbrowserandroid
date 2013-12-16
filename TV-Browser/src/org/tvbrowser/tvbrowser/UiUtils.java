@@ -670,7 +670,7 @@ public class UiUtils {
     
     PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
     
-    alarmManager.set(AlarmManager.RTC, startTime, pending);
+    alarmManager.set(AlarmManager.RTC_WAKEUP, startTime, pending);
   }catch(Throwable t) {t.printStackTrace();}
   }
   //TODO
