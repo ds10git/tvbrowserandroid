@@ -34,7 +34,6 @@ import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.PendingIntent;
 import android.app.SearchManager;
-import android.app.SearchManager.OnCancelListener;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -63,7 +62,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -479,7 +477,7 @@ public class UiUtils {
     else if(item.getItemId() == R.id.program_popup_search_repetition) {
       searchForRepetition(activity,title,episode);
     }
-    else if(item.getItemId() == R.id.prog_mark_item) {Log.d("info1", current);
+    else if(item.getItemId() == R.id.prog_mark_item) {
       if(current != null && current.contains(SettingConstants.MARK_VALUE)) {
         return true;
       }
