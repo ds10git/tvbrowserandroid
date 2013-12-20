@@ -215,7 +215,7 @@ public class DummySectionFragment extends Fragment {
               StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
               where.append(" = 1");
               
-              Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+              Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
               
               if(channelCursor.getCount() > 0) {
                 channelCursor.moveToFirst();
@@ -239,6 +239,7 @@ public class DummySectionFragment extends Fragment {
                 SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
                 
                 int logoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST), "0"));
+                boolean showOrderNumber = pref.getBoolean(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_PROGRAMS_LIST), true);
                               
                 do {
                   boolean hasLogo = !channelCursor.isNull(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
@@ -250,7 +251,18 @@ public class DummySectionFragment extends Fragment {
                   channelButton.setOnClickListener(listener);
                   
                   if(logoValue == 0 || logoValue == 2 || !hasLogo) {
-                    channelButton.setText(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
+                    String name = "";
+                    
+                    if(showOrderNumber) {
+                      name = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ";
+                    }
+                    
+                    name += channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+                    
+                    channelButton.setText(name);
+                  }
+                  else if(showOrderNumber) {
+                    channelButton.setText(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ".");
                   }
                   
                   if((logoValue == 0 || logoValue == 1) && hasLogo) {

@@ -80,6 +80,7 @@ public class ProgramTableLayoutConstants {
   
   static boolean SHOW_LOGO;
   static boolean SHOW_NAME;
+  static boolean SHOW_ORDER_NUMBER;
   
   static {
     NOT_EXPIRED_TITLE_PAINT.setTypeface(Typeface.DEFAULT_BOLD);
@@ -119,6 +120,7 @@ public class ProgramTableLayoutConstants {
     
     SHOW_LOGO = !value.equals("2");
     SHOW_NAME = !value.equals("1");
+    SHOW_ORDER_NUMBER = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getResources().getString(R.string.SHOW_SORT_NUMBER_IN_PROGRAM_TABLE),true);
   }
   
   public static void update(Context context) {
@@ -199,5 +201,9 @@ public class ProgramTableLayoutConstants {
   
   public static int getChannelMaxFontHeight() {
     return CHANNEL_MAX_FONT_HEIGHT;
+  }
+  
+  public static boolean getShowOrderNumber() {
+    return SHOW_ORDER_NUMBER;
   }
 }

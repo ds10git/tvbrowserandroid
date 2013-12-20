@@ -80,6 +80,9 @@
             android:entries="@array/show_logo"
             android:entryValues="@array/logo_name_values"
             android:summary="%s"/>
+        <CheckBoxPreference android:key="@string/SHOW_SORT_NUMBER_IN_PROGRAMS_LIST" 
+            android:title="@string/show_sort_number"
+            android:defaultValue="true"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/title_program_table">
         <CheckBoxPreference android:key="@string/PROG_TABLE_ACTIVATED" 
@@ -118,6 +121,9 @@
         <CheckBoxPreference android:key="@string/SHOW_PICTURE_IN_PROGRAM_TABLE" 
             android:title="@string/pref_show_pictures"
             android:defaultValue="false"/>
+		<CheckBoxPreference android:key="@string/SHOW_SORT_NUMBER_IN_PROGRAM_TABLE" 
+            android:title="@string/show_sort_number"
+            android:defaultValue="true"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_list_category"
         android:summary="@string/pref_list_category_summary">
@@ -133,11 +139,17 @@
         <CheckBoxPreference android:key="@string/SHOW_INFO_IN_LISTS" 
             android:title="@string/pref_show_info"
             android:defaultValue="true"/>
+		<CheckBoxPreference android:key="@string/SHOW_SORT_NUMBER_IN_LISTS" 
+            android:title="@string/show_sort_number"
+            android:defaultValue="true"/>
     </PreferenceCategory>
     <PreferenceCategory android:title="@string/pref_detail_category"
         android:summary="@string/pref_detail_category_summary">
         <CheckBoxPreference android:key="@string/SHOW_PICTURE_IN_DETAILS" 
             android:title="@string/pref_show_pictures"
+            android:defaultValue="true"/>
+		<CheckBoxPreference android:key="@string/SHOW_SORT_NUMBER_IN_DETAILS" 
+            android:title="@string/show_sort_number"
             android:defaultValue="true"/>
         <ListPreference android:key="@string/DETAIL_PICTURE_ZOOM"
             android:title="@string/pref_detail_picture_zoom"

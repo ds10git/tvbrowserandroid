@@ -70,6 +70,8 @@ public class ProgramTableFragment extends Fragment {
   private boolean mKeepRunning;
   private boolean mUpdatingLayout;
   private boolean mUpdatingRunningPrograms;
+  private boolean mShowOrderNumbers;
+  
   private Thread mUpdateThread;
   private View.OnClickListener mClickListener;
   
@@ -412,6 +414,9 @@ public class ProgramTableFragment extends Fragment {
     
     mPictureShown = pref.getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE), false);
     
+    int orderNumberColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+    mShowOrderNumbers = ProgramTableLayoutConstants.getShowOrderNumber();
+    
     if(mPictureShown) {
       projection = new String[10];
       
@@ -447,6 +452,8 @@ public class ProgramTableFragment extends Fragment {
         name = shortName;
       }
       
+      int orderNumber = channels.getInt(orderNumberColumn);
+      
       Bitmap logo = null;
       
       if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))) {
@@ -462,7 +469,7 @@ public class ProgramTableFragment extends Fragment {
         }
       }
       
-      ChannelLabel channelLabel = new ChannelLabel(getActivity(), name, logo);
+      ChannelLabel channelLabel = new ChannelLabel(getActivity(), name, logo, orderNumber);
       
       channelBar.addView(channelLabel);
       //channelBar.addView(inflater.inflate(R.layout.separator_line, channelBar, false));
@@ -650,8 +657,9 @@ public class ProgramTableFragment extends Fragment {
     
     int logoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE), "0"));
     
-    if(channelBar != null && logoValue != mCurrentLogoValue) {
+    if(channelBar != null && (logoValue != mCurrentLogoValue || ProgramTableLayoutConstants.getShowOrderNumber() != mShowOrderNumbers)) {
       mCurrentLogoValue = logoValue;
+      mShowOrderNumbers = ProgramTableLayoutConstants.getShowOrderNumber();
       
       for(int i = 0; i < channelBar.getChildCount(); i++) {
         View view = channelBar.getChildAt(i);

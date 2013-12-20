@@ -25,14 +25,16 @@ public class ChannelLabel extends View {
   private String mChannelName;
   private String mMeasuredChannelName;
   private int mTextMeasuredWidth;
+  private int mOrderNumber;
   
   private Bitmap mLogo;
   
-  public ChannelLabel(Context context, String channelName, Bitmap logo) {
+  public ChannelLabel(Context context, String channelName, Bitmap logo, int orderNumber) {
     super(context);
     
     mChannelName = channelName;
     mLogo = logo;
+    mOrderNumber = orderNumber;
     
     calculateChannelName();
   }
@@ -45,14 +47,24 @@ public class ChannelLabel extends View {
       textWidth -= ProgramTableLayoutConstants.TIME_TITLE_GAP;
     }
     
-    int length = ProgramTableLayoutConstants.CHANNEL_PAINT.breakText(mChannelName, true, textWidth, null);
-    float measured = ProgramTableLayoutConstants.CHANNEL_PAINT.measureText(mChannelName);
+    String nameText = "";
     
-    if(length < mChannelName.length() && measured >= textWidth) {
-      mMeasuredChannelName = mChannelName.substring(0,length);
+    if(ProgramTableLayoutConstants.SHOW_ORDER_NUMBER) {
+      nameText = mOrderNumber + ". ";
+    }
+    
+    if(ProgramTableLayoutConstants.SHOW_NAME || mLogo == null) {
+      nameText += mChannelName;
+    }
+    
+    int length = ProgramTableLayoutConstants.CHANNEL_PAINT.breakText(nameText, true, textWidth, null);
+    float measured = ProgramTableLayoutConstants.CHANNEL_PAINT.measureText(nameText);
+    
+    if(length < nameText.length() && measured >= textWidth) {
+      mMeasuredChannelName = nameText.substring(0,length);
     }
     else {
-      mMeasuredChannelName = mChannelName;
+      mMeasuredChannelName = nameText;
     }
     
     mTextMeasuredWidth = (int)ProgramTableLayoutConstants.CHANNEL_PAINT.measureText(mMeasuredChannelName);
@@ -71,7 +83,7 @@ public class ChannelLabel extends View {
     int textWidth = 0;
     int logoWidth = 0;
         
-    if(mLogo == null || ProgramTableLayoutConstants.SHOW_NAME) {
+    if(mLogo == null || ProgramTableLayoutConstants.SHOW_NAME || ProgramTableLayoutConstants.SHOW_ORDER_NUMBER) {
       textWidth = mTextMeasuredWidth - ProgramTableLayoutConstants.PADDING_SIDE * 2;
     }
     

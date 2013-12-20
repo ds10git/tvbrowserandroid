@@ -111,6 +111,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private boolean showGenre;
   private boolean showEpisode;
   private boolean showInfo;
+  private boolean mShowOrderNumber;
   
   private boolean mIsCompactLayout;
     
@@ -197,6 +198,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
             showGenre = pref.getBoolean(getResources().getString(R.string.SHOW_GENRE_IN_LISTS), true);
             showEpisode = pref.getBoolean(getResources().getString(R.string.SHOW_EPISODE_IN_LISTS), true);
             showInfo = pref.getBoolean(getResources().getString(R.string.SHOW_INFO_IN_LISTS), true);
+            mShowOrderNumber = pref.getBoolean(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_LISTS), true);
             
             runningProgramListAdapter.notifyDataSetChanged();
           }
@@ -553,12 +555,15 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         
         String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(block.mChannelName);
         
-        if(shortName != null) {
-          viewHolder.mChannel.setText(shortName);
+        if(shortName == null) {
+          shortName = block.mChannelName;
         }
-        else {
-          viewHolder.mChannel.setText(block.mChannelName);
+        
+        if(mShowOrderNumber) {
+          shortName = block.mChannelOrderNumber + ". " + shortName;
         }
+        
+        viewHolder.mChannel.setText(shortName);
         
         channelSet = true;
       }
@@ -730,6 +735,10 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         String episode = null;
         String category = null;
         String pictureCopyright = null;
+        
+        if(mShowOrderNumber) {
+          channel = block.mChannelOrderNumber + ". " + channel;
+        }
         
         byte[] picture = null;
         
@@ -965,6 +974,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     showGenre = pref.getBoolean(getResources().getString(R.string.SHOW_GENRE_IN_LISTS), true);
     showEpisode = pref.getBoolean(getResources().getString(R.string.SHOW_EPISODE_IN_LISTS), true);
     showInfo = pref.getBoolean(getResources().getString(R.string.SHOW_INFO_IN_LISTS), true);
+    mShowOrderNumber = pref.getBoolean(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_LISTS), true);
     
     if(showPicture) {
       projection = new String[15];
@@ -1042,6 +1052,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private static final class ChannelProgramBlock {
     public int mChannelID;
     private String mChannelName;
+    private int mChannelOrderNumber;
     
     public int mPreviousPosition;
     public long mPreviousStart;
@@ -1103,6 +1114,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     mEpsiodeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
     mChannelNameColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
     mChannelIDColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+    int channelOrderColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
     
     int logoColumn =  c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
     int markingColumn =  c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES);
@@ -1128,6 +1140,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         String markingValue = c.getString(markingColumn);
         
         String channelName = c.getString(mChannelNameColumn);
+        int channelOrderNumber = c.getInt(channelOrderColumn);
 
         String genre = null;
         String category = null;
@@ -1171,6 +1184,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         
         block.mChannelID = channelID;
         block.mChannelName = channelName;
+        block.mChannelOrderNumber = channelOrderNumber;
         
         if(startTime <= mCurrentTime) {
           if(endTime <= mCurrentTime) {
