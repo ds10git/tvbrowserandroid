@@ -261,4 +261,5 @@
 	<string name="marking_value_calendar">Calendar</string>
     <string name="marking_value_sync">Sync</string>
     <string name="marking_value_reminder">Reminder</string>
+    <string name="show_sort_number">Show sort number</string>
 </resources>

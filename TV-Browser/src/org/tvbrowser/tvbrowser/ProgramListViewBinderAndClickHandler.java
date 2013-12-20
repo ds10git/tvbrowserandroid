@@ -59,12 +59,13 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
     boolean showGenre = mPref.getBoolean(view.getResources().getString(R.string.SHOW_GENRE_IN_LISTS), true);
     boolean showEpisode = mPref.getBoolean(view.getResources().getString(R.string.SHOW_EPISODE_IN_LISTS), true);
     boolean showInfo = mPref.getBoolean(view.getResources().getString(R.string.SHOW_INFO_IN_LISTS), true);
+    boolean showOrderNumber = mPref.getBoolean(view.getResources().getString(R.string.SHOW_SORT_NUMBER_IN_LISTS), true);
     
     if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
       long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
       
       TextView text = (TextView)view;
-      text.setText(DateFormat.getTimeFormat(mActivity).format(new Date(date)));
+      text.setText(DateFormat.getTimeFormat(mActivity).format(new Date(date))+",");
       
       return true;
     } 
@@ -80,6 +81,10 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       
       if(shortName != null) {
         name = shortName;
+      }
+      
+      if(showOrderNumber) {
+        name = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". " + name;
       }
       
       text.setText(name);
