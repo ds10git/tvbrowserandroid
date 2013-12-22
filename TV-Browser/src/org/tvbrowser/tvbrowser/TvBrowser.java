@@ -1688,6 +1688,8 @@ public class TvBrowser extends FragmentActivity implements
       mSendLogItem.setVisible(pref.getBoolean(getResources().getString(R.string.WRITE_LOG), false));
       mDeleteLogItem.setVisible(mSendLogItem.isVisible());
     }
+    
+    LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(SettingConstants.UPDATE_TIME_BUTTONS));
   }
   
   private void showAbout() {

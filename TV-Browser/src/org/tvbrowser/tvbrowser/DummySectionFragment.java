@@ -25,6 +25,7 @@ import java.util.Date;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
+import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -143,7 +144,7 @@ public class DummySectionFragment extends Fragment {
       
       LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
       
-      IntentFilter channelUpdateFilter = new IntentFilter(SettingConstants.CHANNEL_UPDATE_DONE);
+      IntentFilter timeButtonsUpdateFilter = new IntentFilter(SettingConstants.UPDATE_TIME_BUTTONS);
       
       final BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -164,7 +165,7 @@ public class DummySectionFragment extends Fragment {
             if(pref.getString(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT), SettingConstants.DEFAULT_RUNNING_PROGRAMS_LIST_LAYOUT).equals("0")) {
               before.setOnClickListener(timeRange);
               after.setOnClickListener(timeRange);
-                                      
+              
               timeBar.addView(now);
               timeBar.addView(after);
             }
@@ -208,7 +209,7 @@ public class DummySectionFragment extends Fragment {
         }
       };
       
-      localBroadcastManager.registerReceiver(receiver, channelUpdateFilter);
+      localBroadcastManager.registerReceiver(receiver, timeButtonsUpdateFilter);
       receiver.onReceive(null, null);
     }
     else if(getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
@@ -262,34 +263,38 @@ public class DummySectionFragment extends Fragment {
             
             dateAdapter.add(new DateSelection(-1, getActivity()));
             
-            Cursor dates = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+            Activity activity = getActivity();
             
-            if(dates.moveToLast()) {
-              long last = dates.getLong(0);
+            if(activity != null) {
+              Cursor dates = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
               
-              Calendar lastDay = Calendar.getInstance();
-              lastDay.setTimeInMillis(last);
-              
-              lastDay.set(Calendar.HOUR_OF_DAY, 0);
-              lastDay.set(Calendar.MINUTE, 0);
-              lastDay.set(Calendar.SECOND, 0);
-              lastDay.set(Calendar.MILLISECOND, 0);
-              
-              Calendar today = Calendar.getInstance();
-              today.set(Calendar.HOUR_OF_DAY, 0);
-              today.set(Calendar.MINUTE, 0);
-              today.set(Calendar.SECOND, 0);
-              today.set(Calendar.MILLISECOND, 0);
-              
-              long todayStart = today.getTimeInMillis();
-              long lastStart = lastDay.getTimeInMillis();
-              
-              for(long day = todayStart; day <= lastStart; day += (24 * 60 * 60000)) {
-                dateAdapter.add(new DateSelection(day, getActivity()));
+              if(dates.moveToLast()) {
+                long last = dates.getLong(0);
+                
+                Calendar lastDay = Calendar.getInstance();
+                lastDay.setTimeInMillis(last);
+                
+                lastDay.set(Calendar.HOUR_OF_DAY, 0);
+                lastDay.set(Calendar.MINUTE, 0);
+                lastDay.set(Calendar.SECOND, 0);
+                lastDay.set(Calendar.MILLISECOND, 0);
+                
+                Calendar today = Calendar.getInstance();
+                today.set(Calendar.HOUR_OF_DAY, 0);
+                today.set(Calendar.MINUTE, 0);
+                today.set(Calendar.SECOND, 0);
+                today.set(Calendar.MILLISECOND, 0);
+                
+                long todayStart = today.getTimeInMillis();
+                long lastStart = lastDay.getTimeInMillis();
+                
+                for(long day = todayStart; day <= lastStart; day += (24 * 60 * 60000)) {
+                  dateAdapter.add(new DateSelection(day, getActivity()));
+                }
               }
+              
+              dates.close();
             }
-            
-            dates.close();
           }
         };
         

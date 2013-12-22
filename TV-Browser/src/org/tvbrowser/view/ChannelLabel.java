@@ -82,7 +82,7 @@ public class ChannelLabel extends View {
         
     int textWidth = 0;
     int logoWidth = 0;
-        
+    
     if(mLogo == null || ProgramTableLayoutConstants.SHOW_NAME || ProgramTableLayoutConstants.SHOW_ORDER_NUMBER) {
       textWidth = mTextMeasuredWidth - ProgramTableLayoutConstants.PADDING_SIDE * 2;
     }

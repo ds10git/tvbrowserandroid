@@ -635,7 +635,7 @@ public class ProgramTableFragment extends Fragment {
     boolean toGrow = pref.getBoolean(getResources().getString(R.string.PROG_PANEL_GROW), true);
     boolean updateLayout = (pref.getString(getResources().getString(R.string.PROG_TABLE_LAYOUT), "0").equals("0") && mProgramPanelLayout instanceof CompactProgramTableLayout) || 
         (pref.getString(getResources().getString(R.string.PROG_TABLE_LAYOUT), "0").equals("1") && mProgramPanelLayout instanceof TimeBlockProgramTableLayout);
-    boolean updateWidth = pref.getInt(getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH), 200) != ProgramTableLayoutConstants.getColumnWidth();
+    boolean updateWidth = pref.getInt(getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH), 200) != ProgramTableLayoutConstants.getRawColumnWidth();
     
     if(updateWidth) {
       ProgramTableLayoutConstants.updateColumnWidth(getActivity());
