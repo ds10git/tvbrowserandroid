@@ -43,4 +43,5 @@
     <string name="PREF_SYNC_FAV_TO_DESKTOP">PREF_SYNC_FAV_TO_DESKTOP</string>
     <string name="PREF_SYNC_MARKED_TO_DESKTOP">PREF_SYNC_MARKED_TO_DESKTOP</string>
     <string name="PREF_SYNC_CALENDAR_TO_DESKTOP">PREF_SYNC_CALENDAR_TO_DESKTOP</string>
+    <string name="I_DONT_WANT_TO_SEE_ENTRIES">I_DONT_WANT_TO_SEE_ENTRIES</string>
 </resources>

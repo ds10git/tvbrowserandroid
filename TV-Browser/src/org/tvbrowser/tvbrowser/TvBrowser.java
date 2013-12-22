@@ -140,9 +140,9 @@ public class TvBrowser extends FragmentActivity implements
   
   static {
     mRundate = Calendar.getInstance();
-    mRundate.set(Calendar.YEAR, 2013);
-    mRundate.set(Calendar.MONTH, Calendar.DECEMBER);
-    mRundate.set(Calendar.DAY_OF_MONTH, 29);
+    mRundate.set(Calendar.YEAR, 2014);
+    mRundate.set(Calendar.MONTH, Calendar.JANUARY);
+    mRundate.set(Calendar.DAY_OF_MONTH, 5);
   }
   
   @Override
@@ -1684,8 +1684,10 @@ public class TvBrowser extends FragmentActivity implements
       }
     }
     
-    mSendLogItem.setVisible(pref.getBoolean(getResources().getString(R.string.WRITE_LOG), false));
-    mDeleteLogItem.setVisible(mSendLogItem.isVisible());
+    if(mSendLogItem != null) {
+      mSendLogItem.setVisible(pref.getBoolean(getResources().getString(R.string.WRITE_LOG), false));
+      mDeleteLogItem.setVisible(mSendLogItem.isVisible());
+    }
   }
   
   private void showAbout() {

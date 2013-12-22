@@ -30,6 +30,7 @@ public class SettingConstants {
   public static final String CHANNEL_DOWNLOAD_COMPLETE = "org.tvbrowser.CHANNEL_DOWNLOAD_COMPLETE";
   public static final String MARKINGS_CHANGED = "org.tvbrowser.MARKINGS_CHANGED";
   public static final String FAVORITES_CHANGED = "org.tvbrowser.FAVORTES_CHANGED";
+  public static final String DONT_WANT_TO_SEE_CHANGED = "org.tvbrowser.DONT_WANT_TO_SEE_CHANGED";
   public static final String DATA_UPDATE_DONE = "org.tvbrowser.DATA_UPDATE_DONE";
   public static final String CHANNEL_UPDATE_DONE = "org.tvbrowser.CHANNEL_UPDATE_DONE";
   public static final String REFRESH_VIEWS = "org.tvbrowser.REFRESH_VIEWS";

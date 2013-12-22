@@ -142,7 +142,9 @@ public class TimeBlockProgramTableLayout extends ProgramTableLayout {
         
         currentBlockHeight[block][sortIndex] += progPanel.getMeasuredHeight();
         
-        progPanel.layout(x, y, x + ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP, y + progPanel.getMeasuredHeight());
+        if(progPanel.getVisibility() != GONE) {
+          progPanel.layout(x, y, x + ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP, y + progPanel.getMeasuredHeight());
+        }
       }
     }
   }

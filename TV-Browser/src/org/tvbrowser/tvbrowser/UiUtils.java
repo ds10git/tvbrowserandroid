@@ -46,6 +46,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
@@ -65,8 +66,10 @@ import android.text.method.LinkMovementMethod;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -366,7 +369,7 @@ public class UiUtils {
   public static void createContextMenu(Activity activity, ContextMenu menu, long id) {
     activity.getMenuInflater().inflate(R.menu.program_context, menu);
     
-    Cursor cursor = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, null);
+    Cursor cursor = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, null);
     
     if(Build.VERSION.SDK_INT < 14) {
       menu.findItem(R.id.prog_create_calendar_entry).setVisible(false);
@@ -376,13 +379,19 @@ public class UiUtils {
       cursor.moveToFirst();
       
       boolean showMark = true;
+      boolean showUnMark = false;
       boolean showReminder = true;
       boolean createFavorite = true;
+      
+      String title = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
+      
+      boolean showDontWantToSee = filter(activity, title, false);
       
       if(!cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
         String markValue = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES)).trim();
         
-        showMark = markValue.length() == 0 || markValue.trim().equals(SettingConstants.MARK_VALUE_REMINDER);
+        showUnMark = markValue.length() > 0 && !markValue.trim().equals(SettingConstants.MARK_VALUE_REMINDER);
+        showMark = !markValue.trim().contains(SettingConstants.MARK_VALUE);
         showReminder = !markValue.contains(SettingConstants.MARK_VALUE_REMINDER);
         createFavorite = !markValue.contains(SettingConstants.MARK_VALUE_FAVORITE);
       }
@@ -393,11 +402,17 @@ public class UiUtils {
       boolean isFutureCalendar = startTime > System.currentTimeMillis();
       
       menu.findItem(R.id.prog_mark_item).setVisible(showMark);
-      menu.findItem(R.id.prog_unmark_item).setVisible(!showMark);
+      menu.findItem(R.id.prog_unmark_item).setVisible(showUnMark);
       menu.findItem(R.id.prog_add_reminder).setVisible(showReminder && isFutureReminder);
       menu.findItem(R.id.prog_remove_reminder).setVisible(!showReminder);
       menu.findItem(R.id.prog_create_calendar_entry).setVisible(isFutureCalendar);
       menu.findItem(R.id.create_favorite_item).setVisible(createFavorite);
+      
+      menu.findItem(R.id.program_popup_dont_want_to_see).setVisible(false);
+      menu.findItem(R.id.program_popup_want_to_see).setVisible(false);
+      /*
+      menu.findItem(R.id.program_popup_dont_want_to_see).setVisible(!showDontWantToSee);
+      menu.findItem(R.id.program_popup_want_to_see).setVisible(showDontWantToSee);*/
     }
     
     if(activity != null && activity instanceof TvBrowserSearchResults) {
@@ -453,7 +468,7 @@ public class UiUtils {
   }
   
   @SuppressLint("NewApi")
-  public static boolean handleContextMenuSelection(Activity activity, MenuItem item, long programID, View menuView) {
+  public static boolean handleContextMenuSelection(final Activity activity, MenuItem item, long programID, final View menuView) {
     Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
     
     String current = null;
@@ -631,6 +646,71 @@ public class UiUtils {
       
       removeReminder(activity.getApplicationContext(),programID);
     }
+    else if(item.getItemId() == R.id.program_popup_dont_want_to_see) {
+      if(title != null) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+        
+        builder.setTitle(R.string.action_dont_want_to_see);
+        
+        View view = activity.getLayoutInflater().inflate(R.layout.dont_want_to_see_edit, null);
+        
+        final TextView exclusion = (TextView)view.findViewById(R.id.dont_want_to_see_value);
+        final CheckBox caseSensitive = (CheckBox)view.findViewById(R.id.dont_want_to_see_case_sensitve);
+        exclusion.setText(title);
+        
+        builder.setView(view);
+        
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            String key = activity.getResources().getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES);
+            Set<String> dontWantToSeeSet = PreferenceManager.getDefaultSharedPreferences(activity).getStringSet(key, null);
+            
+            HashSet<String> newDontWantToSeeSet = new HashSet<String>();
+                        
+            String exclusionText = exclusion.getText().toString().trim();
+            boolean caseSensitiveValue = caseSensitive.isChecked();
+            
+            if(exclusionText.length() > 0) {
+              newDontWantToSeeSet.addAll(dontWantToSeeSet);
+              
+              newDontWantToSeeSet.add(exclusionText + ";;" + (caseSensitiveValue ? "1" : "0"));
+              
+              Editor edit = PreferenceManager.getDefaultSharedPreferences(activity).edit();
+              
+              edit.putStringSet(key, newDontWantToSeeSet);
+              edit.commit();
+              
+              if(menuView != null) {
+                UiUtils.filter(activity, menuView, exclusionText);
+              }
+              
+              sendDontWantToSeeChangedBroadcast(activity);
+            }
+          }
+        });
+        
+        builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {}
+        });
+        
+        builder.show();
+      }
+      
+      return true;
+    }
+    else if(item.getItemId() == R.id.program_popup_want_to_see) {
+      if(filter(activity, title, true)) {
+        if(menuView != null) {
+          UiUtils.filter(activity, menuView, title);
+        }
+        
+        sendDontWantToSeeChangedBroadcast(activity);
+      }
+      
+      return true;
+    }
     
     if(values.size() > 0) {
       if(menuView != null) {
@@ -639,24 +719,25 @@ public class UiUtils {
       
       activity.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), values, null, null);
       
-      /*if(menuView != null) {
-        info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, null, null,null);
-        info.moveToFirst();
-        
-        Log.d("info","hier");
-        UiUtils.handleMarkings(activity, info, menuView, current);
-        
-        info.close();   
-      }*/
-      
-      Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-      intent.putExtra(SettingConstants.MARKINGS_ID, programID);
-      
-      LocalBroadcastManager.getInstance(activity).sendBroadcast(intent);
+      sendMarkingChangedBroadcast(activity, programID);
     }
     
     return true;
   }
+  
+  private static void sendDontWantToSeeChangedBroadcast(Context context) {
+    Intent intent = new Intent(SettingConstants.DONT_WANT_TO_SEE_CHANGED);
+    
+    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+  }
+  
+  private static void sendMarkingChangedBroadcast(Context context, long programID) {
+    Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
+    intent.putExtra(SettingConstants.MARKINGS_ID, programID);
+    
+    LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+  }
+  
   //TODO
   public static void addReminder(Context context, long programID, long startTime) {try {
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
@@ -930,45 +1011,72 @@ public class UiUtils {
     dialog.show();
   }
   
-  public static void formatDayView(Activity activity, Cursor cursor, View view, int startDayLabelID) {try {
-    long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-    
-    TextView text = (TextView)view;
-    SimpleDateFormat day = new SimpleDateFormat("EEE", Locale.getDefault());
-    
+  public static CharSequence formatDate(long date, Activity activity, boolean onlyDays) {
     Calendar progDate = Calendar.getInstance();
     progDate.setTimeInMillis(date);
     
     Calendar today = Calendar.getInstance();
     
-    TextView startDay = (TextView)((View)view.getParent()).findViewById(/*R.id.startDayLabelPL*/startDayLabelID);
-    startDay.setText(day.format(new Date(date)));
-    
     if(progDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
-      startDay.setText(activity.getText(R.string.today));
+      return activity.getText(R.string.today);
     }
     else {
       today.add(Calendar.DAY_OF_YEAR, 1);
       
       if(progDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
-        startDay.setText(activity.getText(R.string.tomorrow));
+        return activity.getText(R.string.tomorrow);
       }
       else {
         today.add(Calendar.DAY_OF_YEAR, -2);
         
         if(progDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
-          startDay.setText(activity.getText(R.string.yesterday));
+          return activity.getText(R.string.yesterday);
         }
       }
     }
     
+    if(!onlyDays) {
+      SimpleDateFormat df = (SimpleDateFormat)java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
+      String pattern = df.toLocalizedPattern().replaceAll(".?[Yy].?", "");
+      
+      if(pattern.contains(".")) {
+        pattern += ".";
+      }
+      
+      SimpleDateFormat mdf = new SimpleDateFormat(pattern);
+      
+      return mdf.format(progDate.getTime());
+    }
+    
+    return null;
+  }
+  
+  public static void formatDayView(Activity activity, Cursor cursor, View view, int startDayLabelID) {try {
+    long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+    
+    TextView text = (TextView)view;
+    
+    SimpleDateFormat day = new SimpleDateFormat("EEE", Locale.getDefault());
+    
+    TextView startDay = (TextView)((View)view.getParent()).findViewById(/*R.id.startDayLabelPL*/startDayLabelID);
+    startDay.setText(day.format(new Date(date)));
+    
+    CharSequence startDayValue = formatDate(date, activity, true);
+    
+    if(startDayValue != null) {
+      startDay.setText(startDayValue);
+    }
+    
+    Calendar progDate = Calendar.getInstance();
+    progDate.setTimeInMillis(date);
+
     SimpleDateFormat df = (SimpleDateFormat)java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
     String pattern = df.toLocalizedPattern().replaceAll(".?[Yy].?", "");
     
     if(pattern.contains(".")) {
       pattern += ".";
     }
-      
+    
     SimpleDateFormat mdf = new SimpleDateFormat(pattern);
     
     text.setText(mdf.format(progDate.getTime()));
@@ -982,5 +1090,131 @@ public class UiUtils {
     // Convert the dps to pixels, based on density scale
     
     return (int) (dp * scale + 0.5f);
+  }
+  
+  private static boolean filter(Context context, String title, boolean clear) {
+    boolean found = false;
+    
+    if(title != null) {
+      Set<String> values = PreferenceManager.getDefaultSharedPreferences(context).getStringSet(context.getResources().getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES), null);
+      HashSet<String> cleared = null;
+      
+      if(clear) {
+        cleared = new HashSet<String>();
+      }
+      
+      if(values != null) {
+        for(String value : values) {
+          String[] parts = value.split(";;");
+          boolean isCaseSensitve = parts[1].equals("1");
+          String testTitle = title;
+          
+          if(!isCaseSensitve) {
+            parts[0] = parts[0].toLowerCase();
+            testTitle = testTitle.toLowerCase();
+          }
+          
+          if(parts[0].contains("*")) {
+            parts[0] = parts[0].replace("*", ".*");
+            
+            if(testTitle.matches(parts[0])) {
+              if(!clear) {
+                found = true;
+                break;
+              }
+            }
+            else if(clear) {
+              found = true;
+              cleared.add(value);
+            }
+          }
+          else if((isCaseSensitve && title.equals(parts[0])) || (!isCaseSensitve && title.equalsIgnoreCase(parts[0]))) {
+            if(!clear) {
+              found = true;
+              break;
+            }
+          }
+          else if(clear) {
+            found = true;
+            cleared.add(value);
+          }
+        }
+      }
+            
+      if(clear) {
+        Editor edit = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        
+        edit.putStringSet(context.getResources().getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES), cleared);
+        edit.commit();
+      }
+    }
+    
+    return found;
+  }
+  
+  private static void changeTextAlpha(View view, int alpha) {
+    if(view instanceof ViewGroup) {
+      ViewGroup group = (ViewGroup)view;
+      
+      for(int i = 0; i < group.getChildCount(); i++) {
+        changeTextAlpha(group.getChildAt(i), alpha);
+      }
+    }
+    
+    if(view instanceof TextView) {
+      TextView text = (TextView)view;
+      int color = text.getCurrentTextColor();
+      
+      color = Color.argb(alpha, Color.red(color), Color.green(color), Color.blue(color));
+ //(color & 0x00ffffff) | (alpha << 6);
+      
+      text.setTextColor(color);
+    }
+  }
+  
+  public static void filter(Context context, View view, String title) {
+    /*if(filter(context, title, false)) {
+      if(view instanceof ProgramPanel) {
+        view.setVisibility(View.GONE);
+      }
+      else {
+        changeTextAlpha(view,15);
+      }
+    }
+    else {
+      if(view instanceof ProgramPanel) {
+        view.setVisibility(View.VISIBLE);
+      }
+      else {
+        changeTextAlpha(view,255);
+      }
+    }*/
+  }
+  
+  public static void handleDontWantToSeeListView(final Context context, final ListView view, final Handler handler) {
+    if(context != null && view != null && handler != null) {
+      new Thread() {
+        @Override
+        public void run() {
+          if(view != null) {
+            for(int i = 0; i < view.getChildCount(); i++) {
+              View child = view.getChildAt(i);
+              
+              if(child != null) {
+                final View parent = child.findViewById(R.id.programs_list_row);
+                final TextView title = (TextView)parent.findViewById(R.id.titleLabelPL);
+                
+                handler.post(new Runnable() {
+                  @Override
+                  public void run() {
+                    UiUtils.filter(context, parent, title.getText().toString());
+                  }
+                });
+              }
+            }
+          }
+        }
+      }.start();
+    }
   }
 }

@@ -43,7 +43,7 @@
     <string name="versionExpired">Version abgelaufen</string>
     <string name="versionExpiredMsg">Bitte installieren Sie ein Update.</string>
     <string name="program_popup_mark">Sendung markieren</string>
-    <string name="program_popup_unmark">Markierung löschen</string>
+    <string name="program_popup_unmark">Alle Markierungen löschen</string>
     <string name="program_popup_search_repetition">Wiederholung suchen</string>
     <string name="program_popup_reminder">An Sendung erinnern</string>
     <string name="program_popup_reminder_remove">Erinnerung löschen</string>
@@ -251,4 +251,10 @@
     <string name="marking_value_sync">Sync</string>
     <string name="marking_value_reminder">Erinnerungen</string>
     <string name="show_sort_number">Sortierungsnummer anzeigen</string>
+    <string name="action_dont_want_to_see">Will ich nicht sehen!</string>
+    <string name="action_want_to_see">Will ich doch sehen!</string>
+    <string name="dont_want_to_see_edit_entry">Welche Sendungen sollen verborgen werden? (Der * kann als Platzhalter benutzt werden)</string>
+    <string name="dont_want_to_see_edit_entry_hint">Ausschluss eingeben</string>
+    <string name="dont_want_to_see_edit_case_sensitve">Groß-/Kleinschreibung beachten</string>
+    <string name="all_data">Alle Daten</string>
 </resources>
