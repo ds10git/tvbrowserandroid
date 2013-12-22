@@ -34,6 +34,7 @@ public class SettingConstants {
   public static final String DATA_UPDATE_DONE = "org.tvbrowser.DATA_UPDATE_DONE";
   public static final String CHANNEL_UPDATE_DONE = "org.tvbrowser.CHANNEL_UPDATE_DONE";
   public static final String REFRESH_VIEWS = "org.tvbrowser.REFRESH_VIEWS";
+  public static final String UPDATE_TIME_BUTTONS = "org.tvbrowser.UPDATE_TIME_BUTTONS";
   public static final String REMINDER_INTENT = "org.tvbrowser.REMINDER_INTENT";
   public static final String REMINDER_PROGRAM_ID_EXTRA = "REMINDER_PROGRAM_ID_EXTRA";
   

@@ -82,6 +82,8 @@ public class ProgramTableLayoutConstants {
   static boolean SHOW_NAME;
   static boolean SHOW_ORDER_NUMBER;
   
+  private static int RAW_COLUMN_WIDTH;
+  
   static {
     NOT_EXPIRED_TITLE_PAINT.setTypeface(Typeface.DEFAULT_BOLD);
     
@@ -108,11 +110,11 @@ public class ProgramTableLayoutConstants {
   }
   
   public static void updateColumnWidth(Context context) {
-    int columnWidth = PreferenceManager.getDefaultSharedPreferences(context).getInt(context.getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH), 200);
+    RAW_COLUMN_WIDTH = PreferenceManager.getDefaultSharedPreferences(context).getInt(context.getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH), 200);
     
     final float scale = context.getResources().getDisplayMetrics().density;
     // Convert the dps to pixels, based on density scale
-    COLUMN_WIDTH = (int) (columnWidth * scale + 0.5f);
+    COLUMN_WIDTH = (int) (RAW_COLUMN_WIDTH * scale + 0.5f);
   }
   
   public static void updateChannelLogoName(Context context) {
@@ -126,11 +128,11 @@ public class ProgramTableLayoutConstants {
   public static void update(Context context) {
     updateChannelLogoName(context);
  // Get the screen's density scale
-    int columnWidth = PreferenceManager.getDefaultSharedPreferences(context).getInt(context.getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH), 200);
+    RAW_COLUMN_WIDTH = PreferenceManager.getDefaultSharedPreferences(context).getInt(context.getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH), 200);
     
     final float scale = context.getResources().getDisplayMetrics().density;
     // Convert the dps to pixels, based on density scale
-    COLUMN_WIDTH = (int) (columnWidth * scale + 0.5f);
+    COLUMN_WIDTH = (int) (RAW_COLUMN_WIDTH * scale + 0.5f);
     GAP = (int) (1 * scale + 0.5f);
     TIME_TITLE_GAP = (int) (5 * scale + 0.5f);
     ROW_HEADER = (int)(scale * 28);
@@ -191,8 +193,8 @@ public class ProgramTableLayoutConstants {
     SUPER_SMALL_MAX_FONT_HEIGHT = SUPER_SMALL_FONT_DESCEND + Math.abs(NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.getFontMetricsInt().ascent)+1;
   }
   
-  public static int getColumnWidth() {
-    return COLUMN_WIDTH;
+  public static int getRawColumnWidth() {
+    return RAW_COLUMN_WIDTH;
   }
   
   public static int getChannelBarHeight() {

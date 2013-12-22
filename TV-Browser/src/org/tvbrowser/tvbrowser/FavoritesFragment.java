@@ -71,6 +71,8 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mDataUpdateReceiver;
   
+  private boolean mIsRunning;
+  
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
@@ -350,7 +352,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         handler.post(new Runnable() {
           @Override
           public void run() {
-            if(!isDetached() && !isRemoving()) {
+            if(!isDetached() && !isRemoving() && mIsRunning) {
               getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
             }
           }
@@ -367,11 +369,14 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mReceiver, filter);
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
+    
+    mIsRunning = true;
   }
   
   @Override
   public void onDetach() {
     super.onDetach();
+    mIsRunning = false;
     
     if(mReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mReceiver);
