@@ -48,7 +48,7 @@
     <string name="versionExpired">Version expired</string>
     <string name="versionExpiredMsg">Please install an update for the app.</string>
     <string name="program_popup_mark">Mark program</string>
-    <string name="program_popup_unmark">Unmark program</string>
+    <string name="program_popup_unmark">Remove markings</string>
     <string name="program_popup_search_repetition">Search for repetition</string>
     <string name="program_popup_reminder">Remind for program</string>
     <string name="program_popup_reminder_remove">Remove Reminder</string>
@@ -262,4 +262,10 @@
     <string name="marking_value_sync">Sync</string>
     <string name="marking_value_reminder">Reminder</string>
     <string name="show_sort_number">Show sort number</string>
+    <string name="action_dont_want_to_see">I don\'t want to see!</string>
+    <string name="action_want_to_see">I do want to see!</string>
+    <string name="dont_want_to_see_edit_entry">What should be excluded? (You can use the wildcard *)</string>
+    <string name="dont_want_to_see_edit_entry_hint">Enter the exclusion value</string>
+    <string name="dont_want_to_see_edit_case_sensitve">case-sensitive</string>
+    <string name="all_data">All data</string>
 </resources>

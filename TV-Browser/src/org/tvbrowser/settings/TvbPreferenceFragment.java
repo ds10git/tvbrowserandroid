@@ -97,6 +97,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       ListPreference channelLogoName = (ListPreference) findPreference(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE));
       ListPreference layout = (ListPreference) findPreference(getResources().getString(R.string.PROG_TABLE_LAYOUT));
       CheckBoxPreference pictures = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE));
+      CheckBoxPreference showOrderNumber = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_PROGRAM_TABLE));
       
       ColumnWidthPreference columnWidth = (ColumnWidthPreference) findPreference(getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH));
             
@@ -120,6 +121,9 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         }
         if(columnWidth != null) {
           columnWidth.setEnabled(progTable.isChecked());
+        }
+        if(showOrderNumber != null) {
+          showOrderNumber.setEnabled(progTable.isChecked());
         }
       }
     }

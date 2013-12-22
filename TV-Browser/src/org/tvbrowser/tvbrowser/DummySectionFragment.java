@@ -20,12 +20,11 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
-import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -41,12 +40,14 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 
 public class DummySectionFragment extends Fragment {
   /**
@@ -62,6 +63,29 @@ public class DummySectionFragment extends Fragment {
   public void updateChannels() {
     if(mChannelUpdateReceiver != null) {
       mChannelUpdateReceiver.onReceive(null, null);
+    }
+  }
+  
+  private static final class DateSelection {
+    private long mTime;
+    private Context mContext;
+    
+    public DateSelection(long time, Context context) {
+      mTime = time;
+      mContext = context;
+    }
+    
+    @Override
+    public String toString() {
+      if(mTime >= 0) {
+        return DateFormat.getMediumDateFormat(mContext).format(new Date(mTime));
+      }
+      
+      return mContext.getResources().getString(R.string.all_data);
+    }
+    
+    public long getTime() {
+      return mTime;
     }
   }
   
@@ -186,19 +210,91 @@ public class DummySectionFragment extends Fragment {
       
       localBroadcastManager.registerReceiver(receiver, channelUpdateFilter);
       receiver.onReceive(null, null);
-      
-    /*  rootView.findViewById(R.id.button_before1).setOnClickListener(timeRange);
-      rootView.findViewById(R.id.button_after1).setOnClickListener(timeRange);*/
     }
     else if(getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
         rootView = inflater.inflate(R.layout.program_list_fragment,
             container, false);
+        
+        final ProgramsListFragment programList = (ProgramsListFragment)getActivity().getSupportFragmentManager().findFragmentById(R.id.programListFragment);
+        final View.OnClickListener listener = new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            if(programList != null) {
+              programList.setChannelID((Long)v.getTag());
+            }
+          }
+        };
         
         final LinearLayout parent = (LinearLayout)rootView.findViewById(R.id.button_bar);
         
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
         
         IntentFilter channelUpdateFilter = new IntentFilter(SettingConstants.CHANNEL_UPDATE_DONE);
+        IntentFilter dataUpdateFilter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
+        
+        final Spinner date = (Spinner)rootView.findViewById(R.id.date_selection);
+        
+        ArrayList<DateSelection> dateEntries = new ArrayList<DummySectionFragment.DateSelection>();
+        
+        final ArrayAdapter<DateSelection> dateAdapter = new ArrayAdapter<DummySectionFragment.DateSelection>(getActivity(), android.R.layout.simple_spinner_item, dateEntries);
+        dateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        date.setAdapter(dateAdapter);
+        
+        date.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+          @Override
+          public void onItemSelected(AdapterView<?> parent, View view, 
+              int pos, long id) {
+            DateSelection selection = dateAdapter.getItem(pos);
+            
+            programList.setDay(selection.getTime());
+          }
+          
+          @Override
+          public void onNothingSelected(AdapterView<?> parent) {
+            programList.setDay(-1);
+          }
+        });
+        
+        BroadcastReceiver dataUpdateReceiver = new BroadcastReceiver() {
+          @Override
+          public void onReceive(Context context, Intent intent) {
+            dateAdapter.clear();
+            
+            dateAdapter.add(new DateSelection(-1, getActivity()));
+            
+            Cursor dates = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+            
+            if(dates.moveToLast()) {
+              long last = dates.getLong(0);
+              
+              Calendar lastDay = Calendar.getInstance();
+              lastDay.setTimeInMillis(last);
+              
+              lastDay.set(Calendar.HOUR_OF_DAY, 0);
+              lastDay.set(Calendar.MINUTE, 0);
+              lastDay.set(Calendar.SECOND, 0);
+              lastDay.set(Calendar.MILLISECOND, 0);
+              
+              Calendar today = Calendar.getInstance();
+              today.set(Calendar.HOUR_OF_DAY, 0);
+              today.set(Calendar.MINUTE, 0);
+              today.set(Calendar.SECOND, 0);
+              today.set(Calendar.MILLISECOND, 0);
+              
+              long todayStart = today.getTimeInMillis();
+              long lastStart = lastDay.getTimeInMillis();
+              
+              for(long day = todayStart; day <= lastStart; day += (24 * 60 * 60000)) {
+                dateAdapter.add(new DateSelection(day, getActivity()));
+              }
+            }
+            
+            dates.close();
+          }
+        };
+        
+        localBroadcastManager.registerReceiver(dataUpdateReceiver, dataUpdateFilter);
+        dataUpdateReceiver.onReceive(null, null);
         
         mChannelUpdateReceiver = new BroadcastReceiver() {
           @Override
@@ -219,18 +315,6 @@ public class DummySectionFragment extends Fragment {
               
               if(channelCursor.getCount() > 0) {
                 channelCursor.moveToFirst();
-                
-                final ProgramsListFragment programList = (ProgramsListFragment)getActivity().getSupportFragmentManager().findFragmentById(R.id.programListFragment);
-                View.OnClickListener listener = new View.OnClickListener() {
-                  @Override
-                  public void onClick(View v) {
-                    
-                    
-                    if(programList != null) {
-                      programList.setChannelID((Long)v.getTag());
-                    }
-                  }
-                };
                 
                 //Button all = (Button)parent.findViewById(R.id.all_channels);
                 all.setTag(Long.valueOf(-1));
@@ -267,11 +351,17 @@ public class DummySectionFragment extends Fragment {
                   
                   if((logoValue == 0 || logoValue == 1) && hasLogo) {
                     byte[] logoData = channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
-                    Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-                    BitmapDrawable l = new BitmapDrawable(getResources(), logo);
-                    l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
                     
-                    channelButton.setCompoundDrawables(l, null, null, null);
+                    if(logoData != null && logoData.length > 0) {
+                      Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+                      
+                      if(logo != null) {
+                        BitmapDrawable l = new BitmapDrawable(getResources(), logo);
+                        l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+                        
+                        channelButton.setCompoundDrawables(l, null, null, null);
+                      }
+                    }
                   }
                   
                   parent.addView(channelButton);

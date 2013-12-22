@@ -65,7 +65,9 @@ public class CompactProgramTableLayout extends ProgramTableLayout {
               
         currentColumnHeight[sortIndex] += progPanel.getMeasuredHeight();
         
-        progPanel.layout(x, y, x + ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP, y + progPanel.getMeasuredHeight());
+        if(progPanel.getVisibility() != GONE) {
+          progPanel.layout(x, y, x + ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP, y + progPanel.getMeasuredHeight());
+        }
       }
     }
   }

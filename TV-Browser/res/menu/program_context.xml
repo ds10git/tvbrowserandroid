@@ -15,5 +15,9 @@
            android:title="@string/program_popup_reminder_remove"/>
        <item android:id="@+id/program_popup_search_repetition"
            android:title="@string/program_popup_search_repetition"/>
+       <item android:id="@+id/program_popup_dont_want_to_see"
+           android:title="@string/action_dont_want_to_see"/>
+       <item android:id="@+id/program_popup_want_to_see"
+           android:title="@string/action_want_to_see"/>
    </group>
 </menu>

@@ -50,6 +50,8 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   
   private long mChannelID;
   
+  private String mDayClause;
+  
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   
   private BroadcastReceiver mDataUpdateReceiver;
@@ -74,6 +76,8 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   @Override
   public void onAttach(Activity activity) {
     super.onAttach(activity);
+    
+    mDayClause = "";
     
     mDataUpdateReceiver = new BroadcastReceiver() {
       @Override
@@ -109,6 +113,17 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     if(mRefreshReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mRefreshReceiver);
     }
+  }
+  
+  public void setDay(long dayStart) {
+    if(dayStart >= 0) {
+      mDayClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " >= " + dayStart + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + (dayStart + (24 * 60 * 60000)) + " ) ";
+    }
+    else {
+      mDayClause = "";
+    }
+    
+    startUpdateThread();
   }
   
   public void setChannelID(long id) {
@@ -250,7 +265,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
       button.setBackgroundResource(R.color.filter_selection);
     }
     
-    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where + mDayClause, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     
     return loader;
   }

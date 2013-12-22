@@ -50,14 +50,12 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
@@ -1262,7 +1260,11 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   
   @Override
   public boolean onContextItemSelected(MenuItem item) {
-    UiUtils.handleContextMenuSelection(getActivity(), item, mContextProgramID, mContextView);
+    if(mContextProgramID >= 0) {
+      UiUtils.handleContextMenuSelection(getActivity(), item, mContextProgramID, mContextView);
+      
+      mContextProgramID = -1;
+    }
     
     return false;
   }
