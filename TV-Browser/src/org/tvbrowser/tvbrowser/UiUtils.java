@@ -1011,44 +1011,61 @@ public class UiUtils {
     dialog.show();
   }
   
-  public static CharSequence formatDate(long date, Activity activity, boolean onlyDays) {
+  public static String formatDate(long date, Context context, boolean onlyDays) {
+    return formatDate(date, context, onlyDays, false);
+  }
+  
+  public static String formatDate(long date, Context context, boolean onlyDays, boolean withDayString) {
     Calendar progDate = Calendar.getInstance();
     progDate.setTimeInMillis(date);
     
     Calendar today = Calendar.getInstance();
     
+    String value = null;
+    
     if(progDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
-      return activity.getText(R.string.today);
+      value = context.getText(R.string.today).toString();
     }
     else {
       today.add(Calendar.DAY_OF_YEAR, 1);
       
       if(progDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
-        return activity.getText(R.string.tomorrow);
+        value = context.getText(R.string.tomorrow).toString();
       }
       else {
         today.add(Calendar.DAY_OF_YEAR, -2);
         
         if(progDate.get(Calendar.DAY_OF_YEAR) == today.get(Calendar.DAY_OF_YEAR)) {
-          return activity.getText(R.string.yesterday);
+          value = context.getText(R.string.yesterday).toString();
         }
       }
     }
     
-    if(!onlyDays) {
-      SimpleDateFormat df = (SimpleDateFormat)java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
-      String pattern = df.toLocalizedPattern().replaceAll(".?[Yy].?", "");
-      
-      if(pattern.contains(".")) {
-        pattern += ".";
+    if(value == null) {
+      if(!onlyDays) {
+        SimpleDateFormat df = (SimpleDateFormat)java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
+        String pattern = df.toLocalizedPattern().replaceAll(".?[Yy].?", "");
+        
+        if(withDayString) {
+          pattern = "EEE " + pattern;
+        }
+        
+        if(pattern.contains(".")) {
+          pattern += ".";
+        }
+        
+        SimpleDateFormat mdf = new SimpleDateFormat(pattern);
+        
+        value = mdf.format(progDate.getTime());
       }
-      
-      SimpleDateFormat mdf = new SimpleDateFormat(pattern);
-      
-      return mdf.format(progDate.getTime());
+      else if(withDayString) {
+        SimpleDateFormat mdf = new SimpleDateFormat("EEE ");
+        
+        value = mdf.format(progDate.getTime());
+      }
     }
     
-    return null;
+    return value;
   }
   
   public static void formatDayView(Activity activity, Cursor cursor, View view, int startDayLabelID) {try {

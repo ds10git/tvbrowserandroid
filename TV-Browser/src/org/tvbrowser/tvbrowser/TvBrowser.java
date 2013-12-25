@@ -336,8 +336,16 @@ public class TvBrowser extends FragmentActivity implements
     
     mTimer = new Timer();
     mTimer.schedule(new TimerTask() {
+      private int mCurrentDay = 0;
       @Override
       public void run() {
+        int day = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
+        
+        if(mCurrentDay != day) {
+          LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.DATA_UPDATE_DONE));
+          mCurrentDay = day;
+        }
+        
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
       }
     }, now.getTime(), 60000);
@@ -1733,6 +1741,14 @@ public class TvBrowser extends FragmentActivity implements
         showUserSetting(false);
     }
       break;
+      case R.id.action_synchronize_channels:
+        if(isOnline()) {
+          syncronizeChannels();
+        }
+        else {
+          showNoInternetConnection(null);
+        }
+        break;
       case R.id.action_delete_log:
         {
           final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
@@ -1835,6 +1851,9 @@ public class TvBrowser extends FragmentActivity implements
             searchManager.getSearchableInfo(getComponentName()));
     
     mUpdateItem = menu.findItem(R.id.action_update);
+    
+    menu.findItem(R.id.action_synchronize_dont_want_to_see).setVisible(false);
+    menu.findItem(R.id.action_synchronize_favorites).setVisible(false);
     
     if(mUpdateItem != null && TvDataUpdateService.IS_RUNNING) {
       mUpdateItem.setActionView(R.layout.progressbar);

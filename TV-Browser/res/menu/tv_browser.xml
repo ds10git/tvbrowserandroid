@@ -35,11 +35,34 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_delete_all_data"/>
-    <item 
-        android:id="@+id/action_username_password"
+    <item
+        android:id="@+id/action_synchronize"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/action_username_password"/>
+        android:title="@string/action_synchronize">
+        <menu>
+		    <item 
+		        android:id="@+id/action_username_password"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_username_password"/>
+		    <item 
+		        android:id="@+id/action_synchronize_channels"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_synchronize_channels"/>
+		    <item 
+		        android:id="@+id/action_synchronize_favorites"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_synchronize_favorites"/>
+		    <item 
+		        android:id="@+id/action_synchronize_dont_want_to_see"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_synchronize_dont_want_to_see"/>
+        </menu>
+    </item>
     <item 
         android:id="@+id/action_basic_preferences"
         android:orderInCategory="100"
