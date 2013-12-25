@@ -257,4 +257,10 @@
     <string name="dont_want_to_see_edit_entry_hint">Ausschluss eingeben</string>
     <string name="dont_want_to_see_edit_case_sensitve">Groß-/Kleinschreibung beachten</string>
     <string name="all_data">Alle Daten</string>
+    <string name="all_channels">Alle Sender</string>
+    <string name="all_programs">Alle Sendungen</string>
+    <string name="action_synchronize">Synchronisierung</string>
+    <string name="action_synchronize_channels">Sender</string>
+    <string name="action_synchronize_favorites">Lieblingssendungen</string>
+    <string name="action_synchronize_dont_want_to_see">Will ich nicht sehen!</string>
 </resources>

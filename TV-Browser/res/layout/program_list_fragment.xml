@@ -4,32 +4,26 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:gravity="center_horizontal" >
+    <HorizontalScrollView android:layout_height="wrap_content"
+		android:layout_width="wrap_content">
+    
     	<LinearLayout android:orientation="horizontal"
     	    android:layout_height="wrap_content"
     	    android:layout_width="wrap_content">
     	   	<Spinner android:id="@+id/date_selection"
-		            style="?android:attr/buttonBarButtonStyle"
 		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            android:paddingLeft="2dp"/>
-	        <HorizontalScrollView android:layout_height="wrap_content"
-	        android:layout_width="wrap_content">
-		        <LinearLayout
-		            android:id="@+id/button_bar"
-		            android:orientation="horizontal"
+		            android:layout_height="match_parent"
+		            android:paddingRight="2dp"/>
+    	   	<Spinner android:id="@+id/channel_selection"
 		            android:layout_width="wrap_content"
-		            android:layout_height="wrap_content"
-		            style="?android:attr/buttonBarStyle"
-		            >
-	            <Button android:id="@+id/all_channels"
-	                android:text="@string/button_all_channels"
-	                style="?android:attr/buttonBarButtonStyle"
-	                android:layout_width="wrap_content"
-	                android:layout_height="wrap_content"
-	                android:paddingLeft="2dp"/>
-		        </LinearLayout>
-	        </HorizontalScrollView>
-        </LinearLayout>
+		            android:layout_height="match_parent"
+		            android:paddingRight="2dp"/>
+    	   	<Spinner android:id="@+id/program_selection"
+		            android:layout_width="wrap_content"
+		            android:layout_height="match_parent"
+		            android:paddingRight="2dp"/> 
+	        </LinearLayout>
+        </HorizontalScrollView>
     <fragment 
         android:name="org.tvbrowser.tvbrowser.ProgramsListFragment"
         android:id="@+id/programListFragment"

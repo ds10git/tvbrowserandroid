@@ -36,19 +36,24 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
+import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+import android.widget.TextView;
 
 public class DummySectionFragment extends Fragment {
   /**
@@ -79,7 +84,7 @@ public class DummySectionFragment extends Fragment {
     @Override
     public String toString() {
       if(mTime >= 0) {
-        return DateFormat.getMediumDateFormat(mContext).format(new Date(mTime));
+        return UiUtils.formatDate(mTime, mContext, false, true).toString();
       }
       
       return mContext.getResources().getString(R.string.all_data);
@@ -87,6 +92,41 @@ public class DummySectionFragment extends Fragment {
     
     public long getTime() {
       return mTime;
+    }
+  }
+  
+  private static final class ChannelSelection {
+    private int mID;
+    private String mOrderNumber;
+    private String mName;
+    private BitmapDrawable mLogo;
+    
+    public ChannelSelection(int ID, String orderNumber, String name, BitmapDrawable logo) {
+      mID = ID;
+      mOrderNumber = orderNumber;
+      mName = name;
+      mLogo = logo;
+    }
+    
+    public int getID() {
+      return mID;
+    }
+    
+    public String getOrderNumber() {
+      return mOrderNumber;
+    }
+    
+    public String getName() {
+      return mName;
+    }
+    
+    public BitmapDrawable getLogo() {
+      return mLogo;
+    }
+    
+    @Override
+    public String toString() {
+      return mName;
     }
   }
   
@@ -217,16 +257,6 @@ public class DummySectionFragment extends Fragment {
             container, false);
         
         final ProgramsListFragment programList = (ProgramsListFragment)getActivity().getSupportFragmentManager().findFragmentById(R.id.programListFragment);
-        final View.OnClickListener listener = new View.OnClickListener() {
-          @Override
-          public void onClick(View v) {
-            if(programList != null) {
-              programList.setChannelID((Long)v.getTag());
-            }
-          }
-        };
-        
-        final LinearLayout parent = (LinearLayout)rootView.findViewById(R.id.button_bar);
         
         LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
         
@@ -301,14 +331,183 @@ public class DummySectionFragment extends Fragment {
         localBroadcastManager.registerReceiver(dataUpdateReceiver, dataUpdateFilter);
         dataUpdateReceiver.onReceive(null, null);
         
+        final Spinner channel = (Spinner)rootView.findViewById(R.id.channel_selection);
+        
+        ArrayList<ChannelSelection> channelEntries = new ArrayList<DummySectionFragment.ChannelSelection>();
+        
+        final ArrayAdapter<ChannelSelection> channelAdapter = new ArrayAdapter<DummySectionFragment.ChannelSelection>(getActivity(), android.R.layout.simple_spinner_item, channelEntries) {
+          @Override
+          public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            return getView(position, convertView, parent, android.R.layout.simple_spinner_dropdown_item);
+          }
+          
+          private View getView(int position, View convertView, ViewGroup parent, int id) {
+            if(convertView == null) {
+              LayoutInflater inflater = getActivity().getLayoutInflater();
+              
+              convertView = inflater.inflate(id, parent, false);
+              ((TextView)convertView).setCompoundDrawablePadding(10);
+              ((TextView)convertView).setGravity(Gravity.CENTER_VERTICAL);
+              
+            /*  if(id == android.R.layout.simple_spinner_item) {
+                convertView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT, 1f));
+              }*/
+            }
+            
+            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            
+            int logoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST), "0"));
+            boolean showOrderNumber = pref.getBoolean(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_PROGRAMS_LIST), true);
+            
+            ChannelSelection sel = getItem(position);
+            
+            TextView text = (TextView)convertView;
+            
+            if(sel.getID() == -1) {
+              text.setText(getResources().getString(R.string.all_channels));
+              text.setCompoundDrawables(null, null, null, null);
+            }
+            else {
+              if(logoValue == 0 || logoValue == 2 || sel.getLogo() == null) {
+                if(showOrderNumber) {
+                  text.setText(sel.getOrderNumber() + sel.getName());
+                }
+                else {
+                  text.setText(sel.getName());
+                }
+              }
+              else if(showOrderNumber) {
+                text.setText(sel.getOrderNumber());
+              }
+              else {
+                text.setText("");
+              }
+              
+              if((logoValue == 0 || logoValue == 1) && sel.getLogo() != null) {
+                BitmapDrawable l = sel.getLogo();
+                
+              /*  if(id == android.R.layout.simple_spinner_item) {
+                  float percent = (parent.getMeasuredHeight() * 0.7f) / l.getBitmap().getHeight();
+                  
+                  if(percent < 1) {
+                    l.setBounds(0,0,(int)(l.getBitmap().getWidth() * percent),(int)(l.getBitmap().getHeight() * percent));
+                  }
+                }*/
+                
+                text.setCompoundDrawables(l, null, null, null);
+              }
+              else {
+                text.setCompoundDrawables(null, null, null, null);
+              }
+            }
+            
+            return convertView;
+          }
+          
+          @Override
+          public View getView(int position, View convertView, ViewGroup parent) {
+            return getView(position, convertView, parent, android.R.layout.simple_spinner_item);
+          }
+        };
+        channelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        channel.setAdapter(channelAdapter);
+        
+        channel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+          @Override
+          public void onItemSelected(AdapterView<?> parent, View view, 
+              int pos, long id) {
+            ChannelSelection selection = channelAdapter.getItem(pos);
+            
+            if(programList != null) {
+              programList.setChannelID(selection.getID());
+            }
+          }
+          
+          @Override
+          public void onNothingSelected(AdapterView<?> parent) {
+            programList.setChannelID(-1);
+          }
+        });
+        
+        final Spinner filter = (Spinner)rootView.findViewById(R.id.program_selection);
+        
+        ArrayList<String> filterEntries = new ArrayList<String>();
+        
+        final ArrayAdapter<String> filterAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, filterEntries) {
+          @Override
+          public View getDropDownView(int position, View convertView, ViewGroup parent) {
+            return getView(position, convertView, parent, android.R.layout.simple_spinner_dropdown_item);
+          }
+          
+          private View getView(int position, View convertView, ViewGroup parent, int id) {
+            if(convertView == null) {
+              LayoutInflater inflater = getActivity().getLayoutInflater();
+              
+              convertView = inflater.inflate(id, parent, false);
+              ((TextView)convertView).setGravity(Gravity.CENTER_VERTICAL);
+              
+           /*   if(id == android.R.layout.simple_spinner_item) {
+                convertView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT, 1f));
+              }*/
+            }
+            
+            String sel = getItem(position);
+            
+            TextView text = (TextView)convertView;
+            text.setText(sel);
+            
+            switch(position) {
+              case 0: convertView.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));break;
+              case 1: convertView.setBackgroundResource(R.color.mark_color_favorite);break;
+              case 2: convertView.setBackgroundResource(R.color.mark_color);break;
+              case 3: convertView.setBackgroundResource(R.color.mark_color_calendar);break;
+              case 4: convertView.setBackgroundResource(R.color.mark_color_sync_favorite);break;
+            }
+            
+            return convertView;
+          }
+          
+          @Override
+          public View getView(int position, View convertView, ViewGroup parent) {
+            return getView(position, convertView, parent, android.R.layout.simple_spinner_item);
+          }
+        };
+        filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        filter.setAdapter(filterAdapter);
+        
+        filterAdapter.add(getActivity().getString(R.string.all_programs));
+        filterAdapter.add(getResources().getString(R.string.title_favorites));
+        filterAdapter.add(getResources().getString(R.string.marking_value_marked));
+        
+        if(Build.VERSION.SDK_INT >= 14) {
+          filterAdapter.add(getResources().getString(R.string.marking_value_reminder) + "/" + getResources().getString(R.string.marking_value_calendar));
+        }
+        else {
+          filterAdapter.add(getResources().getString(R.string.marking_value_reminder));
+        }
+        
+        filterAdapter.add(getResources().getString(R.string.marking_value_sync));
+        
+        filter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+          @Override
+          public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+            if(programList != null) {
+              programList.setMarkFilter(pos);
+            }
+          }
+          
+          @Override
+          public void onNothingSelected(AdapterView<?> parent) {
+            programList.setMarkFilter(-1);
+          }
+        });
+        
         mChannelUpdateReceiver = new BroadcastReceiver() {
           @Override
           public void onReceive(Context context, Intent intent) {
-            Button all = (Button)parent.findViewById(R.id.all_channels);
+            channelAdapter.clear();
             
-            parent.removeAllViews();
-            
-            parent.addView(all);
+            channelAdapter.add(new ChannelSelection(-1, "0", "test", null));
             
             if(getActivity() != null) {
               ContentResolver cr = getActivity().getContentResolver();
@@ -320,56 +519,35 @@ public class DummySectionFragment extends Fragment {
               
               if(channelCursor.getCount() > 0) {
                 channelCursor.moveToFirst();
-                
-                //Button all = (Button)parent.findViewById(R.id.all_channels);
-                all.setTag(Long.valueOf(-1));
-                all.setOnClickListener(listener);
-                
-                SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                
-                int logoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST), "0"));
-                boolean showOrderNumber = pref.getBoolean(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_PROGRAMS_LIST), true);
-                              
+                  
                 do {
                   boolean hasLogo = !channelCursor.isNull(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
                   
-                  Button channelButton = new Button(getActivity(),null,android.R.attr.buttonBarButtonStyle);
-                  channelButton.setTag(channelCursor.getLong(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
-                  channelButton.setPadding(15, 0, 15, 0);
-                  channelButton.setCompoundDrawablePadding(10);
-                  channelButton.setOnClickListener(listener);
+                  BitmapDrawable l = null;
                   
-                  if(logoValue == 0 || logoValue == 2 || !hasLogo) {
-                    String name = "";
-                    
-                    if(showOrderNumber) {
-                      name = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ";
-                    }
-                    
-                    name += channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-                    
-                    channelButton.setText(name);
-                  }
-                  else if(showOrderNumber) {
-                    channelButton.setText(channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ".");
-                  }
-                  
-                  if((logoValue == 0 || logoValue == 1) && hasLogo) {
+                  if(hasLogo) {
                     byte[] logoData = channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
                     
                     if(logoData != null && logoData.length > 0) {
                       Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
                       
                       if(logo != null) {
-                        BitmapDrawable l = new BitmapDrawable(getResources(), logo);
+                        l = new BitmapDrawable(getResources(), logo);
                         l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
-                        
-                        channelButton.setCompoundDrawables(l, null, null, null);
                       }
                     }
                   }
                   
-                  parent.addView(channelButton);
+                  String name = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+                  String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
+                  
+                  if(shortName != null) {
+                    name = shortName;
+                  }
+                  
+                  ChannelSelection channelSel = new ChannelSelection(channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ", name, l);
+                  
+                  channelAdapter.add(channelSel);
                 }while(channelCursor.moveToNext());
               }
               
