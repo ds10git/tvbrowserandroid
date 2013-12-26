@@ -567,6 +567,8 @@ public class ProgramTableFragment extends Fragment {
       });
     }
     
+    channels.close();
+    
     mUpdatingLayout = false;
   }
   

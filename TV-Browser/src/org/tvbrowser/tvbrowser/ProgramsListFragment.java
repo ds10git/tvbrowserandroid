@@ -164,7 +164,9 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     handler.post(new Runnable() {
       @Override
       public void run() {
-        setSelection(0);
+        if(getView() != null) {
+          setSelection(0);
+        }
       }
     });
   }
