@@ -192,7 +192,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
     projection[13] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
         
-    String where = "(" + TvBrowserContentProvider.DATA_KEY_TITLE + " LIKE " + titleEscape + "%" + query + "%" + titleEscape + operation + TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE + " LIKE " + episodeEscape + "%" + episodeQuery + "%" + episodeEscape + ") AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " >= " + System.currentTimeMillis();
+    String where = "(" + TvBrowserContentProvider.DATA_KEY_TITLE + " LIKE " + titleEscape + "%" + query + "%" + titleEscape + operation + TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE + " LIKE " + episodeEscape + "%" + episodeQuery + "%" + episodeEscape + ") AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">=" + System.currentTimeMillis();
     String[] whereArgs = null;
     String sortOrder = TvBrowserContentProvider.DATA_KEY_STARTTIME;
     
@@ -201,6 +201,9 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     if(ID != -1) {
       where = null;
       uri = ContentUris.withAppendedId(uri, ID);
+    }
+    else {
+      where += " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
     }
     
     // Create the new Cursor loader

@@ -37,7 +37,6 @@ import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
@@ -58,6 +57,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   
   private BroadcastReceiver mDataUpdateReceiver;
   private BroadcastReceiver mRefreshReceiver;
+  private BroadcastReceiver mDontWantToSeeReceiver;
   
   @Override
   public void onResume() {
@@ -89,6 +89,15 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
       }
     };
 
+    mDontWantToSeeReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        startUpdateThread();
+      }
+    };
+    
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDontWantToSeeReceiver, new IntentFilter(SettingConstants.DONT_WANT_TO_SEE_CHANGED));
+    
     mRefreshReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
@@ -116,11 +125,14 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     if(mRefreshReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mRefreshReceiver);
     }
+    if(mDontWantToSeeReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDontWantToSeeReceiver);
+    }
   }
   
   public void setDay(long dayStart) {
     if(dayStart >= 0) {
-      mDayClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " >= " + dayStart + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + (dayStart + (24 * 60 * 60000)) + " ) ";
+      mDayClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">=" + dayStart + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + (dayStart + (24 * 60 * 60000)) + " ) ";
     }
     else {
       mDayClause = "";
@@ -142,9 +154,19 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
           mFilterClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_REMINDER + "%'"; break;
         }break;
       case 4: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_SYNC_FAVORITE + "%' ) ";break;
+      case 5: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";break;
     }
     
     startUpdateThread();
+  }
+  
+  public void scrollToTop() {
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        setSelection(0);
+      }
+    });
   }
   
   public void setChannelID(long id) {
@@ -247,11 +269,15 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
     projection[13] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
     
-    String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis();
-    where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " > " + System.currentTimeMillis() + " ) ";
+    String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
+    where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
         
     if(mChannelID != -1) {
-      where += "AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + mChannelID;
+      where += "AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + mChannelID;
+    }
+    
+    if(!mFilterClause.contains(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE)) {
+      where += " AND ( NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";
     }
     
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where + mDayClause + mFilterClause, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
@@ -260,8 +286,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   }
 
   @Override
-  public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader,
-      Cursor c) {
+  public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor c) {
     mProgamListAdapter.swapCursor(c);
   }
 

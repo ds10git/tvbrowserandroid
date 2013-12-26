@@ -52,6 +52,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Display;
@@ -81,6 +82,7 @@ public class ProgramTableFragment extends Fragment {
   private BroadcastReceiver mUpdateMarkingsReceiver;
   private BroadcastReceiver mUpdateChannelsReceiver;
   private BroadcastReceiver mRefreshReceiver;
+  private BroadcastReceiver mDontWantToSeeReceiver;
   
   private int mCurrentLogoValue;
   private boolean mPictureShown;
@@ -99,11 +101,11 @@ public class ProgramTableFragment extends Fragment {
       StringBuilder where = new StringBuilder();
       where.append(" (( ");
       where.append(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-      where.append(" <= ");
+      where.append("<=");
       where.append(System.currentTimeMillis());
       where.append(" ) AND ( ");
       where.append(System.currentTimeMillis());
-      where.append(" <= ");
+      where.append("<=");
       where.append(TvBrowserContentProvider.DATA_KEY_ENDTIME);    
       where.append(" )) ");
       
@@ -116,7 +118,7 @@ public class ProgramTableFragment extends Fragment {
         
         do {
           id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-        }while((System.currentTimeMillis() - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1.25 * 60 * 60000)) && c.moveToNext());
+        }while((System.currentTimeMillis() - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1.25 * 60 * 60000)) && c.moveToNext() && getView().findViewWithTag(Long.valueOf(id)) == null);
         
         if(id != -1 && getView() != null) {
           final View view = getView().findViewWithTag(Long.valueOf(id));
@@ -258,6 +260,42 @@ public class ProgramTableFragment extends Fragment {
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, new IntentFilter(SettingConstants.CHANNEL_UPDATE_DONE));
     
+    mDontWantToSeeReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        if(!isDetached() && getView() != null) {
+          if(intent.getBooleanExtra(SettingConstants.DONT_WANT_TO_SEE_ADDED_EXTRA, true)) {
+            if(mProgramPanelLayout != null) {
+              for(int i = 0; i < mProgramPanelLayout.getChildCount(); i++) {
+                View child = mProgramPanelLayout.getChildAt(i);
+                
+                long programID = (Long)child.getTag();
+                
+                Cursor test = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA,programID), new String[] {TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE}, null, null, null);
+                
+                if(test.moveToNext()) {
+                  if(test.getInt(0) == 1) {
+                    child.setVisibility(View.GONE);
+                  }
+                }
+                
+                test.close();
+              }
+            }
+          }
+          else {
+            RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
+            
+            if(layout != null) {
+              updateView(getActivity().getLayoutInflater(),layout);
+            }
+          }
+        }
+      }
+    };
+    
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDontWantToSeeReceiver, new IntentFilter(SettingConstants.DONT_WANT_TO_SEE_CHANGED));
+    
     mRefreshReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
@@ -287,6 +325,9 @@ public class ProgramTableFragment extends Fragment {
     }
     if(mUpdateChannelsReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mUpdateChannelsReceiver);
+    }
+    if(mDontWantToSeeReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDontWantToSeeReceiver);
     }
   }
   
@@ -401,10 +442,10 @@ public class ProgramTableFragment extends Fragment {
         
     long dayEnd = dayStart + 28 * 60 * 60 * 1000;
         
-    String where = TvBrowserContentProvider.DATA_KEY_STARTTIME +  " >= " + dayStart + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " < " + dayEnd;
+    String where = TvBrowserContentProvider.DATA_KEY_STARTTIME +  ">=" + dayStart + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + dayEnd;
     
     StringBuilder where3 = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
-    where3.append(" = 1");
+    where3.append("=1");
     
     Cursor channels = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, where3.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
     
@@ -487,6 +528,8 @@ public class ProgramTableFragment extends Fragment {
       
       ViewGroup test = (ViewGroup)programTable.findViewById(R.id.vertical_program_table_scroll);
       test.addView(mProgramPanelLayout);
+      
+      where += " AND ( NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";
       
       Cursor cursor = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
       

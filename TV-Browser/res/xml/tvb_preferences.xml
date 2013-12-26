@@ -76,7 +76,7 @@
     <PreferenceCategory android:title="@string/title_programs_list">
         <ListPreference android:key="@string/CHANNEL_LOGO_NAME_PROGRAMS_LIST"
             android:title="@string/show_logo_title"
-            android:defaultValue="0"
+            android:defaultValue="1"
             android:entries="@array/show_logo"
             android:entryValues="@array/logo_name_values"
             android:summary="%s"/>

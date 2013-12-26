@@ -79,6 +79,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private BroadcastReceiver mDataUpdateReceiver;
   private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mMarkingChangeReceiver;
+  private BroadcastReceiver mDontWantToSeeReceiver;
   
   private static final GradientDrawable BEFORE_GRADIENT;
   private static final GradientDrawable AFTER_GRADIENT;
@@ -114,6 +115,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private boolean mIsCompactLayout;
     
   private View.OnClickListener mOnCliickListener;
+  private View.OnClickListener mChannelSwitchListener;
   private View mContextView;
   private long mContextProgramID;
   
@@ -203,6 +205,15 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         }
       }
     };
+    
+    mDontWantToSeeReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        startUpdateThread();
+      }
+    };
+    
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDontWantToSeeReceiver, new IntentFilter(SettingConstants.DONT_WANT_TO_SEE_CHANGED));
     
     mMarkingChangeReceiver = new BroadcastReceiver() {
       @Override
@@ -562,6 +573,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         }
         
         viewHolder.mChannel.setText(shortName);
+        viewHolder.mChannel.setTag(block.mChannelID);
+        viewHolder.mChannel.setOnClickListener(mChannelSwitchListener);
         
         channelSet = true;
       }
@@ -890,6 +903,20 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         }
       }
     };
+    
+    mChannelSwitchListener = new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Integer id = (Integer)v.getTag();
+        
+        if(id != null) {
+          Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
+          showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA,id);
+          
+          LocalBroadcastManager.getInstance(getActivity()).sendBroadcastSync(showChannel);
+        }
+      }
+    };
         
     mProgramBlockList = new ArrayList<RunningProgramsListFragment.ChannelProgramBlock>();
     mCurrentViewList = new ArrayList<RunningProgramsListFragment.ChannelProgramBlock>();
@@ -939,6 +966,9 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     if(mMarkingChangeReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMarkingChangeReceiver);
     }
+    if(mDontWantToSeeReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDontWantToSeeReceiver);
+    }
     
     mKeepRunning = false;
   }
@@ -975,12 +1005,12 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     mShowOrderNumber = pref.getBoolean(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_LISTS), true);
     
     if(showPicture) {
-      projection = new String[15];
+      projection = new String[16];
       
-      projection[14] = TvBrowserContentProvider.DATA_KEY_PICTURE;
+      projection[15] = TvBrowserContentProvider.DATA_KEY_PICTURE;
     }
     else {
-      projection = new String[14];
+      projection = new String[15];
     }
     
     projection[0] = TvBrowserContentProvider.KEY_ID;
@@ -997,6 +1027,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     projection[11] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
     projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
     projection[13] = TvBrowserContentProvider.CHANNEL_KEY_LOGO;
+    projection[14] = TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
     
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.MINUTE, 0);
@@ -1033,14 +1064,16 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
 
     String sort = TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC";
     
-    String where = " ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " <= " + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + (mCurrentTime - (60000 * 60 * 12)) + " ) ";
+    String where = " ( "  + TvBrowserContentProvider.DATA_KEY_ENDTIME + "<=" + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + (mCurrentTime - (60000 * 60 * 12)) + " ) ";
     
     if(mWhereClauseTime == -1) {
-      where = " ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " < " + (mCurrentTime + (60000 * 60 * 12)) + " ) ";
+      where = " ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + (mCurrentTime + (60000 * 60 * 12)) + " ) ";
     }
     else {
-      where += " OR ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " > " + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " < " + (mCurrentTime + (60000 * 60 * 12)) + " ) ";
+      where += " OR ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + (mCurrentTime + (60000 * 60 * 12)) + " ) ";
     }
+    
+    where += " AND ( NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";
     
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " COLLATE NOCASE, " + sort);
     
@@ -1113,6 +1146,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     mChannelNameColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
     mChannelIDColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     int channelOrderColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+    int dontWantToSeeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE);
     
     int logoColumn =  c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
     int markingColumn =  c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES);
@@ -1180,57 +1214,64 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           }
         }
         
-        block.mChannelID = channelID;
-        block.mChannelName = channelName;
-        block.mChannelOrderNumber = channelOrderNumber;
-        
-        if(startTime <= mCurrentTime) {
-          if(endTime <= mCurrentTime) {
-            block.mPreviousPosition = c.getPosition();
-            block.mPreviousProgramID = programID;
-            block.mPreviousStart = startTime;
-            block.mPreviousEnd = endTime;
-            block.mPreviousTitle = title;
-            block.mPreviousEpisode = episode;
-            block.mPreviousGenre = genre;
-            block.mPreviousPicture = picture;
-            block.mPreviousPictureCopyright = pictureCopyright;
-            block.mPreviousCategory = category;
+        if(c.getInt(dontWantToSeeColumn) == 0) {
+          block.mChannelID = channelID;
+          block.mChannelName = channelName;
+          block.mChannelOrderNumber = channelOrderNumber;
+          
+          if(startTime <= mCurrentTime) {
+            if(endTime <= mCurrentTime) {
+              block.mPreviousPosition = c.getPosition();
+              block.mPreviousProgramID = programID;
+              block.mPreviousStart = startTime;
+              block.mPreviousEnd = endTime;
+              block.mPreviousTitle = title;
+              block.mPreviousEpisode = episode;
+              block.mPreviousGenre = genre;
+              block.mPreviousPicture = picture;
+              block.mPreviousPictureCopyright = pictureCopyright;
+              block.mPreviousCategory = category;
+            }
+            else if(startTime <= mCurrentTime && mCurrentTime < endTime) {
+              block.mNowPosition = c.getPosition();
+              block.mNowProgramID = programID;
+              block.mNowStart = startTime;
+              block.mNowEnd = endTime;
+              block.mNowTitle = title;
+              block.mNowEpisode = episode;
+              block.mNowGenre = genre;
+              block.mNowPicture = picture;
+              block.mNowPictureCopyright = pictureCopyright;
+              block.mNowCategory = category;
+              
+              if(currentProgramMap.indexOfKey(channelID) < 0) { 
+                currentProgramMap.put(channelID, block);
+                mCurrentViewList.add(block);
+              }
+            }
           }
-          else if(startTime <= mCurrentTime && mCurrentTime < endTime) {
-            block.mNowPosition = c.getPosition();
-            block.mNowProgramID = programID;
-            block.mNowStart = startTime;
-            block.mNowEnd = endTime;
-            block.mNowTitle = title;
-            block.mNowEpisode = episode;
-            block.mNowGenre = genre;
-            block.mNowPicture = picture;
-            block.mNowPictureCopyright = pictureCopyright;
-            block.mNowCategory = category;
+          else {
+            block.mNextPosition = c.getPosition();
+            block.mNextStart = startTime;
+            block.mNextEnd = endTime;
+            block.mNextProgramID = programID;
+            block.mNextTitle = title;
+            block.mNextEpisode = episode;
+            block.mNextGenre = genre;
+            block.mNextPicture = picture;
+            block.mNextPictureCopyright = pictureCopyright;
+            block.mNextCategory = category;
             
-            if(currentProgramMap.indexOfKey(channelID) <= 0) { 
+            block.mIsComplete = true;
+            
+            if(currentProgramMap.indexOfKey(channelID) < 0) { 
               currentProgramMap.put(channelID, block);
               mCurrentViewList.add(block);
             }
           }
-        }
-        else {
-          block.mNextPosition = c.getPosition();
-          block.mNextStart = startTime;
-          block.mNextEnd = endTime;
-          block.mNextProgramID = programID;
-          block.mNextTitle = title;
-          block.mNextEpisode = episode;
-          block.mNextGenre = genre;
-          block.mNextPicture = picture;
-          block.mNextPictureCopyright = pictureCopyright;
-          block.mNextCategory = category;
           
-          block.mIsComplete = true;
+          mMarkingsMap.put(programID, markingValue);
         }
-        
-        mMarkingsMap.put(programID, markingValue);
       }
     }
     

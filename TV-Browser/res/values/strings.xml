@@ -263,15 +263,23 @@
     <string name="marking_value_reminder">Reminder</string>
     <string name="show_sort_number">Show sort number</string>
     <string name="action_dont_want_to_see">I don\'t want to see!</string>
+    <string name="action_dont_want_to_see_edit">Edit \'I don\'t want to see!\'</string>
     <string name="action_want_to_see">I do want to see!</string>
     <string name="dont_want_to_see_edit_entry">What should be excluded? (You can use the wildcard *)</string>
     <string name="dont_want_to_see_edit_entry_hint">Enter the exclusion value</string>
     <string name="dont_want_to_see_edit_case_sensitve">case-sensitive</string>
     <string name="all_data">All data</string>
     <string name="all_channels">All channels</string>
+    <string name="channel_minus">CH-</string>
+    <string name="channel_plus">CH+</string>
     <string name="all_programs">All programs</string>
     <string name="action_synchronize">Synchronization</string>
     <string name="action_synchronize_channels">Channels</string>
     <string name="action_synchronize_favorites">Favorites</string>
     <string name="action_synchronize_dont_want_to_see">I don\'t want to see!</string>
+    <string name="no_dont_want_to_see_sync">Could not synchronize \'I don\'t want to see!\' exclusion list.\nDid you upload the exclusion list with the AndroidSync plugin?</string>
+    <string name="dont_want_to_see_sync_success">Successfully synchronized exclusion list of \'I don\'t want to see!\'</string>
+    <string name="dont_want_to_see_notification_text">Synchronizing exclusion list&#8230;</string>
+    <string name="dont_want_to_see_refresh_notification_text">Updating exclusion list&#8230;</string>
+    <string name="dont_want_to_see_delete">Delete exclusion</string>
 </resources>

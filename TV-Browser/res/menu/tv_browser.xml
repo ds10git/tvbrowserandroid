@@ -64,6 +64,11 @@
         </menu>
     </item>
     <item 
+        android:id="@+id/action_dont_want_to_see_edit"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/action_dont_want_to_see_edit"/>
+    <item 
         android:id="@+id/action_basic_preferences"
         android:orderInCategory="100"
         android:showAsAction="never"

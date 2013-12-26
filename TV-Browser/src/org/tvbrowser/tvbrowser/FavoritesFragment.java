@@ -70,6 +70,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   private BroadcastReceiver mReceiver;
   private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mDataUpdateReceiver;
+  private BroadcastReceiver mDontWantToSeeReceiver;
   
   private boolean mIsRunning;
   
@@ -228,7 +229,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
             break;
           case 2: mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_SYNC_FAVORITE + "%'"; break;
           
-          default: mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = 0 ";
+          default: mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "=0 ";
         }
         
         handler.post(new Runnable() {
@@ -346,6 +347,17 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       }
     };
     
+    mDontWantToSeeReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        if(!isDetached() && !isRemoving()) {
+          mFavoriteAdapter.notifyDataSetChanged();
+        }
+      }
+    };
+    
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDontWantToSeeReceiver, new IntentFilter(SettingConstants.DONT_WANT_TO_SEE_CHANGED));
+    
     mRefreshReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
@@ -387,6 +399,9 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     if(mRefreshReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mRefreshReceiver);
     }
+    if(mDontWantToSeeReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDontWantToSeeReceiver);
+    }
   }
   
   @Override
@@ -417,15 +432,17 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
     projection[13] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
     
-    String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= " + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis();
-    where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " > " + System.currentTimeMillis() + " ) ";
+    String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
+    where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
     
     if(mWhereClause != null) {
       where += mWhereClause;
     }
     else {
-      where = TvBrowserContentProvider.DATA_KEY_STARTTIME + " <= 0";
+      where = TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=0";
     }
+    
+    where += " AND ( NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";
     
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     

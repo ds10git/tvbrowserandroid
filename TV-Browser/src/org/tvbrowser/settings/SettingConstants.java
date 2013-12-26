@@ -36,7 +36,12 @@ public class SettingConstants {
   public static final String REFRESH_VIEWS = "org.tvbrowser.REFRESH_VIEWS";
   public static final String UPDATE_TIME_BUTTONS = "org.tvbrowser.UPDATE_TIME_BUTTONS";
   public static final String REMINDER_INTENT = "org.tvbrowser.REMINDER_INTENT";
+  public static final String SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT = "org.tvbrowser.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT";
   public static final String REMINDER_PROGRAM_ID_EXTRA = "REMINDER_PROGRAM_ID_EXTRA";
+  public static final String CHANNEL_ID_EXTRA = "CHANNEL_ID_EXTRA";
+  public static final String DONT_WANT_TO_SEE_ADDED_EXTRA = "DONT_WANT_TO_SEE_ADDED_EXTRA";
+  
+  public static boolean UPDATING_FILTER = false;
   
   public static final String[] REMINDER_PROJECTION = new String[] {
     TvBrowserContentProvider.CHANNEL_KEY_NAME,

@@ -20,7 +20,6 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
@@ -42,12 +41,10 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -333,7 +330,13 @@ public class DummySectionFragment extends Fragment {
         
         final Spinner channel = (Spinner)rootView.findViewById(R.id.channel_selection);
         
-        ArrayList<ChannelSelection> channelEntries = new ArrayList<DummySectionFragment.ChannelSelection>();
+        final Button minus = (Button)rootView.findViewById(R.id.channel_minus);
+        minus.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));
+        
+        final Button plus = (Button)rootView.findViewById(R.id.channel_plus);
+        plus.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));
+                
+        final ArrayList<ChannelSelection> channelEntries = new ArrayList<DummySectionFragment.ChannelSelection>();
         
         final ArrayAdapter<ChannelSelection> channelAdapter = new ArrayAdapter<DummySectionFragment.ChannelSelection>(getActivity(), android.R.layout.simple_spinner_item, channelEntries) {
           @Override
@@ -356,8 +359,8 @@ public class DummySectionFragment extends Fragment {
             
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
             
-            int logoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST), "0"));
-            boolean showOrderNumber = pref.getBoolean(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_PROGRAMS_LIST), true);
+            int logoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST), "1"));
+            boolean showOrderNumber = pref.getBoolean(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_PROGRAMS_LIST), false);
             
             ChannelSelection sel = getItem(position);
             
@@ -385,15 +388,7 @@ public class DummySectionFragment extends Fragment {
               
               if((logoValue == 0 || logoValue == 1) && sel.getLogo() != null) {
                 BitmapDrawable l = sel.getLogo();
-                
-              /*  if(id == android.R.layout.simple_spinner_item) {
-                  float percent = (parent.getMeasuredHeight() * 0.7f) / l.getBitmap().getHeight();
-                  
-                  if(percent < 1) {
-                    l.setBounds(0,0,(int)(l.getBitmap().getWidth() * percent),(int)(l.getBitmap().getHeight() * percent));
-                  }
-                }*/
-                
+                                
                 text.setCompoundDrawables(l, null, null, null);
               }
               else {
@@ -429,6 +424,31 @@ public class DummySectionFragment extends Fragment {
           }
         });
         
+        View.OnClickListener onClick = new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            int pos = channel.getSelectedItemPosition();
+            
+            if(v.equals(minus)) {
+              if(--pos < 0) {
+                pos = channel.getCount()-1;
+              }
+              
+              channel.setSelection(pos);
+            }
+            else {
+              if(++pos >= channel.getCount()) {
+                pos = 0;
+              }
+              
+              channel.setSelection(pos);
+            }
+          }
+        };
+        
+        minus.setOnClickListener(onClick);
+        plus.setOnClickListener(onClick);
+        
         final Spinner filter = (Spinner)rootView.findViewById(R.id.program_selection);
         
         ArrayList<String> filterEntries = new ArrayList<String>();
@@ -462,6 +482,7 @@ public class DummySectionFragment extends Fragment {
               case 2: convertView.setBackgroundResource(R.color.mark_color);break;
               case 3: convertView.setBackgroundResource(R.color.mark_color_calendar);break;
               case 4: convertView.setBackgroundResource(R.color.mark_color_sync_favorite);break;
+              case 5: convertView.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));break;
             }
             
             return convertView;
@@ -475,7 +496,7 @@ public class DummySectionFragment extends Fragment {
         filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
         filter.setAdapter(filterAdapter);
         
-        filterAdapter.add(getActivity().getString(R.string.all_programs));
+        filterAdapter.add(" "  + getActivity().getString(R.string.all_programs));
         filterAdapter.add(getResources().getString(R.string.title_favorites));
         filterAdapter.add(getResources().getString(R.string.marking_value_marked));
         
@@ -487,6 +508,7 @@ public class DummySectionFragment extends Fragment {
         }
         
         filterAdapter.add(getResources().getString(R.string.marking_value_sync));
+        filterAdapter.add(" "  + getResources().getString(R.string.action_dont_want_to_see));
         
         filter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
           @Override
@@ -507,13 +529,13 @@ public class DummySectionFragment extends Fragment {
           public void onReceive(Context context, Intent intent) {
             channelAdapter.clear();
             
-            channelAdapter.add(new ChannelSelection(-1, "0", "test", null));
+            channelAdapter.add(new ChannelSelection(-1, "0", getResources().getString(R.string.all_channels), null));
             
             if(getActivity() != null) {
               ContentResolver cr = getActivity().getContentResolver();
               
               StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
-              where.append(" = 1");
+              where.append("=1");
               
               Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
               
@@ -558,6 +580,34 @@ public class DummySectionFragment extends Fragment {
         
         localBroadcastManager.registerReceiver(mChannelUpdateReceiver, channelUpdateFilter);
         mChannelUpdateReceiver.onReceive(null, null);
+        
+        IntentFilter showChannelFilter = new IntentFilter(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
+        
+        BroadcastReceiver showChannel = new BroadcastReceiver() {
+          @Override
+          public void onReceive(Context context, Intent intent) {
+            int id = intent.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA, -1);
+            
+            for(int i = 0; i < channelEntries.size(); i++) {
+              ChannelSelection sel = channelEntries.get(i);
+              
+              if(sel.getID() == id) {
+                channel.setSelection(i);
+                break;
+              }
+            }
+            
+            filter.setSelection(0);
+            date.setSelection(0);
+            programList.scrollToTop();
+            
+            if(getActivity() instanceof TvBrowser) {
+              ((TvBrowser)getActivity()).showProgramsListTab();
+            }
+          }
+        };
+        
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(showChannel, showChannelFilter);
     }
     else {
       rootView = inflater.inflate(R.layout.fragment_tv_browser_dummy,

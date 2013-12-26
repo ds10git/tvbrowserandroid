@@ -252,15 +252,23 @@
     <string name="marking_value_reminder">Erinnerungen</string>
     <string name="show_sort_number">Sortierungsnummer anzeigen</string>
     <string name="action_dont_want_to_see">Will ich nicht sehen!</string>
+    <string name="action_dont_want_to_see_edit">\'Will ich nicht sehen!\' bearbeiten</string>
     <string name="action_want_to_see">Will ich doch sehen!</string>
     <string name="dont_want_to_see_edit_entry">Welche Sendungen sollen verborgen werden? (Der * kann als Platzhalter benutzt werden)</string>
     <string name="dont_want_to_see_edit_entry_hint">Ausschluss eingeben</string>
     <string name="dont_want_to_see_edit_case_sensitve">Groß-/Kleinschreibung beachten</string>
     <string name="all_data">Alle Daten</string>
     <string name="all_channels">Alle Sender</string>
+    <string name="channel_minus">P-</string>
+    <string name="channel_plus">P+</string>
     <string name="all_programs">Alle Sendungen</string>
     <string name="action_synchronize">Synchronisierung</string>
     <string name="action_synchronize_channels">Sender</string>
     <string name="action_synchronize_favorites">Lieblingssendungen</string>
     <string name="action_synchronize_dont_want_to_see">Will ich nicht sehen!</string>
+    <string name="no_dont_want_to_see_sync">Konnte Ausschlusslite von \'Will ich nicht sehen!\' nicht synchronisieren.\nWurde die Ausschlussliste mit dem AndroidSync-Plugin hochgeladen?</string>
+    <string name="dont_want_to_see_sync_success">Ausschlusslite von \'Will ich nicht sehen!\' erfolgreich synchronisiert.</string>
+    <string name="dont_want_to_see_notification_text">Ausschlussliste synchronisieren&#8230;</string>
+    <string name="dont_want_to_see_refresh_notification_text">Ausschlussliste aktualisieren&#8230;</string>
+    <string name="dont_want_to_see_delete">Ausschluss löschen</string>
 </resources>
