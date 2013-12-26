@@ -169,11 +169,9 @@ public class IOUtils {
     }
     
     if(signature[ 0 ] == (byte) (GZIPInputStream.GZIP_MAGIC & 0xFF) && signature[ 1 ] == (byte) (GZIPInputStream.GZIP_MAGIC >> 8) ) {//check if matches standard gzip magic number
-      Log.d("info6", "GZIP");
       return decompressStream(new GZIPInputStream(pb));
     }
     else {
-      Log.d("info6", "UNZIP");
       return pb;
     }
   }

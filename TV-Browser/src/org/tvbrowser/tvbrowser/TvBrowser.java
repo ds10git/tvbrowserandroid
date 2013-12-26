@@ -27,8 +27,10 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Set;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
@@ -41,13 +43,16 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
+import android.app.NotificationManager;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.OperationApplicationException;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -65,11 +70,13 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.Handler;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
 import android.text.Html;
@@ -78,11 +85,13 @@ import android.text.method.LinkMovementMethod;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -135,6 +144,7 @@ public class TvBrowser extends FragmentActivity implements
   private boolean mSelectionNumberChanged;
   
   private boolean mIsActive;
+  private boolean mProgramsListWasShow;
   
   private static String ALL_VALUE;
   
@@ -195,6 +205,8 @@ public class TvBrowser extends FragmentActivity implements
             if(fragment instanceof ProgramTableFragment) {
               ((ProgramTableFragment)fragment).scrollToNow();
             }
+            
+            mProgramsListWasShow = false;
           }
         });
 
@@ -282,7 +294,7 @@ public class TvBrowser extends FragmentActivity implements
         Calendar cal2 = Calendar.getInstance();
         cal2.add(Calendar.DAY_OF_YEAR, -2);
         
-        getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.DATA_KEY_STARTTIME + " < " + cal2.getTimeInMillis(), null);
+        getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + cal2.getTimeInMillis(), null);
       }
     }.start();
     
@@ -303,7 +315,7 @@ public class TvBrowser extends FragmentActivity implements
       dialog.show();
     }
     
-    Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + " = 1", null, null);
+    Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, null);
     
     if(!selectingChannels && (channels == null || channels.getCount() == 0)) {
       selectingChannels = true;
@@ -336,7 +348,7 @@ public class TvBrowser extends FragmentActivity implements
     
     mTimer = new Timer();
     mTimer.schedule(new TimerTask() {
-      private int mCurrentDay = 0;
+      private int mCurrentDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
       @Override
       public void run() {
         int day = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
@@ -396,7 +408,7 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   private void syncronizeChannels()  {
-    Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.CHANNEL_KEY_SELECTION}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + " = 1 ", null, null);
+    Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.CHANNEL_KEY_SELECTION}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1 ", null, null);
     
     int count = test.getCount();
     
@@ -438,7 +450,7 @@ public class TvBrowser extends FragmentActivity implements
           values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 0);
           values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, 0);
           
-          if(getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + " = 1", null) > 0) {
+          if(getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null) > 0) {
             somethingSynchonized = true;
           }
         }
@@ -446,14 +458,14 @@ public class TvBrowser extends FragmentActivity implements
         URL documentUrl;
         try {
           //documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels2.php");
-          documentUrl = new URL("http://android.tvbrowser.org/data/scripts//hurtzAndroidTvbChannels.php");
+          documentUrl = new URL("http://android.tvbrowser.org/data/scripts/hurtzAndroidTvbChannels.php");
           URLConnection connection = documentUrl.openConnection();
           
           SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
           
           String car = pref.getString(SettingConstants.USER_NAME, null);
           String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
-          Log.d("dateinfo", car + " " + bicycle);
+          
           if(car != null && bicycle != null) {
             String userpass = car + ":" + bicycle;
             String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
@@ -468,21 +480,20 @@ public class TvBrowser extends FragmentActivity implements
             
             while((line = read.readLine()) != null) {
               if(line.trim().length() > 0) {
-                Log.d("sync", line);
                 if(line.contains(":")) {
                   String[] parts = line.split(":");
                   
                   if(parts[0].equals("1")) {
                     String dataService = "EPG_FREE";
                     
-                    String where = " ( " + TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = '" + dataService + "' ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = '" + parts[1] + "' ) ";
+                    String where = " ( " + TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = '" + dataService + "' ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "='" + parts[1] + "' ) ";
                     
                     Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
                     
                     if(group.moveToFirst()) {
                       int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                       
-                      where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = '" + parts[2] + "' ) ";
+                      where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=" + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "='" + parts[2] + "' ) ";
                       
                       ContentValues values = new ContentValues();
                       
@@ -494,7 +505,6 @@ public class TvBrowser extends FragmentActivity implements
                       if(changed > 0) {
                         somethingSynchonized = true;
                       }
-                      Log.d("sync", String.valueOf(changed));
                     }
                     
                     group.close();
@@ -547,6 +557,145 @@ public class TvBrowser extends FragmentActivity implements
       }
     }.start();
     
+  }
+  
+  private void synchronizeDontWantToSee() {
+    new Thread() {
+      public void run() {
+        if(!SettingConstants.UPDATING_FILTER) {
+          SettingConstants.UPDATING_FILTER = true;
+          
+          NotificationCompat.Builder builder;
+          
+          builder = new NotificationCompat.Builder(TvBrowser.this);
+          builder.setSmallIcon(R.drawable.ic_launcher);
+          builder.setOngoing(true);
+          builder.setContentTitle(getResources().getText(R.string.action_dont_want_to_see));
+          builder.setContentText(getResources().getText(R.string.dont_want_to_see_notification_text));
+          
+          int notifyID = 2;
+          
+          NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+          notification.notify(notifyID, builder.build());
+          
+          updateProgressIcon(true);
+                  
+          URL documentUrl;
+          
+          try {
+            //documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels2.php");
+            documentUrl = new URL("http://android.tvbrowser.org/data/scripts/hurtzAndroidDontWantToSee.php");
+            URLConnection connection = documentUrl.openConnection();
+            
+            SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+            
+            String car = pref.getString(SettingConstants.USER_NAME, null);
+            String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+            Log.d("dateinfo", car + " " + bicycle);
+            if(car != null && bicycle != null) {
+              String userpass = car + ":" + bicycle;
+              String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
+              
+              connection.setRequestProperty ("Authorization", basicAuth);
+              
+              BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+              
+              String line = null;
+              
+              HashSet<String> exclusions = new HashSet<String>();
+              ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<DontWantToSeeExclusion>();
+              
+              while((line = read.readLine()) != null) {
+                if(line.contains(";;") && line.trim().length() > 0) {
+                  exclusions.add(line);
+                  exclusionList.add(new DontWantToSeeExclusion(line));
+                }
+              }
+              
+              if(exclusions.size() > 0) {
+                Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+                
+                edit.putStringSet(getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES), exclusions);
+                edit.commit();
+                
+                DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
+                
+                Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.KEY_ID);
+                
+                builder.setProgress(c.getCount(), 0, true);
+                notification.notify(notifyID, builder.build());
+                
+                ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+                
+                int keyColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                int titleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+                
+                while(c.moveToNext()) {
+                  builder.setProgress(c.getCount(), c.getPosition(), false);
+                  notification.notify(notifyID, builder.build());
+                  
+                  String title = c.getString(titleColumn);
+                  
+                  boolean filter = UiUtils.filter(getApplicationContext(), title, exclusionArr);
+                  long progID = c.getLong(keyColumn);
+                  
+                  ContentValues values = new ContentValues();
+                  values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, filter ? 1 : 0);
+                  
+                  ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
+                  opBuilder.withValues(values);
+                  
+                  updateValuesList.add(opBuilder.build());
+                }
+                
+                notification.cancel(notifyID);
+                
+                c.close();
+                
+                if(!updateValuesList.isEmpty()) {
+                  try {
+                    getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+                    UiUtils.sendDontWantToSeeChangedBroadcast(getApplicationContext(),true);
+                    handler.post(new Runnable() {
+                      @Override
+                      public void run() {
+                        Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show();
+                      }
+                    });
+                  } catch (RemoteException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                  } catch (OperationApplicationException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                  }
+                }
+              }
+              else {
+                handler.post(new Runnable() {
+                  @Override
+                  public void run() {
+                    Toast.makeText(getApplicationContext(), R.string.no_dont_want_to_see_sync, Toast.LENGTH_LONG).show();
+                  }
+                });
+              }
+            }
+          }catch(Throwable t) {
+            Log.d("info1", "" , t);
+            handler.post(new Runnable() {
+              @Override
+              public void run() {
+                Toast.makeText(getApplicationContext(), R.string.no_dont_want_to_see_sync, Toast.LENGTH_LONG).show();
+              }
+            });
+          }
+  
+          updateProgressIcon(false);
+          
+          SettingConstants.UPDATING_FILTER = false;
+        }
+      }
+    }.start();
   }
   
   private static final class ChannelSelection {
@@ -965,8 +1114,8 @@ public class TvBrowser extends FragmentActivity implements
               
               getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, sel.getChannelID()), values, null, null);
               
-              getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + sel.getChannelID(), null);
-              getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + sel.getChannelID(), null);
+              getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + sel.getChannelID(), null);
+              getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + sel.getChannelID(), null);
             }
           }
           
@@ -1046,7 +1195,7 @@ public class TvBrowser extends FragmentActivity implements
       BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-          mUpdateItem.setActionView(null);
+          updateProgressIcon(false);
           
           LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(this);
           
@@ -1082,7 +1231,7 @@ public class TvBrowser extends FragmentActivity implements
       
       LocalBroadcastManager.getInstance(this).registerReceiver(receiver, filter);
       
-      mUpdateItem.setActionView(R.layout.progressbar);
+      updateProgressIcon(true);
       startService(updateChannels);
     }
   }
@@ -1114,7 +1263,7 @@ public class TvBrowser extends FragmentActivity implements
     ContentResolver cr = getContentResolver();
     
     StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
-    where.append(" = 1");
+    where.append("=1");
     
     LinearLayout main = (LinearLayout)getLayoutInflater().inflate(R.layout.channel_sort_list, null);
     
@@ -1370,7 +1519,7 @@ public class TvBrowser extends FragmentActivity implements
     LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        mUpdateItem.setActionView(null);
+        updateProgressIcon(false);
         
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(this);
       }
@@ -1379,7 +1528,7 @@ public class TvBrowser extends FragmentActivity implements
 
   private void updateTvData() {
     if(!TvDataUpdateService.IS_RUNNING) {
-      Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + " = 1", null, null);
+      Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, null);
       
       if(test.getCount() > 0) {
         AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -1425,7 +1574,7 @@ public class TvBrowser extends FragmentActivity implements
             
             startService(startDownload);
             
-            mUpdateItem.setActionView(R.layout.progressbar);
+            updateProgressIcon(true);
             
             addUpdateBroadcastReceiver();
           }
@@ -1648,6 +1797,264 @@ public class TvBrowser extends FragmentActivity implements
     }
   }
   
+  private static final class ExclusionEdit implements Comparable<ExclusionEdit> {
+    String mExclusion;
+    boolean mIsCaseSensitive;
+    
+    public ExclusionEdit(String exclusion) {
+      String[] parts = exclusion.split(";;");
+      
+      mExclusion = parts[0];
+      mIsCaseSensitive = parts[1].equals("1");
+    }
+    
+    @Override
+    public String toString() {
+      return mExclusion;
+    }
+
+    @Override
+    public int compareTo(ExclusionEdit another) {
+      return mExclusion.replace("*", "").compareToIgnoreCase(another.mExclusion.replace("*", ""));
+    }
+    
+    public String getExclusion() {
+      return mExclusion + ";;" + (mIsCaseSensitive ? "1" : "0");
+    }
+  }
+  
+  private void editDontWantToSee() {
+    if(!SettingConstants.UPDATING_FILTER) {
+      Set<String> currentExclusions = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getStringSet(getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES), null);
+      
+      final ArrayList<ExclusionEdit> mCurrentExclusionList = new ArrayList<TvBrowser.ExclusionEdit>();
+      
+      if(currentExclusions != null && !currentExclusions.isEmpty()) {
+        for(String exclusion : currentExclusions) {
+          mCurrentExclusionList.add(new ExclusionEdit(exclusion));
+        }
+      }
+      
+      Collections.sort(mCurrentExclusionList);
+      
+      final ArrayAdapter<ExclusionEdit> exclusionAdapter = new ArrayAdapter<TvBrowser.ExclusionEdit>(TvBrowser.this, android.R.layout.simple_list_item_1, mCurrentExclusionList);
+      
+      View view = getLayoutInflater().inflate(R.layout.dont_want_to_see_exclusion_edit_list, null);
+      
+      ListView list = (ListView)view.findViewById(R.id.dont_want_to_see_exclusion_list);
+      
+      list.setAdapter(exclusionAdapter);
+      
+      final Runnable cancel = new Runnable() {
+        @Override
+        public void run() {}
+      };
+      
+      AdapterView.OnItemClickListener onClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+          final ExclusionEdit edit = exclusionAdapter.getItem(position);
+          
+          View editView = getLayoutInflater().inflate(R.layout.dont_want_to_see_edit, null);
+          
+          final TextView exclusion = (TextView)editView.findViewById(R.id.dont_want_to_see_value);
+          final CheckBox caseSensitive = (CheckBox)editView.findViewById(R.id.dont_want_to_see_case_sensitve);
+          
+          exclusion.setText(edit.mExclusion);
+          caseSensitive.setSelected(edit.mIsCaseSensitive);
+          
+          Runnable editPositive = new Runnable() {
+            @Override
+            public void run() {
+              if(exclusion.getText().toString().trim().length() > 0) {
+                edit.mExclusion = exclusion.getText().toString();
+                edit.mIsCaseSensitive = caseSensitive.isSelected();
+                
+                exclusionAdapter.notifyDataSetChanged();
+              }
+            }
+          };
+          
+          showAlertDialog(getString(R.string.action_dont_want_to_see), null, editView, null, editPositive, null, cancel, false, false);
+        }
+      };
+      
+      list.setOnItemClickListener(onClickListener);
+      list.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+          getMenuInflater().inflate(R.menu.don_want_to_see_context, menu);
+          
+          MenuItem item = menu.findItem(R.id.dont_want_to_see_delete);
+          
+          item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+            @Override
+            public boolean onMenuItemClick(MenuItem item) {
+              ExclusionEdit edit = exclusionAdapter.getItem(((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position);
+              exclusionAdapter.remove(edit);
+              exclusionAdapter.notifyDataSetChanged();
+              
+              return true;
+            }
+          });
+        }
+      });
+      
+      Thread positive = new Thread() {
+        @Override
+        public void run() {
+          SettingConstants.UPDATING_FILTER = true;
+          
+          final NotificationCompat.Builder builder = new NotificationCompat.Builder(TvBrowser.this);
+          builder.setSmallIcon(R.drawable.ic_launcher);
+          builder.setOngoing(true);
+          builder.setContentTitle(getResources().getText(R.string.action_dont_want_to_see));
+          builder.setContentText(getResources().getText(R.string.dont_want_to_see_refresh_notification_text));
+          
+          final int notifyID = 2;
+          
+          final NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+          notification.notify(notifyID, builder.build());
+          
+          updateProgressIcon(true);
+          
+          HashSet<String> newExclusions = new HashSet<String>();
+          final ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<DontWantToSeeExclusion>();
+          
+          for(ExclusionEdit edit : mCurrentExclusionList) {
+            String exclusion = edit.getExclusion();
+            
+            newExclusions.add(exclusion);
+            exclusionList.add(new DontWantToSeeExclusion(exclusion));
+          }
+          
+          new Thread() {
+            public void run() {
+              Cursor programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.KEY_ID);
+              
+              builder.setProgress(programs.getCount(), 0, true);
+              notification.notify(notifyID, builder.build());
+              
+              ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+              
+              int keyColumn = programs.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+              int titleColumn = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+              
+              DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
+              
+              while(programs.moveToNext()) {
+                builder.setProgress(programs.getCount(), programs.getPosition(), false);
+                notification.notify(notifyID, builder.build());
+                
+                String title = programs.getString(titleColumn);
+                
+                boolean filter = UiUtils.filter(getApplicationContext(), title, exclusionArr);
+                long progID = programs.getLong(keyColumn);
+                
+                ContentValues values = new ContentValues();
+                values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, filter ? 1 : 0);
+                
+                ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
+                opBuilder.withValues(values);
+                
+                updateValuesList.add(opBuilder.build());
+              }
+              
+              notification.cancel(notifyID);
+              
+              programs.close();
+              
+              if(!updateValuesList.isEmpty()) {
+                try {
+                  getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+                  UiUtils.sendDontWantToSeeChangedBroadcast(getApplicationContext(),true);
+                  handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show();
+                    }
+                  });
+                } catch (RemoteException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+                } catch (OperationApplicationException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+                }
+              }
+              
+              updateProgressIcon(false);
+              SettingConstants.UPDATING_FILTER = false;
+            }
+          }.start();
+          
+          Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+          edit.putStringSet(getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES), newExclusions);
+          edit.commit();
+        }
+      };
+      
+      showAlertDialog(getString(R.string.action_dont_want_to_see_edit), null, view, null, positive, null, cancel, false, true);
+    }
+  }
+  
+  public void showAlertDialog(String title, String message, View view, String positiveText, final Runnable positive, String negativeText, final Runnable negative, boolean link, boolean notCancelable) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+    builder.setCancelable(!notCancelable);
+    
+    if(title != null) {
+      builder.setTitle(title);
+    }
+    if(message != null) {
+      builder.setMessage(message);
+    }
+    else if(view != null) {
+      builder.setView(view);
+    }
+    
+    if(positive != null) {
+      if(positiveText == null) {
+        positiveText = getString(android.R.string.ok);
+      }
+      
+      builder.setPositiveButton(positiveText, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          if(positive != null) {
+            positive.run();
+          }
+        }
+      });
+    }
+    
+    if(negative != null) {
+      if(negativeText == null) {
+        negativeText = getString(android.R.string.cancel);
+      }
+      
+      builder.setNegativeButton(negativeText, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          if(negative != null) {
+            negative.run();
+          }
+        }
+      });
+    }
+    
+    AlertDialog d = builder.create();
+    
+    d.show();
+    
+    if(link) {
+      TextView test = (TextView)d.findViewById(android.R.id.message);
+
+      if(test != null) {
+        test.setMovementMethod(LinkMovementMethod.getInstance());
+      }
+    }
+  }
+  
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
     super.onActivityResult(requestCode, resultCode, data);
@@ -1741,6 +2148,17 @@ public class TvBrowser extends FragmentActivity implements
         showUserSetting(false);
     }
       break;
+      case R.id.action_dont_want_to_see_edit:
+        editDontWantToSee();
+        break;
+      case R.id.action_synchronize_dont_want_to_see:
+        if(isOnline()) {
+          synchronizeDontWantToSee();
+        }
+        else {
+          showNoInternetConnection(null);
+        }
+        break;
       case R.id.action_synchronize_channels:
         if(isOnline()) {
           syncronizeChannels();
@@ -1852,7 +2270,7 @@ public class TvBrowser extends FragmentActivity implements
     
     mUpdateItem = menu.findItem(R.id.action_update);
     
-    menu.findItem(R.id.action_synchronize_dont_want_to_see).setVisible(false);
+   // menu.findItem(R.id.action_synchronize_dont_want_to_see).setVisible(false);
     menu.findItem(R.id.action_synchronize_favorites).setVisible(false);
     
     if(mUpdateItem != null && TvDataUpdateService.IS_RUNNING) {
@@ -1964,6 +2382,37 @@ public class TvBrowser extends FragmentActivity implements
 
     public Fragment getRegisteredFragment(int position) {
         return registeredFragments.get(position);
+    }
+  }
+  
+  public void updateProgressIcon(final boolean progress) {
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        if(progress) {
+          mUpdateItem.setActionView(R.layout.progressbar);
+        }
+        else {
+          mUpdateItem.setActionView(null);
+        }        
+      }
+    });
+  }
+  
+  public void showProgramsListTab() {
+    mViewPager.setCurrentItem(1,true);
+    mProgramsListWasShow = true;
+   
+  }
+  
+  @Override
+  public void onBackPressed() {
+    if(mProgramsListWasShow) {
+      mProgramsListWasShow = false;
+      mViewPager.setCurrentItem(0,true);
+    }
+    else {
+      super.onBackPressed();
     }
   }
 }

@@ -36,7 +36,6 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 public class TvBrowserContentProvider extends ContentProvider {
   public static final String AUTHORITY = "org.tvbrowser.tvbrowsercontentprovider";
@@ -149,6 +148,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_UNIX_DATE = "unixDate";
   public static final String DATA_KEY_DATE_PROG_ID = "dateProgID";
   public static final String DATA_KEY_MARKING_VALUES = "markingValues";
+  public static final String DATA_KEY_DONT_WANT_TO_SEE = "dontWantToSee";
   
   // Column names for data version table
   public static final String VERSION_KEY_DAYS_SINCE_1970 = "daysSince1970";
@@ -438,7 +438,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     // If this is a row query, limit the result set to teh pased in row.
     switch(uriMatcher.match(uri)) {
-      case SEARCH: qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE \"%" + uri.getPathSegments().get(1) + "%\" OR " + DATA_KEY_EPISODE_TITLE + " LIKE \"%" +  uri.getPathSegments().get(1) + "%\") AND " + DATA_KEY_STARTTIME + " >= " + System.currentTimeMillis());
+      case SEARCH: qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE \"%" + uri.getPathSegments().get(1) + "%\" OR " + DATA_KEY_EPISODE_TITLE + " LIKE \"%" +  uri.getPathSegments().get(1) + "%\") AND " + DATA_KEY_STARTTIME + ">=" + System.currentTimeMillis());
                    qb.setProjectionMap(SEARCH_PROJECTION_MAP);
                    qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
                    orderBy = DATA_KEY_STARTTIME;
@@ -461,7 +461,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       case DATA_CHANNEL_ID: qb.appendWhere(TvBrowserDataBaseHelper.DATA_TABLE + "." + KEY_ID + "=" + uri.getPathSegments().get(1) + " AND ");
       case DATA_CHANNELS: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + CHANNEL_TABLE);
                     orderBy = CHANNEL_KEY_ORDER_NUMBER + " , " + CHANNEL_KEY_CHANNEL_ID;
-                    qb.appendWhere(CHANNEL_TABLE + "." + KEY_ID + " = " + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID);
+                    qb.appendWhere(CHANNEL_TABLE + "." + KEY_ID + "=" + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID);
 
                     if(projection != null) {
                       for(int i = 0; i < projection.length; i++) {
@@ -645,7 +645,8 @@ public class TvBrowserContentProvider extends ContentProvider {
         + DATA_KEY_SERIES + " TEXT, "
         + DATA_KEY_UNIX_DATE + " INTEGER, "
         + DATA_KEY_DATE_PROG_ID + " INTEGER, "
-        + DATA_KEY_MARKING_VALUES + " TEXT);";
+        + DATA_KEY_MARKING_VALUES + " TEXT, "
+        + DATA_KEY_DONT_WANT_TO_SEE + " INTEGER DEFAULT 0);";
     
     private static final String CREATE_VERSION_TABLE = "create table " + VERSION_TABLE + " (" + KEY_ID + " integer primary key autoincrement, "
         + CHANNEL_KEY_CHANNEL_ID + " INTEGER REFERENCES " + CHANNEL_TABLE + "(" + KEY_ID + ") NOT NULL, "
@@ -669,7 +670,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       db.execSQL(CREATE_VERSION_TABLE);
     }
 
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -695,6 +696,9 @@ public class TvBrowserContentProvider extends ContentProvider {
         
           onCreate(db);
         }
+      }
+      else if(oldVersion == 2 && newVersion > 2) {
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_DONT_WANT_TO_SEE + " INTEGER DEFAULT 0");
       }
     }
   }

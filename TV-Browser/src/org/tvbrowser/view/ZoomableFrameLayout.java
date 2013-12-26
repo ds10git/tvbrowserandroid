@@ -57,8 +57,7 @@ public class ZoomableFrameLayout extends FrameLayout {
   }
   
   @Override
-  public boolean onTouchEvent(MotionEvent ev) {Log.d("info3","ddd");
-    
+  public boolean onTouchEvent(MotionEvent ev) {
     return super.onTouchEvent(ev);
   }
   
