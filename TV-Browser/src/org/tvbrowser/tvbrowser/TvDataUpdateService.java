@@ -43,6 +43,7 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.TimeZone;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -185,21 +186,21 @@ public class TvDataUpdateService extends Service {
           if(idParts[0].equals("1")) {
             String dataService = "EPG_FREE";
             
-            String where = " ( " +TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + "=\"" + dataService + "\" ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + idParts[1] + "\" ) ";
+            String where = " ( " +TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = \"" + dataService + "\" ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + idParts[1] + "\" ) ";
             
             Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
             
             if(group.moveToFirst()) {
               int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
               
-              where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=" + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + idParts[2] + "\' ) ";
+              where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + idParts[2] + "\' ) ";
               
               Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
               
               if(channel.moveToFirst()) {
                 int channelId = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                 
-                where = " ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + channelId + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "=" + time + " ) ";
+                where = " ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelId + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time + " ) ";
                 
                 Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
                 
@@ -367,7 +368,7 @@ public class TvDataUpdateService extends Service {
           String[] parts = line.split(";");
           
           // Construct a where clause to make sure we don't already have ths group in the provider.
-          String w = TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + "='" + SettingConstants.EPG_FREE_KEY + "' AND " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = '" + parts[0] + "'";
+          String w = TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = '" + SettingConstants.EPG_FREE_KEY + "' AND " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = '" + parts[0] + "'";
           
           // If the group is new, insert it into the provider.
           Cursor query = cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, w, null, null);
@@ -606,7 +607,7 @@ public class TvDataUpdateService extends Service {
             joinedChannel = parts[i];
           }
           
-          String where = TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=" + info.mUniqueGroupID + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "='" + channelId + "'";
+          String where = TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + info.mUniqueGroupID + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = '" + channelId + "'";
           
           ContentResolver cr = getContentResolver();
           
@@ -984,58 +985,45 @@ Log.d("info8", basicAuth);
           TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
           TvBrowserContentProvider.DATA_KEY_STARTTIME,
           TvBrowserContentProvider.DATA_KEY_ENDTIME,
-          TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME,
-          TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE
+          TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME
       };
-      /*
+      
       String[] channelProjection = {
           TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE
       };
-      */
-      Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, null, null, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
       
-     /* int size = c.getCount();
-      
-      mBuilder.setProgress(size, 0, false);
-      notification.notify(mNotifyID, mBuilder.build());*/
+      Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, projection, null, null, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
       
       ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
       
-     // int count = 0;
-      
       // only if there are data update it
       if(c.getCount() > 0) {
-       /* c.moveToFirst();*/
+        c.moveToFirst();
         
         int nettoColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME);
-        int startTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-        int endTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
-        int channelKeyColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-        int programKeyColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-        int timeZoneColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE);
         
         TimeZone timeZone = null;
         
-        while(c.moveToNext()) {
-       /*   mBuilder.setProgress(size, count++, false);
-          notification.notify(mNotifyID, mBuilder.build());*/
-          
-          long progID = c.getLong(programKeyColumn);
+        int keyIDColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+        int channelKeyColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+        int startTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+        int endTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+        
+        do {
+          long progID = c.getLong(keyIDColumn);
           int channelKey = c.getInt(channelKeyColumn);
           long meStart = c.getLong(startTimeColumn);
           long end = c.getLong(endTimeColumn);
           long nettoPlayTime = 0;
           
           if(timeZone == null) {
-            /*Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelProjection, null, null, null);
+            Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelProjection, null, null, null);
             
             if(channel.moveToFirst()) {
               timeZone = TimeZone.getTimeZone(channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE)));
             }
             
-            channel.close();*/
-            
-            timeZone = TimeZone.getTimeZone(c.getString(timeZoneColumn));
+            channel.close();
           }
           
           if(c.isNull(nettoColumn)) {
@@ -1080,7 +1068,7 @@ Log.d("info8", basicAuth);
           else {
             timeZone = null;
           }
-        }/*while(!c.isLast());*/
+        }while(!c.isLast());
       }
       
       c.close();
@@ -1299,7 +1287,7 @@ Log.d("info8", basicAuth);
       ContentResolver cr = getContentResolver();
       
       StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
-      where.append("=1");
+      where.append(" = 1");
       
       final ArrayList<ChannelUpdate> baseList = new ArrayList<ChannelUpdate>();
       final ArrayList<ChannelUpdate> moreList = new ArrayList<ChannelUpdate>();
@@ -1396,7 +1384,7 @@ Log.d("info8", basicAuth);
                   if(version != null) {
                     long daysSince1970 = startDate.getTimeInMillis() / 24 / 60 / 60000;
                     
-                    String versionWhere = TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + "=" + daysSince1970 + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + channelKey;
+                    String versionWhere = TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + " = " + daysSince1970 + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelKey;
                     
                     Cursor versions = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, null, versionWhere, null, null);
                     
@@ -1669,7 +1657,7 @@ Log.d("info8", basicAuth);
           
           values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, mirrors.toString());
           
-          getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=\"" + mirrorFile.getName().substring(0, mirrorFile.getName().lastIndexOf("_"))+"\"", null);
+          getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + mirrorFile.getName().substring(0, mirrorFile.getName().lastIndexOf("_"))+"\"", null);
         }
       } catch (FileNotFoundException e) {
         // TODO Auto-generated catch block
@@ -1925,8 +1913,10 @@ Log.d("info8", basicAuth);
             }
             
             if(programID >= 0) {
-              if(baseLevel && mDontWantToSeeValues != null && mDontWantToSeeValues.length > 0) {
-                String title = values.getAsString(TvBrowserContentProvider.DATA_KEY_TITLE);
+              
+              
+              if(baseLevel && mDontWantToSeeValues != null) {
+                String title = values.containsKey(TvBrowserContentProvider.DATA_KEY_TITLE) ? values.getAsString(TvBrowserContentProvider.DATA_KEY_TITLE) : null;
                 
                 if(title != null) {
                   if(title.equals(value.mTitle)) {
@@ -1946,8 +1936,8 @@ Log.d("info8", basicAuth);
             }
             else if(values.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
               // program unknown insert it
-              if(baseLevel && mDontWantToSeeValues != null && mDontWantToSeeValues.length > 0) {
-                String title = values.getAsString(TvBrowserContentProvider.DATA_KEY_TITLE);
+              if(baseLevel && mDontWantToSeeValues != null) {
+                String title = values.containsKey(TvBrowserContentProvider.DATA_KEY_TITLE) ? values.getAsString(TvBrowserContentProvider.DATA_KEY_TITLE) : null;
                 
                 if(title != null && UiUtils.filter(getApplicationContext(), title, mDontWantToSeeValues)) {
                   values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, 1);
@@ -1959,7 +1949,7 @@ Log.d("info8", basicAuth);
           }
         }
         
-        Log.d("info5", "Size of insertValueList for '" + dataFile.getName() + "' " + insertValueList.size() + " updateList: " + updateValuesList.size());
+        Log.d("info5", "Size of insertValueList for '" + dataFile.getName() + "' " + insertValueList.size());
         
         if(baseLevel && !insertValueList.isEmpty()) {
           Collections.sort(insertValueList, new Comparator<ContentValues>() {
@@ -2029,7 +2019,7 @@ Log.d("info8", basicAuth);
             
             where.append(" ( ");
             where.append(TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID);
-            where.append("=");
+            where.append(" = ");
             where.append(id);
             where.append(" ) ");
           }
@@ -2038,11 +2028,11 @@ Log.d("info8", basicAuth);
             where.append(" ) AND ");
             where.append(" ( ");
             where.append(TvBrowserContentProvider.DATA_KEY_UNIX_DATE);
-            where.append("=");
+            where.append(" = ");
             where.append(update.getDate());
             where.append(" ) AND ( ");
             where.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-            where.append("=");
+            where.append(" = ");
             where.append(update.getChannelID());
             where.append(" ) ");
             Log.d("info5", " DELETE WHERE " + where);
@@ -2097,7 +2087,7 @@ Log.d("info8", basicAuth);
       values.put(TvBrowserContentProvider.VERSION_KEY_PICTURE1600_VERSION,dataVersion);
     }
     
-    String where = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + update.getChannelID() + " AND " + TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + "=" + daysSince1970;
+    String where = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + update.getChannelID() + " AND " + TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + " = " + daysSince1970;
         
     Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, null, where, null, null);
     
