@@ -286,13 +286,11 @@ public class DummySectionFragment extends Fragment {
         BroadcastReceiver dataUpdateReceiver = new BroadcastReceiver() {
           @Override
           public void onReceive(Context context, Intent intent) {
-            dateAdapter.clear();
+            if(getActivity() != null && !isDetached()) {
+              dateAdapter.clear();
             
-            dateAdapter.add(new DateSelection(-1, getActivity()));
+              dateAdapter.add(new DateSelection(-1, getActivity()));
             
-            Activity activity = getActivity();
-            
-            if(activity != null) {
               Cursor dates = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
               
               if(dates.moveToLast()) {
@@ -351,10 +349,6 @@ public class DummySectionFragment extends Fragment {
               convertView = inflater.inflate(id, parent, false);
               ((TextView)convertView).setCompoundDrawablePadding(10);
               ((TextView)convertView).setGravity(Gravity.CENTER_VERTICAL);
-              
-            /*  if(id == android.R.layout.simple_spinner_item) {
-                convertView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT, 1f));
-              }*/
             }
             
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
@@ -465,10 +459,6 @@ public class DummySectionFragment extends Fragment {
               
               convertView = inflater.inflate(id, parent, false);
               ((TextView)convertView).setGravity(Gravity.CENTER_VERTICAL);
-              
-           /*   if(id == android.R.layout.simple_spinner_item) {
-                convertView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT, 1f));
-              }*/
             }
             
             String sel = getItem(position);
@@ -527,11 +517,11 @@ public class DummySectionFragment extends Fragment {
         mChannelUpdateReceiver = new BroadcastReceiver() {
           @Override
           public void onReceive(Context context, Intent intent) {
-            channelAdapter.clear();
-            
-            channelAdapter.add(new ChannelSelection(-1, "0", getResources().getString(R.string.all_channels), null));
-            
-            if(getActivity() != null) {
+            if(getActivity() != null && !isDetached()) {
+              channelAdapter.clear();
+              
+              channelAdapter.add(new ChannelSelection(-1, "0", getResources().getString(R.string.all_channels), null));
+              
               ContentResolver cr = getActivity().getContentResolver();
               
               StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
@@ -586,22 +576,22 @@ public class DummySectionFragment extends Fragment {
         BroadcastReceiver showChannel = new BroadcastReceiver() {
           @Override
           public void onReceive(Context context, Intent intent) {
-            int id = intent.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA, -1);
-            
-            for(int i = 0; i < channelEntries.size(); i++) {
-              ChannelSelection sel = channelEntries.get(i);
+            if(getActivity() instanceof TvBrowser && !isDetached()) {
+              int id = intent.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA, -1);
               
-              if(sel.getID() == id) {
-                channel.setSelection(i);
-                break;
+              for(int i = 0; i < channelEntries.size(); i++) {
+                ChannelSelection sel = channelEntries.get(i);
+                
+                if(sel.getID() == id) {
+                  channel.setSelection(i);
+                  break;
+                }
               }
-            }
+              
+              filter.setSelection(0);
+              date.setSelection(0);
+              programList.scrollToTop();
             
-            filter.setSelection(0);
-            date.setSelection(0);
-            programList.scrollToTop();
-            
-            if(getActivity() instanceof TvBrowser) {
               ((TvBrowser)getActivity()).showProgramsListTab();
             }
           }
