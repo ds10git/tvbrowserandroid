@@ -670,7 +670,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       db.execSQL(CREATE_VERSION_TABLE);
     }
 
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -697,8 +697,22 @@ public class TvBrowserContentProvider extends ContentProvider {
           onCreate(db);
         }
       }
-      else if(oldVersion == 2 && newVersion > 2) {
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_DONT_WANT_TO_SEE + " INTEGER DEFAULT 0");
+      
+      if(oldVersion < 4) {
+        Cursor c = db.rawQuery("PRAGMA table_info(" + DATA_TABLE + ")", null);
+        
+        boolean dontWantColumnFound = false;
+        
+        while(c.moveToNext()) {
+          if(c.getString(c.getColumnIndex("name")).equals(DATA_KEY_DONT_WANT_TO_SEE)) {
+            dontWantColumnFound = true;
+            break;
+          }
+        }
+        
+        if(!dontWantColumnFound) {
+          db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_DONT_WANT_TO_SEE + " INTEGER DEFAULT 0");
+        }
       }
     }
   }
