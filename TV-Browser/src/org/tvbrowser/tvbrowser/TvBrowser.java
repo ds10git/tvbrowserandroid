@@ -152,7 +152,7 @@ public class TvBrowser extends FragmentActivity implements
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2014);
     mRundate.set(Calendar.MONTH, Calendar.JANUARY);
-    mRundate.set(Calendar.DAY_OF_MONTH, 5);
+    mRundate.set(Calendar.DAY_OF_MONTH, 15);
   }
   
   @Override
@@ -294,7 +294,9 @@ public class TvBrowser extends FragmentActivity implements
         Calendar cal2 = Calendar.getInstance();
         cal2.add(Calendar.DAY_OF_YEAR, -2);
         
-        getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + cal2.getTimeInMillis(), null);
+        try {
+          getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + cal2.getTimeInMillis(), null);
+        }catch(IllegalArgumentException e) {}
       }
     }.start();
     
