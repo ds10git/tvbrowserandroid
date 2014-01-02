@@ -16,11 +16,15 @@
  */
 package org.tvbrowser.settings;
 
+import java.util.List;
+
+import org.tvbrowser.tvbrowser.R;
+
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 
 public class TvbPreferencesActivity extends PreferenceActivity {
-  @Override
+ /* @Override
   protected void onCreate(Bundle savedInstanceState) {
       super.onCreate(savedInstanceState);
 
@@ -28,5 +32,10 @@ public class TvbPreferencesActivity extends PreferenceActivity {
       getFragmentManager().beginTransaction()
               .replace(android.R.id.content, new TvbPreferenceFragment())
               .commit();
+  }*/
+  
+  @Override
+  public void onBuildHeaders(List<Header> target) {
+      loadHeadersFromResource(R.xml.tvbrowser_preferences_header, target);
   }
 }

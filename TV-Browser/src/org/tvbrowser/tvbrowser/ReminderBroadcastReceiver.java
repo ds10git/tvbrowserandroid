@@ -42,7 +42,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
     if(programID >= 0) {
       Cursor values = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, programID), SettingConstants.REMINDER_PROJECTION, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
       
-      if(values.moveToNext()) {
+      if(values.getCount() > 0 && values.moveToNext()) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
         
         String channelName = values.getString(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));

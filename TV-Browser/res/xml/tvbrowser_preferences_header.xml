@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<preference-headers xmlns:android="http://schemas.android.com/apk/res/android">
+    <header 
+        android:fragment="org.tvbrowser.settings.TvbPreferenceFragment"
+        android:title="@string/pref_download_category">
+        <extra android:name="@string/pref_category_key" android:value="@string/category_download" />
+    </header>
+    <header 
+        android:fragment="org.tvbrowser.settings.TvbPreferenceFragment"
+        android:title="@string/pref_start_category">
+        <extra android:name="@string/pref_category_key" android:value="@string/category_start" />
+    </header>
+    <header 
+        android:fragment="org.tvbrowser.settings.TvbPreferenceFragment"
+        android:title="@string/title_running_programs">
+        <extra android:name="@string/pref_category_key" android:value="@string/category_running_programs" />
+    </header>
+    <header 
+        android:fragment="org.tvbrowser.settings.TvbPreferenceFragment"
+        android:title="@string/title_programs_list">
+        <extra android:name="@string/pref_category_key" android:value="@string/category_programs_list" />
+    </header>
+    <header 
+        android:fragment="org.tvbrowser.settings.TvbPreferenceFragment"
+        android:title="@string/title_program_table">
+        <extra android:name="@string/pref_category_key" android:value="@string/category_program_table" />
+    </header>
+    <header 
+        android:fragment="org.tvbrowser.settings.TvbPreferenceFragment"
+        android:title="@string/pref_list_category">
+        <extra android:name="@string/pref_category_key" android:value="@string/category_list" />
+    </header>
+    <header 
+        android:fragment="org.tvbrowser.settings.TvbPreferenceFragment"
+        android:title="@string/pref_detail_category">
+        <extra android:name="@string/pref_category_key" android:value="@string/category_details" />
+    </header>
+    <header 
+        android:fragment="org.tvbrowser.settings.TvbPreferenceFragment"
+        android:title="@string/pref_sync_title">
+        <extra android:name="@string/pref_category_key" android:value="@string/category_sync" />
+    </header>
+    <header 
+        android:fragment="org.tvbrowser.settings.TvbPreferenceFragment"
+        android:title="@string/pref_debug">
+        <extra android:name="@string/pref_category_key" android:value="@string/category_debug" />
+    </header>
+</preference-headers>

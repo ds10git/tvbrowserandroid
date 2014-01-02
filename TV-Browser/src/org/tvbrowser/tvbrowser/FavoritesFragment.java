@@ -149,7 +149,13 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     for(String favorite : favoritesSet) {
       String[] values = favorite.split(";;");
       
-      mFavoriteList.add(new Favorite(values[0], values[1], Boolean.valueOf(values[2])));
+      boolean remind = false;
+      
+      if(values.length > 3) {
+        remind = Boolean.valueOf(values[3]);
+      }
+      
+      mFavoriteList.add(new Favorite(values[0], values[1], Boolean.valueOf(values[2]), remind));
     }
         
     mFavoriteAdapter = new ArrayAdapter<Favorite>(getActivity(), android.R.layout.simple_list_item_activated_1,mFavoriteList);
@@ -313,11 +319,11 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
               }
               
               if(fav == null) {
-                fav = new Favorite(intent.getStringExtra(Favorite.NAME_KEY), intent.getStringExtra(Favorite.SEARCH_KEY), intent.getBooleanExtra(Favorite.ONLY_TITLE_KEY, true));
+                fav = new Favorite(intent.getStringExtra(Favorite.NAME_KEY), intent.getStringExtra(Favorite.SEARCH_KEY), intent.getBooleanExtra(Favorite.ONLY_TITLE_KEY, true), intent.getBooleanExtra(Favorite.REMIND_KEY, true));
                 mFavoriteList.add(fav);
               }
               else {
-                fav.setValues(intent.getStringExtra(Favorite.NAME_KEY), intent.getStringExtra(Favorite.SEARCH_KEY), intent.getBooleanExtra(Favorite.ONLY_TITLE_KEY, true));
+                fav.setValues(intent.getStringExtra(Favorite.NAME_KEY), intent.getStringExtra(Favorite.SEARCH_KEY), intent.getBooleanExtra(Favorite.ONLY_TITLE_KEY, true), intent.getBooleanExtra(Favorite.REMIND_KEY, true));
               }
               
               handler.post(new Runnable() {

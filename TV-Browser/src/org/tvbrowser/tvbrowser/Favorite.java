@@ -26,25 +26,33 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 public class Favorite {
   public static final String OLD_NAME_KEY = "OLD_NAME_KEY";
   public static final String NAME_KEY = "NAME_KEY";
   public static final String SEARCH_KEY = "SEARCH_KEY";
   public static final String ONLY_TITLE_KEY = "ONLY_TITLE_KEY";
+  public static final String REMIND_KEY = "REMIND_KEY";
   
   private String mName;
   private String mSearch;
   private boolean mOnlyTitle;
+  private boolean mRemind;
   
-  public Favorite(String name, String search, boolean onlyTitle) {
+  public Favorite(String name, String search, boolean onlyTitle, boolean remind) {
     mName = name;
     mSearch = search;
     mOnlyTitle = onlyTitle;
+    mRemind = remind;
   }
   
   public boolean searchOnlyTitle() {
     return mOnlyTitle;
+  }
+  
+  public boolean remind() {
+    return mRemind;
   }
   
   public String getName() {
@@ -55,10 +63,11 @@ public class Favorite {
     return mSearch;
   }
   
-  public void setValues(String name, String search, boolean onlyTitle) {
+  public void setValues(String name, String search, boolean onlyTitle, boolean remind) {
     mName = name;
     mSearch = search;
     mOnlyTitle = onlyTitle;
+    mRemind = remind;
   }
   
   public String toString() {
@@ -73,6 +82,7 @@ public class Favorite {
     builder.append(" LIKE \"%");
     builder.append(mSearch);
     builder.append("%\")");
+    builder.append(")");
     
     if(!mOnlyTitle) {
       String[] values = {TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL};
@@ -86,13 +96,11 @@ public class Favorite {
       }
     }
     
-    builder.append(")");
-    
     return builder.toString();
   }
   
   public String getSaveString() {
-    return mName + ";;" + mSearch + ";;" + String.valueOf(mOnlyTitle);
+    return mName + ";;" + mSearch + ";;" + String.valueOf(mOnlyTitle) + ";;" + String.valueOf(mRemind);
   }
   
   public static void removeFavoriteMarking(Context context, ContentResolver resolver, Favorite favorite) {
@@ -136,7 +144,7 @@ public class Favorite {
         StringBuilder newValue = new StringBuilder();
         
         for(String part : parts) {
-          if(!part.equalsIgnoreCase(SettingConstants.MARK_VALUE_FAVORITE)) {
+          if(!part.equalsIgnoreCase(SettingConstants.MARK_VALUE_FAVORITE) && !(favorite.mRemind && part.equalsIgnoreCase(SettingConstants.MARK_VALUE_REMINDER))) {
             newValue.append(part);
             newValue.append(";");
           }
@@ -186,27 +194,53 @@ public class Favorite {
     where += favorite.getWhereClause();
     
     Cursor cursor = resolver.query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
-    
+    Log.d("info", "" + cursor.getCount());
     if(cursor.getCount() > 0) {
       cursor.moveToFirst();
       
+      int idColumn = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+      int startTimeColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      int markColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES);
+      
       do {
-        long id = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+        long id = cursor.getLong(idColumn);
         String marking = "";
         
-        if(!cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
-          marking = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
+        if(!cursor.isNull(markColumn)) {
+          marking = cursor.getString(markColumn);
         }
         
-        if(!marking.contains(SettingConstants.MARK_VALUE_FAVORITE)) {
+        if(!marking.contains(SettingConstants.MARK_VALUE_FAVORITE) || (favorite.mRemind && !marking.contains(SettingConstants.MARK_VALUE_REMINDER))
+            || (!favorite.mRemind && marking.contains(SettingConstants.MARK_VALUE_REMINDER))) {
+          if(!favorite.mRemind && marking.contains(SettingConstants.MARK_VALUE_REMINDER)) {
+            marking = marking.replace(SettingConstants.MARK_VALUE_REMINDER, "").replace(";;", ";");
+            
+            if(marking.endsWith(";")) {
+              marking = marking.substring(0,marking.length()-1);
+            }
+            
+            UiUtils.removeReminder(context, id);
+          }
+          
           StringBuilder value = new StringBuilder();
           value.append(marking.trim());
           
-          if(marking.trim().length() != 0) {
-            value.append(";");
+          if(!marking.contains(SettingConstants.MARK_VALUE_FAVORITE)) {
+            if(value.length() != 0) {
+              value.append(";");
+            }
+          
+            value.append(SettingConstants.MARK_VALUE_FAVORITE);
           }
           
-          value.append(SettingConstants.MARK_VALUE_FAVORITE);
+          if(favorite.mRemind && !marking.contains(SettingConstants.MARK_VALUE_REMINDER)) {
+            if(value.length() != 0) {
+              value.append(";");
+            }
+          
+            value.append(SettingConstants.MARK_VALUE_REMINDER);
+            UiUtils.addReminder(context, id, cursor.getLong(startTimeColumn));
+          }
           
           ContentValues values = new ContentValues();
           

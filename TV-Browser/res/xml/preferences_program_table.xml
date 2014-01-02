@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+	<CheckBoxPreference android:key="@string/PROG_TABLE_ACTIVATED" 
+		android:title="@string/pref_activated"
+		android:defaultValue="@bool/prog_table_default"
+		android:summary="@string/pref_prog_table_summary"/>
+	<ListPreference
+		android:key="@string/PROG_TABLE_LAYOUT"
+		android:title="@string/running_layout_title"
+		android:defaultValue="0"
+		android:entries="@array/prog_table_layout_values"
+		android:entryValues="@array/running_layout_prefs"
+		android:summary="%s"/>
+	<ListPreference
+		android:key="@string/PROG_PANEL_TIME_BLOCK_SIZE"
+		android:title="@string/pref_prog_table_time_block_size"
+		android:defaultValue="2"
+		android:entries="@array/time_block_size"
+		android:entryValues="@array/time_block_size"
+		android:summary="%s"/>
+	<CheckBoxPreference android:key="@string/PROG_PANEL_GROW" 
+		android:title="@string/pref_prog_table_grow"
+		android:defaultValue="true"/>
+	<org.tvbrowser.settings.ColumnWidthPreference
+		android:key="@string/PROG_TABLE_COLUMN_WIDTH"
+		android:defaultValue="200"
+		android:title="@string/pref_prog_table_width_hint"/>
+	<ListPreference android:key="@string/CHANNEL_LOGO_NAME_PROGRAM_TABLE"
+		android:title="@string/show_logo_title"
+		android:defaultValue="0"
+		android:entries="@array/show_logo"
+		android:entryValues="@array/logo_name_values"
+		android:summary="%s"/>
+	<CheckBoxPreference android:key="@string/SHOW_PICTURE_IN_PROGRAM_TABLE" 
+		android:title="@string/pref_show_pictures"
+		android:defaultValue="false"/>
+	<CheckBoxPreference android:key="@string/SHOW_SORT_NUMBER_IN_PROGRAM_TABLE" 
+		android:title="@string/show_sort_number"
+		android:defaultValue="true"/>
+</PreferenceScreen>
