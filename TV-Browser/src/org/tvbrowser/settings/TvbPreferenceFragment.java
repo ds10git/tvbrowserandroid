@@ -19,7 +19,6 @@ package org.tvbrowser.settings;
 import org.tvbrowser.tvbrowser.R;
 
 import android.app.Activity;
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.os.Bundle;
@@ -27,7 +26,6 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
 
 public class TvbPreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
   @Override
@@ -41,6 +39,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     }
     else if(getString(R.string.category_start).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_start);
+      
+      onSharedPreferenceChanged(null,getResources().getString(R.string.TAB_TO_SHOW_AT_START));
     }
     else if(getString(R.string.category_running_programs).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_running);
@@ -50,33 +50,22 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     }
     else if(getString(R.string.category_program_table).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_program_table);
+      
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PROG_TABLE_ACTIVATED));
     }
     else if(getString(R.string.category_list).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_programs_list);
     }
     else if(getString(R.string.category_details).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_details);
+      
+      onSharedPreferenceChanged(null,getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS));
     }
     else if(getString(R.string.category_sync).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_sync);
     }
     else if(getString(R.string.category_debug).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_debug);
-    }
-    /*
-    addPreferencesFromResource(R.xml.tvb_preferences);*/
-    
-    onSharedPreferenceChanged(null,getResources().getString(R.string.PROG_TABLE_ACTIVATED));
-    onSharedPreferenceChanged(null,getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS));
-    onSharedPreferenceChanged(null,getResources().getString(R.string.TAB_TO_SHOW_AT_START));
-    
-    PreferenceScreen sync = (PreferenceScreen) findPreference(getResources().getString(R.string.PREF_SYNC_SCREEN));
-    
-    SharedPreferences pref = getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE);
-    
-    if(pref.getString(SettingConstants.USER_NAME, "").trim().length() == 0 || pref.getString(SettingConstants.USER_PASSWORD, "").trim().length() == 0) {
-      sync.setEnabled(false);
-      sync.setSummary(R.string.pref_sync_summary_disabled);
     }
   }
   
