@@ -20,22 +20,28 @@ import java.util.List;
 
 import org.tvbrowser.tvbrowser.R;
 
-import android.os.Bundle;
+import android.content.Context;
+import android.content.SharedPreferences;
 import android.preference.PreferenceActivity;
 
 public class TvbPreferencesActivity extends PreferenceActivity {
- /* @Override
-  protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-
-      // Display the fragment as the main content.
-      getFragmentManager().beginTransaction()
-              .replace(android.R.id.content, new TvbPreferenceFragment())
-              .commit();
-  }*/
-  
   @Override
   public void onBuildHeaders(List<Header> target) {
       loadHeadersFromResource(R.xml.tvbrowser_preferences_header, target);
+      
+      SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+      
+      if(pref.getString(SettingConstants.USER_NAME, "").trim().length() == 0 || pref.getString(SettingConstants.USER_PASSWORD, "").trim().length() == 0) {
+        String syncCategorgy = getString(R.string.category_sync);
+        
+        for(int i = target.size()-1; i >= 0; i--) {
+          Header head = target.get(i);
+                    
+          if(head.fragmentArguments != null && syncCategorgy.equals(head.fragmentArguments.getString(getString(R.string.pref_category_key)))) {
+            target.remove(i);
+            break;
+          }
+        }
+      }
   }
 }
