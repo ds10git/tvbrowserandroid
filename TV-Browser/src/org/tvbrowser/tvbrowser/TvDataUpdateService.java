@@ -1125,7 +1125,13 @@ Log.d("info8", basicAuth);
     for(String favorite : favoritesSet) {
       String[] values = favorite.split(";;");
       
-      Favorite fav = new Favorite(values[0], values[1], Boolean.valueOf(values[2]));
+      boolean remind = false;
+      
+      if(values.length > 3) {
+        remind = Boolean.valueOf(values[3]);
+      }
+      
+      Favorite fav = new Favorite(values[0], values[1], Boolean.valueOf(values[2]), remind);
       
       Favorite.updateFavoriteMarking(getApplicationContext(), getContentResolver(), fav);
     }

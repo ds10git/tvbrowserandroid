@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <ListPreference
+	       android:key="@string/DAYS_TO_DOWNLOAD"
+	       android:title="@string/download_data_for"
+	       android:defaultValue="2"
+	       android:entries="@array/download_selections"
+	       android:entryValues="@array/download_days"
+	       android:summary="%s"/>
+	    <CheckBoxPreference android:key="@string/LOAD_FULL_DATA"
+	        android:title="@string/pref_load_full_data"
+	        android:defaultValue="false"
+	        android:summaryOn="@string/pref_load_full_data_summary_on"
+	        android:summaryOff="@string/pref_load_full_data_summary_off"/>
+	    <CheckBoxPreference android:key="@string/LOAD_PICTURE_DATA"
+	        android:title="@string/pref_load_picture_data"
+	        android:defaultValue="false"/>
+</PreferenceScreen>

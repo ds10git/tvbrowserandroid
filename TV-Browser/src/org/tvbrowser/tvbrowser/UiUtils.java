@@ -936,9 +936,11 @@ public class UiUtils {
       time.close();
     }
     
-    PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
-    
-    alarmManager.set(AlarmManager.RTC_WAKEUP, startTime, pending);
+    if(startTime > System.currentTimeMillis()) {
+      PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
+      
+      alarmManager.set(AlarmManager.RTC_WAKEUP, startTime, pending);
+    }
   }catch(Throwable t) {t.printStackTrace();}
   }
   //TODO
@@ -1113,6 +1115,7 @@ public class UiUtils {
       ((EditText)input.findViewById(R.id.favorite_name)).setText(fav.getName());
       ((EditText)input.findViewById(R.id.favorite_search_value)).setText(fav.getSearchValue());
       ((CheckBox)input.findViewById(R.id.favorite_only_title)).setChecked(fav.searchOnlyTitle());
+      ((CheckBox)input.findViewById(R.id.favorite_remind)).setChecked(fav.remind());
     }
     else if(searchString != null) {
       ((EditText)input.findViewById(R.id.favorite_search_value)).setText(searchString);
@@ -1128,6 +1131,7 @@ public class UiUtils {
             String name = ((EditText)input.findViewById(R.id.favorite_name)).getText().toString();
             String search = ((EditText)input.findViewById(R.id.favorite_search_value)).getText().toString();
             boolean onlyTitle = ((CheckBox)input.findViewById(R.id.favorite_only_title)).isChecked();
+            boolean remind = ((CheckBox)input.findViewById(R.id.favorite_remind)).isChecked();
             
             if(name == null || name.trim().length() == 0) {
               name = search;
@@ -1145,7 +1149,7 @@ public class UiUtils {
               Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
               HashSet<String> newFavoriteList = new HashSet<String>();
               
-              Favorite dummy = new Favorite(name, search, onlyTitle);
+              Favorite dummy = new Favorite(name, search, onlyTitle, remind);
               boolean added = false;
               
               for(String favorite : favoritesSet) {
@@ -1171,6 +1175,7 @@ public class UiUtils {
               intent.putExtra(Favorite.NAME_KEY, name);
               intent.putExtra(Favorite.SEARCH_KEY, search);
               intent.putExtra(Favorite.ONLY_TITLE_KEY, onlyTitle);
+              intent.putExtra(Favorite.REMIND_KEY, remind);
               
               Favorite.updateFavoriteMarking(activity.getApplicationContext(), activity.getContentResolver(), dummy);
               

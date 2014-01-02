@@ -43,4 +43,10 @@
         android:text="@string/favorite_only_title"
         android:layout_below="@id/favorite_name"
         android:checked="true"/>
+    <CheckBox android:id="@+id/favorite_remind"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        android:text="@string/favorite_remind"
+        android:layout_below="@id/favorite_only_title"
+        android:checked="true"/>
 </RelativeLayout>

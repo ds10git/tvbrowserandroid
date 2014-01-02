@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+	<ListPreference
+		android:key="@string/TAB_TO_SHOW_AT_START"
+		android:title="@string/pref_start_tab"
+		android:defaultValue="0"
+		android:entries="@array/start_labels"
+		android:entryValues="@array/start_tab_values"
+		android:summary="%s"/>
+</PreferenceScreen>

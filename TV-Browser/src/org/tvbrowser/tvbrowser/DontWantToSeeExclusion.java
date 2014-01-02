@@ -16,6 +16,8 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.util.regex.Pattern;
+
 /**
  * A class that contains filter information for title filtering of programs.
  * 
@@ -31,17 +33,16 @@ public class DontWantToSeeExclusion {
     
     mIsMatching = parts[0].contains("*");
     
-    if(mIsMatching) {
-      mPattern = parts[0].replace("*", ".*");
-    }
-    else {
-      mPattern = parts[0];
-    }
-    
+    mPattern = parts[0];
     mIsCaseSensitive = parts[1].equals("1");
     
     if(!mIsCaseSensitive) {
       mPattern = mPattern.toLowerCase();
+    }
+    
+    if(mIsMatching) {
+      mPattern = Pattern.quote(mPattern);
+      mPattern = mPattern.replace("*", "\\E.*\\Q");
     }
   }
   

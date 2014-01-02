@@ -1152,129 +1152,131 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     int markingColumn =  c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES);
     
     if(c.getCount() > 0) {
-      while(!c.isClosed() && c.moveToNext()) {
-        int channelID = c.getInt(mChannelIDColumn);
-        
-        ChannelProgramBlock block = channelProgramMap.get(channelID);
-        
-        if(block == null) {
-          block = new ChannelProgramBlock();
+      try {
+        while(!c.isClosed() && c.moveToNext()) {
+          int channelID = c.getInt(mChannelIDColumn);
           
-          channelProgramMap.put(channelID, block);
-          mProgramBlockList.add(block);
-        }
-        
-        if(!block.mIsComplete) {
-          long startTime = c.getLong(mStartTimeColumn);
-          long endTime = c.getLong(mEndTimeColumn);
-          long programID = c.getLong(mProgramIDColumn);
-          String title = c.getString(mTitleColumn);
-          String episode = c.getString(mEpsiodeColumn);
-          String markingValue = c.getString(markingColumn);
+          ChannelProgramBlock block = channelProgramMap.get(channelID);
           
-          String channelName = c.getString(mChannelNameColumn);
-          int channelOrderNumber = c.getInt(channelOrderColumn);
-  
-          String genre = null;
-          String category = null;
-          String pictureCopyright = null;
-          byte[] picture = null;
-  
-          if(!mIsCompactLayout) {
-            if(showGenre) {
-              genre = c.getString(mGenreColumn);
-            }
+          if(block == null) {
+            block = new ChannelProgramBlock();
             
-            if(showInfo) {
-              category = IOUtils.getInfoString(c.getInt(mCategoryColumn), getResources());
-            }
-            
-            if(showPicture && mPictureColumn > -1) {
-              pictureCopyright = c.getString(mPictureCopyrightColumn);
-              picture = c.getBlob(mPictureColumn);
-            }
+            channelProgramMap.put(channelID, block);
+            mProgramBlockList.add(block);
           }
           
-          BitmapDrawable logo = mLogoMap.get(channelID);
-          
-          if(logo == null) {
-            if(mLogoMap.indexOfKey(channelID) < 0) {
-              byte[] logoData = c.getBlob(logoColumn);
-              
-              if(logoData != null && logoData.length > 0) {
-                Bitmap logoBitmap = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-                
-                logo = new BitmapDrawable(getResources(), logoBitmap);
-                
-                float scale = UiUtils.convertDpToPixel(15, getResources()) / (float)logoBitmap.getHeight();
-                
-                logo.setBounds(0, 0, (int)(logoBitmap.getWidth() * scale), (int)(logoBitmap.getHeight() * scale));
-              }
-              
-              mLogoMap.put(channelID, logo);
-            }
-          }
-          
-          if(c.getInt(dontWantToSeeColumn) == 0) {
-            block.mChannelID = channelID;
-            block.mChannelName = channelName;
-            block.mChannelOrderNumber = channelOrderNumber;
+          if(!block.mIsComplete) {
+            long startTime = c.getLong(mStartTimeColumn);
+            long endTime = c.getLong(mEndTimeColumn);
+            long programID = c.getLong(mProgramIDColumn);
+            String title = c.getString(mTitleColumn);
+            String episode = c.getString(mEpsiodeColumn);
+            String markingValue = c.getString(markingColumn);
             
-            if(startTime <= mCurrentTime) {
-              if(endTime <= mCurrentTime) {
-                block.mPreviousPosition = c.getPosition();
-                block.mPreviousProgramID = programID;
-                block.mPreviousStart = startTime;
-                block.mPreviousEnd = endTime;
-                block.mPreviousTitle = title;
-                block.mPreviousEpisode = episode;
-                block.mPreviousGenre = genre;
-                block.mPreviousPicture = picture;
-                block.mPreviousPictureCopyright = pictureCopyright;
-                block.mPreviousCategory = category;
+            String channelName = c.getString(mChannelNameColumn);
+            int channelOrderNumber = c.getInt(channelOrderColumn);
+    
+            String genre = null;
+            String category = null;
+            String pictureCopyright = null;
+            byte[] picture = null;
+    
+            if(!mIsCompactLayout) {
+              if(showGenre) {
+                genre = c.getString(mGenreColumn);
               }
-              else if(startTime <= mCurrentTime && mCurrentTime < endTime) {
-                block.mNowPosition = c.getPosition();
-                block.mNowProgramID = programID;
-                block.mNowStart = startTime;
-                block.mNowEnd = endTime;
-                block.mNowTitle = title;
-                block.mNowEpisode = episode;
-                block.mNowGenre = genre;
-                block.mNowPicture = picture;
-                block.mNowPictureCopyright = pictureCopyright;
-                block.mNowCategory = category;
+              
+              if(showInfo) {
+                category = IOUtils.getInfoString(c.getInt(mCategoryColumn), getResources());
+              }
+              
+              if(showPicture && mPictureColumn > -1) {
+                pictureCopyright = c.getString(mPictureCopyrightColumn);
+                picture = c.getBlob(mPictureColumn);
+              }
+            }
+            
+            BitmapDrawable logo = mLogoMap.get(channelID);
+            
+            if(logo == null) {
+              if(mLogoMap.indexOfKey(channelID) < 0) {
+                byte[] logoData = c.getBlob(logoColumn);
+                
+                if(logoData != null && logoData.length > 0) {
+                  Bitmap logoBitmap = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+                  
+                  logo = new BitmapDrawable(getResources(), logoBitmap);
+                  
+                  float scale = UiUtils.convertDpToPixel(15, getResources()) / (float)logoBitmap.getHeight();
+                  
+                  logo.setBounds(0, 0, (int)(logoBitmap.getWidth() * scale), (int)(logoBitmap.getHeight() * scale));
+                }
+                
+                mLogoMap.put(channelID, logo);
+              }
+            }
+            
+            if(c.getInt(dontWantToSeeColumn) == 0) {
+              block.mChannelID = channelID;
+              block.mChannelName = channelName;
+              block.mChannelOrderNumber = channelOrderNumber;
+              
+              if(startTime <= mCurrentTime) {
+                if(endTime <= mCurrentTime) {
+                  block.mPreviousPosition = c.getPosition();
+                  block.mPreviousProgramID = programID;
+                  block.mPreviousStart = startTime;
+                  block.mPreviousEnd = endTime;
+                  block.mPreviousTitle = title;
+                  block.mPreviousEpisode = episode;
+                  block.mPreviousGenre = genre;
+                  block.mPreviousPicture = picture;
+                  block.mPreviousPictureCopyright = pictureCopyright;
+                  block.mPreviousCategory = category;
+                }
+                else if(startTime <= mCurrentTime && mCurrentTime < endTime) {
+                  block.mNowPosition = c.getPosition();
+                  block.mNowProgramID = programID;
+                  block.mNowStart = startTime;
+                  block.mNowEnd = endTime;
+                  block.mNowTitle = title;
+                  block.mNowEpisode = episode;
+                  block.mNowGenre = genre;
+                  block.mNowPicture = picture;
+                  block.mNowPictureCopyright = pictureCopyright;
+                  block.mNowCategory = category;
+                  
+                  if(currentProgramMap.indexOfKey(channelID) < 0) { 
+                    currentProgramMap.put(channelID, block);
+                    mCurrentViewList.add(block);
+                  }
+                }
+              }
+              else {
+                block.mNextPosition = c.getPosition();
+                block.mNextStart = startTime;
+                block.mNextEnd = endTime;
+                block.mNextProgramID = programID;
+                block.mNextTitle = title;
+                block.mNextEpisode = episode;
+                block.mNextGenre = genre;
+                block.mNextPicture = picture;
+                block.mNextPictureCopyright = pictureCopyright;
+                block.mNextCategory = category;
+                
+                block.mIsComplete = true;
                 
                 if(currentProgramMap.indexOfKey(channelID) < 0) { 
                   currentProgramMap.put(channelID, block);
                   mCurrentViewList.add(block);
                 }
               }
-            }
-            else {
-              block.mNextPosition = c.getPosition();
-              block.mNextStart = startTime;
-              block.mNextEnd = endTime;
-              block.mNextProgramID = programID;
-              block.mNextTitle = title;
-              block.mNextEpisode = episode;
-              block.mNextGenre = genre;
-              block.mNextPicture = picture;
-              block.mNextPictureCopyright = pictureCopyright;
-              block.mNextCategory = category;
               
-              block.mIsComplete = true;
-              
-              if(currentProgramMap.indexOfKey(channelID) < 0) { 
-                currentProgramMap.put(channelID, block);
-                mCurrentViewList.add(block);
-              }
+              mMarkingsMap.put(programID, markingValue);
             }
-            
-            mMarkingsMap.put(programID, markingValue);
           }
         }
-      }
+      }catch(IllegalStateException e1) {}
     }
     
     c.close();

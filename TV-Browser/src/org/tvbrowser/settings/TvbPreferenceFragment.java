@@ -34,7 +34,37 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-    addPreferencesFromResource(R.xml.tvb_preferences);
+    String category = getArguments().getString(getString(R.string.pref_category_key));
+    
+    if(getString(R.string.category_download).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_download);
+    }
+    else if(getString(R.string.category_start).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_start);
+    }
+    else if(getString(R.string.category_running_programs).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_running);
+    }
+    else if(getString(R.string.category_programs_list).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_programs_list);
+    }
+    else if(getString(R.string.category_program_table).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_program_table);
+    }
+    else if(getString(R.string.category_list).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_programs_list);
+    }
+    else if(getString(R.string.category_details).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_details);
+    }
+    else if(getString(R.string.category_sync).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_sync);
+    }
+    else if(getString(R.string.category_debug).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_debug);
+    }
+    /*
+    addPreferencesFromResource(R.xml.tvb_preferences);*/
     
     onSharedPreferenceChanged(null,getResources().getString(R.string.PROG_TABLE_ACTIVATED));
     onSharedPreferenceChanged(null,getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS));
