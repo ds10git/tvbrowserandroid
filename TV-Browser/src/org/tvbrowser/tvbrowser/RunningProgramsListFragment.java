@@ -1069,7 +1069,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
-    mIsCompactLayout = pref.getString(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT), SettingConstants.DEFAULT_RUNNING_PROGRAMS_LIST_LAYOUT).equals("1");
+    mIsCompactLayout = true;//ref.getString(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT), SettingConstants.DEFAULT_RUNNING_PROGRAMS_LIST_LAYOUT).equals("1");
     showPicture = pref.getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false);
     showGenre = pref.getBoolean(getResources().getString(R.string.SHOW_GENRE_IN_LISTS), true);
     showEpisode = pref.getBoolean(getResources().getString(R.string.SHOW_EPISODE_IN_LISTS), true);
