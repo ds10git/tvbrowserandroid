@@ -35,7 +35,7 @@ import android.widget.TextView;
 public class ProgramTableLayoutConstants {
   static final int HOURS = 28;
   
-  static final int GRAY_VALUE = 230;
+  static final int GRAY_VALUE = 100;
   
   static final Paint BLOCK_PAINT = new Paint();
   static final Paint LINE_PAINT = new Paint();
@@ -104,9 +104,10 @@ public class ProgramTableLayoutConstants {
   }
   
   public static void initialize(Context context) {
-    if(COLUMN_WIDTH == -1) {
+    
+    //if(COLUMN_WIDTH == -1) {
       update(context);
-    }
+    //}
   }
   
   public static void updateColumnWidth(Context context) {
@@ -136,8 +137,9 @@ public class ProgramTableLayoutConstants {
     GAP = (int) (1 * scale + 0.5f);
     TIME_TITLE_GAP = (int) (5 * scale + 0.5f);
     ROW_HEADER = (int)(scale * 28);
-    BLOCK_PAINT.setColor(Color.rgb(GRAY_VALUE, GRAY_VALUE, GRAY_VALUE));
-    LINE_PAINT.setColor(Color.LTGRAY);
+        
+    BLOCK_PAINT.setColor(Color.argb(30,GRAY_VALUE, GRAY_VALUE, GRAY_VALUE));
+    LINE_PAINT.setColor(Color.argb(60, GRAY_VALUE, GRAY_VALUE, GRAY_VALUE));
     CHANNEL_LINE_PAINT.setColor(context.getResources().getColor(R.color.light_gray));
     
     PADDING_SIDE = (int) (2 * scale + 0.5f);

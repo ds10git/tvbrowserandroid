@@ -49,7 +49,7 @@
 	    android:layout_height="1dp"
 	    android:layout_toRightOf="@id/running_compact_channel_label"
 	    android:layout_below="@id/running_compact_previous"
-	    android:background="@color/lighter_gray"
+	    android:background="@color/running_separator_color"
 	    android:paddingTop="1dp"
 	    android:paddingBottom="1dp"
 	    />
@@ -101,7 +101,7 @@
 		<View android:id="@+id/running_separator_2"
 		    android:layout_width="1dp"
 		    android:layout_height="match_parent"
-		    android:background="@color/lighter_gray"
+		    android:background="@color/running_separator_color"
 		    />
 	    <RelativeLayout android:id="@+id/running_compact_next"
 		    android:layout_width="match_parent"

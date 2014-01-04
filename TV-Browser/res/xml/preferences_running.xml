@@ -1,15 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-	<ListPreference
+<!-- 	<ListPreference
 	    android:key="@string/RUNNING_PROGRAMS_LAYOUT"
 	    android:title="@string/running_layout_title"
 	    android:defaultValue="1"
 	    android:entries="@array/running_layout_values"
 	    android:entryValues="@array/running_layout_prefs"
-	    android:summary="%s"/>
-    <PreferenceScreen
-        android:title="@string/pref_time_buttons"
-        android:summary="@string/pref_time_buttons_summary">
+	    android:summary="%s"/> -->
+  <!--    <PreferenceScreen
+        
+        >-->
+                <CheckBoxPreference android:key="@string/RUNNING_PROGRAMS_NEXT_DAY"
+            android:defaultValue="true"
+            android:title="@string/pref_running_next_day"
+            android:summary="@string/pref_running_next_day_summary"/>
+        <PreferenceCategory android:title="@string/pref_time_buttons"
+            android:summary="@string/pref_time_buttons_summary">
         <org.tvbrowser.settings.TimePreference 
 	       	android:key="@string/TIME_BUTTON_1"
 	       	android:defaultValue="360"
@@ -34,9 +40,7 @@
         	android:key="@string/TIME_BUTTON_6"
         	android:defaultValue="1380"
         	android:summary="@string/pref_time_button_hint"/>
-        <CheckBoxPreference android:key="@string/RUNNING_PROGRAMS_NEXT_DAY"
-            android:defaultValue="true"
-            android:title="@string/pref_running_next_day"
-            android:summary="@string/pref_running_next_day_summary"/>
-	</PreferenceScreen>
+        </PreferenceCategory>
+
+<!--  	</PreferenceScreen>-->
 </PreferenceScreen>

@@ -39,6 +39,7 @@ public class SettingConstants {
   public static final String SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT = "org.tvbrowser.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT";
   public static final String REMINDER_PROGRAM_ID_EXTRA = "REMINDER_PROGRAM_ID_EXTRA";
   public static final String CHANNEL_ID_EXTRA = "CHANNEL_ID_EXTRA";
+  public static final String START_TIME_EXTRA = "START_TIME_EXTRA";
   public static final String DONT_WANT_TO_SEE_ADDED_EXTRA = "DONT_WANT_TO_SEE_ADDED_EXTRA";
   
   public static boolean UPDATING_FILTER = false;
@@ -92,6 +93,7 @@ public class SettingConstants {
   public static final int PAY_TV_CATEGORY = 1 << 9;
   
   private static final int GRAY_VALUE = 155;
+  public static final int LOGO_BACKGROUND_COLOR = Color.WHITE;
   
   public static final int EXPIRED_COLOR = Color.rgb(GRAY_VALUE, GRAY_VALUE, GRAY_VALUE);
   

@@ -33,14 +33,16 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -50,6 +52,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -61,10 +64,12 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class RunningProgramsListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
   private static final String WHERE_CLAUSE_KEY = "WHERE_CLAUSE_KEY";
+  private static final String DAY_CLAUSE_KEY = "DAY_CLAUSE_KEY";
   private static final int AT_TIME_ID = -1;
   
   private int mOrientation;
@@ -89,7 +94,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private ArrayList<ChannelProgramBlock> mProgramBlockList;
   private ArrayList<ChannelProgramBlock> mCurrentViewList;
   
-  private SparseArray<BitmapDrawable> mLogoMap;
+  private SparseArray<LayerDrawable> mLogoMap;
   private LongSparseArray<String> mMarkingsMap;
   
   private long mCurrentTime;
@@ -118,6 +123,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private View.OnClickListener mChannelSwitchListener;
   private View mContextView;
   private long mContextProgramID;
+  private long mDayStart;
   
   static {
     BEFORE_GRADIENT = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[] {Color.argb(0x84, 0, 0, 0xff),Color.WHITE});
@@ -254,6 +260,33 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMarkingChangeReceiver, markingsFilter);
   }
   
+  public void setDay(long start) {
+    if(start != mDayStart) {
+      mDayStart = start;
+      
+      if(mDayStart > System.currentTimeMillis() && mWhereClauseTime < System.currentTimeMillis()) {
+        Button time = (Button)((ViewGroup)((ViewGroup)getView().getParent()).getParent()).findViewWithTag(mWhereClauseTime);
+        Button now = (Button)((ViewGroup)((ViewGroup)getView().getParent()).getParent()).findViewById(R.id.now_button);
+        
+        if(time != null && !time.equals(now)) {
+          time.performClick();
+        }
+        else {
+          LinearLayout timeBar = (LinearLayout)((ViewGroup)((ViewGroup)getView().getParent()).getParent()).findViewById(R.id.runnning_time_bar);
+          
+          if(timeBar.getChildCount() > 1) {
+            ((Button)timeBar.getChildAt(1)).performClick();
+          }
+        }
+        
+        startUpdateThread();
+      }
+      else {
+        startUpdateThread();
+      }
+    }
+  }
+  
   public void setWhereClauseTime(Object time) {
     if(time instanceof Integer) {
       int testValue = ((Integer) time).intValue();
@@ -269,12 +302,35 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         setTimeRangeID(-2);
               
         mWhereClauseTime = testValue;
+        
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        
+        Calendar now = Calendar.getInstance();
+        
+        if(pref.getBoolean(getResources().getString(R.string.RUNNING_PROGRAMS_NEXT_DAY), true)) {
+          int test1 = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+          
+          if((test1 - mWhereClauseTime) > 180 && mDayStart < System.currentTimeMillis()) {
+            Spinner date = (Spinner)((ViewGroup)getView().getParent()).findViewById(R.id.running_date_selection);
+            
+            if(date.getCount() > 1) {
+              date.setSelection(1);
+            }
+          }
+          else {
+            startUpdateThread();
+          }
+        }
+        else {
+          startUpdateThread();
+        }
+        
         /*
         if(mDataUpdateReceiver != null) {
           LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
         }
         */
-        startUpdateThread();
+        
       }
       else {
         setTimeRangeID(AT_TIME_ID);
@@ -346,6 +402,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   @Override
   public void onSaveInstanceState(Bundle outState) {
     outState.putInt(WHERE_CLAUSE_KEY, mWhereClauseTime);
+    outState.putLong(DAY_CLAUSE_KEY, mDayStart);
     super.onSaveInstanceState(outState);
   }
   
@@ -558,7 +615,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       }
       
       if(!channelSet) {
-        BitmapDrawable logo = mLogoMap.get(block.mChannelID);
+        LayerDrawable logo = mLogoMap.get(block.mChannelID);
         
         viewHolder.mChannel.setCompoundDrawables(null, logo, null, null);
         
@@ -861,6 +918,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       else {
         viewHolder.mLayout.setBackgroundDrawable(getActivity().getResources().getDrawable(android.R.drawable.list_selector_background));
       }
+      
+      viewHolder.mLayout.setVisibility(View.VISIBLE);
       /*
       final long startTime1 = startTime;
       final long endTime1 = endTime;
@@ -883,12 +942,14 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     if(savedInstanceState != null) {
       mWhereClauseTime = savedInstanceState.getInt(WHERE_CLAUSE_KEY,-1);
+      mDayStart = savedInstanceState.getLong(DAY_CLAUSE_KEY,-1);
     }
     else {
       mWhereClauseTime = -1;
+      mDayStart = -1;
     }
     
-    mLogoMap = new SparseArray<BitmapDrawable>();
+    mLogoMap = new SparseArray<LayerDrawable>();
     mTimeRangeID = -1;
     
     mMarkingsMap = new LongSparseArray<String>();
@@ -913,6 +974,20 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
           showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA,id);
           
+          Calendar now = Calendar.getInstance();
+          
+          if(mDayStart > System.currentTimeMillis()) {
+            now.setTimeInMillis(mDayStart);
+          }
+          
+          if(mWhereClauseTime >= 0) {
+            now.set(Calendar.SECOND, 30);
+            now.set(Calendar.HOUR_OF_DAY, mWhereClauseTime / 60);
+            now.set(Calendar.MINUTE, mWhereClauseTime % 60);
+          }
+          
+          showChannel.putExtra(SettingConstants.START_TIME_EXTRA, now.getTimeInMillis());
+          
           LocalBroadcastManager.getInstance(getActivity()).sendBroadcastSync(showChannel);
         }
       }
@@ -929,22 +1004,19 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     }
     
     final java.text.DateFormat timeFormat = new SimpleDateFormat(value, Locale.getDefault());
-    int[] attrs = new int[] { android.R.attr.textColorSecondary };
-    TypedArray a = getActivity().getTheme().obtainStyledAttributes(R.style.AppTheme, attrs);
-    final int DEFAULT_TEXT_COLOR = a.getColor(0, Color.BLACK);
-    a.recycle();
+    final int DEFAULT_TEXT_COLOR = new TextView(getActivity()).getTextColors().getDefaultColor();
         
     runningProgramListAdapter = new ArrayAdapter<RunningProgramsListFragment.ChannelProgramBlock>(getActivity(), R.layout.running_list_entries, mCurrentViewList) {
       @Override
       public View getView(int position, View convertView, ViewGroup parent) {
         ChannelProgramBlock block = getItem(position);
         
-        if(mIsCompactLayout) {
+       // if(mIsCompactLayout) {
           return getCompactView(convertView, parent, timeFormat, block, DEFAULT_TEXT_COLOR);
-        }
+        /*}
         else {
           return getLongView(convertView, parent, timeFormat, block, DEFAULT_TEXT_COLOR);
-        }
+        }*/
       }
     };
     
@@ -1037,18 +1109,14 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     now.setTimeInMillis(System.currentTimeMillis());
     
     if(mWhereClauseTime >= 0) {
+      if(mDayStart >= 0) {
+        cal.setTimeInMillis(mDayStart);
+      }
+      
       cal.set(Calendar.HOUR_OF_DAY, mWhereClauseTime / 60);
       cal.set(Calendar.MINUTE, mWhereClauseTime % 60);
-      
-      if(pref.getBoolean(getResources().getString(R.string.RUNNING_PROGRAMS_NEXT_DAY), true)) {
-        int test = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
-        
-        if((test - mWhereClauseTime) > 180) {
-          cal.add(Calendar.DAY_OF_YEAR, 1);
-        }
-      }
     }
-    else {
+    if(mWhereClauseTime < 0) {
       cal.setTimeInMillis(System.currentTimeMillis());
     }
     
@@ -1196,7 +1264,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
               }
             }
             
-            BitmapDrawable logo = mLogoMap.get(channelID);
+            LayerDrawable logo = mLogoMap.get(channelID);
             
             if(logo == null) {
               if(mLogoMap.indexOfKey(channelID) < 0) {
@@ -1205,11 +1273,20 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
                 if(logoData != null && logoData.length > 0) {
                   Bitmap logoBitmap = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
                   
-                  logo = new BitmapDrawable(getResources(), logoBitmap);
+                  BitmapDrawable logo1 = new BitmapDrawable(getResources(), logoBitmap);
                   
                   float scale = UiUtils.convertDpToPixel(15, getResources()) / (float)logoBitmap.getHeight();
                   
-                  logo.setBounds(0, 0, (int)(logoBitmap.getWidth() * scale), (int)(logoBitmap.getHeight() * scale));
+                  int width = (int)(logoBitmap.getWidth() * scale);
+                  int height = (int)(logoBitmap.getHeight() * scale);
+                  
+                  ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+                  background.setBounds(0, 0, width + 2, height + 2);
+                  
+                  logo = new LayerDrawable(new Drawable[] {background,logo1});
+                  logo.setBounds(0, 0, width + 2, height + 2);
+                  
+                  logo1.setBounds(2, 2, width, height);
                 }
                 
                 mLogoMap.put(channelID, logo);

@@ -283,4 +283,6 @@
     <string name="dont_want_to_see_notification_text">Synchronizing exclusion list&#8230;</string>
     <string name="dont_want_to_see_refresh_notification_text">Updating exclusion list&#8230;</string>
     <string name="dont_want_to_see_delete">Delete exclusion</string>
+    <string name="pref_theme_category">Theme</string>
+    <string name="dark_theme">Dark Theme (needs restart)</string>
 </resources>

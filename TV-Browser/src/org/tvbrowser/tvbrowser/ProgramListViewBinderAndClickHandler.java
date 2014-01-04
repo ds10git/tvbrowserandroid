@@ -115,10 +115,7 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       long end = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
       
       if(end <= System.currentTimeMillis()) {
-        int[] attrs = new int[] { android.R.attr.textColorSecondary };
-        TypedArray a = mActivity.getTheme().obtainStyledAttributes(R.style.AppTheme, attrs);
-        int DEFAULT_TEXT_COLOR = a.getColor(0, Color.BLACK);
-        a.recycle();
+        int DEFAULT_TEXT_COLOR = new TextView(mActivity).getTextColors().getDefaultColor();
         
         text.setTextColor(DEFAULT_TEXT_COLOR);
       }

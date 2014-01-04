@@ -35,12 +35,16 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -96,9 +100,9 @@ public class DummySectionFragment extends Fragment {
     private int mID;
     private String mOrderNumber;
     private String mName;
-    private BitmapDrawable mLogo;
+    private Drawable mLogo;
     
-    public ChannelSelection(int ID, String orderNumber, String name, BitmapDrawable logo) {
+    public ChannelSelection(int ID, String orderNumber, String name, Drawable logo) {
       mID = ID;
       mOrderNumber = orderNumber;
       mName = name;
@@ -117,7 +121,7 @@ public class DummySectionFragment extends Fragment {
       return mName;
     }
     
-    public BitmapDrawable getLogo() {
+    public Drawable getLogo() {
       return mLogo;
     }
     
@@ -143,6 +147,7 @@ public class DummySectionFragment extends Fragment {
       final Button after = (Button)rootView.findViewById(R.id.button_after1);
             
       final Button now = (Button)rootView.findViewById(R.id.now_button);
+      final Spinner date = (Spinner)rootView.findViewById(R.id.running_date_selection);
       now.setTag(Integer.valueOf(-1));
       
       final View.OnClickListener listener = new View.OnClickListener() {
@@ -164,6 +169,10 @@ public class DummySectionFragment extends Fragment {
               if(!v.equals(now)) {
                 timeBar.addView(before, index);
               }
+            }
+            
+            if(v.equals(now) && date.getCount() > 0) {
+              date.setSelection(0);
             }
             
             running.setWhereClauseTime(v.getTag());
@@ -248,6 +257,83 @@ public class DummySectionFragment extends Fragment {
       
       localBroadcastManager.registerReceiver(receiver, timeButtonsUpdateFilter);
       receiver.onReceive(null, null);
+      
+      
+      
+      ArrayList<DateSelection> dateEntries = new ArrayList<DummySectionFragment.DateSelection>();
+      
+      final ArrayAdapter<DateSelection> dateAdapter = new ArrayAdapter<DummySectionFragment.DateSelection>(getActivity(), android.R.layout.simple_spinner_item, dateEntries);
+      dateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+      date.setAdapter(dateAdapter);
+
+      date.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+        @Override
+        public void onItemSelected(AdapterView<?> parent, View view, 
+            int pos, long id) {
+          DateSelection selection = dateAdapter.getItem(pos);
+          
+          running.setDay(selection.getTime());
+        }
+        
+        @Override
+        public void onNothingSelected(AdapterView<?> parent) {
+          running.setDay(-1);
+        }
+      });
+      
+      BroadcastReceiver dataUpdateReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+          if(getActivity() != null && !isDetached()) {
+            int pos = date.getSelectedItemPosition();
+            
+            dateAdapter.clear();
+          
+            //dateAdapter.add(new DateSelection(-1, getActivity()));
+          
+            Cursor dates = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+            
+            if(dates.moveToLast()) {
+              long last = dates.getLong(0);
+              
+              Calendar lastDay = Calendar.getInstance();
+              lastDay.setTimeInMillis(last);
+              
+              lastDay.set(Calendar.HOUR_OF_DAY, 0);
+              lastDay.set(Calendar.MINUTE, 0);
+              lastDay.set(Calendar.SECOND, 0);
+              lastDay.set(Calendar.MILLISECOND, 0);
+              
+              Calendar today = Calendar.getInstance();
+              today.set(Calendar.HOUR_OF_DAY, 0);
+              today.set(Calendar.MINUTE, 0);
+              today.set(Calendar.SECOND, 0);
+              today.set(Calendar.MILLISECOND, 0);
+              
+              long todayStart = today.getTimeInMillis();
+              long lastStart = lastDay.getTimeInMillis();
+              
+              for(long day = todayStart; day <= lastStart; day += (24 * 60 * 60000)) {
+                dateAdapter.add(new DateSelection(day, getActivity()));
+              }
+            }
+            
+            dates.close();
+            
+            if(date.getCount() > pos) {
+              date.setSelection(pos);
+            }
+            else {
+              date.setSelection(date.getCount()-1);
+            }
+          }
+        }
+      };
+      
+      IntentFilter dataUpdateFilter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
+      
+      localBroadcastManager.registerReceiver(dataUpdateReceiver, dataUpdateFilter);
+      dataUpdateReceiver.onReceive(null, null);
     }
     else if(getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
         rootView = inflater.inflate(R.layout.program_list_fragment,
@@ -381,7 +467,7 @@ public class DummySectionFragment extends Fragment {
               }
               
               if((logoValue == 0 || logoValue == 1) && sel.getLogo() != null) {
-                BitmapDrawable l = sel.getLogo();
+                Drawable l = sel.getLogo();
                                 
                 text.setCompoundDrawables(l, null, null, null);
               }
@@ -535,7 +621,7 @@ public class DummySectionFragment extends Fragment {
                 do {
                   boolean hasLogo = !channelCursor.isNull(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
                   
-                  BitmapDrawable l = null;
+                  LayerDrawable logoDrawable = null;
                   
                   if(hasLogo) {
                     byte[] logoData = channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
@@ -544,8 +630,15 @@ public class DummySectionFragment extends Fragment {
                       Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
                       
                       if(logo != null) {
-                        l = new BitmapDrawable(getResources(), logo);
-                        l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+                        BitmapDrawable l = new BitmapDrawable(getResources(), logo);
+                                                
+                        ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+                        background.setBounds(0, 0, logo.getWidth()+2,logo.getHeight()+2);
+                        
+                        logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+                        logoDrawable.setBounds(background.getBounds());
+                        
+                        l.setBounds(2, 2, logo.getWidth(), logo.getHeight());
                       }
                     }
                   }
@@ -557,7 +650,7 @@ public class DummySectionFragment extends Fragment {
                     name = shortName;
                   }
                   
-                  ChannelSelection channelSel = new ChannelSelection(channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ", name, l);
+                  ChannelSelection channelSel = new ChannelSelection(channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ", name, logoDrawable);
                   
                   channelAdapter.add(channelSel);
                 }while(channelCursor.moveToNext());
@@ -578,20 +671,32 @@ public class DummySectionFragment extends Fragment {
           public void onReceive(Context context, Intent intent) {
             if(getActivity() instanceof TvBrowser && !isDetached()) {
               int id = intent.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA, -1);
+              long startTime = intent.getLongExtra(SettingConstants.START_TIME_EXTRA, -1);
               
-              for(int i = 0; i < channelEntries.size(); i++) {
-                ChannelSelection sel = channelEntries.get(i);
-                
-                if(sel.getID() == id) {
-                  channel.setSelection(i);
-                  break;
+              ChannelSelection current = (ChannelSelection)channel.getSelectedItem();
+              boolean found = false;
+              
+              if(current == null || current.getID() != id) {
+                for(int i = 0; i < channelEntries.size(); i++) {
+                  ChannelSelection sel = channelEntries.get(i);
+                  
+                  if(sel.getID() == id) {
+                    channel.setSelection(i);
+                    found = true;
+                    break;
+                  }
                 }
               }
               
               filter.setSelection(0);
               date.setSelection(0);
-              programList.scrollToTop();
-            
+              
+              programList.setScrollTime(startTime);
+              
+              if(!found) {
+                programList.scrollToTime();
+              }
+              
               ((TvBrowser)getActivity()).showProgramsListTab();
             }
           }

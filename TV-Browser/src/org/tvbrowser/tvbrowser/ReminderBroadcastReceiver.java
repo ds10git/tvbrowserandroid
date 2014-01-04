@@ -28,10 +28,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
 public class ReminderBroadcastReceiver extends BroadcastReceiver {
 
@@ -59,12 +62,34 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           
           if(logoData.length > 0) {
             Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-          
-            builder.setLargeIcon(logo);
+            
+            int width =  context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
+            int height = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+            
+            float scale = 1;
+            
+            if(logo.getWidth() > width-4) {
+              scale = ((float)width-4)/logo.getWidth();
+            }
+            
+            if(logo.getHeight() * scale > height-4) {
+              scale = ((float)height-4)/logo.getHeight();
+            }
+            
+            if(scale < 1) {
+              logo = Bitmap.createScaledBitmap(logo, (int)(logo.getWidth() * scale), (int)(logo.getHeight() * scale), true);
+            }
+            
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            canvas.drawColor(SettingConstants.LOGO_BACKGROUND_COLOR);
+            canvas.drawBitmap(logo, width/2 - logo.getWidth()/2, height/2 - logo.getHeight()/2, null);
+            
+            builder.setLargeIcon(bitmap);
           }
         }
         
-        builder.setSmallIcon(R.drawable.ic_launcher);
+        builder.setSmallIcon(R.drawable.reminder);
         builder.setWhen(startTime);
         builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
         builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));

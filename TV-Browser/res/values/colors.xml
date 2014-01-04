@@ -11,4 +11,5 @@
     <color name="detail_date_channel_color">#AA0000</color>
     <color name="prog_table_channel_background">#787878</color>
     <color name="prog_table_channel_color">#FFFFFF</color>
+    <color name="running_separator_color">#50646464</color>
 </resources>
