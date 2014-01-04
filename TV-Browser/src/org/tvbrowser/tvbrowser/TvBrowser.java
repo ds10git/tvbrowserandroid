@@ -82,6 +82,7 @@ import android.support.v4.view.ViewPager;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
+import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
@@ -165,7 +166,12 @@ public class TvBrowser extends FragmentActivity implements
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    if(PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).getBoolean(getString(R.string.DARK_STYLE), false)) {
+      setTheme(android.R.style.Theme_Holo);
+    }
+    
     super.onCreate(savedInstanceState);
+    
     setContentView(R.layout.activity_tv_browser);
     
     handler = new Handler();

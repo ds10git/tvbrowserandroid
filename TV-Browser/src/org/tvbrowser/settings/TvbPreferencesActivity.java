@@ -19,12 +19,25 @@ package org.tvbrowser.settings;
 import java.util.List;
 
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.tvbrowser.TvBrowserSearchResults;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.preference.PreferenceManager;
 
 public class TvbPreferencesActivity extends PreferenceActivity {
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    if(PreferenceManager.getDefaultSharedPreferences(TvbPreferencesActivity.this).getBoolean(getString(R.string.DARK_STYLE), false)) {
+      setTheme(android.R.style.Theme_Holo);
+    }
+    
+    super.onCreate(savedInstanceState);
+    
+  }
+  
   @Override
   public void onBuildHeaders(List<Header> target) {
       loadHeadersFromResource(R.xml.tvbrowser_preferences_header, target);

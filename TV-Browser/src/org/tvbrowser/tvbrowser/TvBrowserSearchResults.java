@@ -50,6 +50,10 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
+    if(PreferenceManager.getDefaultSharedPreferences(TvBrowserSearchResults.this).getBoolean(getString(R.string.DARK_STYLE), false)) {
+      setTheme(android.R.style.Theme_Holo);
+    }
+    
     String[] projection = {
         TvBrowserContentProvider.DATA_KEY_UNIX_DATE,
         TvBrowserContentProvider.DATA_KEY_STARTTIME,

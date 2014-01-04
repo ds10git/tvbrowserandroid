@@ -22,7 +22,7 @@
     	<View android:id="@+id/running_separator_0"
 	    android:layout_width="1dp"
 	    android:layout_height="match_parent"
-	    android:background="@color/lighter_gray"
+	    android:background="@color/running_separator_color"
 	    />
 	    <RelativeLayout android:id="@+id/running_compact_previous"
 	        android:layout_width="match_parent"
@@ -61,7 +61,7 @@
 		<View android:id="@+id/running_separator_1"
 		    android:layout_width="1dp"
 		    android:layout_height="match_parent"
-		    android:background="@color/lighter_gray"
+		    android:background="@color/running_separator_color"
 		    />
 	    <RelativeLayout android:id="@+id/running_compact_now"
 		    android:layout_width="match_parent"
@@ -104,7 +104,7 @@
 		<View android:id="@+id/running_separator_2"
 		    android:layout_width="1dp"
 		    android:layout_height="match_parent"
-		    android:background="@color/lighter_gray"
+		    android:background="@color/running_separator_color"
 		    />
 	    <RelativeLayout android:id="@+id/running_compact_next"
 		    android:layout_width="match_parent"

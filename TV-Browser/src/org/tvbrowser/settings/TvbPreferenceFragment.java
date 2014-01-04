@@ -54,7 +54,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       onSharedPreferenceChanged(null,getResources().getString(R.string.PROG_TABLE_ACTIVATED));
     }
     else if(getString(R.string.category_list).equals(category)) {
-      addPreferencesFromResource(R.xml.preferences_programs_list);
+      addPreferencesFromResource(R.xml.preferences_program_lists);
     }
     else if(getString(R.string.category_details).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_details);
@@ -66,6 +66,9 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     }
     else if(getString(R.string.category_debug).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_debug);
+    }
+    else if(getString(R.string.category_theme).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_theme);
     }
   }
   

@@ -160,9 +160,16 @@ public class UiUtils {
         byte[] logoData = channel.getBlob(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
         Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
         BitmapDrawable l = new BitmapDrawable(activity.getResources(), logo);
-        l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
         
-        date.setCompoundDrawables(l, null, null, null);
+        ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+        background.setBounds(0, 0, logo.getWidth() + 2, logo.getHeight() + 2);
+        
+        LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+        logoDrawable.setBounds(0, 0, logo.getWidth() + 2, logo.getHeight() + 2);
+        
+        l.setBounds(2, 2, logo.getWidth(), logo.getHeight());
+        
+        date.setCompoundDrawables(logoDrawable, null, null, null);
       }
       
       channel.close();

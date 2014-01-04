@@ -16,6 +16,8 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.util.Date;
+
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
@@ -33,6 +35,8 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.method.ScrollingMovementMethod;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
@@ -49,6 +53,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   private Thread mUpdateThread;
   
   private long mChannelID;
+  private long mScrollTime;
   
   private String mDayClause;
   private String mFilterClause;
@@ -160,15 +165,48 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     startUpdateThread();
   }
   
-  public void scrollToTop() {
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        if(getView() != null) {
-          setSelection(0);
+  public void setScrollTime(long time) {
+    mScrollTime = time;
+  }
+  
+  public void scrollToTime() {
+    if(mScrollTime > 0) {
+      int testIndex = 0;
+      
+      if(mScrollTime > System.currentTimeMillis()) {
+        Cursor c = mProgamListAdapter.getCursor();
+        
+        if(c.getCount() > 0) {
+          try {
+            int index = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+            int count = 0;
+            c.moveToFirst();
+            while(!c.isClosed() && c.moveToNext()) {
+              long startTime = c.getLong(index);
+              
+              if(startTime >= mScrollTime) {
+                testIndex = count;
+                break;
+              }
+              else {
+                count++;
+              }
+            }
+          }catch(IllegalStateException e) {}
         }
       }
-    });
+      mScrollTime = -1;
+      final int scollIndex = testIndex;
+      
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          if(getView() != null) {
+            setSelection(scollIndex);
+          }
+        }
+      });
+    }
   }
   
   public void setChannelID(long id) {
@@ -290,6 +328,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   @Override
   public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor c) {
     mProgamListAdapter.swapCursor(c);
+    scrollToTime();
   }
 
   @Override

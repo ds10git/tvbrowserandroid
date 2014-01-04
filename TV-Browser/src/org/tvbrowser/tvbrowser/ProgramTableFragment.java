@@ -418,12 +418,14 @@ public class ProgramTableFragment extends Fragment {
     Calendar value = Calendar.getInstance();
     
     if(!mDaySet && value.get(Calendar.DAY_OF_YEAR) == mCurrentDate.get(Calendar.DAY_OF_YEAR) && value.get(Calendar.HOUR_OF_DAY) < 4) {
-      value.setTime(mCurrentDate.getTime());
-      value.add(Calendar.DAY_OF_YEAR, -1);
+      mCurrentDate.add(Calendar.DAY_OF_YEAR, -1);
+      
+      TextView day = (TextView)((ViewGroup)container.getParent()).findViewById(R.id.show_current_day);
+      
+      setDayString(day);
     }
-    else {
-      value.setTime(mCurrentDate.getTime());
-    }
+    
+    value.setTime(mCurrentDate.getTime());
     
     value.set(Calendar.HOUR_OF_DAY, 0);
     value.set(Calendar.MINUTE, 0);
@@ -612,6 +614,10 @@ public class ProgramTableFragment extends Fragment {
     if(mCurrentDate == null) {
       mCurrentDate = Calendar.getInstance();
       mDaySet = false;
+    }
+    
+    if(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getString(R.string.DARK_STYLE), false)) {
+      programTableLayout.findViewById(R.id.button_panel).setBackgroundColor(getResources().getColor(android.R.color.background_dark));
     }
     
     ProgramTableLayoutConstants.initialize(getActivity());

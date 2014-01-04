@@ -272,4 +272,6 @@
     <string name="dont_want_to_see_notification_text">Ausschlussliste synchronisieren&#8230;</string>
     <string name="dont_want_to_see_refresh_notification_text">Ausschlussliste aktualisieren&#8230;</string>
     <string name="dont_want_to_see_delete">Ausschluss löschen</string>
+    <string name="pref_theme_category">Thema</string>
+    <string name="dark_theme">Dunkles Thema (Neustart notwendig)</string>
 </resources>

@@ -1603,34 +1603,36 @@ Log.d("info8", basicAuth);
     int dontWantToSeeColumn = data.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE);
     
     if(data.getCount() > 0) {
-      while(!data.isClosed() && data.moveToNext()) {
-        long programKey = data.getInt(keyColumn);
-        byte frameID = (byte)data.getInt(frameIDColumn);
-        
-        int channelID = data.getInt(channelColumn);
-        long unixDate = data.getLong(unixDateColumn);
-        
-        String testKey = channelID + "_" + unixDate;
-        
-        if(currentKey == null || !currentKey.equals(testKey)) {
-          currentKey = testKey;
-          current = mCurrentData.get(testKey);
+      try {
+        while(!data.isClosed() && data.moveToNext()) {
+          long programKey = data.getInt(keyColumn);
+          byte frameID = (byte)data.getInt(frameIDColumn);
           
-          if(current == null) {
-            current = new Hashtable<Byte, CurrentDataHolder>();
+          int channelID = data.getInt(channelColumn);
+          long unixDate = data.getLong(unixDateColumn);
+          
+          String testKey = channelID + "_" + unixDate;
+          
+          if(currentKey == null || !currentKey.equals(testKey)) {
+            currentKey = testKey;
+            current = mCurrentData.get(testKey);
             
-            mCurrentData.put(currentKey, current);
+            if(current == null) {
+              current = new Hashtable<Byte, CurrentDataHolder>();
+              
+              mCurrentData.put(currentKey, current);
+            }
           }
+          
+          CurrentDataHolder holder = new CurrentDataHolder();
+          
+          holder.mProgramID = programKey;
+          holder.mTitle = data.getString(titleColumn);
+          holder.mDontWantToSee = data.getInt(dontWantToSeeColumn) == 1;
+          
+          current.put(Byte.valueOf(frameID), holder);
         }
-        
-        CurrentDataHolder holder = new CurrentDataHolder();
-        
-        holder.mProgramID = programKey;
-        holder.mTitle = data.getString(titleColumn);
-        holder.mDontWantToSee = data.getInt(dontWantToSeeColumn) == 1;
-        
-        current.put(Byte.valueOf(frameID), holder);
-      }
+      }catch(IllegalStateException e) {}
     }
     
     data.close();
