@@ -84,6 +84,12 @@ public class UiUtils {
   
   private static final HashMap<String, Integer> VALUE_MAP;
   
+  public static final int EXPIRED_COLOR_KEY = 0;
+  public static final int MARKED_COLOR_KEY = 1;
+  public static final int MARKED_FAVORITE_COLOR_KEY = 2;
+  public static final int MARKED_REMINDER_COLOR_KEY = 3;
+  public static final int MARKED_SYNC_COLOR_KEY = 4;
+  
   static {
     VALUE_MAP = new HashMap<String, Integer>();
     
@@ -608,7 +614,7 @@ public class UiUtils {
           }
           
           if(menuView != null) {
-            menuView.setBackgroundColor(activity.getResources().getColor(SettingConstants.MARK_COLOR_MAP.get(SettingConstants.MARK_VALUE_CALENDAR)));
+            menuView.setBackgroundColor(getColor(MARKED_REMINDER_COLOR_KEY, activity));
           }
         }
         
@@ -1077,10 +1083,10 @@ public class UiUtils {
         int[] colors = new int[markings.length];
         
         for(int i = 0; i < markings.length; i++) {
-          Integer color = SettingConstants.MARK_COLOR_MAP.get(markings[i]);
+          Integer color = SettingConstants.MARK_COLOR_KEY_MAP.get(markings[i]);
           
           if(color != null) {
-            colors[i] = activity.getResources().getColor(color);
+            colors[i] = getColor(color.intValue(), activity);
           }
         }
         
@@ -1090,10 +1096,10 @@ public class UiUtils {
         draw.add(gd);
       }
       else {
-        Integer color = SettingConstants.MARK_COLOR_MAP.get(value);
+        Integer color = SettingConstants.MARK_COLOR_KEY_MAP.get(value);
         
         if(color != null) {
-          draw.add(new ColorDrawable(activity.getResources().getColor(color)));
+          draw.add(new ColorDrawable(getColor(color.intValue(), activity)));
         }
       }
     }
@@ -1366,5 +1372,41 @@ public class UiUtils {
     }
     
     return found;
+  }
+  
+  public static final int getColor(int key, Context context) throws NullPointerException {
+    if(context == null) {
+      throw new NullPointerException("Context parameter is null.");
+    }
+    
+    return getColor(key, PreferenceManager.getDefaultSharedPreferences(context),context);
+  }
+  
+  public static final int getColor(int key, SharedPreferences pref, Context context) throws NullPointerException {
+    if(pref == null) {
+      throw new NullPointerException("Preferences parameter is null.");
+    }
+    else if(context == null) {
+      throw new NullPointerException("Context parameter is null.");
+    }
+    
+    int color = 0;
+    
+    switch(key) {
+      case EXPIRED_COLOR_KEY:
+          if(pref.getBoolean(context.getString(R.string.DARK_STYLE), false)) {
+            color = SettingConstants.EXPIRED_DARK_COLOR;
+          }
+          else {
+            color = SettingConstants.EXPIRED_LIGHT_COLOR;
+          }
+          break;
+      case MARKED_COLOR_KEY: color = context.getResources().getColor(R.color.mark_color);break;
+      case MARKED_FAVORITE_COLOR_KEY: color = context.getResources().getColor(R.color.mark_color_favorite);break;
+      case MARKED_REMINDER_COLOR_KEY: color = context.getResources().getColor(R.color.mark_color_calendar);break;
+      case MARKED_SYNC_COLOR_KEY: color = context.getResources().getColor(R.color.mark_color_sync_favorite);break;
+    }
+    
+    return color;
   }
 }

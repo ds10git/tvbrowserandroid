@@ -237,7 +237,9 @@ public class DummySectionFragment extends Fragment {
               } catch (Exception e) {}
             }
             
-            Collections.sort(values);
+            if(pref.getBoolean(getString(R.string.SORT_RUNNING_TIMES), false)) {
+              Collections.sort(values);
+            }
             
             for(Integer value : values) {
               getActivity().getLayoutInflater().inflate(R.layout.time_button, timeBar);

@@ -45,4 +45,5 @@
     <string name="PREF_SYNC_CALENDAR_TO_DESKTOP">PREF_SYNC_CALENDAR_TO_DESKTOP</string>
     <string name="I_DONT_WANT_TO_SEE_ENTRIES">I_DONT_WANT_TO_SEE_ENTRIES</string>
     <string name="DARK_STYLE">DARK_STYLE</string>
+    <string name="SORT_RUNNING_TIMES">SORT_RUNNING_TIMES</string>
 </resources>

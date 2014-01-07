@@ -19,12 +19,14 @@ package org.tvbrowser.settings;
 import java.util.HashMap;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.tvbrowser.UiUtils;
 
 import android.content.IntentFilter;
 import android.graphics.Color;
 
 public class SettingConstants {
+  public static final int ACCEPTED_DAY_COUNT = 8;
+  
   public static final String EPG_FREE_KEY = "EPG_FREE";
   public static final String[] LEVEL_NAMES = {"base","more00-16","more16-00","picture00-16","picture16-00"};
   public static final String CHANNEL_DOWNLOAD_COMPLETE = "org.tvbrowser.CHANNEL_DOWNLOAD_COMPLETE";
@@ -61,6 +63,7 @@ public class SettingConstants {
   public static final String MARK_VALUE_SYNC_FAVORITE = "syncfav";
   public static final String MARK_VALUE_REMINDER = "reminder";
 
+  
   /*AlarmManager alarmManager = (AlarmManager) getActivity().getApplicationContext().getSystemService(Context.ALARM_SERVICE);
   
   PendingIntent.get*/
@@ -77,7 +80,8 @@ public class SettingConstants {
   
   public static final IntentFilter RERESH_FILTER = new IntentFilter(REFRESH_VIEWS);
     
-  public static final HashMap<String, Integer> MARK_COLOR_MAP = new HashMap<String, Integer>();
+ // public static final HashMap<String, Integer> MARK_COLOR_MAP = new HashMap<String, Integer>();
+  public static final HashMap<String, Integer> MARK_COLOR_KEY_MAP = new HashMap<String, Integer>();
   
   public static final HashMap<String, String> SHORT_CHANNEL_NAMES = new HashMap<String, String>();
   
@@ -92,17 +96,19 @@ public class SettingConstants {
   public static final int NICHE_CATEGORY = 1 << 8;
   public static final int PAY_TV_CATEGORY = 1 << 9;
   
-  private static final int GRAY_VALUE = 155;
+  private static final int GRAY_LIGHT_VALUE = 155;
+  private static final int GRAY_DARK_VALUE = 78;
   public static final int LOGO_BACKGROUND_COLOR = Color.WHITE;
   
-  public static final int EXPIRED_COLOR = Color.rgb(GRAY_VALUE, GRAY_VALUE, GRAY_VALUE);
+  public static final int EXPIRED_LIGHT_COLOR = Color.rgb(GRAY_LIGHT_VALUE, GRAY_LIGHT_VALUE, GRAY_LIGHT_VALUE);
+  public static final int EXPIRED_DARK_COLOR = Color.rgb(GRAY_DARK_VALUE, GRAY_DARK_VALUE, GRAY_DARK_VALUE);
   
   static {
-    MARK_COLOR_MAP.put(MARK_VALUE, R.color.mark_color);
-    MARK_COLOR_MAP.put(MARK_VALUE_CALENDAR, R.color.mark_color_calendar);
-    MARK_COLOR_MAP.put(MARK_VALUE_REMINDER, R.color.mark_color_calendar);
-    MARK_COLOR_MAP.put(MARK_VALUE_FAVORITE, R.color.mark_color_favorite);
-    MARK_COLOR_MAP.put(MARK_VALUE_SYNC_FAVORITE, R.color.mark_color_sync_favorite);
+    MARK_COLOR_KEY_MAP.put(MARK_VALUE, UiUtils.MARKED_COLOR_KEY);
+    MARK_COLOR_KEY_MAP.put(MARK_VALUE_CALENDAR, UiUtils.MARKED_REMINDER_COLOR_KEY);
+    MARK_COLOR_KEY_MAP.put(MARK_VALUE_REMINDER, UiUtils.MARKED_REMINDER_COLOR_KEY);
+    MARK_COLOR_KEY_MAP.put(MARK_VALUE_FAVORITE, UiUtils.MARKED_FAVORITE_COLOR_KEY);
+    MARK_COLOR_KEY_MAP.put(MARK_VALUE_SYNC_FAVORITE, UiUtils.MARKED_SYNC_COLOR_KEY);
     
     SHORT_CHANNEL_NAMES.put("NDR Niedersachsen", "NDR NDS");
     SHORT_CHANNEL_NAMES.put("NDR Mecklenburg-Vorpommern", "NDR MV");

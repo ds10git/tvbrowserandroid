@@ -21,6 +21,7 @@ import java.util.Locale;
 
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.tvbrowser.UiUtils;
 
 import android.content.Context;
 import android.graphics.Color;
@@ -87,18 +88,18 @@ public class ProgramTableLayoutConstants {
   static {
     NOT_EXPIRED_TITLE_PAINT.setTypeface(Typeface.DEFAULT_BOLD);
     
-    EXPIRED_TITLE_PAINT.setColor(SettingConstants.EXPIRED_COLOR);
+    //EXPIRED_TITLE_PAINT.setColor(SettingConstants.EXPIRED_COLOR);
     EXPIRED_TITLE_PAINT.setTypeface(Typeface.DEFAULT_BOLD);
     
     NOT_EXPIRED_GENRE_EPISODE_PAINT.setTypeface(Typeface.defaultFromStyle(Typeface.ITALIC));
     
-    EXPIRED_GENRE_EPISODE_PAINT.setColor(SettingConstants.EXPIRED_COLOR);
+    //EXPIRED_GENRE_EPISODE_PAINT.setColor(SettingConstants.EXPIRED_COLOR);
     EXPIRED_GENRE_EPISODE_PAINT.setTypeface(Typeface.defaultFromStyle(Typeface.ITALIC));
     
     NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.setTypeface(Typeface.DEFAULT);
     
     EXPIRED_PICTURE_COPYRIGHT_PAINT.setTypeface(Typeface.DEFAULT);
-    EXPIRED_PICTURE_COPYRIGHT_PAINT.setColor(SettingConstants.EXPIRED_COLOR);
+    //EXPIRED_PICTURE_COPYRIGHT_PAINT.setColor(SettingConstants.EXPIRED_COLOR);
     
     CHANNEL_PAINT.setTypeface(Typeface.DEFAULT);
   }
@@ -137,6 +138,10 @@ public class ProgramTableLayoutConstants {
     GAP = (int) (1 * scale + 0.5f);
     TIME_TITLE_GAP = (int) (5 * scale + 0.5f);
     ROW_HEADER = (int)(scale * 28);
+    
+    EXPIRED_TITLE_PAINT.setColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, context));
+    EXPIRED_GENRE_EPISODE_PAINT.setColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, context));
+    EXPIRED_PICTURE_COPYRIGHT_PAINT.setColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, context));
         
     BLOCK_PAINT.setColor(Color.argb(30,GRAY_VALUE, GRAY_VALUE, GRAY_VALUE));
     LINE_PAINT.setColor(Color.argb(60, GRAY_VALUE, GRAY_VALUE, GRAY_VALUE));

@@ -272,6 +272,10 @@
     <string name="dont_want_to_see_notification_text">Ausschlussliste synchronisieren&#8230;</string>
     <string name="dont_want_to_see_refresh_notification_text">Ausschlussliste aktualisieren&#8230;</string>
     <string name="dont_want_to_see_delete">Ausschluss löschen</string>
-    <string name="pref_theme_category">Thema</string>
-    <string name="dark_theme">Dunkles Thema (Neustart notwendig)</string>
+    <string name="pref_theme_category">Aussehen</string>
+    <string name="dark_theme">Dunkles Thema</string>
+    <string name="dark_theme_summary">(Neustart notwendig)</string>
+    <string name="pref_running_sort_time_buttons">Sortieren</string>
+    <string name="pref_running_sort_time_buttons_summary_on">Zeitknöpfe werden nach Zeit sortiert angeordnet</string>
+    <string name="pref_running_sort_time_buttons_summary_off">Zeitknöpfe erscheinen in der oben eingestellten Reihenfolge</string>
 </resources>
