@@ -153,7 +153,7 @@ public class TvBrowser extends FragmentActivity implements
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2014);
     mRundate.set(Calendar.MONTH, Calendar.JANUARY);
-    mRundate.set(Calendar.DAY_OF_MONTH, 15);
+    mRundate.set(Calendar.DAY_OF_MONTH, 22);
   }
   
   @Override

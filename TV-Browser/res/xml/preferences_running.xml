@@ -18,29 +18,34 @@
             android:summary="@string/pref_time_buttons_summary">
         <org.tvbrowser.settings.TimePreference 
 	       	android:key="@string/TIME_BUTTON_1"
-	       	android:defaultValue="360"
+        	android:defaultValue="1215"
 	        android:summary="@string/pref_time_button_hint"/>
         <org.tvbrowser.settings.TimePreference 
         	android:key="@string/TIME_BUTTON_2"
-        	android:defaultValue="720"
+        	android:defaultValue="360"
         	android:summary="@string/pref_time_button_hint"/>
         <org.tvbrowser.settings.TimePreference 
         	android:key="@string/TIME_BUTTON_3"
-        	android:defaultValue="960"
+        	android:defaultValue="720"
         	android:summary="@string/pref_time_button_hint"/>
         <org.tvbrowser.settings.TimePreference 
         	android:key="@string/TIME_BUTTON_4"
-        	android:defaultValue="1080"
+        	android:defaultValue="960"
         	android:summary="@string/pref_time_button_hint"/>
         <org.tvbrowser.settings.TimePreference 
         	android:key="@string/TIME_BUTTON_5"
-        	android:defaultValue="1215"
+        	android:defaultValue="1080"
         	android:summary="@string/pref_time_button_hint"/>
         <org.tvbrowser.settings.TimePreference 
         	android:key="@string/TIME_BUTTON_6"
         	android:defaultValue="1380"
         	android:summary="@string/pref_time_button_hint"/>
         </PreferenceCategory>
-
+        <CheckBoxPreference 
+            android:key="@string/SORT_RUNNING_TIMES"
+            android:defaultValue="false"
+            android:title="@string/pref_running_sort_time_buttons"
+            android:summaryOn="@string/pref_running_sort_time_buttons_summary_on"
+            android:summaryOff="@string/pref_running_sort_time_buttons_summary_off"/>
 <!--  	</PreferenceScreen>-->
 </PreferenceScreen>

@@ -27,6 +27,8 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.Random;
 
+import org.tvbrowser.settings.SettingConstants;
+
 /**
  * Class with informations about a webserver for data update.
  * <p>
@@ -156,8 +158,8 @@ public class Mirror implements Comparable<Mirror> {
         
         Date serverDate = DATE_FORMAT.parse(date);
         update.doLog("Date of data for: '" + group + "' from URL '" + myUrl + "' " + serverDate + " diff to now: " + (((System.currentTimeMillis() - serverDate.getTime()) / 1000 / 60 / 60 / 24)));
-        // only if update date on server is  
-        success = (((System.currentTimeMillis() - serverDate.getTime()) / 1000 / 60 / 60 / 24)) <= 3; 
+        // only if update date on server is acceptable
+        success = (((System.currentTimeMillis() - serverDate.getTime()) / 1000 / 60 / 60 / 24)) <= SettingConstants.ACCEPTED_DAY_COUNT;
       }
     } catch (Exception e) {
       StackTraceElement[] elements = e.getStackTrace();

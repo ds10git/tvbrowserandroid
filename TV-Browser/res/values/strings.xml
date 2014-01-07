@@ -283,6 +283,10 @@
     <string name="dont_want_to_see_notification_text">Synchronizing exclusion list&#8230;</string>
     <string name="dont_want_to_see_refresh_notification_text">Updating exclusion list&#8230;</string>
     <string name="dont_want_to_see_delete">Delete exclusion</string>
-    <string name="pref_theme_category">Theme</string>
-    <string name="dark_theme">Dark Theme (needs restart)</string>
+    <string name="pref_theme_category">Appearance</string>
+    <string name="dark_theme">Dark Theme</string>
+    <string name="dark_theme_summary">(Needs restart)</string>
+    <string name="pref_running_sort_time_buttons">Sort</string>
+    <string name="pref_running_sort_time_buttons_summary_on">Times buttons appear sorted by time</string>
+    <string name="pref_running_sort_time_buttons_summary_off">Time buttons appear in above order</string>
 </resources>

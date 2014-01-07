@@ -300,14 +300,15 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         }
         
         setTimeRangeID(-2);
-              
+        int oldWhereClauseTime = mWhereClauseTime;
+        
         mWhereClauseTime = testValue;
         
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
         
         Calendar now = Calendar.getInstance();
         
-        if(pref.getBoolean(getResources().getString(R.string.RUNNING_PROGRAMS_NEXT_DAY), true)) {
+        if(mWhereClauseTime != -1 && pref.getBoolean(getResources().getString(R.string.RUNNING_PROGRAMS_NEXT_DAY), true)) {
           int test1 = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
           
           if((test1 - mWhereClauseTime) > 180 && mDayStart < System.currentTimeMillis()) {
@@ -320,6 +321,15 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           else {
             startUpdateThread();
           }
+        }
+        else if(oldWhereClauseTime != -1 && mWhereClauseTime == -1) {
+          Spinner date = (Spinner)((ViewGroup)getView().getParent()).findViewById(R.id.running_date_selection);
+          
+          if(date.getCount() > 0) {
+            date.setSelection(0);
+          }
+          
+          startUpdateThread();
         }
         else {
           startUpdateThread();
@@ -608,7 +618,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       }
       
       if(endTime <= System.currentTimeMillis()) {
-        viewHolder.setColor(type, SettingConstants.EXPIRED_COLOR);
+        viewHolder.setColor(type, UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, getActivity()));
       }
       else {
         viewHolder.setColor(type, DEFAULT_TEXT_COLOR);
@@ -895,7 +905,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         }
         
         if(endTime <= System.currentTimeMillis()) {
-          viewHolder.setColor(SettingConstants.EXPIRED_COLOR);
+          viewHolder.setColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, getActivity()));
         }
         else {
           viewHolder.setColor(DEFAULT_TEXT_COLOR);

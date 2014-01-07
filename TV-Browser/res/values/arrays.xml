@@ -37,11 +37,11 @@
         <item>3</item>
     </string-array>
     <integer-array name="time_button_defaults">
+        <item>1215</item>
         <item>360</item>
         <item>720</item>
         <item>960</item>
         <item>1080</item>
-        <item>1215</item>
         <item>1380</item>
     </integer-array>
     <string-array name="time_block_size">
