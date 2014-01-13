@@ -125,7 +125,9 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         CheckBoxPreference remindAgain = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMIND_AGAIN_AT_START));
         ListPreference reminderTime = (ListPreference) findPreference(key);
         
-        remindAgain.setEnabled(!reminderTime.getValue().equals("0"));
+        if(remindAgain != null) {
+          remindAgain.setEnabled(reminderTime.getValue() == null || !reminderTime.getValue().equals("0"));
+        }
       }
     }
     else if(key.equals(getResources().getString(R.string.PROG_TABLE_ACTIVATED))) {

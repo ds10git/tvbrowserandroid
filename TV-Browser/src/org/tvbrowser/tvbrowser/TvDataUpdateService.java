@@ -395,7 +395,13 @@ public class TvDataUpdateService extends Service {
             // The group is not already known, so insert it
             Uri insert = cr.insert(TvBrowserContentProvider.CONTENT_URI_GROUPS, values);
             
-            GroupInfo test = loadChannelForGroup(cr.query(insert, null, null, null, null));
+            Cursor groupTest = cr.query(insert, null, null, null, null);
+            
+            GroupInfo test = loadChannelForGroup(groupTest);
+            
+            if(!groupTest.isClosed()) {
+              groupTest.close();
+            }
             
             if(test != null) {
               doLog("Load channels for group '" + parts[0] + "' to " + test.getFileName());
