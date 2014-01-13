@@ -1387,7 +1387,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
 
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    if(getString(R.string.PREF_RUNNING_DIVIDER_SIZE).equals(key)) {
+    if(!isDetached() && getActivity() != null && getString(R.string.PREF_RUNNING_DIVIDER_SIZE).equals(key)) {
       setDividerSize(sharedPreferences.getString(key, SettingConstants.DIVIDER_DEFAULT));
     }
   }

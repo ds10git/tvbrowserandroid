@@ -667,7 +667,7 @@ public class ProgramTableFragment extends Fragment {
       mDaySet = false;
     }
     
-    if(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getString(R.string.DARK_STYLE), false)) {
+    if(SettingConstants.IS_DARK_THEME) {
       programTableLayout.findViewById(R.id.button_panel).setBackgroundColor(getResources().getColor(android.R.color.background_dark));
     }
     
