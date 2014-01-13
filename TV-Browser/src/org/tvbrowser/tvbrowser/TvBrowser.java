@@ -173,6 +173,8 @@ public class TvBrowser extends FragmentActivity implements
   protected void onCreate(Bundle savedInstanceState) {
     if(PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).getBoolean(getString(R.string.DARK_STYLE), false)) {
       setTheme(android.R.style.Theme_Holo);
+      
+      SettingConstants.IS_DARK_THEME = true;
     }
     
     super.onCreate(savedInstanceState);
@@ -2326,7 +2328,7 @@ public class TvBrowser extends FragmentActivity implements
     mDeleteLogItem = menu.findItem(R.id.action_delete_log);
     mScrollTimeItem = menu.findItem(R.id.action_scroll);
     
-    mScrollTimeItem.setVisible(false);
+    mScrollTimeItem.setVisible(mViewPager.getCurrentItem() == 1 || mViewPager.getCurrentItem() == 3);
     
     mSendLogItem.setVisible(PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getBoolean(getResources().getString(R.string.WRITE_LOG), false));
     mDeleteLogItem.setVisible(mSendLogItem.isVisible());

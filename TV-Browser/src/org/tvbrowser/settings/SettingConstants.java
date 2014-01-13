@@ -56,6 +56,8 @@ public class SettingConstants {
   
   public static final String DIVIDER_DEFAULT = "10";
   
+  public static boolean IS_DARK_THEME = false;
+  
   public static final SparseArray<LayerDrawable> SMALL_LOGO_MAP = new SparseArray<LayerDrawable>();
   
   public static void updateLogoMap(Context context) {

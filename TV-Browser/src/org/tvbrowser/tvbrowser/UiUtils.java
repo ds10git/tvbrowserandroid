@@ -1387,7 +1387,7 @@ public class UiUtils {
     
     switch(key) {
       case EXPIRED_COLOR_KEY:
-          if(pref.getBoolean(context.getString(R.string.DARK_STYLE), false)) {
+          if(SettingConstants.IS_DARK_THEME) {
             color = SettingConstants.EXPIRED_DARK_COLOR;
           }
           else {

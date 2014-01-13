@@ -30,7 +30,7 @@ import android.preference.PreferenceManager;
 public class TvbPreferencesActivity extends PreferenceActivity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    if(PreferenceManager.getDefaultSharedPreferences(TvbPreferencesActivity.this).getBoolean(getString(R.string.DARK_STYLE), false)) {
+    if(SettingConstants.IS_DARK_THEME) {
       setTheme(android.R.style.Theme_Holo);
     }
     

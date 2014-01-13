@@ -19,6 +19,9 @@ package org.tvbrowser.view;
 import java.util.Calendar;
 import java.util.Date;
 
+import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.TvBrowser;
+
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -26,6 +29,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
+import android.provider.Contacts.SettingsColumns;
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.View;
@@ -160,7 +164,12 @@ public class ProgramPanel extends View {
       }
       
       if(isExpired()) {
-        mPicture.setColorFilter(getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
+        if(SettingConstants.IS_DARK_THEME) {
+          mPicture.setColorFilter(getResources().getColor(org.tvbrowser.tvbrowser.R.color.dark_gray), PorterDuff.Mode.DARKEN);
+        }
+        else {
+          mPicture.setColorFilter(getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
+        }
       }
     }
   }
