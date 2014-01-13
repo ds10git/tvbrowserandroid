@@ -705,6 +705,25 @@ public class DummySectionFragment extends Fragment {
         };
         
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(showChannel, showChannelFilter);
+        
+        IntentFilter scrollToTimeFilter = new IntentFilter(SettingConstants.SCROLL_TO_TIME_INTENT);
+        
+        BroadcastReceiver scrollToTimeReceiver = new BroadcastReceiver() {
+          @Override
+          public void onReceive(Context context, Intent intent) {
+            if(getActivity() instanceof TvBrowser && !isDetached()) {
+              long startTime = intent.getLongExtra(SettingConstants.START_TIME_EXTRA, (long)-2);
+                            
+              Log.d("info1", "" + startTime);
+              if(startTime >= 0) {
+                programList.setScrollTime(startTime);
+                programList.scrollToTime();
+              }
+            }
+          }
+        };
+        
+        LocalBroadcastManager.getInstance(getActivity()).registerReceiver(scrollToTimeReceiver, scrollToTimeFilter);
     }
     else {
       rootView = inflater.inflate(R.layout.fragment_tv_browser_dummy,

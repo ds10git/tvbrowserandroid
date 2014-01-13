@@ -3,6 +3,9 @@
     <string name="pref_category_key">PREF_CATEGORY</string>
     <string name="category_download">DOWNLOAD</string>
     <string name="category_start">START</string>
+    <string name="category_theme">THEME</string>
+    <string name="category_reminder">REMINDER</string>
+    <string name="category_time_buttons">TIME_BUTTONS</string>
     <string name="category_running_programs">RUNNING_PROGRAMS</string>
     <string name="category_programs_list">PROGRAMS_LIST</string>
     <string name="category_program_table">PROGRAMS_TABLE</string>
@@ -10,5 +13,4 @@
     <string name="category_details">DETAILS</string>
     <string name="category_sync">SYNC</string>
     <string name="category_debug">DEBUG</string>
-    <string name="category_theme">THEME</string>
 </resources>

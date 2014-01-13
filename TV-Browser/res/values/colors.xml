@@ -12,4 +12,5 @@
     <color name="prog_table_channel_background">#787878</color>
     <color name="prog_table_channel_color">#FFFFFF</color>
     <color name="running_separator_color">#50646464</color>
+    <color name="separator_color_light">#15646464</color>
 </resources>

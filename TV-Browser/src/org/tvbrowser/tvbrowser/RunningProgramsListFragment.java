@@ -24,6 +24,7 @@ import java.util.Locale;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -32,7 +33,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.res.Configuration;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -52,7 +53,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -67,13 +67,11 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class RunningProgramsListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class RunningProgramsListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
   private static final String WHERE_CLAUSE_KEY = "WHERE_CLAUSE_KEY";
   private static final String DAY_CLAUSE_KEY = "DAY_CLAUSE_KEY";
   private static final int AT_TIME_ID = -1;
-  
-  private int mOrientation;
-  
+    
   private Handler handler = new Handler();
   
   private boolean mKeepRunning;
@@ -89,12 +87,11 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private static final GradientDrawable BEFORE_GRADIENT;
   private static final GradientDrawable AFTER_GRADIENT;
   
-  private ArrayAdapter<ChannelProgramBlock> runningProgramListAdapter;
+  private ArrayAdapter<ChannelProgramBlock> mRunningProgramListAdapter;
   
   private ArrayList<ChannelProgramBlock> mProgramBlockList;
   private ArrayList<ChannelProgramBlock> mCurrentViewList;
   
-  private SparseArray<LayerDrawable> mLogoMap;
   private LongSparseArray<String> mMarkingsMap;
   
   private long mCurrentTime;
@@ -206,7 +203,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
             showInfo = pref.getBoolean(getResources().getString(R.string.SHOW_INFO_IN_LISTS), true);
             mShowOrderNumber = pref.getBoolean(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_LISTS), true);
             
-            runningProgramListAdapter.notifyDataSetChanged();
+            mRunningProgramListAdapter.notifyDataSetChanged();
           }
         }
       }
@@ -406,7 +403,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         break;
     }
     
-    runningProgramListAdapter.notifyDataSetChanged();
+    mRunningProgramListAdapter.notifyDataSetChanged();
   }
   
   @Override
@@ -625,7 +622,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       }
       
       if(!channelSet) {
-        LayerDrawable logo = mLogoMap.get(block.mChannelID);
+        LayerDrawable logo = SettingConstants.SMALL_LOGO_MAP.get(block.mChannelID);
         
         viewHolder.mChannel.setCompoundDrawables(null, logo, null, null);
         
@@ -680,12 +677,12 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private View getCompactView(View convertView, ViewGroup parent, java.text.DateFormat timeFormat, ChannelProgramBlock block, int DEFAULT_TEXT_COLOR) {
     CompactLayoutViewHolder viewHolder = null;
     
-    if(convertView == null || convertView.getTag() instanceof LongLayoutViewHolder || ((CompactLayoutViewHolder)convertView.getTag()).orientationChanged(mOrientation)) {
+    if(convertView == null || convertView.getTag() instanceof LongLayoutViewHolder || ((CompactLayoutViewHolder)convertView.getTag()).orientationChanged(SettingConstants.ORIENTATION)) {
       convertView = getActivity().getLayoutInflater().inflate(R.layout.compact_program_panel, parent, false);
       
       viewHolder = new CompactLayoutViewHolder();
       
-      viewHolder.mCurrentOrientation = mOrientation;
+      viewHolder.mCurrentOrientation = SettingConstants.ORIENTATION;
       viewHolder.mChannel = (TextView)convertView.findViewById(R.id.running_compact_channel_label);
       
       viewHolder.mSeparator1 = convertView.findViewById(R.id.running_separator_1);
@@ -949,6 +946,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   @Override
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    pref.registerOnSharedPreferenceChangeListener(this);
     
     if(savedInstanceState != null) {
       mWhereClauseTime = savedInstanceState.getInt(WHERE_CLAUSE_KEY,-1);
@@ -959,7 +958,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       mDayStart = -1;
     }
     
-    mLogoMap = new SparseArray<LayerDrawable>();
     mTimeRangeID = -1;
     
     mMarkingsMap = new LongSparseArray<String>();
@@ -1016,7 +1014,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     final java.text.DateFormat timeFormat = new SimpleDateFormat(value, Locale.getDefault());
     final int DEFAULT_TEXT_COLOR = new TextView(getActivity()).getTextColors().getDefaultColor();
         
-    runningProgramListAdapter = new ArrayAdapter<RunningProgramsListFragment.ChannelProgramBlock>(getActivity(), R.layout.running_list_entries, mCurrentViewList) {
+    mRunningProgramListAdapter = new ArrayAdapter<RunningProgramsListFragment.ChannelProgramBlock>(getActivity(), R.layout.running_list_entries, mCurrentViewList) {
       @Override
       public View getView(int position, View convertView, ViewGroup parent) {
         ChannelProgramBlock block = getItem(position);
@@ -1030,7 +1028,13 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       }
     };
     
-    setListAdapter(runningProgramListAdapter);
+    setListAdapter(mRunningProgramListAdapter);
+    
+    SeparatorDrawable drawable = new SeparatorDrawable(getActivity());
+    
+    getListView().setDivider(drawable);
+    
+    setDividerSize(pref.getString(getString(R.string.PREF_RUNNING_DIVIDER_SIZE), SettingConstants.DIVIDER_DEFAULT));
     
     getLoaderManager().initLoader(0, null, this);
   }
@@ -1087,12 +1091,12 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     mShowOrderNumber = pref.getBoolean(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_LISTS), true);
     
     if(showPicture) {
-      projection = new String[16];
+      projection = new String[15];
       
-      projection[15] = TvBrowserContentProvider.DATA_KEY_PICTURE;
+      projection[14] = TvBrowserContentProvider.DATA_KEY_PICTURE;
     }
     else {
-      projection = new String[15];
+      projection = new String[14];
     }
     
     projection[0] = TvBrowserContentProvider.KEY_ID;
@@ -1108,8 +1112,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     projection[10] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
     projection[11] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
     projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
-    projection[13] = TvBrowserContentProvider.CHANNEL_KEY_LOGO;
-    projection[14] = TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
+    projection[13] = TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
     
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.MINUTE, 0);
@@ -1226,7 +1229,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     int channelOrderColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
     int dontWantToSeeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE);
     
-    int logoColumn =  c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
     int markingColumn =  c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES);
     
     if(c.getCount() > 0) {
@@ -1273,36 +1275,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
                 picture = c.getBlob(mPictureColumn);
               }
             }
-            
-            LayerDrawable logo = mLogoMap.get(channelID);
-            
-            if(logo == null) {
-              if(mLogoMap.indexOfKey(channelID) < 0) {
-                byte[] logoData = c.getBlob(logoColumn);
-                
-                if(logoData != null && logoData.length > 0) {
-                  Bitmap logoBitmap = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-                  
-                  BitmapDrawable logo1 = new BitmapDrawable(getResources(), logoBitmap);
-                  
-                  float scale = UiUtils.convertDpToPixel(15, getResources()) / (float)logoBitmap.getHeight();
-                  
-                  int width = (int)(logoBitmap.getWidth() * scale);
-                  int height = (int)(logoBitmap.getHeight() * scale);
-                  
-                  ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
-                  background.setBounds(0, 0, width + 2, height + 2);
-                  
-                  logo = new LayerDrawable(new Drawable[] {background,logo1});
-                  logo.setBounds(0, 0, width + 2, height + 2);
-                  
-                  logo1.setBounds(2, 2, width, height);
-                }
-                
-                mLogoMap.put(channelID, logo);
-              }
-            }
-            
+                        
             if(c.getInt(dontWantToSeeColumn) == 0) {
               block.mChannelID = channelID;
               block.mChannelName = channelName;
@@ -1369,7 +1342,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     c.close();
     currentProgramMap.clear();
     channelProgramMap.clear();
-    runningProgramListAdapter.notifyDataSetChanged();
+    mRunningProgramListAdapter.notifyDataSetChanged();
   }
 
   @Override
@@ -1401,29 +1374,21 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     return false;
   }
   
-  @Override
+ /* @Override
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
     
-    mOrientation = newConfig.orientation;
-    
-    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          // TODO Auto-generated method stub
-          runningProgramListAdapter.notifyDataSetChanged();
-        }
-      });
-    } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
-      handler.post(new Runnable() {
-        
-        @Override
-        public void run() {
-          // TODO Auto-generated method stub
-          runningProgramListAdapter.notifyDataSetChanged();
-        }
-      });
+    UiUtils.handleConfigurationChange(handler, mRunningProgramListAdapter, newConfig);
+  }*/
+  
+  private void setDividerSize(String size) {    
+    getListView().setDividerHeight(UiUtils.convertDpToPixel(Integer.parseInt(size), getResources()));
+  }
+
+  @Override
+  public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    if(getString(R.string.PREF_RUNNING_DIVIDER_SIZE).equals(key)) {
+      setDividerSize(sharedPreferences.getString(key, SettingConstants.DIVIDER_DEFAULT));
     }
   }
 }

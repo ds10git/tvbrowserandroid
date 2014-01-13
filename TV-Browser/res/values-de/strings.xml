@@ -206,7 +206,7 @@
 	<string name="pref_time_buttons">Zeitknöpfe</string>
 	<string name="pref_time_buttons_summary">Zeitknöpfe der Laufenden Sendungen konfigurieren.</string>
 	<string name="pref_time_button_hint">Mehrfache Einträge werden ignoriert.</string>
-	<string name="running_until">, bis</string>
+	<string name="running_until"> bis </string>
 	<string-array name="running_layout_values">
 	    <item>Ausführlich</item>
 	    <item>Kompakt</item>
@@ -278,4 +278,25 @@
     <string name="pref_running_sort_time_buttons">Sortieren</string>
     <string name="pref_running_sort_time_buttons_summary_on">Zeitknöpfe werden nach Zeit sortiert angeordnet</string>
     <string name="pref_running_sort_time_buttons_summary_off">Zeitknöpfe erscheinen in der oben eingestellten Reihenfolge</string>
+	<string name="action_scroll_time">Zu Zeit scrollen</string>
+	<string name="divider_size">Trennergröße:</string>
+	<string-array name="divider_value_names">
+	    <item>Schmal</item>
+	    <item>Mittel</item>
+	    <item>Groß</item>
+	</string-array>
+	<string name="pref_reminder_category">Erinnerungen</string>
+	<string name="pref_category_reminder_title">Erinnerungszeitpunkt:</string>
+	<string name="pref_category_reminder_again_title">Zu Beginn erneut erinnern</string>
+	<string-array name="pref_category_reminder_names">
+	    <item>Zu Beginn</item>
+	    <item>1 Minute vorher</item>
+	    <item>2 Minuten vorher</item>
+	    <item>3 Minuten vorher</item>
+	    <item>5 Minuten vorher</item>
+	    <item>10 Minuten vorher</item>
+	    <item>15 Minuten vorher</item>
+	    <item>30 Minuten vorher</item>
+	    <item>1 Stunde vorher</item>
+	</string-array>
 </resources>

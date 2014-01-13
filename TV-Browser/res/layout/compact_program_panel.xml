@@ -11,6 +11,8 @@
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:gravity="center_horizontal"
+	    android:paddingTop="3dp"
+	    android:paddingBottom="3dp"
         />
     <RelativeLayout android:id="@+id/running_compact_previous"
         android:layout_width="match_parent"

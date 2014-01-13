@@ -46,4 +46,8 @@
     <string name="I_DONT_WANT_TO_SEE_ENTRIES">I_DONT_WANT_TO_SEE_ENTRIES</string>
     <string name="DARK_STYLE">DARK_STYLE</string>
     <string name="SORT_RUNNING_TIMES">SORT_RUNNING_TIMES</string>
+    <string name="PREF_RUNNING_DIVIDER_SIZE">PREF_RUNNING_DIVIDER_SIZE</string>
+    <string name="PREF_PROGRAM_LISTS_DIVIDER_SIZE">PREF_PROGRAM_LISTS_DIVIDER_SIZE</string>
+    <string name="PREF_REMINDER_TIME">PREF_REMINDER_TIME</string>
+    <string name="PREF_REMIND_AGAIN_AT_START">PREF_REMIND_AGAIN_AT_START</string>
 </resources>

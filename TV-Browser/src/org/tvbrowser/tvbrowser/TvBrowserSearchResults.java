@@ -17,6 +17,8 @@
 package org.tvbrowser.tvbrowser;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.ListActivity;
 import android.app.LoaderManager;
@@ -25,9 +27,13 @@ import android.content.ContentUris;
 import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -37,8 +43,8 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-public class TvBrowserSearchResults extends ListActivity implements LoaderManager.LoaderCallbacks<Cursor> {
-  private SimpleCursorAdapter adapter;
+public class TvBrowserSearchResults extends ListActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
+  private SimpleCursorAdapter mProgramsListAdapter;
 
   private static String QUERY_EXTRA_KEY = "QUERY_EXTRA_KEY";
   private static String QUERY_EXTRA_ID_KEY = "QUERY_EXTRA_ID_KEY";
@@ -50,7 +56,10 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-    if(PreferenceManager.getDefaultSharedPreferences(TvBrowserSearchResults.this).getBoolean(getString(R.string.DARK_STYLE), false)) {
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowserSearchResults.this);
+    pref.registerOnSharedPreferenceChangeListener(this);
+    
+    if(pref.getBoolean(getString(R.string.DARK_STYLE), false)) {
       setTheme(android.R.style.Theme_Holo);
     }
     
@@ -71,17 +80,23 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     // Create a new Adapter an bind it to the List View
     
     mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(this);
-    adapter = new SimpleCursorAdapter(this,/*android.R.layout.simple_list_item_1*/R.layout.program_list_entries,null,
+    mProgramsListAdapter = new OrientationHandlingCursorAdapter(this,/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
         projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0);
-    adapter.setViewBinder(mViewAndClickHandler);
+    mProgramsListAdapter.setViewBinder(mViewAndClickHandler);
     
-    setListAdapter(adapter);
+    setListAdapter(mProgramsListAdapter);
     
     // Initiate the Cursor Loader
     getLoaderManager().initLoader(0, null, this);
     
     // Get the launch Intent
     parseIntent(getIntent());
+    
+    SeparatorDrawable drawable = new SeparatorDrawable(this);
+    
+    getListView().setDivider(drawable);
+    
+    setDividerSize(pref.getString(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE), SettingConstants.DIVIDER_DEFAULT));
   }
   
   @Override
@@ -216,12 +231,12 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
 
   @Override
   public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-    adapter.swapCursor(cursor);
+    mProgramsListAdapter.swapCursor(cursor);
   }
 
   @Override
   public void onLoaderReset(Loader<Cursor> loader) {
-    adapter.swapCursor(null);
+    mProgramsListAdapter.swapCursor(null);
   }
 
 
@@ -234,5 +249,25 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
   public void onListItemClick(ListView l, View v, int position, long id) {
     super.onListItemClick(l, v, position, id);
     mViewAndClickHandler.onListItemClick(l, v, position, id);
+  }
+  
+  private void setDividerSize(String size) {    
+    getListView().setDividerHeight(UiUtils.convertDpToPixel(Integer.parseInt(size), getResources()));
+  }
+
+  @Override
+  public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    if(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
+      setDividerSize(sharedPreferences.getString(key, SettingConstants.DIVIDER_DEFAULT));
+    }
+  }
+  
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    
+    SettingConstants.ORIENTATION = newConfig.orientation;
+    
+    //UiUtils.handleConfigurationChange(new Handler(), mProgramsListAdapter, newConfig);
   }
 }

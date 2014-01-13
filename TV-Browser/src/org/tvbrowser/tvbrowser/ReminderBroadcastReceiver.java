@@ -16,6 +16,10 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
+
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
@@ -34,7 +38,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.support.v4.app.NotificationCompat;
-import android.util.Log;
+import android.text.format.DateFormat;
 
 public class ReminderBroadcastReceiver extends BroadcastReceiver {
 
@@ -98,7 +102,16 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
         builder.setContentInfo(channelName);
         builder.setLights(Color.RED, 1, 0);
         
-        builder.setContentTitle(title);
+        java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(context);
+        String value = ((SimpleDateFormat)mTimeFormat).toLocalizedPattern();
+        
+        if((value.charAt(0) == 'H' && value.charAt(1) != 'H') || (value.charAt(0) == 'h' && value.charAt(1) != 'h')) {
+          value = value.charAt(0) + value;
+        }
+        
+        SimpleDateFormat timeFormat = new SimpleDateFormat(value, Locale.getDefault());
+        
+        builder.setContentTitle(timeFormat.format(new Date(startTime)) + " " + title);
         
         if(episode != null) {
           builder.setContentText(episode);
@@ -114,6 +127,8 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
         
         ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(title,(int)(startTime / 60000), notification);
       }
+      
+      values.close();
     }
   }
 
