@@ -401,7 +401,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
 
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    if(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
+    if(key != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE) != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
       setDividerSize(sharedPreferences.getString(key, SettingConstants.DIVIDER_DEFAULT));
     }
   }
