@@ -96,56 +96,95 @@ public class ProgramTableFragment extends Fragment {
   
   private boolean mGrowPanels;
   
-  public void scrollToNow() {
+  public void scrollToTime(int time, final MenuItem timeItem) {
     if(isResumed()) {
-      StringBuilder where = new StringBuilder();
-      where.append(" (( ");
-      where.append(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-      where.append("<=");
-      where.append(System.currentTimeMillis());
-      where.append(" ) AND ( ");
-      where.append(System.currentTimeMillis());
-      where.append("<=");
-      where.append(TvBrowserContentProvider.DATA_KEY_ENDTIME);    
-      where.append(" )) ");
+      long value = System.currentTimeMillis();
       
-      Cursor c = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
-      
-      if(c.getCount() > 0) {
-        c.moveToFirst();
-        
-        long id = -1;
-        
-        do {
-          id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-        }while((System.currentTimeMillis() - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1.25 * 60 * 60000)) && c.moveToNext() && getView().findViewWithTag(Long.valueOf(id)) == null);
-        
-        if(id != -1 && getView() != null) {
-          final View view = getView().findViewWithTag(Long.valueOf(id));
-          
-          if(view != null) {
-            final ScrollView scroll = (ScrollView)getView().findViewById(R.id.vertical_program_table_scroll);
-            
-            scroll.post(new Runnable() {
-              @Override
-              public void run() {
-                int location[] = new int[2];
-                view.getLocationInWindow(location);
-                
-                Activity activity = getActivity();
-                
-                if(activity != null && !activity.isFinishing()) {
-                  Display display = activity.getWindowManager().getDefaultDisplay();
-                  
-                  scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]-display.getHeight()/3);
-                }
-              }
-            });
+      if(time == 0) {
+        if(mCurrentDate.get(Calendar.DAY_OF_YEAR) != Calendar.getInstance().get(Calendar.DAY_OF_YEAR)) {
+          if(timeItem != null) {
+            timeItem.setActionView(R.layout.progressbar);
           }
+          
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              now();
+              
+              if(timeItem != null) {
+                timeItem.setActionView(null);
+              }
+            }
+          });
+          
+          time = -1;
         }
       }
       
-      c.close();
+      if(time > 0) {
+        Calendar now = Calendar.getInstance();
+        now.setTimeInMillis(mCurrentDate.getTimeInMillis());
+        time--;
+        
+        now.set(Calendar.HOUR_OF_DAY, time / 60);
+        now.set(Calendar.MINUTE, time % 60);
+        now.set(Calendar.SECOND, 0);
+        now.set(Calendar.MILLISECOND, 0);
+        
+        value = now.getTimeInMillis();
+      }
+      
+      if(time >= 0) {
+        StringBuilder where = new StringBuilder();
+        
+        where.append(" (( ");
+        where.append(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+        where.append("<=");
+        where.append(value);
+        where.append(" ) AND ( ");
+        where.append(value);
+        where.append("<=");
+        where.append(TvBrowserContentProvider.DATA_KEY_ENDTIME);    
+        where.append(" )) ");
+        
+        Cursor c = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+        
+        if(c.getCount() > 0) {
+          c.moveToFirst();
+          
+          long id = -1;
+          
+          do {
+            id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+          }while(((getView().findViewWithTag(Long.valueOf(id)) == null) || (value - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1.25 * 60 * 60000))) && c.moveToNext());
+          
+          if(id != -1 && getView() != null) {
+            final View view = getView().findViewWithTag(Long.valueOf(id));
+            
+            if(view != null) {
+              final ScrollView scroll = (ScrollView)getView().findViewById(R.id.vertical_program_table_scroll);
+              
+              scroll.post(new Runnable() {
+                @Override
+                public void run() {
+                  int location[] = new int[2];
+                  view.getLocationInWindow(location);
+                  
+                  Activity activity = getActivity();
+                  
+                  if(activity != null && !activity.isFinishing()) {
+                    Display display = activity.getWindowManager().getDefaultDisplay();
+                    
+                    scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]-display.getHeight()/3);
+                  }
+                }
+              });
+            }
+          }
+        }
+        
+        c.close();
+      }
     }
   }
   
@@ -564,7 +603,7 @@ public class ProgramTableFragment extends Fragment {
       handler.post(new Runnable() {
         @Override
         public void run() {
-          scrollToNow();
+          scrollToTime(0,null);
         }
       });
     }
@@ -584,6 +623,18 @@ public class ProgramTableFragment extends Fragment {
     longDate = longDate.replaceAll("\\s+"+cal.get(Calendar.YEAR), "");
     
     currentDay.setText(UiUtils.LONG_DAY_FORMAT.format(date) + "\n" + longDate);
+  }
+  
+  private void now() {
+    mCurrentDate = Calendar.getInstance();
+    
+    TextView day = (TextView)getView().findViewById(R.id.show_current_day);
+    
+    setDayString(day);
+    
+    RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
+    
+    updateView(getActivity().getLayoutInflater(), layout);
   }
   
   private void changeDay(int count) {

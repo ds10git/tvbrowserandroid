@@ -19,6 +19,7 @@ package org.tvbrowser.tvbrowser;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
+import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -60,6 +61,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -82,7 +84,6 @@ import android.support.v4.view.ViewPager;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
-import android.util.AttributeSet;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
@@ -90,6 +91,7 @@ import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -139,8 +141,11 @@ public class TvBrowser extends FragmentActivity implements
   private MenuItem mUpdateItem;
   private MenuItem mSendLogItem;
   private MenuItem mDeleteLogItem;
+  private MenuItem mScrollTimeItem;
   
   private static final Calendar mRundate;
+  private static final int[] SCROLL_IDS = new int[] {-1,-2,-3,-4,-5,-6};
+  private static int[] SCROLL_TIMES = new int[6];
   
   private boolean mSelectionNumberChanged;
   
@@ -171,6 +176,8 @@ public class TvBrowser extends FragmentActivity implements
     }
     
     super.onCreate(savedInstanceState);
+    
+    SettingConstants.updateLogoMap(TvBrowser.this);
     
     setContentView(R.layout.activity_tv_browser);
     
@@ -209,7 +216,7 @@ public class TvBrowser extends FragmentActivity implements
             Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(position);
             
             if(fragment instanceof ProgramTableFragment) {
-              ((ProgramTableFragment)fragment).scrollToNow();
+              ((ProgramTableFragment)fragment).scrollToTime(0, mScrollTimeItem);
             }
             
             mProgramsListWasShow = false;
@@ -527,6 +534,7 @@ public class TvBrowser extends FragmentActivity implements
               handler.post(new Runnable() {
                 @Override
                 public void run() {
+                  SettingConstants.updateLogoMap(TvBrowser.this);
                   updateProgramListChannelBar();
                   Toast.makeText(getApplicationContext(), R.string.synchronize_done, Toast.LENGTH_LONG).show();
                   checkTermsAccepted();
@@ -1129,6 +1137,7 @@ public class TvBrowser extends FragmentActivity implements
           
           // if something was changed we need to update channel list bar in program list and the complete program table
           if(somethingChanged) {
+            SettingConstants.updateLogoMap(TvBrowser.this);
             updateProgramListChannelBar();
           }
           
@@ -2113,6 +2122,9 @@ public class TvBrowser extends FragmentActivity implements
     }
     
     LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(SettingConstants.UPDATE_TIME_BUTTONS));
+    updateScrollMenu();
+    
+    new UpdateReminderAlarmReceiver().onReceive(TvBrowser.this, null);
   }
   
   private void showAbout() {
@@ -2258,11 +2270,35 @@ public class TvBrowser extends FragmentActivity implements
       case R.id.action_delete_all_data: getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.KEY_ID + " > 0", null);
                                         getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.KEY_ID + " > 0", null);
                                         break;
+      case R.id.action_scroll_now:scrollToTime(0);break;
+    }
+    
+    for(int i = 0; i < SCROLL_IDS.length; i++) {
+      if(item.getItemId() == SCROLL_IDS[i]) {
+        scrollToTime(SCROLL_TIMES[i]+1);
+        break;
+      }
     }
     
     return super.onOptionsItemSelected(item);
   }
   
+  private void scrollToTime(int time) {
+    if(mViewPager.getCurrentItem() == 1) {
+      Intent scroll = new Intent(SettingConstants.SCROLL_TO_TIME_INTENT);
+      scroll.putExtra(SettingConstants.START_TIME_EXTRA, (long)time);
+      
+      LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcast(scroll);
+    }
+    else if(mViewPager.getCurrentItem() == 3) {
+      Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
+      
+      if(test instanceof ProgramTableFragment) {
+        ((ProgramTableFragment)test).scrollToTime(time, mScrollTimeItem);
+      }
+    }
+  }
+    
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
@@ -2288,19 +2324,77 @@ public class TvBrowser extends FragmentActivity implements
     
     mSendLogItem = menu.findItem(R.id.action_send_log);
     mDeleteLogItem = menu.findItem(R.id.action_delete_log);
+    mScrollTimeItem = menu.findItem(R.id.action_scroll);
+    
+    mScrollTimeItem.setVisible(false);
     
     mSendLogItem.setVisible(PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getBoolean(getResources().getString(R.string.WRITE_LOG), false));
     mDeleteLogItem.setVisible(mSendLogItem.isVisible());
     
+    updateScrollMenu();
+    
     return true;
   }
-
+  
+  private void updateScrollMenu() {
+    if(mScrollTimeItem != null) {
+      SubMenu subMenu = mScrollTimeItem.getSubMenu();
+      
+      for(int i = 0; i < SCROLL_IDS.length; i++) {
+        subMenu.removeItem(SCROLL_IDS[i]);
+      }
+      
+      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
+      
+      ArrayList<Integer> values = new ArrayList<Integer>();
+      
+      int[] defaultValues = getResources().getIntArray(R.array.time_button_defaults);
+      
+      for(int i = 1; i <= 6; i++) {
+        try {
+          Class<?> string = R.string.class;
+          
+          Field setting = string.getDeclaredField("TIME_BUTTON_" + i);
+          
+          Integer value = Integer.valueOf(pref.getInt(getResources().getString((Integer)setting.get(string)), defaultValues[i-1]));
+          
+          if(value >= -1 && !values.contains(value)) {
+            values.add(value);
+          }
+        } catch (Exception e) {}
+      }
+      
+      if(pref.getBoolean(getString(R.string.SORT_RUNNING_TIMES), false)) {
+        Collections.sort(values);
+      }
+            
+      for(int i = 0; i < values.size(); i++) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, values.get(i) / 60);
+        cal.set(Calendar.MINUTE, values.get(i) % 60);
+        
+        SCROLL_TIMES[i] = values.get(i).intValue();
+        
+        subMenu.add(100, SCROLL_IDS[i], i+1, DateFormat.getTimeFormat(TvBrowser.this).format(cal.getTime()));
+      }
+    }
+  }
+  
   @Override
   public void onTabSelected(ActionBar.Tab tab,
       FragmentTransaction fragmentTransaction) {
     // When the given tab is selected, switch to the corresponding page in
     // the ViewPager.
     mViewPager.setCurrentItem(tab.getPosition());
+    
+    if(mScrollTimeItem != null) {
+      switch(tab.getPosition()) {
+        case 1:
+        case 3:mScrollTimeItem.setVisible(true);break;
+        
+        default:mScrollTimeItem.setVisible(false);break;
+      }
+    }
   }
 
   @Override
@@ -2422,5 +2516,13 @@ public class TvBrowser extends FragmentActivity implements
     else {
       super.onBackPressed();
     }
+  }
+  
+
+  @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    
+    SettingConstants.ORIENTATION = newConfig.orientation;
   }
 }

@@ -22,6 +22,7 @@ import java.util.Set;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
@@ -30,6 +31,8 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
@@ -39,7 +42,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -53,12 +55,14 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-public class FavoritesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor> {
+public class FavoritesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
-  private SimpleCursorAdapter adapter;
+  private SimpleCursorAdapter mProgramListAdapter;
   private ArrayAdapter<Favorite> mFavoriteAdapter;
   private ArrayAdapter<String> mMarkingsAdapter;
   private ArrayList<Favorite> mFavoriteList;
+  
+  private ListView mFavoriteProgramList;
   
   private String mWhereClause;
   
@@ -249,13 +253,11 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       }
     });
     
+    mFavoriteProgramList = (ListView)getView().findViewById(R.id.favorite_program_list);
     
+    registerForContextMenu(mFavoriteProgramList);
     
-    ListView favoriteProgramList = (ListView)getView().findViewById(R.id.favorite_program_list);
-    
-    registerForContextMenu(favoriteProgramList);
-    
-    favoriteProgramList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    mFavoriteProgramList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> adapterView, View v, int position,
           long id) {
@@ -288,11 +290,19 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity());
     
     // Create a new Adapter an bind it to the List View
-    adapter = new SimpleCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_list_entries,null,
+    mProgramListAdapter = new OrientationHandlingCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
         projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0);
-    adapter.setViewBinder(mViewAndClickHandler);
+    mProgramListAdapter.setViewBinder(mViewAndClickHandler);
         
-    favoriteProgramList.setAdapter(adapter);
+    mFavoriteProgramList.setAdapter(mProgramListAdapter);
+    
+    SeparatorDrawable drawable = new SeparatorDrawable(getActivity());
+    
+    mFavoriteProgramList.setDivider(drawable);
+    
+    prefs.registerOnSharedPreferenceChangeListener(this);
+    
+    setDividerSize(prefs.getString(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE), SettingConstants.DIVIDER_DEFAULT));
   }
   
   @Override
@@ -521,11 +531,23 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   @Override
   public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader,
       Cursor c) {
-    adapter.swapCursor(c);
+    mProgramListAdapter.swapCursor(c);
   }
 
   @Override
   public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
-    adapter.swapCursor(null);
+    mProgramListAdapter.swapCursor(null);
+  }
+  
+
+  private void setDividerSize(String size) {    
+    mFavoriteProgramList.setDividerHeight(UiUtils.convertDpToPixel(Integer.parseInt(size), getResources()));
+  }
+
+  @Override
+  public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    if(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
+      setDividerSize(sharedPreferences.getString(key, SettingConstants.DIVIDER_DEFAULT));
+    }
   }
 }

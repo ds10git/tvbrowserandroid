@@ -16,16 +16,20 @@
  */
 package org.tvbrowser.tvbrowser;
 
-import java.util.Date;
+import java.util.Calendar;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
@@ -35,25 +39,26 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.method.ScrollingMovementMethod;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Spinner;
 
-public class ProgramsListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor> {
-  SimpleCursorAdapter mProgamListAdapter;
+public class ProgramsListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
+  private SimpleCursorAdapter mProgramListAdapter;
   
   private Handler handler = new Handler();
-  
+    
   private boolean mKeepRunning;
   private Thread mUpdateThread;
   
   private long mChannelID;
   private long mScrollTime;
+  private long mDayStart;
   
   private String mDayClause;
   private String mFilterClause;
@@ -84,6 +89,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   public void onAttach(Activity activity) {
     super.onAttach(activity);
     
+    mDayStart = 0;
     mDayClause = "";
     mFilterClause = "";
     
@@ -137,10 +143,12 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   
   public void setDay(long dayStart) {
     if(dayStart >= 0) {
+      mDayStart = dayStart;
       mDayClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">=" + dayStart + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + (dayStart + (24 * 60 * 60000)) + " ) ";
     }
     else {
       mDayClause = "";
+      mDayStart = 0;
     }
     
     startUpdateThread();
@@ -173,8 +181,29 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     if(mScrollTime > 0) {
       int testIndex = 0;
       
+      if(mScrollTime <= 1441) {
+        mScrollTime--;
+        
+        if(mDayStart > 0) {
+          mScrollTime = mDayStart + mScrollTime * 60000;
+        }
+        else {
+          Calendar now = Calendar.getInstance();
+          now.set(Calendar.HOUR_OF_DAY,(int)(mScrollTime / 60));
+          now.set(Calendar.MINUTE,(int)(mScrollTime % 60));
+          now.set(Calendar.SECOND, 0);
+          now.set(Calendar.MILLISECOND, 0);
+          
+          mScrollTime = now.getTimeInMillis();
+          
+          if(mScrollTime < System.currentTimeMillis()) {
+            mScrollTime += 1440 * 60000;
+          }
+        }
+      }
+      
       if(mScrollTime > System.currentTimeMillis()) {
-        Cursor c = mProgamListAdapter.getCursor();
+        Cursor c = mProgramListAdapter.getCursor();
         
         if(c.getCount() > 0) {
           try {
@@ -207,6 +236,25 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
         }
       });
     }
+    else if(mScrollTime == 0) {
+      Spinner test = (Spinner)((ViewGroup)getView().getParent()).findViewById(R.id.date_selection);
+      
+      if(test != null && test.getSelectedItemPosition() > 0) {
+        test.setSelection(0);
+      }
+      else {
+        mScrollTime = -1;
+  
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            if(getView() != null) {
+              setSelection(0);
+            }
+          }
+        });
+      }
+    }
   }
   
   public void setChannelID(long id) {
@@ -217,6 +265,9 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   
   @Override
   public void onActivityCreated(Bundle savedInstanceState) {
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    pref.registerOnSharedPreferenceChangeListener(this);
+    
     super.onActivityCreated(savedInstanceState);
     mChannelID = -1;
     registerForContextMenu(getListView());
@@ -236,11 +287,18 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity());
     
     // Create a new Adapter an bind it to the List View
-    mProgamListAdapter = new SimpleCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_list_entries,null,
+    mProgramListAdapter = new OrientationHandlingCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
         projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0);
-    mProgamListAdapter.setViewBinder(mViewAndClickHandler);
     
-    setListAdapter(mProgamListAdapter);
+    mProgramListAdapter.setViewBinder(mViewAndClickHandler);
+    
+    setListAdapter(mProgramListAdapter);
+    
+    SeparatorDrawable drawable = new SeparatorDrawable(getActivity());
+    
+    getListView().setDivider(drawable);
+    
+    setDividerSize(pref.getString(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE), SettingConstants.DIVIDER_DEFAULT));
     
     getLoaderManager().initLoader(0, null, this);
   }
@@ -286,12 +344,12 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     String[] projection = null;
     
     if(PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false)) {
-      projection = new String[15];
+      projection = new String[16];
       
-      projection[14] = TvBrowserContentProvider.DATA_KEY_PICTURE;
+      projection[15] = TvBrowserContentProvider.DATA_KEY_PICTURE;
     }
     else {
-      projection = new String[14];
+      projection = new String[15];
     }
     
     projection[0] = TvBrowserContentProvider.KEY_ID;
@@ -308,6 +366,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     projection[11] = TvBrowserContentProvider.DATA_KEY_UNIX_DATE;
     projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
     projection[13] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
+    projection[14] = TvBrowserContentProvider.CHANNEL_KEY_LOGO;
     
     String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
     where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
@@ -327,12 +386,30 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
 
   @Override
   public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor c) {
-    mProgamListAdapter.swapCursor(c);
+    mProgramListAdapter.swapCursor(c);
     scrollToTime();
   }
 
   @Override
   public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
-    mProgamListAdapter.swapCursor(null);
+    mProgramListAdapter.swapCursor(null);
   }
+  
+  private void setDividerSize(String size) {    
+    getListView().setDividerHeight(UiUtils.convertDpToPixel(Integer.parseInt(size), getResources()));
+  }
+
+  @Override
+  public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    if(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
+      setDividerSize(sharedPreferences.getString(key, SettingConstants.DIVIDER_DEFAULT));
+    }
+  }
+  
+ /* @Override
+  public void onConfigurationChanged(Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    
+    UiUtils.handleConfigurationChange(handler, mProgramListAdapter, newConfig);
+  }*/
 }

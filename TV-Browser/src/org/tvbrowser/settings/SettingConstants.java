@@ -21,8 +21,17 @@ import java.util.HashMap;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.tvbrowser.UiUtils;
 
+import android.content.Context;
 import android.content.IntentFilter;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
+import android.util.SparseArray;
 
 public class SettingConstants {
   public static final int ACCEPTED_DAY_COUNT = 8;
@@ -39,10 +48,56 @@ public class SettingConstants {
   public static final String UPDATE_TIME_BUTTONS = "org.tvbrowser.UPDATE_TIME_BUTTONS";
   public static final String REMINDER_INTENT = "org.tvbrowser.REMINDER_INTENT";
   public static final String SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT = "org.tvbrowser.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT";
+  public static final String SCROLL_TO_TIME_INTENT = "org.tvbrowser.SCROLL_TO_TIME_INTENT";
   public static final String REMINDER_PROGRAM_ID_EXTRA = "REMINDER_PROGRAM_ID_EXTRA";
   public static final String CHANNEL_ID_EXTRA = "CHANNEL_ID_EXTRA";
   public static final String START_TIME_EXTRA = "START_TIME_EXTRA";
   public static final String DONT_WANT_TO_SEE_ADDED_EXTRA = "DONT_WANT_TO_SEE_ADDED_EXTRA";
+  
+  public static final String DIVIDER_DEFAULT = "10";
+  
+  public static final SparseArray<LayerDrawable> SMALL_LOGO_MAP = new SparseArray<LayerDrawable>();
+  
+  public static void updateLogoMap(Context context) {
+    Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, null);
+    
+    SMALL_LOGO_MAP.clear();
+    
+    if(channels.getCount() > 0 ) {
+      int keyIndex = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+      int logoIndex = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
+      
+      while(channels.moveToNext()) {
+        byte[] logoData = channels.getBlob(logoIndex);
+        
+        if(logoData != null && logoData.length > 0) {
+          Bitmap logoBitmap = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+          
+          BitmapDrawable logo1 = new BitmapDrawable(context.getResources(), logoBitmap);
+          
+          float scale = UiUtils.convertDpToPixel(15, context.getResources()) / (float)logoBitmap.getHeight();
+          
+          int width = (int)(logoBitmap.getWidth() * scale);
+          int height = (int)(logoBitmap.getHeight() * scale);
+          
+          ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+          background.setBounds(0, 0, width + 2, height + 2);
+          
+          LayerDrawable logo = new LayerDrawable(new Drawable[] {background,logo1});
+          logo.setBounds(0, 0, width + 2, height + 2);
+          
+          logo1.setBounds(2, 2, width, height);
+          
+          SMALL_LOGO_MAP.put(channels.getInt(keyIndex), logo);
+        }
+      }
+    }
+    
+    channels.close();
+  }
+  
+  
+  public static int ORIENTATION;
   
   public static boolean UPDATING_FILTER = false;
   

@@ -26,6 +26,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 public class TvbPreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
   @Override
@@ -41,6 +42,17 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       addPreferencesFromResource(R.xml.preferences_start);
       
       onSharedPreferenceChanged(null,getResources().getString(R.string.TAB_TO_SHOW_AT_START));
+    }
+    else if(getString(R.string.category_theme).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_theme);
+    }
+    else if(getString(R.string.category_reminder).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_reminder);
+      
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_TIME));
+    }
+    else if(getString(R.string.category_time_buttons).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_time_buttons);
     }
     else if(getString(R.string.category_running_programs).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_running);
@@ -67,9 +79,6 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     else if(getString(R.string.category_debug).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_debug);
     }
-    else if(getString(R.string.category_theme).equals(category)) {
-      addPreferencesFromResource(R.xml.preferences_theme);
-    }
   }
   
   @Override
@@ -87,15 +96,17 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
   }
 
   @Override
-  public void onSharedPreferenceChanged(SharedPreferences sharedPreferences,
-      String key) {
+  public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     if(key.equals(getResources().getString(R.string.DAYS_TO_DOWNLOAD)) 
         || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST))
         || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE))
         || key.equals(getResources().getString(R.string.DETAIL_PICTURE_ZOOM))
         || key.equals(getResources().getString(R.string.TAB_TO_SHOW_AT_START))
         || key.equals(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE))
-        || key.equals(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT))) {
+        || key.equals(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT))
+        || key.equals(getResources().getString(R.string.PREF_RUNNING_DIVIDER_SIZE))
+        || key.equals(getResources().getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE))
+        || key.equals(getResources().getString(R.string.PREF_REMINDER_TIME))) {
       ListPreference lp = (ListPreference) findPreference(key);
       
       if(lp != null) {
@@ -108,6 +119,13 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         }
         
         lp.setSummary(value);
+      }
+
+      if(key.equals(getResources().getString(R.string.PREF_REMINDER_TIME))) {
+        CheckBoxPreference remindAgain = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMIND_AGAIN_AT_START));
+        ListPreference reminderTime = (ListPreference) findPreference(key);
+        
+        remindAgain.setEnabled(!reminderTime.getValue().equals("0"));
       }
     }
     else if(key.equals(getResources().getString(R.string.PROG_TABLE_ACTIVATED))) {

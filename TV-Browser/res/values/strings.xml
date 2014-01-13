@@ -217,7 +217,7 @@
 	<string name="pref_time_buttons">Time Buttons</string>
 	<string name="pref_time_buttons_summary">Configure the time buttons in the running programs list.</string>
 	<string name="pref_time_button_hint">Dublicate entries are ignored</string>
-	<string name="running_until">, until</string>
+	<string name="running_until"> until </string>
 	<string-array name="running_layout_values">
 	    <item>Extended</item>
 	    <item>Compact</item>
@@ -289,4 +289,25 @@
     <string name="pref_running_sort_time_buttons">Sort</string>
     <string name="pref_running_sort_time_buttons_summary_on">Times buttons appear sorted by time</string>
     <string name="pref_running_sort_time_buttons_summary_off">Time buttons appear in above order</string>
+    <string name="action_scroll_time">Scroll to time</string>
+    <string name="divider_size">Divider size:</string>
+	<string-array name="divider_value_names">
+	    <item>Small</item>
+	    <item>Middle</item>
+	    <item>Big</item>
+	</string-array>
+	<string name="pref_reminder_category">Reminder</string>
+	<string name="pref_category_reminder_title">Time of reminder:</string>
+	<string name="pref_category_reminder_again_title">Remind again at start</string>
+	<string-array name="pref_category_reminder_names">
+	    <item>At start of program</item>
+	    <item>1 minute before</item>
+	    <item>2 minutes before</item>
+	    <item>3 minutes before</item>
+	    <item>5 minutes before</item>
+	    <item>10 minutes before</item>
+	    <item>15 minutes before</item>
+	    <item>30 minutes before</item>
+	    <item>1 hour before</item>
+	</string-array>
 </resources>

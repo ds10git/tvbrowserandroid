@@ -6,6 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/running_layout"
+    android:paddingTop="3dp"
+    android:paddingBottom="3dp"
     >
     <TextView android:id="@+id/channelLabel"
         android:textSize="@dimen/title_font_size"

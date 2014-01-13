@@ -4,6 +4,20 @@
           android:icon="@android:drawable/ic_menu_search"
           android:showAsAction="collapseActionView|ifRoom"
           android:actionViewClass="android.widget.SearchView" />
+    <item 
+        android:id="@+id/action_scroll"
+        android:orderInCategory="200"
+        android:showAsAction="always"
+        android:title="@string/action_scroll_time"
+        android:icon="@android:drawable/ic_menu_recent_history">
+        <menu>
+            <item 
+                android:id="@+id/action_scroll_now"
+                android:orderInCategory="1"
+                android:showAsAction="never"
+                android:title="@string/button_now"/>
+        </menu>
+    </item>
     <item
         android:id="@+id/action_update"
         android:orderInCategory="200"

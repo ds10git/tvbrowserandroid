@@ -44,12 +44,12 @@ import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.drawable.BitmapDrawable;
@@ -68,14 +68,12 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
+import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -936,6 +934,11 @@ public class UiUtils {
   public static void addReminder(Context context, long programID, long startTime) {try {
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+    
+    int reminderTime = Integer.parseInt(pref.getString(context.getString(R.string.PREF_REMINDER_TIME), "0")) * 60000;
+    boolean remindAgain = pref.getBoolean(context.getString(R.string.PREF_REMIND_AGAIN_AT_START), true);
+    
     Intent remind = new Intent(context,ReminderBroadcastReceiver.class);
     remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
     
@@ -952,7 +955,18 @@ public class UiUtils {
     if(startTime > System.currentTimeMillis()) {
       PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
       
-      alarmManager.set(AlarmManager.RTC_WAKEUP, startTime, pending);
+      if(startTime-reminderTime > System.currentTimeMillis()) {
+        alarmManager.set(AlarmManager.RTC_WAKEUP, startTime-reminderTime, pending);
+        
+        if(remindAgain && reminderTime > 0) {
+          pending = PendingIntent.getBroadcast(context, (int)-programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
+          
+          alarmManager.set(AlarmManager.RTC_WAKEUP, startTime, pending);
+        }
+      }
+      else {
+        alarmManager.set(AlarmManager.RTC_WAKEUP, startTime, pending);
+      }
     }
   }catch(Throwable t) {t.printStackTrace();}
   }
@@ -964,6 +978,10 @@ public class UiUtils {
     remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
     
     PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
+    
+    alarmManager.cancel(pending);
+    
+    pending = PendingIntent.getBroadcast(context, (int)-programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
     
     alarmManager.cancel(pending);
   }
@@ -1310,31 +1328,6 @@ public class UiUtils {
   
   public static boolean filter(String title, DontWantToSeeExclusion exclusion) {
     return exclusion.matches(title);
-    /*boolean found = false;
-    
-    if(exclusion != null && title != null) {
-      String[] parts = exclusion.split(";;");
-      boolean isCaseSensitve = parts[1].equals("1");
-      String testTitle = title;
-      
-      if(!isCaseSensitve) {
-        parts[0] = parts[0].toLowerCase();
-        testTitle = testTitle.toLowerCase();
-      }
-      
-      if(parts[0].contains("*")) {
-        parts[0] = parts[0].replace("*", ".*");
-        
-        if(testTitle.matches(parts[0])) {
-          found = true;
-        }
-      }
-      else if((isCaseSensitve && title.equals(parts[0])) || (!isCaseSensitve && title.equalsIgnoreCase(parts[0]))) {
-        found = true;
-      }
-    }
-    
-    return found;*/
   }
   
   public static boolean filter(Context context, String title, DontWantToSeeExclusion[] values) {
@@ -1408,5 +1401,23 @@ public class UiUtils {
     }
     
     return color;
+  }
+  
+  public static void handleConfigurationChange(Handler handler, final BaseAdapter adapter, Configuration newConfig) {
+    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          adapter.notifyDataSetChanged();
+        }
+      });
+    } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT){
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          adapter.notifyDataSetChanged();
+        }
+      });
+    }
   }
 }

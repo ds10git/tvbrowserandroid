@@ -25,14 +25,19 @@ import org.tvbrowser.settings.SettingConstants;
 
 import android.app.Activity;
 import android.content.SharedPreferences;
+import android.content.res.Configuration;
 import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
@@ -65,7 +70,7 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
       
       TextView text = (TextView)view;
-      text.setText(DateFormat.getTimeFormat(mActivity).format(new Date(date))+",");
+      text.setText(DateFormat.getTimeFormat(mActivity).format(new Date(date)));
       
       return true;
     } 
@@ -87,6 +92,23 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
         name = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". " + name;
       }
       
+      int logoIndex = cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+      
+      LayerDrawable logo = null;
+      
+      if(logoIndex >= 0) {
+        int key = cursor.getInt(logoIndex);
+        
+        logo = SettingConstants.SMALL_LOGO_MAP.get(key);
+      }
+      
+      if(mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && (mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_XLARGE) {
+        text.setCompoundDrawables(logo, null, null, null);
+      }
+      else {
+        text.setCompoundDrawables(null, logo, null, null);
+      }
+           
       text.setText(name);
        
       return true;
