@@ -101,7 +101,9 @@ public class ProgramTableFragment extends Fragment {
       long value = System.currentTimeMillis();
       
       if(time == 0) {
-        if(mCurrentDate.get(Calendar.DAY_OF_YEAR) != Calendar.getInstance().get(Calendar.DAY_OF_YEAR)) {
+        boolean isInRange = (mCurrentDate.get(Calendar.DAY_OF_YEAR) +1 == Calendar.getInstance().get(Calendar.DAY_OF_YEAR)) && Calendar.getInstance().get(Calendar.HOUR_OF_DAY) < 4;
+        
+        if(!isInRange && (mCurrentDate.get(Calendar.DAY_OF_YEAR) != Calendar.getInstance().get(Calendar.DAY_OF_YEAR))) {
           if(timeItem != null) {
             timeItem.setActionView(R.layout.progressbar);
           }
