@@ -2,7 +2,29 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
-    <TextView
+    <LinearLayout android:id="@+id/running_list_channel_info"
+     android:layout_width="100dp"
+     android:layout_height="match_parent"
+     android:orientation="vertical"
+     android:layout_alignParentLeft="true"
+     android:layout_centerVertical="true"
+     android:paddingTop="2dp"
+     android:paddingBottom="2dp">
+     <ImageView 
+     	android:id="@+id/running_list_channel_logo"
+    	android:layout_width="100dp"
+    	android:scaleType="center"
+    	android:layout_height="wrap_content"
+     	/>
+     <TextView
+	        android:id="@+id/running_compact_channel_label"
+	        android:layout_width="100dp"
+	        android:layout_height="wrap_content"
+	        android:textSize="@dimen/title_font_size"
+	        android:gravity="center_horizontal"
+	        />
+ 	</LinearLayout>
+    <!-- <TextView
         android:id="@+id/running_compact_channel_label"
         android:layout_width="100dp"
         android:layout_height="fill_parent"
@@ -13,11 +35,11 @@
         android:gravity="center_horizontal"
 	    android:paddingTop="3dp"
 	    android:paddingBottom="3dp"
-        />
+        />-->
     <RelativeLayout android:id="@+id/running_compact_previous"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/running_compact_channel_label">
+        android:layout_toRightOf="@id/running_list_channel_info">
 		<TextView 
 		    android:id="@+id/running_compact_previous_start"
 		    android:layout_width="wrap_content"
@@ -49,7 +71,7 @@
     <RelativeLayout android:id="@+id/running_compact_now"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:layout_toRightOf="@id/running_compact_channel_label"
+	    android:layout_toRightOf="@id/running_list_channel_info"
 	    android:layout_below="@id/running_compact_previous">
 		<TextView 
 		    android:id="@+id/running_compact_now_start"
@@ -86,7 +108,7 @@
     <RelativeLayout android:id="@+id/running_compact_next"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:layout_toRightOf="@id/running_compact_channel_label"
+	    android:layout_toRightOf="@id/running_list_channel_info"
 	    android:layout_below="@id/running_compact_now">
 		<TextView 
 		    android:id="@+id/running_compact_next_start"

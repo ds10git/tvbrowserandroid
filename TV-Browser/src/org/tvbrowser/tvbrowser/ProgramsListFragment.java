@@ -20,7 +20,6 @@ import java.util.Calendar;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.tvbrowser.R.id;
 import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.Activity;
@@ -30,7 +29,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
@@ -45,7 +43,7 @@ import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ListView;
+import android.widget.AdapterView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 
@@ -64,11 +62,16 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   private String mDayClause;
   private String mFilterClause;
   
+  private AdapterView.AdapterContextMenuInfo mContextMenuInfo;
+  
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   
   private BroadcastReceiver mDataUpdateReceiver;
   private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mDontWantToSeeReceiver;
+  
+  private View.OnClickListener mOnClickListener;
+  private View.OnClickListener mChannelSwitchListener;
   
   @Override
   public void onResume() {
@@ -271,7 +274,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     
     super.onActivityCreated(savedInstanceState);
     mChannelID = -1;
-    registerForContextMenu(getListView());
+    //registerForContextMenu(getListView());
     
     String[] projection = {
         TvBrowserContentProvider.DATA_KEY_UNIX_DATE,
@@ -285,11 +288,72 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
         TvBrowserContentProvider.DATA_KEY_CATEGORIES
     };
     
+    mOnClickListener = new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Long tag = (Long)v.getTag();
+        
+        if(tag != null) {
+          UiUtils.showProgramInfo(getActivity(), tag.longValue());
+        }
+      }
+    };
+    
+    mChannelSwitchListener = new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        ChannelProgInfo tag = (ChannelProgInfo)v.getTag();
+        
+        if(tag != null) {
+          Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
+          showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA,tag.mID);         
+          showChannel.putExtra(SettingConstants.START_TIME_EXTRA, tag.mStartTime);
+          
+          LocalBroadcastManager.getInstance(getActivity()).sendBroadcastSync(showChannel);
+        }
+      }
+    };
+    
     mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity());
     
     // Create a new Adapter an bind it to the List View
     mProgramListAdapter = new OrientationHandlingCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
-        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0);
+        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0) {
+      @Override
+      public View getView(int position, View convertView, ViewGroup parent) {
+        View view = super.getView(position, convertView, parent);
+        
+        View listEntry = view.findViewById(R.id.programs_list_row);
+        
+        if(listEntry.getTag() == null) {
+          listEntry.setOnClickListener(mOnClickListener);
+          registerForContextMenu(listEntry);
+        }
+        
+        listEntry.setTag(getItemId(position));
+        
+        View channelEntry = view.findViewById(R.id.program_list_channel_info);
+        
+        ChannelProgInfo info = (ChannelProgInfo)channelEntry.getTag();
+        
+        if(info == null) {
+          info = new ChannelProgInfo();
+          channelEntry.setOnClickListener(mChannelSwitchListener);
+          channelEntry.setTag(info);
+        }
+        
+        Cursor c = getCursor();
+        
+        info.mID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+        info.mStartTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+        
+       // Log.d("info", "" + getItem(position));
+        
+        //info.mID = ;
+        
+        return view;
+      }
+    };
     
     mProgramListAdapter.setViewBinder(mViewAndClickHandler);
     
@@ -304,23 +368,41 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     getLoaderManager().initLoader(0, null, this);
   }
   
+  private static final class ChannelProgInfo {
+    public int mID;
+    public long mStartTime;
+  }
+  
   @Override
   public void onCreateContextMenu(ContextMenu menu, View v,
       ContextMenuInfo menuInfo) {
-    mViewAndClickHandler.onCreateContextMenu(menu, v, menuInfo);
+    long id = ((Long)v.getTag()).longValue();
+    
+    mContextMenuInfo = new AdapterView.AdapterContextMenuInfo(v, -1, id);
+    
+    mViewAndClickHandler.onCreateContextMenu(menu, v, mContextMenuInfo);
   }
   
   @Override
   public boolean onContextItemSelected(MenuItem item) {
-    return mViewAndClickHandler.onContextItemSelected(item);
+    if(mContextMenuInfo != null) {
+      long programID = mContextMenuInfo.id;
+      mContextMenuInfo = null;
+      
+      return UiUtils.handleContextMenuSelection(getActivity(), item, programID, null);
+    }
+    
+    return true;
   }
-  
+/*  
   @Override
   public void onListItemClick(ListView l, View v, int position, long id) {
     super.onListItemClick(l, v, position, id);
     
+    Log.d("info", "" + v + " "+ position+" "+l);
+    
     mViewAndClickHandler.onListItemClick(l, v, position, id);
-  }
+  }*/
   
   private void startUpdateThread() {
     if(mUpdateThread == null || !mUpdateThread.isAlive()) {

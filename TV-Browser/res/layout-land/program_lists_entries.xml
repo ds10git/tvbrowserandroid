@@ -2,30 +2,40 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="match_parent"
     android:layout_height="match_parent">
- <TextView
-        android:id="@+id/channelLabelPL"
-        android:layout_width="100dp"
-        android:layout_height="match_parent"
-        android:textSize="@dimen/title_font_size"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentLeft="true"
-        android:gravity="center_horizontal"
-	    android:paddingTop="2dp"
-	    android:paddingBottom="2dp"
-        />
+ <LinearLayout android:id="@+id/program_list_channel_info"
+     android:layout_width="100dp"
+     android:layout_height="match_parent"
+     android:orientation="vertical"
+     android:layout_alignParentLeft="true"
+     android:layout_centerVertical="true"
+     android:paddingTop="2dp"
+     android:paddingBottom="2dp">
+     <ImageView 
+     	android:id="@+id/program_list_channel_logo"
+    	android:layout_width="100dp"
+    	android:scaleType="center"
+    	android:layout_height="wrap_content"
+     	/>
+     <TextView
+	        android:id="@+id/channelLabelPL"
+	        android:layout_width="100dp"
+	        android:layout_height="wrap_content"
+	        android:textSize="@dimen/title_font_size"
+	        android:gravity="center_horizontal"
+	        />
+ 	</LinearLayout>
 <RelativeLayout
     android:id="@+id/programs_list_row" 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_toRightOf="@id/channelLabelPL"
+    android:layout_toRightOf="@id/program_list_channel_info"
     >
    
     <TextView android:id="@+id/startDayLabelPL"
         android:textSize="@dimen/title_font_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingRight="5dp"
+        android:paddingRight="3dp"
         android:paddingLeft="3dp"
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
@@ -34,7 +44,6 @@
         android:textSize="@dimen/title_font_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingRight="5dp"
         android:layout_toRightOf="@id/startDayLabelPL"
         android:layout_alignParentTop="true"
         />
@@ -46,7 +55,7 @@
         android:layout_height="wrap_content"
         android:paddingRight="5dp"
         android:paddingLeft="3dp"
-        android:layout_below="@+id/endTimeLabelPL"
+        android:layout_below="@+id/startDateLabelPL"
         android:layout_alignParentLeft="true"
         />
     <TextView 
@@ -82,7 +91,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/startTimeLabelPL"
-        android:layout_below="@+id/endTimeLabelPL"/>
+        android:layout_below="@id/startDateLabelPL"/>
     <ImageView android:id="@+id/picture_pl"
         android:contentDescription="picture"
         android:layout_width="wrap_content"
