@@ -206,7 +206,7 @@
 	<string name="pref_time_buttons">Zeitknöpfe</string>
 	<string name="pref_time_buttons_summary">Zeitknöpfe der Laufenden Sendungen konfigurieren.</string>
 	<string name="pref_time_button_hint">Mehrfache Einträge werden ignoriert.</string>
-	<string name="running_until"> bis </string>
+	<string name="running_until">, bis </string>
 	<string-array name="running_layout_values">
 	    <item>Ausführlich</item>
 	    <item>Kompakt</item>
@@ -299,4 +299,5 @@
 	    <item>30 Minuten vorher</item>
 	    <item>1 Stunde vorher</item>
 	</string-array>
+	<string name="pref_program_lists_show_end_time">Endzeit anzeigen</string>
 </resources>

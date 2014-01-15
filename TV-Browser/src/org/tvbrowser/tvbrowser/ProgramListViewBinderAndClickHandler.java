@@ -26,22 +26,19 @@ import org.tvbrowser.settings.SettingConstants;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.res.Configuration;
-import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -65,12 +62,24 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
     boolean showEpisode = mPref.getBoolean(view.getResources().getString(R.string.SHOW_EPISODE_IN_LISTS), true);
     boolean showInfo = mPref.getBoolean(view.getResources().getString(R.string.SHOW_INFO_IN_LISTS), true);
     boolean showOrderNumber = mPref.getBoolean(view.getResources().getString(R.string.SHOW_SORT_NUMBER_IN_LISTS), true);
+    boolean showEndTime = mPref.getBoolean(view.getResources().getString(R.string.PREF_PROGRAM_LISTS_SHOW_END_TIME), view.getResources().getBoolean(R.bool.prog_lists_show_end_time_default));
+    boolean showChannelName = true;
     
     if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
-      long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+      View until = ((ViewGroup)view.getParent()).findViewById(R.id.untilLabelPL);
       
-      TextView text = (TextView)view;
-      text.setText(DateFormat.getTimeFormat(mActivity).format(new Date(date)));
+      if(showEndTime) {
+        long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+      
+        TextView text = (TextView)view;
+        text.setText(DateFormat.getTimeFormat(mActivity).format(new Date(date)));
+        text.setVisibility(View.VISIBLE);
+        until.setVisibility(View.VISIBLE);
+      }
+      else {
+        view.setVisibility(View.GONE);
+        until.setVisibility(View.GONE);
+      }
       
       return true;
     } 
@@ -94,22 +103,48 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       
       int logoIndex = cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
       
-      LayerDrawable logo = null;
+      Drawable logo = null;
+      
+      ImageView image = (ImageView)((ViewGroup)view.getParent()).findViewById(R.id.program_list_channel_logo);
       
       if(logoIndex >= 0) {
         int key = cursor.getInt(logoIndex);
         
-        logo = SettingConstants.SMALL_LOGO_MAP.get(key);
+        if(showChannelName || mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && (mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE) {
+          logo = SettingConstants.SMALL_LOGO_MAP.get(key);
+        }
+        else {
+          logo = SettingConstants.MEDIUM_LOGO_MAP.get(key);
+        }
       }
       
-      if(mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && (mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE) {
+      if(logo != null) {
+        image.setImageDrawable(logo);
+        image.setVisibility(View.VISIBLE);
+        
+        if(!showChannelName) {
+          text.setVisibility(View.GONE);
+        }
+        else {
+          text.setVisibility(View.VISIBLE);
+        }
+      }
+      else {
+        image.setVisibility(View.GONE);
+        text.setVisibility(View.VISIBLE);
+      }
+      
+      /*if(mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && (mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE) {
         text.setCompoundDrawables(logo, null, null, null);
       }
       else {
         text.setCompoundDrawables(null, logo, null, null);
-      }
-           
+      }*/
+      
+      
+      
       text.setText(name);
+      //text.setVisibility(View.GONE);
        
       return true;
     }

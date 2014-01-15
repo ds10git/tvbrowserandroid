@@ -40,7 +40,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
@@ -116,7 +115,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   
   private boolean mIsCompactLayout;
     
-  private View.OnClickListener mOnCliickListener;
+  private View.OnClickListener mOnClickListener;
   private View.OnClickListener mChannelSwitchListener;
   private View mContextView;
   private long mContextProgramID;
@@ -456,7 +455,9 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     long mNextEndTimeValue;
     
     int mCurrentOrientation;
-        
+    
+    ViewGroup mChannelInfo;
+    ImageView mChannelLogo;
     TextView mChannel;
     
     View mPrevious;
@@ -622,9 +623,18 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       }
       
       if(!channelSet) {
-        LayerDrawable logo = SettingConstants.SMALL_LOGO_MAP.get(block.mChannelID);
+        Drawable logo = SettingConstants.SMALL_LOGO_MAP.get(block.mChannelID);
         
-        viewHolder.mChannel.setCompoundDrawables(null, logo, null, null);
+        if(logo != null) {
+          viewHolder.mChannelLogo.setImageDrawable(logo);
+          viewHolder.mChannelLogo.setVisibility(View.VISIBLE);
+         // viewHolder.mChannel.setVisibility(View.GONE);
+        }
+        else {
+          viewHolder.mChannelLogo.setVisibility(View.GONE);
+          viewHolder.mChannel.setVisibility(View.VISIBLE);
+        }
+        //viewHolder.mChannel.setCompoundDrawables(null, logo, null, null);
         
         String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(block.mChannelName);
         
@@ -637,14 +647,14 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         }
         
         viewHolder.mChannel.setText(shortName);
-        viewHolder.mChannel.setTag(block.mChannelID);
-        viewHolder.mChannel.setOnClickListener(mChannelSwitchListener);
+        viewHolder.mChannelInfo.setTag(block.mChannelID);
+        viewHolder.mChannelInfo.setOnClickListener(mChannelSwitchListener);
         
         channelSet = true;
       }
       
       layout.setTag(Long.valueOf(programID));
-      layout.setOnClickListener(mOnCliickListener);
+      layout.setOnClickListener(mOnClickListener);
       
       final String markingsValue = mMarkingsMap.get(programID);
       
@@ -683,6 +693,9 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       viewHolder = new CompactLayoutViewHolder();
       
       viewHolder.mCurrentOrientation = SettingConstants.ORIENTATION;
+      
+      viewHolder.mChannelInfo = (ViewGroup)convertView.findViewById(R.id.running_list_channel_info);
+      viewHolder.mChannelLogo = (ImageView)convertView.findViewById(R.id.running_list_channel_logo);
       viewHolder.mChannel = (TextView)convertView.findViewById(R.id.running_compact_channel_label);
       
       viewHolder.mSeparator1 = convertView.findViewById(R.id.running_separator_1);
@@ -847,7 +860,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         viewHolder.mChannel.setText(channel);
         
         viewHolder.mLayout.setTag(programID);
-        viewHolder.mLayout.setOnClickListener(mOnCliickListener);
+        viewHolder.mLayout.setOnClickListener(mOnClickListener);
         
         if(showPicture) {
           if(pictureCopyright != null && pictureCopyright.trim().length() > 0 && picture != null && picture.length > 0) {
@@ -962,7 +975,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     mMarkingsMap = new LongSparseArray<String>();
     
-    mOnCliickListener = new View.OnClickListener() {
+    mOnClickListener = new View.OnClickListener() {
       @Override
       public void onClick(View v) {
         Long tag = (Long)v.getTag();

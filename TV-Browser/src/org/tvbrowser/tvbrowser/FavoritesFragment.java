@@ -546,7 +546,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
 
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    if(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
+    if(!isDetached() && getActivity() != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
       setDividerSize(sharedPreferences.getString(key, SettingConstants.DIVIDER_DEFAULT));
     }
   }

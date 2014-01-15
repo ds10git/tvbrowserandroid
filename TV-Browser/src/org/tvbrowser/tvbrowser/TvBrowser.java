@@ -2504,9 +2504,10 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   public void showProgramsListTab() {
-    mViewPager.setCurrentItem(1,true);
-    mProgramsListWasShow = true;
-   
+    if(mViewPager.getCurrentItem() != 1) {
+      mViewPager.setCurrentItem(1,true);
+      mProgramsListWasShow = true;
+    }
   }
   
   @Override

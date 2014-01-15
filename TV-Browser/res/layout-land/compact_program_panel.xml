@@ -2,8 +2,29 @@
 <org.tvbrowser.view.GrowingRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-    
-    <TextView
+    <LinearLayout android:id="@+id/running_list_channel_info"
+     android:layout_width="100dp"
+     android:layout_height="match_parent"
+     android:orientation="vertical"
+     android:layout_alignParentLeft="true"
+     android:layout_centerVertical="true">
+     <ImageView 
+     	android:id="@+id/running_list_channel_logo"
+    	android:layout_width="100dp"
+    	android:scaleType="center"
+    	android:layout_height="wrap_content"
+    	android:paddingTop="2dp"
+     	/>
+     <TextView
+	        android:id="@+id/running_compact_channel_label"
+	        android:layout_width="100dp"
+	        android:layout_height="wrap_content"
+	        android:textSize="@dimen/title_font_size"
+	        android:gravity="center_horizontal"
+		    android:paddingBottom="2dp"
+	        />
+ 	</LinearLayout>
+<!--    <TextView
         android:id="@+id/running_compact_channel_label"
         android:layout_width="100dp"
         android:layout_height="match_parent"
@@ -14,11 +35,11 @@
         android:gravity="center_horizontal"
 	    android:paddingTop="3dp"
 	    android:paddingBottom="3dp"
-        />
+        /> --> 
     <RelativeLayout android:id="@+id/running_compact_previous"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_toRightOf="@id/running_compact_channel_label">
+        android:layout_toRightOf="@id/running_list_channel_info">
 		<TextView 
 		    android:id="@+id/running_compact_previous_start"
 		    android:layout_width="wrap_content"
@@ -50,7 +71,7 @@
 	<View android:id="@+id/running_separator_1"
 	    android:layout_width="match_parent"
 	    android:layout_height="1dp"
-	    android:layout_toRightOf="@id/running_compact_channel_label"
+	    android:layout_toRightOf="@id/running_list_channel_info"
 	    android:layout_below="@id/running_compact_previous"
 	    android:background="@color/running_separator_color"
 	    android:paddingTop="1dp"
@@ -58,7 +79,7 @@
 	    />
 	<LinearLayout android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:layout_toRightOf="@id/running_compact_channel_label"
+	    android:layout_toRightOf="@id/running_list_channel_info"
 	    android:layout_below="@id/running_separator_1"
 	    android:orientation="horizontal"
 	    android:baselineAligned="false"

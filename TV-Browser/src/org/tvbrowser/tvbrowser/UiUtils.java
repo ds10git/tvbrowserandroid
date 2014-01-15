@@ -68,6 +68,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -1298,7 +1299,7 @@ public class UiUtils {
     CharSequence startDayValue = formatDate(date, activity, true);
     
     if(startDayValue != null) {
-      startDay.setText(startDayValue);
+      startDay.setText(startDayValue + ", " + startDay.getText());
     }
     
     Calendar progDate = Calendar.getInstance();
@@ -1307,9 +1308,8 @@ public class UiUtils {
     SimpleDateFormat df = (SimpleDateFormat)java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
     String pattern = df.toLocalizedPattern().replaceAll(".?[Yy].?", "");
     
-    if(pattern.contains(".")) {
-      pattern += ".";
-    }
+    pattern = pattern.replace(".MM", ". MMM");
+    pattern = pattern.replace("MM.", "MMM. ");
     
     SimpleDateFormat mdf = new SimpleDateFormat(pattern);
     

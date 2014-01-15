@@ -25,7 +25,9 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -58,12 +60,14 @@ public class SettingConstants {
   
   public static boolean IS_DARK_THEME = false;
   
-  public static final SparseArray<LayerDrawable> SMALL_LOGO_MAP = new SparseArray<LayerDrawable>();
+  public static final SparseArray<Drawable> SMALL_LOGO_MAP = new SparseArray<Drawable>();
+  public static final SparseArray<Drawable> MEDIUM_LOGO_MAP = new SparseArray<Drawable>();
   
   public static void updateLogoMap(Context context) {
     Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, null);
     
     SMALL_LOGO_MAP.clear();
+    MEDIUM_LOGO_MAP.clear();
     
     if(channels.getCount() > 0 ) {
       int keyIndex = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
@@ -75,27 +79,51 @@ public class SettingConstants {
         if(logoData != null && logoData.length > 0) {
           Bitmap logoBitmap = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
           
-          BitmapDrawable logo1 = new BitmapDrawable(context.getResources(), logoBitmap);
-          
-          float scale = UiUtils.convertDpToPixel(15, context.getResources()) / (float)logoBitmap.getHeight();
-          
-          int width = (int)(logoBitmap.getWidth() * scale);
-          int height = (int)(logoBitmap.getHeight() * scale);
-          
-          ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
-          background.setBounds(0, 0, width + 2, height + 2);
-          
-          LayerDrawable logo = new LayerDrawable(new Drawable[] {background,logo1});
-          logo.setBounds(0, 0, width + 2, height + 2);
-          
-          logo1.setBounds(2, 2, width, height);
-          
-          SMALL_LOGO_MAP.put(channels.getInt(keyIndex), logo);
+          SMALL_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(15,context,logoBitmap));
+          MEDIUM_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(25,context,logoBitmap));
         }
       }
     }
     
     channels.close();
+  }
+  
+  private static BitmapDrawable createDrawable(int baseHeight, Context context, Bitmap logoBitmap) {
+    float scale = UiUtils.convertDpToPixel(baseHeight, context.getResources()) / (float)logoBitmap.getHeight();
+    int maxwidth = UiUtils.convertDpToPixel(80, context.getResources());
+    
+    int width = (int)(logoBitmap.getWidth() * scale);
+    int height = (int)(logoBitmap.getHeight() * scale);
+    
+    if(width > maxwidth) {
+      width = maxwidth;
+      height = (int)(logoBitmap.getHeight() * maxwidth/(float)logoBitmap.getWidth());
+    }
+    
+    ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+    background.setBounds(0, 0, width + 2, height + 2);
+    
+    BitmapDrawable logo1 = new BitmapDrawable(context.getResources(), logoBitmap);
+    
+    LayerDrawable logo = new LayerDrawable(new Drawable[] {background,logo1});
+    logo.setBounds(0, 0, width + 2, height + 2);
+    
+    logo1.setBounds(2, 2, width, height);
+    
+    return new BitmapDrawable(context.getResources(), drawableToBitmap(logo));
+  }
+  
+  public static Bitmap drawableToBitmap (Drawable drawable) {
+    if (drawable instanceof BitmapDrawable) {
+        return ((BitmapDrawable)drawable).getBitmap();
+    }
+
+    Bitmap bitmap = Bitmap.createBitmap(drawable.getBounds().width(), drawable.getBounds().height(), Config.ARGB_8888);
+    Canvas canvas = new Canvas(bitmap); 
+    drawable.setBounds(0, 0, canvas.getWidth(), canvas.getHeight());
+    drawable.draw(canvas);
+
+    return bitmap;
   }
   
   
