@@ -32,7 +32,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.res.Configuration;
 import android.database.Cursor;
 import android.os.Build;
 import android.os.Bundle;
@@ -70,7 +69,6 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   
   private Thread mUpdateThread;
   
-  private boolean mFavoriteContext;
   private BroadcastReceiver mReceiver;
   private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mDataUpdateReceiver;
@@ -103,23 +101,6 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       
       mMarkingsAdapter.notifyDataSetChanged();
     }
-    /*
-    mMarkingsAdapter.add(getResources().getString(R.string.marking_value_sync));
-    final View button = view.findViewById(R.id.show_sync_favorites);
-    
-    if(handler != null) {
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          if(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getResources().getString(R.string.PREF_SYNC_FAV_FROM_DESKTOP), true) && getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
-            button.setVisibility(View.VISIBLE);
-          }
-          else {
-            button.setVisibility(View.GONE);
-          }        
-        }
-      });
-    }*/
   }
   
   @Override
@@ -254,9 +235,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     });
     
     mFavoriteProgramList = (ListView)getView().findViewById(R.id.favorite_program_list);
-    
-    registerForContextMenu(mFavoriteProgramList);
-    
+        
     mFavoriteProgramList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> adapterView, View v, int position,
@@ -291,7 +270,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     
     // Create a new Adapter an bind it to the List View
     mProgramListAdapter = new OrientationHandlingCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
-        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0);
+        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0, true);
     mProgramListAdapter.setViewBinder(mViewAndClickHandler);
         
     mFavoriteProgramList.setAdapter(mProgramListAdapter);
@@ -487,19 +466,13 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   
   @Override
   public void onCreateContextMenu(ContextMenu menu, View v,
-      ContextMenuInfo menuInfo) {
-    if(v.getId() == R.id.favorite_list) {
-      mFavoriteContext = true;
-      getActivity().getMenuInflater().inflate(R.menu.favorite_context, menu);
-    }
-    else {
-      mViewAndClickHandler.onCreateContextMenu(menu, v, menuInfo);
-    }
+    ContextMenuInfo menuInfo) {
+    getActivity().getMenuInflater().inflate(R.menu.favorite_context, menu);
   }
   
   @Override
   public boolean onContextItemSelected(MenuItem item) {
-    if(mFavoriteContext) {
+    if(item.getMenuInfo() != null) {
       int pos = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position;
       
       if(item.getItemId() == R.id.delete_favorite) {
@@ -517,12 +490,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         editFavorite(mFavoriteList.get(pos));
       }
       
-      mFavoriteContext = false;
       return true;
-    }
-    else {
-      mFavoriteContext = false;
-     // return mViewAndClickHandler.onContextItemSelected(item);
     }
     
     return false;

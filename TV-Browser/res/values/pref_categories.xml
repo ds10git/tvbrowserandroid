@@ -12,5 +12,6 @@
     <string name="category_list">PROGRAM_LISTS</string>
     <string name="category_details">DETAILS</string>
     <string name="category_sync">SYNC</string>
+    <string name="category_email">EMAIL</string>
     <string name="category_debug">DEBUG</string>
 </resources>

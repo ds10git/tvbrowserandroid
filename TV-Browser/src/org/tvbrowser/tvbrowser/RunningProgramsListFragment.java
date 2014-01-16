@@ -42,7 +42,6 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -990,8 +989,9 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       @Override
       public void onClick(View v) {
         Integer id = (Integer)v.getTag();
+        boolean handle = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getResources().getString(R.string.PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST), getResources().getBoolean(R.bool.prog_lists_show_list_on_channel_click_default));
         
-        if(id != null) {
+        if(handle && id != null) {
           Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
           showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA,id);
           
@@ -1386,13 +1386,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     return false;
   }
-  
- /* @Override
-  public void onConfigurationChanged(Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
-    
-    UiUtils.handleConfigurationChange(handler, mRunningProgramListAdapter, newConfig);
-  }*/
   
   private void setDividerSize(String size) {    
     getListView().setDividerHeight(UiUtils.convertDpToPixel(Integer.parseInt(size), getResources()));

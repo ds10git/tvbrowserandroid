@@ -16,12 +16,20 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.content.Context;
+import android.content.Intent;
 import android.database.Cursor;
+import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
+import android.view.ContextMenu;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView;
 import android.widget.SimpleCursorAdapter;
 
 /**
@@ -30,10 +38,78 @@ import android.widget.SimpleCursorAdapter;
  * @author René Mach
  */
 public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
-  public OrientationHandlingCursorAdapter(Context context, int layout, Cursor c, String[] from, int[] to, int flags) {
+  private View.OnClickListener mOnClickListener;
+  private View.OnClickListener mChannelSwitchListener;
+  private View.OnCreateContextMenuListener mContextMenuListener;
+  private AdapterView.AdapterContextMenuInfo mContextMenuInfo;
+  
+  public OrientationHandlingCursorAdapter(final Context context, int layout, Cursor c, String[] from, int[] to, int flags, boolean handleClicks) {
     super(context, layout, c, from, to, flags);
+    
+    if(handleClicks) {
+      mOnClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          Long tag = (Long)v.getTag();
+          
+          if(tag != null) {
+            UiUtils.showProgramInfo(context, tag.longValue());
+          }
+        }
+      };
+      
+      mChannelSwitchListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v) {
+          ChannelProgInfo tag = (ChannelProgInfo)v.getTag();
+          boolean handle = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getResources().getString(R.string.PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST), context.getResources().getBoolean(R.bool.prog_lists_show_list_on_channel_click_default));
+          
+          if(handle && tag != null) {
+            Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
+            showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA,tag.mID);         
+            showChannel.putExtra(SettingConstants.START_TIME_EXTRA, tag.mStartTime);
+            
+            LocalBroadcastManager.getInstance(context).sendBroadcastSync(showChannel);
+          }
+        }
+      };
+      
+      final MenuItem.OnMenuItemClickListener menuClick = new MenuItem.OnMenuItemClickListener() {
+        @Override
+        public boolean onMenuItemClick(MenuItem item) {
+          if(mContextMenuInfo != null) {
+            long programID = mContextMenuInfo.id;
+            mContextMenuInfo = null;
+            
+            return UiUtils.handleContextMenuSelection(context, item, programID, null);
+          }
+          
+          return true;
+        }
+      };
+      
+      mContextMenuListener = new View.OnCreateContextMenuListener() {
+        @Override
+        public void onCreateContextMenu(ContextMenu menu, View v,
+            ContextMenuInfo menuInfo) {
+          long id = ((Long)v.getTag()).longValue();
+          mContextMenuInfo = new AdapterView.AdapterContextMenuInfo(v, -1, id);
+          
+          UiUtils.createContextMenu(context, menu, id);
+          
+          for(int i = 0; i < menu.size(); i++) {
+            menu.getItem(i).setOnMenuItemClickListener(menuClick);
+          }
+        }
+      };
+    }
   }
 
+  private static final class ChannelProgInfo {
+    public int mID;
+    public long mStartTime;
+  }
+  
   @Override
   public View getView(int position, View convertView, ViewGroup parent) {
     if(convertView != null && ((Integer)convertView.getTag()) != SettingConstants.ORIENTATION) {
@@ -44,6 +120,31 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
     
     view.setTag(Integer.valueOf(SettingConstants.ORIENTATION));
     
+    if(mOnClickListener != null) {
+      View listEntry = view.findViewById(R.id.programs_list_row);
+      
+      if(listEntry.getTag() == null) {
+        listEntry.setOnClickListener(mOnClickListener);
+        listEntry.setOnCreateContextMenuListener(mContextMenuListener);
+      }
+      
+      listEntry.setTag(getItemId(position));
+      
+      View channelEntry = view.findViewById(R.id.program_list_channel_info);
+      
+      ChannelProgInfo info = (ChannelProgInfo)channelEntry.getTag();
+      
+      if(info == null) {
+        info = new ChannelProgInfo();
+        channelEntry.setOnClickListener(mChannelSwitchListener);
+        channelEntry.setTag(info);
+      }
+      
+      Cursor c = getCursor();
+      
+      info.mID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+      info.mStartTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+    }
     return view;
   }
 }

@@ -1,6 +1,6 @@
 /*
  * TV-Browser for Android
- * Copyright (C) 2013 René Mach (rene@tvbrowser.org)
+ * Copyright (C) 2013-2014 René Mach (rene@tvbrowser.org)
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
  * and associated documentation files (the "Software"), to use, copy, modify or merge the Software,
@@ -16,31 +16,12 @@
  */
 package org.tvbrowser.tvbrowser;
 
-import org.tvbrowser.settings.SettingConstants;
-
-import android.app.Activity;
-import android.content.Intent;
-import android.os.Bundle;
-
-public class InfoActivity extends Activity {
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-  }
+public final class SimpleGroupInfo {
+  public String mDataServiceID;
+  public String mGroupID;
   
-  @Override
-  protected void onResume() {
-    super.onResume();
-    
-    Intent intent = getIntent();
-    
-    long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
-    
-    if(programID >= 0) {
-      UiUtils.showProgramInfo(this, programID, this);
-    }
-    else {
-      finish();
-    }
+  public SimpleGroupInfo(String dataServiceID, String groupID) {
+    mDataServiceID = dataServiceID;
+    mGroupID = groupID;
   }
 }

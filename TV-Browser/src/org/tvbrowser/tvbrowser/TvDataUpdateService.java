@@ -697,16 +697,6 @@ public class TvDataUpdateService extends Service {
     return false;
   }
   
-  private static final class SimpleGroupInfo {
-    public String mDataServiceID;
-    public String mGroupID;
-    
-    public SimpleGroupInfo(String dataServiceID, String groupID) {
-      mDataServiceID = dataServiceID;
-      mGroupID = groupID;
-    }
-  }
-  
   private byte[] getXmlBytes(boolean syncFav, boolean syncMarkings, boolean syncCalendar) {
     StringBuilder where = new StringBuilder();
     
@@ -740,7 +730,7 @@ public class TvDataUpdateService extends Service {
     
     StringBuilder dat = new StringBuilder();
     
-    SparseArray<SimpleGroupInfo> groupInfo = new SparseArray<TvDataUpdateService.SimpleGroupInfo>();
+    SparseArray<SimpleGroupInfo> groupInfo = new SparseArray<SimpleGroupInfo>();
     
     if(programs.getCount() > 0) {
       String[] groupProjection = {
@@ -783,34 +773,7 @@ public class TvDataUpdateService extends Service {
     
     programs.close();
           
-    return getCompressedData(dat.toString().getBytes());
-  }
-  
-  private byte[] getCompressedData(byte[] uncompressed) {
-    ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-    
-    try {
-      GZIPOutputStream out = new GZIPOutputStream(bytesOut);
-      
-      // SEND THE IMAGE
-      int index = 0;
-      int size = 1024;
-      do {
-          if ((index + size) > uncompressed.length) {
-              size = uncompressed.length - index;
-          }
-          out.write(uncompressed, index, size);
-          index += size;
-      } while (index < uncompressed.length);
-      
-      out.flush();
-      out.close();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
-    
-    return bytesOut.toByteArray();
+    return IOUtils.getCompressedData(dat.toString().getBytes());
   }
   
   public void backSyncPrograms() {
@@ -843,7 +806,7 @@ public class TvDataUpdateService extends Service {
           conn.setRequestProperty ("Authorization", basicAuth);
           
           conn.setDoOutput(true);
-Log.d("info8", basicAuth);
+          Log.d("info8", basicAuth);
           String postData = "";
           
           byte[] xmlData = getXmlBytes(syncFav, syncMarkings, syncCalendar);

@@ -149,6 +149,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_DATE_PROG_ID = "dateProgID";
   public static final String DATA_KEY_MARKING_VALUES = "markingValues";
   public static final String DATA_KEY_DONT_WANT_TO_SEE = "dontWantToSee";
+  public static final String DATA_KEY_REMOVED_REMINDER = "removedReminder";
   
   // Column names for data version table
   public static final String VERSION_KEY_DAYS_SINCE_1970 = "daysSince1970";
@@ -646,7 +647,8 @@ public class TvBrowserContentProvider extends ContentProvider {
         + DATA_KEY_UNIX_DATE + " INTEGER, "
         + DATA_KEY_DATE_PROG_ID + " INTEGER, "
         + DATA_KEY_MARKING_VALUES + " TEXT, "
-        + DATA_KEY_DONT_WANT_TO_SEE + " INTEGER DEFAULT 0);";
+        + DATA_KEY_DONT_WANT_TO_SEE + " INTEGER DEFAULT 0"
+        + DATA_KEY_REMOVED_REMINDER	+ " INTEGER DEFAULT 0);";
     
     private static final String CREATE_VERSION_TABLE = "create table " + VERSION_TABLE + " (" + KEY_ID + " integer primary key autoincrement, "
         + CHANNEL_KEY_CHANNEL_ID + " INTEGER REFERENCES " + CHANNEL_TABLE + "(" + KEY_ID + ") NOT NULL, "
@@ -670,7 +672,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       db.execSQL(CREATE_VERSION_TABLE);
     }
 
-    private static final int DATABASE_VERSION = 4;
+    private static final int DATABASE_VERSION = 5;
     
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -712,6 +714,23 @@ public class TvBrowserContentProvider extends ContentProvider {
         
         if(!dontWantColumnFound) {
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_DONT_WANT_TO_SEE + " INTEGER DEFAULT 0");
+        }
+      }
+      
+      if(oldVersion < 5) {
+        Cursor c = db.rawQuery("PRAGMA table_info(" + DATA_TABLE + ")", null);
+        
+        boolean removedReminderColumnFound = false;
+        
+        while(c.moveToNext()) {
+          if(c.getString(c.getColumnIndex("name")).equals(DATA_KEY_REMOVED_REMINDER)) {
+            removedReminderColumnFound = true;
+            break;
+          }
+        }
+        
+        if(!removedReminderColumnFound) {
+          db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_REMOVED_REMINDER + " INTEGER DEFAULT 0");
         }
       }
     }
