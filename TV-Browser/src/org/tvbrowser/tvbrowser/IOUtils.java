@@ -26,6 +26,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.zip.GZIPInputStream;
+import java.util.zip.GZIPOutputStream;
 
 import android.content.res.Resources;
 import android.util.Log;
@@ -174,5 +175,32 @@ public class IOUtils {
     else {
       return pb;
     }
+  }
+  
+  public static byte[] getCompressedData(byte[] uncompressed) {
+    ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
+    
+    try {
+      GZIPOutputStream out = new GZIPOutputStream(bytesOut);
+      
+      // SEND THE IMAGE
+      int index = 0;
+      int size = 1024;
+      do {
+          if ((index + size) > uncompressed.length) {
+              size = uncompressed.length - index;
+          }
+          out.write(uncompressed, index, size);
+          index += size;
+      } while (index < uncompressed.length);
+      
+      out.flush();
+      out.close();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    
+    return bytesOut.toByteArray();
   }
 }

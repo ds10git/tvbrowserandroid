@@ -57,6 +57,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -70,6 +71,8 @@ import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.BaseAdapter;
@@ -116,19 +119,19 @@ public class UiUtils {
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_RATING, R.id.detail_rating);
   }
   
-  public static void showProgramInfo(final Activity activity, long id) {
-    showProgramInfo(activity, id, false);
+  public static void showProgramInfo(final Context context, long id) {
+    showProgramInfo(context, id, null);
   }
   
-  public static void showProgramInfo(final Activity activity, long id, final boolean finish) {
-    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(activity);
+  public static void showProgramInfo(final Context context, long id, final Activity finish) {
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
     
-    Cursor c = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), null, null, null, null);
+    Cursor c = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), null, null, null, null);
     
     if(c.moveToFirst()) {
-      AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+      AlertDialog.Builder builder = new AlertDialog.Builder(context);
       
-      View layout = activity.getLayoutInflater().inflate(R.layout.detail_layout, null);
+      View layout =((LayoutInflater)context.getSystemService( Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.detail_layout, null);
       
       TextView date = (TextView)layout.findViewById(R.id.detail_date_channel);
       TextView title = (TextView)layout.findViewById(R.id.detail_title);
@@ -147,24 +150,24 @@ public class UiUtils {
       
       long channelID = c.getLong(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
       
-      Cursor channel = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelID), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, null, null, null);
+      Cursor channel = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelID), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, null, null, null);
       
       channel.moveToFirst();
       
       String channelName = "";
       
-      if(pref.getBoolean(activity.getResources().getString(R.string.SHOW_SORT_NUMBER_IN_DETAILS), true)) {
+      if(pref.getBoolean(context.getResources().getString(R.string.SHOW_SORT_NUMBER_IN_DETAILS), true)) {
         channelName = channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ";
       }
       
       channelName += channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
       
-      date.setText(day.format(start) + " " + java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT).format(start) + " " + DateFormat.getTimeFormat(activity).format(start) + " - " + DateFormat.getTimeFormat(activity)/*.getTimeInstance(java.text.DateFormat.SHORT)*/.format(new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)))) + ", " + channelName);
+      date.setText(day.format(start) + " " + java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT).format(start) + " " + DateFormat.getTimeFormat(context).format(start) + " - " + DateFormat.getTimeFormat(context)/*.getTimeInstance(java.text.DateFormat.SHORT)*/.format(new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)))) + ", " + channelName);
       
       if(!channel.isNull(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))) {
         byte[] logoData = channel.getBlob(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
         Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-        BitmapDrawable l = new BitmapDrawable(activity.getResources(), logo);
+        BitmapDrawable l = new BitmapDrawable(context.getResources(), logo);
         
         ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
         background.setBounds(0, 0, logo.getWidth() + 2, logo.getHeight() + 2);
@@ -207,7 +210,7 @@ public class UiUtils {
         title.setText(titleTest + "/" + originalTitle);
       }
       
-      if(!pref.getBoolean(activity.getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS), true) ||  c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)) || c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT))) {
+      if(!pref.getBoolean(context.getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS), true) ||  c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)) || c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT))) {
         pictureCopyright.setVisibility(View.GONE);
         pictureDescription.setVisibility(View.GONE);
       }
@@ -222,16 +225,16 @@ public class UiUtils {
         
         Bitmap image = BitmapFactory.decodeByteArray(pictureData,0,pictureData.length);
         
-        BitmapDrawable b = new BitmapDrawable(activity.getResources(),image);
+        BitmapDrawable b = new BitmapDrawable(context.getResources(),image);
         
-        float zoom = Float.parseFloat(PreferenceManager.getDefaultSharedPreferences(activity).getString(activity.getResources().getString(R.string.DETAIL_PICTURE_ZOOM), "1.4"));
+        float zoom = Float.parseFloat(PreferenceManager.getDefaultSharedPreferences(context).getString(context.getResources().getString(R.string.DETAIL_PICTURE_ZOOM), "1.4"));
         
         b.setBounds(0, 0, (int)(image.getWidth() * zoom), (int)(image.getHeight() * zoom));
         
         pictureDescription.setCompoundDrawables(b, null, null, null);
       }
       
-      if(pref.getBoolean(activity.getResources().getString(R.string.SHOW_GENRE_IN_DETAILS), true) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
+      if(pref.getBoolean(context.getResources().getString(R.string.SHOW_GENRE_IN_DETAILS), true) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
         genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) + (year.length() > 0 ? " - " + year : ""));
       }
       else if(year.length() > 0) {
@@ -241,9 +244,9 @@ public class UiUtils {
         genre.setVisibility(View.GONE);
       }
       
-      String infoValue = IOUtils.getInfoString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)), activity.getResources());
+      String infoValue = IOUtils.getInfoString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)), context.getResources());
       
-      if(pref.getBoolean(activity.getResources().getString(R.string.SHOW_INFO_IN_DETAILS), true) && infoValue.length() > 0) {
+      if(pref.getBoolean(context.getResources().getString(R.string.SHOW_INFO_IN_DETAILS), true) && infoValue.length() > 0) {
         info.setText(infoValue);
       }
       else {
@@ -267,7 +270,7 @@ public class UiUtils {
         originalEpisode = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL));
       }
       
-      if(pref.getBoolean(activity.getResources().getString(R.string.SHOW_EPISODE_IN_DETAILS), true) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
+      if(pref.getBoolean(context.getResources().getString(R.string.SHOW_EPISODE_IN_DETAILS), true) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
         String episodeTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
         
         if(originalEpisode == null || episodeTest.equals(originalEpisode)) {
@@ -277,7 +280,7 @@ public class UiUtils {
           episode.setText(number + episodeTest + "/" + originalEpisode);
         }
       }
-      else if(pref.getBoolean(activity.getResources().getString(R.string.SHOW_EPISODE_IN_DETAILS), true) && number.trim().length() > 0) {
+      else if(pref.getBoolean(context.getResources().getString(R.string.SHOW_EPISODE_IN_DETAILS), true) && number.trim().length() > 0) {
         episode.setText(number);
       }
       else {
@@ -309,7 +312,7 @@ public class UiUtils {
         description.setVisibility(View.GONE);
       }
       
-      if(pref.getBoolean(activity.getResources().getString(R.string.SHOW_LINK_IN_DETAILS), true) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK))) {
+      if(pref.getBoolean(context.getResources().getString(R.string.SHOW_LINK_IN_DETAILS), true) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK))) {
         String linkText = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK));
         link.setText(linkText);
         link.setMovementMethod(LinkMovementMethod.getInstance());
@@ -329,7 +332,7 @@ public class UiUtils {
           
           if(text.trim().length() > 0) {
             try {
-              String name = activity.getResources().getString((Integer)R.string.class.getField(key).get(null));
+              String name = context.getResources().getString((Integer)R.string.class.getField(key).get(null));
               
               boolean endWith = false;
               
@@ -342,7 +345,7 @@ public class UiUtils {
                 temp.set(Calendar.HOUR_OF_DAY, Integer.parseInt(text) / 60);
                 temp.set(Calendar.MINUTE, Integer.parseInt(text) % 60);
                 
-                text = DateFormat.getTimeFormat(activity).format(temp.getTime());
+                text = DateFormat.getTimeFormat(context).format(temp.getTime());
               }
               
               text = text.replace("\n", "<br>");
@@ -365,11 +368,11 @@ public class UiUtils {
       
       c.close();
       
-      if(finish && activity != null) {
+      if(finish != null) {
         builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
           @Override
           public void onCancel(DialogInterface dialog) {
-            activity.finish();
+            finish.finish();
           }
         });/*.setOnDismissListener(new DialogInterface.OnDismissListener() {
           @Override
@@ -384,10 +387,10 @@ public class UiUtils {
     }
   }
   
-  public static void createContextMenu(Activity activity, ContextMenu menu, long id) {
-    activity.getMenuInflater().inflate(R.menu.program_context, menu);
+  public static void createContextMenu(Context context, ContextMenu menu, long id) {
+    new MenuInflater(context).inflate(R.menu.program_context, menu);
     
-    Cursor cursor = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE}, null, null, null);
+    Cursor cursor = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE}, null, null, null);
     
     if(Build.VERSION.SDK_INT < 14) {
       menu.findItem(R.id.prog_create_calendar_entry).setVisible(false);
@@ -428,17 +431,17 @@ public class UiUtils {
       menu.findItem(R.id.program_popup_want_to_see).setVisible(!showDontWantToSee && !SettingConstants.UPDATING_FILTER);
     }
     
-    if(activity != null && activity instanceof TvBrowserSearchResults) {
+    if(context != null && context instanceof TvBrowserSearchResults) {
       menu.findItem(R.id.program_popup_search_repetition).setVisible(false);
     }
     
     cursor.close();
   }
   
-  public static void searchForRepetition(final Activity activity, String title, String episode) {
+  public static void searchForRepetition(final Context activity, String title, String episode) {
     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     
-    RelativeLayout layout = (RelativeLayout)activity.getLayoutInflater().inflate(R.layout.search_repetition_layout, null);
+    RelativeLayout layout = (RelativeLayout)((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.search_repetition_layout, null);
     
     final EditText titleText = (EditText)layout.findViewById(R.id.search_repetition_title);
     final EditText episodeText = (EditText)layout.findViewById(R.id.search_repetition_episode);
@@ -481,7 +484,7 @@ public class UiUtils {
   }
   
   @SuppressLint("NewApi")
-  public static boolean handleContextMenuSelection(final Activity activity, MenuItem item, long programID, final View menuView) {
+  public static boolean handleContextMenuSelection(final Context activity, MenuItem item, long programID, final View menuView) {
     Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
     
     String current = null;
@@ -508,6 +511,68 @@ public class UiUtils {
     
     if(item.getItemId() == R.id.create_favorite_item) {
       UiUtils.editFavorite(null, activity, title);
+      return true;
+    }
+    else if(item.getItemId() == R.id.prog_send_email) {
+      info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
+      
+      if(info.getCount() > 0) {
+        info.moveToFirst();
+        
+        Cursor channel = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, info.getLong(info.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID))), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME}, null, null, null);
+        
+        if(channel.getCount() > 0) {
+          channel.moveToFirst();
+          Intent sendMail = new Intent(Intent.ACTION_SEND);
+          
+          StringBuilder message = new StringBuilder();
+          StringBuilder subject = new StringBuilder();
+          
+          String desc = null;
+          
+          if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
+            desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
+            
+            if(desc != null && desc.trim().toLowerCase().equals("null")) {
+              desc = null;
+            }
+          }
+          
+          String startDate = DateFormat.getLongDateFormat(activity).format(new Date(info.getLong(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))));
+          String startTime = DateFormat.getTimeFormat(activity).format(new Date(info.getLong(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))));
+          String endTime = DateFormat.getTimeFormat(activity).format(new Date(info.getLong(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME))));
+          
+          subject.append(startDate).append(", ").append(startTime).append(" - ").append(endTime).append(" ").append(channel.getString(0)).append(": ");
+          subject.append(info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
+          
+          message.append(info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
+          
+          if(episode != null) {
+            subject.append(" - ").append(episode);
+            message.append(" - ").append(episode);
+          }
+          
+          if(desc != null) {
+            message.append("\n\n").append(desc);
+          }
+          
+          String mail = PreferenceManager.getDefaultSharedPreferences(activity).getString(activity.getString(R.string.PREF_EMAIL_TARGET_ADDRESS), null);
+          
+          if(mail != null) {
+            sendMail.putExtra(Intent.EXTRA_EMAIL, new String[]{mail});
+          }
+          
+          sendMail.putExtra(Intent.EXTRA_SUBJECT, subject.toString());
+          sendMail.putExtra(Intent.EXTRA_TEXT, message.toString());
+          sendMail.setType("text/rtf");
+          activity.startActivity(Intent.createChooser(sendMail, activity.getResources().getString(R.string.log_send_mail)));
+        }
+        
+        channel.close();
+      }
+      
+      info.close();
+      
       return true;
     }
     else if(item.getItemId() == R.id.program_popup_search_repetition) {
@@ -647,6 +712,7 @@ public class UiUtils {
       }
       
       values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current);
+      values.put(TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER, 1);
       
       if(menuView != null) {
         if(current.trim().length() == 0) {
@@ -665,7 +731,7 @@ public class UiUtils {
         
         builder.setTitle(R.string.action_dont_want_to_see);
         
-        View view = activity.getLayoutInflater().inflate(R.layout.dont_want_to_see_edit, null);
+        View view = ((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.dont_want_to_see_edit, null);
         
         final TextView exclusion = (TextView)view.findViewById(R.id.dont_want_to_see_value);
         final CheckBox caseSensitive = (CheckBox)view.findViewById(R.id.dont_want_to_see_case_sensitve);
@@ -1043,26 +1109,26 @@ public class UiUtils {
     
   }
   
-  public static void handleMarkings(Activity activity, Cursor cursor, View view, String markingValues) {
+  public static void handleMarkings(Context activity, Cursor cursor, View view, String markingValues) {
     handleMarkings(activity, cursor, view, markingValues, null, false);
   }
   
-  public static void handleMarkings(Activity activity, Cursor cursor, View view, String markingValues, Handler handler, boolean vertical) {
+  public static void handleMarkings(Context activity, Cursor cursor, View view, String markingValues, Handler handler, boolean vertical) {
     long startTime = cursor != null ? cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) : 0;
     long endTime = cursor != null ? cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) : 0;
     
     handleMarkings(activity, cursor, startTime, endTime, view, markingValues,handler,vertical);
   }
   
-  public static void handleMarkings(Activity activity, Cursor cursor, long startTime, long endTime, View view, String markingValues) {
+  public static void handleMarkings(Context activity, Cursor cursor, long startTime, long endTime, View view, String markingValues) {
     handleMarkings(activity, cursor, startTime, endTime, view, markingValues, null);
   }
   
-  public static void handleMarkings(Activity activity, Cursor cursor, long startTime, long endTime, final View view, String markingValues, Handler handler) {
+  public static void handleMarkings(Context activity, Cursor cursor, long startTime, long endTime, final View view, String markingValues, Handler handler) {
     handleMarkings(activity, cursor, startTime, endTime, view, markingValues, handler, false);
   }
   
-  public static void handleMarkings(Activity activity, Cursor cursor, long startTime, long endTime, final View view, String markingValues, Handler handler, boolean vertical) {
+  public static void handleMarkings(Context activity, Cursor cursor, long startTime, long endTime, final View view, String markingValues, Handler handler, boolean vertical) {
     String value = markingValues;
     
     if(value == null && cursor != null && !cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
@@ -1138,10 +1204,10 @@ public class UiUtils {
     }
   }
   
-  public static void editFavorite(final Favorite fav, final Activity activity, String searchString) {
+  public static void editFavorite(final Favorite fav, final Context activity, String searchString) {
     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     
-    final View input = activity.getLayoutInflater().inflate(R.layout.add_favorite_layout, null);
+    final View input = ((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.add_favorite_layout, null);
     
     if(fav != null) {
       ((EditText)input.findViewById(R.id.favorite_name)).setText(fav.getName());

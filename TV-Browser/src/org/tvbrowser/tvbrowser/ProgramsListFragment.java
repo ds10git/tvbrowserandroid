@@ -38,12 +38,7 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuItem;
-import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 
@@ -62,16 +57,11 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   private String mDayClause;
   private String mFilterClause;
   
-  private AdapterView.AdapterContextMenuInfo mContextMenuInfo;
-  
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   
   private BroadcastReceiver mDataUpdateReceiver;
   private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mDontWantToSeeReceiver;
-  
-  private View.OnClickListener mOnClickListener;
-  private View.OnClickListener mChannelSwitchListener;
   
   @Override
   public void onResume() {
@@ -274,7 +264,6 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     
     super.onActivityCreated(savedInstanceState);
     mChannelID = -1;
-    //registerForContextMenu(getListView());
     
     String[] projection = {
         TvBrowserContentProvider.DATA_KEY_UNIX_DATE,
@@ -288,72 +277,11 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
         TvBrowserContentProvider.DATA_KEY_CATEGORIES
     };
     
-    mOnClickListener = new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        Long tag = (Long)v.getTag();
-        
-        if(tag != null) {
-          UiUtils.showProgramInfo(getActivity(), tag.longValue());
-        }
-      }
-    };
-    
-    mChannelSwitchListener = new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        ChannelProgInfo tag = (ChannelProgInfo)v.getTag();
-        
-        if(tag != null) {
-          Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
-          showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA,tag.mID);         
-          showChannel.putExtra(SettingConstants.START_TIME_EXTRA, tag.mStartTime);
-          
-          LocalBroadcastManager.getInstance(getActivity()).sendBroadcastSync(showChannel);
-        }
-      }
-    };
-    
     mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity());
     
     // Create a new Adapter an bind it to the List View
     mProgramListAdapter = new OrientationHandlingCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
-        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0) {
-      @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
-        View view = super.getView(position, convertView, parent);
-        
-        View listEntry = view.findViewById(R.id.programs_list_row);
-        
-        if(listEntry.getTag() == null) {
-          listEntry.setOnClickListener(mOnClickListener);
-          registerForContextMenu(listEntry);
-        }
-        
-        listEntry.setTag(getItemId(position));
-        
-        View channelEntry = view.findViewById(R.id.program_list_channel_info);
-        
-        ChannelProgInfo info = (ChannelProgInfo)channelEntry.getTag();
-        
-        if(info == null) {
-          info = new ChannelProgInfo();
-          channelEntry.setOnClickListener(mChannelSwitchListener);
-          channelEntry.setTag(info);
-        }
-        
-        Cursor c = getCursor();
-        
-        info.mID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
-        info.mStartTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-        
-       // Log.d("info", "" + getItem(position));
-        
-        //info.mID = ;
-        
-        return view;
-      }
-    };
+        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0,true);
     
     mProgramListAdapter.setViewBinder(mViewAndClickHandler);
     
@@ -367,42 +295,6 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     
     getLoaderManager().initLoader(0, null, this);
   }
-  
-  private static final class ChannelProgInfo {
-    public int mID;
-    public long mStartTime;
-  }
-  
-  @Override
-  public void onCreateContextMenu(ContextMenu menu, View v,
-      ContextMenuInfo menuInfo) {
-    long id = ((Long)v.getTag()).longValue();
-    
-    mContextMenuInfo = new AdapterView.AdapterContextMenuInfo(v, -1, id);
-    
-    mViewAndClickHandler.onCreateContextMenu(menu, v, mContextMenuInfo);
-  }
-  
-  @Override
-  public boolean onContextItemSelected(MenuItem item) {
-    if(mContextMenuInfo != null) {
-      long programID = mContextMenuInfo.id;
-      mContextMenuInfo = null;
-      
-      return UiUtils.handleContextMenuSelection(getActivity(), item, programID, null);
-    }
-    
-    return true;
-  }
-/*  
-  @Override
-  public void onListItemClick(ListView l, View v, int position, long id) {
-    super.onListItemClick(l, v, position, id);
-    
-    Log.d("info", "" + v + " "+ position+" "+l);
-    
-    mViewAndClickHandler.onListItemClick(l, v, position, id);
-  }*/
   
   private void startUpdateThread() {
     if(mUpdateThread == null || !mUpdateThread.isAlive()) {
@@ -488,11 +380,4 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
       setDividerSize(sharedPreferences.getString(key, SettingConstants.DIVIDER_DEFAULT));
     }
   }
-  
- /* @Override
-  public void onConfigurationChanged(Configuration newConfig) {
-    super.onConfigurationChanged(newConfig);
-    
-    UiUtils.handleConfigurationChange(handler, mProgramListAdapter, newConfig);
-  }*/
 }

@@ -41,13 +41,18 @@
     <string name="dont_select_channels">Jetzt nicht</string>
     <string name="update_data">Datenupdate</string>
     <string name="versionExpired">Version abgelaufen</string>
-    <string name="versionExpiredMsg">Bitte installieren Sie ein Update.</string>
+    <string name="versionExpiredMsg">Diese Version wird sich in {0} Tagen nicht mehr benutzen lassen.\n\nBitte installieren Sie ein Update.</string>
+    <string name="versionExpiredMsgLast">Diese Version wird sich ab morgen nicht mehr benutzen lassen.\n\nBitte installieren Sie ein Update.</string>
     <string name="program_popup_mark">Sendung markieren</string>
     <string name="program_popup_unmark">Alle Markierungen löschen</string>
     <string name="program_popup_search_repetition">Wiederholung suchen</string>
     <string name="program_popup_reminder">An Sendung erinnern</string>
     <string name="program_popup_reminder_remove">Erinnerung löschen</string>
+    <string name="program_popup_send_mail">Als E-Mail versenden</string>
     <string name="pref_prog_table_width_hint">Spaltenbreite</string>
+    <string name="pref_email_title">Empfänger E-Mail Adresse</string>
+	<string name="pref_email_summary">E-Mail Adresse für das Versenden von Programminformationen.</string>
+    <string name="pref_category_email">E-Mail</string>
     <string name="title">Titel:</string>
     <string name="title_hint">Titel für Suche eingeben</string>
     <string name="episode">Folge:</string>
@@ -238,6 +243,10 @@
 	<string name="pref_sync_title">Synchronisation</string>
 	<string name="pref_sync_summary_disabled">Um die Synchronistation mit dem Desktop-TV-Browser nutzen zu können, muss im Menü ein Benutzername und -passwort eingegeben werden.</string>
 	<string name="pref_sync_summary_enabled">Einstellungen für die Synchronistaion mit dem Desktop-TV-Browser</string>
+	<string name="pref_sync_reminder_from_desktop">Erinnerungen importieren</string>
+	<string name="pref_sync_reminder_from_desktop_summary">Erinnerungen die vom AndroidSync-Plugin aus der Desktop-Version exportiert werden, werden importiert.</string>
+	<string name="pref_sync_reminder_to_desktop">Erinnerungen exportieren</string>
+	<string name="pref_sync_reminder_to_desktop_summary">Sendungen die als Erinnerungen markiert sind werden an den Desktop-TV-Browser exportiert.</string>
 	<string name="pref_sync_fav_from_desktop">Exportierte Sendungen</string>
 	<string name="pref_sync_fav_from_desktop_summary">Sendungen die vom AndroidSync-Plugin aus der Desktop-Version exportiert werden.</string>
 	<string name="pref_sync_fav_to_desktop">Lieblingssendungen</string>
@@ -266,6 +275,8 @@
     <string name="action_synchronize">Synchronisierung</string>
     <string name="action_synchronize_channels">Sender</string>
     <string name="action_synchronize_favorites">Lieblingssendungen</string>
+    <string name="action_synchronize_reminders_down">Erinnerungen herunterladen</string>
+    <string name="action_synchronize_reminders_up">Erinnerungen hochladen</string>
     <string name="action_synchronize_dont_want_to_see">Will ich nicht sehen!</string>
     <string name="no_dont_want_to_see_sync">Konnte Ausschlusslite von \'Will ich nicht sehen!\' nicht synchronisieren.\nWurde die Ausschlussliste mit dem AndroidSync-Plugin hochgeladen?</string>
     <string name="dont_want_to_see_sync_success">Ausschlusslite von \'Will ich nicht sehen!\' erfolgreich synchronisiert.</string>
@@ -300,4 +311,6 @@
 	    <item>1 Stunde vorher</item>
 	</string-array>
 	<string name="pref_program_lists_show_end_time">Endzeit anzeigen</string>
+	<string name="pref_program_lists_show_list_on_channel_click">Sender anklickbar</string>
+    <string name="pref_program_lists_show_list_on_channel_click_summary">Bei Klick auf Sender wird Sendungsliste geöffnet und zeigt Sendung im Tagesprogramm.</string>
 </resources>

@@ -131,6 +131,8 @@ public class SettingConstants {
   
   public static boolean UPDATING_FILTER = false;
   
+  public static boolean UPDATING_REMINDERS = false;
+  
   public static final String[] REMINDER_PROJECTION = new String[] {
     TvBrowserContentProvider.CHANNEL_KEY_NAME,
     TvBrowserContentProvider.CHANNEL_KEY_LOGO,

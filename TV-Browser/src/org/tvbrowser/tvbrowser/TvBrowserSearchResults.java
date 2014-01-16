@@ -81,7 +81,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     
     mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(this);
     mProgramsListAdapter = new OrientationHandlingCursorAdapter(this,/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
-        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0);
+        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0,false);
     mProgramsListAdapter.setViewBinder(mViewAndClickHandler);
     
     setListAdapter(mProgramsListAdapter);

@@ -46,13 +46,18 @@
     <string name="dont_select_channels">Don\'t select channels</string>
     <string name="update_data">Update Data</string>
     <string name="versionExpired">Version expired</string>
-    <string name="versionExpiredMsg">Please install an update for the app.</string>
+    <string name="versionExpiredMsg">This version will stop working in {0} days.\n\nPlease install an update for the app.</string>
+    <string name="versionExpiredMsgLast">This version will stop working from tomorrow on.\n\nPlease install an update for the app.</string>
     <string name="program_popup_mark">Mark program</string>
     <string name="program_popup_unmark">Remove markings</string>
     <string name="program_popup_search_repetition">Search for repetition</string>
     <string name="program_popup_reminder">Remind for program</string>
     <string name="program_popup_reminder_remove">Remove Reminder</string>
+	<string name="program_popup_send_mail">Send as email</string>
     <string name="pref_prog_table_width_hint">Column width</string>
+    <string name="pref_email_title">To email address</string>
+    <string name="pref_email_summary">Email address for sending program informations.</string>
+    <string name="pref_category_email">Email</string>
     <string name="search">Search</string>
     <string name="title">Title:</string>
     <string name="title_hint">Enter title to search</string>
@@ -253,6 +258,10 @@
 	<string name="pref_sync_fav_from_desktop_summary">Programs that are exported by the AndroidSync plugin from the desktop version.</string>
 	<string name="pref_sync_fav_to_desktop">Favorites</string>
 	<string name="pref_sync_fav_to_desktop_summary">Programs that are marked as Favorite are exported to desktop TV-Browser.</string>
+	<string name="pref_sync_reminder_from_desktop">Import Reminders</string>
+	<string name="pref_sync_reminder_from_desktop_summary">Reminders that are exported by the AndroidSync plugin from the desktop version are imported.</string>
+	<string name="pref_sync_reminder_to_desktop">Export Reminders</string>
+	<string name="pref_sync_reminder_to_desktop_summary">Programs that are marked as Reminders are exported to desktop TV-Browser.</string>
 	<string name="pref_sync_marked_to_desktop">Manually marked</string>
 	<string name="pref_sync_marked_to_desktop_summary">Programs that were marked manually are exported to desktop TV-Browser.</string>
 	<string name="pref_sync_calendar_to_desktop">Added to calendar</string>
@@ -277,6 +286,8 @@
     <string name="action_synchronize">Synchronization</string>
     <string name="action_synchronize_channels">Channels</string>
     <string name="action_synchronize_favorites">Favorites</string>
+    <string name="action_synchronize_reminders_down">Import Reminders</string>
+    <string name="action_synchronize_reminders_up">Export Reminders</string>
     <string name="action_synchronize_dont_want_to_see">I don\'t want to see!</string>
     <string name="no_dont_want_to_see_sync">Could not synchronize \'I don\'t want to see!\' exclusion list.\nDid you upload the exclusion list with the AndroidSync plugin?</string>
     <string name="dont_want_to_see_sync_success">Successfully synchronized exclusion list of \'I don\'t want to see!\'</string>
@@ -311,4 +322,6 @@
 	    <item>1 hour before</item>
 	</string-array>
 	<string name="pref_program_lists_show_end_time">Show end time</string>
+	<string name="pref_program_lists_show_list_on_channel_click">Clickable channel</string>
+	<string name="pref_program_lists_show_list_on_channel_click_summary">Click on channel opens programs list and shows program in chanel program.</string>
 </resources>

@@ -71,6 +71,16 @@
 		        android:showAsAction="never"
 		        android:title="@string/action_synchronize_favorites"/>
 		    <item 
+		        android:id="@+id/action_synchronize_reminders_down"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_synchronize_reminders_down"/>
+		    <item 
+		        android:id="@+id/action_synchronize_reminders_up"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_synchronize_reminders_up"/>
+		    <item 
 		        android:id="@+id/action_synchronize_dont_want_to_see"
 		        android:orderInCategory="100"
 		        android:showAsAction="never"
