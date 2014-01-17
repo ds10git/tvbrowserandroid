@@ -647,7 +647,7 @@ public class TvBrowserContentProvider extends ContentProvider {
         + DATA_KEY_UNIX_DATE + " INTEGER, "
         + DATA_KEY_DATE_PROG_ID + " INTEGER, "
         + DATA_KEY_MARKING_VALUES + " TEXT, "
-        + DATA_KEY_DONT_WANT_TO_SEE + " INTEGER DEFAULT 0"
+        + DATA_KEY_DONT_WANT_TO_SEE + " INTEGER DEFAULT 0, "
         + DATA_KEY_REMOVED_REMINDER	+ " INTEGER DEFAULT 0);";
     
     private static final String CREATE_VERSION_TABLE = "create table " + VERSION_TABLE + " (" + KEY_ID + " integer primary key autoincrement, "

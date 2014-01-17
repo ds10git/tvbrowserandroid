@@ -68,6 +68,10 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
@@ -157,6 +161,8 @@ public class TvBrowser extends FragmentActivity implements
   private int mLastSelectedTab;
   
   private static String ALL_VALUE;
+  
+  private Menu mOptionsMenu;
   
   static {
     mRundate = Calendar.getInstance();
@@ -667,113 +673,115 @@ public class TvBrowser extends FragmentActivity implements
         String car = pref.getString(SettingConstants.USER_NAME, null);
         String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
         
-        String userpass = car.trim() + ":" + bicycle.trim();
-        String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
-        
-        URLConnection conn = null;
-        OutputStream os = null;
-        InputStream is = null;
-    
-        try {
-            URL url = new URL("http://android.tvbrowser.org/data/scripts/syncBackMyReminders.php");
-            
-            conn = url.openConnection();
-            
-            conn.setRequestProperty ("Authorization", basicAuth);
-            
-            conn.setDoOutput(true);
-            
-            String postData = "";
-            
-            byte[] xmlData = getXmlBytes();
-            
-            String message1 = "";
-            message1 += "-----------------------------4664151417711" + CrLf;
-            message1 += "Content-Disposition: form-data; name=\"uploadedfile\"; filename=\""+car+".gz\""
-                    + CrLf;
-            message1 += "Content-Type: text/plain" + CrLf;
-            message1 += CrLf;
-    
-            // the image is sent between the messages in the multipart message.
-    
-            String message2 = "";
-            message2 += CrLf + "-----------------------------4664151417711--"
-                    + CrLf;
-    
-            conn.setRequestProperty("Content-Type",
-                    "multipart/form-data; boundary=---------------------------4664151417711");
-            // might not need to specify the content-length when sending chunked
-            // data.
-            conn.setRequestProperty("Content-Length", String.valueOf((message1
-                    .length() + message2.length() + xmlData.length)));
-    
-            Log.d("info8","open os");
-            os = conn.getOutputStream();
-    
-            Log.d("info8",message1);
-            os.write(message1.getBytes());
-            
-            // SEND THE IMAGE
-            int index = 0;
-            int size = 1024;
-            do {
-              Log.d("info8","write:" + index);
-                if ((index + size) > xmlData.length) {
-                    size = xmlData.length - index;
-                }
-                os.write(xmlData, index, size);
-                index += size;
-            } while (index < xmlData.length);
-            
-            Log.d("info8","written:" + index);
-    
-            Log.d("info8",message2);
-            os.write(message2.getBytes());
-            os.flush();
-    
-            Log.d("info8","open is");
-            is = conn.getInputStream();
-    
-            char buff = 512;
-            int len;
-            byte[] data = new byte[buff];
-            do {
-              Log.d("info8","READ");
-                len = is.read(data);
-    
-                if (len > 0) {
-                  Log.d("info8",new String(data, 0, len));
-                }
-            } while (len > 0);
-    
-            Log.d("info8","DONE");
-        } catch (Exception e) {
-          /*int response = 0;
+        if(car != null && car.trim().length() > 0 && bicycle != null && bicycle.trim().length() > 0) {
+          String userpass = car.trim() + ":" + bicycle.trim();
+          String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
           
-          if(conn != null) {
-            try {
-              response = ((HttpURLConnection)conn).getResponseCode();
-            } catch (IOException e1) {
-              // TODO Auto-generated catch block
-              e1.printStackTrace();
-            }
-          }*/
-          
-            Log.d("info8", "" ,e);
-        } finally {
-          Log.d("info8","Close connection");
-            try {
-                os.close();
-            } catch (Exception e) {
-            }
-            try {
-                is.close();
-            } catch (Exception e) {
-            }
-            try {
-    
-            } catch (Exception e) {
-            }
+          URLConnection conn = null;
+          OutputStream os = null;
+          InputStream is = null;
+      
+          try {
+              URL url = new URL("http://android.tvbrowser.org/data/scripts/syncBackMyReminders.php");
+              
+              conn = url.openConnection();
+              
+              conn.setRequestProperty ("Authorization", basicAuth);
+              
+              conn.setDoOutput(true);
+              
+              String postData = "";
+              
+              byte[] xmlData = getXmlBytes();
+              
+              String message1 = "";
+              message1 += "-----------------------------4664151417711" + CrLf;
+              message1 += "Content-Disposition: form-data; name=\"uploadedfile\"; filename=\""+car+".gz\""
+                      + CrLf;
+              message1 += "Content-Type: text/plain" + CrLf;
+              message1 += CrLf;
+      
+              // the image is sent between the messages in the multipart message.
+      
+              String message2 = "";
+              message2 += CrLf + "-----------------------------4664151417711--"
+                      + CrLf;
+      
+              conn.setRequestProperty("Content-Type",
+                      "multipart/form-data; boundary=---------------------------4664151417711");
+              // might not need to specify the content-length when sending chunked
+              // data.
+              conn.setRequestProperty("Content-Length", String.valueOf((message1
+                      .length() + message2.length() + xmlData.length)));
+      
+              Log.d("info8","open os");
+              os = conn.getOutputStream();
+      
+              Log.d("info8",message1);
+              os.write(message1.getBytes());
+              
+              // SEND THE IMAGE
+              int index = 0;
+              int size = 1024;
+              do {
+                Log.d("info8","write:" + index);
+                  if ((index + size) > xmlData.length) {
+                      size = xmlData.length - index;
+                  }
+                  os.write(xmlData, index, size);
+                  index += size;
+              } while (index < xmlData.length);
+              
+              Log.d("info8","written:" + index);
+      
+              Log.d("info8",message2);
+              os.write(message2.getBytes());
+              os.flush();
+      
+              Log.d("info8","open is");
+              is = conn.getInputStream();
+      
+              char buff = 512;
+              int len;
+              byte[] data = new byte[buff];
+              do {
+                Log.d("info8","READ");
+                  len = is.read(data);
+      
+                  if (len > 0) {
+                    Log.d("info8",new String(data, 0, len));
+                  }
+              } while (len > 0);
+      
+              Log.d("info8","DONE");
+          } catch (Exception e) {
+            /*int response = 0;
+            
+            if(conn != null) {
+              try {
+                response = ((HttpURLConnection)conn).getResponseCode();
+              } catch (IOException e1) {
+                // TODO Auto-generated catch block
+                e1.printStackTrace();
+              }
+            }*/
+            
+              Log.d("info8", "" ,e);
+          } finally {
+            Log.d("info8","Close connection");
+              try {
+                  os.close();
+              } catch (Exception e) {
+              }
+              try {
+                  is.close();
+              } catch (Exception e) {
+              }
+              try {
+      
+              } catch (Exception e) {
+              }
+          }
         }
       }
     }.start();
@@ -797,7 +805,7 @@ public class TvBrowser extends FragmentActivity implements
             String car = pref.getString(SettingConstants.USER_NAME, null);
             String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
             
-            if(car != null && bicycle != null) {
+            if(car != null && bicycle != null && car.trim().length() > 0 && bicycle.trim().length() > 0) {
               updateProgressIcon(true);
               
               String userpass = car + ":" + bicycle;
@@ -1280,6 +1288,18 @@ public class TvBrowser extends FragmentActivity implements
       
       if(logo != null) {
         channelLogo = BitmapFactory.decodeByteArray(logo, 0, logo.length);
+        
+        BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
+        
+        ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+        background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
+        
+        LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+        logoDrawable.setBounds(background.getBounds());
+        
+        l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
+        
+        channelLogo = UiUtils.drawableToBitmap(logoDrawable);
       }
       
       ChannelSelection selection = new ChannelSelection(channelID, name, category, countries, channelLogo, isSelected);
@@ -1634,6 +1654,18 @@ public class TvBrowser extends FragmentActivity implements
           
           if(logo != null) {
             channelLogo = BitmapFactory.decodeByteArray(logo, 0, logo.length);
+            
+            BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
+            
+            ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+            background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
+            
+            LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+            logoDrawable.setBounds(background.getBounds());
+            
+            l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
+            
+            channelLogo = UiUtils.drawableToBitmap(logoDrawable);
           }
                     
           channelSource.add(new ChannelSort(key, name, order, channelLogo));
@@ -1964,6 +1996,8 @@ public class TvBrowser extends FragmentActivity implements
     if(syncChannels) {
       syncronizeChannels();
     }
+    
+    updateSynchroMenu();
   }
   
   private void showUserError(final String userName, final String password, final boolean syncChannels) {
@@ -2678,7 +2712,28 @@ public class TvBrowser extends FragmentActivity implements
     
     updateScrollMenu();
     
+    mOptionsMenu = menu;
+    
+    updateSynchroMenu();
+    
     return true;
+  }
+  
+  private void updateSynchroMenu() {
+    SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+    
+    String car = pref.getString(SettingConstants.USER_NAME, null);
+    String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+    
+    boolean isAccount = (car != null && car.trim().length() > 0 && bicycle != null && bicycle.trim().length() > 0);
+    
+    if(mOptionsMenu != null) {
+      mOptionsMenu.findItem(R.id.action_synchronize_channels).setEnabled(isAccount);
+      mOptionsMenu.findItem(R.id.action_synchronize_dont_want_to_see).setEnabled(isAccount);
+      mOptionsMenu.findItem(R.id.action_synchronize_favorites).setEnabled(isAccount);
+      mOptionsMenu.findItem(R.id.action_synchronize_reminders_up).setEnabled(isAccount);
+      mOptionsMenu.findItem(R.id.action_synchronize_reminders_down).setEnabled(isAccount);
+    }
   }
   
   private void updateScrollMenu() {
