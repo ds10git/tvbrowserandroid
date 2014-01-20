@@ -20,6 +20,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
@@ -556,10 +557,10 @@ public class DummySectionFragment extends Fragment {
             
             switch(position) {
               case 0: convertView.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));break;
-              case 1: convertView.setBackgroundResource(R.color.mark_color_favorite);break;
-              case 2: convertView.setBackgroundResource(R.color.mark_color);break;
-              case 3: convertView.setBackgroundResource(R.color.mark_color_calendar);break;
-              case 4: convertView.setBackgroundResource(R.color.mark_color_sync_favorite);break;
+              case 1: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_FAVORITE_COLOR_KEY, getContext()));break;
+              case 2: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_COLOR_KEY, getContext()));break;
+              case 3: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_REMINDER_COLOR_KEY, getContext()));break;
+              case 4: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_SYNC_COLOR_KEY, getContext()));break;
               case 5: convertView.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));break;
             }
             
@@ -674,9 +675,18 @@ public class DummySectionFragment extends Fragment {
             if(getActivity() instanceof TvBrowser && !isDetached()) {
               int id = intent.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA, -1);
               long startTime = intent.getLongExtra(SettingConstants.START_TIME_EXTRA, -1);
+              int scrollIndex = intent.getIntExtra(SettingConstants.SCROLL_POSITION_EXTRA, -1);
+              
+              int daySelection = intent.getIntExtra(SettingConstants.DAY_POSITION_EXTRA, -1);
+              int filterSelection = intent.getIntExtra(SettingConstants.FILTER_POSITION_EXTRA, -1);
               
               ChannelSelection current = (ChannelSelection)channel.getSelectedItem();
-              boolean found = false;
+              
+              if(current != null && filterSelection == -1) {                
+                ((TvBrowser)getActivity()).addProgramListState(date.getSelectedItemPosition(), current.getID(), filter.getSelectedItemPosition(), programList.getCurrentScrollIndex());
+              }
+              
+              programList.setDontUpdate(true);
               
               if(current == null || current.getID() != id) {
                 for(int i = 0; i < channelEntries.size(); i++) {
@@ -684,21 +694,30 @@ public class DummySectionFragment extends Fragment {
                   
                   if(sel.getID() == id) {
                     channel.setSelection(i);
-                    found = true;
                     break;
                   }
                 }
               }
               
-              filter.setSelection(0);
-              date.setSelection(0);
-              
-              programList.setScrollTime(startTime);
-              
-              if(!found) {
-                programList.scrollToTime();
+              if(filterSelection >= 0) {
+                filter.setSelection(filterSelection);
+              }
+              else {
+                filter.setSelection(0);
               }
               
+              if(daySelection >= 0) {
+                date.setSelection(daySelection);
+              }
+              else {
+                date.setSelection(0);
+              }
+                            
+              programList.setScrollPos(scrollIndex);
+              programList.setScrollTime(startTime);
+              programList.setDontUpdate(false);
+              programList.startUpdateThread();
+                            
               ((TvBrowser)getActivity()).showProgramsListTab();
             }
           }
@@ -713,8 +732,7 @@ public class DummySectionFragment extends Fragment {
           public void onReceive(Context context, Intent intent) {
             if(getActivity() instanceof TvBrowser && !isDetached()) {
               long startTime = intent.getLongExtra(SettingConstants.START_TIME_EXTRA, (long)-2);
-                            
-              Log.d("info1", "" + startTime);
+              
               if(startTime >= 0) {
                 programList.setScrollTime(startTime);
                 programList.scrollToTime();

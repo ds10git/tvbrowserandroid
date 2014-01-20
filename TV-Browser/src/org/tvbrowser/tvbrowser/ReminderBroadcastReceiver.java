@@ -30,6 +30,7 @@ import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -37,6 +38,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.media.RingtoneManager;
+import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.text.format.DateFormat;
 
@@ -95,12 +97,31 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
         
         builder.setSmallIcon(R.drawable.reminder);
         builder.setWhen(startTime);
-        builder.setDefaults(Notification.DEFAULT_SOUND | Notification.DEFAULT_VIBRATE);
-        builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-        builder.setVibrate(new long[] {1000,1000,1000,1000,1000});
+        
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+        
+        boolean sound = pref.getBoolean(context.getString(R.string.PREF_REMINDER_SOUND), true);
+        boolean vibrate = pref.getBoolean(context.getString(R.string.PREF_REMINDER_VIBRATE), true);
+        boolean led = pref.getBoolean(context.getString(R.string.PREF_REMINDER_LED), true);
+        
+        if(sound) {
+          builder.setDefaults(Notification.DEFAULT_SOUND);
+          builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+        }
+        else {
+          builder.setDefaults(0);
+        }
+        
+        if(vibrate) {
+          builder.setVibrate(new long[] {1000,200,1000,400,1000,600});
+        }
+        
         builder.setAutoCancel(true);
         builder.setContentInfo(channelName);
-        builder.setLights(Color.RED, 1, 0);
+        
+        if(led) {
+          builder.setLights(Color.RED, 1000, 2000);
+        }
         
         java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(context);
         String value = ((SimpleDateFormat)mTimeFormat).toLocalizedPattern();

@@ -622,18 +622,24 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       }
       
       if(!channelSet) {
-        Drawable logo = SettingConstants.SMALL_LOGO_MAP.get(block.mChannelID);
+        String logoNamePref = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS), "0");
+        
+        boolean showChannelName = logoNamePref.equals("0") || logoNamePref.equals("2");
+        boolean showChannelLogo = logoNamePref.equals("0") || logoNamePref.equals("1");
+        
+        Drawable logo = null;
+        
+        if(showChannelLogo) {
+          logo = SettingConstants.SMALL_LOGO_MAP.get(block.mChannelID);
+        }
         
         if(logo != null) {
           viewHolder.mChannelLogo.setImageDrawable(logo);
           viewHolder.mChannelLogo.setVisibility(View.VISIBLE);
-         // viewHolder.mChannel.setVisibility(View.GONE);
         }
         else {
           viewHolder.mChannelLogo.setVisibility(View.GONE);
-          viewHolder.mChannel.setVisibility(View.VISIBLE);
         }
-        //viewHolder.mChannel.setCompoundDrawables(null, logo, null, null);
         
         String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(block.mChannelName);
         
@@ -641,11 +647,21 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           shortName = block.mChannelName;
         }
         
-        if(mShowOrderNumber) {
+        if(mShowOrderNumber && (logo == null || showChannelName)) {
           shortName = block.mChannelOrderNumber + ". " + shortName;
         }
+        else if(mShowOrderNumber) {
+          shortName = block.mChannelOrderNumber + ".";
+        }
         
-        viewHolder.mChannel.setText(shortName);
+        if(logo == null || mShowOrderNumber || showChannelName) {
+          viewHolder.mChannel.setText(shortName);
+          viewHolder.mChannel.setVisibility(View.VISIBLE);
+        }
+        else {
+          viewHolder.mChannel.setVisibility(View.GONE);
+        }
+        
         viewHolder.mChannelInfo.setTag(block.mChannelID);
         viewHolder.mChannelInfo.setOnClickListener(mChannelSwitchListener);
         
@@ -1002,7 +1018,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           }
           
           if(mWhereClauseTime >= 0) {
-            now.set(Calendar.SECOND, 30);
+            now.set(Calendar.SECOND, 0);
+            now.set(Calendar.MILLISECOND, 0);
             now.set(Calendar.HOUR_OF_DAY, mWhereClauseTime / 60);
             now.set(Calendar.MINUTE, mWhereClauseTime % 60);
           }

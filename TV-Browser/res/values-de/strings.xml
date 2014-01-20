@@ -122,6 +122,11 @@
 	<string name="synchronize_replace_add_text">Die ausgewählten Sender können mit den Synchronisationsdaten ersetzt oder ergänzt werden.\nWas soll getan werden?</string>
 	<string name="synchronize_replace">Ausgewählte Sender ersetzen</string>
 	<string name="synchronize_add">Neue Sender ergänzen</string>
+	
+	<string name="synchronize_replace_exclusion_add_text">Die Ausschlüsse von \"Will ich nicht sehen!\" können mit den Synchronisationsdaten ersetzt order ergänzt werden.\n\nBei Ergänzung werden die zusammengeführten Daten wieder auf den Server hochgeladen.\n\nWas soll getan werden?</string>
+	<string name="synchronize_replace_exclusion">Ausschlüsse ersetzen</string>
+	<string name="synchronize_add_exclusion">Neue Ausschlüsse ergänzen</string>
+	
 	<string name="synchronize_done">Synchronisation der Sender abgeschlossen!</string>
 	<string name="synchronize_error">Sender konnten nicht synchronisiert werden.</string>
 	<string name="previous_day">Vorheriger</string>
@@ -170,6 +175,7 @@
 	<string name="pref_detail_category">Detail-Fenster</string>
 	<string name="pref_detail_category_summary">Welche Informationen sollen im Detail-Fenster angezeigt werden?</string>
 	<string name="pref_detail_picture_zoom">Bild skalieren</string>
+	<string name="pref_detail_text_scale">Text skalieren</string>
 	<string name="pref_list_category">Listen mit Sendungen</string>
 	<string name="pref_list_category_summary">Welche Informationen sollen in den Listen mit Sendungen angezeigt werden?</string>
 	<string name="pref_show_pictures">Bilder anzeigen</string>
@@ -297,6 +303,10 @@
 	    <item>Groß</item>
 	</string-array>
 	<string name="pref_reminder_category">Erinnerungen</string>
+	<string name="pref_reminder_type">Typ</string>
+	<string name="pref_reminder_sound">Sound</string>
+	<string name="pref_reminder_vibrate">Vibrieren</string>
+	<string name="pref_reminder_led">Info-LED</string>
 	<string name="pref_category_reminder_title">Erinnerungszeitpunkt:</string>
 	<string name="pref_category_reminder_again_title">Zu Beginn erneut erinnern</string>
 	<string-array name="pref_category_reminder_names">
@@ -313,4 +323,20 @@
 	<string name="pref_program_lists_show_end_time">Endzeit anzeigen</string>
 	<string name="pref_program_lists_show_list_on_channel_click">Sender anklickbar</string>
     <string name="pref_program_lists_show_list_on_channel_click_summary">Bei Klick auf Sender wird Sendungsliste geöffnet und zeigt Sendung im Tagesprogramm.</string>
+    <string name="pref_color_title">Farben</string>
+    <string name="pref_color_running_background">Laufende Sendung</string>
+    <string name="pref_color_running_background_summary">Farbe des Hintergrunds laufender Sendungen.</string>
+    <string name="pref_color_running_progress">Fortschritt</string>
+    <string name="pref_color_running_progress_summary">Farbe der Fortschrittsanzeige laufender Sendungen.</string>
+    <string name="pref_marking_color_marked_summary">Farbe für manuell markierte Sendungen.</string>
+    <string name="pref_marking_color_favorite_summary">Farbe für Lieblingssendungen.</string>
+    <string name="pref_marking_color_reminder_title">Erinnerungen/Kalender</string>
+    <string name="pref_marking_color_reminder_summary">Farbe für erinnerte/in Kalender eingetragene Sendungen.</string>
+    <string name="pref_marking_color_sync_title">Synchronisation</string>
+    <string name="pref_marking_color_sync_summary">Farbe für synchronisierte Sendungen.</string>
+    <string name="pref_marking_color_red">Rot</string>
+    <string name="pref_marking_color_green">Grün</string>
+    <string name="pref_marking_color_blue">Blau</string>
+    <string name="pref_marking_color_alpha">Alpha</string>
+    <string name="pref_marking_color_reset">Zurücksetzen</string>
 </resources>

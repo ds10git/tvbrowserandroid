@@ -124,12 +124,18 @@
 	<string name="synchronize_text">You can synchronize your with the channels from your desktop TV-Browser.\n\nYou will have to <a href="http://android.tvbrowser.org/index.php?id=createaccount">register a user first</a> and export your channels from your desktop TV-Browser with the Android Sync plugin.\n\nDo you wish to synchronize your channels now or do you wish to select the channels manually?</string>
 	<string name="synchronize_ok">Syncronize channels now</string>
 	<string name="synchronize_cancel">Select channels manually</string>
-	<string name="synchronize_replace_add_title">Replace or add channels?</string>
+	<string name="synchronize_replace_add_title">Replace or add?</string>
 	<string name="synchronize_replace_add_text">You can replace your current selected channels with the synchronization data or only add new channels to your selected channels.\nWhat should be done?</string>
 	<string name="synchronize_replace">Replace selected channels</string>
 	<string name="synchronize_add">Add new to selected channels</string>
 	<string name="synchronize_done">Channels synchronizing done!</string>
 	<string name="synchronize_error">Channels could not be synchronized.</string>
+	
+	<string name="synchronize_replace_exclusion_add_text">You can replace your current exclusion list with the synchronization data or only add new exclusions for \"I don\'t want to see!\".\n\nThe joined exlcusions will be uploaded to the server if you add the new exclusions.\n\nWhat should be done?</string>
+	<string name="synchronize_replace_exclusion">Replace exclusion</string>
+	<string name="synchronize_add_exclusion">Add new exclusions</string>
+	
+	
 	<string name="previous_day">Previous</string>
 	<string name="next_day">Next</string>
 	<string name="info_black_and_white">BlackAndWhite</string>
@@ -175,6 +181,7 @@
 	<string name="pref_detail_category">Detail window</string>
 	<string name="pref_detail_category_summary">Which information should be shown in the details window?</string>
 	<string name="pref_detail_picture_zoom">Zoom value for picture</string>
+	<string name="pref_detail_text_scale">Zoom value for text</string>
 	<string name="pref_list_category">Lists with programs</string>
 	<string name="pref_list_category_summary">Which information should be shown in the lists with programs?</string>
 	<string name="pref_show_pictures">Show pictures</string>
@@ -308,6 +315,10 @@
 	    <item>Big</item>
 	</string-array>
 	<string name="pref_reminder_category">Reminder</string>
+	<string name="pref_reminder_type">Type</string>
+	<string name="pref_reminder_sound">Sound</string>
+	<string name="pref_reminder_vibrate">Vibrate</string>
+	<string name="pref_reminder_led">Info LED</string>
 	<string name="pref_category_reminder_title">Time of reminder:</string>
 	<string name="pref_category_reminder_again_title">Remind again at start</string>
 	<string-array name="pref_category_reminder_names">
@@ -324,4 +335,20 @@
 	<string name="pref_program_lists_show_end_time">Show end time</string>
 	<string name="pref_program_lists_show_list_on_channel_click">Clickable channel</string>
 	<string name="pref_program_lists_show_list_on_channel_click_summary">Click on channel opens programs list and shows program in chanel program.</string>
+	<string name="pref_color_title">Colors</string>
+    <string name="pref_color_running_background">On air</string>
+    <string name="pref_color_running_background_summary">Background color of on air programs.</string>
+    <string name="pref_color_running_progress">Progress</string>
+    <string name="pref_color_running_progress_summary">Progress color of on air programs</string>
+	<string name="pref_marking_color_marked_summary">Color for manually marked programs.</string>
+    <string name="pref_marking_color_favorite_summary">Color for Favorite programs.</string>
+    <string name="pref_marking_color_reminder_title">Reminder/Calendar</string>
+    <string name="pref_marking_color_reminder_summary">Color for reminded/in calendar entered programs.</string>
+    <string name="pref_marking_color_sync_title">Synchronization</string>
+    <string name="pref_marking_color_sync_summary">Color for synchronized programs.</string>
+    <string name="pref_marking_color_red">Red</string>
+    <string name="pref_marking_color_green">Green</string>
+    <string name="pref_marking_color_blue">Blue</string>
+    <string name="pref_marking_color_alpha">Alpha</string>
+    <string name="pref_marking_color_reset">Reset</string>
 </resources>

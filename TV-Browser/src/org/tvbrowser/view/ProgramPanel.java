@@ -20,7 +20,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.tvbrowser.TvBrowser;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -29,7 +28,6 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
-import android.provider.Contacts.SettingsColumns;
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.View;

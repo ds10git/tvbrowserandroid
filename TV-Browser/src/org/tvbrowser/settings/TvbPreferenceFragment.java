@@ -26,7 +26,6 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 public class TvbPreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
   @Override
@@ -44,7 +43,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       onSharedPreferenceChanged(null,getResources().getString(R.string.TAB_TO_SHOW_AT_START));
     }
     else if(getString(R.string.category_theme).equals(category)) {
-      addPreferencesFromResource(R.xml.preferences_theme);
+      addPreferencesFromResource(R.xml.preferences_layout);
     }
     else if(getString(R.string.category_reminder).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_reminder);
@@ -109,7 +108,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         || key.equals(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT))
         || key.equals(getResources().getString(R.string.PREF_RUNNING_DIVIDER_SIZE))
         || key.equals(getResources().getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE))
-        || key.equals(getResources().getString(R.string.PREF_REMINDER_TIME))) {
+        || key.equals(getResources().getString(R.string.PREF_REMINDER_TIME))
+        || key.equals(getResources().getString(R.string.DETAIL_TEXT_SCALE))) {
       ListPreference lp = (ListPreference) findPreference(key);
       
       if(lp != null) {

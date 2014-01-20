@@ -25,9 +25,7 @@ import android.content.Context;
 import android.content.IntentFilter;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -53,7 +51,11 @@ public class SettingConstants {
   public static final String SCROLL_TO_TIME_INTENT = "org.tvbrowser.SCROLL_TO_TIME_INTENT";
   public static final String REMINDER_PROGRAM_ID_EXTRA = "REMINDER_PROGRAM_ID_EXTRA";
   public static final String CHANNEL_ID_EXTRA = "CHANNEL_ID_EXTRA";
+  public static final String DAY_POSITION_EXTRA = "DAY_POSITION_EXTRA";
+  public static final String FILTER_POSITION_EXTRA = "FILTER_POSITION_EXTRA";
   public static final String START_TIME_EXTRA = "START_TIME_EXTRA";
+  public static final String SCROLL_POSITION_EXTRA = "SCROLL_POSITION_EXTRA";
+  
   public static final String DONT_WANT_TO_SEE_ADDED_EXTRA = "DONT_WANT_TO_SEE_ADDED_EXTRA";
   
   public static final String DIVIDER_DEFAULT = "10";

@@ -17,6 +17,7 @@
 package org.tvbrowser.tvbrowser;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
@@ -38,6 +39,8 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
@@ -62,6 +65,9 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   private BroadcastReceiver mDataUpdateReceiver;
   private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mDontWantToSeeReceiver;
+  
+  private boolean mDontUpdate;
+  private int mScrollPos;
   
   @Override
   public void onResume() {
@@ -204,28 +210,38 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
             int index = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
             int count = 0;
             c.moveToFirst();
-            while(!c.isClosed() && c.moveToNext()) {
-              long startTime = c.getLong(index);
-              
-              if(startTime >= mScrollTime) {
-                testIndex = count;
-                break;
-              }
-              else {
-                count++;
-              }
+            
+            if(!c.isClosed()) {
+              do {
+                long startTime = c.getLong(index);
+                
+                if(startTime >= mScrollTime) {
+                  testIndex = count;
+                  break;
+                }
+                else {
+                  count++;
+                }
+              }while(c.moveToNext());
             }
           }catch(IllegalStateException e) {}
         }
       }
       mScrollTime = -1;
+            
       final int scollIndex = testIndex;
       
       handler.post(new Runnable() {
         @Override
         public void run() {
-          if(getView() != null) {
+          if(getListView() != null) {
             setSelection(scollIndex);
+            handler.post(new Runnable() {
+              @Override
+              public void run() {
+                setSelection(scollIndex);
+              }
+            });
           }
         }
       });
@@ -264,6 +280,8 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     
     super.onActivityCreated(savedInstanceState);
     mChannelID = -1;
+    mDontUpdate = false;
+    mScrollPos = -1;
     
     String[] projection = {
         TvBrowserContentProvider.DATA_KEY_UNIX_DATE,
@@ -296,8 +314,12 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     getLoaderManager().initLoader(0, null, this);
   }
   
-  private void startUpdateThread() {
-    if(mUpdateThread == null || !mUpdateThread.isAlive()) {
+  public void setDontUpdate(boolean value) {
+    mDontUpdate = value;
+  }
+  
+  public void startUpdateThread() {
+    if(!mDontUpdate && (mUpdateThread == null || !mUpdateThread.isAlive())) {
       mUpdateThread = new Thread() {
         public void run() {
           handler.post(new Runnable() {
@@ -362,7 +384,17 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   @Override
   public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor c) {
     mProgramListAdapter.swapCursor(c);
-    scrollToTime();
+    
+    if(mScrollPos == -1) {
+      scrollToTime();
+    }
+    else {
+      if(getListView() != null) {
+        getListView().setSelection(mScrollPos);
+      }
+      
+      mScrollPos = -1;
+    }
   }
 
   @Override
@@ -379,5 +411,25 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     if(!isDetached() && getActivity() != null && key != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE) != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
       setDividerSize(sharedPreferences.getString(key, SettingConstants.DIVIDER_DEFAULT));
     }
+  }
+  
+  public void setScrollPos(int pos) {
+    mScrollPos = pos;
+  }
+  
+  public int getCurrentScrollIndex() {
+    int pos = getListView().getFirstVisiblePosition();
+    
+    View view = getListView().getChildAt(0);
+    
+    if(view != null && mProgramListAdapter.getCount() > 1 && view.getTop() < 0) {
+      pos++;
+    }
+    
+    if(pos < 0) {
+      pos = 0;
+    }
+    
+    return pos;
   }
 }

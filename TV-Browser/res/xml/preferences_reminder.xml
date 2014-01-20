@@ -11,4 +11,18 @@
 		android:title="@string/pref_category_reminder_again_title"
 		android:defaultValue="true"
 		/>
+	<PreferenceCategory android:title="@string/pref_reminder_type">
+		<CheckBoxPreference android:key="@string/PREF_REMINDER_SOUND"
+			android:title="@string/pref_reminder_sound"
+			android:defaultValue="true"
+			/>
+		<CheckBoxPreference android:key="@string/PREF_REMINDER_VIBRATE"
+			android:title="@string/pref_reminder_vibrate"
+			android:defaultValue="true"
+			/>
+		<CheckBoxPreference android:key="@string/PREF_REMINDER_LED"
+			android:title="@string/pref_reminder_led"
+			android:defaultValue="true"
+			/>
+	</PreferenceCategory>
 </PreferenceScreen>

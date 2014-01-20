@@ -190,9 +190,9 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         ((TextView)convertView).setText(getItem(position));
         
         switch (position) {
-          case 0: convertView.setBackgroundResource(R.color.mark_color);break;
-          case 1: convertView.setBackgroundResource(R.color.mark_color_calendar);break;
-          case 2: convertView.setBackgroundResource(R.color.mark_color_sync_favorite);break;
+          case 0: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_COLOR_KEY, getContext()));break;
+          case 1: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_REMINDER_COLOR_KEY, getContext()));break;
+          case 2: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_SYNC_COLOR_KEY, getContext()));break;
         }
         
         return convertView;
@@ -208,19 +208,21 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
           long id) {
         favorites.setItemChecked(-1, true);
         
+        mWhereClause = TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " ";
+        
         switch (position) {
-          case 0: mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE + "%'"; break;
+          case 0: mWhereClause += TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE + "%'"; break;
           case 1: 
             if(Build.VERSION.SDK_INT >= 14) {
-              mWhereClause = " AND ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_CALENDAR + "%' ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_REMINDER + "%' ) ) "; 
+              mWhereClause += " ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_CALENDAR + "%' ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_REMINDER + "%' ) ) "; 
             }
             else {
-              mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_REMINDER + "%'"; break;
+              mWhereClause += TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_REMINDER + "%'"; break;
             }
             break;
-          case 2: mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_SYNC_FAVORITE + "%'"; break;
+          case 2: mWhereClause += TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_SYNC_FAVORITE + "%'"; break;
           
-          default: mWhereClause = " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "=0 ";
+          default: mWhereClause += TvBrowserContentProvider.DATA_KEY_STARTTIME + "=0 ";
         }
         
         handler.post(new Runnable() {
@@ -426,20 +428,22 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     projection[11] = TvBrowserContentProvider.DATA_KEY_UNIX_DATE;
     projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
     projection[13] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
+
+    String where = mWhereClause;
     
-    String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
+    if(where == null) {
+      where = " " + TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=0 ";
+    }
+    
+    if(where.trim().length() > 0) {
+      where += " AND ";
+    }
+    
+    where += " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
     where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
-    
-    if(mWhereClause != null) {
-      where += mWhereClause;
-    }
-    else {
-      where = TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=0";
-    }
-    
     where += " AND ( NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";
     
-    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     
     return loader;
   }
@@ -517,5 +521,9 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     if(!isDetached() && getActivity() != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
       setDividerSize(sharedPreferences.getString(key, SettingConstants.DIVIDER_DEFAULT));
     }
+  }
+  
+  public void updateProgramsList() {
+    mProgramListAdapter.notifyDataSetChanged();
   }
 }

@@ -58,7 +58,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -71,6 +70,7 @@ import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
@@ -92,6 +92,8 @@ public class UiUtils {
   public static final int MARKED_FAVORITE_COLOR_KEY = 2;
   public static final int MARKED_REMINDER_COLOR_KEY = 3;
   public static final int MARKED_SYNC_COLOR_KEY = 4;
+  public static final int ON_AIR_BACKGROUND_KEY = 5;
+  public static final int ON_AIR_PROGRESS_KEY = 6;
   
   static {
     VALUE_MAP = new HashMap<String, Integer>();
@@ -134,6 +136,8 @@ public class UiUtils {
       
       View layout =((LayoutInflater)context.getSystemService( Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.detail_layout, null);
       
+      float textScale = Float.parseFloat(PreferenceManager.getDefaultSharedPreferences(context).getString(context.getResources().getString(R.string.DETAIL_TEXT_SCALE), "1.0"));;
+      
       TextView date = (TextView)layout.findViewById(R.id.detail_date_channel);
       TextView title = (TextView)layout.findViewById(R.id.detail_title);
       TextView genre = (TextView)layout.findViewById(R.id.detail_genre);
@@ -145,6 +149,17 @@ public class UiUtils {
           
       TextView pictureDescription = (TextView)layout.findViewById(R.id.detail_picture_description);
       TextView pictureCopyright = (TextView)layout.findViewById(R.id.detail_picture_copyright);
+      
+      date.setTextSize(TypedValue.COMPLEX_UNIT_PX, date.getTextSize() * textScale);
+      title.setTextSize(TypedValue.COMPLEX_UNIT_PX, date.getTextSize() * textScale);
+      genre.setTextSize(TypedValue.COMPLEX_UNIT_PX, genre.getTextSize() * textScale);
+      info.setTextSize(TypedValue.COMPLEX_UNIT_PX, info.getTextSize() * textScale);
+      episode.setTextSize(TypedValue.COMPLEX_UNIT_PX, episode.getTextSize() * textScale);
+      shortDescription.setTextSize(TypedValue.COMPLEX_UNIT_PX, shortDescription.getTextSize() * textScale);
+      description.setTextSize(TypedValue.COMPLEX_UNIT_PX, description.getTextSize() * textScale);
+      link.setTextSize(TypedValue.COMPLEX_UNIT_PX, link.getTextSize() * textScale);
+      pictureDescription.setTextSize(TypedValue.COMPLEX_UNIT_PX, pictureDescription.getTextSize() * textScale);
+      pictureCopyright.setTextSize(TypedValue.COMPLEX_UNIT_PX, pictureCopyright.getTextSize() * textScale);
       
       Date start = new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
       SimpleDateFormat day = new SimpleDateFormat("EEE",Locale.getDefault());
@@ -327,6 +342,7 @@ public class UiUtils {
       for(String key : keys) {
         boolean enabled = pref.getBoolean("details_" + key, true);
         TextView textView = (TextView)layout.findViewById(VALUE_MAP.get(key));
+        textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textView.getTextSize() * textScale);
         
         if(textView != null && enabled && !c.isNull(c.getColumnIndex(key))) {
           String text = c.getString(c.getColumnIndex(key));
@@ -375,12 +391,7 @@ public class UiUtils {
           public void onCancel(DialogInterface dialog) {
             finish.finish();
           }
-        });/*.setOnDismissListener(new DialogInterface.OnDismissListener() {
-          @Override
-          public void onDismiss(DialogInterface dialog) {
-            activity.finish();
-          }
-        });*/
+        });
       }
       
       builder.setView(layout);
@@ -1142,10 +1153,10 @@ public class UiUtils {
     Paint second = null;
         
     if(startTime <= System.currentTimeMillis() && System.currentTimeMillis() <= endTime) {
-      base.setColor(0x400000FF);
+      base.setColor(getColor(ON_AIR_PROGRESS_KEY, activity));
       second = new Paint();
       second.setStyle(Paint.Style.FILL_AND_STROKE);
-      second.setColor(0x150000FF);
+      second.setColor(getColor(ON_AIR_BACKGROUND_KEY, activity));
     }
     else {
       base = null;
@@ -1461,10 +1472,12 @@ public class UiUtils {
             color = SettingConstants.EXPIRED_LIGHT_COLOR;
           }
           break;
-      case MARKED_COLOR_KEY: color = context.getResources().getColor(R.color.mark_color);break;
-      case MARKED_FAVORITE_COLOR_KEY: color = context.getResources().getColor(R.color.mark_color_favorite);break;
-      case MARKED_REMINDER_COLOR_KEY: color = context.getResources().getColor(R.color.mark_color_calendar);break;
-      case MARKED_SYNC_COLOR_KEY: color = context.getResources().getColor(R.color.mark_color_sync_favorite);break;
+      case MARKED_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_MARKED), context.getResources().getColor(R.color.mark_color));break;
+      case MARKED_FAVORITE_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_FAVORITE), context.getResources().getColor(R.color.mark_color_favorite));break;
+      case MARKED_REMINDER_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_REMINDER), context.getResources().getColor(R.color.mark_color_calendar));break;
+      case MARKED_SYNC_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_SYNC), context.getResources().getColor(R.color.mark_color_sync_favorite));break;
+      case ON_AIR_BACKGROUND_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND), context.getResources().getColor(R.color.on_air_background));break;
+      case ON_AIR_PROGRESS_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_PROGRESS), context.getResources().getColor(R.color.on_air_progress));break;
     }
     
     return color;
@@ -1499,5 +1512,34 @@ public class UiUtils {
     drawable.draw(canvas);
 
     return bitmap;
+  }
+  
+
+  public static int[] getColorValues(int color) {
+    int[] colorValues = new int[4];
+    
+    colorValues[0] = (color >> 24) & 0xFF;
+    colorValues[1] = (color >> 16) & 0xFF;
+    colorValues[2] = (color >> 8) & 0xFF;
+    colorValues[3] = color & 0xFF;
+    
+    return colorValues;
+  }
+  
+  public static int getColorForValues(int[] colorValues) {
+    int color = 0;
+    int index = 0;
+    
+    if(colorValues.length == 4) {
+      color = color | (colorValues[index++] << 24);
+    }
+    
+    if(colorValues.length >= 3) {
+      color = color | (colorValues[index++] << 16);
+      color = color | (colorValues[index++] << 8);
+      color = color | (colorValues[index++]);
+    }
+    
+    return color;
   }
 }
