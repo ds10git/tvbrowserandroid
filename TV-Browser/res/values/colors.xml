@@ -4,6 +4,8 @@
     <color name="mark_color_calendar">#60FFFF00</color>
     <color name="mark_color_favorite">#40FF0000</color>
     <color name="mark_color_sync_favorite">#6000FFC0</color>
+    <color name="on_air_background">#150000FF</color>
+    <color name="on_air_progress">#400000FF</color>
     <color name="filter_selection">#480000FF</color>
     <color name="running_color">#000077</color>
     <color name="dark_gray">#222222</color>

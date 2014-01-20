@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+	<CheckBoxPreference android:key="@string/DARK_STYLE"
+	        android:title="@string/dark_theme"
+	        android:summary="@string/dark_theme_summary"
+	        android:defaultValue="false"/>
+	<PreferenceCategory android:title="@string/pref_color_title">
+	    <org.tvbrowser.settings.ColorPreference
+	        android:key="@string/PREF_COLOR_ON_AIR_BACKGROUND"
+	        android:title="@string/pref_color_running_background"
+	        android:summary="@string/pref_color_running_background_summary"
+	        android:defaultValue="@color/on_air_background"/>
+	    <org.tvbrowser.settings.ColorPreference
+	        android:key="@string/PREF_COLOR_ON_AIR_PROGRESS"
+	        android:title="@string/pref_color_running_progress"
+	        android:summary="@string/pref_color_running_progress_summary"
+	        android:defaultValue="@color/on_air_progress"/>
+	    <org.tvbrowser.settings.ColorPreference
+	        android:key="@string/PREF_COLOR_MARKED"
+	        android:title="@string/marking_value_marked"
+	        android:summary="@string/pref_marking_color_marked_summary"
+	        android:defaultValue="@color/mark_color"/>
+	    <org.tvbrowser.settings.ColorPreference
+	        android:key="@string/PREF_COLOR_FAVORITE"
+	        android:title="@string/title_favorites"
+	        android:summary="@string/pref_marking_color_favorite_summary"
+	        android:defaultValue="@color/mark_color_favorite"/>
+	    <org.tvbrowser.settings.ColorPreference
+	        android:key="@string/PREF_COLOR_REMINDER"
+	        android:title="@string/pref_marking_color_reminder_title"
+	        android:summary="@string/pref_marking_color_reminder_summary"
+	        android:defaultValue="@color/mark_color_calendar"/>
+	    <org.tvbrowser.settings.ColorPreference
+	        android:key="@string/PREF_COLOR_SYNC"
+	        android:title="@string/pref_marking_color_sync_title"
+	        android:summary="@string/pref_marking_color_sync_summary"
+	        android:defaultValue="@color/mark_color_sync_favorite"/>
+	</PreferenceCategory>
+</PreferenceScreen>

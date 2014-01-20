@@ -14,6 +14,22 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+    <string-array name="text_scale_value">
+        <item>1.0</item>
+        <item>1.1</item>
+        <item>1.2</item>
+        <item>1.3</item>
+        <item>1.4</item>
+        <item>1.5</item>
+    </string-array>
+    <string-array name="text_scale_values_names">
+        <item>100%</item>
+        <item>110%</item>
+        <item>120%</item>
+        <item>130%</item>
+        <item>140%</item>
+        <item>150%</item>
+    </string-array>
     <string-array name="picture_zoom_values_names">
         <item>100%</item>
         <item>120%</item>

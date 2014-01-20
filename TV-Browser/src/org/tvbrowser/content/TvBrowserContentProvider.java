@@ -36,12 +36,14 @@ import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 public class TvBrowserContentProvider extends ContentProvider {
   public static final String AUTHORITY = "org.tvbrowser.tvbrowsercontentprovider";
   public static final Uri CONTENT_URI_GROUPS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/groups");
   public static final Uri CONTENT_URI_CHANNELS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/channels");
   public static final Uri CONTENT_URI_DATA = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/data");
+  public static final Uri RAW_QUERY_CONTENT_URI_DATA = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/rawdata");
   public static final Uri CONTENT_URI_DATA_UPDATE = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/dataupdate");
   public static final Uri CONTENT_URI_DATA_WITH_CHANNEL = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/datachannels");
   public static final Uri CONTENT_URI_DATA_VERSION = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/dataversion");
@@ -60,6 +62,9 @@ public class TvBrowserContentProvider extends ContentProvider {
 
   private static final int DATA = 20;
   private static final int DATA_ID = 21;
+  
+  private static final int RAW_DATA = 22;
+  private static final int RAW_DATA_ID = 23;
 
   private static final int DATA_CHANNELS = 30;
   private static final int DATA_CHANNEL_ID = 31;
@@ -72,9 +77,11 @@ public class TvBrowserContentProvider extends ContentProvider {
   
   private static final int SEARCH = 100;
   
-  
-  
   private static final HashMap<String,String> SEARCH_PROJECTION_MAP;
+  
+  // column name for CONCAT raw queries
+  public static final String CONCAT_TABLE_PLACE_HOLDER = "concatTablePlaceHolder";
+  public static final String CONCAT_RAW_KEY = "concatRawQueryColumn";
   
   // Column names for group table
   public static final String GROUP_KEY_DATA_SERVICE_ID = "dataServiceID";
@@ -179,6 +186,8 @@ public class TvBrowserContentProvider extends ContentProvider {
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "channels/#", CHANNEL_ID);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "data", DATA);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "data/#", DATA_ID);
+    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "rawdata", RAW_DATA);
+    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "rawdata/#", RAW_DATA_ID);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataupdate", DATA_UPDATE);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataupdate/#", DATA_UPDATE_ID);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "datachannels", DATA_CHANNELS);
@@ -246,6 +255,8 @@ public class TvBrowserContentProvider extends ContentProvider {
       case CHANNEL_ID: return "vnd.andorid.cursor.item/vnd.tvbrowser.channels";
       case DATA: return "vnd.andorid.cursor.dir/vnd.tvbrowser.data";
       case DATA_ID: return "vnd.andorid.cursor.item/vnd.tvbrowser.data";
+      case RAW_DATA: return "vnd.andorid.cursor.dir/vnd.tvbrowser.rawdata";
+      case RAW_DATA_ID: return "vnd.andorid.cursor.item/vnd.tvbrowser.rawdata";      
       case DATA_UPDATE: return "vnd.andorid.cursor.dir/vnd.tvbrowser.dataupdate";
       case DATA_UPDATE_ID: return "vnd.andorid.cursor.item/vnd.tvbrowser.dataupdate";
       case DATA_CHANNELS: return "vnd.andorid.cursor.dir/vnd.tvbrowser.datachannels";
@@ -427,6 +438,81 @@ public class TvBrowserContentProvider extends ContentProvider {
     return true;
   }
 
+  private Cursor rawQueryData(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+    
+    if(projection != null) {
+      for(int i = 0; i < projection.length; i++) {
+        if(projection[i].equals(KEY_ID) || projection[i].equals(CHANNEL_KEY_CHANNEL_ID)) {
+          projection[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + projection[i]+ " AS " + projection[i];
+        }
+      }
+    }
+    
+    if(selectionArgs != null) {
+      for(int i = 0; i < selectionArgs.length; i++) {
+        if(selectionArgs[i].equals(KEY_ID)) {
+          selectionArgs[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + selectionArgs[i];
+        }
+      }
+    }
+    
+    StringBuilder sql = new StringBuilder();
+    
+    sql.append("SELECT ");
+    
+    if(projection == null) {
+      sql.append("*, ");
+    }
+    else {
+      for(int i = 0; i < projection.length; i++) {
+        if(i > 0) {
+          sql.append(", ");
+        }
+        
+        sql.append(projection[i]);
+      }
+    }
+    
+    if(selection != null && selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
+      selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+KEY_ID);
+    }
+    if(selection != null && selection.contains(CHANNEL_KEY_CHANNEL_ID) && !selection.contains("."+CHANNEL_KEY_CHANNEL_ID)) {
+      selection = selection.replace(CHANNEL_KEY_CHANNEL_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+CHANNEL_KEY_CHANNEL_ID);
+    }
+    
+    String sel = selection.replace(CONCAT_TABLE_PLACE_HOLDER, " FROM " + TvBrowserDataBaseHelper.DATA_TABLE + ", " + CHANNEL_TABLE + " WHERE ");
+    
+    sql.append(sel);
+    
+    sql.append(" AND " + CHANNEL_TABLE + "." + KEY_ID + "=" + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID);
+    
+    String orderBy = CHANNEL_KEY_CHANNEL_ID;
+    
+    if(sortOrder != null && sortOrder.trim().length() > 0) {
+      orderBy = sortOrder;
+    }
+    
+    if(orderBy != null && !orderBy.contains("NOCASE") && !orderBy.contains("COLLATE")) {
+      orderBy += " COLLATE NOCASE";
+    }
+    
+    if(orderBy != null) {
+      sql.append(" ORDER BY ").append(orderBy);
+    }
+    
+    // Apply the query to the underling database.
+    Cursor c = database.rawQuery(sql.toString(), selectionArgs);
+    
+    // Register the contexts ContentResolver to be notified if the cursor result set changes.
+    
+    if(INFORM_FOR_CHANGES) {
+      c.setNotificationUri(getContext().getContentResolver(), uri);
+    }
+    
+    return c;
+  }
+  
   @Override
   public Cursor query(Uri uri, String[] projection, String selection,
       String[] selectionArgs, String sortOrder) {
@@ -459,6 +545,8 @@ public class TvBrowserContentProvider extends ContentProvider {
       case DATA_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
       case DATA: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
                     orderBy = CHANNEL_KEY_CHANNEL_ID;break;
+      case RAW_DATA_ID: selection += " " + KEY_ID + "=" + uri.getPathSegments().get(1);
+      case RAW_DATA: return rawQueryData(uri, projection, selection, selectionArgs, sortOrder);
       case DATA_CHANNEL_ID: qb.appendWhere(TvBrowserDataBaseHelper.DATA_TABLE + "." + KEY_ID + "=" + uri.getPathSegments().get(1) + " AND ");
       case DATA_CHANNELS: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + CHANNEL_TABLE);
                     orderBy = CHANNEL_KEY_ORDER_NUMBER + " , " + CHANNEL_KEY_CHANNEL_ID;

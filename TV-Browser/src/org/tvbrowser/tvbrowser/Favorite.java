@@ -16,15 +16,20 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.util.ArrayList;
+
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
+import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.database.Cursor;
+import android.os.RemoteException;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
@@ -75,26 +80,52 @@ public class Favorite {
   }
   
   public String getWhereClause() {
-    StringBuilder builder = new StringBuilder();
-    
-    builder.append(" AND ((");
+    StringBuilder builder = new StringBuilder(", ");
     builder.append(TvBrowserContentProvider.DATA_KEY_TITLE);
+    
+    if(!mOnlyTitle) {
+      builder.append(" || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL);
+      builder.append(",\"\") || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
+      builder.append(",\"\") || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL);
+      builder.append(",\"\") || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION);
+      builder.append(",\"\") || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_DESCRIPTION);
+      builder.append(",\"\") || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_ACTORS);
+      builder.append(",\"\") || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_REGIE);
+      builder.append(",\"\") || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_SCRIPT);
+      builder.append(",\"\") || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO);
+      builder.append(",\"\") || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_CAMERA);
+      builder.append(",\"\") || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_MODERATION);
+      builder.append(",\"\") || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_MUSIC);
+      builder.append(",\"\") || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_PRODUCER);
+      builder.append(",\"\") || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_GENRE);
+      builder.append(",\"\") || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_OTHER_PERSONS);
+      builder.append(",\"\")");
+    }
+    
+    builder.append(" AS ");
+    builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
+    builder.append(" ");
+    builder.append(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER);
+    builder.append(" ( ");
+    builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
     builder.append(" LIKE \"%");
     builder.append(mSearch);
     builder.append("%\")");
-    builder.append(")");
-    
-    if(!mOnlyTitle) {
-      String[] values = {TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL};
-      
-      for(String value : values) {
-        builder.append(" OR (");
-        builder.append(value);
-        builder.append(" LIKE \"%");
-        builder.append(mSearch);
-        builder.append("%\")");
-      }
-    }
     
     return builder.toString();
   }
@@ -121,15 +152,25 @@ public class Favorite {
         TvBrowserContentProvider.DATA_KEY_MARKING_VALUES
     };
     
-    String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
+    String where = favorite.getWhereClause();
+    
+    if(where.trim().length() > 0) {
+      where += " AND ";
+    }
+    else {
+      where += " " + TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER;
+    }
+    
+    where +=  " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
     where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
     
-    where += favorite.getWhereClause();
-    
-    Cursor cursor = resolver.query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+    Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
     if(cursor.getCount() > 0) {
       cursor.moveToFirst();
+      
+      ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+      ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
       
       do {
         long id = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
@@ -158,13 +199,34 @@ public class Favorite {
         
         values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, newValue.toString());
         
-        resolver.update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), values, null, null);
+        ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
+        opBuilder.withValues(values);
+        
+        updateValuesList.add(opBuilder.build());
         
         Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
         intent.putExtra(SettingConstants.MARKINGS_ID, id);
         
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        markingIntentList.add(intent);
       }while(cursor.moveToNext());
+      
+      if(!updateValuesList.isEmpty()) {
+        try {
+          resolver.applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+          
+          LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(context);
+          
+          for(Intent markUpdate : markingIntentList) {
+            localBroadcast.sendBroadcast(markUpdate);
+          }
+        } catch (RemoteException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        } catch (OperationApplicationException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+      }
     }
     
     cursor.close();
@@ -188,19 +250,29 @@ public class Favorite {
         TvBrowserContentProvider.DATA_KEY_MARKING_VALUES
     };
     
-    String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
+    String where = favorite.getWhereClause();
+    
+    if(where.trim().length() > 0) {
+      where += " AND ";
+    }
+    else {
+      where += " " + TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER;
+    }
+    
+    where += " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
     where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
     
-    where += favorite.getWhereClause();
+    Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
-    Cursor cursor = resolver.query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
-    Log.d("info", "" + cursor.getCount());
     if(cursor.getCount() > 0) {
       cursor.moveToFirst();
       
       int idColumn = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
       int startTimeColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
       int markColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES);
+      
+      ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+      ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
       
       do {
         long id = cursor.getLong(idColumn);
@@ -246,14 +318,35 @@ public class Favorite {
           
           values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, value.toString());
           
-          resolver.update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), values, null, null);
+          ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
+          opBuilder.withValues(values);
+          
+          updateValuesList.add(opBuilder.build());
           
           Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
           intent.putExtra(SettingConstants.MARKINGS_ID, id);
           
-          LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+          markingIntentList.add(intent);
         }
       }while(cursor.moveToNext());
+      
+      if(!updateValuesList.isEmpty()) {
+        try {
+          resolver.applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+          
+          LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(context);
+          
+          for(Intent markUpdate : markingIntentList) {
+            localBroadcast.sendBroadcast(markUpdate);
+          }
+        } catch (RemoteException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        } catch (OperationApplicationException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        }
+      }
     }
     
     cursor.close();

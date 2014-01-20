@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+	<ListPreference android:key="@string/CHANNEL_LOGO_NAME_PROGRAM_LISTS"
+		android:title="@string/show_logo_title"
+		android:defaultValue="0"
+		android:entries="@array/show_logo"
+		android:entryValues="@array/logo_name_values"
+		android:summary="%s"/>
 	<ListPreference
 		android:key="@string/PREF_PROGRAM_LISTS_DIVIDER_SIZE"
 		android:title="@string/divider_size"

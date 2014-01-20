@@ -19,13 +19,11 @@ package org.tvbrowser.settings;
 import java.util.List;
 
 import org.tvbrowser.tvbrowser.R;
-import org.tvbrowser.tvbrowser.TvBrowserSearchResults;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 
 public class TvbPreferencesActivity extends PreferenceActivity {
   @Override
@@ -35,7 +33,6 @@ public class TvbPreferencesActivity extends PreferenceActivity {
     }
     
     super.onCreate(savedInstanceState);
-    
   }
   
   @Override

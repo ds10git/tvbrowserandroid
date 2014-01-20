@@ -30,11 +30,11 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Set;
+import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
@@ -164,6 +164,8 @@ public class TvBrowser extends FragmentActivity implements
   
   private Menu mOptionsMenu;
   
+  private Stack<ProgramsListState> mProgamListStateStack;
+  
   static {
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2014);
@@ -186,6 +188,9 @@ public class TvBrowser extends FragmentActivity implements
       
       SettingConstants.IS_DARK_THEME = true;
     }
+    else {
+      SettingConstants.IS_DARK_THEME = false;
+    }
     
     super.onCreate(savedInstanceState);
     
@@ -194,6 +199,8 @@ public class TvBrowser extends FragmentActivity implements
     setContentView(R.layout.activity_tv_browser);
     
     handler = new Handler();
+    
+    mProgamListStateStack = new Stack<ProgramsListState>();
     
     ALL_VALUE = getResources().getString(R.string.filter_channel_all);
     
@@ -232,6 +239,10 @@ public class TvBrowser extends FragmentActivity implements
             }
             
             mProgramsListWasShow = false;
+            
+            if(position != 1) {
+              mProgamListStateStack.clear();
+            }
           }
         });
 
@@ -662,7 +673,7 @@ public class TvBrowser extends FragmentActivity implements
     return IOUtils.getCompressedData(dat.toString().getBytes());
   }
   
-  private void synchronizeRemindersUp(boolean info) {
+  private void synchronizeUp(boolean info, final String value, final String address) {
     new Thread() {
       @Override
       public void run() {
@@ -682,7 +693,7 @@ public class TvBrowser extends FragmentActivity implements
           InputStream is = null;
       
           try {
-              URL url = new URL("http://android.tvbrowser.org/data/scripts/syncBackMyReminders.php");
+              URL url = new URL(address);
               
               conn = url.openConnection();
               
@@ -692,7 +703,7 @@ public class TvBrowser extends FragmentActivity implements
               
               String postData = "";
               
-              byte[] xmlData = getXmlBytes();
+              byte[] xmlData = value == null ? getXmlBytes() : IOUtils.getCompressedData(value.getBytes("UTF-8"));
               
               String message1 = "";
               message1 += "-----------------------------4664151417711" + CrLf;
@@ -900,7 +911,7 @@ public class TvBrowser extends FragmentActivity implements
     }.start();
   }
   
-  private void synchronizeDontWantToSee() {
+  private void synchronizeDontWantToSee(final boolean replace) {
     new Thread() {
       public void run() {
         if(!SettingConstants.UPDATING_FILTER) {
@@ -924,7 +935,6 @@ public class TvBrowser extends FragmentActivity implements
           URL documentUrl;
           
           try {
-            //documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels2.php");
             documentUrl = new URL("http://android.tvbrowser.org/data/scripts/hurtzAndroidDontWantToSee.php");
             URLConnection connection = documentUrl.openConnection();
             
@@ -943,6 +953,7 @@ public class TvBrowser extends FragmentActivity implements
               
               String line = null;
               
+              StringBuilder exclusionBuilder = new StringBuilder();
               HashSet<String> exclusions = new HashSet<String>();
               ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<DontWantToSeeExclusion>();
               
@@ -950,13 +961,29 @@ public class TvBrowser extends FragmentActivity implements
                 if(line.contains(";;") && line.trim().length() > 0) {
                   exclusions.add(line);
                   exclusionList.add(new DontWantToSeeExclusion(line));
+                  exclusionBuilder.append(line).append("\n");
                 }
               }
               
               if(exclusions.size() > 0) {
-                Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+                String key = getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES);
+                SharedPreferences pref1 = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
                 
-                edit.putStringSet(getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES), exclusions);
+                Set<String> oldValues = pref1.getStringSet(key, null);
+                
+                if(!replace && oldValues != null) {
+                  for(String old : oldValues) {
+                    if(!exclusions.contains(old)) {
+                      exclusions.add(old);
+                      exclusionList.add(new DontWantToSeeExclusion(old));
+                      exclusionBuilder.append(old).append("\n");
+                    }
+                  }
+                }
+                
+                Editor edit = pref1.edit();
+                
+                edit.putStringSet(key, exclusions);
                 edit.commit();
                 
                 DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
@@ -1010,6 +1037,10 @@ public class TvBrowser extends FragmentActivity implements
                     // TODO Auto-generated catch block
                     e.printStackTrace();
                   }
+                }
+                
+                if(!replace && exclusionBuilder.length() > 0) {
+                  synchronizeUp(false, exclusionBuilder.toString(), "http://android.tvbrowser.org/data/scripts/syncDontWantToSee.php");
                 }
               }
               else {
@@ -1870,12 +1901,13 @@ public class TvBrowser extends FragmentActivity implements
   }
 
   public boolean isOnline() {
-    ConnectivityManager cm =
-        (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
+    ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo netInfo = cm.getActiveNetworkInfo();
-    if (netInfo != null && netInfo.isConnectedOrConnecting()) {
-        return true;
+    
+    if(netInfo != null && netInfo.isConnectedOrConnecting()) {
+      return true;
     }
+    
     return false;
   }
   
@@ -1896,7 +1928,7 @@ public class TvBrowser extends FragmentActivity implements
           synchronizeRemindersDown(false);
         }
         if(toRemider) {
-          synchronizeRemindersUp(false);
+          synchronizeUp(false,null,"http://android.tvbrowser.org/data/scripts/syncBackMyReminders.php");
         }
         
         LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(this);
@@ -2457,6 +2489,7 @@ public class TvBrowser extends FragmentActivity implements
     
     if(fragment instanceof FavoritesFragment) {
       ((FavoritesFragment)fragment).updateSynchroButton(null);
+      ((FavoritesFragment)fragment).updateProgramsList();
     }
     
     boolean programTableActivated = pref.getBoolean(getResources().getString(R.string.PROG_TABLE_ACTIVATED), getResources().getBoolean(R.bool.prog_table_default));
@@ -2476,6 +2509,7 @@ public class TvBrowser extends FragmentActivity implements
     else if(test instanceof ProgramTableFragment) {
       if(!((ProgramTableFragment)test).checkTimeBlockSize() && !((ProgramTableFragment)test).updateTable()) {
         ((ProgramTableFragment)test).updateChannelBar();
+        ((ProgramTableFragment)test).updateMarkings();
       }
     }
     
@@ -2523,6 +2557,29 @@ public class TvBrowser extends FragmentActivity implements
     builder.show();
   }
   
+  private void synchronizeDontWantToSee() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+    
+    builder.setTitle(R.string.synchronize_replace_add_title);
+    builder.setMessage(R.string.synchronize_replace_exclusion_add_text);
+    
+    builder.setPositiveButton(R.string.synchronize_add_exclusion, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        synchronizeDontWantToSee(false);
+      }
+    });
+    
+    builder.setNegativeButton(R.string.synchronize_replace_exclusion, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        synchronizeDontWantToSee(true);
+      }
+    });
+    
+    builder.show();
+  }
+  
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
@@ -2541,7 +2598,7 @@ public class TvBrowser extends FragmentActivity implements
         break;
       case R.id.action_synchronize_reminders_up:
         if(isOnline()) {
-          synchronizeRemindersUp(true);
+          synchronizeUp(true,null,"http://android.tvbrowser.org/data/scripts/syncBackMyReminders.php");
         }
         else {
           showNoInternetConnection(null);
@@ -2915,16 +2972,47 @@ public class TvBrowser extends FragmentActivity implements
       mProgramsListWasShow = false;
       mViewPager.setCurrentItem(mLastSelectedTab,true);
     }
+    else if(!mProgamListStateStack.isEmpty()) {
+      mProgramsListWasShow = false;
+      
+      ProgramsListState state = mProgamListStateStack.pop();
+      
+      Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
+      showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA, state.mChannelID);         
+      showChannel.putExtra(SettingConstants.SCROLL_POSITION_EXTRA, state.mScrollPos);
+      showChannel.putExtra(SettingConstants.DAY_POSITION_EXTRA, state.mDayPos);
+      showChannel.putExtra(SettingConstants.FILTER_POSITION_EXTRA, state.mFilterPos);
+      
+      LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcastSync(showChannel);
+    }
     else {
       super.onBackPressed();
     }
   }
-  
 
   @Override
   public void onConfigurationChanged(Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
     
     SettingConstants.ORIENTATION = newConfig.orientation;
+  }
+  
+  public void addProgramListState(int dayPos, int channelID, int filterPos, int scrollPos) {
+    mProgramsListWasShow = false;
+    mProgamListStateStack.push(new ProgramsListState(dayPos, channelID, filterPos, scrollPos));
+  }
+  
+  private static final class ProgramsListState {
+    public int mDayPos;
+    public int mChannelID;
+    public int mFilterPos;
+    public int mScrollPos;
+    
+    public ProgramsListState(int dayPos, int channelID, int filterPos, int scrollPos) {
+      mDayPos = dayPos;
+      mChannelID = channelID;
+      mFilterPos = filterPos;
+      mScrollPos = scrollPos;
+    }
   }
 }

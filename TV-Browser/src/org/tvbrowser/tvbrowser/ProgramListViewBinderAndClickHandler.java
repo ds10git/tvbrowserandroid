@@ -31,7 +31,6 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.view.ContextMenu;
@@ -63,7 +62,11 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
     boolean showInfo = mPref.getBoolean(view.getResources().getString(R.string.SHOW_INFO_IN_LISTS), true);
     boolean showOrderNumber = mPref.getBoolean(view.getResources().getString(R.string.SHOW_SORT_NUMBER_IN_LISTS), true);
     boolean showEndTime = mPref.getBoolean(view.getResources().getString(R.string.PREF_PROGRAM_LISTS_SHOW_END_TIME), view.getResources().getBoolean(R.bool.prog_lists_show_end_time_default));
-    boolean showChannelName = true;
+    
+    String logoNamePref = mPref.getString(view.getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS), "0");
+    
+    boolean showChannelName = logoNamePref.equals("0") || logoNamePref.equals("2");
+    boolean showChannelLogo = logoNamePref.equals("0") || logoNamePref.equals("1");
     
     if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
       View until = ((ViewGroup)view.getParent()).findViewById(R.id.untilLabelPL);
@@ -92,13 +95,15 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       
       String name = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
       String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
+      String number = null;
       
       if(shortName != null) {
         name = shortName;
       }
       
       if(showOrderNumber) {
-        name = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". " + name;
+        number = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ".";
+        name =  number + " " + name;
       }
       
       int logoIndex = cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
@@ -107,10 +112,10 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       
       ImageView image = (ImageView)((ViewGroup)view.getParent()).findViewById(R.id.program_list_channel_logo);
       
-      if(logoIndex >= 0) {
+      if(showChannelLogo && logoIndex >= 0) {
         int key = cursor.getInt(logoIndex);
         
-        if(showChannelName || mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && (mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE) {
+        if(showChannelName || showOrderNumber || mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && (mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE) {
           logo = SettingConstants.SMALL_LOGO_MAP.get(key);
         }
         else {
@@ -122,7 +127,7 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
         image.setImageDrawable(logo);
         image.setVisibility(View.VISIBLE);
         
-        if(!showChannelName) {
+        if(!showChannelName && !showOrderNumber) {
           text.setVisibility(View.GONE);
         }
         else {
@@ -133,18 +138,12 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
         image.setVisibility(View.GONE);
         text.setVisibility(View.VISIBLE);
       }
-      
-      /*if(mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && (mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE) {
-        text.setCompoundDrawables(logo, null, null, null);
+      if(showChannelName) {
+        text.setText(name);
       }
-      else {
-        text.setCompoundDrawables(null, logo, null, null);
-      }*/
-      
-      
-      
-      text.setText(name);
-      //text.setVisibility(View.GONE);
+      else if(showOrderNumber) {
+        text.setText(number);
+      }
        
       return true;
     }

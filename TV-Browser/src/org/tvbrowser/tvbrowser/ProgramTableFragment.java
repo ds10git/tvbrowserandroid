@@ -23,6 +23,7 @@ import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.settings.TvbPreferenceFragment;
 import org.tvbrowser.view.ChannelLabel;
 import org.tvbrowser.view.CompactProgramTableLayout;
 import org.tvbrowser.view.ProgramPanel;
@@ -416,6 +417,53 @@ public class ProgramTableFragment extends Fragment {
       };
       
       mUpdateThread.setPriority(Thread.MIN_PRIORITY);
+      mUpdateThread.start();
+    }
+  }
+  
+  public void updateMarkings() {
+    
+    if(mUpdateThread == null || !mUpdateThread.isAlive()) {
+      mUpdateThread = new Thread() {
+        @Override
+        public void run() {
+          if(!isDetached() && getActivity() != null) {
+            Calendar value = Calendar.getInstance();
+            value.setTime(mCurrentDate.getTime());
+            
+            value.set(Calendar.HOUR_OF_DAY, 0);
+            value.set(Calendar.MINUTE, 0);
+            value.set(Calendar.SECOND, 0);
+            value.set(Calendar.MILLISECOND, 0);
+            
+            long dayStart = value.getTimeInMillis();
+            
+            mDaySet = true;
+                
+            long dayEnd = dayStart + 28 * 60 * 60 * 1000;
+                
+            String where = TvBrowserContentProvider.DATA_KEY_STARTTIME +  ">=" + dayStart + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + dayEnd + " AND length(" + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + ") > 0";
+            
+            Cursor c = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,  TvBrowserContentProvider.DATA_KEY_STARTTIME, TvBrowserContentProvider.DATA_KEY_ENDTIME, TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, where, null, TvBrowserContentProvider.KEY_ID);
+            
+            while(c.getCount() > 0 && c.moveToNext()) {
+              long key = c.getLong(0);
+              
+              View view = mProgramPanelLayout.findViewWithTag(Long.valueOf(key));
+              
+              if(view != null) {
+                long startTime = c.getLong(1);
+                long endTime = c.getLong(2);
+                String markings = c.getString(3);
+                
+                UiUtils.handleMarkings(getActivity(), null, startTime, endTime, view, markings, handler, true);
+              }
+            }
+            
+            c.close();
+          }
+        }
+      };
       mUpdateThread.start();
     }
   }
