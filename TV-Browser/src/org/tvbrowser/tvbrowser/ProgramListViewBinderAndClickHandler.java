@@ -102,7 +102,14 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       }
       
       if(showOrderNumber) {
-        number = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ".";
+        number = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
+        
+        if(number == null) {
+          number = "0";
+        }
+        
+        number += ".";
+        
         name =  number + " " + name;
       }
       

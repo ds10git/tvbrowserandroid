@@ -62,6 +62,8 @@ public class SettingConstants {
   
   public static boolean IS_DARK_THEME = false;
   
+  public static boolean IS_REMINDER_PAUSED = false;
+  
   public static final SparseArray<Drawable> SMALL_LOGO_MAP = new SparseArray<Drawable>();
   public static final SparseArray<Drawable> MEDIUM_LOGO_MAP = new SparseArray<Drawable>();
   

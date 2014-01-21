@@ -454,6 +454,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     long mNextEndTimeValue;
     
     int mCurrentOrientation;
+    float mCurrentScale;
     
     ViewGroup mChannelInfo;
     ImageView mChannelLogo;
@@ -622,14 +623,18 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       }
       
       if(!channelSet) {
-        String logoNamePref = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS), "0");
+        String logoNamePref = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getResources().getString(R.string.CHANNEL_LOGO_NAME_RUNNING), "0");
         
         boolean showChannelName = logoNamePref.equals("0") || logoNamePref.equals("2");
         boolean showChannelLogo = logoNamePref.equals("0") || logoNamePref.equals("1");
+        boolean showBigChannelLogo = logoNamePref.equals("3");
         
         Drawable logo = null;
         
-        if(showChannelLogo) {
+        if(showBigChannelLogo) {
+          logo = SettingConstants.MEDIUM_LOGO_MAP.get(block.mChannelID);
+        }
+        else if(showChannelLogo) {
           logo = SettingConstants.SMALL_LOGO_MAP.get(block.mChannelID);
         }
         
@@ -702,12 +707,17 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private View getCompactView(View convertView, ViewGroup parent, java.text.DateFormat timeFormat, ChannelProgramBlock block, int DEFAULT_TEXT_COLOR) {
     CompactLayoutViewHolder viewHolder = null;
     
-    if(convertView == null || convertView.getTag() instanceof LongLayoutViewHolder || ((CompactLayoutViewHolder)convertView.getTag()).orientationChanged(SettingConstants.ORIENTATION)) {
+    float textScale = Float.valueOf(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getString(R.string.PREF_PROGRAM_LISTS_TEXT_SCALE),"1.0"));
+    
+    if(convertView == null || convertView.getTag() instanceof LongLayoutViewHolder || ((CompactLayoutViewHolder)convertView.getTag()).orientationChanged(SettingConstants.ORIENTATION) || ((CompactLayoutViewHolder)convertView.getTag()).mCurrentScale !=  textScale) {
       convertView = getActivity().getLayoutInflater().inflate(R.layout.compact_program_panel, parent, false);
+      
+      UiUtils.scaleTextViews(convertView, textScale);
       
       viewHolder = new CompactLayoutViewHolder();
       
       viewHolder.mCurrentOrientation = SettingConstants.ORIENTATION;
+      viewHolder.mCurrentScale = textScale;
       
       viewHolder.mChannelInfo = (ViewGroup)convertView.findViewById(R.id.running_list_channel_info);
       viewHolder.mChannelLogo = (ImageView)convertView.findViewById(R.id.running_list_channel_logo);
@@ -1410,8 +1420,10 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
 
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    if(!isDetached() && getActivity() != null && getString(R.string.PREF_RUNNING_DIVIDER_SIZE).equals(key)) {
-      setDividerSize(sharedPreferences.getString(key, SettingConstants.DIVIDER_DEFAULT));
+    if(!isDetached() && getActivity() != null) {
+      if(getString(R.string.PREF_RUNNING_DIVIDER_SIZE).equals(key)) {
+        setDividerSize(sharedPreferences.getString(key, SettingConstants.DIVIDER_DEFAULT));
+      }
     }
   }
 }

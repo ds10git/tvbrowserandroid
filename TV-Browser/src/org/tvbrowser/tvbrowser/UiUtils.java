@@ -69,13 +69,13 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -1541,5 +1541,20 @@ public class UiUtils {
     }
     
     return color;
+  }
+  
+  public static void scaleTextViews(View view, float scale) {
+    if(view instanceof ViewGroup) {
+      ViewGroup group = (ViewGroup)view;
+      
+      for(int i = 0; i < group.getChildCount(); i++) {
+        scaleTextViews(group.getChildAt(i), scale);
+      }
+    }
+    else if(view instanceof TextView) {
+      TextView text = (TextView)view;
+      
+      text.setTextSize(TypedValue.COMPLEX_UNIT_PX, text.getTextSize() * scale);
+    }
   }
 }

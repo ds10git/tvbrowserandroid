@@ -546,7 +546,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       case DATA: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
                     orderBy = CHANNEL_KEY_CHANNEL_ID;break;
       case RAW_DATA_ID: selection += " " + KEY_ID + "=" + uri.getPathSegments().get(1);
-      case RAW_DATA: return rawQueryData(uri, projection, selection, selectionArgs, sortOrder);
+      case RAW_DATA: return rawQueryData(CONTENT_URI_DATA, projection, selection, selectionArgs, sortOrder);
       case DATA_CHANNEL_ID: qb.appendWhere(TvBrowserDataBaseHelper.DATA_TABLE + "." + KEY_ID + "=" + uri.getPathSegments().get(1) + " AND ");
       case DATA_CHANNELS: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + CHANNEL_TABLE);
                     orderBy = CHANNEL_KEY_ORDER_NUMBER + " , " + CHANNEL_KEY_CHANNEL_ID;

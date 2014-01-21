@@ -23,7 +23,6 @@ import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.settings.TvbPreferenceFragment;
 import org.tvbrowser.view.ChannelLabel;
 import org.tvbrowser.view.CompactProgramTableLayout;
 import org.tvbrowser.view.ProgramPanel;
@@ -32,6 +31,7 @@ import org.tvbrowser.view.ProgramTableLayoutConstants;
 import org.tvbrowser.view.TimeBlockProgramTableLayout;
 
 import android.annotation.SuppressLint;
+import android.annotation.TargetApi;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -53,7 +53,6 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Display;
@@ -88,6 +87,7 @@ public class ProgramTableFragment extends Fragment {
   private int mCurrentLogoValue;
   private boolean mPictureShown;
   private int mTimeBlockSize;
+  private int mOldScrollX;
   
   private ProgramTableLayout mProgramPanelLayout;
   
@@ -96,6 +96,8 @@ public class ProgramTableFragment extends Fragment {
   private boolean mDaySet;
   
   private boolean mGrowPanels;
+  
+  private boolean mCurrentTextScale;
   
   public void scrollToTime(int time, final MenuItem timeItem) {
     if(isResumed()) {
@@ -198,6 +200,7 @@ public class ProgramTableFragment extends Fragment {
     mUpdatingRunningPrograms = false;
     mUpdatingLayout = false;
     mCurrentDate = null;
+    mOldScrollX = -1;
     //mCurrentDay = 0;
     
     mClickListener = new View.OnClickListener() {
@@ -658,6 +661,18 @@ public class ProgramTableFragment extends Fragment {
       });
     }
     
+    handler.post(new Runnable() {
+      @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+      @Override
+      public void run() {
+        if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+          getView().findViewById(R.id.horizontal_program_table_scroll).setScrollX(mOldScrollX);
+        }
+        
+        mOldScrollX = 0;
+      }
+    });
+    
     channels.close();
     
     mUpdatingLayout = false;
@@ -684,10 +699,12 @@ public class ProgramTableFragment extends Fragment {
     
     RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
     
+    mOldScrollX = getView().findViewById(R.id.horizontal_program_table_scroll).getScrollX();
+    
     updateView(getActivity().getLayoutInflater(), layout);
   }
   
-  private void changeDay(int count) {
+  private void changeDay(int count) {    
     mCurrentDate.add(Calendar.DAY_OF_YEAR, count);
     
     TextView day = (TextView)getView().findViewById(R.id.show_current_day);
@@ -695,6 +712,8 @@ public class ProgramTableFragment extends Fragment {
     setDayString(day);
     
     RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
+    
+    mOldScrollX = getView().findViewById(R.id.horizontal_program_table_scroll).getScrollX();
     
     updateView(getActivity().getLayoutInflater(), layout);
   }
@@ -788,16 +807,20 @@ public class ProgramTableFragment extends Fragment {
     boolean updateLayout = (pref.getString(getResources().getString(R.string.PROG_TABLE_LAYOUT), "0").equals("0") && mProgramPanelLayout instanceof CompactProgramTableLayout) || 
         (pref.getString(getResources().getString(R.string.PROG_TABLE_LAYOUT), "0").equals("1") && mProgramPanelLayout instanceof TimeBlockProgramTableLayout);
     boolean updateWidth = pref.getInt(getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH), 200) != ProgramTableLayoutConstants.getRawColumnWidth();
+    boolean updateTextScale = Float.valueOf(pref.getString(getResources().getString(R.string.PROG_TABLE_TEXT_SCALE), "1.0")) != ProgramTableLayoutConstants.getTextScale();
     
-    if(updateWidth) {
+    if(updateTextScale) {
+      ProgramTableLayoutConstants.initialize(getActivity());
+    }
+    else if(updateWidth) {
       ProgramTableLayoutConstants.updateColumnWidth(getActivity());
     }
     
-    if(mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth) {
+    if(mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth || updateTextScale) {
       updateView(getActivity().getLayoutInflater(), (RelativeLayout)getView().findViewWithTag("LAYOUT"));
     }
     
-    return mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth;
+    return mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth || updateTextScale;
   }
   
   public void updateChannelBar() {
@@ -893,6 +916,9 @@ public class ProgramTableFragment extends Fragment {
         mCurrentDate.set(select.getYear(), select.getMonth(), select.getDayOfMonth());
 
         setDayString((TextView)getView().findViewById(R.id.show_current_day));
+        
+        mOldScrollX = getView().findViewById(R.id.horizontal_program_table_scroll).getScrollX();
+        
         updateView(getActivity().getLayoutInflater(), (RelativeLayout)getView().findViewWithTag("LAYOUT"));
       }
     });

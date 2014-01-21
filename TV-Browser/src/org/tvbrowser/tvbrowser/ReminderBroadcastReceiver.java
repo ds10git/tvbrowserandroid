@@ -48,7 +48,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
     
-    if(programID >= 0) {
+    if(!SettingConstants.IS_REMINDER_PAUSED && programID >= 0) {
       Cursor values = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, programID), SettingConstants.REMINDER_PROJECTION, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
       
       if(values.getCount() > 0 && values.moveToNext()) {
