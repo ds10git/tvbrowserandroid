@@ -6,6 +6,12 @@
 		android:entries="@array/show_logo"
 		android:entryValues="@array/logo_name_values"
 		android:summary="%s"/>
+	<ListPreference android:key="@string/PREF_PROGRAM_LISTS_TEXT_SCALE"
+		android:title="@string/pref_detail_text_scale"
+		android:defaultValue="1.0"
+		android:entries="@array/program_text_scale_names"
+		android:entryValues="@array/program_text_scale_value"
+		android:summary="%s"/>
 	<ListPreference
 		android:key="@string/PREF_PROGRAM_LISTS_DIVIDER_SIZE"
 		android:title="@string/divider_size"

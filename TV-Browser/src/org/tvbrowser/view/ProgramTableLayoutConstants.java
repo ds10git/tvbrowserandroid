@@ -19,18 +19,17 @@ package org.tvbrowser.view;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.UiUtils;
 
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
 import android.text.TextPaint;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.widget.TextView;
 
 public class ProgramTableLayoutConstants {
@@ -84,6 +83,7 @@ public class ProgramTableLayoutConstants {
   static boolean SHOW_ORDER_NUMBER;
   
   private static int RAW_COLUMN_WIDTH;
+  private static float TEXT_SCALE;
   
   static {
     NOT_EXPIRED_TITLE_PAINT.setTypeface(Typeface.DEFAULT_BOLD);
@@ -130,7 +130,8 @@ public class ProgramTableLayoutConstants {
   public static void update(Context context) {
     updateChannelLogoName(context);
  // Get the screen's density scale
-    RAW_COLUMN_WIDTH = PreferenceManager.getDefaultSharedPreferences(context).getInt(context.getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH), 200);
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+    RAW_COLUMN_WIDTH = pref.getInt(context.getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH), 200);
     
     final float scale = context.getResources().getDisplayMetrics().density;
     // Convert the dps to pixels, based on density scale
@@ -174,7 +175,10 @@ public class ProgramTableLayoutConstants {
     
     TIME_FORMAT = new SimpleDateFormat(value, Locale.getDefault());
     
-    float textSize = new TextView(context).getTextSize();//NOT_EXPIRED_TITLE_PAINT.getTextSize() * scale + 0.5f;
+    TEXT_SCALE = Float.valueOf(pref.getString(context.getString(R.string.PROG_TABLE_TEXT_SCALE),"1.0"));
+    
+    float textSize = new TextView(context).getTextSize() * TEXT_SCALE;
+    float smallTextSize = (10 * scale + 0.5f) * TEXT_SCALE;
     int color = new TextView(context).getTextColors().getDefaultColor();
     
     NOT_EXPIRED_TITLE_PAINT.setTextSize(textSize);
@@ -183,12 +187,12 @@ public class ProgramTableLayoutConstants {
     NOT_EXPIRED_GENRE_EPISODE_PAINT.setTextSize(textSize);
     NOT_EXPIRED_GENRE_EPISODE_PAINT.setColor(color);
     
-    NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.setTextSize(10 * scale + 0.5f);
+    NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.setTextSize(smallTextSize);
     NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.setColor(color);
     
     EXPIRED_TITLE_PAINT.setTextSize(textSize);
     EXPIRED_GENRE_EPISODE_PAINT.setTextSize(textSize);
-    EXPIRED_PICTURE_COPYRIGHT_PAINT.setTextSize(10 * scale + 0.5f);
+    EXPIRED_PICTURE_COPYRIGHT_PAINT.setTextSize(smallTextSize);
     
     BIG_FONT_DESCEND = Math.abs(NOT_EXPIRED_TITLE_PAINT.getFontMetricsInt().descent);
     BIG_MAX_FONT_HEIGHT = BIG_FONT_DESCEND + Math.abs(NOT_EXPIRED_TITLE_PAINT.getFontMetricsInt().ascent)+1;
@@ -202,6 +206,10 @@ public class ProgramTableLayoutConstants {
   
   public static int getRawColumnWidth() {
     return RAW_COLUMN_WIDTH;
+  }
+  
+  public static float getTextScale() {
+    return TEXT_SCALE;
   }
   
   public static int getChannelBarHeight() {

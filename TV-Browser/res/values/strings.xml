@@ -172,11 +172,10 @@
 	<string name="pref_load_full_data_summary_on">All available data is downloaded</string>
 	<string name="pref_load_full_data_summary_off">Only important data is downloaded</string>
 	<string name="show_logo_title">Channel icon and name</string>
-	<string-array name="show_logo">
-	    <item>Show channel icon and name</item>
-	    <item>Show only channel icon</item>
-	    <item>Show only channel name</item>
-	</string-array>
+	<string name="show_logo_and_name">Show channel icon and name</string>
+	<string name="show_logo_medium_only">Show only bigger channel icon</string>
+	<string name="show_logo_only">Show only channel icon</string>
+	<string name="show_name_only">Show channel icon and name</string>
 	<string name="pref_activated">Activated</string>
 	<string name="pref_detail_category">Detail window</string>
 	<string name="pref_detail_category_summary">Which information should be shown in the details window?</string>
@@ -296,6 +295,9 @@
     <string name="action_synchronize_reminders_down">Import Reminders</string>
     <string name="action_synchronize_reminders_up">Export Reminders</string>
     <string name="action_synchronize_dont_want_to_see">I don\'t want to see!</string>
+    <string name="action_pause_reminder">Pause Reminder</string>
+    <string name="action_pause_reminder_text">The Reminders will be paused until you continue them or the system is restarted.</string>
+    <string name="action_continue_reminder">Continue Reminder</string>
     <string name="no_dont_want_to_see_sync">Could not synchronize \'I don\'t want to see!\' exclusion list.\nDid you upload the exclusion list with the AndroidSync plugin?</string>
     <string name="dont_want_to_see_sync_success">Successfully synchronized exclusion list of \'I don\'t want to see!\'</string>
     <string name="dont_want_to_see_notification_text">Synchronizing exclusion list&#8230;</string>

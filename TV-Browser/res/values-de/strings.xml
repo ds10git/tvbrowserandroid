@@ -166,11 +166,10 @@
 	<string name="pref_load_full_data_summary_on">Alle verfügbaren Informationen werden heruntergeladen</string>
 	<string name="pref_load_full_data_summary_off">Nur die wichtigsten Informationen werden heruntergeladen</string>
 	<string name="show_logo_title">Senderlogo und -name</string>
-	<string-array name="show_logo">
-	    <item>Senderlogo und -name anzeigen</item>
-	    <item>Nur Senderlogo anzeigen</item>
-	    <item>Nur Sendername anzeigen</item>
-	</string-array>
+	<string name="show_logo_and_name">Senderlogo und -name anzeigen</string>
+	<string name="show_logo_medium_only">Nur größeres Senderlogo anzeigen</string>
+	<string name="show_logo_only">Nur Senderlogo anzeigen</string>
+	<string name="show_name_only">Nur Sendername anzeigen</string>
 	<string name="pref_activated">Aktiviert</string>
 	<string name="pref_detail_category">Detail-Fenster</string>
 	<string name="pref_detail_category_summary">Welche Informationen sollen im Detail-Fenster angezeigt werden?</string>
@@ -284,6 +283,9 @@
     <string name="action_synchronize_reminders_down">Erinnerungen herunterladen</string>
     <string name="action_synchronize_reminders_up">Erinnerungen hochladen</string>
     <string name="action_synchronize_dont_want_to_see">Will ich nicht sehen!</string>
+    <string name="action_pause_reminder">Erinnerer anhalten</string>
+    <string name="action_pause_reminder_text">Die Erinnerungen werden so lange nicht erscheinen, bis der Erinnerer wieder fortgesetzt wird oder das System neu gestartet wird.</string>
+    <string name="action_continue_reminder">Erinnerer fortsetzen</string>
     <string name="no_dont_want_to_see_sync">Konnte Ausschlusslite von \'Will ich nicht sehen!\' nicht synchronisieren.\nWurde die Ausschlussliste mit dem AndroidSync-Plugin hochgeladen?</string>
     <string name="dont_want_to_see_sync_success">Ausschlusslite von \'Will ich nicht sehen!\' erfolgreich synchronisiert.</string>
     <string name="dont_want_to_see_notification_text">Ausschlussliste synchronisieren&#8230;</string>

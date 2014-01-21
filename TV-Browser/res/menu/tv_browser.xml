@@ -25,25 +25,38 @@
         android:title="@string/update_data"
         android:icon="@android:drawable/stat_sys_download"
         />
-    	
-    <item
-        android:id="@+id/action_load_channels_again"
-        android:orderInCategory="100"
+  	<item
+  	    android:id="@+id/action_pause_reminder"
+  	    android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/action_load_channels_again"/>
-    
-    <item
-        android:id="@+id/action_select_channels"
-        android:orderInCategory="100"
+  	    android:title="@string/action_pause_reminder"/>
+  	<item
+  	    android:id="@+id/action_continue_reminder"
+  	    android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/action_select_channels"/>
-    
-    <item
-        android:id="@+id/action_sort_channels"
-        android:orderInCategory="100"
+  	    android:title="@string/action_continue_reminder"/>
+  	<item
+  	    android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/action_sort_channels"/>
-    
+  	    android:title="@string/action_synchronize_channels">
+        <menu>
+            <item
+		        android:id="@+id/action_load_channels_again"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_load_channels_again"/>
+		    <item
+		        android:id="@+id/action_select_channels"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_select_channels"/>
+		    <item
+		        android:id="@+id/action_sort_channels"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_sort_channels"/>
+        </menu>
+  	</item>
     <item
         android:id="@+id/action_delete_all_data"
         android:orderInCategory="100"

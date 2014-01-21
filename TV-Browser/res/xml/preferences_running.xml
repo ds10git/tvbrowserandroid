@@ -10,17 +10,23 @@
   <!--    <PreferenceScreen
         
         >-->
-        <ListPreference
-			android:key="@string/PREF_RUNNING_DIVIDER_SIZE"
-			android:title="@string/divider_size"
-			android:defaultValue="10"
-			android:entries="@array/divider_value_names"
-			android:entryValues="@array/divider_values"
-			android:summary="%s"/>
-        <CheckBoxPreference android:key="@string/RUNNING_PROGRAMS_NEXT_DAY"
-            android:defaultValue="true"
-            android:title="@string/pref_running_next_day"
-            android:summary="@string/pref_running_next_day_summary"/>
+	<ListPreference
+		android:key="@string/PREF_RUNNING_DIVIDER_SIZE"
+		android:title="@string/divider_size"
+		android:defaultValue="10"
+		android:entries="@array/divider_value_names"
+		android:entryValues="@array/divider_values"
+		android:summary="%s"/>
+	<ListPreference android:key="@string/CHANNEL_LOGO_NAME_RUNNING"
+		android:title="@string/show_logo_title"
+		android:defaultValue="0"
+		android:entries="@array/show_logo_long"
+		android:entryValues="@array/logo_name_values_long"
+		android:summary="%s"/>
+    <CheckBoxPreference android:key="@string/RUNNING_PROGRAMS_NEXT_DAY"
+        android:defaultValue="true"
+        android:title="@string/pref_running_next_day"
+        android:summary="@string/pref_running_next_day_summary"/>
      <!--     <PreferenceCategory android:title="@string/pref_time_buttons"
             android:summary="@string/pref_time_buttons_summary">
         -->

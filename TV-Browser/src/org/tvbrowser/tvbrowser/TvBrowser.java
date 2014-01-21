@@ -150,6 +150,9 @@ public class TvBrowser extends FragmentActivity implements
   private MenuItem mDeleteLogItem;
   private MenuItem mScrollTimeItem;
   
+  private MenuItem mPauseReminder;
+  private MenuItem mContinueReminder;
+  
   private static final Calendar mRundate;
   private static final int[] SCROLL_IDS = new int[] {-1,-2,-3,-4,-5,-6};
   private static int[] SCROLL_TIMES = new int[6];
@@ -1317,20 +1320,22 @@ public class TvBrowser extends FragmentActivity implements
       
       Bitmap channelLogo = null;
       
-      if(logo != null) {
+      if(logo != null && logo.length > 0) {
         channelLogo = BitmapFactory.decodeByteArray(logo, 0, logo.length);
         
-        BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
-        
-        ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
-        background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
-        
-        LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
-        logoDrawable.setBounds(background.getBounds());
-        
-        l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
-        
-        channelLogo = UiUtils.drawableToBitmap(logoDrawable);
+        if(channelLogo != null) {
+          BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
+          
+          ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+          background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
+          
+          LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+          logoDrawable.setBounds(background.getBounds());
+          
+          l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
+          
+          channelLogo = UiUtils.drawableToBitmap(logoDrawable);
+        }
       }
       
       ChannelSelection selection = new ChannelSelection(channelID, name, category, countries, channelLogo, isSelected);
@@ -2580,6 +2585,31 @@ public class TvBrowser extends FragmentActivity implements
     builder.show();
   }
   
+  private void pauseReminder() {
+    AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+    
+    builder.setTitle(R.string.action_pause_reminder);
+    builder.setMessage(R.string.action_pause_reminder_text);
+    
+    builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        SettingConstants.IS_REMINDER_PAUSED = true;
+        
+        mPauseReminder.setVisible(false);
+        mContinueReminder.setVisible(true);
+      }
+    });
+    
+    builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+      }
+    });
+    
+    builder.show();
+  }
+  
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
@@ -2588,6 +2618,8 @@ public class TvBrowser extends FragmentActivity implements
         showUserSetting(false);
     }
       break;
+      case R.id.action_pause_reminder: pauseReminder(); break;
+      case R.id.action_continue_reminder: SettingConstants.IS_REMINDER_PAUSED = false; mPauseReminder.setVisible(true); mContinueReminder.setVisible(false); break;
       case R.id.action_synchronize_reminders_down:
         if(isOnline()) {
           synchronizeRemindersDown(true);
@@ -2761,6 +2793,12 @@ public class TvBrowser extends FragmentActivity implements
     mSendLogItem = menu.findItem(R.id.action_send_log);
     mDeleteLogItem = menu.findItem(R.id.action_delete_log);
     mScrollTimeItem = menu.findItem(R.id.action_scroll);
+    
+    mPauseReminder = menu.findItem(R.id.action_pause_reminder);
+    mContinueReminder = menu.findItem(R.id.action_continue_reminder);
+    
+    mPauseReminder.setVisible(!SettingConstants.IS_REMINDER_PAUSED);
+    mContinueReminder.setVisible(SettingConstants.IS_REMINDER_PAUSED);
     
     mScrollTimeItem.setVisible(mViewPager.getCurrentItem() == 1 || mViewPager.getCurrentItem() == 3);
     

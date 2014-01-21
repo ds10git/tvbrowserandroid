@@ -24,6 +24,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -31,6 +32,7 @@ import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextView;
 
 /**
  * A cursor adapter that handles orientation changes.
@@ -42,9 +44,12 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
   private View.OnClickListener mChannelSwitchListener;
   private View.OnCreateContextMenuListener mContextMenuListener;
   private AdapterView.AdapterContextMenuInfo mContextMenuInfo;
+  private Context mContext;
   
   public OrientationHandlingCursorAdapter(final Context context, int layout, Cursor c, String[] from, int[] to, int flags, boolean handleClicks) {
     super(context, layout, c, from, to, flags);
+    
+    mContext = context;
     
     if(handleClicks) {
       mOnClickListener = new View.OnClickListener() {
@@ -110,15 +115,33 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
     public long mStartTime;
   }
   
+  private static final class ProgTag {
+    public int mOrientation;
+    public float mTextScale;
+  }
+  
   @Override
   public View getView(int position, View convertView, ViewGroup parent) {
-    if(convertView != null && ((Integer)convertView.getTag()) != SettingConstants.ORIENTATION) {
+    float textScale = Float.valueOf(PreferenceManager.getDefaultSharedPreferences(mContext).getString(mContext.getString(R.string.PREF_PROGRAM_LISTS_TEXT_SCALE),"1.0"));
+    
+    if(convertView != null && ((((ProgTag)convertView.getTag()).mOrientation != SettingConstants.ORIENTATION) || ((ProgTag)convertView.getTag()).mTextScale != textScale)) {
       convertView = null;
     }
     
+    boolean scale = convertView == null;
+    
     View view = super.getView(position, convertView, parent);
     
-    view.setTag(Integer.valueOf(SettingConstants.ORIENTATION));
+    if(scale) {
+      UiUtils.scaleTextViews(view, textScale);
+      
+      ProgTag tag = new ProgTag();
+      
+      tag.mOrientation = SettingConstants.ORIENTATION;
+      tag.mTextScale = textScale;
+      
+      view.setTag(tag);
+    }
     
     if(mOnClickListener != null) {
       View listEntry = view.findViewById(R.id.programs_list_row);
