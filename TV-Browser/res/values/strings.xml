@@ -317,10 +317,15 @@
 	    <item>Big</item>
 	</string-array>
 	<string name="pref_reminder_category">Reminder</string>
-	<string name="pref_reminder_type">Type</string>
+	<string name="pref_reminder_type">Day mode</string>
 	<string name="pref_reminder_sound">Sound</string>
 	<string name="pref_reminder_vibrate">Vibrate</string>
 	<string name="pref_reminder_led">Info LED</string>
+	<string name="pref_reminder_night_type">Night mode</string>
+	<string name="pref_reminder_night_no_reminder">Keine Erinnerungen</string>
+	<string name="pref_reminder_dont_remind">Don\'t remind</string>
+	<string name="pref_reminder_night_start">Start of night mode</string>
+	<string name="pref_reminder_night_end">End of night mode</string>
 	<string name="pref_category_reminder_title">Time of reminder:</string>
 	<string name="pref_category_reminder_again_title">Remind again at start</string>
 	<string-array name="pref_category_reminder_names">
