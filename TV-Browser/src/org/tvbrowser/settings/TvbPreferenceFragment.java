@@ -49,6 +49,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       addPreferencesFromResource(R.xml.preferences_reminder);
       
       onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_TIME));
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED));
     }
     else if(getString(R.string.category_time_buttons).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_time_buttons);
@@ -201,6 +202,30 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       
       if(picturesInDetails != null && pictureZoom != null) {
         pictureZoom.setEnabled(picturesInDetails.isChecked());
+      }
+    }
+    else if(key.equals(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED)) || key.equals(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER))) {
+      CheckBoxPreference nightModeActivatedPref = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED));
+      CheckBoxPreference noReminder = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER));
+      
+      CheckBoxPreference sound = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND));
+      CheckBoxPreference vibrate = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_VIBRATE));
+      CheckBoxPreference led = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_LED));
+      
+      TimePreference start = (TimePreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_START));
+      TimePreference end = (TimePreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_END));
+      
+      if(nightModeActivatedPref != null && noReminder != null) {
+        boolean nightMode = nightModeActivatedPref.isChecked();
+        boolean onlyStatus = noReminder.isChecked();
+        
+        noReminder.setEnabled(nightMode);
+        start.setEnabled(nightMode);
+        end.setEnabled(nightMode);
+        
+        sound.setEnabled(nightMode && !onlyStatus);
+        vibrate.setEnabled(nightMode && !onlyStatus);
+        led.setEnabled(nightMode && !onlyStatus);
       }
     }
   }

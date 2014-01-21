@@ -17,6 +17,7 @@
 package org.tvbrowser.tvbrowser;
 
 import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
@@ -41,6 +42,7 @@ import android.media.RingtoneManager;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.text.format.DateFormat;
+import android.util.Log;
 
 public class ReminderBroadcastReceiver extends BroadcastReceiver {
 
@@ -49,107 +51,138 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
     
     if(!SettingConstants.IS_REMINDER_PAUSED && programID >= 0) {
-      Cursor values = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, programID), SettingConstants.REMINDER_PROJECTION, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
       
-      if(values.getCount() > 0 && values.moveToNext()) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+      boolean sound = pref.getBoolean(context.getString(R.string.PREF_REMINDER_SOUND), true);
+      boolean vibrate = pref.getBoolean(context.getString(R.string.PREF_REMINDER_VIBRATE), true);
+      boolean led = pref.getBoolean(context.getString(R.string.PREF_REMINDER_LED), true);
+      
+      boolean showReminder = true;
+      
+      if(pref.getBoolean(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED), false)) {
+        int start = pref.getInt(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_START), 1380);
+        int end = pref.getInt(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_END), 420);
         
-        String channelName = values.getString(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-        String title = values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
-        String episode = values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
+        Calendar now = Calendar.getInstance();
         
-        long startTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-        long endTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+        int minutes = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
         
-        boolean hasLogo = !values.isNull(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
-                
-        if(hasLogo) {
-          byte[] logoData = values.getBlob(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+        if(end < start) {
+          if(minutes < start) {
+            minutes += 24 * 60;
+          }
           
-          if(logoData.length > 0) {
-            Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-            
-            int width =  context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
-            int height = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
-            
-            float scale = 1;
-            
-            if(logo.getWidth() > width-4) {
-              scale = ((float)width-4)/logo.getWidth();
-            }
-            
-            if(logo.getHeight() * scale > height-4) {
-              scale = ((float)height-4)/logo.getHeight();
-            }
-            
-            if(scale < 1) {
-              logo = Bitmap.createScaledBitmap(logo, (int)(logo.getWidth() * scale), (int)(logo.getHeight() * scale), true);
-            }
-            
-            Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
-            Canvas canvas = new Canvas(bitmap);
-            canvas.drawColor(SettingConstants.LOGO_BACKGROUND_COLOR);
-            canvas.drawBitmap(logo, width/2 - logo.getWidth()/2, height/2 - logo.getHeight()/2, null);
-            
-            builder.setLargeIcon(bitmap);
+          end += 24 * 60;
+        }
+        
+        if(start <= minutes && minutes <= end) {
+          showReminder = !pref.getBoolean(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER), true);
+          
+          if(showReminder) {
+            sound = pref.getBoolean(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND), false);
+            vibrate = pref.getBoolean(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_VIBRATE), false);
+            led = pref.getBoolean(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_LED), false);
           }
         }
-        
-        builder.setSmallIcon(R.drawable.reminder);
-        builder.setWhen(startTime);
-        
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-        
-        boolean sound = pref.getBoolean(context.getString(R.string.PREF_REMINDER_SOUND), true);
-        boolean vibrate = pref.getBoolean(context.getString(R.string.PREF_REMINDER_VIBRATE), true);
-        boolean led = pref.getBoolean(context.getString(R.string.PREF_REMINDER_LED), true);
-        
-        if(sound) {
-          builder.setDefaults(Notification.DEFAULT_SOUND);
-          builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
-        }
-        else {
-          builder.setDefaults(0);
-        }
-        
-        if(vibrate) {
-          builder.setVibrate(new long[] {1000,200,1000,400,1000,600});
-        }
-        
-        builder.setAutoCancel(true);
-        builder.setContentInfo(channelName);
-        
-        if(led) {
-          builder.setLights(Color.RED, 1000, 2000);
-        }
-        
-        java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(context);
-        String value = ((SimpleDateFormat)mTimeFormat).toLocalizedPattern();
-        
-        if((value.charAt(0) == 'H' && value.charAt(1) != 'H') || (value.charAt(0) == 'h' && value.charAt(1) != 'h')) {
-          value = value.charAt(0) + value;
-        }
-        
-        SimpleDateFormat timeFormat = new SimpleDateFormat(value, Locale.getDefault());
-        
-        builder.setContentTitle(timeFormat.format(new Date(startTime)) + " " + title);
-        
-        if(episode != null) {
-          builder.setContentText(episode);
-        }
-        
-        Intent startInfo = new Intent(context, InfoActivity.class);
-        startInfo.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
-        startInfo.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
-        
-        builder.setContentIntent(PendingIntent.getActivity(context, 0, startInfo, PendingIntent.FLAG_UPDATE_CURRENT));
-        
-        Notification notification = builder.build();
-        
-        ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(title,(int)(startTime / 60000), notification);
       }
       
-      values.close();
+      if(showReminder) {
+        Cursor values = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, programID), SettingConstants.REMINDER_PROJECTION, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+        
+        if(values.getCount() > 0 && values.moveToNext()) {
+          NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+          
+          String channelName = values.getString(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+          String title = values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
+          String episode = values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
+          
+          long startTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+          long endTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+          
+          boolean hasLogo = !values.isNull(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+                  
+          if(hasLogo) {
+            byte[] logoData = values.getBlob(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+            
+            if(logoData.length > 0) {
+              Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+              
+              int width =  context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
+              int height = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
+              
+              float scale = 1;
+              
+              if(logo.getWidth() > width-4) {
+                scale = ((float)width-4)/logo.getWidth();
+              }
+              
+              if(logo.getHeight() * scale > height-4) {
+                scale = ((float)height-4)/logo.getHeight();
+              }
+              
+              if(scale < 1) {
+                logo = Bitmap.createScaledBitmap(logo, (int)(logo.getWidth() * scale), (int)(logo.getHeight() * scale), true);
+              }
+              
+              Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+              Canvas canvas = new Canvas(bitmap);
+              canvas.drawColor(SettingConstants.LOGO_BACKGROUND_COLOR);
+              canvas.drawBitmap(logo, width/2 - logo.getWidth()/2, height/2 - logo.getHeight()/2, null);
+              
+              builder.setLargeIcon(bitmap);
+            }
+          }
+          
+          builder.setSmallIcon(R.drawable.reminder);
+          builder.setWhen(startTime);
+          
+          if(sound) {
+            builder.setDefaults(Notification.DEFAULT_SOUND);
+            builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+          }
+          else {
+            builder.setDefaults(0);
+          }
+          
+          if(vibrate) {
+            builder.setVibrate(new long[] {1000,200,1000,400,1000,600});
+          }
+          
+          builder.setAutoCancel(true);
+          builder.setContentInfo(channelName);
+          
+          if(led) {
+            builder.setLights(Color.RED, 1000, 2000);
+          }
+          
+          java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(context);
+          String value = ((SimpleDateFormat)mTimeFormat).toLocalizedPattern();
+          
+          if((value.charAt(0) == 'H' && value.charAt(1) != 'H') || (value.charAt(0) == 'h' && value.charAt(1) != 'h')) {
+            value = value.charAt(0) + value;
+          }
+          
+          SimpleDateFormat timeFormat = new SimpleDateFormat(value, Locale.getDefault());
+          
+          builder.setContentTitle(timeFormat.format(new Date(startTime)) + " " + title);
+          
+          if(episode != null) {
+            builder.setContentText(episode);
+          }
+          
+          Intent startInfo = new Intent(context, InfoActivity.class);
+          startInfo.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
+          startInfo.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+          
+          builder.setContentIntent(PendingIntent.getActivity(context, 0, startInfo, PendingIntent.FLAG_UPDATE_CURRENT));
+          
+          Notification notification = builder.build();
+          
+          ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(title,(int)(startTime / 60000), notification);
+        }
+        
+        values.close();
+      }
     }
   }
 

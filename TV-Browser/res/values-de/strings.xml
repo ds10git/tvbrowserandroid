@@ -305,10 +305,15 @@
 	    <item>Groß</item>
 	</string-array>
 	<string name="pref_reminder_category">Erinnerungen</string>
-	<string name="pref_reminder_type">Typ</string>
+	<string name="pref_reminder_type">Tages-Modus</string>
 	<string name="pref_reminder_sound">Sound</string>
 	<string name="pref_reminder_vibrate">Vibrieren</string>
 	<string name="pref_reminder_led">Info-LED</string>
+	<string name="pref_reminder_night_type">Nacht-Modus</string>
+	<string name="pref_reminder_night_no_reminder">Keine Erinnerungen</string>
+	<string name="pref_reminder_dont_remind">Nicht erinnern</string>
+	<string name="pref_reminder_night_start">Start des Nacht-Modus</string>
+	<string name="pref_reminder_night_end">Ende des Nacht-Modus</string>
 	<string name="pref_category_reminder_title">Erinnerungszeitpunkt:</string>
 	<string name="pref_category_reminder_again_title">Zu Beginn erneut erinnern</string>
 	<string-array name="pref_category_reminder_names">
