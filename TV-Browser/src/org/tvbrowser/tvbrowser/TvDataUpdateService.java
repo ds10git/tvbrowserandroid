@@ -18,7 +18,6 @@ package org.tvbrowser.tvbrowser;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileFilter;
 import java.io.FileInputStream;
@@ -27,7 +26,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.RandomAccessFile;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -43,11 +41,9 @@ import java.util.HashSet;
 import java.util.Hashtable;
 import java.util.Set;
 import java.util.TimeZone;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.zip.GZIPOutputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
@@ -102,9 +98,7 @@ public class TvDataUpdateService extends Service {
   private ArrayList<String> mSyncFavorites;
   
   private DontWantToSeeExclusion[] mDontWantToSeeValues;
-  
-  private RandomAccessFile log;
-  
+    
   private static final String GROUP_FILE = "groups.txt";
   
   private static final String DEFAULT_GROUPS_URL = "http://www.tvbrowser.org/listings/";
@@ -144,22 +138,7 @@ public class TvDataUpdateService extends Service {
       public void run() {
         setPriority(MIN_PRIORITY);
         
-        if(PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getBoolean(getResources().getString(R.string.WRITE_LOG), false)) {
-          try {
-            final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
-            
-            File logFile = new File(path,"log.txt");
-            
-            log = new RandomAccessFile(logFile, "rw");
-            
-            if(log.length() < (5 * 1024 * 1024)) {
-              log.seek(log.length());
-            }
-            else {
-              log.getChannel().truncate(0);
-            }
-          }catch(IOException e) {}
-        }
+        Logging.openLogForDataUpdate(getApplicationContext());
         
         if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
           mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), 2);
@@ -1076,11 +1055,7 @@ public class TvDataUpdateService extends Service {
     
     Log.d("info1", "Unsuccessful downloads: " + String.valueOf(mUnsuccessfulDownloads));
     
-    if(log != null) {
-      try {
-        log.close();
-      }catch(IOException e) {}
-    }
+    Logging.closeLogForDataUpdate();
     
     IS_RUNNING = false;
     stopSelf();
@@ -1109,12 +1084,7 @@ public class TvDataUpdateService extends Service {
   }
   
   public void doLog(String value) {
-    try {
-      if(log != null) {
-        log.writeBytes(value + "\n");
-      }
-    }catch(IOException e){}
-
+    Logging.log(null, value, Logging.DATA_UPDATE_TYPE, getApplicationContext());
   }
   
   private String reloadMirrors(String groupID, File path) {

@@ -1035,15 +1035,18 @@ public class UiUtils {
       PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
       
       if(startTime-reminderTime > System.currentTimeMillis()) {
+        Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime-reminderTime) + " " + pending.toString(), Logging.REMINDER_TYPE, context);
         alarmManager.set(AlarmManager.RTC_WAKEUP, startTime-reminderTime, pending);
         
         if(remindAgain && reminderTime > 0) {
           pending = PendingIntent.getBroadcast(context, (int)-programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
           
+          Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime) + " " + pending.toString(), Logging.REMINDER_TYPE, context);
           alarmManager.set(AlarmManager.RTC_WAKEUP, startTime, pending);
         }
       }
       else {
+        Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime) + " " + pending.toString(), Logging.REMINDER_TYPE, context);
         alarmManager.set(AlarmManager.RTC_WAKEUP, startTime, pending);
       }
     }
@@ -1056,13 +1059,17 @@ public class UiUtils {
     Intent remind = new Intent(context,ReminderBroadcastReceiver.class);
     remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
     
-    PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
+    PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_NO_CREATE);
+    Logging.log(ReminderBroadcastReceiver.tag, " Delete reminder for programID '" + programID + "' with pending intent '" + pending + "'", Logging.REMINDER_TYPE, context);
+    if(pending != null) {
+      alarmManager.cancel(pending);
+    }
     
-    alarmManager.cancel(pending);
-    
-    pending = PendingIntent.getBroadcast(context, (int)-programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
-    
-    alarmManager.cancel(pending);
+    pending = PendingIntent.getBroadcast(context, (int)-programID, remind, PendingIntent.FLAG_NO_CREATE);
+    Logging.log(ReminderBroadcastReceiver.tag, " Delete reminder for programID '-" + programID + "' with pending intent '" + pending + "'", Logging.REMINDER_TYPE, context);
+    if(pending != null) {
+      alarmManager.cancel(pending);
+    }
   }
   
   private static class RunningDrawable extends Drawable {

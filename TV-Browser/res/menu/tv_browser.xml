@@ -114,12 +114,27 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/action_about"/>
-    <item android:id="@+id/action_delete_log"
+    <item android:id="@+id/action_debug"
         android:orderInCategory="100"
         android:showAsAction="never"
-        android:title="@string/action_delete_log"/>
-    <item android:id="@+id/action_send_log"
-        android:orderInCategory="100"
-        android:showAsAction="never"
-        android:title="@string/action_send_log"/>
+        android:title="@string/pref_debug">
+        <menu >
+            <item android:id="@+id/action_delete_data_update_log"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_delete_data_update_log"/>
+	    	<item android:id="@+id/action_send_data_update_log"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_send_data_update_log"/>
+            <item android:id="@+id/action_delete_reminder_log"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_delete_reminder_log"/>
+	    	<item android:id="@+id/action_send_reminder_log"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_send_reminder_log"/>
+        </menu>
+    </item>
 </menu>
