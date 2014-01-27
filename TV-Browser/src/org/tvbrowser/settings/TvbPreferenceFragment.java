@@ -148,6 +148,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       ListPreference layout = (ListPreference) findPreference(getResources().getString(R.string.PROG_TABLE_LAYOUT));
       CheckBoxPreference pictures = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE));
       CheckBoxPreference showOrderNumber = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_PROGRAM_TABLE));
+      ListPreference zoomText = (ListPreference) findPreference(getResources().getString(R.string.PROG_TABLE_TEXT_SCALE));
       
       ColumnWidthPreference columnWidth = (ColumnWidthPreference) findPreference(getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH));
             
@@ -174,6 +175,9 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         }
         if(showOrderNumber != null) {
           showOrderNumber.setEnabled(progTable.isChecked());
+        }
+        if(zoomText != null) {
+          zoomText.setEnabled(progTable.isChecked());
         }
       }
     }

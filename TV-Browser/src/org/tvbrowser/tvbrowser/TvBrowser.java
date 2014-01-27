@@ -146,9 +146,13 @@ public class TvBrowser extends FragmentActivity implements
   private Timer mTimer;
   
   private MenuItem mUpdateItem;
-  private MenuItem mSendLogItem;
-  private MenuItem mDeleteLogItem;
+  private MenuItem mSendDataUpdateLogItem;
+  private MenuItem mDeleteDataUpdateLogItem;
+  private MenuItem mSendReminderLogItem;
+  private MenuItem mDeleteReminderLogItem;
   private MenuItem mScrollTimeItem;
+  
+  private MenuItem mDebugMenuItem;
   
   private MenuItem mPauseReminder;
   private MenuItem mContinueReminder;
@@ -172,8 +176,8 @@ public class TvBrowser extends FragmentActivity implements
   static {
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2014);
-    mRundate.set(Calendar.MONTH, Calendar.JANUARY);
-    mRundate.set(Calendar.DAY_OF_MONTH, 29);
+    mRundate.set(Calendar.MONTH, Calendar.FEBRUARY);
+    mRundate.set(Calendar.DAY_OF_MONTH, 10);
   }
   
   @Override
@@ -2518,9 +2522,16 @@ public class TvBrowser extends FragmentActivity implements
       }
     }
     
-    if(mSendLogItem != null) {
-      mSendLogItem.setVisible(pref.getBoolean(getResources().getString(R.string.WRITE_LOG), false));
-      mDeleteLogItem.setVisible(mSendLogItem.isVisible());
+    if(mDebugMenuItem != null) {
+      boolean dataUpdateLogEnabled = pref.getBoolean(getResources().getString(R.string.WRITE_DATA_UPDATE_LOG), false);
+      boolean reminderLogEnabled = pref.getBoolean(getResources().getString(R.string.WRITE_REMINDER_LOG), false);
+      
+      mDebugMenuItem.setVisible(dataUpdateLogEnabled || reminderLogEnabled);
+      
+      mSendDataUpdateLogItem.setEnabled(dataUpdateLogEnabled);
+      mDeleteDataUpdateLogItem.setEnabled(dataUpdateLogEnabled);
+      mSendReminderLogItem.setEnabled(reminderLogEnabled);
+      mDeleteReminderLogItem.setEnabled(reminderLogEnabled);
     }
     
     LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(SettingConstants.UPDATE_TIME_BUTTONS));
@@ -2610,6 +2621,83 @@ public class TvBrowser extends FragmentActivity implements
     builder.show();
   }
   
+  private void sendLogMail(String file, String type) {
+    File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    
+    if(!parent.isDirectory()) {
+      parent = getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
+    }
+    
+    final File path = new File(parent,"tvbrowserdata");
+    
+    File logFile = new File(path,file);
+    
+    Log.d("Reminder", "" + logFile.getAbsolutePath() + " " + logFile.isFile());
+
+    if(logFile.isFile()) {
+      Intent sendMail = new Intent(Intent.ACTION_SEND);
+      
+      String subject = getString(R.string.log_send_mail_subject).replace("{0}", type);
+      String text =  getString(R.string.log_send_mail_content).replace("{0}", type);
+      
+      sendMail.putExtra(Intent.EXTRA_EMAIL, new String[]{"android@tvbrowser.org"});
+      sendMail.putExtra(Intent.EXTRA_SUBJECT, subject);
+      sendMail.putExtra(Intent.EXTRA_TEXT,text + " " + new Date().toString());
+      sendMail.setType("text/rtf");
+      sendMail.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + logFile.getAbsolutePath()));
+      startActivity(Intent.createChooser(sendMail, getResources().getString(R.string.log_send_mail)));
+    }
+    else {
+      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+      
+      builder.setTitle(R.string.no_log_file_title);
+      builder.setMessage(R.string.no_log_file_message);
+      builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface arg0, int arg1) {}
+      });
+      
+      builder.show();
+    }
+  }
+  
+  private void deleteLog(String type) {
+    File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    
+    if(!parent.isDirectory()) {
+      parent = getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
+    }
+    
+    final File path = new File(parent,"tvbrowserdata");
+    
+    File logFile = new File(path,type);
+             
+    AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+    
+    if(logFile.isFile()) {  
+      if(logFile.delete()) {
+        builder.setTitle(R.string.log_file_delete_title);
+        builder.setMessage(R.string.log_file_delete_message);
+      }
+      else {
+        builder.setTitle(R.string.log_file_no_delete_title);
+        builder.setMessage(R.string.log_file_no_delete_message);
+        logFile.deleteOnExit();
+      }
+    }
+    else {
+      builder.setTitle(R.string.no_log_file_title);
+      builder.setMessage(R.string.no_log_file_delete_message);
+    }
+        
+    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface arg0, int arg1) {}
+    });
+    
+    builder.show();
+  }
+  
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
@@ -2655,70 +2743,10 @@ public class TvBrowser extends FragmentActivity implements
           showNoInternetConnection(null);
         }
         break;
-      case R.id.action_delete_log:
-        {
-          final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
-          
-          File logFile = new File(path,"log.txt");
-                   
-          AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-          
-          if(logFile.isFile()) {  
-            if(logFile.delete()) {
-              builder.setTitle(R.string.log_file_delete_title);
-              builder.setMessage(R.string.log_file_delete_message);
-            }
-            else {
-              builder.setTitle(R.string.log_file_no_delete_title);
-              builder.setMessage(R.string.log_file_no_delete_message);
-              logFile.deleteOnExit();
-            }
-          }
-          else {
-            builder.setTitle(R.string.no_log_file_title);
-            builder.setMessage(R.string.no_log_file_delete_message);
-          }
-          
-
-          
-          builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface arg0, int arg1) {}
-          });
-          
-          builder.show();
-        }
-        break;
-      case R.id.action_send_log:
-        {
-          final File path = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),"tvbrowserdata");
-          
-          File logFile = new File(path,"log.txt");
-
-          if(logFile.isFile()) {
-            Intent sendMail = new Intent(Intent.ACTION_SEND);
-            
-            sendMail.putExtra(Intent.EXTRA_EMAIL, new String[]{"android@tvbrowser.org"});
-            sendMail.putExtra(Intent.EXTRA_SUBJECT, getResources().getString(R.string.log_send_mail_subject));
-            sendMail.putExtra(Intent.EXTRA_TEXT, getResources().getString(R.string.log_send_mail_content) + " " + new Date().toString());
-            sendMail.setType("text/rtf");
-            sendMail.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + logFile.getAbsolutePath()));
-            startActivity(Intent.createChooser(sendMail, getResources().getString(R.string.log_send_mail)));
-          }
-          else {
-            AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-            
-            builder.setTitle(R.string.no_log_file_title);
-            builder.setMessage(R.string.no_log_file_message);
-            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-              @Override
-              public void onClick(DialogInterface arg0, int arg1) {}
-            });
-            
-            builder.show();
-          }
-        }
-        break;
+      case R.id.action_delete_data_update_log: deleteLog("data-update-log.txt");break;
+      case R.id.action_delete_reminder_log: deleteLog("reminder-log.txt");break;
+      case R.id.action_send_data_update_log:sendLogMail("data-update-log.txt",getString(R.string.log_send_data_update));break;
+      case R.id.action_send_reminder_log:sendLogMail("reminder-log.txt",getString(R.string.log_send_reminder));break;
       case R.id.action_basic_preferences:
         Intent startPref = new Intent(this, TvbPreferencesActivity.class);
         startActivityForResult(startPref, SHOW_PREFERENCES);
@@ -2790,8 +2818,11 @@ public class TvBrowser extends FragmentActivity implements
       addUpdateBroadcastReceiver();
     }
     
-    mSendLogItem = menu.findItem(R.id.action_send_log);
-    mDeleteLogItem = menu.findItem(R.id.action_delete_log);
+    mDebugMenuItem = menu.findItem(R.id.action_debug);
+    mSendDataUpdateLogItem = menu.findItem(R.id.action_send_data_update_log);
+    mDeleteDataUpdateLogItem = menu.findItem(R.id.action_delete_data_update_log);
+    mSendReminderLogItem = menu.findItem(R.id.action_send_reminder_log);
+    mDeleteReminderLogItem = menu.findItem(R.id.action_delete_reminder_log);
     mScrollTimeItem = menu.findItem(R.id.action_scroll);
     
     mPauseReminder = menu.findItem(R.id.action_pause_reminder);
@@ -2802,8 +2833,17 @@ public class TvBrowser extends FragmentActivity implements
     
     mScrollTimeItem.setVisible(mViewPager.getCurrentItem() == 1 || mViewPager.getCurrentItem() == 3);
     
-    mSendLogItem.setVisible(PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getBoolean(getResources().getString(R.string.WRITE_LOG), false));
-    mDeleteLogItem.setVisible(mSendLogItem.isVisible());
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
+    
+    boolean dataUpdateLogEnabled = pref.getBoolean(getResources().getString(R.string.WRITE_DATA_UPDATE_LOG), false);
+    boolean reminderLogEnabled = pref.getBoolean(getResources().getString(R.string.WRITE_REMINDER_LOG), false);
+    
+    mDebugMenuItem.setVisible(dataUpdateLogEnabled || reminderLogEnabled);
+    
+    mSendDataUpdateLogItem.setEnabled(dataUpdateLogEnabled);
+    mDeleteDataUpdateLogItem.setEnabled(dataUpdateLogEnabled);
+    mSendReminderLogItem.setEnabled(reminderLogEnabled);
+    mDeleteReminderLogItem.setEnabled(reminderLogEnabled);
     
     updateScrollMenu();
     
