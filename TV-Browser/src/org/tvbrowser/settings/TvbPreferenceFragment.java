@@ -100,136 +100,138 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
 
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    if(key.equals(getResources().getString(R.string.DAYS_TO_DOWNLOAD)) 
-        || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST))
-        || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE))
-        || key.equals(getResources().getString(R.string.DETAIL_PICTURE_ZOOM))
-        || key.equals(getResources().getString(R.string.TAB_TO_SHOW_AT_START))
-        || key.equals(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE))
-        || key.equals(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT))
-        || key.equals(getResources().getString(R.string.PREF_RUNNING_DIVIDER_SIZE))
-        || key.equals(getResources().getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE))
-        || key.equals(getResources().getString(R.string.PREF_REMINDER_TIME))
-        || key.equals(getResources().getString(R.string.DETAIL_TEXT_SCALE))
-        || key.equals(getResources().getString(R.string.PREF_PROGRAM_LISTS_TEXT_SCALE))
-        || key.equals(getResources().getString(R.string.PROG_TABLE_TEXT_SCALE))
-        || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_RUNNING))
-        ) {
-      ListPreference lp = (ListPreference) findPreference(key);
-      
-      if(lp != null) {
-        lp.setSummary("dummy"); // required or will not update
+    if(getActivity() != null) {
+      if(key.equals(getResources().getString(R.string.DAYS_TO_DOWNLOAD)) 
+          || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST))
+          || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE))
+          || key.equals(getResources().getString(R.string.DETAIL_PICTURE_ZOOM))
+          || key.equals(getResources().getString(R.string.TAB_TO_SHOW_AT_START))
+          || key.equals(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE))
+          || key.equals(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT))
+          || key.equals(getResources().getString(R.string.PREF_RUNNING_DIVIDER_SIZE))
+          || key.equals(getResources().getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE))
+          || key.equals(getResources().getString(R.string.PREF_REMINDER_TIME))
+          || key.equals(getResources().getString(R.string.DETAIL_TEXT_SCALE))
+          || key.equals(getResources().getString(R.string.PREF_PROGRAM_LISTS_TEXT_SCALE))
+          || key.equals(getResources().getString(R.string.PROG_TABLE_TEXT_SCALE))
+          || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_RUNNING))
+          ) {
+        ListPreference lp = (ListPreference) findPreference(key);
         
-        String value = String.valueOf(lp.getEntry());
-        
-        if(value.endsWith("%")) {
-          value += "%";
+        if(lp != null) {
+          lp.setSummary("dummy"); // required or will not update
+          
+          String value = String.valueOf(lp.getEntry());
+          
+          if(value.endsWith("%")) {
+            value += "%";
+          }
+          
+          lp.setSummary(value);
         }
-        
-        lp.setSummary(value);
-      }
-
-      if(key.equals(getResources().getString(R.string.PREF_REMINDER_TIME))) {
-        CheckBoxPreference remindAgain = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMIND_AGAIN_AT_START));
-        ListPreference reminderTime = (ListPreference) findPreference(key);
-        
-        if(remindAgain != null) {
-          remindAgain.setEnabled(reminderTime.getValue() == null || !reminderTime.getValue().equals("0"));
+  
+        if(key.equals(getResources().getString(R.string.PREF_REMINDER_TIME))) {
+          CheckBoxPreference remindAgain = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMIND_AGAIN_AT_START));
+          ListPreference reminderTime = (ListPreference) findPreference(key);
+          
+          if(remindAgain != null) {
+            remindAgain.setEnabled(reminderTime.getValue() == null || !reminderTime.getValue().equals("0"));
+          }
         }
       }
-    }
-    else if(key.equals(getResources().getString(R.string.PROG_TABLE_ACTIVATED))) {
-      CheckBoxPreference progTable = (CheckBoxPreference) findPreference(key);
-      
-      ListPreference blockSize = (ListPreference) findPreference(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE));
-      CheckBoxPreference spreadOverBlocks = (CheckBoxPreference) findPreference(getResources().getString(R.string.PROG_PANEL_GROW));
-      
-      ListPreference channelLogoName = (ListPreference) findPreference(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE));
-      ListPreference layout = (ListPreference) findPreference(getResources().getString(R.string.PROG_TABLE_LAYOUT));
-      CheckBoxPreference pictures = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE));
-      CheckBoxPreference showOrderNumber = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_PROGRAM_TABLE));
-      ListPreference zoomText = (ListPreference) findPreference(getResources().getString(R.string.PROG_TABLE_TEXT_SCALE));
-      
-      ColumnWidthPreference columnWidth = (ColumnWidthPreference) findPreference(getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH));
-            
-      boolean isTimeBlock = layout == null || layout.getValue() == null || layout.getValue().equals("0");
-      
-      if(progTable != null) {
+      else if(key.equals(getResources().getString(R.string.PROG_TABLE_ACTIVATED))) {
+        CheckBoxPreference progTable = (CheckBoxPreference) findPreference(key);
+        
+        ListPreference blockSize = (ListPreference) findPreference(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE));
+        CheckBoxPreference spreadOverBlocks = (CheckBoxPreference) findPreference(getResources().getString(R.string.PROG_PANEL_GROW));
+        
+        ListPreference channelLogoName = (ListPreference) findPreference(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE));
+        ListPreference layout = (ListPreference) findPreference(getResources().getString(R.string.PROG_TABLE_LAYOUT));
+        CheckBoxPreference pictures = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE));
+        CheckBoxPreference showOrderNumber = (CheckBoxPreference) findPreference(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_PROGRAM_TABLE));
+        ListPreference zoomText = (ListPreference) findPreference(getResources().getString(R.string.PROG_TABLE_TEXT_SCALE));
+        
+        ColumnWidthPreference columnWidth = (ColumnWidthPreference) findPreference(getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH));
+              
+        boolean isTimeBlock = layout == null || layout.getValue() == null || layout.getValue().equals("0");
+        
+        if(progTable != null) {
+          if(layout != null) {
+            layout.setEnabled(progTable.isChecked());
+          }
+          if(blockSize != null) {
+            blockSize.setEnabled(progTable.isChecked() && isTimeBlock);
+          }
+          if(spreadOverBlocks != null) {
+            spreadOverBlocks.setEnabled(progTable.isChecked() && isTimeBlock);
+          }
+          if(channelLogoName != null) {
+            channelLogoName.setEnabled(progTable.isChecked());
+          }
+          if(pictures != null) {
+            pictures.setEnabled(progTable.isChecked());
+          }
+          if(columnWidth != null) {
+            columnWidth.setEnabled(progTable.isChecked());
+          }
+          if(showOrderNumber != null) {
+            showOrderNumber.setEnabled(progTable.isChecked());
+          }
+          if(zoomText != null) {
+            zoomText.setEnabled(progTable.isChecked());
+          }
+        }
+      }
+      else if(key.equals(getResources().getString(R.string.PROG_TABLE_LAYOUT))) {
+        ListPreference layout = (ListPreference) findPreference(key);
+        
+        CheckBoxPreference progTable = (CheckBoxPreference) findPreference(getResources().getString(R.string.PROG_TABLE_ACTIVATED));
+        
+        ListPreference blockSize = (ListPreference) findPreference(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE));
+        CheckBoxPreference spreadOverBlocks = (CheckBoxPreference) findPreference(getResources().getString(R.string.PROG_PANEL_GROW));
+  
+        boolean isTimeBlock = layout == null || layout.getValue() == null || layout.getValue().equals("0");
+        
         if(layout != null) {
-          layout.setEnabled(progTable.isChecked());
-        }
-        if(blockSize != null) {
-          blockSize.setEnabled(progTable.isChecked() && isTimeBlock);
-        }
-        if(spreadOverBlocks != null) {
-          spreadOverBlocks.setEnabled(progTable.isChecked() && isTimeBlock);
-        }
-        if(channelLogoName != null) {
-          channelLogoName.setEnabled(progTable.isChecked());
-        }
-        if(pictures != null) {
-          pictures.setEnabled(progTable.isChecked());
-        }
-        if(columnWidth != null) {
-          columnWidth.setEnabled(progTable.isChecked());
-        }
-        if(showOrderNumber != null) {
-          showOrderNumber.setEnabled(progTable.isChecked());
-        }
-        if(zoomText != null) {
-          zoomText.setEnabled(progTable.isChecked());
+          if(blockSize != null) {
+            blockSize.setEnabled(progTable.isChecked() && isTimeBlock);
+          }
+          if(spreadOverBlocks != null) {
+            spreadOverBlocks.setEnabled(progTable.isChecked() && isTimeBlock);
+          }
         }
       }
-    }
-    else if(key.equals(getResources().getString(R.string.PROG_TABLE_LAYOUT))) {
-      ListPreference layout = (ListPreference) findPreference(key);
-      
-      CheckBoxPreference progTable = (CheckBoxPreference) findPreference(getResources().getString(R.string.PROG_TABLE_ACTIVATED));
-      
-      ListPreference blockSize = (ListPreference) findPreference(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE));
-      CheckBoxPreference spreadOverBlocks = (CheckBoxPreference) findPreference(getResources().getString(R.string.PROG_PANEL_GROW));
-
-      boolean isTimeBlock = layout == null || layout.getValue() == null || layout.getValue().equals("0");
-      
-      if(layout != null) {
-        if(blockSize != null) {
-          blockSize.setEnabled(progTable.isChecked() && isTimeBlock);
-        }
-        if(spreadOverBlocks != null) {
-          spreadOverBlocks.setEnabled(progTable.isChecked() && isTimeBlock);
-        }
-      }
-    }
-    else if(key.equals(getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS))) {
-      CheckBoxPreference picturesInDetails = (CheckBoxPreference) findPreference(key);
-      ListPreference pictureZoom = (ListPreference) findPreference(getResources().getString(R.string.DETAIL_PICTURE_ZOOM));
-      
-      if(picturesInDetails != null && pictureZoom != null) {
-        pictureZoom.setEnabled(picturesInDetails.isChecked());
-      }
-    }
-    else if(key.equals(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED)) || key.equals(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER))) {
-      CheckBoxPreference nightModeActivatedPref = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED));
-      CheckBoxPreference noReminder = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER));
-      
-      CheckBoxPreference sound = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND));
-      CheckBoxPreference vibrate = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_VIBRATE));
-      CheckBoxPreference led = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_LED));
-      
-      TimePreference start = (TimePreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_START));
-      TimePreference end = (TimePreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_END));
-      
-      if(nightModeActivatedPref != null && noReminder != null) {
-        boolean nightMode = nightModeActivatedPref.isChecked();
-        boolean onlyStatus = noReminder.isChecked();
+      else if(key.equals(getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS))) {
+        CheckBoxPreference picturesInDetails = (CheckBoxPreference) findPreference(key);
+        ListPreference pictureZoom = (ListPreference) findPreference(getResources().getString(R.string.DETAIL_PICTURE_ZOOM));
         
-        noReminder.setEnabled(nightMode);
-        start.setEnabled(nightMode);
-        end.setEnabled(nightMode);
+        if(picturesInDetails != null && pictureZoom != null) {
+          pictureZoom.setEnabled(picturesInDetails.isChecked());
+        }
+      }
+      else if(key.equals(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED)) || key.equals(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER))) {
+        CheckBoxPreference nightModeActivatedPref = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED));
+        CheckBoxPreference noReminder = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER));
         
-        sound.setEnabled(nightMode && !onlyStatus);
-        vibrate.setEnabled(nightMode && !onlyStatus);
-        led.setEnabled(nightMode && !onlyStatus);
+        CheckBoxPreference sound = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND));
+        CheckBoxPreference vibrate = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_VIBRATE));
+        CheckBoxPreference led = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_LED));
+        
+        TimePreference start = (TimePreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_START));
+        TimePreference end = (TimePreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_END));
+        
+        if(nightModeActivatedPref != null && noReminder != null) {
+          boolean nightMode = nightModeActivatedPref.isChecked();
+          boolean onlyStatus = noReminder.isChecked();
+          
+          noReminder.setEnabled(nightMode);
+          start.setEnabled(nightMode);
+          end.setEnabled(nightMode);
+          
+          sound.setEnabled(nightMode && !onlyStatus);
+          vibrate.setEnabled(nightMode && !onlyStatus);
+          led.setEnabled(nightMode && !onlyStatus);
+        }
       }
     }
   }

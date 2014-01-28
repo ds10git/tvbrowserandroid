@@ -21,6 +21,7 @@ import org.tvbrowser.settings.SettingConstants;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 
 public class InfoActivity extends Activity {
   @Override
@@ -31,16 +32,23 @@ public class InfoActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
+    Log.d("info", "Resume");
     
+    //onNewIntent(getIntent());
     Intent intent = getIntent();
     
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
-    
+    Log.d("info", "" + programID + " " + intent);
     if(programID >= 0) {
       UiUtils.showProgramInfo(this, programID, this);
     }
     else {
       finish();
     }
+  }
+  
+  @Override
+  protected void onNewIntent(Intent intent) {
+    setIntent(intent);
   }
 }

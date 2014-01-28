@@ -180,14 +180,13 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           }
           
           Intent startInfo = new Intent(context, InfoActivity.class);
-          startInfo.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
           startInfo.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+          startInfo.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
+          startInfo.setAction("actionstring" + System.currentTimeMillis());
           
-          builder.setContentIntent(PendingIntent.getActivity(context, 0, startInfo, PendingIntent.FLAG_UPDATE_CURRENT));
+          builder.setContentIntent(PendingIntent.getActivity(context, 0, startInfo, 0));
           
           Notification notification = builder.build();
-          
-          Logging.log(tag, "Show notification for programID '" + programID + "'", Logging.REMINDER_TYPE, context);
           ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(title,(int)(startTime / 60000), notification);
         }
         
