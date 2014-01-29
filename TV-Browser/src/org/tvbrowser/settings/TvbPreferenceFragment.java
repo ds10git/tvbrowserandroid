@@ -44,6 +44,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     }
     else if(getString(R.string.category_theme).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_layout);
+      
+      onSharedPreferenceChanged(null, getString(R.string.PREF_SHOW_PROGRESS));
     }
     else if(getString(R.string.category_reminder).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_reminder);
@@ -231,6 +233,20 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           sound.setEnabled(nightMode && !onlyStatus);
           vibrate.setEnabled(nightMode && !onlyStatus);
           led.setEnabled(nightMode && !onlyStatus);
+        }
+      }
+      else if(key.equals(getResources().getString(R.string.PREF_SHOW_PROGRESS))) {
+        CheckBoxPreference showProgress = (CheckBoxPreference) findPreference(key);
+        ColorPreference onAirBackground = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND));
+        ColorPreference onAirProgress = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_ON_AIR_PROGRESS));
+        
+        if(showProgress != null) {
+          if(onAirBackground != null) {
+            onAirBackground.setEnabled(showProgress.isChecked());
+          }
+          if(onAirProgress != null) {
+            onAirProgress.setEnabled(showProgress.isChecked());
+          }
         }
       }
     }

@@ -51,6 +51,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -81,6 +82,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mMarkingChangeReceiver;
   private BroadcastReceiver mDontWantToSeeReceiver;
+  private BroadcastReceiver mChannelUpdateDone;
   
   private static final GradientDrawable BEFORE_GRADIENT;
   private static final GradientDrawable AFTER_GRADIENT;
@@ -247,9 +249,18 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       }
     };
     
+    mChannelUpdateDone = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        startUpdateThread();
+      }
+    };
+    
     IntentFilter intent = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
     IntentFilter markingsFilter = new IntentFilter(SettingConstants.MARKINGS_CHANGED);
+    IntentFilter channelsChanged = new IntentFilter(SettingConstants.CHANNEL_UPDATE_DONE);
     
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mChannelUpdateDone, channelsChanged);
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, intent);
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMarkingChangeReceiver, markingsFilter);
@@ -259,7 +270,13 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     if(start != mDayStart) {
       mDayStart = start;
       
-      if(mDayStart > System.currentTimeMillis() && mWhereClauseTime < System.currentTimeMillis()) {
+      Calendar today = Calendar.getInstance();
+      today.set(Calendar.HOUR_OF_DAY, 0);
+      today.set(Calendar.MINUTE, 0);
+      today.set(Calendar.SECOND, 0);
+      today.set(Calendar.MILLISECOND, 0);
+      
+      if((mDayStart > System.currentTimeMillis() || mDayStart < today.getTimeInMillis()) && mWhereClauseTime < System.currentTimeMillis()) {
         Button time = (Button)((ViewGroup)((ViewGroup)getView().getParent()).getParent()).findViewWithTag(mWhereClauseTime);
         Button now = (Button)((ViewGroup)((ViewGroup)getView().getParent()).getParent()).findViewById(R.id.now_button);
         
@@ -294,7 +311,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           test.setBackgroundResource(android.R.drawable.list_selector_background);
         }
         
-        setTimeRangeID(-2);
+      //  setTimeRangeID(-2);
         int oldWhereClauseTime = mWhereClauseTime;
         
         mWhereClauseTime = testValue;
@@ -303,14 +320,20 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         
         Calendar now = Calendar.getInstance();
         
+        Calendar today = Calendar.getInstance();
+        today.set(Calendar.HOUR_OF_DAY, 0);
+        today.set(Calendar.MINUTE, 0);
+        today.set(Calendar.SECOND, 0);
+        today.set(Calendar.MILLISECOND, 0);
+        Log.d("info"," w " + oldWhereClauseTime + " "+ mWhereClauseTime + (mDayStart >= today.getTimeInMillis()));
         if(mWhereClauseTime != -1 && pref.getBoolean(getResources().getString(R.string.RUNNING_PROGRAMS_NEXT_DAY), true)) {
           int test1 = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
           
-          if((test1 - mWhereClauseTime) > 180 && mDayStart < System.currentTimeMillis()) {
+          if((test1 - mWhereClauseTime) > 180 && mDayStart < System.currentTimeMillis() && mDayStart >= today.getTimeInMillis()) {
             Spinner date = (Spinner)((ViewGroup)getView().getParent()).findViewById(R.id.running_date_selection);
             
-            if(date.getCount() > 1) {
-              date.setSelection(1);
+            if(date.getCount() > 2) {
+              date.setSelection(2);
             }
           }
           else {
@@ -320,8 +343,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         else if(oldWhereClauseTime != -1 && mWhereClauseTime == -1) {
           Spinner date = (Spinner)((ViewGroup)getView().getParent()).findViewById(R.id.running_date_selection);
           
-          if(date.getCount() > 0) {
-            date.setSelection(0);
+          if(date.getCount() > 1) {
+            date.setSelection(1);
           }
           
           startUpdateThread();
@@ -337,13 +360,13 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         */
         
       }
-      else {
+     /* else {
         setTimeRangeID(AT_TIME_ID);
-      }
+      }*/
     }
   }
   
-  public void setTimeRangeID(int id) {
+ /* public void setTimeRangeID(int id) {
     Button test = (Button)((View)getView().getParent()).findViewById(mTimeRangeID);
     
     if(test != null) {
@@ -402,7 +425,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     }
     
     mRunningProgramListAdapter.notifyDataSetChanged();
-  }
+  }*/
   
   @Override
   public void onSaveInstanceState(Bundle outState) {
@@ -1095,11 +1118,14 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     if(mDontWantToSeeReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDontWantToSeeReceiver);
     }
+    if(mChannelUpdateDone != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mChannelUpdateDone);
+    }
     
     mKeepRunning = false;
   }
     
-  private void startUpdateThread() {
+  private synchronized void startUpdateThread() {
     if(mUpdateThread == null || !mUpdateThread.isAlive()) {
       mUpdateThread = new Thread() {
         public void run() {
@@ -1182,7 +1208,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     }
     
     mCurrentTime = ((long)cal.getTimeInMillis() / 60000) * 60000;
-
+Log.d("info", "" + new Date(mCurrentTime));
     String sort = TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC";
     
     String where = " ( "  + TvBrowserContentProvider.DATA_KEY_ENDTIME + "<=" + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + (mCurrentTime - (60000 * 60 * 12)) + " ) ";

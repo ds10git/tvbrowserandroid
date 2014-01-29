@@ -17,7 +17,6 @@
 package org.tvbrowser.tvbrowser;
 
 import java.util.Calendar;
-import java.util.Date;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
@@ -201,32 +200,31 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
           }
         }
       }
+    
+      Cursor c = mProgramListAdapter.getCursor();
       
-      if(mScrollTime > System.currentTimeMillis()) {
-        Cursor c = mProgramListAdapter.getCursor();
-        
-        if(c.getCount() > 0) {
-          try {
-            int index = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-            int count = 0;
-            c.moveToFirst();
-            
-            if(!c.isClosed()) {
-              do {
-                long startTime = c.getLong(index);
-                
-                if(startTime >= mScrollTime) {
-                  testIndex = count;
-                  break;
-                }
-                else {
-                  count++;
-                }
-              }while(c.moveToNext());
-            }
-          }catch(IllegalStateException e) {}
-        }
+      if(c.getCount() > 0) {
+        try {
+          int index = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+          int count = 0;
+          c.moveToFirst();
+          
+          if(!c.isClosed()) {
+            do {
+              long startTime = c.getLong(index);
+              
+              if(startTime >= mScrollTime) {
+                testIndex = count;
+                break;
+              }
+              else {
+                count++;
+              }
+            }while(c.moveToNext());
+          }
+        }catch(IllegalStateException e) {}
       }
+      
       mScrollTime = -1;
             
       final int scollIndex = testIndex;
@@ -365,8 +363,9 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     projection[13] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
     projection[14] = TvBrowserContentProvider.CHANNEL_KEY_LOGO;
     
-    String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
-    where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
+    long time = System.currentTimeMillis();
+    
+    String where = mDayClause.trim().length() == 0 ? " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + time + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + time + " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + time + " ) " : " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " > 0 ) ";
         
     if(mChannelID != -1) {
       where += "AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + mChannelID;

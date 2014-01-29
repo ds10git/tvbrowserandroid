@@ -352,4 +352,6 @@
     <string name="pref_marking_color_blue">Blau</string>
     <string name="pref_marking_color_alpha">Alpha</string>
     <string name="pref_marking_color_reset">Zurücksetzen</string>
+    <string name="pref_show_progress_title">Sendungsfortschritt anzeigen</string>
+    <string name="pref_show_progress_summary">Zeitfortschritt laufender Sendungen wird im Hintergrund angezeigt.</string>
 </resources>

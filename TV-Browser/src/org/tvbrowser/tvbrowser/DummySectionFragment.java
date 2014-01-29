@@ -20,12 +20,10 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -143,9 +141,6 @@ public class DummySectionFragment extends Fragment {
       
       final RunningProgramsListFragment running = (RunningProgramsListFragment)getActivity().getSupportFragmentManager().findFragmentById(R.id.runningListFragment);
       final LinearLayout timeBar = (LinearLayout)rootView.findViewById(R.id.runnning_time_bar);
-      
-      final Button before = (Button)rootView.findViewById(R.id.button_before1);
-      final Button after = (Button)rootView.findViewById(R.id.button_after1);
             
       final Button now = (Button)rootView.findViewById(R.id.now_button);
       final Spinner date = (Spinner)rootView.findViewById(R.id.running_date_selection);
@@ -154,37 +149,13 @@ public class DummySectionFragment extends Fragment {
       final View.OnClickListener listener = new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-          
           if(running != null) {
-            if(pref.getString(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT), SettingConstants.DEFAULT_RUNNING_PROGRAMS_LIST_LAYOUT).equals("0")) {
-              timeBar.removeView(before);
-              timeBar.removeView(after);
-              
-              int index = timeBar.indexOfChild(v);
-              
-              timeBar.addView(after, index+1);
-              
-              before.setBackgroundResource(android.R.drawable.list_selector_background);
-              
-              if(!v.equals(now)) {
-                timeBar.addView(before, index);
-              }
-            }
-            
-            if(v.equals(now) && date.getCount() > 0) {
-              date.setSelection(0);
+            Log.d("info", "" + v.equals(now) + " " + date.getCount());
+            if(v.equals(now) && date.getCount() > 1) {
+              date.setSelection(1);
             }
             
             running.setWhereClauseTime(v.getTag());
-          }
-        }
-      };
-      final View.OnClickListener timeRange = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          if(running != null) {
-            running.setTimeRangeID(v.getId());
           }
         }
       };
@@ -209,16 +180,7 @@ public class DummySectionFragment extends Fragment {
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
             now.setOnClickListener(listener);
             
-            if(pref.getString(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT), SettingConstants.DEFAULT_RUNNING_PROGRAMS_LIST_LAYOUT).equals("0")) {
-              before.setOnClickListener(timeRange);
-              after.setOnClickListener(timeRange);
-              
-              timeBar.addView(now);
-              timeBar.addView(after);
-            }
-            else {
-              timeBar.addView(now);
-            }
+            timeBar.addView(now);
             
             ArrayList<Integer> values = new ArrayList<Integer>();
             
@@ -261,8 +223,6 @@ public class DummySectionFragment extends Fragment {
       localBroadcastManager.registerReceiver(receiver, timeButtonsUpdateFilter);
       receiver.onReceive(null, null);
       
-      
-      
       ArrayList<DateSelection> dateEntries = new ArrayList<DummySectionFragment.DateSelection>();
       
       final ArrayAdapter<DateSelection> dateAdapter = new ArrayAdapter<DummySectionFragment.DateSelection>(getActivity(), android.R.layout.simple_spinner_item, dateEntries);
@@ -291,9 +251,7 @@ public class DummySectionFragment extends Fragment {
             int pos = date.getSelectedItemPosition();
             
             dateAdapter.clear();
-          
-            //dateAdapter.add(new DateSelection(-1, getActivity()));
-          
+                    
             Cursor dates = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
             
             if(dates.moveToLast()) {
@@ -307,16 +265,17 @@ public class DummySectionFragment extends Fragment {
               lastDay.set(Calendar.SECOND, 0);
               lastDay.set(Calendar.MILLISECOND, 0);
               
-              Calendar today = Calendar.getInstance();
-              today.set(Calendar.HOUR_OF_DAY, 0);
-              today.set(Calendar.MINUTE, 0);
-              today.set(Calendar.SECOND, 0);
-              today.set(Calendar.MILLISECOND, 0);
+              Calendar yesterday = Calendar.getInstance();
+              yesterday.set(Calendar.HOUR_OF_DAY, 0);
+              yesterday.set(Calendar.MINUTE, 0);
+              yesterday.set(Calendar.SECOND, 0);
+              yesterday.set(Calendar.MILLISECOND, 0);
+              yesterday.add(Calendar.DAY_OF_YEAR, -1);
               
-              long todayStart = today.getTimeInMillis();
+              long yesterdayStart = yesterday.getTimeInMillis();
               long lastStart = lastDay.getTimeInMillis();
               
-              for(long day = todayStart; day <= lastStart; day += (24 * 60 * 60000)) {
+              for(long day = yesterdayStart; day <= lastStart; day += (24 * 60 * 60000)) {
                 dateAdapter.add(new DateSelection(day, getActivity()));
               }
             }
@@ -337,6 +296,10 @@ public class DummySectionFragment extends Fragment {
       
       localBroadcastManager.registerReceiver(dataUpdateReceiver, dataUpdateFilter);
       dataUpdateReceiver.onReceive(null, null);
+      
+      if(date.getCount() > 1) {
+        date.setSelection(1);
+      }
     }
     else if(getArguments().getInt(ARG_SECTION_NUMBER) == 2) {
         rootView = inflater.inflate(R.layout.program_list_fragment,
@@ -393,16 +356,17 @@ public class DummySectionFragment extends Fragment {
                 lastDay.set(Calendar.SECOND, 0);
                 lastDay.set(Calendar.MILLISECOND, 0);
                 
-                Calendar today = Calendar.getInstance();
-                today.set(Calendar.HOUR_OF_DAY, 0);
-                today.set(Calendar.MINUTE, 0);
-                today.set(Calendar.SECOND, 0);
-                today.set(Calendar.MILLISECOND, 0);
+                Calendar yesterday = Calendar.getInstance();
+                yesterday.set(Calendar.HOUR_OF_DAY, 0);
+                yesterday.set(Calendar.MINUTE, 0);
+                yesterday.set(Calendar.SECOND, 0);
+                yesterday.set(Calendar.MILLISECOND, 0);
+                yesterday.add(Calendar.DAY_OF_YEAR, -1);
                 
-                long todayStart = today.getTimeInMillis();
+                long yesterdayStart = yesterday.getTimeInMillis();
                 long lastStart = lastDay.getTimeInMillis();
                 
-                for(long day = todayStart; day <= lastStart; day += (24 * 60 * 60000)) {
+                for(long day = yesterdayStart; day <= lastStart; day += (24 * 60 * 60000)) {
                   dateAdapter.add(new DateSelection(day, getActivity()));
                 }
               }

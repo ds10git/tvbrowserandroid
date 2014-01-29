@@ -48,10 +48,12 @@ import android.widget.TextView;
 public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBinder{
   private Activity mActivity;
   private SharedPreferences mPref;
+  private int mDefaultTextColor;
   
   public ProgramListViewBinderAndClickHandler(Activity act) {
     mActivity = act;
     mPref = PreferenceManager.getDefaultSharedPreferences(act);
+    mDefaultTextColor = new TextView(mActivity).getTextColors().getDefaultColor();
   }
 
   @Override
@@ -68,14 +70,23 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
     boolean showChannelName = logoNamePref.equals("0") || logoNamePref.equals("2");
     boolean showChannelLogo = logoNamePref.equals("0") || logoNamePref.equals("1");
     
+    long endTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+    
+    if(view instanceof TextView) {
+      if(endTime < System.currentTimeMillis()) {
+        ((TextView) view).setTextColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, mActivity));
+      }
+      else {
+        ((TextView) view).setTextColor(mDefaultTextColor);
+      }
+    }
+    
     if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
       View until = ((ViewGroup)view.getParent()).findViewById(R.id.untilLabelPL);
       
       if(showEndTime) {
-        long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
-      
         TextView text = (TextView)view;
-        text.setText(DateFormat.getTimeFormat(mActivity).format(new Date(date)));
+        text.setText(DateFormat.getTimeFormat(mActivity).format(new Date(endTime)));
         text.setVisibility(View.VISIBLE);
         until.setVisibility(View.VISIBLE);
       }
@@ -84,10 +95,27 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
         until.setVisibility(View.GONE);
       }
       
+      if(endTime < System.currentTimeMillis()) {
+        ((TextView) until).setTextColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, mActivity));
+      }
+      else {
+        ((TextView) until).setTextColor(mDefaultTextColor);
+      }
+      
       return true;
     } 
     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_UNIX_DATE)) {
       UiUtils.formatDayView(mActivity, cursor, view, R.id.startDayLabelPL);
+      
+      TextView date = (TextView)((ViewGroup)view.getParent()).findViewById(R.id.startDayLabelPL);
+      
+      if(endTime < System.currentTimeMillis()) {
+        date.setTextColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, mActivity));
+      }
+      else {
+        date.setTextColor(mDefaultTextColor);
+      }
+      
       return true;
     }
     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) {
@@ -172,17 +200,15 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
        
       return true;
     }
-    else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)) {
+   /* else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)) {
       TextView text = (TextView)view;
-      
-      long end = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
       
       if(end <= System.currentTimeMillis()) {
         int DEFAULT_TEXT_COLOR = new TextView(mActivity).getTextColors().getDefaultColor();
         
         text.setTextColor(DEFAULT_TEXT_COLOR);
       }
-    }
+    }*/
     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)) {
       if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)) || !showInfo) {
         view.setVisibility(View.GONE);
