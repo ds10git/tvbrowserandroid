@@ -78,4 +78,5 @@
     <string name="PREF_COLOR_FAVORITE">PREF_COLOR_FAVORITE</string>
     <string name="PREF_COLOR_REMINDER">PREF_COLOR_REMINDER</string>
     <string name="PREF_COLOR_SYNC">PREF_COLOR_SYNC</string>
+    <string name="PREF_SHOW_PROGRESS">PREF_SHOW_PROGRESS</string>
 </resources>

@@ -1132,22 +1132,22 @@ public class UiUtils {
     handleMarkings(activity, cursor, view, markingValues, null, false);
   }
   
-  public static void handleMarkings(Context activity, Cursor cursor, View view, String markingValues, Handler handler, boolean vertical) {
+  public static void handleMarkings(Context context, Cursor cursor, View view, String markingValues, Handler handler, boolean vertical) {
     long startTime = cursor != null ? cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) : 0;
     long endTime = cursor != null ? cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) : 0;
     
-    handleMarkings(activity, cursor, startTime, endTime, view, markingValues,handler,vertical);
+    handleMarkings(context, cursor, startTime, endTime, view, markingValues,handler,vertical);
   }
   
-  public static void handleMarkings(Context activity, Cursor cursor, long startTime, long endTime, View view, String markingValues) {
-    handleMarkings(activity, cursor, startTime, endTime, view, markingValues, null);
+  public static void handleMarkings(Context context, Cursor cursor, long startTime, long endTime, View view, String markingValues) {
+    handleMarkings(context, cursor, startTime, endTime, view, markingValues, null);
   }
   
-  public static void handleMarkings(Context activity, Cursor cursor, long startTime, long endTime, final View view, String markingValues, Handler handler) {
-    handleMarkings(activity, cursor, startTime, endTime, view, markingValues, handler, false);
+  public static void handleMarkings(Context context, Cursor cursor, long startTime, long endTime, final View view, String markingValues, Handler handler) {
+    handleMarkings(context, cursor, startTime, endTime, view, markingValues, handler, false);
   }
   
-  public static void handleMarkings(Context activity, Cursor cursor, long startTime, long endTime, final View view, String markingValues, Handler handler, boolean vertical) {
+  public static void handleMarkings(Context context, Cursor cursor, long startTime, long endTime, final View view, String markingValues, Handler handler, boolean vertical) {
     String value = markingValues;
     
     if(value == null && cursor != null && !cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
@@ -1159,11 +1159,11 @@ public class UiUtils {
     
     Paint second = null;
         
-    if(startTime <= System.currentTimeMillis() && System.currentTimeMillis() <= endTime) {
-      base.setColor(getColor(ON_AIR_PROGRESS_KEY, activity));
+    if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.PREF_SHOW_PROGRESS), true) && startTime <= System.currentTimeMillis() && System.currentTimeMillis() <= endTime) {
+      base.setColor(getColor(ON_AIR_PROGRESS_KEY, context));
       second = new Paint();
       second.setStyle(Paint.Style.FILL_AND_STROKE);
-      second.setColor(getColor(ON_AIR_BACKGROUND_KEY, activity));
+      second.setColor(getColor(ON_AIR_BACKGROUND_KEY, context));
     }
     else {
       base = null;
@@ -1190,7 +1190,7 @@ public class UiUtils {
           Integer color = SettingConstants.MARK_COLOR_KEY_MAP.get(markings[i]);
           
           if(color != null) {
-            colors[i] = getColor(color.intValue(), activity);
+            colors[i] = getColor(color.intValue(), context);
           }
         }
         
@@ -1203,12 +1203,12 @@ public class UiUtils {
         Integer color = SettingConstants.MARK_COLOR_KEY_MAP.get(value);
         
         if(color != null) {
-          draw.add(new ColorDrawable(getColor(color.intValue(), activity)));
+          draw.add(new ColorDrawable(getColor(color.intValue(), context)));
         }
       }
     }
     
-    draw.add(activity.getResources().getDrawable(android.R.drawable.list_selector_background));
+    draw.add(context.getResources().getDrawable(android.R.drawable.list_selector_background));
     
     if(handler == null) {
       view.setBackgroundDrawable(new LayerDrawable(draw.toArray(new Drawable[draw.size()])));

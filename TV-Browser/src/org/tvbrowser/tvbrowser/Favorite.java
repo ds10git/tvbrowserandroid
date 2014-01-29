@@ -46,10 +46,7 @@ public class Favorite {
   private boolean mRemind;
   
   public Favorite(String name, String search, boolean onlyTitle, boolean remind) {
-    mName = name;
-    mSearch = search;
-    mOnlyTitle = onlyTitle;
-    mRemind = remind;
+    setValues(name, search, onlyTitle, remind);
   }
   
   public boolean searchOnlyTitle() {
@@ -70,7 +67,7 @@ public class Favorite {
   
   public void setValues(String name, String search, boolean onlyTitle, boolean remind) {
     mName = name;
-    mSearch = search;
+    mSearch = search.replace("\"", "");
     mOnlyTitle = onlyTitle;
     mRemind = remind;
   }

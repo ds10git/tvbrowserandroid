@@ -364,4 +364,6 @@
     <string name="pref_marking_color_blue">Blue</string>
     <string name="pref_marking_color_alpha">Alpha</string>
     <string name="pref_marking_color_reset">Reset</string>
+    <string name="pref_show_progress_title">Show progress</string>
+    <string name="pref_show_progress_summary">Time progress of on air programs is shown in the background.</string>
 </resources>
