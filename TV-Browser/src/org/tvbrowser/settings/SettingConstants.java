@@ -64,6 +64,10 @@ public class SettingConstants {
   
   public static boolean IS_REMINDER_PAUSED = false;
   
+  public static final String UPDATE_RUNNING_KEY = "updateRunning";
+  public static final String SELECTION_CHANNELS_KEY = "selectionChannels";
+  public static final String REMINDER_STATE_KEY = "reminderState";
+  
   public static final SparseArray<Drawable> SMALL_LOGO_MAP = new SparseArray<Drawable>();
   public static final SparseArray<Drawable> MEDIUM_LOGO_MAP = new SparseArray<Drawable>();
   

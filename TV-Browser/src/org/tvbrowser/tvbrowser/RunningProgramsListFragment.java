@@ -35,11 +35,7 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
-import android.graphics.PorterDuff;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
@@ -69,14 +65,12 @@ import android.widget.TextView;
 public class RunningProgramsListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
   private static final String WHERE_CLAUSE_KEY = "WHERE_CLAUSE_KEY";
   private static final String DAY_CLAUSE_KEY = "DAY_CLAUSE_KEY";
-  private static final int AT_TIME_ID = -1;
     
   private Handler handler = new Handler();
   
   private boolean mKeepRunning;
   private Thread mUpdateThread;
   private int mWhereClauseTime;
-  private int mTimeRangeID;
   
   private BroadcastReceiver mDataUpdateReceiver;
   private BroadcastReceiver mRefreshReceiver;
@@ -311,7 +305,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           test.setBackgroundResource(android.R.drawable.list_selector_background);
         }
         
-      //  setTimeRangeID(-2);
         int oldWhereClauseTime = mWhereClauseTime;
         
         mWhereClauseTime = testValue;
@@ -325,7 +318,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         today.set(Calendar.MINUTE, 0);
         today.set(Calendar.SECOND, 0);
         today.set(Calendar.MILLISECOND, 0);
-        Log.d("info"," w " + oldWhereClauseTime + " "+ mWhereClauseTime + (mDayStart >= today.getTimeInMillis()));
+        
         if(mWhereClauseTime != -1 && pref.getBoolean(getResources().getString(R.string.RUNNING_PROGRAMS_NEXT_DAY), true)) {
           int test1 = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
           
@@ -432,31 +425,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     outState.putInt(WHERE_CLAUSE_KEY, mWhereClauseTime);
     outState.putLong(DAY_CLAUSE_KEY, mDayStart);
     super.onSaveInstanceState(outState);
-  }
-  
-  private static final class LongLayoutViewHolder {
-    View mLayout;
-    
-    TextView mStartTime;
-    TextView mEndTime;
-    TextView mChannel;
-    TextView mTitle;
-    ImageView mPicture;
-    TextView mPictureCopyright;
-    TextView mInfoLabel;
-    TextView mGenreLabel;
-    TextView mEpisodeLabel;
-    
-    public void setColor(int color) {
-      mStartTime.setTextColor(color);
-      mEndTime.setTextColor(color);
-      mChannel.setTextColor(color);
-      mTitle.setTextColor(color);
-      mPictureCopyright.setTextColor(color);
-      mInfoLabel.setTextColor(color);
-      mGenreLabel.setTextColor(color);
-      mEpisodeLabel.setTextColor(color);
-    }
   }
   
   private static final class CompactLayoutViewHolder {
@@ -732,7 +700,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     float textScale = Float.valueOf(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getString(R.string.PREF_PROGRAM_LISTS_TEXT_SCALE),"1.0"));
     
-    if(convertView == null || convertView.getTag() instanceof LongLayoutViewHolder || ((CompactLayoutViewHolder)convertView.getTag()).orientationChanged(SettingConstants.ORIENTATION) || ((CompactLayoutViewHolder)convertView.getTag()).mCurrentScale !=  textScale) {
+    if(convertView == null || ((CompactLayoutViewHolder)convertView.getTag()).orientationChanged(SettingConstants.ORIENTATION) || ((CompactLayoutViewHolder)convertView.getTag()).mCurrentScale !=  textScale) {
       convertView = getActivity().getLayoutInflater().inflate(R.layout.compact_program_panel, parent, false);
       
       UiUtils.scaleTextViews(convertView, textScale);
@@ -805,204 +773,6 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     return convertView;
   }
-  
-  private View getLongView(View convertView, ViewGroup parent, java.text.DateFormat timeFormat, ChannelProgramBlock block, int DEFAULT_TEXT_COLOR) {
-    LongLayoutViewHolder viewHolder = null;
-    
-    if(convertView == null || convertView.getTag() instanceof CompactLayoutViewHolder) {
-      convertView = getActivity().getLayoutInflater().inflate(R.layout.running_list_entries, parent, false);
-      
-      viewHolder = new LongLayoutViewHolder();
-      
-      viewHolder.mLayout = convertView.findViewById(R.id.running_layout);
-      viewHolder.mLayout.setBackgroundResource(android.R.drawable.list_selector_background);
-      
-      viewHolder.mStartTime = (TextView)convertView.findViewById(R.id.startTimeLabel);
-      viewHolder.mEndTime = (TextView)convertView.findViewById(R.id.endTimeLabel);
-      viewHolder.mChannel = (TextView)convertView.findViewById(R.id.channelLabel);
-      viewHolder.mTitle = (TextView)convertView.findViewById(R.id.titleLabel);
-      viewHolder.mPicture = (ImageView)convertView.findViewById(R.id.picture);
-      viewHolder.mPictureCopyright = (TextView)convertView.findViewById(R.id.picture_copyright);
-      viewHolder.mInfoLabel = (TextView)convertView.findViewById(R.id.info_label);
-      viewHolder.mGenreLabel = (TextView)convertView.findViewById(R.id.genre_label);
-      viewHolder.mEpisodeLabel = (TextView)convertView.findViewById(R.id.episodeLabel);
-      
-      convertView.setTag(viewHolder);
-      
-      registerForContextMenu(viewHolder.mLayout);
-    }
-    else {
-      viewHolder = (LongLayoutViewHolder)convertView.getTag();
-    }
-    
-    long startTime = 0;
-    long endTime = 0;
-    String title = null;
-    long programID = -1;
-    String markingValue = null;
-    
-    switch(mTimeRangeID) {
-      case R.id.button_before1: 
-        startTime = block.mPreviousStart;
-        endTime = block.mPreviousEnd;
-        title = block.mPreviousTitle;
-        programID = block.mPreviousProgramID;
-        break; 
-      case R.id.button_after1:
-        startTime = block.mNextStart;
-        endTime = block.mNextEnd;
-        title = block.mNextTitle;
-        programID = block.mNextProgramID;
-        break;
-      default:
-        startTime = block.mNowStart;
-        endTime = block.mNowEnd;
-        title = block.mNowTitle;
-        programID = block.mNowProgramID;
-        break;
-    };
-    
-    if(startTime > 0 && title != null) {
-      Long availableProgramID = (Long)viewHolder.mLayout.getTag();
-      
-      if(availableProgramID == null || availableProgramID.longValue() != programID) {
-        String channel = block.mChannelName;
-        String genre = null;
-        String episode = null;
-        String category = null;
-        String pictureCopyright = null;
-        
-        if(mShowOrderNumber) {
-          channel = block.mChannelOrderNumber + ". " + channel;
-        }
-        
-        byte[] picture = null;
-        
-        switch(mTimeRangeID) {
-          case R.id.button_before1:
-            genre = block.mPreviousGenre;
-            episode = block.mPreviousEpisode;
-            category = block.mPreviousCategory;
-            pictureCopyright = block.mPreviousPictureCopyright;
-            picture = block.mPreviousPicture;
-            break; 
-          case R.id.button_after1:
-            genre = block.mNextGenre;
-            episode = block.mNextEpisode;
-            category = block.mNextCategory;
-            pictureCopyright = block.mNextPictureCopyright;
-            picture = block.mNextPicture;
-            break;
-          default:
-            genre = block.mNowGenre;
-            episode = block.mNowEpisode;
-            category = block.mNowCategory;
-            pictureCopyright = block.mNowPictureCopyright;
-            picture = block.mNowPicture;
-            break;
-        };
-        
-        viewHolder.mStartTime.setText(timeFormat.format(new Date(startTime)));
-        viewHolder.mEndTime.setText(getResources().getString(R.string.running_until) + " " + timeFormat.format(new Date(endTime)));
-        viewHolder.mTitle.setText(title);
-        viewHolder.mChannel.setText(channel);
-        
-        viewHolder.mLayout.setTag(programID);
-        viewHolder.mLayout.setOnClickListener(mOnClickListener);
-        
-        if(showPicture) {
-          if(pictureCopyright != null && pictureCopyright.trim().length() > 0 && picture != null && picture.length > 0) {
-            Bitmap logo = BitmapFactory.decodeByteArray(picture, 0, picture.length);
-            
-            BitmapDrawable l = new BitmapDrawable(getResources(), logo);
-            
-            l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
-            
-            if(endTime <= System.currentTimeMillis()) {
-              l.setColorFilter(getActivity().getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
-            }
-            
-            viewHolder.mPicture.setImageDrawable(l);
-            viewHolder.mPictureCopyright.setText(pictureCopyright);
-            
-            viewHolder.mPicture.setVisibility(View.VISIBLE);
-            viewHolder.mPictureCopyright.setVisibility(View.VISIBLE);
-          }
-          else {
-            viewHolder.mPicture.setVisibility(View.GONE);
-            viewHolder.mPictureCopyright.setVisibility(View.GONE);
-          }
-        }
-        else {
-          viewHolder.mPicture.setVisibility(View.GONE);
-          viewHolder.mPictureCopyright.setVisibility(View.GONE);
-        }
-        
-        if(showGenre && genre != null && genre.trim().length() > 0) {
-          viewHolder.mGenreLabel.setVisibility(View.VISIBLE);
-          viewHolder.mGenreLabel.setText(genre);
-        }
-        else {
-          viewHolder.mGenreLabel.setVisibility(View.GONE);
-        }
-        
-        if(showEpisode && episode != null && episode.trim().length() > 0) {
-          viewHolder.mEpisodeLabel.setVisibility(View.VISIBLE);
-          viewHolder.mEpisodeLabel.setText(episode);
-        }
-        else {
-          viewHolder.mEpisodeLabel.setVisibility(View.GONE);
-        }
-        
-        if(showInfo && category != null && category.trim().length() > 0) {
-          viewHolder.mInfoLabel.setVisibility(View.VISIBLE);
-          viewHolder.mInfoLabel.setText(category);
-        }
-        else {
-          viewHolder.mInfoLabel.setVisibility(View.GONE);
-        }
-        
-        if(endTime <= System.currentTimeMillis()) {
-          viewHolder.setColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, getActivity()));
-        }
-        else {
-          viewHolder.setColor(DEFAULT_TEXT_COLOR);
-        }
-      }
-      
-      final String markingsValue = mMarkingsMap.get(programID);
-      
-      if(startTime <= System.currentTimeMillis() || (markingsValue != null && markingsValue.trim().length() > 0)) {
-        final long startTime1 = startTime;
-        final long endTime1 = endTime;
-        final View layout1 = viewHolder.mLayout;
-        
-        new Thread() {
-          public void run() {
-            UiUtils.handleMarkings(getActivity(), null, startTime1, endTime1, layout1, markingsValue, handler);
-          }
-        }.start();
-      }
-      else {
-        viewHolder.mLayout.setBackgroundDrawable(getActivity().getResources().getDrawable(android.R.drawable.list_selector_background));
-      }
-      
-      viewHolder.mLayout.setVisibility(View.VISIBLE);
-      /*
-      final long startTime1 = startTime;
-      final long endTime1 = endTime;
-      final View layout1 = convertView;
-      final String markingValue1 = markingValue;
-      
-      new Thread() {
-        public void run() {
-          UiUtils.handleMarkings(getActivity(), null, startTime1, endTime1, layout1, markingValue1, handler);
-        }
-      }.start();*/
-    }
-    
-    return convertView;
-  }
     
   @Override
   public void onActivityCreated(Bundle savedInstanceState) {
@@ -1018,9 +788,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       mWhereClauseTime = -1;
       mDayStart = -1;
     }
-    
-    mTimeRangeID = -1;
-    
+        
     mMarkingsMap = new LongSparseArray<String>();
     
     mOnClickListener = new View.OnClickListener() {
