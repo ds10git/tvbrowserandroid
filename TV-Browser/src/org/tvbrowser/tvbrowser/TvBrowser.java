@@ -182,8 +182,9 @@ public class TvBrowser extends FragmentActivity implements
   
   @Override
   protected void onSaveInstanceState(Bundle outState) {
-    outState.putBoolean("updateRunning", updateRunning);
-    outState.putBoolean("selectionChannels", selectingChannels);
+    outState.putBoolean(SettingConstants.UPDATE_RUNNING_KEY, updateRunning);
+    outState.putBoolean(SettingConstants.SELECTION_CHANNELS_KEY, selectingChannels);
+    outState.putBoolean(SettingConstants.REMINDER_STATE_KEY, SettingConstants.IS_REMINDER_PAUSED);
 
     super.onSaveInstanceState(outState);
   }
@@ -212,8 +213,9 @@ public class TvBrowser extends FragmentActivity implements
     ALL_VALUE = getResources().getString(R.string.filter_channel_all);
     
     if(savedInstanceState != null) {
-      updateRunning = savedInstanceState.getBoolean("updateRunning", false);
-      selectingChannels = savedInstanceState.getBoolean("selectionChannels", false);
+      updateRunning = savedInstanceState.getBoolean(SettingConstants.UPDATE_RUNNING_KEY, false);
+      selectingChannels = savedInstanceState.getBoolean(SettingConstants.SELECTION_CHANNELS_KEY, false);
+      SettingConstants.IS_REMINDER_PAUSED = savedInstanceState.getBoolean(SettingConstants.REMINDER_STATE_KEY, false);
     }
     
     // Set up the action bar.
