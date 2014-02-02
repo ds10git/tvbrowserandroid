@@ -36,6 +36,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     
     if(getString(R.string.category_download).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_download);
+      
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_AUTO_UPDATE_TYPE));
     }
     else if(getString(R.string.category_start).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_start);
@@ -115,6 +117,9 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.DETAIL_TEXT_SCALE))
           || key.equals(getResources().getString(R.string.PREF_PROGRAM_LISTS_TEXT_SCALE))
           || key.equals(getResources().getString(R.string.PROG_TABLE_TEXT_SCALE))
+          || key.equals(getResources().getString(R.string.PREF_AUTO_UPDATE_TYPE))
+          || key.equals(getResources().getString(R.string.PREF_AUTO_UPDATE_RANGE))
+          || key.equals(getResources().getString(R.string.PREF_AUTO_UPDATE_FREQUENCY))
           || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_RUNNING))
           ) {
         ListPreference lp = (ListPreference) findPreference(key);
@@ -138,6 +143,23 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           if(remindAgain != null) {
             remindAgain.setEnabled(reminderTime.getValue() == null || !reminderTime.getValue().equals("0"));
           }
+        }
+        else if(key.equals(getResources().getString(R.string.PREF_AUTO_UPDATE_TYPE))) {
+          ListPreference type = (ListPreference)findPreference(getResources().getString(R.string.PREF_AUTO_UPDATE_TYPE));
+          ListPreference range = (ListPreference)findPreference(getResources().getString(R.string.PREF_AUTO_UPDATE_RANGE));
+          ListPreference frequency = (ListPreference)findPreference(getResources().getString(R.string.PREF_AUTO_UPDATE_FREQUENCY));
+          
+          CheckBoxPreference wifi = (CheckBoxPreference)findPreference(getResources().getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI));
+          TimePreference startTime = (TimePreference)findPreference(getResources().getString(R.string.PREF_AUTO_UPDATE_START_TIME));
+          
+          boolean noAutoUpdate = type.getValue().equals("0");
+          boolean timeRange = type.getValue().equals("2");
+          
+          range.setEnabled(!noAutoUpdate);
+          frequency.setEnabled(!noAutoUpdate);
+          wifi.setEnabled(!noAutoUpdate);
+          
+          startTime.setEnabled(timeRange);
         }
       }
       else if(key.equals(getResources().getString(R.string.PROG_TABLE_ACTIVATED))) {

@@ -354,4 +354,23 @@
     <string name="pref_marking_color_reset">Zurücksetzen</string>
     <string name="pref_show_progress_title">Sendungsfortschritt anzeigen</string>
     <string name="pref_show_progress_summary">Zeitfortschritt laufender Sendungen wird im Hintergrund angezeigt.</string>
+    <string name="update_not_now">Nicht jetzt</string>
+    <string name="update_website">Öffne Webseite</string>
+    <string name="update_google_play">Öffne Google Play</string>
+    <string name="pref_auto_update_category">Automatisches Datenupdate</string>
+    <string name="pref_auto_update_type">Typ</string>
+    <string name="pref_auto_update_frequency">Häufigkeit</string>
+    <string name="pref_auto_update_only_wifi">Nur WLAN-Verbindung</string>
+    <string name="pref_auto_update_time_range_summary">Innerhalb von 6 Stunden ab diser Zeit</string>
+    <string-array name="pref_auto_update_type_names">
+        <item>Kein Auto-Update</item>
+        <item>Bei Verbindung zum Internet</item>
+        <item>In Zeitraum</item>
+    </string-array>
+    <string-array name="pref_auto_update_frequency">
+        <item>Täglich</item>
+        <item>Alle zwei Tage</item>
+        <item>Alle drei Tage</item>
+        <item>Jede Woche</item>
+    </string-array>
 </resources>

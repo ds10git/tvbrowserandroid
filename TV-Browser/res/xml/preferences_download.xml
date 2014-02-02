@@ -15,4 +15,35 @@
 	    <CheckBoxPreference android:key="@string/LOAD_PICTURE_DATA"
 	        android:title="@string/pref_load_picture_data"
 	        android:defaultValue="false"/>
+	    <PreferenceCategory android:title="@string/pref_auto_update_category">
+	        <ListPreference
+	            android:key="@string/PREF_AUTO_UPDATE_TYPE"
+	            android:title="@string/pref_auto_update_type"
+	            android:defaultValue="0"
+	            android:entries="@array/pref_auto_update_type_names"
+	            android:entryValues="@array/pref_auto_update_type_values"
+	            android:summary="%s"/>
+	        <ListPreference 
+	            android:key="@string/PREF_AUTO_UPDATE_RANGE"
+	            android:title="@string/download_data_for"
+	       		android:defaultValue="2"
+	       		android:entries="@array/download_selections"
+	       		android:entryValues="@array/download_days"
+	       		android:summary="%s"/>
+	        <ListPreference 
+	            android:key="@string/PREF_AUTO_UPDATE_FREQUENCY"
+	            android:title="@string/pref_auto_update_frequency"
+	            android:entries="@array/pref_auto_update_frequency"
+	            android:entryValues="@array/pref_auto_update_frequency_values"
+	            android:defaultValue="0"
+	            android:summary="%s"/>
+	        <CheckBoxPreference 
+	            android:key="@string/PREF_AUTO_UPDATE_ONLY_WIFI"
+	            android:title="@string/pref_auto_update_only_wifi"
+	            android:defaultValue="true"/>
+			<org.tvbrowser.settings.TimePreference 
+		    	android:key="@string/PREF_AUTO_UPDATE_START_TIME"
+		    	android:defaultValue="0"
+		     	android:summary="@string/pref_auto_update_time_range_summary"/>
+	    </PreferenceCategory>
 </PreferenceScreen>

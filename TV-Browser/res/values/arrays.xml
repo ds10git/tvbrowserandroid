@@ -14,6 +14,17 @@
         <item>1</item>
         <item>2</item>
     </string-array>
+    <string-array name="pref_auto_update_type_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+    </string-array>
+    <string-array name="pref_auto_update_frequency_values">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>6</item>
+    </string-array>
 	<string-array name="show_logo">
 	    <item>@string/show_logo_and_name</item>
 	    <item>@string/show_logo_only</item>

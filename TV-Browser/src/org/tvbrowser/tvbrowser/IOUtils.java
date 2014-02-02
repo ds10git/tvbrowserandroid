@@ -25,10 +25,23 @@ import java.io.PushbackInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.SettingConstants;
+
+import android.app.AlarmManager;
+import android.app.PendingIntent;
+import android.content.ContentUris;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.res.Resources;
+import android.database.Cursor;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 /**
@@ -37,6 +50,7 @@ import android.util.Log;
  * @author René Mach
  */
 public class IOUtils {
+  private static final int DATA_UPDATE_KEY = 1234;
   
   /**
    * Creates an integer value from the given byte array.
@@ -202,5 +216,54 @@ public class IOUtils {
     }
     
     return bytesOut.toByteArray();
+  }
+  
+  public static final void setDataUpdateTime(Context context, long time, SharedPreferences pref) {
+    AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+    
+    Intent dataUpdate = new Intent(context, AutoDataUpdateReceiver.class);
+    Log.d("info", "time " + new Date(time));
+    if(time > System.currentTimeMillis()) {
+      PendingIntent pending = PendingIntent.getBroadcast(context, DATA_UPDATE_KEY, dataUpdate, PendingIntent.FLAG_UPDATE_CURRENT);
+      alarmManager.set(AlarmManager.RTC_WAKEUP, time, pending);
+    }
+  }
+  
+  public static final void removeDataUpdateTime(Context context, SharedPreferences pref) {
+    AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+    
+    Intent dataUpdate = new Intent(context, AutoDataUpdateReceiver.class);
+    dataUpdate.putExtra(SettingConstants.TIME_DATA_UPDATE_EXTRA, true);
+    
+    PendingIntent pending = PendingIntent.getBroadcast(context, DATA_UPDATE_KEY, dataUpdate, PendingIntent.FLAG_NO_CREATE);
+    
+    if(pending != null) {
+      alarmManager.cancel(pending);
+    }
+  }
+  
+  public static final void handleDataUpdatePreferences(Context context) {
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+    IOUtils.removeDataUpdateTime(context, pref);
+    
+    if(pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_TYPE),"0").equals("2")) {
+      int days = Integer.parseInt(pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_FREQUENCY), "0")) + 1;
+      int time = Integer.parseInt(pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_START_TIME), "0"));
+      
+      long lastDate = pref.getLong(context.getString(R.string.LAST_DATA_UPDATE), 0);
+      
+      time += ((int)(Math.random() * 6 * 60));
+      
+      Calendar last = Calendar.getInstance();
+      last.setTimeInMillis(lastDate);
+      
+      last.add(Calendar.DAY_OF_YEAR, days);
+      last.set(Calendar.HOUR_OF_DAY, time/60);
+      last.set(Calendar.MINUTE, time%60);
+      last.set(Calendar.SECOND, 0);
+      last.set(Calendar.MILLISECOND, 0);
+            
+      IOUtils.setDataUpdateTime(context, last.getTimeInMillis(), pref);
+    }
   }
 }

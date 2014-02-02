@@ -359,8 +359,28 @@ public class TvBrowser extends FragmentActivity implements
       
       expiredMessage = expiredMessage.replace("{0}", String.valueOf(diff));
       
+      String updateText = SettingConstants.GOOGLE_PLAY ? getString(R.string.update_google_play) : getString(R.string.update_website);
+      
       builder.setMessage(expiredMessage);
-      builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+      builder.setPositiveButton(updateText, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          if(SettingConstants.GOOGLE_PLAY) {
+            final String appPackageName = getPackageName(); // getPackageName() from Context or Activity object
+            try {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+            } catch (android.content.ActivityNotFoundException anfe) {
+                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + appPackageName)));
+            }
+          }
+          else {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=download")));
+          }
+          
+          System.exit(0);
+        }
+      });
+      builder.setNegativeButton(R.string.update_not_now, new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
           if(diff < 0) {
@@ -2539,7 +2559,7 @@ public class TvBrowser extends FragmentActivity implements
     LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(SettingConstants.UPDATE_TIME_BUTTONS));
     updateScrollMenu();
     
-    new UpdateReminderAlarmReceiver().onReceive(TvBrowser.this, null);
+    new UpdateAlarmValue().onReceive(TvBrowser.this, null);
   }
   
   private void showAbout() {
