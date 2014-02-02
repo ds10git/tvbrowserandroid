@@ -35,6 +35,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
   
   @Override
   public void onReceive(final Context context, Intent intent) {
+    Log.d("info","xxxyyy");
     final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
     
     boolean autoUpdate = !pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_TYPE), "0").equals("0");

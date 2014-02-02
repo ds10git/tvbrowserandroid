@@ -30,17 +30,14 @@ import java.util.Date;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.database.Cursor;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -222,9 +219,10 @@ public class IOUtils {
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
     Intent dataUpdate = new Intent(context, AutoDataUpdateReceiver.class);
-    Log.d("info", "time " + new Date(time));
+    Log.d("info", "time  " + new Date(time));
     if(time > System.currentTimeMillis()) {
       PendingIntent pending = PendingIntent.getBroadcast(context, DATA_UPDATE_KEY, dataUpdate, PendingIntent.FLAG_UPDATE_CURRENT);
+      Log.d("info", "" + pending);
       alarmManager.set(AlarmManager.RTC_WAKEUP, time, pending);
     }
   }
@@ -248,7 +246,7 @@ public class IOUtils {
     
     if(pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_TYPE),"0").equals("2")) {
       int days = Integer.parseInt(pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_FREQUENCY), "0")) + 1;
-      int time = Integer.parseInt(pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_START_TIME), "0"));
+      int time = pref.getInt(context.getString(R.string.PREF_AUTO_UPDATE_START_TIME), 0);
       
       long lastDate = pref.getLong(context.getString(R.string.LAST_DATA_UPDATE), 0);
       
@@ -262,7 +260,7 @@ public class IOUtils {
       last.set(Calendar.MINUTE, time%60);
       last.set(Calendar.SECOND, 0);
       last.set(Calendar.MILLISECOND, 0);
-            
+      Log.d("info", "xxx " + new Date(last.getTimeInMillis()));
       IOUtils.setDataUpdateTime(context, last.getTimeInMillis(), pref);
     }
   }
