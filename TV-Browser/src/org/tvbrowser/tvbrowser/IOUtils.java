@@ -37,6 +37,7 @@ import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
 import android.util.Log;
@@ -219,6 +220,8 @@ public class IOUtils {
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
     Intent dataUpdate = new Intent(context, AutoDataUpdateReceiver.class);
+    dataUpdate.putExtra(SettingConstants.TIME_DATA_UPDATE_EXTRA, true);
+    
     Log.d("info", "time  " + new Date(time));
     if(time > System.currentTimeMillis()) {
       PendingIntent pending = PendingIntent.getBroadcast(context, DATA_UPDATE_KEY, dataUpdate, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -231,7 +234,6 @@ public class IOUtils {
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
     Intent dataUpdate = new Intent(context, AutoDataUpdateReceiver.class);
-    dataUpdate.putExtra(SettingConstants.TIME_DATA_UPDATE_EXTRA, true);
     
     PendingIntent pending = PendingIntent.getBroadcast(context, DATA_UPDATE_KEY, dataUpdate, PendingIntent.FLAG_NO_CREATE);
     
@@ -250,6 +252,14 @@ public class IOUtils {
       
       long lastDate = pref.getLong(context.getString(R.string.LAST_DATA_UPDATE), 0);
       
+      if(lastDate == 0) {
+        lastDate = (System.currentTimeMillis() - (24 * 60 * 60000));
+        
+        Editor edit = pref.edit();
+        edit.putLong(context.getString(R.string.LAST_DATA_UPDATE), lastDate);
+        edit.commit();
+      }
+      
       time += ((int)(Math.random() * 6 * 60));
       
       Calendar last = Calendar.getInstance();
@@ -260,8 +270,15 @@ public class IOUtils {
       last.set(Calendar.MINUTE, time%60);
       last.set(Calendar.SECOND, 0);
       last.set(Calendar.MILLISECOND, 0);
-      Log.d("info", "xxx " + new Date(last.getTimeInMillis()));
-      IOUtils.setDataUpdateTime(context, last.getTimeInMillis(), pref);
+      
+      long updateTime = last.getTimeInMillis();
+      
+      if(updateTime < System.currentTimeMillis()) {
+        updateTime += (24 * 60 * 60000);
+      }
+      
+      Log.d("info", "xxx " + new Date(updateTime));
+      IOUtils.setDataUpdateTime(context, updateTime, pref);
     }
   }
 }
