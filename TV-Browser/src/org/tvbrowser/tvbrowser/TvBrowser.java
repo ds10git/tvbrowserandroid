@@ -270,6 +270,8 @@ public class TvBrowser extends FragmentActivity implements
     if(mSectionsPagerAdapter.getCount() > startTab) {
       mViewPager.setCurrentItem(startTab);
     }
+    
+    IOUtils.handleDataUpdatePreferences(TvBrowser.this);
   }
   
   @Override
