@@ -24,7 +24,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -32,7 +31,6 @@ import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextView;
 
 /**
  * A cursor adapter that handles orientation changes.

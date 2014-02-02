@@ -31,7 +31,6 @@ import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.RemoteException;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 public class Favorite {
   public static final String OLD_NAME_KEY = "OLD_NAME_KEY";

@@ -78,4 +78,10 @@
     <string name="PREF_COLOR_REMINDER">PREF_COLOR_REMINDER</string>
     <string name="PREF_COLOR_SYNC">PREF_COLOR_SYNC</string>
     <string name="PREF_SHOW_PROGRESS">PREF_SHOW_PROGRESS</string>
+    <string name="PREF_AUTO_UPDATE_TYPE">PREF_AUTO_UPDATE_TYPE</string>
+    <string name="PREF_AUTO_UPDATE_ONLY_WIFI">PREF_AUTO_UPDATE_ONLY_WIFI</string>
+    <string name="PREF_AUTO_UPDATE_RANGE">PREF_AUTO_UPDATE_RANGE</string>
+    <string name="PREF_AUTO_UPDATE_FREQUENCY">PREF_AUTO_UPDATE_FREQUENCY</string>
+    <string name="PREF_AUTO_UPDATE_START_TIME">PREF_AUTO_UPDATE_START_TIME</string>
+    <string name="LAST_DATA_UPDATE">LAST_DATA_UPDATE</string>
 </resources>

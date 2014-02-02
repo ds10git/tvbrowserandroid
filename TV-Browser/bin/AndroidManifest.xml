@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.tvbrowser.tvbrowser"
-    android:versionCode="151"
-    android:versionName="0.1.39.3RC4"
+    android:versionCode="152"
+    android:versionName="0.1.39.4RC4"
     android:installLocation="auto">
 
     <uses-sdk
@@ -57,12 +57,17 @@
         <activity android:name="org.tvbrowser.tvbrowser.InfoActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
         <receiver android:name="org.tvbrowser.tvbrowser.ReminderBroadcastReceiver" android:enabled="true"/>
-        <receiver android:name="org.tvbrowser.tvbrowser.UpdateReminderAlarmReceiver" android:enabled="true">  
+        <receiver android:name="org.tvbrowser.tvbrowser.UpdateAlarmValue" android:enabled="true">  
 		    <intent-filter>  
 		        <action android:name="android.intent.action.BOOT_COMPLETED" />
 		        <action android:name="android.intent.action.QUICKBOOT_POWERON" />
 		        <action android:name="android.intent.action.MEDIA_MOUNTED" />
 		    </intent-filter>  
+		</receiver>
+ 		<receiver android:name="org.tvbrowser.tvbrowser.AutoDataUpdateReceiver" >
+            <intent-filter>
+                <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
+            </intent-filter>
 		</receiver>
     </application>
 

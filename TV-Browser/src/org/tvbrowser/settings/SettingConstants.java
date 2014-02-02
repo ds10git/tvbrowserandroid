@@ -34,6 +34,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.util.SparseArray;
 
 public class SettingConstants {
+  public static final boolean GOOGLE_PLAY = true;
   public static final int ACCEPTED_DAY_COUNT = 8;
   
   public static final String EPG_FREE_KEY = "EPG_FREE";
@@ -55,6 +56,7 @@ public class SettingConstants {
   public static final String FILTER_POSITION_EXTRA = "FILTER_POSITION_EXTRA";
   public static final String START_TIME_EXTRA = "START_TIME_EXTRA";
   public static final String SCROLL_POSITION_EXTRA = "SCROLL_POSITION_EXTRA";
+  public static final String TIME_DATA_UPDATE_EXTRA = "TIME_DATA_UPDATE_EXTRA";
   
   public static final String DONT_WANT_TO_SEE_ADDED_EXTRA = "DONT_WANT_TO_SEE_ADDED_EXTRA";
   
