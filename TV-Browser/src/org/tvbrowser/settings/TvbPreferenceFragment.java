@@ -152,14 +152,16 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           CheckBoxPreference wifi = (CheckBoxPreference)findPreference(getResources().getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI));
           TimePreference startTime = (TimePreference)findPreference(getResources().getString(R.string.PREF_AUTO_UPDATE_START_TIME));
           
-          boolean noAutoUpdate = type.getValue().equals("0");
-          boolean timeRange = type.getValue().equals("2");
-          
-          range.setEnabled(!noAutoUpdate);
-          frequency.setEnabled(!noAutoUpdate);
-          wifi.setEnabled(!noAutoUpdate);
-          
-          startTime.setEnabled(timeRange);
+          if(type != null) {
+            boolean noAutoUpdate = type.getValue().equals("0");
+            boolean timeRange = type.getValue().equals("2");
+            
+            range.setEnabled(!noAutoUpdate);
+            frequency.setEnabled(!noAutoUpdate);
+            wifi.setEnabled(!noAutoUpdate);
+            
+            startTime.setEnabled(timeRange);
+          }
         }
       }
       else if(key.equals(getResources().getString(R.string.PROG_TABLE_ACTIVATED))) {
