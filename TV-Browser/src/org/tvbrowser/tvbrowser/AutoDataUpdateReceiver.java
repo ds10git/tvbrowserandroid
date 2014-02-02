@@ -107,6 +107,8 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
           edit.commit();
         }
       }
+      
+      IOUtils.handleDataUpdatePreferences(context);
     }
   }
 
