@@ -3,7 +3,7 @@
 	<CheckBoxPreference android:key="@string/DARK_STYLE"
 	        android:title="@string/dark_theme"
 	        android:summary="@string/dark_theme_summary"
-	        android:defaultValue="false"/>
+	        android:defaultValue="@bool/dark_style_default"/>
 	<PreferenceCategory android:title="@string/pref_color_title">
 	    <CheckBoxPreference android:key="@string/PREF_SHOW_PROGRESS"
 	        android:title="@string/pref_show_progress_title"

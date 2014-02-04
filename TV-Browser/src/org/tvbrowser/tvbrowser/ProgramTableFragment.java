@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.view.ChannelLabel;
 import org.tvbrowser.view.CompactProgramTableLayout;
@@ -53,6 +54,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Display;
@@ -72,6 +74,9 @@ public class ProgramTableFragment extends Fragment {
   private boolean mUpdatingLayout;
   private boolean mUpdatingRunningPrograms;
   private boolean mShowOrderNumbers;
+  private boolean mShowGenre;
+  private boolean mShowEpisode;
+  private boolean mShowInfo;
   
   private Thread mUpdateThread;
   private View.OnClickListener mClickListener;
@@ -96,9 +101,7 @@ public class ProgramTableFragment extends Fragment {
   private boolean mDaySet;
   
   private boolean mGrowPanels;
-  
-  private boolean mCurrentTextScale;
-  
+    
   public void scrollToTime(int time, final MenuItem timeItem) {
     if(isResumed()) {
       long value = System.currentTimeMillis();
@@ -547,22 +550,25 @@ public class ProgramTableFragment extends Fragment {
     
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
-    mPictureShown = pref.getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE), false);
+    mPictureShown = PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE, R.bool.prog_table_show_pictures_default);
+    mShowGenre = PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_PROGRAM_TABLE, R.bool.prog_table_show_genre_default);
+    mShowEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_PROGRAM_TABLE, R.bool.prog_table_show_episode_default);
+    mShowInfo = PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_PROGRAM_TABLE, R.bool.prog_table_show_infos_default);
     
     int orderNumberColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
     mShowOrderNumbers = ProgramTableLayoutConstants.getShowOrderNumber();
     
     if(mPictureShown) {
-      projection = new String[10];
+      projection = new String[11];
       
-      projection[8] = TvBrowserContentProvider.DATA_KEY_PICTURE;
-      projection[9] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
+      projection[9] = TvBrowserContentProvider.DATA_KEY_PICTURE;
+      projection[10] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
     }
     else {
-      projection = new String[8];
+      projection = new String[9];
     }
     
-    mTimeBlockSize = Integer.parseInt(pref.getString(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE),"2"));
+    mTimeBlockSize = Integer.parseInt(PrefUtils.getStringValue(R.string.PROG_PANEL_TIME_BLOCK_SIZE, R.string.prog_panel_time_block_size));
     
     projection[0] = TvBrowserContentProvider.KEY_ID;
     projection[1] = TvBrowserContentProvider.DATA_KEY_STARTTIME;
@@ -572,6 +578,7 @@ public class ProgramTableFragment extends Fragment {
     projection[5] = TvBrowserContentProvider.DATA_KEY_GENRE;
     projection[6] = TvBrowserContentProvider.DATA_KEY_MARKING_VALUES;
     projection[7] = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID;
+    projection[8] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
     
     LinearLayout channelBar = (LinearLayout)programTable.findViewById(R.id.program_table_channel_bar);
     ArrayList<Integer> channelIDsOrdered = new ArrayList<Integer>();
@@ -611,9 +618,9 @@ public class ProgramTableFragment extends Fragment {
     }
         
     if(channels.getCount() > 0) {
-      mGrowPanels = pref.getBoolean(getResources().getString(R.string.PROG_PANEL_GROW), true);
+      mGrowPanels = PrefUtils.getBooleanValue(R.string.PROG_PANEL_GROW, R.bool.prog_panel_grow_default);
       
-      if(pref.getString(getResources().getString(R.string.PROG_TABLE_LAYOUT), "0").equals("0")) {
+      if(PrefUtils.getStringValue(R.string.PROG_TABLE_LAYOUT, R.string.prog_table_layout_default).equals("0")) {
         mProgramPanelLayout = new TimeBlockProgramTableLayout(getActivity(), channelIDsOrdered, mTimeBlockSize, value, mGrowPanels);
       }
       else {
@@ -637,6 +644,7 @@ public class ProgramTableFragment extends Fragment {
       mPictureIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
       mPictureCopyrightIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT);
       mMarkingsIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES);
+      mCategoryIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
       
       while(cursor.moveToNext()) {
         addPanel(cursor, mProgramPanelLayout);
@@ -803,12 +811,15 @@ public class ProgramTableFragment extends Fragment {
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
     boolean toShow = pref.getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE), false);
-    boolean toGrow = pref.getBoolean(getResources().getString(R.string.PROG_PANEL_GROW), true);
-    boolean updateLayout = (pref.getString(getResources().getString(R.string.PROG_TABLE_LAYOUT), "0").equals("0") && mProgramPanelLayout instanceof CompactProgramTableLayout) || 
-        (pref.getString(getResources().getString(R.string.PROG_TABLE_LAYOUT), "0").equals("1") && mProgramPanelLayout instanceof TimeBlockProgramTableLayout);
-    boolean updateWidth = pref.getInt(getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH), 200) != ProgramTableLayoutConstants.getRawColumnWidth();
-    boolean updateTextScale = Float.valueOf(pref.getString(getResources().getString(R.string.PROG_TABLE_TEXT_SCALE), "1.0")) != ProgramTableLayoutConstants.getTextScale();
-    
+    boolean toGrow = PrefUtils.getBooleanValue(R.string.PROG_PANEL_GROW, R.bool.prog_panel_grow_default);
+    boolean updateLayout = (PrefUtils.getStringValue(R.string.PROG_TABLE_LAYOUT, R.string.prog_table_layout_default).equals("0") && mProgramPanelLayout instanceof CompactProgramTableLayout) || 
+        (PrefUtils.getStringValue(R.string.PROG_TABLE_LAYOUT, R.string.prog_table_layout_default).equals("1") && mProgramPanelLayout instanceof TimeBlockProgramTableLayout);
+    boolean updateWidth = PrefUtils.getIntValueWithDefaultKey(R.string.PROG_TABLE_COLUMN_WIDTH, R.integer.prog_table_column_width_default) != ProgramTableLayoutConstants.getRawColumnWidth();
+    boolean updateTextScale = Float.valueOf(PrefUtils.getStringValue(R.string.PROG_TABLE_TEXT_SCALE, R.string.prog_table_text_scale_default)) != ProgramTableLayoutConstants.getTextScale();
+    boolean updateShownValues = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_PROGRAM_TABLE, R.bool.prog_table_show_episode_default) != mShowEpisode ||
+        PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_PROGRAM_TABLE, R.bool.prog_table_show_genre_default) != mShowGenre ||
+            PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_PROGRAM_TABLE, R.bool.prog_table_show_infos_default) != mShowInfo;
+    Log.d("info", "" + updateShownValues);
     if(updateTextScale) {
       ProgramTableLayoutConstants.initialize(getActivity());
     }
@@ -816,11 +827,11 @@ public class ProgramTableFragment extends Fragment {
       ProgramTableLayoutConstants.updateColumnWidth(getActivity());
     }
     
-    if(mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth || updateTextScale) {
+    if(mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth || updateTextScale || updateShownValues) {
       updateView(getActivity().getLayoutInflater(), (RelativeLayout)getView().findViewWithTag("LAYOUT"));
     }
     
-    return mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth || updateTextScale;
+    return mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth || updateTextScale || updateShownValues;
   }
   
   public void updateChannelBar() {
@@ -828,9 +839,7 @@ public class ProgramTableFragment extends Fragment {
     
     ProgramTableLayoutConstants.updateChannelLogoName(getActivity());
     
-    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-    
-    int logoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE), "0"));
+    int logoValue = Integer.parseInt(PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE, R.string.channel_logo_name_program_table_default));
     
     if(channelBar != null && (logoValue != mCurrentLogoValue || ProgramTableLayoutConstants.getShowOrderNumber() != mShowOrderNumbers)) {
       mCurrentLogoValue = logoValue;
@@ -857,19 +866,30 @@ public class ProgramTableFragment extends Fragment {
   private int mPictureIndex;
   private int mPictureCopyrightIndex;
   private int mMarkingsIndex;
+  private int mCategoryIndex;
   
   private void addPanel(final Cursor cursor, final ProgramTableLayout layout) {
     final long startTime = cursor.getLong(mStartTimeIndex);
     final long endTime = cursor.getLong(mEndTimeIndex);
     String title = cursor.getString(mTitleIndex);
     int channelID = cursor.getInt(mChannelIndex);
+    String categories = IOUtils.getInfoString(cursor.getInt(mCategoryIndex),getResources());
     
     final ProgramPanel panel = new ProgramPanel(getActivity(),startTime,endTime,title,channelID);
     
-    panel.setGenre(cursor.getString(mGenreIndex));
-    panel.setEpisode(cursor.getString(mEpisodeIndex));
+    if(mShowGenre) {
+      panel.setGenre(cursor.getString(mGenreIndex));
+    }
+    if(mShowEpisode) {
+      panel.setEpisode(cursor.getString(mEpisodeIndex));
+    }
+    if(mShowInfo) {
+      panel.setInfoString(categories);
+    }
+    
     panel.setOnClickListener(mClickListener);
     panel.setTag(cursor.getLong(mKeyIndex));
+    
     registerForContextMenu(panel);
         
     if(mPictureIndex != -1 && !cursor.isNull(mPictureIndex)) {
@@ -937,7 +957,7 @@ public class ProgramTableFragment extends Fragment {
   }
   
   public boolean checkTimeBlockSize() {
-    if(mTimeBlockSize != Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE),"2"))) {
+    if(mTimeBlockSize != Integer.parseInt(PrefUtils.getStringValue(R.string.PROG_PANEL_TIME_BLOCK_SIZE, R.string.prog_panel_time_block_size))) {
       RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
       
       updateView(getActivity().getLayoutInflater(), layout);

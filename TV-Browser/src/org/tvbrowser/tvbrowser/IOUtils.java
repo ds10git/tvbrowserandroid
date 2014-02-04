@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.app.AlarmManager;
@@ -250,7 +251,7 @@ public class IOUtils {
       int days = Integer.parseInt(pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_FREQUENCY), "0")) + 1;
       int time = pref.getInt(context.getString(R.string.PREF_AUTO_UPDATE_START_TIME), 0);
       
-      long lastDate = pref.getLong(context.getString(R.string.LAST_DATA_UPDATE), 0);
+      long lastDate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, R.integer.last_data_update_default);
       
       if(lastDate == 0) {
         lastDate = (System.currentTimeMillis() - (24 * 60 * 60000));

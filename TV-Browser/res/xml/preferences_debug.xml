@@ -2,10 +2,10 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 	<CheckBoxPreference android:key="@string/WRITE_DATA_UPDATE_LOG"
 		android:title="@string/pref_write_data_update_log"
-		android:defaultValue="false"
+		android:defaultValue="@bool/write_data_update_log_default"
 		android:summary="@string/pref_write_data_update_log_summary"/>
 	<CheckBoxPreference android:key="@string/WRITE_REMINDER_LOG"
 		android:title="@string/pref_write_reminder_update_log"
-		android:defaultValue="false"
+		android:defaultValue="@bool/write_reminder_log_default"
 		android:summary="@string/pref_write_reminder_update_log_summary"/>
 </PreferenceScreen>

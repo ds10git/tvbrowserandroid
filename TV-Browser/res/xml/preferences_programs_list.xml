@@ -2,11 +2,11 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 	<ListPreference android:key="@string/CHANNEL_LOGO_NAME_PROGRAMS_LIST"
 		android:title="@string/show_logo_title"
-		android:defaultValue="1"
+		android:defaultValue="@string/channel_logo_name_programs_list_default"
 		android:entries="@array/show_logo"
 		android:entryValues="@array/logo_name_values"
 		android:summary="%s"/>
 	<CheckBoxPreference android:key="@string/SHOW_SORT_NUMBER_IN_PROGRAMS_LIST" 
 		android:title="@string/show_sort_number"
-		android:defaultValue="true"/>
+		android:defaultValue="@bool/show_sort_number_in_programs_list_default"/>
 </PreferenceScreen>

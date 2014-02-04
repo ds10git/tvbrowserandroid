@@ -17,6 +17,7 @@
 package org.tvbrowser.tvbrowser;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.view.SeparatorDrawable;
 
@@ -55,10 +56,12 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
+    PrefUtils.initialize(TvBrowserSearchResults.this);
+    
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowserSearchResults.this);
     pref.registerOnSharedPreferenceChangeListener(this);
     
-    if(pref.getBoolean(getString(R.string.DARK_STYLE), false)) {
+    if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default)) {
       setTheme(android.R.style.Theme_Holo);
     }
     
@@ -183,7 +186,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     // Construct the new query in form of a Cursor Loader
     String[] projection = null;
     
-    if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false)) {
+    if(PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default)) {
       projection = new String[15];
       
       projection[14] = TvBrowserContentProvider.DATA_KEY_PICTURE;

@@ -18,6 +18,7 @@ package org.tvbrowser.tvbrowser;
 
 import java.util.Calendar;
 
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.content.BroadcastReceiver;
@@ -35,6 +36,8 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
   
   @Override
   public void onReceive(final Context context, Intent intent) {
+    PrefUtils.initialize(context);
+    
     Log.d("info","xxxyyy");
     final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
     
@@ -48,7 +51,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
       if(internetConnection) {
         int days = Integer.parseInt(pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_FREQUENCY), "0")) + 1;
         
-        long lastDate = pref.getLong(context.getString(R.string.LAST_DATA_UPDATE), 0);
+        long lastDate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, R.integer.last_data_update_default);
         
         Calendar last = Calendar.getInstance();
         last.setTimeInMillis(lastDate);

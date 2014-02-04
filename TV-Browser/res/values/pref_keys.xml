@@ -1,58 +1,163 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="DAYS_TO_DOWNLOAD">DAYS_TO_DOWNLOAD</string>
+    <item name="days_to_download_default" type="string" format="string">2</item>
+    
     <string name="LOAD_FULL_DATA">LOAD_FULL_DATA</string>
+    <item name="load_full_data_default" type="bool" format="boolean">false</item>
+    
     <string name="LOAD_PICTURE_DATA">LOAD_PICTURE_DATA</string>
+    <item name="load_picture_data_default" type="bool" format="boolean">false</item>
+    
     <string name="RUNNING_PROGRAMS_NEXT_DAY">RUNNING_PROGRAMS_NEXT_DAY</string>
+    <item name="running_programs_next_day_default" type="bool" format="boolean">true</item>
+    
     <string name="CHANNEL_LOGO_NAME_RUNNING">CHANNEL_LOGO_NAME_RUNNING</string>
+    <item name="channel_logo_name_running_default" type="string" format="string">0</item>
+    
     <string name="CHANNEL_LOGO_NAME_PROGRAMS_LIST">CHANNEL_LOGO_NAME_PROGRAMS_LIST</string>
+    <item name="channel_logo_name_programs_list_default" type="string" format="string">1</item>
+    
     <string name="CHANNEL_LOGO_NAME_PROGRAM_LISTS">CHANNEL_LOGO_NAME_PROGRAM_LISTS</string>
+    <item name="channel_logo_name_program_lists_default" type="string" format="string">0</item>
+    
     <string name="CHANNEL_LOGO_NAME_PROGRAM_TABLE">CHANNEL_LOGO_NAME_PROGRAM_TABLE</string>
+    <item name="channel_logo_name_program_table_default" type="string" format="string">0</item>
+    
     <string name="PROG_TABLE_ACTIVATED">PROG_TABLE_ACTIVATED</string>
+    <item name="prog_table_activated_default" type="bool" format="boolean">@bool/prog_table_default</item>
+    
     <string name="PROG_TABLE_LAYOUT">PROG_TABLE_LAYOUT</string>
+    <item name="prog_table_layout_default" type="string" format="string">0</item>
+    
     <string name="PROG_TABLE_TEXT_SCALE">PROG_TABLE_TEXT_SCALE</string>
-    <string name="DETAIL_PICTURE_ZOOM">DETAIL_PICTURE_ZOOM</string>
-    <string name="DETAIL_TEXT_SCALE">DETAIL_TEXT_SCALE</string>
-    <string name="SHOW_PICTURE_IN_PROGRAM_TABLE">SHOW_PICTURE_IN_PROGRAM_TABLE</string>
-    <string name="SHOW_INFO_IN_PROGRAM_TABLE">SHOW_INFO_IN_PROGRAM_TABLE</string>
-    <string name="SHOW_GENRE_IN_PROGRAM_TABLE">SHOW_GENRE_IN_PROGRAM_TABLE</string>
-    <string name="SHOW_EPISODE_IN_PROGRAM_TABLE">SHOW_EPISODE_IN_PROGRAM_TABLE</string>
-    <string name="SHOW_SORT_NUMBER_IN_PROGRAM_TABLE">SHOW_SORT_NUMBER_IN_PROGRAM_TABLE</string>
-    <string name="SHOW_SORT_NUMBER_IN_LISTS">SHOW_SORT_NUMBER_IN_LISTS</string>
-    <string name="SHOW_SORT_NUMBER_IN_DETAILS">SHOW_SORT_NUMBER_IN_DETAILS</string>
-    <string name="SHOW_SORT_NUMBER_IN_PROGRAMS_LIST">SHOW_SORT_NUMBER_IN_PROGRAMS_LIST</string>
-    <string name="SHOW_PICTURE_IN_LISTS">SHOW_PICTURE_IN_LISTS</string>
-    <string name="SHOW_INFO_IN_LISTS">SHOW_INFO_IN_LISTS</string>
-    <string name="SHOW_GENRE_IN_LISTS">SHOW_GENRE_IN_LISTS</string>
-    <string name="SHOW_EPISODE_IN_LISTS">SHOW_EPISODE_IN_LISTS</string>
-    <string name="SHOW_PICTURE_IN_DETAILS">SHOW_PICTURE_IN_DETAILS</string>
-    <string name="SHOW_GENRE_IN_DETAILS">SHOW_GENRE_IN_DETAILS</string>
-    <string name="SHOW_EPISODE_IN_DETAILS">SHOW_EPISODE_IN_DETAILS</string>
-    <string name="SHOW_INFO_IN_DETAILS">SHOW_INFO_IN_DETAILS</string>
-    <string name="SHOW_LINK_IN_DETAILS">SHOW_LINK_IN_DETAILS</string>
-    <string name="TAB_TO_SHOW_AT_START">TAB_TO_SHOW_AT_START</string>
-    <string name="PROG_PANEL_TIME_BLOCK_SIZE">PROG_PANEL_TIME_BLOCK_SIZE</string>
-    <string name="PROG_PANEL_GROW">PROG_PANEL_GROW</string>
+    <item name="prog_table_text_scale_default" type="string" format="string">1.0</item>
+    
     <string name="PROG_TABLE_COLUMN_WIDTH">PROG_TABLE_COLUMN_WIDTH</string>
+    <item name="prog_table_column_width_default" type="integer" format="integer">200</item>
+    
+    <string name="DETAIL_PICTURE_ZOOM">DETAIL_PICTURE_ZOOM</string>
+    <item name="detail_picture_zoom_default" type="string" format="string">1.4</item>
+    
+    <string name="DETAIL_TEXT_SCALE">DETAIL_TEXT_SCALE</string>
+    <item name="detail_text_scale_default" type="string" format="string">1.0</item>
+    
+    <string name="SHOW_PICTURE_IN_PROGRAM_TABLE">SHOW_PICTURE_IN_PROGRAM_TABLE</string>
+    <item name="prog_table_show_pictures_default" type="bool" format="boolean">false</item>
+    
+    <string name="SHOW_INFO_IN_PROGRAM_TABLE">SHOW_INFO_IN_PROGRAM_TABLE</string>
+    <item name="prog_table_show_infos_default" type="bool" format="boolean">true</item>
+    
+    <string name="SHOW_GENRE_IN_PROGRAM_TABLE">SHOW_GENRE_IN_PROGRAM_TABLE</string>
+    <item name="prog_table_show_genre_default" type="bool" format="boolean">true</item>
+    
+    <string name="SHOW_EPISODE_IN_PROGRAM_TABLE">SHOW_EPISODE_IN_PROGRAM_TABLE</string>
+    <item name="prog_table_show_episode_default" type="bool" format="boolean">true</item>
+    
+    <string name="SHOW_SORT_NUMBER_IN_PROGRAM_TABLE">SHOW_SORT_NUMBER_IN_PROGRAM_TABLE</string>
+    <item name="show_sort_number_in_program_table_default" type="bool" format="boolean">true</item>
+    
+    <string name="SHOW_SORT_NUMBER_IN_LISTS">SHOW_SORT_NUMBER_IN_LISTS</string>
+    <item name="show_sort_number_in_lists_default" type="bool" format="boolean">true</item>
+    
+    <string name="SHOW_SORT_NUMBER_IN_DETAILS">SHOW_SORT_NUMBER_IN_DETAILS</string>
+    <item name="show_sort_number_in_details_default" type="bool" format="boolean">true</item>
+    
+    <string name="SHOW_SORT_NUMBER_IN_PROGRAMS_LIST">SHOW_SORT_NUMBER_IN_PROGRAMS_LIST</string>
+    <item name="show_sort_number_in_programs_list_default" type="bool" format="boolean">false</item>
+    
+    <string name="SHOW_PICTURE_IN_LISTS">SHOW_PICTURE_IN_LISTS</string>
+    <item name="show_pictures_in_lists_default" type="bool" format="boolean">false</item>
+    
+    <string name="SHOW_INFO_IN_LISTS">SHOW_INFO_IN_LISTS</string>
+    <item name="show_info_in_lists_default" type="bool" format="boolean">true</item>
+    
+    <string name="SHOW_GENRE_IN_LISTS">SHOW_GENRE_IN_LISTS</string>
+    <item name="show_genre_in_lists_default" type="bool" format="boolean">true</item>
+    
+    <string name="SHOW_EPISODE_IN_LISTS">SHOW_EPISODE_IN_LISTS</string>
+    <item name="show_episode_in_lists_default" type="bool" format="boolean">true</item>
+    
+    <string name="SHOW_PICTURE_IN_DETAILS">SHOW_PICTURE_IN_DETAILS</string>
+    <item name="show_picture_in_details_default" type="bool" format="boolean">true</item>
+    
+    <string name="SHOW_GENRE_IN_DETAILS">SHOW_GENRE_IN_DETAILS</string>
+    <item name="show_genre_in_details_default" type="bool" format="boolean">true</item>
+    
+    <string name="SHOW_EPISODE_IN_DETAILS">SHOW_EPISODE_IN_DETAILS</string>
+    <item name="show_episode_in_details_default" type="bool" format="boolean">true</item>
+    
+    <string name="SHOW_INFO_IN_DETAILS">SHOW_INFO_IN_DETAILS</string>
+    <item name="show_info_in_details_default" type="bool" format="boolean">true</item>
+    
+    <string name="SHOW_LINK_IN_DETAILS">SHOW_LINK_IN_DETAILS</string>
+    <item name="show_link_in_details_default" type="bool" format="boolean">true</item>
+    
+    <string name="TAB_TO_SHOW_AT_START">TAB_TO_SHOW_AT_START</string>
+    <item name="tab_to_show_at_start_default" type="string" format="string">0</item>
+    
+    <string name="PROG_PANEL_TIME_BLOCK_SIZE">PROG_PANEL_TIME_BLOCK_SIZE</string>
+    <item name="prog_panel_time_block_size" type="string" format="string">2</item>
+    
+    <string name="PROG_PANEL_GROW">PROG_PANEL_GROW</string>
+    <item name="prog_panel_grow_default" type="bool" format="boolean">true</item>
+    
     <string name="TIME_BUTTON_1">TIME_BUTTON_ONE</string>
+    <item name="time_button_1_default" type="integer" format="integer">1215</item>
+    
     <string name="TIME_BUTTON_2">TIME_BUTTON_TWO</string>
+    <item name="time_button_2_default" type="integer" format="integer">360</item>
+    
     <string name="TIME_BUTTON_3">TIME_BUTTON_THREE</string>
+    <item name="time_button_3_default" type="integer" format="integer">720</item>
+    
     <string name="TIME_BUTTON_4">TIME_BUTTON_FOUR</string>
+    <item name="time_button_4_default" type="integer" format="integer">960</item>
+    
     <string name="TIME_BUTTON_5">TIME_BUTTON_FIVE</string>
+    <item name="time_button_5_default" type="integer" format="integer">1080</item>
+    
     <string name="TIME_BUTTON_6">TIME_BUTTON_SIX</string>
+    <item name="time_button_6_default" type="integer" format="integer">1380</item>
+    
     <string name="WRITE_DATA_UPDATE_LOG">WRITE_LOG</string>
+    <item name="write_data_update_log_default" type="bool" format="boolean">false</item>
+    
     <string name="WRITE_REMINDER_LOG">WRITE_REMINDER_LOG</string>
+    <item name="write_reminder_log_default" type="bool" format="boolean">false</item>
+    
     <string name="REMINDER_LOG_LAST_POS">REMINDER_LOG_LAST_POS</string>
-    <string name="PREF_SYNC_SCREEN">PREF_SYNC_SCREEN</string>
+    <item name="reminder_log_last_pos_default" type="integer" format="integer">0</item>
+    
     <string name="PREF_SYNC_FAV_FROM_DESKTOP">PREF_SYNC_FAV_FROM_DESKTOP</string>
+    <item name="pref_sync_fav_from_desktop_default" type="bool" format="boolean">true</item>
+    
     <string name="PREF_SYNC_FAV_TO_DESKTOP">PREF_SYNC_FAV_TO_DESKTOP</string>
+    <item name="pref_sync_fav_to_desktop_default" type="bool" format="boolean">true</item>
+    
     <string name="PREF_SYNC_REMINDERS_FROM_DESKTOP">PREF_SYNC_REMINDERS_FROM_DESKTOP</string>
+    <item name="pref_sync_reminders_from_desktop_default" type="bool" format="boolean">true</item>
+    
     <string name="PREF_SYNC_REMINDERS_TO_DESKTOP">PREF_SYNC_REMINDERS_TO_DESKTOP</string>
+    <item name="pref_sync_reminders_to_desktop_default" type="bool" format="boolean">true</item>
+    
     <string name="PREF_SYNC_MARKED_TO_DESKTOP">PREF_SYNC_MARKED_TO_DESKTOP</string>
+    <item name="pref_sync_marked_to_desktop_default" type="bool" format="boolean">true</item>
+    
     <string name="PREF_SYNC_CALENDAR_TO_DESKTOP">PREF_SYNC_CALENDAR_TO_DESKTOP</string>
+    <item name="pref_sync_calendar_to_desktop_default" type="bool" format="boolean">true</item>
+    
     <string name="I_DONT_WANT_TO_SEE_ENTRIES">I_DONT_WANT_TO_SEE_ENTRIES</string>
+        
     <string name="DARK_STYLE">DARK_STYLE</string>
+    <item name="dark_style_default" type="bool" format="boolean">false</item>
+    
     <string name="SORT_RUNNING_TIMES">SORT_RUNNING_TIMES</string>
+    <item name="sort_running_times_default" type="bool" format="boolean">false</item>
+    
+    <string name="LAST_DATA_UPDATE">LAST_DATA_UPDATE</string>
+    <item name="last_data_update_default" type="integer" format="integer">0</item>
+    
     <string name="PREF_RUNNING_DIVIDER_SIZE">PREF_RUNNING_DIVIDER_SIZE</string>
     <string name="PREF_PROGRAM_LISTS_DIVIDER_SIZE">PREF_PROGRAM_LISTS_DIVIDER_SIZE</string>
     <string name="PREF_REMINDER_TIME">PREF_REMINDER_TIME</string>
@@ -83,5 +188,4 @@
     <string name="PREF_AUTO_UPDATE_RANGE">PREF_AUTO_UPDATE_RANGE</string>
     <string name="PREF_AUTO_UPDATE_FREQUENCY">PREF_AUTO_UPDATE_FREQUENCY</string>
     <string name="PREF_AUTO_UPDATE_START_TIME">PREF_AUTO_UPDATE_START_TIME</string>
-    <string name="LAST_DATA_UPDATE">LAST_DATA_UPDATE</string>
 </resources>

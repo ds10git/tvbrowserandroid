@@ -21,6 +21,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.app.Activity;
@@ -58,14 +59,14 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
 
   @Override
   public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
-    boolean showPicture = mPref.getBoolean(view.getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false);
-    boolean showGenre = mPref.getBoolean(view.getResources().getString(R.string.SHOW_GENRE_IN_LISTS), true);
-    boolean showEpisode = mPref.getBoolean(view.getResources().getString(R.string.SHOW_EPISODE_IN_LISTS), true);
-    boolean showInfo = mPref.getBoolean(view.getResources().getString(R.string.SHOW_INFO_IN_LISTS), true);
-    boolean showOrderNumber = mPref.getBoolean(view.getResources().getString(R.string.SHOW_SORT_NUMBER_IN_LISTS), true);
+    boolean showPicture = PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default);
+    boolean showGenre = PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_LISTS, R.bool.show_genre_in_lists_default);
+    boolean showEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_LISTS, R.bool.show_episode_in_lists_default);
+    boolean showInfo = PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_LISTS, R.bool.show_info_in_lists_default);
+    boolean showOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_LISTS, R.bool.show_sort_number_in_lists_default);
     boolean showEndTime = mPref.getBoolean(view.getResources().getString(R.string.PREF_PROGRAM_LISTS_SHOW_END_TIME), view.getResources().getBoolean(R.bool.prog_lists_show_end_time_default));
     
-    String logoNamePref = mPref.getString(view.getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS), "0");
+    String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS, R.string.channel_logo_name_program_lists_default);
     
     boolean showChannelName = logoNamePref.equals("0") || logoNamePref.equals("2");
     boolean showChannelLogo = logoNamePref.equals("0") || logoNamePref.equals("1");
