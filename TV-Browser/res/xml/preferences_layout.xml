@@ -8,7 +8,7 @@
 	    <CheckBoxPreference android:key="@string/PREF_SHOW_PROGRESS"
 	        android:title="@string/pref_show_progress_title"
 	        android:summary="@string/pref_show_progress_summary"
-	        android:defaultValue="true"/>
+	        android:defaultValue="@bool/pref_show_progress_default"/>
 	    <org.tvbrowser.settings.ColorPreference
 	        android:key="@string/PREF_COLOR_ON_AIR_BACKGROUND"
 	        android:title="@string/pref_color_running_background"

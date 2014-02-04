@@ -22,6 +22,7 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.app.Notification;
@@ -38,10 +39,14 @@ import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
+import android.media.Ringtone;
 import android.media.RingtoneManager;
+import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.preference.RingtonePreference;
 import android.support.v4.app.NotificationCompat;
 import android.text.format.DateFormat;
+import android.util.Log;
 
 public class ReminderBroadcastReceiver extends BroadcastReceiver {
   public static final String tag = null;
@@ -54,19 +59,31 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
     Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' reminder is paused '" + SettingConstants.IS_REMINDER_PAUSED + "'", Logging.REMINDER_TYPE, context);
     
     if(!SettingConstants.IS_REMINDER_PAUSED && programID >= 0) {
-      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+      Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
       
-      boolean sound = pref.getBoolean(context.getString(R.string.PREF_REMINDER_SOUND), true);
-      boolean vibrate = pref.getBoolean(context.getString(R.string.PREF_REMINDER_VIBRATE), true);
-      boolean led = pref.getBoolean(context.getString(R.string.PREF_REMINDER_LED), true);
+      String tone = PrefUtils.getStringValue(R.string.PREF_REMINDER_SOUND_VALUE, null);
+      
+      Uri soundUri = defaultUri;
+      
+      if(tone != null) {
+        soundUri = Uri.parse(tone);
+      }
+      
+      Ringtone notificationSound = RingtoneManager.getRingtone(context, soundUri);
+      
+      Log.d("info", "" + soundUri + " " + notificationSound + " " + tone);
+      
+      boolean sound = tone == null || tone.trim().length() > 0;
+      boolean vibrate = PrefUtils.getBooleanValue(R.string.PREF_REMINDER_VIBRATE, R.bool.pref_reminder_vibrate_default);
+      boolean led = PrefUtils.getBooleanValue(R.string.PREF_REMINDER_LED, R.bool.pref_reminder_led_default);
       
       boolean showReminder = true;
       
-      Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' NIGHT MODE ACTIVATED '" + pref.getBoolean(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED), false) + "' sound '" + sound + "' vibrate '" + vibrate + "' led '" + led + "'", Logging.REMINDER_TYPE, context);
+      Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' NIGHT MODE ACTIVATED '" + PrefUtils.getBooleanValue(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED, R.bool.pref_reminder_night_mode_activated_default) + "' sound '" + sound + "' vibrate '" + vibrate + "' led '" + led + "'", Logging.REMINDER_TYPE, context);
       
-      if(pref.getBoolean(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED), false)) {
-        int start = pref.getInt(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_START), 1380);
-        int end = pref.getInt(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_END), 420);
+      if(PrefUtils.getBooleanValue(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED, R.bool.pref_reminder_night_mode_activated_default)) {
+        int start = PrefUtils.getIntValueWithDefaultKey(R.string.PREF_REMINDER_NIGHT_MODE_START, R.integer.pref_reminder_night_mode_start_default);
+        int end =  PrefUtils.getIntValueWithDefaultKey(R.string.PREF_REMINDER_NIGHT_MODE_END, R.integer.pref_reminder_night_mode_end_default);
         
         Calendar now = Calendar.getInstance();
         
@@ -81,14 +98,23 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
         }
         
         if(start <= minutes && minutes <= end) {
-          showReminder = !pref.getBoolean(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER), true);
+          showReminder = !PrefUtils.getBooleanValue(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER, R.bool.pref_reminder_night_mode_no_reminder_default);
           
           Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' CURRENTLY NIGHT MODE, Don't show '" + !showReminder + "'", Logging.REMINDER_TYPE, context);
           
           if(showReminder) {
-            sound = pref.getBoolean(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND), false);
-            vibrate = pref.getBoolean(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_VIBRATE), false);
-            led = pref.getBoolean(context.getString(R.string.PREF_REMINDER_NIGHT_MODE_LED), false);
+            tone = PrefUtils.getStringValue(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE, R.string.pref_reminder_night_mode_sound_value_default);
+            
+            if(tone != null) {
+              soundUri = Uri.parse(tone);
+            }
+            else {
+              soundUri = defaultUri;
+            }
+            
+            sound = tone == null || tone.trim().length() > 0;
+            vibrate = PrefUtils.getBooleanValue(R.string.PREF_REMINDER_NIGHT_MODE_VIBRATE, R.bool.pref_reminder_night_mode_vibrate_default);
+            led = PrefUtils.getBooleanValue(R.string.PREF_REMINDER_NIGHT_MODE_LED, R.bool.pref_reminder_night_mode_led_default);
           }
         }
       }
@@ -146,8 +172,8 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           builder.setWhen(startTime);
           
           if(sound) {
-            builder.setDefaults(Notification.DEFAULT_SOUND);
-            builder.setSound(RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION));
+            //builder.setDefaults(Notification.DEFAULT_SOUND);
+            builder.setSound(soundUri);
           }
           else {
             builder.setDefaults(0);

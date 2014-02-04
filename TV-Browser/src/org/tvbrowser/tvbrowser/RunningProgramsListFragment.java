@@ -695,7 +695,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private View getCompactView(View convertView, ViewGroup parent, java.text.DateFormat timeFormat, ChannelProgramBlock block, int DEFAULT_TEXT_COLOR) {
     CompactLayoutViewHolder viewHolder = null;
     
-    float textScale = Float.valueOf(PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(getString(R.string.PREF_PROGRAM_LISTS_TEXT_SCALE),"1.0"));
+    float textScale = Float.valueOf(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_TEXT_SCALE, R.string.pref_program_lists_text_scale_default));
     
     if(convertView == null || ((CompactLayoutViewHolder)convertView.getTag()).orientationChanged(SettingConstants.ORIENTATION) || ((CompactLayoutViewHolder)convertView.getTag()).mCurrentScale !=  textScale) {
       convertView = getActivity().getLayoutInflater().inflate(R.layout.compact_program_panel, parent, false);
@@ -803,7 +803,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       @Override
       public void onClick(View v) {
         Integer id = (Integer)v.getTag();
-        boolean handle = PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getResources().getString(R.string.PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST), getResources().getBoolean(R.bool.prog_lists_show_list_on_channel_click_default));
+        boolean handle = PrefUtils.getBooleanValue(R.string.PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_program_lists_click_to_channel_to_list_default);
         
         if(handle && id != null) {
           Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
@@ -862,7 +862,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     getListView().setDivider(drawable);
     
-    setDividerSize(pref.getString(getString(R.string.PREF_RUNNING_DIVIDER_SIZE), SettingConstants.DIVIDER_DEFAULT));
+    setDividerSize(PrefUtils.getStringValue(R.string.PREF_RUNNING_DIVIDER_SIZE, R.string.devider_size_default));
     
     getLoaderManager().initLoader(0, null, this);
   }
@@ -1211,7 +1211,7 @@ Log.d("info", "" + new Date(mCurrentTime));
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     if(!isDetached() && getActivity() != null) {
       if(getString(R.string.PREF_RUNNING_DIVIDER_SIZE).equals(key)) {
-        setDividerSize(sharedPreferences.getString(key, SettingConstants.DIVIDER_DEFAULT));
+        setDividerSize(PrefUtils.getStringValue(R.string.PREF_RUNNING_DIVIDER_SIZE, R.string.devider_size_default));
       }
     }
   }

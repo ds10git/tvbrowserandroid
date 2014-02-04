@@ -313,6 +313,8 @@
 	<string name="pref_reminder_category">Erinnerungen</string>
 	<string name="pref_reminder_type">Tages-Modus</string>
 	<string name="pref_reminder_sound">Sound</string>
+	<string name="pref_reminder_no_sound">Kein Sound</string>
+	<string name="pref_reminder_sound_value_summary">Sound der bei Erinnerung abgespielt wird</string>
 	<string name="pref_reminder_vibrate">Vibrieren</string>
 	<string name="pref_reminder_led">Info-LED</string>
 	<string name="pref_reminder_night_type">Nacht-Modus</string>

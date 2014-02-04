@@ -3,57 +3,58 @@
 	<ListPreference
 		android:key="@string/PREF_REMINDER_TIME"
 		android:title="@string/pref_category_reminder_title"
-		android:defaultValue="0"
+		android:defaultValue="@string/pref_reminder_time_default"
 		android:entries="@array/pref_category_reminder_names"
 		android:entryValues="@array/pref_category_reminder_values"
 		android:summary="%s"/>
 	<CheckBoxPreference android:key="@string/PREF_REMIND_AGAIN_AT_START"
 		android:title="@string/pref_category_reminder_again_title"
-		android:defaultValue="true"
+		android:defaultValue="@bool/pref_remind_again_at_start_default"
 		/>
 	<PreferenceCategory android:title="@string/pref_reminder_type">
-		<CheckBoxPreference android:key="@string/PREF_REMINDER_SOUND"
-			android:title="@string/pref_reminder_sound"
-			android:defaultValue="true"
-			/>
+		<RingtonePreference android:key="@string/PREF_REMINDER_SOUND_VALUE"
+		    android:summary="@string/pref_reminder_sound_value_summary"
+		    android:ringtoneType="notification"
+		    />
 		<CheckBoxPreference android:key="@string/PREF_REMINDER_VIBRATE"
 			android:title="@string/pref_reminder_vibrate"
-			android:defaultValue="true"
+			android:defaultValue="@bool/pref_reminder_vibrate_default"
 			/>
 		<CheckBoxPreference android:key="@string/PREF_REMINDER_LED"
 			android:title="@string/pref_reminder_led"
-			android:defaultValue="true"
+			android:defaultValue="@bool/pref_reminder_led_default"
 			/>
 	</PreferenceCategory>
 	<PreferenceCategory android:title="@string/pref_reminder_night_type">
 		<CheckBoxPreference android:key="@string/PREF_REMINDER_NIGHT_MODE_ACTIVATED"
 			android:title="@string/pref_activated"
-			android:defaultValue="false"
+			android:defaultValue="@bool/pref_reminder_night_mode_activated_default"
 			/>
 		<org.tvbrowser.settings.TimePreference 
     		android:key="@string/PREF_REMINDER_NIGHT_MODE_START"
-    		android:defaultValue="1380"
+    		android:defaultValue="@integer/pref_reminder_night_mode_start_default"
      		android:summary="@string/pref_reminder_night_start"/>
 		<org.tvbrowser.settings.TimePreference 
     		android:key="@string/PREF_REMINDER_NIGHT_MODE_END"
-			android:defaultValue="420"
+			android:defaultValue="@integer/pref_reminder_night_mode_end_default"
 			android:summary="@string/pref_reminder_night_end"
 			/>
 		<CheckBoxPreference android:key="@string/PREF_REMINDER_NIGHT_MODE_NO_REMINDER"
 			android:title="@string/pref_reminder_night_no_reminder"
-			android:defaultValue="true"
+			android:defaultValue="@bool/pref_reminder_night_mode_no_reminder_default"
 			/>
-		<CheckBoxPreference android:key="@string/PREF_REMINDER_NIGHT_MODE_SOUND"
-			android:title="@string/pref_reminder_sound"
-			android:defaultValue="false"
-			/>
+		<RingtonePreference android:key="@string/PREF_REMINDER_NIGHT_MODE_SOUND_VALUE"
+		    android:summary="@string/pref_reminder_sound_value_summary"
+		    android:ringtoneType="notification"
+		    android:defaultValue="@string/pref_reminder_night_mode_sound_value_default"
+		    />
 		<CheckBoxPreference android:key="@string/PREF_REMINDER_NIGHT_MODE_VIBRATE"
 			android:title="@string/pref_reminder_vibrate"
-			android:defaultValue="false"
+			android:defaultValue="@bool/pref_reminder_night_mode_vibrate_default"
 			/>
 		<CheckBoxPreference android:key="@string/PREF_REMINDER_NIGHT_MODE_LED"
 			android:title="@string/pref_reminder_led"
-			android:defaultValue="false"
+			android:defaultValue="@bool/pref_reminder_night_mode_led_default"
 			/>
 	</PreferenceCategory>
 </PreferenceScreen>

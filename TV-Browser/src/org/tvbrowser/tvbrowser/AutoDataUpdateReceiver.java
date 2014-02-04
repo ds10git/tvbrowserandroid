@@ -41,15 +41,17 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
     Log.d("info","xxxyyy");
     final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
     
-    boolean autoUpdate = !pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_TYPE), "0").equals("0");
-    boolean internetConnection = pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_TYPE), "0").equals("1");
-    boolean timeUpdate = pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_TYPE), "0").equals("2");
-    Log.d("info", "au " + autoUpdate + " " + pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_TYPE), "0"));
+    String updateType = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
+    
+    boolean autoUpdate = !updateType.equals("0");
+    boolean internetConnection = updateType.equals("1");
+    boolean timeUpdate = updateType.equals("2");
+    Log.d("info", "au " + autoUpdate + " " + updateType);
     Log.d("info", "ic " + internetConnection);
     Log.d("info", "tu " + timeUpdate);
     if(autoUpdate) {
       if(internetConnection) {
-        int days = Integer.parseInt(pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_FREQUENCY), "0")) + 1;
+        int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default)) + 1;
         
         long lastDate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, R.integer.last_data_update_default);
         
@@ -74,7 +76,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
         NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         
-        boolean onlyWifi = pref.getBoolean(context.getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI), true);
+        boolean onlyWifi = PrefUtils.getBooleanValue(R.string.PREF_AUTO_UPDATE_ONLY_WIFI, R.bool.pref_auto_update_only_wifi_default);
         
         boolean isConnected = wifi != null && wifi.isConnectedOrConnecting();
         
@@ -95,7 +97,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
                 Intent startDownload = new Intent(context, TvDataUpdateService.class);
                 startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
                 
-                int daysToDownload = Integer.parseInt(pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_RANGE), "2"));
+                int daysToDownload = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_RANGE, R.string.pref_auto_update_range_default));
                 
                 startDownload.putExtra(context.getString(R.string.DAYS_TO_DOWNLOAD), daysToDownload);
                 

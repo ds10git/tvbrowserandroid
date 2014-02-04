@@ -64,7 +64,7 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
     boolean showEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_LISTS, R.bool.show_episode_in_lists_default);
     boolean showInfo = PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_LISTS, R.bool.show_info_in_lists_default);
     boolean showOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_LISTS, R.bool.show_sort_number_in_lists_default);
-    boolean showEndTime = mPref.getBoolean(view.getResources().getString(R.string.PREF_PROGRAM_LISTS_SHOW_END_TIME), view.getResources().getBoolean(R.bool.prog_lists_show_end_time_default));
+    boolean showEndTime = PrefUtils.getBooleanValue(R.string.PREF_PROGRAM_LISTS_SHOW_END_TIME, R.bool.pref_program_lists_show_end_time_default);
     
     String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS, R.string.channel_logo_name_program_lists_default);
     
