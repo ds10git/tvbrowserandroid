@@ -3,18 +3,18 @@
     <ListPreference
 	       android:key="@string/DAYS_TO_DOWNLOAD"
 	       android:title="@string/download_data_for"
-	       android:defaultValue="2"
+	       android:defaultValue="@string/days_to_download_default"
 	       android:entries="@array/download_selections"
 	       android:entryValues="@array/download_days"
 	       android:summary="%s"/>
 	    <CheckBoxPreference android:key="@string/LOAD_FULL_DATA"
 	        android:title="@string/pref_load_full_data"
-	        android:defaultValue="false"
+	        android:defaultValue="@bool/load_full_data_default"
 	        android:summaryOn="@string/pref_load_full_data_summary_on"
 	        android:summaryOff="@string/pref_load_full_data_summary_off"/>
 	    <CheckBoxPreference android:key="@string/LOAD_PICTURE_DATA"
 	        android:title="@string/pref_load_picture_data"
-	        android:defaultValue="false"/>
+	        android:defaultValue="@bool/load_picture_data_default"/>
 	    <PreferenceCategory android:title="@string/pref_auto_update_category">
 	        <ListPreference
 	            android:key="@string/PREF_AUTO_UPDATE_TYPE"

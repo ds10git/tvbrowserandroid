@@ -16,6 +16,7 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.app.Activity;
@@ -27,6 +28,8 @@ public class InfoActivity extends Activity {
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    
+    PrefUtils.initialize(InfoActivity.this);
   }
   
   @Override

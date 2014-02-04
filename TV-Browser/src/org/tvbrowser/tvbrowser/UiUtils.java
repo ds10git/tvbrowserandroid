@@ -26,6 +26,7 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.annotation.SuppressLint;
@@ -136,7 +137,7 @@ public class UiUtils {
       
       View layout =((LayoutInflater)context.getSystemService( Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.detail_layout, null);
       
-      float textScale = Float.parseFloat(PreferenceManager.getDefaultSharedPreferences(context).getString(context.getResources().getString(R.string.DETAIL_TEXT_SCALE), "1.0"));;
+      float textScale = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_TEXT_SCALE, R.string.detail_text_scale_default));
       
       TextView date = (TextView)layout.findViewById(R.id.detail_date_channel);
       TextView title = (TextView)layout.findViewById(R.id.detail_title);
@@ -172,7 +173,7 @@ public class UiUtils {
       
       String channelName = "";
       
-      if(pref.getBoolean(context.getResources().getString(R.string.SHOW_SORT_NUMBER_IN_DETAILS), true)) {
+      if(PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_DETAILS, R.bool.show_sort_number_in_details_default)) {
         channelName = channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ";
       }
       
@@ -226,7 +227,7 @@ public class UiUtils {
         title.setText(titleTest + "/" + originalTitle);
       }
       
-      if(!pref.getBoolean(context.getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS), true) ||  c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)) || c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT))) {
+      if(!PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_DETAILS, R.bool.show_picture_in_details_default) ||  c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)) || c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT))) {
         pictureCopyright.setVisibility(View.GONE);
         pictureDescription.setVisibility(View.GONE);
       }
@@ -243,14 +244,14 @@ public class UiUtils {
         
         BitmapDrawable b = new BitmapDrawable(context.getResources(),image);
         
-        float zoom = Float.parseFloat(PreferenceManager.getDefaultSharedPreferences(context).getString(context.getResources().getString(R.string.DETAIL_PICTURE_ZOOM), "1.4"));
+        float zoom = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_PICTURE_ZOOM, R.string.detail_picture_zoom_default));
         
         b.setBounds(0, 0, (int)(image.getWidth() * zoom), (int)(image.getHeight() * zoom));
         
         pictureDescription.setCompoundDrawables(b, null, null, null);
       }
       
-      if(pref.getBoolean(context.getResources().getString(R.string.SHOW_GENRE_IN_DETAILS), true) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
+      if(PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_DETAILS, R.bool.show_genre_in_details_default) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
         genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) + (year.length() > 0 ? " - " + year : ""));
       }
       else if(year.length() > 0) {
@@ -262,7 +263,7 @@ public class UiUtils {
       
       String infoValue = IOUtils.getInfoString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)), context.getResources());
       
-      if(pref.getBoolean(context.getResources().getString(R.string.SHOW_INFO_IN_DETAILS), true) && infoValue.length() > 0) {
+      if(PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_DETAILS, R.bool.show_info_in_details_default) && infoValue.length() > 0) {
         info.setText(infoValue);
       }
       else {
@@ -286,7 +287,7 @@ public class UiUtils {
         originalEpisode = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL));
       }
       
-      if(pref.getBoolean(context.getResources().getString(R.string.SHOW_EPISODE_IN_DETAILS), true) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
+      if(PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_DETAILS, R.bool.show_episode_in_details_default) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
         String episodeTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
         
         if(originalEpisode == null || episodeTest.equals(originalEpisode)) {
@@ -296,7 +297,7 @@ public class UiUtils {
           episode.setText(number + episodeTest + "/" + originalEpisode);
         }
       }
-      else if(pref.getBoolean(context.getResources().getString(R.string.SHOW_EPISODE_IN_DETAILS), true) && number.trim().length() > 0) {
+      else if(PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_DETAILS, R.bool.show_episode_in_details_default) && number.trim().length() > 0) {
         episode.setText(number);
       }
       else {
@@ -328,7 +329,7 @@ public class UiUtils {
         description.setVisibility(View.GONE);
       }
       
-      if(pref.getBoolean(context.getResources().getString(R.string.SHOW_LINK_IN_DETAILS), true) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK))) {
+      if(PrefUtils.getBooleanValue(R.string.SHOW_LINK_IN_DETAILS, R.bool.show_link_in_details_default) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK))) {
         String linkText = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK));
         link.setText(linkText);
         link.setMovementMethod(LinkMovementMethod.getInstance());
@@ -887,7 +888,7 @@ public class UiUtils {
       if(title != null && !SettingConstants.UPDATING_FILTER) {
         SettingConstants.UPDATING_FILTER = true;
         
-        Set<String> exclusionValues = PreferenceManager.getDefaultSharedPreferences(activity).getStringSet(activity.getResources().getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES), null);
+        Set<String> exclusionValues = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
         //ArrayList<>
         HashSet<String> newExclusionSet = new HashSet<String>();
         final ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<DontWantToSeeExclusion>();
@@ -1420,7 +1421,7 @@ public class UiUtils {
     
     if(title != null) {
       if(values == null) {
-        Set<String> exclusionValues = PreferenceManager.getDefaultSharedPreferences(context).getStringSet(context.getResources().getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES), null);
+        Set<String> exclusionValues = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
         //ArrayList<>
         values = new DontWantToSeeExclusion[exclusionValues.size()];
         

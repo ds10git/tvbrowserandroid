@@ -39,6 +39,7 @@ public class ProgramPanel extends View {
   private String mEpisode;
   private String mGenre;
   private String mPictureCopyright;
+  private String mInfoString;
   private BitmapDrawable mPicture;
 
   private boolean mIsExpired;
@@ -50,7 +51,6 @@ public class ProgramPanel extends View {
   private int mSmallRowCount;
   private int mSuperSmallCount;
   private String mStartTimeString;
-  
   
   public ProgramPanel(Context context, final long startTime, final long endTime, final String title, final int channelID) {
     super(context);
@@ -79,6 +79,15 @@ public class ProgramPanel extends View {
     ProgramTableLayoutConstants.NOT_EXPIRED_TITLE_PAINT.getTextBounds(mStartTimeString, 0, mStartTimeString.length(), mStartTimeBounds);
   }
   
+  public void setInfoString(String value) {
+    if(value != null) {
+      Object[] result = getBreakerText(value, getTextWidth() - mStartTimeBounds.width() - ProgramTableLayoutConstants.TIME_TITLE_GAP, ProgramTableLayoutConstants.NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT);
+      
+      mInfoString = result[0].toString();
+      mSuperSmallCount += (Integer)result[1];
+    }
+  }
+  
   /*
    * Breaks the given String into string with line breaks at needed positions.
    */
@@ -97,11 +106,15 @@ public class ProgramPanel extends View {
         int bestBreak = temp.lastIndexOf("-", length-1);
         
         if(bestBreak == -1) {
-          bestBreak = temp.lastIndexOf("/", length-1);
+          bestBreak = temp.lastIndexOf(" ", length-1);
         }
         
         if(bestBreak == -1) {
-          bestBreak = temp.lastIndexOf(" ", length-1);
+          bestBreak = temp.lastIndexOf(",", length-1);
+        }
+        
+        if(bestBreak == -1) {
+          bestBreak = temp.lastIndexOf("/", length-1);
         }
         
         if(bestBreak > 0) {
@@ -225,6 +238,17 @@ public class ProgramPanel extends View {
       canvas.translate(0, mPicture.getBounds().height());
       
       lines = mPictureCopyright.split("\n");
+      
+      for(int i = 0; i < lines.length; i++) {
+        canvas.drawText(lines[i], 0, (i+1) * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT - ProgramTableLayoutConstants.SUPER_SMALL_FONT_DESCEND, toUseForPictureCopyright);
+      }
+      
+      canvas.translate(0, lines.length * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT);
+    }
+    
+    // draw additonal infos
+    if(mInfoString != null) {
+      lines = mInfoString.split("\n");
       
       for(int i = 0; i < lines.length; i++) {
         canvas.drawText(lines[i], 0, (i+1) * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT - ProgramTableLayoutConstants.SUPER_SMALL_FONT_DESCEND, toUseForPictureCopyright);

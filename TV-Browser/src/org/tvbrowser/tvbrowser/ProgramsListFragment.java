@@ -19,6 +19,7 @@ package org.tvbrowser.tvbrowser;
 import java.util.Calendar;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.view.SeparatorDrawable;
 
@@ -337,7 +338,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
     String[] projection = null;
     
-    if(PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false)) {
+    if(PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default)) {
       projection = new String[16];
       
       projection[15] = TvBrowserContentProvider.DATA_KEY_PICTURE;

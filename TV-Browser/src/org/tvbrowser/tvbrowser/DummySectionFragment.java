@@ -22,6 +22,7 @@ import java.util.Calendar;
 import java.util.Collections;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.content.BroadcastReceiver;
@@ -200,7 +201,7 @@ public class DummySectionFragment extends Fragment {
               } catch (Exception e) {}
             }
             
-            if(pref.getBoolean(getString(R.string.SORT_RUNNING_TIMES), false)) {
+            if(PrefUtils.getBooleanValue(R.string.SORT_RUNNING_TIMES, R.bool.sort_running_times_default)) {
               Collections.sort(values);
             }
             
@@ -406,8 +407,8 @@ public class DummySectionFragment extends Fragment {
             
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
             
-            int logoValue = Integer.parseInt(pref.getString(getActivity().getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST), "1"));
-            boolean showOrderNumber = pref.getBoolean(getResources().getString(R.string.SHOW_SORT_NUMBER_IN_PROGRAMS_LIST), false);
+            int logoValue = Integer.parseInt(PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST, R.string.channel_logo_name_programs_list_default));
+            boolean showOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_PROGRAMS_LIST, R.bool.show_sort_number_in_programs_list_default);
             
             ChannelSelection sel = getItem(position);
             

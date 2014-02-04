@@ -19,6 +19,7 @@ package org.tvbrowser.view;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.UiUtils;
 
@@ -112,7 +113,7 @@ public class ProgramTableLayoutConstants {
   }
   
   public static void updateColumnWidth(Context context) {
-    RAW_COLUMN_WIDTH = PreferenceManager.getDefaultSharedPreferences(context).getInt(context.getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH), 200);
+    RAW_COLUMN_WIDTH = PrefUtils.getIntValueWithDefaultKey(R.string.PROG_TABLE_COLUMN_WIDTH, R.integer.prog_table_column_width_default);
     
     final float scale = context.getResources().getDisplayMetrics().density;
     // Convert the dps to pixels, based on density scale
@@ -124,15 +125,14 @@ public class ProgramTableLayoutConstants {
     
     SHOW_LOGO = !value.equals("2");
     SHOW_NAME = !value.equals("1");
-    SHOW_ORDER_NUMBER = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getResources().getString(R.string.SHOW_SORT_NUMBER_IN_PROGRAM_TABLE),true);
+    SHOW_ORDER_NUMBER = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_PROGRAM_TABLE, R.bool.show_sort_number_in_program_table_default);
   }
   
   public static void update(Context context) {
     updateChannelLogoName(context);
- // Get the screen's density scale
-    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-    RAW_COLUMN_WIDTH = pref.getInt(context.getResources().getString(R.string.PROG_TABLE_COLUMN_WIDTH), 200);
+    RAW_COLUMN_WIDTH = PrefUtils.getIntValueWithDefaultKey(R.string.PROG_TABLE_COLUMN_WIDTH, R.integer.prog_table_column_width_default);
     
+    // Get the screen's density scale 
     final float scale = context.getResources().getDisplayMetrics().density;
     // Convert the dps to pixels, based on density scale
     COLUMN_WIDTH = (int) (RAW_COLUMN_WIDTH * scale + 0.5f);
@@ -175,7 +175,7 @@ public class ProgramTableLayoutConstants {
     
     TIME_FORMAT = new SimpleDateFormat(value, Locale.getDefault());
     
-    TEXT_SCALE = Float.valueOf(pref.getString(context.getString(R.string.PROG_TABLE_TEXT_SCALE),"1.0"));
+    TEXT_SCALE = Float.valueOf(PrefUtils.getStringValue(R.string.PROG_TABLE_TEXT_SCALE, R.string.prog_table_text_scale_default));
     
     float textSize = new TextView(context).getTextSize() * TEXT_SCALE;
     float smallTextSize = (10 * scale + 0.5f) * TEXT_SCALE;

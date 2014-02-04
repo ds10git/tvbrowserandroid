@@ -20,6 +20,8 @@ import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 
+import org.tvbrowser.settings.PrefUtils;
+
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -63,7 +65,7 @@ public class Logging {
   }
   
   public static void openLogForDataUpdate(Context context) {
-    if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.WRITE_DATA_UPDATE_LOG), false)) {
+    if(PrefUtils.getBooleanValue(R.string.WRITE_DATA_UPDATE_LOG, R.bool.write_data_update_log_default)) {
       try {
         File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         
@@ -104,7 +106,7 @@ public class Logging {
     else if(type == REMINDER_TYPE) {
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
       
-      if(pref.getBoolean(context.getString(R.string.WRITE_REMINDER_LOG), false)) {
+      if(PrefUtils.getBooleanValue(R.string.WRITE_REMINDER_LOG, R.bool.write_reminder_log_default)) {
         try {
           File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
           
@@ -118,7 +120,7 @@ public class Logging {
           
           log = new RandomAccessFile(logFile, "rw");
           
-          long pos = pref.getLong(context.getString(R.string.REMINDER_LOG_LAST_POS), 0);
+          long pos = PrefUtils.getLongValueWithDefaultKey(R.string.REMINDER_LOG_LAST_POS, R.integer.reminder_log_last_pos_default);
           
           if(pos > (5 * 1024 * 1024)) {
             log.seek(0);

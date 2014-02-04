@@ -40,6 +40,7 @@ import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.tvbrowser.settings.SettingConstants;
 
@@ -172,6 +173,7 @@ public class TvBrowser extends FragmentActivity implements
   private Menu mOptionsMenu;
   
   private Stack<ProgramsListState> mProgamListStateStack;
+  private BroadcastReceiver mUpdateDoneBroadcastReceiver;
   
   static {
     mRundate = Calendar.getInstance();
@@ -191,7 +193,9 @@ public class TvBrowser extends FragmentActivity implements
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    if(PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).getBoolean(getString(R.string.DARK_STYLE), false)) {
+    PrefUtils.initialize(TvBrowser.this);
+    
+    if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default)) {
       setTheme(android.R.style.Theme_Holo);
       
       SettingConstants.IS_DARK_THEME = true;
@@ -265,7 +269,7 @@ public class TvBrowser extends FragmentActivity implements
           .setText(mSectionsPagerAdapter.getPageTitle(i)).setTabListener(this));
     }
     
-    int startTab = Integer.parseInt(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getString(getResources().getString(R.string.TAB_TO_SHOW_AT_START), "0"));
+    int startTab = Integer.parseInt(PrefUtils.getStringValue(R.string.TAB_TO_SHOW_AT_START, R.string.tab_to_show_at_start_default));
     
     if(mSectionsPagerAdapter.getCount() > startTab) {
       mViewPager.setCurrentItem(startTab);
@@ -282,6 +286,10 @@ public class TvBrowser extends FragmentActivity implements
     
     if(mTimer != null) {
       mTimer.cancel();
+    }
+    
+    if(mUpdateDoneBroadcastReceiver != null) {
+      LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(mUpdateDoneBroadcastReceiver);
     }
   }
   
@@ -333,6 +341,27 @@ public class TvBrowser extends FragmentActivity implements
     
     mIsActive = true;
     showTerms();
+    
+    mUpdateDoneBroadcastReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        updateProgressIcon(false);
+        
+        boolean fromRemider = PrefUtils.getBooleanValue(R.string.PREF_SYNC_REMINDERS_FROM_DESKTOP, R.bool.pref_sync_reminders_from_desktop_default);
+        boolean toRemider = PrefUtils.getBooleanValue(R.string.PREF_SYNC_REMINDERS_TO_DESKTOP, R.bool.pref_sync_reminders_to_desktop_default);
+        
+        if(fromRemider) {
+          synchronizeRemindersDown(false);
+        }
+        if(toRemider) {
+          synchronizeUp(false,null,"http://android.tvbrowser.org/data/scripts/syncBackMyReminders.php");
+        }
+      }
+    };
+    
+    IntentFilter filter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
+    
+    LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mUpdateDoneBroadcastReceiver, filter);
   }
   
   private void handleResume() {
@@ -1944,31 +1973,6 @@ public class TvBrowser extends FragmentActivity implements
     return false;
   }
   
-  private void addUpdateBroadcastReceiver() {
-    IntentFilter filter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
-    
-    LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, Intent intent) {
-        updateProgressIcon(false);
-        
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
-        
-        boolean fromRemider = pref.getBoolean(getString(R.string.PREF_SYNC_REMINDERS_FROM_DESKTOP), true);
-        boolean toRemider = pref.getBoolean(getString(R.string.PREF_SYNC_REMINDERS_TO_DESKTOP), true);
-        
-        if(fromRemider) {
-          synchronizeRemindersDown(false);
-        }
-        if(toRemider) {
-          synchronizeUp(false,null,"http://android.tvbrowser.org/data/scripts/syncBackMyReminders.php");
-        }
-        
-        LocalBroadcastManager.getInstance(getApplicationContext()).unregisterReceiver(this);
-      }
-    }, filter);
-  }
-
   private void updateTvData() {
     if(!TvDataUpdateService.IS_RUNNING) {
       Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, null);
@@ -1987,7 +1991,7 @@ public class TvBrowser extends FragmentActivity implements
         
         final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         
-        String daysToDownload = pref.getString(getResources().getString(R.string.DAYS_TO_DOWNLOAD), "2");
+        String daysToDownload = PrefUtils.getStringValue(R.string.DAYS_TO_DOWNLOAD, R.string.days_to_download_default);
         
         String[] valueArr = getResources().getStringArray(R.array.download_days);
         
@@ -2018,8 +2022,6 @@ public class TvBrowser extends FragmentActivity implements
             startService(startDownload);
             
             updateProgressIcon(true);
-            
-            addUpdateBroadcastReceiver();
           }
         });
         builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
@@ -2270,7 +2272,7 @@ public class TvBrowser extends FragmentActivity implements
   
   private void editDontWantToSee() {
     if(!SettingConstants.UPDATING_FILTER) {
-      Set<String> currentExclusions = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getStringSet(getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES), null);
+      Set<String> currentExclusions = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
       
       final ArrayList<ExclusionEdit> mCurrentExclusionList = new ArrayList<TvBrowser.ExclusionEdit>();
       
@@ -2525,7 +2527,7 @@ public class TvBrowser extends FragmentActivity implements
       ((FavoritesFragment)fragment).updateProgramsList();
     }
     
-    boolean programTableActivated = pref.getBoolean(getResources().getString(R.string.PROG_TABLE_ACTIVATED), getResources().getBoolean(R.bool.prog_table_default));
+    boolean programTableActivated = PrefUtils.getBooleanValue(R.string.PROG_TABLE_ACTIVATED, R.bool.prog_table_activated_default);
     Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
     
     if(!programTableActivated && test instanceof ProgramTableFragment) {
@@ -2547,8 +2549,8 @@ public class TvBrowser extends FragmentActivity implements
     }
     
     if(mDebugMenuItem != null) {
-      boolean dataUpdateLogEnabled = pref.getBoolean(getResources().getString(R.string.WRITE_DATA_UPDATE_LOG), false);
-      boolean reminderLogEnabled = pref.getBoolean(getResources().getString(R.string.WRITE_REMINDER_LOG), false);
+      boolean dataUpdateLogEnabled = PrefUtils.getBooleanValue(R.string.WRITE_DATA_UPDATE_LOG, R.bool.write_data_update_log_default);
+      boolean reminderLogEnabled = PrefUtils.getBooleanValue(R.string.WRITE_REMINDER_LOG, R.bool.write_reminder_log_default);
       
       mDebugMenuItem.setVisible(dataUpdateLogEnabled || reminderLogEnabled);
       
@@ -2839,7 +2841,6 @@ public class TvBrowser extends FragmentActivity implements
     
     if(mUpdateItem != null && TvDataUpdateService.IS_RUNNING) {
       mUpdateItem.setActionView(R.layout.progressbar);
-      addUpdateBroadcastReceiver();
     }
     
     mDebugMenuItem = menu.findItem(R.id.action_debug);
@@ -2859,8 +2860,8 @@ public class TvBrowser extends FragmentActivity implements
     
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
     
-    boolean dataUpdateLogEnabled = pref.getBoolean(getResources().getString(R.string.WRITE_DATA_UPDATE_LOG), false);
-    boolean reminderLogEnabled = pref.getBoolean(getResources().getString(R.string.WRITE_REMINDER_LOG), false);
+    boolean dataUpdateLogEnabled = PrefUtils.getBooleanValue(R.string.WRITE_DATA_UPDATE_LOG, R.bool.write_data_update_log_default);
+    boolean reminderLogEnabled = PrefUtils.getBooleanValue(R.string.WRITE_REMINDER_LOG, R.bool.write_reminder_log_default);
     
     mDebugMenuItem.setVisible(dataUpdateLogEnabled || reminderLogEnabled);
     
@@ -2923,7 +2924,7 @@ public class TvBrowser extends FragmentActivity implements
         } catch (Exception e) {}
       }
       
-      if(pref.getBoolean(getString(R.string.SORT_RUNNING_TIMES), false)) {
+      if(PrefUtils.getBooleanValue(R.string.SORT_RUNNING_TIMES, R.bool.sort_running_times_default)) {
         Collections.sort(values);
       }
             
@@ -3004,7 +3005,7 @@ public class TvBrowser extends FragmentActivity implements
     @Override
     public int getCount() {
       // Show 3 total pages.
-      if(PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(getResources().getString(R.string.PROG_TABLE_ACTIVATED), getResources().getBoolean(R.bool.prog_table_default))) {
+      if(PrefUtils.getBooleanValue(R.string.PROG_TABLE_ACTIVATED, R.bool.prog_table_activated_default)) {
         return 4;
       }
       

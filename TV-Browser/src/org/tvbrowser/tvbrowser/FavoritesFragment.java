@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.view.SeparatorDrawable;
 
@@ -90,7 +91,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     }
     
     if(mMarkingsAdapter != null) {
-      if(PreferenceManager.getDefaultSharedPreferences(getActivity()).getBoolean(getResources().getString(R.string.PREF_SYNC_FAV_FROM_DESKTOP), true) && getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
+      if(PrefUtils.getBooleanValue(R.string.PREF_SYNC_FAV_FROM_DESKTOP, R.bool.pref_sync_fav_from_desktop_default) && getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
         if(mMarkingsAdapter.getCount() < 3) {
           mMarkingsAdapter.add(getResources().getString(R.string.marking_value_sync));
         }
@@ -405,7 +406,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
     String[] projection = null;
     
-    if(PreferenceManager.getDefaultSharedPreferences(getActivity().getApplicationContext()).getBoolean(getResources().getString(R.string.SHOW_PICTURE_IN_LISTS), false)) {
+    if(PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default)) {
       projection = new String[15];
       
       projection[14] = TvBrowserContentProvider.DATA_KEY_PICTURE;

@@ -2,7 +2,7 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 	<ListPreference android:key="@string/CHANNEL_LOGO_NAME_PROGRAM_LISTS"
 		android:title="@string/show_logo_title"
-		android:defaultValue="0"
+		android:defaultValue="@string/channel_logo_name_program_lists_default"
 		android:entries="@array/show_logo"
 		android:entryValues="@array/logo_name_values"
 		android:summary="%s"/>
@@ -28,17 +28,17 @@
 		android:defaultValue="@bool/prog_lists_show_end_time_default"/>
 	<CheckBoxPreference android:key="@string/SHOW_PICTURE_IN_LISTS" 
 		android:title="@string/pref_show_pictures"
-		android:defaultValue="false"/>
+		android:defaultValue="@bool/show_pictures_in_lists_default"/>
 	<CheckBoxPreference android:key="@string/SHOW_GENRE_IN_LISTS" 
 		android:title="@string/pref_show_genre"
-		android:defaultValue="true"/>
+		android:defaultValue="@bool/show_genre_in_lists_default"/>
 	<CheckBoxPreference android:key="@string/SHOW_EPISODE_IN_LISTS" 
 		android:title="@string/pref_show_episode"
-		android:defaultValue="true"/>
+		android:defaultValue="@bool/show_episode_in_lists_default"/>
 	<CheckBoxPreference android:key="@string/SHOW_INFO_IN_LISTS" 
 		android:title="@string/pref_show_info"
-		android:defaultValue="true"/>
+		android:defaultValue="@bool/show_info_in_lists_default"/>
 	<CheckBoxPreference android:key="@string/SHOW_SORT_NUMBER_IN_LISTS" 
 		android:title="@string/show_sort_number"
-		android:defaultValue="true"/>
+		android:defaultValue="@bool/show_sort_number_in_lists_default"/>
 </PreferenceScreen>

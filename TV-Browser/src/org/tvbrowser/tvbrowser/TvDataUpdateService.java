@@ -46,6 +46,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.annotation.SuppressLint;
@@ -141,7 +142,7 @@ public class TvDataUpdateService extends Service {
         Logging.openLogForDataUpdate(getApplicationContext());
         
         if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
-          mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), 2);
+          mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(getResources().getString(R.string.days_to_download_default)));
           updateTvData();
         }
         else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
@@ -763,11 +764,9 @@ public class TvDataUpdateService extends Service {
     String car = pref.getString(SettingConstants.USER_NAME, null);
     String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
     
-    SharedPreferences defaultPref = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
-    
-    boolean syncFav = defaultPref.getBoolean(getResources().getString(R.string.PREF_SYNC_FAV_TO_DESKTOP), true);
-    boolean syncMarkings = defaultPref.getBoolean(getResources().getString(R.string.PREF_SYNC_MARKED_TO_DESKTOP), true);
-    boolean syncCalendar = defaultPref.getBoolean(getResources().getString(R.string.PREF_SYNC_CALENDAR_TO_DESKTOP), true);
+    boolean syncFav = PrefUtils.getBooleanValue(R.string.PREF_SYNC_FAV_TO_DESKTOP, R.bool.pref_sync_fav_to_desktop_default);
+    boolean syncMarkings = PrefUtils.getBooleanValue(R.string.PREF_SYNC_MARKED_TO_DESKTOP, R.bool.pref_sync_marked_to_desktop_default);
+    boolean syncCalendar = PrefUtils.getBooleanValue(R.string.PREF_SYNC_CALENDAR_TO_DESKTOP, R.bool.pref_sync_calendar_to_desktop_default);
     
     if((syncFav || syncMarkings || syncCalendar) && car != null && bicycle != null && car.trim().length() > 0 && bicycle.trim().length() > 0) {
       String userpass = car.trim() + ":" + bicycle.trim();
@@ -891,7 +890,7 @@ public class TvDataUpdateService extends Service {
       String car = pref.getString(SettingConstants.USER_NAME, null);
       String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
       
-      if(PreferenceManager.getDefaultSharedPreferences(getBaseContext()).getBoolean(getResources().getString(R.string.PREF_SYNC_FAV_FROM_DESKTOP), true) && car != null && bicycle != null && car.trim().length() > 0 && bicycle.trim().length() > 0) {
+      if(PrefUtils.getBooleanValue(R.string.PREF_SYNC_FAV_FROM_DESKTOP, R.bool.pref_sync_fav_from_desktop_default) && car != null && bicycle != null && car.trim().length() > 0 && bicycle.trim().length() > 0) {
         String userpass = car.trim() + ":" + bicycle.trim();
         String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
         
@@ -1176,12 +1175,9 @@ public class TvDataUpdateService extends Service {
       
       int[] levels = null;
       
-      String prefKeyFullData = getResources().getString(R.string.LOAD_FULL_DATA);
-      String prefKeyPictures = getResources().getString(R.string.LOAD_PICTURE_DATA);
-      
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
       
-      Set<String> exclusions = pref.getStringSet(getResources().getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES), null);
+      Set<String> exclusions = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
       
       if(exclusions != null) {
         mDontWantToSeeValues = new DontWantToSeeExclusion[exclusions.size()];
@@ -1193,8 +1189,8 @@ public class TvDataUpdateService extends Service {
         }
       }
       
-      if(pref.getBoolean(prefKeyFullData, false)) {
-        if(pref.getBoolean(prefKeyPictures, false)) {
+      if(PrefUtils.getBooleanValue(R.string.LOAD_FULL_DATA, R.bool.load_full_data_default)) {
+        if(PrefUtils.getBooleanValue(R.string.LOAD_PICTURE_DATA, R.bool.load_picture_data_default)) {
           levels = new int[5];
         }
         else {
@@ -1205,7 +1201,7 @@ public class TvDataUpdateService extends Service {
           levels[j] = j;
         }
       }
-      else if (pref.getBoolean(prefKeyPictures, false)) {
+      else if (PrefUtils.getBooleanValue(R.string.LOAD_PICTURE_DATA, R.bool.load_picture_data_default)) {
         levels = new int[3];
         
         levels[0] = 0;
