@@ -160,32 +160,76 @@
     
     <string name="PREF_RUNNING_DIVIDER_SIZE">PREF_RUNNING_DIVIDER_SIZE</string>
     <string name="PREF_PROGRAM_LISTS_DIVIDER_SIZE">PREF_PROGRAM_LISTS_DIVIDER_SIZE</string>
+    <item name="devider_size_default" type="string" format="string">10</item>
+    
     <string name="PREF_REMINDER_TIME">PREF_REMINDER_TIME</string>
-    <string name="PREF_REMINDER_SOUND">PREF_REMINDER_SOUND</string>
+    <item name="pref_reminder_time_default" type="string" format="string">0</item>
+        
+    <string name="PREF_REMINDER_SOUND_VALUE">PREF_REMINDER_SOUND_VALUE</string>
+    
     <string name="PREF_REMINDER_VIBRATE">PREF_REMINDER_VIBRATE</string>
+    <item name="pref_reminder_vibrate_default" type="bool" format="boolean">true</item>
+    
     <string name="PREF_REMINDER_LED">PREF_REMINDER_LED</string>
+    <item name="pref_reminder_led_default" type="bool" format="boolean">true</item>
+    
     <string name="PREF_REMINDER_NIGHT_MODE_ACTIVATED">PREF_REMINDER_NIGHT_MODE_ACTIVATED</string>
+    <item name="pref_reminder_night_mode_activated_default" type="bool" format="boolean">false</item>
+    
     <string name="PREF_REMINDER_NIGHT_MODE_START">PREF_REMINDER_NIGHT_MODE_START</string>
+    <item name="pref_reminder_night_mode_start_default" type="integer" format="integer">1380</item>
+    
     <string name="PREF_REMINDER_NIGHT_MODE_END">PREF_REMINDER_NIGHT_MODE_END</string>
+    <item name="pref_reminder_night_mode_end_default" type="integer" format="integer">420</item>
+    
     <string name="PREF_REMINDER_NIGHT_MODE_NO_REMINDER">PREF_REMINDER_NIGHT_MODE_NO_REMINDER</string>
-    <string name="PREF_REMINDER_NIGHT_MODE_SOUND">PREF_REMINDER_NIGHT_MODE_SOUND</string>
+    <item name="pref_reminder_night_mode_no_reminder_default" type="bool" format="boolean">true</item>
+    
+    <string name="PREF_REMINDER_NIGHT_MODE_SOUND_VALUE">PREF_REMINDER_NIGHT_MODE_SOUND_VALUE</string>
+    <item name="pref_reminder_night_mode_sound_value_default" type="string" format="string"></item>
+    
     <string name="PREF_REMINDER_NIGHT_MODE_VIBRATE">PREF_REMINDER_NIGHT_MODE_VIBRATE</string>
+    <item name="pref_reminder_night_mode_vibrate_default" type="bool" format="boolean">false</item>
+    
     <string name="PREF_REMINDER_NIGHT_MODE_LED">PREF_REMINDER_NIGHT_MODE_LED</string>
+    <item name="pref_reminder_night_mode_led_default" type="bool" format="boolean">false</item>
+    
     <string name="PREF_REMIND_AGAIN_AT_START">PREF_REMIND_AGAIN_AT_START</string>
+    <item name="pref_remind_again_at_start_default" type="bool" format="boolean">true</item>
+    
     <string name="PREF_PROGRAM_LISTS_SHOW_END_TIME">PREF_PROGRAM_LISTS_SHOW_END_TIME</string>
+    <item name="pref_program_lists_show_end_time_default" type="bool" format="boolean">false</item>
+    
     <string name="PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST">PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST</string>
+    <item name="pref_program_lists_click_to_channel_to_list_default" type="bool" format="boolean">true</item>
+    
     <string name="PREF_PROGRAM_LISTS_TEXT_SCALE">PREF_PROGRAM_LISTS_TEXT_SCALE</string>
+    <item name="pref_program_lists_text_scale_default" type="string" format="string">1.0</item>
+    
     <string name="PREF_EMAIL_TARGET_ADDRESS">PREF_EMAIL_TARGET_ADDRESS</string>
+    
     <string name="PREF_COLOR_ON_AIR_BACKGROUND">PREF_COLOR_ON_AIR_BACKGROUND</string>
     <string name="PREF_COLOR_ON_AIR_PROGRESS">PREF_COLOR_ON_AIR_PROGRESS</string>
     <string name="PREF_COLOR_MARKED">PREF_COLOR_MARKED</string>
     <string name="PREF_COLOR_FAVORITE">PREF_COLOR_FAVORITE</string>
     <string name="PREF_COLOR_REMINDER">PREF_COLOR_REMINDER</string>
     <string name="PREF_COLOR_SYNC">PREF_COLOR_SYNC</string>
+    
     <string name="PREF_SHOW_PROGRESS">PREF_SHOW_PROGRESS</string>
+    <item name="pref_show_progress_default" type="bool" format="boolean">true</item>
+    
     <string name="PREF_AUTO_UPDATE_TYPE">PREF_AUTO_UPDATE_TYPE</string>
+    <item name="pref_auto_update_type_default" type="string" format="string">0</item>
+    
     <string name="PREF_AUTO_UPDATE_ONLY_WIFI">PREF_AUTO_UPDATE_ONLY_WIFI</string>
+    <item name="pref_auto_update_only_wifi_default" type="bool" format="boolean">true</item>
+    
     <string name="PREF_AUTO_UPDATE_RANGE">PREF_AUTO_UPDATE_RANGE</string>
+    <item name="pref_auto_update_range_default" type="string" format="string">2</item>
+    
     <string name="PREF_AUTO_UPDATE_FREQUENCY">PREF_AUTO_UPDATE_FREQUENCY</string>
+    <item name="pref_auto_update_frequency_default" type="string" format="string">0</item>
+    
     <string name="PREF_AUTO_UPDATE_START_TIME">PREF_AUTO_UPDATE_START_TIME</string>
+    <item name="pref_auto_update_start_time_default" type="integer" format="integer">0</item>
 </resources>

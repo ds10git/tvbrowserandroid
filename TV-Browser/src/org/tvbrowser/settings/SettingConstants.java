@@ -60,8 +60,6 @@ public class SettingConstants {
   
   public static final String DONT_WANT_TO_SEE_ADDED_EXTRA = "DONT_WANT_TO_SEE_ADDED_EXTRA";
   
-  public static final String DIVIDER_DEFAULT = "10";
-  
   public static boolean IS_DARK_THEME = false;
   
   public static boolean IS_REMINDER_PAUSED = false;

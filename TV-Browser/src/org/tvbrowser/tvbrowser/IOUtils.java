@@ -247,9 +247,9 @@ public class IOUtils {
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
     IOUtils.removeDataUpdateTime(context, pref);
     
-    if(pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_TYPE),"0").equals("2")) {
-      int days = Integer.parseInt(pref.getString(context.getString(R.string.PREF_AUTO_UPDATE_FREQUENCY), "0")) + 1;
-      int time = pref.getInt(context.getString(R.string.PREF_AUTO_UPDATE_START_TIME), 0);
+    if(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("2")) {
+      int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default)) + 1;
+      int time = PrefUtils.getIntValue(R.string.PREF_AUTO_UPDATE_START_TIME, R.integer.pref_auto_update_start_time_default);
       
       long lastDate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, R.integer.last_data_update_default);
       

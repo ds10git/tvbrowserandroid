@@ -569,7 +569,7 @@ public class UiUtils {
             message.append("\n\n").append(desc);
           }
           
-          String mail = PreferenceManager.getDefaultSharedPreferences(activity).getString(activity.getString(R.string.PREF_EMAIL_TARGET_ADDRESS), null);
+          String mail = PrefUtils.getStringValue(R.string.PREF_EMAIL_TARGET_ADDRESS, null);
           
           if(mail != null) {
             sendMail.putExtra(Intent.EXTRA_EMAIL, new String[]{mail});
@@ -1016,8 +1016,8 @@ public class UiUtils {
     
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
     
-    int reminderTime = Integer.parseInt(pref.getString(context.getString(R.string.PREF_REMINDER_TIME), "0")) * 60000;
-    boolean remindAgain = pref.getBoolean(context.getString(R.string.PREF_REMIND_AGAIN_AT_START), true);
+    int reminderTime = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_REMINDER_TIME, R.string.pref_reminder_time_default)) * 60000;
+    boolean remindAgain = PrefUtils.getBooleanValue(R.string.PREF_REMIND_AGAIN_AT_START, R.bool.pref_remind_again_at_start_default);
     
     Intent remind = new Intent(context,ReminderBroadcastReceiver.class);
     remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
@@ -1160,7 +1160,7 @@ public class UiUtils {
     
     Paint second = null;
         
-    if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.PREF_SHOW_PROGRESS), true) && startTime <= System.currentTimeMillis() && System.currentTimeMillis() <= endTime) {
+    if(PrefUtils.getBooleanValue(R.string.PREF_SHOW_PROGRESS, R.bool.pref_show_progress_default) && startTime <= System.currentTimeMillis() && System.currentTimeMillis() <= endTime) {
       base.setColor(getColor(ON_AIR_PROGRESS_KEY, context));
       second = new Paint();
       second.setStyle(Paint.Style.FILL_AND_STROKE);

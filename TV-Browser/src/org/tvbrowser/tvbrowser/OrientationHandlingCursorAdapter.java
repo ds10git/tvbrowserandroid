@@ -17,12 +17,12 @@
 package org.tvbrowser.tvbrowser;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
-import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.ContextMenu;
 import android.view.MenuItem;
@@ -65,7 +65,7 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
         @Override
         public void onClick(View v) {
           ChannelProgInfo tag = (ChannelProgInfo)v.getTag();
-          boolean handle = PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getResources().getString(R.string.PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST), context.getResources().getBoolean(R.bool.prog_lists_show_list_on_channel_click_default));
+          boolean handle = PrefUtils.getBooleanValue(R.string.PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_program_lists_click_to_channel_to_list_default);
           
           if(handle && tag != null) {
             Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
@@ -120,7 +120,7 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
   
   @Override
   public View getView(int position, View convertView, ViewGroup parent) {
-    float textScale = Float.valueOf(PreferenceManager.getDefaultSharedPreferences(mContext).getString(mContext.getString(R.string.PREF_PROGRAM_LISTS_TEXT_SCALE),"1.0"));
+    float textScale = Float.valueOf(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_TEXT_SCALE, R.string.pref_program_lists_text_scale_default));
     
     if(convertView != null && ((((ProgTag)convertView.getTag()).mOrientation != SettingConstants.ORIENTATION) || ((ProgTag)convertView.getTag()).mTextScale != textScale)) {
       convertView = null;

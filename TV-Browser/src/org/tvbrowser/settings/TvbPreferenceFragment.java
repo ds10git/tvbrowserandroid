@@ -21,11 +21,16 @@ import org.tvbrowser.tvbrowser.R;
 import android.app.Activity;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.media.Ringtone;
+import android.media.RingtoneManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.RingtonePreference;
+import android.util.Log;
 
 public class TvbPreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
   @Override
@@ -54,6 +59,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       
       onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_TIME));
       onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED));
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_SOUND_VALUE));
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE));
     }
     else if(getString(R.string.category_time_buttons).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_time_buttons);
@@ -105,7 +112,37 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     if(getActivity() != null) {
-      if(key.equals(getResources().getString(R.string.DAYS_TO_DOWNLOAD)) 
+      if(key.equals(getString(R.string.PREF_REMINDER_SOUND_VALUE)) || key.equals(getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE))) {
+        Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+        
+        String defaultValue = null;
+        
+        if(key.equals(getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE))) {
+          defaultValue = getString(R.string.pref_reminder_night_mode_sound_value_default);
+        }
+        
+        String tone = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(key, defaultValue);
+        
+        Uri sound = defaultUri;
+        
+        if(tone != null) {
+          sound = Uri.parse(tone);
+        }
+        
+        RingtonePreference ringtone = (RingtonePreference)findPreference(key);
+        
+        if(ringtone != null) {
+          Ringtone notification = RingtoneManager.getRingtone(getActivity(), sound);
+          
+          if(tone == null || tone.trim().length() > 0) {
+            ringtone.setTitle(notification.getTitle(getActivity()));
+          }
+          else {
+            ringtone.setTitle(R.string.pref_reminder_no_sound);
+          }
+        }
+      }
+      else if(key.equals(getResources().getString(R.string.DAYS_TO_DOWNLOAD)) 
           || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST))
           || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_TABLE))
           || key.equals(getResources().getString(R.string.DETAIL_PICTURE_ZOOM))
@@ -250,7 +287,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         CheckBoxPreference nightModeActivatedPref = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED));
         CheckBoxPreference noReminder = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER));
         
-        CheckBoxPreference sound = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND));
+        RingtonePreference sound = (RingtonePreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE));
         CheckBoxPreference vibrate = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_VIBRATE));
         CheckBoxPreference led = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_LED));
         
