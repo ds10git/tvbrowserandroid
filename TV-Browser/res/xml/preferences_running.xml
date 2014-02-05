@@ -27,9 +27,17 @@
         android:defaultValue="@bool/running_programs_next_day_default"
         android:title="@string/pref_running_next_day"
         android:summary="@string/pref_running_next_day_summary"/>
-     <!--     <PreferenceCategory android:title="@string/pref_time_buttons"
-            android:summary="@string/pref_time_buttons_summary">
-        -->
-
-<!--  	</PreferenceScreen>-->
+	<CheckBoxPreference android:key="@string/PREF_RUNNING_LIST_CLICK_TO_CHANNEL_TO_LIST" 
+		android:title="@string/pref_program_lists_show_list_on_channel_click"
+		android:summary="@string/pref_program_lists_show_list_on_channel_click_summary"
+		android:defaultValue="@bool/pref_running_list_click_to_channel_to_list_default"/>
+	<CheckBoxPreference android:key="@string/SHOW_EPISODE_IN_RUNNING_LIST" 
+		android:title="@string/pref_show_episode"
+		android:defaultValue="@bool/show_episode_in_running_list_default"/>
+	<CheckBoxPreference android:key="@string/SHOW_INFO_IN_RUNNING_LIST" 
+		android:title="@string/pref_show_info"
+		android:defaultValue="@bool/show_info_in_running_list_default"/>
+	<CheckBoxPreference android:key="@string/SHOW_SORT_NUMBER_IN_RUNNING_LIST" 
+		android:title="@string/show_sort_number"
+		android:defaultValue="@bool/show_sort_number_in_running_list_default"/>
 </PreferenceScreen>

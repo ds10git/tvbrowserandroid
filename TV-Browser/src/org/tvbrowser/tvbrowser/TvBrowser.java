@@ -179,7 +179,7 @@ public class TvBrowser extends FragmentActivity implements
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2014);
     mRundate.set(Calendar.MONTH, Calendar.FEBRUARY);
-    mRundate.set(Calendar.DAY_OF_MONTH, 10);
+    mRundate.set(Calendar.DAY_OF_MONTH, 14);
   }
   
   @Override
@@ -560,6 +560,9 @@ public class TvBrowser extends FragmentActivity implements
           values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 0);
           values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, 0);
           
+          getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.KEY_ID + " >= 0 " , null);
+          getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.KEY_ID + " >= 0", null);
+              
           if(getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null) > 0) {
             somethingSynchonized = true;
           }
