@@ -57,14 +57,24 @@
 		    android:layout_toRightOf="@id/running_compact_previous_start"
 		    android:layout_alignParentTop="true"/>
 		<TextView 
+		    android:id="@+id/running_compact_previous_infos"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:textSize="@dimen/info_font_size"
+		    android:textStyle="normal"
+		    android:paddingRight="2dp"
+		    android:layout_toRightOf="@id/running_compact_previous_start"
+		    android:layout_below="@id/running_compact_previous_title"
+	        />
+		<TextView 
 		    android:id="@+id/running_compact_previous_episode"
 		    android:layout_width="wrap_content"
-		    android:layout_height="match_parent"
+		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/episode_font_size"
 		    android:textStyle="italic"
 		    android:paddingRight="2dp"
 		    android:layout_toRightOf="@id/running_compact_previous_start"
-		    android:layout_below="@id/running_compact_previous_title"
+		    android:layout_below="@id/running_compact_previous_infos"
 	        />
 	</RelativeLayout>
 	
@@ -94,14 +104,24 @@
 		    android:layout_alignParentTop="true"
 			/>
 		<TextView 
+		    android:id="@+id/running_compact_now_infos"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:textSize="@dimen/info_font_size"
+		    android:textStyle="normal"
+		    android:paddingRight="2dp"
+		    android:layout_toRightOf="@id/running_compact_now_start"
+		    android:layout_below="@id/running_compact_now_title"
+	        />
+		<TextView 
 		    android:id="@+id/running_compact_now_episode"
 		    android:layout_width="wrap_content"
-		    android:layout_height="match_parent"
+		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/episode_font_size"
 		    android:textStyle="italic"
 		    android:paddingRight="2dp"
 		    android:layout_toRightOf="@id/running_compact_now_start"
-		    android:layout_below="@id/running_compact_now_title"
+		    android:layout_below="@id/running_compact_now_infos"
 		    />
 	</RelativeLayout>
 	
@@ -129,14 +149,24 @@
 			android:layout_toRightOf="@id/running_compact_next_start"
 			/>
 		<TextView 
+		    android:id="@+id/running_compact_next_infos"
+		    android:layout_width="wrap_content"
+		    android:layout_height="wrap_content"
+		    android:textSize="@dimen/info_font_size"
+		    android:textStyle="normal"
+		    android:paddingRight="2dp"
+		    android:layout_toRightOf="@id/running_compact_next_start"
+		    android:layout_below="@id/running_compact_next_title"
+	        />
+		<TextView 
 		    android:id="@+id/running_compact_next_episode"
 		    android:layout_width="wrap_content"
-		    android:layout_height="match_parent"
+		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/episode_font_size"
 		    android:textStyle="italic"
 		    android:paddingRight="2dp"
 		    android:layout_toRightOf="@id/running_compact_next_start"
-		    android:layout_below="@id/running_compact_next_title"
+		    android:layout_below="@id/running_compact_next_infos"
 		    />
 	</RelativeLayout>
 </RelativeLayout>

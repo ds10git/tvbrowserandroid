@@ -103,14 +103,12 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   int mChannelNameColumn;
   int mChannelIDColumn;
   
-  private boolean showPicture;
-  private boolean showGenre;
+  //private boolean showPicture;
+  //private boolean showGenre;
   private boolean showEpisode;
   private boolean showInfo;
   private boolean mShowOrderNumber;
-  
-  private boolean mIsCompactLayout;
-    
+      
   private View.OnClickListener mOnClickListener;
   private View.OnClickListener mChannelSwitchListener;
   private View mContextView;
@@ -158,46 +156,39 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           startUpdateThread();
         }
         else {
-          if(mIsCompactLayout) {
-            new Thread() {
-              public void run() {
-                ViewGroup list = (ViewGroup)getListView();
+          showEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_RUNNING_LIST, R.bool.show_episode_in_running_list_default);
+          showInfo = PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_RUNNING_LIST, R.bool.show_info_in_running_list_default);
+          mShowOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_RUNNING_LIST, R.bool.show_sort_number_in_running_list_default);
+          
+          new Thread() {
+            public void run() {
+              ViewGroup list = (ViewGroup)getListView();
+              
+              for(int i = 0; i < list.getChildCount(); i++) {
+                CompactLayoutViewHolder holder = (CompactLayoutViewHolder) list.getChildAt(i).getTag();
                 
-                for(int i = 0; i < list.getChildCount(); i++) {
-                  CompactLayoutViewHolder holder = (CompactLayoutViewHolder) list.getChildAt(i).getTag();
-                  
-                  if(holder.mPrevious.getVisibility() == View.VISIBLE) {
-                    if(holder.mPreviousStartTimeValue <= System.currentTimeMillis()) {
-                      String markingValues = mMarkingsMap.get(holder.mPreviousProgramID);
-                      
-                      UiUtils.handleMarkings(getActivity(), null, holder.mPreviousStartTimeValue, holder.mPreviousEndTimeValue, holder.mPrevious, markingValues, handler);
-                    }
-                  }
-                  
-                  if(holder.mNowStartTimeValue <= System.currentTimeMillis()) {
-                    String markingValues = mMarkingsMap.get(holder.mNowProgramID);
+                if(holder.mPrevious.getVisibility() == View.VISIBLE) {
+                  if(holder.mPreviousStartTimeValue <= System.currentTimeMillis()) {
+                    String markingValues = mMarkingsMap.get(holder.mPreviousProgramID);
                     
-                    UiUtils.handleMarkings(getActivity(), null, holder.mNowStartTimeValue, holder.mNowEndTimeValue, holder.mNow, markingValues, handler);
-                  }
-
-                  if(holder.mNextStartTimeValue <= System.currentTimeMillis()) {
-                    String markingValues = mMarkingsMap.get(holder.mNextProgramID);
-                    
-                    UiUtils.handleMarkings(getActivity(), null, holder.mNextStartTimeValue, holder.mNextEndTimeValue, holder.mNext, markingValues, handler);
+                    UiUtils.handleMarkings(getActivity(), null, holder.mPreviousStartTimeValue, holder.mPreviousEndTimeValue, holder.mPrevious, markingValues, handler);
                   }
                 }
+                
+                if(holder.mNowStartTimeValue <= System.currentTimeMillis()) {
+                  String markingValues = mMarkingsMap.get(holder.mNowProgramID);
+                  
+                  UiUtils.handleMarkings(getActivity(), null, holder.mNowStartTimeValue, holder.mNowEndTimeValue, holder.mNow, markingValues, handler);
+                }
+
+                if(holder.mNextStartTimeValue <= System.currentTimeMillis()) {
+                  String markingValues = mMarkingsMap.get(holder.mNextProgramID);
+                  
+                  UiUtils.handleMarkings(getActivity(), null, holder.mNextStartTimeValue, holder.mNextEndTimeValue, holder.mNext, markingValues, handler);
+                }
               }
-            }.start();
-          }
-          else {
-            showPicture = PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default);
-            showGenre = PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_LISTS, R.bool.show_genre_in_lists_default);
-            showEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_LISTS, R.bool.show_episode_in_lists_default);
-            showInfo = PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_LISTS, R.bool.show_info_in_lists_default);
-            mShowOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_LISTS, R.bool.show_sort_number_in_lists_default);
-            
-            mRunningProgramListAdapter.notifyDataSetChanged();
-          }
+            }
+          }.start();
         }
       }
     };
@@ -457,14 +448,17 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     
     TextView mPreviousStartTime;
     TextView mPreviousTitle;
+    TextView mPreviousInfos;
     TextView mPreviousEpisode;
     
     TextView mNowStartTime;
     TextView mNowTitle;
+    TextView mNowInfos;
     TextView mNowEpisode;
     
     TextView mNextStartTime;
     TextView mNextTitle;
+    TextView mNextInfos;
     TextView mNextEpisode;
     
     public void setVisibility(int type, int visibility) {
@@ -526,6 +520,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private boolean fillCompactLayout(final CompactLayoutViewHolder viewHolder, final int type, final ChannelProgramBlock block, final java.text.DateFormat timeFormat, final int DEFAULT_TEXT_COLOR, boolean channelSet) {
     TextView startTimeView = null;
     TextView titleView = null;
+    TextView infoView = null;
     TextView episodeView = null;
     View layout = null;
     
@@ -534,6 +529,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     long programID = -1;
     String title = null;
     String episode = null;
+    String infos = null;
     
     switch(type) {
       case CompactLayoutViewHolder.PREVIOUS:
@@ -541,10 +537,12 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         startTimeView = viewHolder.mPreviousStartTime;
         titleView = viewHolder.mPreviousTitle;
         episodeView = viewHolder.mPreviousEpisode;
+        infoView = viewHolder.mPreviousInfos;
         startTime = block.mPreviousStart;
         endTime = block.mPreviousEnd;
         title = block.mPreviousTitle;
         episode = block.mPreviousEpisode;
+        infos = block.mPreviousCategory;
         programID = block.mPreviousProgramID;
         break;
       case CompactLayoutViewHolder.NOW:
@@ -552,10 +550,12 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         startTimeView = viewHolder.mNowStartTime;
         titleView = viewHolder.mNowTitle;
         episodeView = viewHolder.mNowEpisode;
+        infoView = viewHolder.mNowInfos;
         startTime = block.mNowStart;
         endTime = block.mNowEnd;
         title = block.mNowTitle;
         episode = block.mNowEpisode;
+        infos = block.mNowCategory;
         programID = block.mNowProgramID;
         break;
       case CompactLayoutViewHolder.NEXT:
@@ -563,10 +563,12 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         startTimeView = viewHolder.mNextStartTime;
         titleView = viewHolder.mNextTitle;
         episodeView = viewHolder.mNextEpisode;
+        infoView = viewHolder.mNextInfos;
         startTime = block.mNextStart;
         endTime = block.mNextEnd;
         title = block.mNextTitle;
         episode = block.mNextEpisode;
+        infos = block.mNextCategory;
         programID = block.mNextProgramID;
         break;
     }
@@ -601,6 +603,14 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       else {
         episodeView.setText(episode);
         episodeView.setVisibility(View.VISIBLE);
+      }
+      Log.d("info", " info " + showInfo + " " + infos);
+      if(!showInfo || infos == null || infos.trim().length() == 0) {
+        infoView.setVisibility(View.GONE);
+      }
+      else {
+        infoView.setText(infos);
+        infoView.setVisibility(View.VISIBLE);
       }
       
       if(endTime <= System.currentTimeMillis()) {
@@ -730,6 +740,10 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       viewHolder.mNowTitle = (TextView)convertView.findViewById(R.id.running_compact_now_title);
       viewHolder.mNextTitle = (TextView)convertView.findViewById(R.id.running_compact_next_title);
       
+      viewHolder.mPreviousInfos = (TextView)convertView.findViewById(R.id.running_compact_previous_infos);
+      viewHolder.mNowInfos = (TextView)convertView.findViewById(R.id.running_compact_now_infos);
+      viewHolder.mNextInfos = (TextView)convertView.findViewById(R.id.running_compact_next_infos);
+      
       viewHolder.mPreviousEpisode = (TextView)convertView.findViewById(R.id.running_compact_previous_episode);
       viewHolder.mNowEpisode = (TextView)convertView.findViewById(R.id.running_compact_now_episode);
       viewHolder.mNextEpisode = (TextView)convertView.findViewById(R.id.running_compact_next_episode);
@@ -803,7 +817,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       @Override
       public void onClick(View v) {
         Integer id = (Integer)v.getTag();
-        boolean handle = PrefUtils.getBooleanValue(R.string.PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_program_lists_click_to_channel_to_list_default);
+        boolean handle = PrefUtils.getBooleanValue(R.string.PREF_RUNNING_LIST_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_running_list_click_to_channel_to_list_default);
         
         if(handle && id != null) {
           Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
@@ -911,22 +925,21 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   @Override
   public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
     String[] projection = null;
-        
-    mIsCompactLayout = true;//ref.getString(getResources().getString(R.string.RUNNING_PROGRAMS_LAYOUT), SettingConstants.DEFAULT_RUNNING_PROGRAMS_LIST_LAYOUT).equals("1");
-    showPicture = PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default);
-    showGenre = PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_LISTS, R.bool.show_genre_in_lists_default);
-    showEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_LISTS, R.bool.show_episode_in_lists_default);
-    showInfo = PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_LISTS, R.bool.show_info_in_lists_default);
-    mShowOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_LISTS, R.bool.show_sort_number_in_lists_default);
     
-    if(showPicture) {
+    //showPicture = PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default);
+    //showGenre = PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_LISTS, R.bool.show_genre_in_lists_default);
+    showEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_RUNNING_LIST, R.bool.show_episode_in_running_list_default);
+    showInfo = PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_RUNNING_LIST, R.bool.show_info_in_running_list_default);
+    mShowOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_RUNNING_LIST, R.bool.show_sort_number_in_running_list_default);
+    
+    /*if(showPicture) {
       projection = new String[15];
       
       projection[14] = TvBrowserContentProvider.DATA_KEY_PICTURE;
     }
-    else {
+    else {*/
       projection = new String[14];
-    }
+    //}
     
     projection[0] = TvBrowserContentProvider.KEY_ID;
     projection[1] = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID;
@@ -1090,20 +1103,20 @@ Log.d("info", "" + new Date(mCurrentTime));
             String pictureCopyright = null;
             byte[] picture = null;
     
-            if(!mIsCompactLayout) {
+            /*if(!mIsCompactLayout) {
               if(showGenre) {
                 genre = c.getString(mGenreColumn);
               }
+              */
+            if(showInfo) {
+              category = IOUtils.getInfoString(c.getInt(mCategoryColumn), getResources());
+            }
               
-              if(showInfo) {
-                category = IOUtils.getInfoString(c.getInt(mCategoryColumn), getResources());
-              }
-              
-              if(showPicture && mPictureColumn > -1) {
+       /*       if(showPicture && mPictureColumn > -1) {
                 pictureCopyright = c.getString(mPictureCopyrightColumn);
                 picture = c.getBlob(mPictureColumn);
               }
-            }
+            }*/
                         
             if(c.getInt(dontWantToSeeColumn) == 0) {
               block.mChannelID = channelID;
