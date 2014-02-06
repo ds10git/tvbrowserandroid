@@ -185,6 +185,72 @@
     <string name="PREF_REMINDER_LED">PREF_REMINDER_LED</string>
     <item name="pref_reminder_led_default" type="bool" format="boolean">true</item>
     
+    <!-- PREFERENCES OF WORK MODE OF REMINDER -->
+    
+    <string name="PREF_REMINDER_WORK_MODE_ACTIVATED">PREF_REMINDER_WORK_MODE_ACTIVATED</string>
+    <item name="pref_reminder_work_mode_activated_default" type="bool" format="boolean">false</item>
+        
+    <string name="PREF_REMINDER_WORK_MODE_NO_REMINDER">PREF_REMINDER_WORK_MODE_NO_REMINDER</string>
+    <item name="pref_reminder_work_mode_no_reminder_default" type="bool" format="boolean">true</item>
+    
+    <string name="PREF_REMINDER_WORK_MODE_SOUND_VALUE">PREF_REMINDER_WORK_MODE_SOUND_VALUE</string>
+    <item name="pref_reminder_work_mode_sound_value_default" type="string" format="string"></item>
+    
+    <string name="PREF_REMINDER_WORK_MODE_VIBRATE">PREF_REMINDER_WORK_MODE_VIBRATE</string>
+    <item name="pref_reminder_work_mode_vibrate_default" type="bool" format="boolean">false</item>
+    
+    <string name="PREF_REMINDER_WORK_MODE_LED">PREF_REMINDER_WORK_MODE_LED</string>
+    <item name="pref_reminder_work_mode_led_default" type="bool" format="boolean">false</item>
+
+    <item name="pref_reminder_work_mode_start_default" type="integer" format="integer">420</item>
+    <item name="pref_reminder_work_mode_end_default" type="integer" format="integer">960</item>
+    
+    <string name="PREF_REMINDER_WORK_MODE_DAYS">PREF_REMINDER_WORK_MODE_DAYS</string>
+    
+    <string name="PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED">PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED</string>
+    <item name="pref_reminder_work_mode_monday_activated_default" type="bool" format="boolean">true</item>
+    
+    <string name="PREF_REMINDER_WORK_MODE_MONDAY_START">PREF_REMINDER_WORK_MODE_MONDAY_START</string>
+    <string name="PREF_REMINDER_WORK_MODE_MONDAY_END">PREF_REMINDER_WORK_MODE_MONDAY_END</string>
+    
+    <string name="PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED">PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED</string>
+    <item name="pref_reminder_work_mode_tuesday_activated_default" type="bool" format="boolean">true</item>
+    
+    <string name="PREF_REMINDER_WORK_MODE_TUESDAY_START">PREF_REMINDER_WORK_MODE_TUESDAY_START</string>
+    <string name="PREF_REMINDER_WORK_MODE_TUESDAY_END">PREF_REMINDER_WORK_MODE_TUESDAY_END</string>
+    
+    <string name="PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED">PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED</string>
+    <item name="pref_reminder_work_mode_wednesday_activated_default" type="bool" format="boolean">true</item>
+    
+    <string name="PREF_REMINDER_WORK_MODE_WEDNESDAY_START">PREF_REMINDER_WORK_MODE_WEDNESDAY_START</string>
+    <string name="PREF_REMINDER_WORK_MODE_WEDNESDAY_END">PREF_REMINDER_WORK_MODE_WEDNESDAY_END</string>
+    
+    <string name="PREF_REMINDER_WORK_MODE_THURSDAY_ACTIVATED">PREF_REMINDER_WORK_MODE_THURSDAY_ACTIVATED</string>
+    <item name="pref_reminder_work_mode_thursday_activated_default" type="bool" format="boolean">true</item>
+    
+    <string name="PREF_REMINDER_WORK_MODE_THURSDAY_START">PREF_REMINDER_WORK_MODE_THURSDAY_START</string>
+    <string name="PREF_REMINDER_WORK_MODE_THURSDAY_END">PREF_REMINDER_WORK_MODE_THURSDAY_END</string>
+    
+	<string name="PREF_REMINDER_WORK_MODE_FRIDAY_ACTIVATED">PREF_REMINDER_WORK_MODE_FRIDAY_ACTIVATED</string>
+    <item name="pref_reminder_work_mode_friday_activated_default" type="bool" format="boolean">true</item>
+    
+    <string name="PREF_REMINDER_WORK_MODE_FRIDAY_START">PREF_REMINDER_WORK_MODE_FRIDAY_START</string>
+    <string name="PREF_REMINDER_WORK_MODE_FRIDAY_END">PREF_REMINDER_WORK_MODE_FRIDAY_END</string>
+    
+    <string name="PREF_REMINDER_WORK_MODE_SATURDAY_ACTIVATED">PREF_REMINDER_WORK_MODE_SATURDAY_ACTIVATED</string>
+    <item name="pref_reminder_work_mode_saturday_activated_default" type="bool" format="boolean">false</item>
+    
+    <string name="PREF_REMINDER_WORK_MODE_SATURDAY_START">PREF_REMINDER_WORK_MODE_SATURDAY_START</string>
+    <string name="PREF_REMINDER_WORK_MODE_SATURDAY_END">PREF_REMINDER_WORK_MODE_SATURDAY_END</string>
+    
+	<string name="PREF_REMINDER_WORK_MODE_SUNDAY_ACTIVATED">PREF_REMINDER_WORK_MODE_SUNDAY_ACTIVATED</string>
+    <item name="pref_reminder_work_mode_sunday_activated_default" type="bool" format="boolean">false</item>
+    
+    <string name="PREF_REMINDER_WORK_MODE_SUNDAY_START">PREF_REMINDER_WORK_MODE_SUNDAY_START</string>
+    <string name="PREF_REMINDER_WORK_MODE_SUNDAY_END">PREF_REMINDER_WORK_MODE_SUNDAY_END</string>
+    
+    <!-- PREFERENCES FOR NIGHT MODE OF REMINDER -->
+    
     <string name="PREF_REMINDER_NIGHT_MODE_ACTIVATED">PREF_REMINDER_NIGHT_MODE_ACTIVATED</string>
     <item name="pref_reminder_night_mode_activated_default" type="bool" format="boolean">false</item>
     

@@ -29,6 +29,7 @@ import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
+import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
 import android.util.Log;
 
@@ -61,6 +62,15 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED));
       onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_SOUND_VALUE));
       onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE));
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_ACTIVATED));
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SOUND_VALUE));
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED));
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED));
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED));
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_THURSDAY_ACTIVATED));
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_FRIDAY_ACTIVATED));
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SATURDAY_ACTIVATED));
+      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SUNDAY_ACTIVATED));
     }
     else if(getString(R.string.category_time_buttons).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_time_buttons);
@@ -112,13 +122,17 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     if(getActivity() != null) {
-      if(key.equals(getString(R.string.PREF_REMINDER_SOUND_VALUE)) || key.equals(getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE))) {
+      if(key.equals(getString(R.string.PREF_REMINDER_SOUND_VALUE)) || key.equals(getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE))
+          || key.equals(getString(R.string.PREF_REMINDER_WORK_MODE_SOUND_VALUE))) {
         Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         
         String defaultValue = null;
         
         if(key.equals(getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE))) {
           defaultValue = getString(R.string.pref_reminder_night_mode_sound_value_default);
+        }
+        else if(key.equals(getString(R.string.PREF_REMINDER_WORK_MODE_SOUND_VALUE))) {
+          defaultValue = getString(R.string.pref_reminder_work_mode_sound_value_default);
         }
         
         String tone = PreferenceManager.getDefaultSharedPreferences(getActivity()).getString(key, defaultValue);
@@ -307,6 +321,28 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           led.setEnabled(nightMode && !onlyStatus);
         }
       }
+      else if(key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_ACTIVATED)) || key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_NO_REMINDER))) {
+        CheckBoxPreference nightModeActivatedPref = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_ACTIVATED));
+        CheckBoxPreference noReminder = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_NO_REMINDER));
+        
+        RingtonePreference sound = (RingtonePreference) findPreference(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SOUND_VALUE));
+        CheckBoxPreference vibrate = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_VIBRATE));
+        CheckBoxPreference led = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_LED));
+        
+        PreferenceScreen days = (PreferenceScreen)findPreference(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_DAYS));
+        
+        if(nightModeActivatedPref != null && noReminder != null) {
+          boolean nightMode = nightModeActivatedPref.isChecked();
+          boolean onlyStatus = noReminder.isChecked();
+          
+          noReminder.setEnabled(nightMode);
+          days.setEnabled(nightMode);
+          
+          sound.setEnabled(nightMode && !onlyStatus);
+          vibrate.setEnabled(nightMode && !onlyStatus);
+          led.setEnabled(nightMode && !onlyStatus);
+        }
+      }
       else if(key.equals(getResources().getString(R.string.PREF_SHOW_PROGRESS))) {
         CheckBoxPreference showProgress = (CheckBoxPreference) findPreference(key);
         ColorPreference onAirBackground = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND));
@@ -319,6 +355,83 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           if(onAirProgress != null) {
             onAirProgress.setEnabled(showProgress.isChecked());
           }
+        }
+      }
+      else if(key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED))) {
+        CheckBoxPreference activated = (CheckBoxPreference) findPreference(key);
+        
+        TimePreference start = (TimePreference) findPreference(getString(R.string.PREF_REMINDER_WORK_MODE_MONDAY_START));
+        TimePreference end = (TimePreference) findPreference(getString(R.string.PREF_REMINDER_WORK_MODE_MONDAY_END));
+        
+        if(activated != null) {
+          start.setEnabled(activated.isChecked());
+          end.setEnabled(activated.isChecked());
+        }
+      }
+      else if(key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED))) {
+        CheckBoxPreference activated = (CheckBoxPreference) findPreference(key);
+        
+        TimePreference start = (TimePreference) findPreference(getString(R.string.PREF_REMINDER_WORK_MODE_TUESDAY_START));
+        TimePreference end = (TimePreference) findPreference(getString(R.string.PREF_REMINDER_WORK_MODE_TUESDAY_END));
+        
+        if(activated != null) {
+          start.setEnabled(activated.isChecked());
+          end.setEnabled(activated.isChecked());
+        }
+      }
+      else if(key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED))) {
+        CheckBoxPreference activated = (CheckBoxPreference) findPreference(key);
+        
+        TimePreference start = (TimePreference) findPreference(getString(R.string.PREF_REMINDER_WORK_MODE_WEDNESDAY_START));
+        TimePreference end = (TimePreference) findPreference(getString(R.string.PREF_REMINDER_WORK_MODE_WEDNESDAY_END));
+        
+        if(activated != null) {
+          start.setEnabled(activated.isChecked());
+          end.setEnabled(activated.isChecked());
+        }
+      }
+      else if(key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_THURSDAY_ACTIVATED))) {
+        CheckBoxPreference activated = (CheckBoxPreference) findPreference(key);
+        
+        TimePreference start = (TimePreference) findPreference(getString(R.string.PREF_REMINDER_WORK_MODE_THURSDAY_START));
+        TimePreference end = (TimePreference) findPreference(getString(R.string.PREF_REMINDER_WORK_MODE_THURSDAY_END));
+        
+        if(activated != null) {
+          start.setEnabled(activated.isChecked());
+          end.setEnabled(activated.isChecked());
+        }
+      }
+      else if(key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_FRIDAY_ACTIVATED))) {
+        CheckBoxPreference activated = (CheckBoxPreference) findPreference(key);
+        
+        TimePreference start = (TimePreference) findPreference(getString(R.string.PREF_REMINDER_WORK_MODE_FRIDAY_START));
+        TimePreference end = (TimePreference) findPreference(getString(R.string.PREF_REMINDER_WORK_MODE_FRIDAY_END));
+        
+        if(activated != null) {
+          start.setEnabled(activated.isChecked());
+          end.setEnabled(activated.isChecked());
+        }
+      }
+      else if(key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SATURDAY_ACTIVATED))) {
+        CheckBoxPreference activated = (CheckBoxPreference) findPreference(key);
+        
+        TimePreference start = (TimePreference) findPreference(getString(R.string.PREF_REMINDER_WORK_MODE_SATURDAY_START));
+        TimePreference end = (TimePreference) findPreference(getString(R.string.PREF_REMINDER_WORK_MODE_SATURDAY_END));
+        
+        if(activated != null) {
+          start.setEnabled(activated.isChecked());
+          end.setEnabled(activated.isChecked());
+        }
+      }
+      else if(key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SUNDAY_ACTIVATED))) {
+        CheckBoxPreference activated = (CheckBoxPreference) findPreference(key);
+        
+        TimePreference start = (TimePreference) findPreference(getString(R.string.PREF_REMINDER_WORK_MODE_SUNDAY_START));
+        TimePreference end = (TimePreference) findPreference(getString(R.string.PREF_REMINDER_WORK_MODE_SUNDAY_END));
+        
+        if(activated != null) {
+          start.setEnabled(activated.isChecked());
+          end.setEnabled(activated.isChecked());
         }
       }
     }

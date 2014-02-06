@@ -867,7 +867,6 @@ public class TvBrowser extends FragmentActivity implements
         if(!SettingConstants.UPDATING_REMINDERS) {
           SettingConstants.UPDATING_REMINDERS = true;
           
-          
           URL documentUrl;
           
           try {

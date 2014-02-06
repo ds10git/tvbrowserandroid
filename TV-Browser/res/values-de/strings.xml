@@ -322,6 +322,18 @@
 	<string name="pref_reminder_dont_remind">Nicht erinnern</string>
 	<string name="pref_reminder_night_start">Start des Nacht-Modus</string>
 	<string name="pref_reminder_night_end">Ende des Nacht-Modus</string>
+	<string name="pref_reminder_work_mode_category">Arbeits-Modus</string>
+	<string name="monday">Montag</string>
+	<string name="tuesday">Dienstag</string>
+	<string name="wednesday">Mittwoch</string>
+	<string name="thursday">Donnerstag</string>
+	<string name="friday">Freitag</string>
+	<string name="saturday">Samstag</string>
+	<string name="sunday">Sonntag</string>
+	<string name="pref_reminder_work_days">Tage einstellen</string>
+	<string name="pref_reminder_work_days_summary">Genaue Einstellungen für jeden Wochentag vornehmen</string>
+	<string name="pref_reminder_work_start">Start</string>
+	<string name="pref_reminder_work_end">Ende</string>
 	<string name="pref_category_reminder_title">Erinnerungszeitpunkt:</string>
 	<string name="pref_category_reminder_again_title">Zu Beginn erneut erinnern</string>
 	<string-array name="pref_category_reminder_names">
@@ -363,7 +375,7 @@
     <string name="pref_auto_update_type">Typ</string>
     <string name="pref_auto_update_frequency">Häufigkeit</string>
     <string name="pref_auto_update_only_wifi">Nur WLAN-Verbindung</string>
-    <string name="pref_auto_update_time_range_summary">Innerhalb von 6 Stunden ab diser Zeit</string>
+    <string name="pref_auto_update_time_range_summary">Innerhalb von 6 Stunden ab dieser Zeit</string>
     <string-array name="pref_auto_update_type_names">
         <item>Kein Auto-Update</item>
         <item>Bei Verbindung zum Internet</item>
