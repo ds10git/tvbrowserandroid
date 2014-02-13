@@ -93,6 +93,7 @@
     <string name="version">Version:</string>
     <string name="android">Android:</string>
     <string name="copyright">Copyright &#169; 2013, René Mach.</string>
+    <string name="last_data_update">Letztes Datenupdate:</string>
     <string name="license"><![CDATA[<p>Hiermit wird unentgeltlich, jeder Person, die eine Kopie der Software und der zugehörigen Dokumentationen (die "Software") erhält,
   die Erlaubnis erteilt, sie zu verwenden, kopieren, ändern oder zu fusionieren, darüber hinaus sie unverändert und unentgeltlich zu verlegen und zu verbreiten
   und Personen, die diese Software erhalten, diese Rechte zu geben, unter den folgenden Bedingungen:</p>
@@ -103,7 +104,10 @@
   DER GARANTIE ZUR BENUTZUNG FÜR DEN VORGESEHENEN ODER EINEM BESTIMMTEN ZWECK SOWIE JEGLICHER RECHTSVERLETZUNG,
   JEDOCH NICHT DARAUF BESCHRÄNKT. IN KEINEM FALL SIND DIE AUTOREN ODER COPYRIGHTINHABER FÜR JEGLICHEN SCHADEN
   ODER SONSTIGE ANSPRÜCHE HAFTBAR ZU MACHEN, OB INFOLGE DER ERFÜLLUNG EINES VERTRAGES, EINES DELIKTES ODER
-  ANDERS IM ZUSAMMENHANG MIT DER SOFTWARE ODER SONSTIGER VERWENDUNG DER SOFTWARE ENTSTANDEN.</p></html>]]></string>
+  ANDERS IM ZUSAMMENHANG MIT DER SOFTWARE ODER SONSTIGER VERWENDUNG DER SOFTWARE ENTSTANDEN.</p>
+  <p>Teile der für TV-Browser für Android verendeten Bibliotheken und Quellcode-Dateien sind linzensiert unter der the Apache License, Version 2.0.<br>
+  Eine Kopie dieser Lizenz kann gefunden werden unter:<br><br>
+  http://www.apache.org/licenses/LICENSE-2.0</p></html>]]></string>
     <string name="terms">Der Benutzungszeitraum von TV-Browser für Android kann begrenzt sein. Die Begrenzung ist auf der Über-Seite ersichtlich. Es wird garantiert, dass nach Ablauf des Benutzungszeitraums ein kostenloses Update zur Verfügung steht, so lange die Entwickler von TV-Browser für Android in der Lage und gewillt sind Updates herauszugeben.</string>
     <string name="name_for_android">TV-Browser für Android</string>
     <string name="action_about">Über TV-Browser</string>
@@ -387,4 +391,21 @@
         <item>Alle drei Tage</item>
         <item>Jede Woche</item>
     </string-array>
+    <string name="you_like_it">Gefällt Ihnen TV-Browser?</string>
+    <string name="not_now">Jetzt nicht{0}</string>
+    <string name="rating_button">Bei Google Play bewerten</string>
+    <string name="donate_button">Mehr über Spenden</string>
+    <string name="rating_text"><![CDATA[<h3>Bewertung</h3>Sie nutzen TV-Browser jetzt einige Zeit. Wenn Sie m&ouml;chten k&ouml;nnen Sie TV-Browser bei Google Play bewerten.]]></string>
+    <string name="donate_text"><![CDATA[<h3>Spenden</h3>Wenn Ihnen TV-Browser gef&auml;llt, Sie mindestens 18 Jahre alt sind und die weitere Entwicklung von TV-Browser unterst&uuml;tzen m&ouml;chten, k&ouml;nnen Sie für TV-Browser spenden.]]></string>
+    <string name="donation">Spenden</string>
+    <string name="donation_info_inapp">Sie können direkt über InApp-Zahlung aus einer Liste von Beträgen eine Summe auswählen. (Die Spende wird erst gebucht, wenn dies in Google Play bestätigt wurde.)</string>
+    <string name="donation_open_inapp">Zeige InApp-Spenden</string>
+    <string name="donation_info_website">Alle Spendenmöglichkeiten sind auf der Webseite von TV-Browser für Android beschrieben.</string>
+    <string name="donation_open_website">Webseite mit allen Spendenmöglichkeiten öffnen.</string>
+    <string name="donation_thanks_text">Vielen Dank für das Interesse an Spenden für TV-Browser, Sie können aus folgenden Beträgen auswählen (diese enthalen jeweils 30% Google Play Zahlungsgebühr):</string>
+    <string name="make_donation_info">Sie sind dabei eine Spende von {0} zu leisten.\n\nMit dem Klick auf \'Ja, jetzt spenden\' bestätigen Sie, dass sie mindestens 18 Jahre alt sind und damit Spenden leisten dürfen.</string>
+    <string name="make_donation">Ja, jetzt spenden</string>
+    <string name="stop_donation">Nein, Danke</string>
+    <string name="thanks_for_donation">Vielen Dank für die Spende für TV-Browser für Android.</string>
+    <string name="in_app_error">Konnte keine Verbindung zu Google Play herstellen.\n\nBitte versuchen Sie es später erneut oder verwenden Sie eine Spendenalternative.</string>
 </resources>

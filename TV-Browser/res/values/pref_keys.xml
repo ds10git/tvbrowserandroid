@@ -148,7 +148,7 @@
     <item name="pref_sync_fav_to_desktop_default" type="bool" format="boolean">true</item>
     
     <string name="PREF_SYNC_REMINDERS_FROM_DESKTOP">PREF_SYNC_REMINDERS_FROM_DESKTOP</string>
-    <item name="pref_sync_reminders_from_desktop_default" type="bool" format="boolean">true</item>
+    <item name="pref_sync_reminders_from_desktop_default" type="bool" format="boolean">false</item>
     
     <string name="PREF_SYNC_REMINDERS_TO_DESKTOP">PREF_SYNC_REMINDERS_TO_DESKTOP</string>
     <item name="pref_sync_reminders_to_desktop_default" type="bool" format="boolean">true</item>
@@ -310,4 +310,10 @@
     
     <string name="PREF_AUTO_UPDATE_START_TIME">PREF_AUTO_UPDATE_START_TIME</string>
     <item name="pref_auto_update_start_time_default" type="integer" format="integer">0</item>
+    
+    <string name="PREF_RUNNING_TIME">PREF_RUNNING_TIME</string>
+    <item name="pref_running_time_default" type="integer" format="integer">0</item>
+    
+    <string name="PREF_RATING_DONATION_INFO_SHOWN">PREF_RATING_DONATION_INFO_SHOWN</string>
+    <item name="pref_rating_donation_info_shown_default" type="bool" format="boolean">false</item>
 </resources>

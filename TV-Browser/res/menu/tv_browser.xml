@@ -110,6 +110,10 @@
         android:orderInCategory="100"
         android:showAsAction="never"
         android:title="@string/pref_title"/>
+	<item android:id="@+id/action_donation"
+        android:orderInCategory="100"
+        android:showAsAction="never"
+        android:title="@string/donation"/>
     <item android:id="@+id/action_about"
         android:orderInCategory="100"
         android:showAsAction="never"
