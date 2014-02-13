@@ -33,7 +33,7 @@ public class UpdateAlarmValue extends BroadcastReceiver {
         PrefUtils.initialize(context);
         IOUtils.handleDataUpdatePreferences(context);
         
-        Cursor alarms = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.DATA_KEY_STARTTIME, TvBrowserContentProvider.DATA_KEY_ENDTIME, TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, " ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_REMINDER + "%' ) AND ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis() + " ) ", null, TvBrowserContentProvider.KEY_ID);
+        Cursor alarms = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.DATA_KEY_STARTTIME, TvBrowserContentProvider.DATA_KEY_ENDTIME, TvBrowserContentProvider.DATA_KEY_MARKING_VALUES}, " ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_REMINDER + "%' ) AND ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis() + " ) ", null, TvBrowserContentProvider.KEY_ID);
         
         while(alarms.moveToNext()) {
           long id = alarms.getLong(alarms.getColumnIndex(TvBrowserContentProvider.KEY_ID));

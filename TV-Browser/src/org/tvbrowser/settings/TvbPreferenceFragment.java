@@ -40,6 +40,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     
     String category = getArguments().getString(getString(R.string.pref_category_key));
     
+    Log.d("info", "" + category + " " + getArguments());
+    
     if(getString(R.string.category_download).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_download);
       
@@ -64,6 +66,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE));
       onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_ACTIVATED));
       onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SOUND_VALUE));
+
       onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED));
       onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED));
       onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED));
@@ -148,7 +151,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         if(ringtone != null) {
           Ringtone notification = RingtoneManager.getRingtone(getActivity(), sound);
           
-          if(tone == null || tone.trim().length() > 0) {
+          if(notification != null && (tone == null || tone.trim().length() > 0)) {
             ringtone.setTitle(notification.getTitle(getActivity()));
           }
           else {
@@ -341,6 +344,16 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           sound.setEnabled(nightMode && !onlyStatus);
           vibrate.setEnabled(nightMode && !onlyStatus);
           led.setEnabled(nightMode && !onlyStatus);
+        }
+        
+        if(key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_ACTIVATED))) {
+          onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED));
+          onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED));
+          onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED));
+          onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_THURSDAY_ACTIVATED));
+          onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_FRIDAY_ACTIVATED));
+          onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SATURDAY_ACTIVATED));
+          onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SUNDAY_ACTIVATED));
         }
       }
       else if(key.equals(getResources().getString(R.string.PREF_SHOW_PROGRESS))) {

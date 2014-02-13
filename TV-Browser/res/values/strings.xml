@@ -98,6 +98,7 @@
     </string-array>
     <string name="version">Version:</string>
     <string name="android">Android:</string>
+    <string name="last_data_update">Last data update:</string>
     <string name="copyright">Copyright &#169; 2013, René Mach.</string>
     <string name="license"><![CDATA[<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software
   and associated documentation files (the "Software"), to use, copy, modify or merge the Software,
@@ -109,7 +110,10 @@
   <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
   OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
-  IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p></html>]]></string>
+  IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
+  <p>Parts of libraries and source code files used in TV-Browser for Android are licensed under the Licensed under the Apache License, Version 2.0.<br>
+  You may obtain a copy of these License at<br><br>
+  http://www.apache.org/licenses/LICENSE-2.0</p></html>]]></string>
     <string name="terms">The usage time of TV-Browser for Android can be limited. You can see the limit on the about page. It is guaranteed that an update is available free of charge after the limit is reached, as long as the developers of TV-Browser for Android are able and willing to release updates.</string>
     <string name="name_for_android">TV-Browser for Android</string>
     <string name="action_about">About TV-Browser</string>
@@ -399,5 +403,21 @@
         <item>Every 3 days</item>
         <item>Every week</item>
     </string-array>
-    
+    <string name="you_like_it">Do you like TV-Browser?</string>
+    <string name="not_now">Not now{0}</string>
+    <string name="rating_button">Rate on Google Play</string>
+    <string name="donate_button">More about donations</string>
+    <string name="rating_text"><![CDATA[<h3>Rating</h3>You are using TV-Browser for some time. If you want you can rate TV-Browser on Google Play.]]></string>
+    <string name="donate_text"><![CDATA[<h3>Donations</h3>If you like TV-Browser and you are at lest 18 years old, please consider to make a donation for the development of TV-Browser.]]></string>
+    <string name="donation">Donation</string>
+    <string name="donation_info_inapp">You can donate directly with InApp payment from a list of possible amounts. (You won\'t be charged unless you accept the donation in Google Play.)</string>
+    <string name="donation_open_inapp">Open InApp Donations</string>
+    <string name="donation_info_website">To see possible ways of donating to the TV-Browser development you can look at the website of TV-Browser for Android.</string>
+    <string name="donation_open_website">Show website with ways of donating.</string>
+    <string name="donation_thanks_text">Thank you for considering to make a donation, you can select from the following donations (these contains 30% Google Play transaction fee):</string>
+    <string name="make_donation_info">You are about to make a donation of {0}.\n\nWith clicking on \'Yes, make donation\' you confirm that you are at least 18 years and therefor allowed to make donations.</string>
+    <string name="make_donation">Yes, make donation</string>
+    <string name="stop_donation">No, thanks</string>
+    <string name="thanks_for_donation">Thank you for donating for TV-Browser for Android.</string>
+    <string name="in_app_error">Could not etablish connection to Google Play.\n\nPlease try again later or use a different donation method.</string>
 </resources>

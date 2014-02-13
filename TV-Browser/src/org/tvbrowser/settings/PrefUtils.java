@@ -16,13 +16,13 @@
  */
 package org.tvbrowser.settings;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 public class PrefUtils {
   private static Context mContext;
@@ -34,6 +34,12 @@ public class PrefUtils {
     if(mContext == null) {
       mContext = context;
       mPref = PreferenceManager.getDefaultSharedPreferences(context);
+      
+      String installerSouce = context.getPackageManager().getInstallerPackageName(context.getPackageName());
+      
+      SettingConstants.GOOGLE_PLAY = installerSouce != null && installerSouce.equals("com.android.vending");
+      
+      Log.d("info", "fromGooglePlay: " + SettingConstants.GOOGLE_PLAY);
     }
   }
   

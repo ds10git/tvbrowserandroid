@@ -44,6 +44,13 @@ import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.tvbrowser.settings.SettingConstants;
 
+import billing.util.IabHelper;
+import billing.util.IabHelper.QueryInventoryFinishedListener;
+import billing.util.IabResult;
+import billing.util.Inventory;
+import billing.util.Purchase;
+import billing.util.SkuDetails;
+
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -175,11 +182,14 @@ public class TvBrowser extends FragmentActivity implements
   private Stack<ProgramsListState> mProgamListStateStack;
   private BroadcastReceiver mUpdateDoneBroadcastReceiver;
   
+  private long mResumeTime;
+  private IabHelper mHelper;
+  
   static {
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2014);
-    mRundate.set(Calendar.MONTH, Calendar.FEBRUARY);
-    mRundate.set(Calendar.DAY_OF_MONTH, 14);
+    mRundate.set(Calendar.MONTH, Calendar.MARCH);
+    mRundate.set(Calendar.DAY_OF_MONTH, 1);
   }
   
   @Override
@@ -282,6 +292,12 @@ public class TvBrowser extends FragmentActivity implements
   protected void onPause() {
     super.onPause();
     
+    long timeDiff = System.currentTimeMillis() - mResumeTime + PrefUtils.getLongValueWithDefaultKey(R.string.PREF_RUNNING_TIME, R.integer.pref_running_time_default);
+    
+    Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+    edit.putLong(getString(R.string.PREF_RUNNING_TIME), timeDiff);
+    edit.commit();
+    
     mIsActive = false;
     
     if(mTimer != null) {
@@ -338,6 +354,8 @@ public class TvBrowser extends FragmentActivity implements
   @Override
   protected void onResume() {
     super.onResume();
+    
+    mResumeTime = System.currentTimeMillis();
     
     mIsActive = true;
     showTerms();
@@ -2506,7 +2524,21 @@ public class TvBrowser extends FragmentActivity implements
   
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-    super.onActivityResult(requestCode, resultCode, data);
+ // Pass on the activity result to the helper for handling
+    if(mHelper != null) {
+      if (!mHelper.handleActivityResult(requestCode, resultCode, data)) {
+          // not handled, so handle it ourselves (here's where you'd
+          // perform any handling of activity results not related to in-app
+          // billing...
+          super.onActivityResult(requestCode, resultCode, data);
+      }
+      else {
+          Log.d("info", "onActivityResult handled by IABUtil.");
+      }
+    }
+    else {
+      super.onActivityResult(requestCode, resultCode, data);
+    }
     
     if(requestCode == SHOW_PREFERENCES) {
       updateFromPreferences();
@@ -2586,6 +2618,9 @@ public class TvBrowser extends FragmentActivity implements
     
     TextView androidVersion = (TextView)about.findViewById(R.id.android_version);
     androidVersion.setText(Build.VERSION.RELEASE);
+    
+    TextView lastUpdate = (TextView)about.findViewById(R.id.data_update);
+    lastUpdate.setText(DateFormat.getLongDateFormat(TvBrowser.this).format(new Date(PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, 0))));
     
     ((TextView)about.findViewById(R.id.rundate_value)).setText(DateFormat.getLongDateFormat(getApplicationContext()).format(mRundate.getTime()));
     
@@ -2734,6 +2769,7 @@ public class TvBrowser extends FragmentActivity implements
         showUserSetting(false);
     }
       break;
+      case R.id.action_donation: showDonationInfo(); break;
       case R.id.action_pause_reminder: pauseReminder(); break;
       case R.id.action_continue_reminder: SettingConstants.IS_REMINDER_PAUSED = false; mPauseReminder.setVisible(true); mContinueReminder.setVisible(false); break;
       case R.id.action_synchronize_reminders_down:
@@ -3071,6 +3107,370 @@ public class TvBrowser extends FragmentActivity implements
     }
   }
   
+  private void setRatingAndDonationInfoShown() {
+    Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+    edit.putBoolean(getString(R.string.PREF_RATING_DONATION_INFO_SHOWN), true);
+    edit.commit();
+  }
+  
+  private void showInAppDonations(Inventory inv) {
+    mUpdateItem.setActionView(null);
+    AlertDialog.Builder alert = new AlertDialog.Builder(TvBrowser.this);
+    
+    alert.setTitle(R.string.donation);
+    
+    View view = getLayoutInflater().inflate(R.layout.in_app_donations, null);
+    LinearLayout layout = (LinearLayout)view.findViewById(R.id.donation_in_app_layout);
+    
+    alert.setView(view);
+    
+    alert.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        
+      }
+    });
+    
+    alert.setPositiveButton(R.string.donation_info_website, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=donations")));
+      }
+    });
+    
+    final AlertDialog d = alert.create();
+    
+    View.OnClickListener onDonationClick = new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        d.dismiss();
+        
+        openDonation((SkuDetails)v.getTag());
+      }
+    };
+    
+    for(String sku : SettingConstants.SKU_LIST) {
+      SkuDetails details = inv.getSkuDetails(sku);
+      Purchase donated = inv.getPurchase(sku);
+      
+      if(details != null && donated == null) {
+        String title = details.getTitle().substring(0,details.getTitle().indexOf("(")-1);
+        
+        Button donation = new Button(this);
+        donation.setTextSize(UiUtils.convertDpToPixel(12, getResources()));
+        donation.setText(title + ": " + details.getPrice());
+        donation.setTag(details);
+        donation.setOnClickListener(onDonationClick);
+      
+        layout.addView(donation);
+        
+        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)donation.getLayoutParams();
+        params.setMargins(5, 0, 5, 5); //left, top, right, bottom
+        donation.setLayoutParams(params);
+      }
+    }
+        
+    d.show();
+  }
+  
+  @Override
+  public void onDestroy() {
+     super.onDestroy();
+     
+     if (mHelper != null) {
+       mHelper.dispose();
+     }
+     
+     mHelper = null;
+  }
+  
+  private void showInAppError(String error) {
+    mUpdateItem.setActionView(null);
+    
+    AlertDialog.Builder alert = new AlertDialog.Builder(TvBrowser.this);
+    
+    alert.setTitle(R.string.donation);
+    alert.setMessage(R.string.in_app_error);
+    
+    alert.setNegativeButton(android.R.string.ok, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {}
+    });
+    
+    alert.setPositiveButton(R.string.donation_open_website, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        
+      }
+    });
+    
+    alert.show();
+  }
+  
+  private void listPurchaseItems() {
+    mHelper.queryInventoryAsync(true, SettingConstants.SKU_LIST, new QueryInventoryFinishedListener() {
+      @Override
+      public void onQueryInventoryFinished(IabResult result, final Inventory inv) {
+        if(result.isFailure()) {
+          showInAppError("InApp Billing listing failed");
+        }
+        else {
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              showInAppDonations(inv);
+            }
+          });
+        }
+      }
+    });
+  }
+  
+  private void prepareInAppPayment() {
+    mUpdateItem.setActionView(R.layout.progressbar);
+    
+    if(mHelper == null) {
+      String a2b = "2XQh0oOHnnZ2p3Ja8Xj6SlLFmI1Z/QIDAQAB";
+      String a2a = "8AMIIBCgKCAQEAqfmi767AEH+MBv+";
+      String ag2 = "Zh6iBFrN3zYpj1ikPu9jdtp+H47F8JvCzKt55xgIrzBpID58VfO";
+      String u6c = "+K1ZDlHw1rO+qN7GW177mzEO0yk+bVs0hwE/5QF2RamM+hOcCeyB7";
+      String ab2 = "6r2nGP94ai9Rgip1NLwZ1VYzFOPFC2/";
+      String hm5 = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ";
+      String ot8 = "tWvkedDMJd+4l912GuKiUa6FNw/sZLa9UIWB2ojgr2";
+      String bt4 = "TPd7Q6T9xOhHS01Ydws58YaK1NSCuIrFLG1I";
+      String ddx = "x3bLB5fJKPrWJc33MMqybm6KWIc+HVt2+HT";
+      String iz4 = "dePazzkaD5s84IG9FDe/cO3tvL/EZmSUiphDGXWl+beL2TW7D";
+      String hrq = hm5 + a2a + ab2 + bt4 + ddx + iz4 + u6c + ag2 + ot8 + a2b;
+      
+      mHelper = new IabHelper(TvBrowser.this, hrq);
+      mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
+        
+        @Override
+        public void onIabSetupFinished(IabResult result) {
+          if (!result.isSuccess()) {
+            showInAppError("InApp Billing Setup failed");
+          }
+          else {
+            handler.post(new Runnable() {
+              @Override
+              public void run() {
+                listPurchaseItems();
+              }
+            });
+          }
+        }
+      });
+    }
+    else {
+      listPurchaseItems();
+    }
+  }
+    
+  private void openDonation(final SkuDetails skuDetails) {
+    if(skuDetails != null && mHelper != null) {
+      AlertDialog.Builder alert = new AlertDialog.Builder(TvBrowser.this);
+      
+      alert.setTitle(R.string.donation);
+      
+      View view = getLayoutInflater().inflate(R.layout.open_donation, null);
+      
+      alert.setView(view);
+      
+      ((TextView)view.findViewById(R.id.donation_open_info)).setText(getString(R.string.make_donation_info).replace("{0}", skuDetails.getPrice()));
+      
+      alert.setNegativeButton(R.string.stop_donation, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {}
+      });
+      
+      alert.setPositiveButton(R.string.make_donation, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              mHelper.launchPurchaseFlow(TvBrowser.this, skuDetails.getSku(), 500012, new IabHelper.OnIabPurchaseFinishedListener() {           
+                @Override
+                public void onIabPurchaseFinished(IabResult result, Purchase info) {
+                  Log.d("info1","" +result + " " + info);
+                  if(result.isSuccess()) {
+                    AlertDialog.Builder alert2 = new AlertDialog.Builder(TvBrowser.this);
+                    
+                    alert2.setTitle(R.string.donation);
+                    alert2.setMessage(R.string.thanks_for_donation);
+                    
+                    alert2.setPositiveButton(android.R.string.ok, new OnClickListener() {
+                      @Override
+                      public void onClick(DialogInterface dialog, int which) {}
+                    });
+                    
+                    alert2.show();
+                  }
+                }
+              }, Long.toHexString(Double.doubleToLongBits(Math.random())));
+            }
+          });
+        }
+      });
+      
+      alert.show();
+    }
+  }
+  
+  private void showDonationInfo() {
+    AlertDialog.Builder alert = new AlertDialog.Builder(TvBrowser.this);
+    
+    alert.setTitle(R.string.donation);
+    
+    View view = getLayoutInflater().inflate(R.layout.donations, null);
+    
+    alert.setView(view);
+    
+    TextView inAppInfo = (TextView)view.findViewById(R.id.donation_in_app_text);
+    Button inAppDonation = (Button)view.findViewById(R.id.donation_in_app_button);
+    Button openWeb = (Button)view.findViewById(R.id.donation_website_button);
+    
+    if(!SettingConstants.GOOGLE_PLAY) {
+      inAppInfo.setVisibility(View.GONE);
+      inAppDonation.setVisibility(View.GONE);
+    }
+    
+    alert.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        
+      }
+    });
+    
+    final AlertDialog d = alert.create();
+    
+    inAppDonation.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        d.dismiss();
+        
+        prepareInAppPayment();
+      }
+    });
+    
+    openWeb.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        d.dismiss();
+        
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=donations")));
+      }
+    });
+    
+    d.show();
+  }
+  
+  private void showRatingAndDonationInfo() {
+    AlertDialog.Builder alert = new AlertDialog.Builder(TvBrowser.this);
+    
+    alert.setTitle(R.string.you_like_it);
+    
+    View view = getLayoutInflater().inflate(R.layout.rating_and_donation, null);
+    
+    TextView ratingInfo = (TextView)view.findViewById(R.id.rating_info);
+    Button rate = (Button)view.findViewById(R.id.rating_button);
+    Button donate = (Button)view.findViewById(R.id.donation_button);
+    
+    if(!SettingConstants.GOOGLE_PLAY) {
+      ratingInfo.setVisibility(View.GONE);
+      rate.setVisibility(View.GONE);
+    }
+    
+    ratingInfo.setText(Html.fromHtml(getString(R.string.rating_text)));
+    ((TextView)view.findViewById(R.id.donation_info)).setText(Html.fromHtml(getString(R.string.donate_text)));
+    
+    final Button cancel = (Button)view.findViewById(R.id.rating_donation_cancel);
+    cancel.setEnabled(false);
+
+    
+    alert.setView(view);
+    alert.setCancelable(false);
+    
+    final AlertDialog d = alert.create();
+    
+    cancel.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        d.dismiss();
+        
+        setRatingAndDonationInfoShown();
+        finish();
+      }
+    });
+    
+    donate.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        d.dismiss();
+        setRatingAndDonationInfoShown();
+        
+        showDonationInfo();
+      }
+    });
+    
+    rate.setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        d.dismiss();
+        
+        final String appPackageName = getPackageName(); // getPackageName() from Context or Activity object
+        try {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+        } catch (android.content.ActivityNotFoundException anfe) {
+            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + appPackageName)));
+        }
+        
+        setRatingAndDonationInfoShown();
+        finish();
+      }
+    });
+    
+    
+    d.setOnShowListener(new DialogInterface.OnShowListener() {
+      @Override
+      public void onShow(DialogInterface dialog) {
+        new Thread("Cancel wait thread") {
+          @Override
+          public void run() {
+            int count = 10;
+            
+            while(--count >= 0) {
+              final int countValue = count+1;
+              
+              handler.post(new Runnable() {
+                @Override
+                public void run() {
+                  cancel.setText(getString(R.string.not_now).replace("{0}", " (" + countValue + ")"));
+                }
+              });
+              
+              try {
+                sleep(1000);
+              } catch (InterruptedException e) {
+                e.printStackTrace();
+              }
+            }
+            
+            handler.post(new Runnable() {
+              @Override
+              public void run() {
+                cancel.setText(getString(R.string.not_now).replace("{0}", ""));
+                cancel.setEnabled(true);
+              }
+            });
+          }
+        }.start();
+      }
+    });
+    
+    d.show();
+  }
+  
   @Override
   public void onBackPressed() {
     if(mProgramsListWasShow) {
@@ -3091,7 +3491,12 @@ public class TvBrowser extends FragmentActivity implements
       LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcastSync(showChannel);
     }
     else {
-      super.onBackPressed();
+      if(isTaskRoot() && !PrefUtils.getBooleanValue(R.string.PREF_RATING_DONATION_INFO_SHOWN, R.bool.pref_rating_donation_info_shown_default) && PrefUtils.getLongValueWithDefaultKey(R.string.PREF_RUNNING_TIME, R.integer.pref_running_time_default) > 6 * 60 * 60000) {
+        showRatingAndDonationInfo();
+      }
+      else {
+        super.onBackPressed();
+      }
     }
   }
 

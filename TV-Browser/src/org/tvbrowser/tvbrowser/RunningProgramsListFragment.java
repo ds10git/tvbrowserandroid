@@ -501,16 +501,19 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           mPreviousEpisode.setTextColor(color);
           mPreviousTitle.setTextColor(color);
           mPreviousStartTime.setTextColor(color);
+          mPreviousInfos.setTextColor(color);
           break;
         case NOW:
           mNowEpisode.setTextColor(color);
           mNowTitle.setTextColor(color);
           mNowStartTime.setTextColor(color);
+          mNowInfos.setTextColor(color);
           break;
         case NEXT:
           mNextEpisode.setTextColor(color);
           mNextTitle.setTextColor(color);
           mNextStartTime.setTextColor(color);
+          mNextInfos.setTextColor(color);
           break;
       }
     }

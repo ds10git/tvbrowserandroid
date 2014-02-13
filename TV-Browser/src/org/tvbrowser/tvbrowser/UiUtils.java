@@ -1013,9 +1013,7 @@ public class UiUtils {
   //TODO
   public static void addReminder(Context context, long programID, long startTime) {try {
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-    
-    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-    
+        
     int reminderTime = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_REMINDER_TIME, R.string.pref_reminder_time_default)) * 60000;
     boolean remindAgain = PrefUtils.getBooleanValue(R.string.PREF_REMIND_AGAIN_AT_START, R.bool.pref_remind_again_at_start_default);
     

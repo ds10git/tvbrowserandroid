@@ -59,6 +59,7 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Environment;
@@ -1055,6 +1056,10 @@ public class TvDataUpdateService extends Service {
     Log.d("info1", "Unsuccessful downloads: " + String.valueOf(mUnsuccessfulDownloads));
     
     Logging.closeLogForDataUpdate();
+    
+    Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+    edit.putLong(getString(R.string.LAST_DATA_UPDATE), System.currentTimeMillis());
+    edit.commit();
     
     IS_RUNNING = false;
     stopSelf();
