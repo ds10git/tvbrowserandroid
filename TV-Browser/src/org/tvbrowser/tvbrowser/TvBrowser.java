@@ -3113,7 +3113,7 @@ public class TvBrowser extends FragmentActivity implements
     edit.commit();
   }
   
-  private void showInAppDonations(Inventory inv) {
+  private void showInAppDonations(final Inventory inv, boolean showIfAlreadyDonated) {
     mUpdateItem.setActionView(null);
     AlertDialog.Builder alert = new AlertDialog.Builder(TvBrowser.this);
     
@@ -3149,11 +3149,18 @@ public class TvBrowser extends FragmentActivity implements
       }
     };
     
+    Purchase donated = null;
+    SkuDetails donatedDetails = null;
+    
     for(String sku : SettingConstants.SKU_LIST) {
       SkuDetails details = inv.getSkuDetails(sku);
-      Purchase donated = inv.getPurchase(sku);
-      
-      if(details != null && donated == null) {
+      Purchase donatedTest = inv.getPurchase(sku);
+      Log.d("info"," donated " + donated);
+      if(donatedTest != null && details != null) {
+        donated = donatedTest;
+        donatedDetails = details;
+      }
+      if(details != null) {
         String title = details.getTitle().substring(0,details.getTitle().indexOf("(")-1);
         
         Button donation = new Button(this);
@@ -3169,8 +3176,54 @@ public class TvBrowser extends FragmentActivity implements
         donation.setLayoutParams(params);
       }
     }
-        
-    d.show();
+    
+    if(donated == null || showIfAlreadyDonated) {
+      d.show();
+    }
+    else if(donated != null) {
+      AlertDialog.Builder alert2 = new AlertDialog.Builder(TvBrowser.this);
+      
+      alert2.setTitle(R.string.donation);
+      
+      String message = getString(R.string.already_donated).replace("{1}", DateFormat.getLongDateFormat(this).format(new Date(donated.getPurchaseTime()))).replace("{0}", donatedDetails.getPrice());
+      
+      alert2.setMessage(message);
+      
+      final Purchase toConsume = donated;
+      
+      alert2.setPositiveButton(R.string.donate_again, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          mUpdateItem.setActionView(R.layout.progressbar);
+          
+          mHelper.consumeAsync(toConsume,new IabHelper.OnConsumeFinishedListener() {
+            @Override
+            public void onConsumeFinished(Purchase purchase, IabResult result) {
+              mUpdateItem.setActionView(null);
+              
+              if(result.isSuccess()) {
+                d.show();
+              }
+              else {
+                handler.post(new Runnable() {
+                  @Override
+                  public void run() {
+                    Toast.makeText(TvBrowser.this, "", Toast.LENGTH_LONG).show();
+                  }
+                });
+              }
+            }
+          });
+        }
+      });
+      
+      alert2.setNegativeButton(R.string.stop_donation, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {}
+      });
+      
+      alert2.show();
+    }
   }
   
   @Override
@@ -3200,7 +3253,7 @@ public class TvBrowser extends FragmentActivity implements
     alert.setPositiveButton(R.string.donation_open_website, new OnClickListener() {
       @Override
       public void onClick(DialogInterface dialog, int which) {
-        
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=donations")));
       }
     });
     
@@ -3218,7 +3271,7 @@ public class TvBrowser extends FragmentActivity implements
           handler.post(new Runnable() {
             @Override
             public void run() {
-              showInAppDonations(inv);
+              showInAppDonations(inv,false);
             }
           });
         }
@@ -3491,7 +3544,7 @@ public class TvBrowser extends FragmentActivity implements
       LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcastSync(showChannel);
     }
     else {
-      if(isTaskRoot() && !PrefUtils.getBooleanValue(R.string.PREF_RATING_DONATION_INFO_SHOWN, R.bool.pref_rating_donation_info_shown_default) && PrefUtils.getLongValueWithDefaultKey(R.string.PREF_RUNNING_TIME, R.integer.pref_running_time_default) > 6 * 60 * 60000) {
+      if(isTaskRoot() && !PrefUtils.getBooleanValue(R.string.PREF_RATING_DONATION_INFO_SHOWN, R.bool.pref_rating_donation_info_shown_default) && PrefUtils.getLongValueWithDefaultKey(R.string.PREF_RUNNING_TIME, R.integer.pref_running_time_default) > 2 * 60 * 60000) {
         showRatingAndDonationInfo();
       }
       else {

@@ -408,4 +408,7 @@
     <string name="stop_donation">Nein, Danke</string>
     <string name="thanks_for_donation">Vielen Dank für die Spende für TV-Browser für Android.</string>
     <string name="in_app_error">Konnte keine Verbindung zu Google Play herstellen.\n\nBitte versuchen Sie es später erneut oder verwenden Sie eine Spendenalternative.</string>
+    <string name="already_donated">Sie haben bereits am {1} {0} gespendet. Nochmal danke dafür.\n\nMöchten Sie tatsächlich nochmals spenden?</string>
+    <string name="donate_again">Ja, nochmals spenden</string>
+    <string name="no_donation_possible">Zur Zeit keine Spenden möglich.\nBitte versuchen Sie es später erneut.</string>
 </resources>
