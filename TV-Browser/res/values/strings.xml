@@ -420,4 +420,7 @@
     <string name="stop_donation">No, thanks</string>
     <string name="thanks_for_donation">Thank you for donating for TV-Browser for Android.</string>
     <string name="in_app_error">Could not etablish connection to Google Play.\n\nPlease try again later or use a different donation method.</string>
+    <string name="already_donated">You have already donated {0} on {1}. Thanks again for that donation.\n\nDo you really want to donate again?</string>
+    <string name="donate_again">Yes, donate again</string>
+    <string name="no_donation_possible">At the moment no donation is possible.\nPlease try again later.</string>
 </resources>
