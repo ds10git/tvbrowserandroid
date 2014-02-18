@@ -102,8 +102,10 @@ public class IOUtils {
         res.getString(R.string.info_sign_language)
         };
     
+    int[] prefKeyArr = SettingConstants.INFO_PREF_KEY_ARR;
+    
     for(int i = 1; i <= 25; i++) {
-      if((value & (1 << i)) == (1 << i)) {
+      if((value & (1 << i)) == (1 << i) && PrefUtils.getBooleanValue(prefKeyArr[i-1], R.bool.pref_info_show_default)) {
         if(infoString.length() > 0) {
           infoString.append(", ");
         }

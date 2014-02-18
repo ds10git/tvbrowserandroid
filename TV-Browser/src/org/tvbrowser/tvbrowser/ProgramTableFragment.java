@@ -101,7 +101,9 @@ public class ProgramTableFragment extends Fragment {
   private boolean mDaySet;
   
   private boolean mGrowPanels;
-    
+  
+  private ArrayList<Integer> mShowInfos;
+  
   public void scrollToTime(int time, final MenuItem timeItem) {
     if(isResumed()) {
       long value = System.currentTimeMillis();
@@ -199,6 +201,8 @@ public class ProgramTableFragment extends Fragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    
+    mShowInfos = new ArrayList<Integer>();
     
     mUpdatingRunningPrograms = false;
     mUpdatingLayout = false;
@@ -504,6 +508,14 @@ public class ProgramTableFragment extends Fragment {
     container.removeAllViews();
     
     View programTable = inflater.inflate(R.layout.program_table, container);
+    
+    int[] infoPrefKeyArr = SettingConstants.INFO_PREF_KEY_ARR;
+    
+    for(int infoKey : infoPrefKeyArr) {
+      if(PrefUtils.getBooleanValue(infoKey, R.bool.pref_info_show_default)) {
+        mShowInfos.add(Integer.valueOf(infoKey));
+      }
+    }
     
   /*  Calendar cal = Calendar.getInstance();
     cal.set(2013, Calendar.DECEMBER, 31);
@@ -819,7 +831,25 @@ public class ProgramTableFragment extends Fragment {
     boolean updateShownValues = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_PROGRAM_TABLE, R.bool.prog_table_show_episode_default) != mShowEpisode ||
         PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_PROGRAM_TABLE, R.bool.prog_table_show_genre_default) != mShowGenre ||
             PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_PROGRAM_TABLE, R.bool.prog_table_show_infos_default) != mShowInfo;
-    Log.d("info", "" + updateShownValues);
+    
+    boolean updateInfoValues = PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_PROGRAM_TABLE, R.bool.prog_table_show_infos_default);
+    
+    if(updateInfoValues) {
+      updateInfoValues = false;
+      
+      int[] infoPrefKeyArr = SettingConstants.INFO_PREF_KEY_ARR;
+      
+      for(int infoKey : infoPrefKeyArr) {
+        boolean isShownSetting = PrefUtils.getBooleanValue(infoKey, R.bool.pref_info_show_default);
+        boolean isCurrentlyShown = mShowInfos.contains(Integer.valueOf(infoKey));
+        
+        if((isShownSetting && !isCurrentlyShown) || (!isShownSetting && isCurrentlyShown)) {
+          updateInfoValues = true;
+          break;
+        }
+      }
+    }
+    
     if(updateTextScale) {
       ProgramTableLayoutConstants.initialize(getActivity());
     }
@@ -827,11 +857,11 @@ public class ProgramTableFragment extends Fragment {
       ProgramTableLayoutConstants.updateColumnWidth(getActivity());
     }
     
-    if(mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth || updateTextScale || updateShownValues) {
+    if(mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth || updateTextScale || updateShownValues || updateInfoValues) {
       updateView(getActivity().getLayoutInflater(), (RelativeLayout)getView().findViewWithTag("LAYOUT"));
     }
     
-    return mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth || updateTextScale || updateShownValues;
+    return mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth || updateTextScale || updateShownValues || updateInfoValues;
   }
   
   public void updateChannelBar() {

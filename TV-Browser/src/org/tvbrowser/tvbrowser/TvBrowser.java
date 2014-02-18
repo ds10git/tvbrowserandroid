@@ -189,7 +189,7 @@ public class TvBrowser extends FragmentActivity implements
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2014);
     mRundate.set(Calendar.MONTH, Calendar.MARCH);
-    mRundate.set(Calendar.DAY_OF_MONTH, 1);
+    mRundate.set(Calendar.DAY_OF_MONTH, 10);
   }
   
   @Override
@@ -372,7 +372,7 @@ public class TvBrowser extends FragmentActivity implements
           synchronizeRemindersDown(false);
         }
         if(toRemider) {
-          synchronizeUp(false,null,"http://android.tvbrowser.org/data/scripts/syncBackMyReminders.php");
+          synchronizeUp(false,null,"http://android.tvbrowser.org/data/scripts/syncUp.php?type=reminderFromApp");
         }
       }
     };
@@ -588,8 +588,7 @@ public class TvBrowser extends FragmentActivity implements
         
         URL documentUrl;
         try {
-          //documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels2.php");
-          documentUrl = new URL("http://android.tvbrowser.org/data/scripts/hurtzAndroidTvbChannels.php");
+          documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=channelsFromDesktop");
           URLConnection connection = documentUrl.openConnection();
           
           SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
@@ -888,7 +887,7 @@ public class TvBrowser extends FragmentActivity implements
           URL documentUrl;
           
           try {
-            documentUrl = new URL("http://android.tvbrowser.org/data/scripts/hurtzUpMyReminders.php");
+            documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=reminderFromDesktop");
             URLConnection connection = documentUrl.openConnection();
             
             SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
@@ -1015,7 +1014,7 @@ public class TvBrowser extends FragmentActivity implements
           URL documentUrl;
           
           try {
-            documentUrl = new URL("http://android.tvbrowser.org/data/scripts/hurtzAndroidDontWantToSee.php");
+            documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=dontWantToSee");
             URLConnection connection = documentUrl.openConnection();
             
             SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
@@ -1120,7 +1119,7 @@ public class TvBrowser extends FragmentActivity implements
                 }
                 
                 if(!replace && exclusionBuilder.length() > 0) {
-                  synchronizeUp(false, exclusionBuilder.toString(), "http://android.tvbrowser.org/data/scripts/syncDontWantToSee.php");
+                  synchronizeUp(false, exclusionBuilder.toString(), "http://android.tvbrowser.org/data/scripts/syncUp.php?type=dontWantToSee");
                 }
               }
               else {
@@ -2126,7 +2125,6 @@ public class TvBrowser extends FragmentActivity implements
         public void run() {
           URL documentUrl;
           try {
-            //documentUrl = new URL("http://android.tvbrowser.org/hurtzAndroidTvbChannels2.php");
             documentUrl = new URL("http://android.tvbrowser.org/data/scripts/testMyAccount.php");
             URLConnection connection = documentUrl.openConnection();
             
@@ -2782,7 +2780,7 @@ public class TvBrowser extends FragmentActivity implements
         break;
       case R.id.action_synchronize_reminders_up:
         if(isOnline()) {
-          synchronizeUp(true,null,"http://android.tvbrowser.org/data/scripts/syncBackMyReminders.php");
+          synchronizeUp(true,null,"http://android.tvbrowser.org/data/scripts/syncUp.php?type=reminderFromApp");
         }
         else {
           showNoInternetConnection(null);

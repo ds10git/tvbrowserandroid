@@ -53,6 +53,8 @@
     <string name="pref_email_title">Empfänger E-Mail Adresse</string>
 	<string name="pref_email_summary">E-Mail Adresse für das Versenden von Programminformationen.</string>
     <string name="pref_category_email">E-Mail</string>
+    <string name="pref_category_additonal_infos">Zusätzliche Informationen</string>
+    <string name="pref_category_additonal_infos_head">Angezeigte Informationen</string>
     <string name="title">Titel:</string>
     <string name="title_hint">Titel für Suche eingeben</string>
     <string name="episode">Folge:</string>

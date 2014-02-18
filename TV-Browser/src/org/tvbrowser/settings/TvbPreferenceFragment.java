@@ -103,6 +103,9 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     else if(getString(R.string.category_email).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_email);
     }
+    else if(getString(R.string.category_additional_infos).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_additonal_infos);
+    }
     else if(getString(R.string.category_debug).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_debug);
     }

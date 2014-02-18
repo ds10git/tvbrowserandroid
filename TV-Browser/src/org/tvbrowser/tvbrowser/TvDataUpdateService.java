@@ -778,7 +778,7 @@ public class TvDataUpdateService extends Service {
       InputStream is = null;
 
       try {
-          URL url = new URL("http://android.tvbrowser.org/data/scripts/backSyncMyPrograms.php");
+          URL url = new URL("http://android.tvbrowser.org/data/scripts/syncUp.php?type=favortiesFromApp");
           
           conn = url.openConnection();
           
@@ -883,7 +883,7 @@ public class TvDataUpdateService extends Service {
   
   private void loadAccessAndFavoriteSync() {
     try {
-      URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/hurtzAndroidTvb.php");
+      URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=favoritesFromDesktop");
       URLConnection connection = documentUrl.openConnection();
       
       SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
