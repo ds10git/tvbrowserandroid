@@ -60,6 +60,11 @@
         android:title="@string/pref_category_email">
         <extra android:name="@string/pref_category_key" android:value="@string/category_email" />
     </header>
+    <header
+        android:fragment="org.tvbrowser.settings.TvbPreferenceFragment"
+        android:title="@string/pref_category_additonal_infos">
+        <extra android:name="@string/pref_category_key" android:value="@string/category_additional_infos" />
+    </header>
     <header 
         android:fragment="org.tvbrowser.settings.TvbPreferenceFragment"
         android:title="@string/pref_debug">

@@ -316,4 +316,32 @@
     
     <string name="PREF_RATING_DONATION_INFO_SHOWN">PREF_RATING_DONATION_INFO_SHOWN</string>
     <item name="pref_rating_donation_info_shown_default" type="bool" format="boolean">false</item>
+    
+    <item name="pref_info_show_default" type="bool" format="boolean">true</item>
+    <string name="PREF_INFO_SHOW_BLACK_AND_WHITE">PREF_INFO_SHOW_BLACK_AND_WHITE</string>
+    <string name="PREF_INFO_SHOW_FOUR_TO_THREE">PREF_INFO_SHOW_FOUR_TO_THREE</string>
+    <string name="PREF_INFO_SHOW_SIXTEEN_TO_NINE">PREF_INFO_SHOW_SIXTEEN_TO_NINE</string>
+    <string name="PREF_INFO_SHOW_MONO">PREF_INFO_SHOW_MONO</string>
+    <string name="PREF_INFO_SHOW_STEREO">PREF_INFO_SHOW_STEREO</string>
+    <string name="PREF_INFO_SHOW_DOLBY_SOURROUND">PREF_INFO_SHOW_DOLBY_SOURROUND</string>
+    <string name="PREF_INFO_SHOW_DOLBY_DIGITAL">PREF_INFO_SHOW_DOLBY_DIGITAL</string>
+    <string name="PREF_INFO_SHOW_SECOND_ADUIO_PROGRAM">PREF_INFO_SHOW_SECOND_ADUIO_PROGRAM</string>
+    <string name="PREF_INFO_SHOW_CLOSED_CAPTION">PREF_INFO_SHOW_CLOSED_CAPTION</string>
+    <string name="PREF_INFO_SHOW_LIVE">PREF_INFO_SHOW_LIVE</string>
+    <string name="PREF_INFO_SHOW_OMU">PREF_INFO_SHOW_OMU</string>
+    <string name="PREF_INFO_SHOW_FILM">PREF_INFO_SHOW_FILM</string>
+    <string name="PREF_INFO_SHOW_SERIES">PREF_INFO_SHOW_SERIES</string>
+    <string name="PREF_INFO_SHOW_NEW">PREF_INFO_SHOW_NEW</string>
+    <string name="PREF_INFO_SHOW_AUDIO_DESCRIPTION">PREF_INFO_SHOW_AUDIO_DESCRIPTION</string>
+    <string name="PREF_INFO_SHOW_NEWS">PREF_INFO_SHOW_NEWS</string>
+    <string name="PREF_INFO_SHOW_SHOW">PREF_INFO_SHOW_SHOW</string>
+    <string name="PREF_INFO_SHOW_MAGAZIN">PREF_INFO_SHOW_MAGAZIN</string>
+    <string name="PREF_INFO_SHOW_HD">PREF_INFO_SHOW_HD</string>
+    <string name="PREF_INFO_SHOW_DOCU">PREF_INFO_SHOW_DOCU</string>
+	<string name="PREF_INFO_SHOW_ART">PREF_INFO_SHOW_ART</string>
+	<string name="PREF_INFO_SHOW_SPORT">PREF_INFO_SHOW_SPORT</string>
+	<string name="PREF_INFO_SHOW_CHILDREN">PREF_INFO_SHOW_CHILDREN</string>
+	<string name="PREF_INFO_SHOW_OTHER">PREF_INFO_SHOW_OTHER</string>
+	<string name="PREF_INFO_SHOW_SIGN_LANGUAGE">PREF_INFO_SHOW_SIGN_LANGUAGE</string>
+    
 </resources>

@@ -58,6 +58,8 @@
     <string name="pref_email_title">To email address</string>
     <string name="pref_email_summary">Email address for sending program informations.</string>
     <string name="pref_category_email">Email</string>
+    <string name="pref_category_additonal_infos">Additional informations</string>
+    <string name="pref_category_additonal_infos_head">Shown informations</string>
     <string name="search">Search</string>
     <string name="title">Title:</string>
     <string name="title_hint">Enter title to search</string>

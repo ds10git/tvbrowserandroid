@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.UiUtils;
 
 import android.content.Context;
@@ -74,6 +75,34 @@ public class SettingConstants {
     SKU_LIST.add(SKU_FOUR_STAR_DONATION);
     SKU_LIST.add(SKU_FIVE_STAR_DONATION);
   }
+  
+  public static final int[] INFO_PREF_KEY_ARR = {
+    R.string.PREF_INFO_SHOW_BLACK_AND_WHITE,
+    R.string.PREF_INFO_SHOW_FOUR_TO_THREE,
+    R.string.PREF_INFO_SHOW_SIXTEEN_TO_NINE,
+    R.string.PREF_INFO_SHOW_MONO,
+    R.string.PREF_INFO_SHOW_STEREO,
+    R.string.PREF_INFO_SHOW_DOLBY_SOURROUND,
+    R.string.PREF_INFO_SHOW_DOLBY_DIGITAL,
+    R.string.PREF_INFO_SHOW_SECOND_ADUIO_PROGRAM,
+    R.string.PREF_INFO_SHOW_CLOSED_CAPTION,
+    R.string.PREF_INFO_SHOW_LIVE,
+    R.string.PREF_INFO_SHOW_OMU,
+    R.string.PREF_INFO_SHOW_FILM,
+    R.string.PREF_INFO_SHOW_SERIES,
+    R.string.PREF_INFO_SHOW_NEW,
+    R.string.PREF_INFO_SHOW_AUDIO_DESCRIPTION,
+    R.string.PREF_INFO_SHOW_NEWS,
+    R.string.PREF_INFO_SHOW_SHOW,
+    R.string.PREF_INFO_SHOW_MAGAZIN,
+    R.string.PREF_INFO_SHOW_HD,
+    R.string.PREF_INFO_SHOW_DOCU,
+    R.string.PREF_INFO_SHOW_ART,
+    R.string.PREF_INFO_SHOW_SPORT,
+    R.string.PREF_INFO_SHOW_CHILDREN,
+    R.string.PREF_INFO_SHOW_OTHER,
+    R.string.PREF_INFO_SHOW_SIGN_LANGUAGE
+};
   
   public static final String DONT_WANT_TO_SEE_ADDED_EXTRA = "DONT_WANT_TO_SEE_ADDED_EXTRA";
   
