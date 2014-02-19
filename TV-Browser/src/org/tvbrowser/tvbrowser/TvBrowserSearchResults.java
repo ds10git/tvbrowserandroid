@@ -187,12 +187,12 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     String[] projection = null;
     
     if(PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default)) {
-      projection = new String[15];
+      projection = new String[14 + TvBrowserContentProvider.MARKING_COLUMNS.length];
       
-      projection[14] = TvBrowserContentProvider.DATA_KEY_PICTURE;
+      projection[projection.length-1] = TvBrowserContentProvider.DATA_KEY_PICTURE;
     }
     else {
-      projection = new String[14];
+      projection = new String[13 + TvBrowserContentProvider.MARKING_COLUMNS.length];
     }
     
     String titleEscape = query.contains("'") ? "\"" : "'";
@@ -204,14 +204,19 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     projection[3] = TvBrowserContentProvider.DATA_KEY_ENDTIME;
     projection[4] = TvBrowserContentProvider.DATA_KEY_TITLE;
     projection[5] = TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION;
-    projection[6] = TvBrowserContentProvider.DATA_KEY_MARKING_VALUES;
-    projection[7] = TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER;
-    projection[8] = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE;
-    projection[9] = TvBrowserContentProvider.DATA_KEY_GENRE;
-    projection[10] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
-    projection[11] = TvBrowserContentProvider.DATA_KEY_UNIX_DATE;
-    projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
-    projection[13] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
+    projection[6] = TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER;
+    projection[7] = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE;
+    projection[8] = TvBrowserContentProvider.DATA_KEY_GENRE;
+    projection[9] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
+    projection[10] = TvBrowserContentProvider.DATA_KEY_UNIX_DATE;
+    projection[11] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
+    projection[12] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
+    
+    int startIndex = 13;
+
+    for(int i = startIndex ; i < (startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length); i++) {
+      projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
+    }
         
     String where = "(" + TvBrowserContentProvider.DATA_KEY_TITLE + " LIKE " + titleEscape + "%" + query + "%" + titleEscape + operation + TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE + " LIKE " + episodeEscape + "%" + episodeQuery + "%" + episodeEscape + ") AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">=" + System.currentTimeMillis();
     String[] whereArgs = null;

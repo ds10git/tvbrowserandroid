@@ -25,11 +25,13 @@ import java.io.PushbackInputStream;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
@@ -283,5 +285,13 @@ public class IOUtils {
       Log.d("info", "xxx " + new Date(updateTime));
       IOUtils.setDataUpdateTime(context, updateTime, pref);
     }
+  }
+  
+  public static final String[] getStringArrayFromList(ArrayList<String> list) {
+    if(list != null) {
+      return list.toArray(new String[list.size()]);
+    }
+    
+    return null;
   }
 }

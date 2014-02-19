@@ -70,6 +70,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.Html;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -263,7 +264,7 @@ public class UiUtils {
       
       String infoValue = IOUtils.getInfoString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)), context.getResources());
       
-      if(PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_DETAILS, R.bool.show_info_in_details_default) && infoValue.length() > 0) {
+      if(PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_DETAILS, R.bool.show_info_in_details_default) && infoValue.trim().length() > 0) {
         info.setText(infoValue);
       }
       else {
@@ -403,7 +404,9 @@ public class UiUtils {
   public static void createContextMenu(Context context, ContextMenu menu, long id) {
     new MenuInflater(context).inflate(R.menu.program_context, menu);
     
-    Cursor cursor = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE}, null, null, null);
+    String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE);
+    
+    Cursor cursor = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), projection, null, null, null);
     
     if(Build.VERSION.SDK_INT < 14) {
       menu.findItem(R.id.prog_create_calendar_entry).setVisible(false);
@@ -415,18 +418,36 @@ public class UiUtils {
       boolean showMark = true;
       boolean showUnMark = false;
       boolean showReminder = true;
+      boolean isFavoriteReminder = false;
       boolean createFavorite = true;
+      
+      for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
+        int index = cursor.getColumnIndex(column);
+        
+        if(index >= 0) {
+          if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER)) {
+            showReminder = column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) && cursor.getInt(index) == 0;
+          }
+          else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) {
+            isFavoriteReminder = column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER) && cursor.getInt(index) == 1;
+          }
+          else {
+            showUnMark = showUnMark || cursor.getInt(index) == 1;
+          }
+          
+          if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE)) {
+            createFavorite = column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE) && cursor.getInt(index) == 0;
+          }
+          else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) {
+            showMark = column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && cursor.getInt(index) == 0;
+          }
+          
+        }
+      }
+      
+      showReminder = showReminder && !isFavoriteReminder;
             
       boolean showDontWantToSee = cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE)) == 0;
-      
-      if(!cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
-        String markValue = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES)).trim();
-        
-        showUnMark = markValue.length() > 0 && !markValue.trim().equals(SettingConstants.MARK_VALUE_REMINDER);
-        showMark = !markValue.trim().contains(SettingConstants.MARK_VALUE);
-        showReminder = !markValue.contains(SettingConstants.MARK_VALUE_REMINDER);
-        createFavorite = !markValue.contains(SettingConstants.MARK_VALUE_FAVORITE);
-      }
       
       long startTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
       
@@ -498,18 +519,28 @@ public class UiUtils {
   
   @SuppressLint("NewApi")
   public static boolean handleContextMenuSelection(final Context activity, MenuItem item, long programID, final View menuView) {
-    Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
+    Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE), null, null,null);
     
-    String current = null;
+  //  String current = null;
     String title = null;
     String episode = null;
+    
+    ArrayList<String> markedColumns = new ArrayList<String>();
     
     if(info.getCount() > 0) {
       info.moveToFirst();
       
-      if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
-        current = info.getString(0);
+      for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
+        int index = info.getColumnIndex(column);
+        
+        if(index >= 0 && info.getInt(index) == 1) {
+          markedColumns.add(column);
+        }
       }
+      
+    /*  if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
+        current = info.getString(0);
+      }*/
       
       title = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
       
@@ -592,37 +623,24 @@ public class UiUtils {
       searchForRepetition(activity,title,episode);
     }
     else if(item.getItemId() == R.id.prog_mark_item) {
-      if(current != null && current.contains(SettingConstants.MARK_VALUE)) {
+      if(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) {
         return true;
       }
-      else if(current == null || current.trim().length() == 0) {
-        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, SettingConstants.MARK_VALUE);
-      }
       else {
-        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current + ";"+SettingConstants.MARK_VALUE);
+        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, true);
       }
     }
     else if(item.getItemId() == R.id.prog_unmark_item){
-      if(current == null || current.trim().length() == 0) {
+      if(markedColumns.isEmpty()) {
         return true;
       }
       
-      if(current.contains(SettingConstants.MARK_VALUE_REMINDER)) {
-        current = SettingConstants.MARK_VALUE_REMINDER;
+      for(String column : markedColumns) {
+        values.put(column, false);
       }
-      else {
-        current = "";
-      }
-      
-      values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current);
       
       if(menuView != null) {
-        if(current.trim().length() == 0) {
-          menuView.setBackgroundResource(android.R.drawable.list_selector_background);  
-        }
-        else {
-          handleMarkings(activity, null, menuView, current);
-        }
+        menuView.setBackgroundResource(android.R.drawable.list_selector_background);
       }
     }
     else if(item.getItemId() == R.id.prog_create_calendar_entry) {
@@ -680,14 +698,11 @@ public class UiUtils {
           // Use the Calendar app to add the new event.
           activity.startActivity(addCalendarEntry);
           
-          if(current != null && current.contains(SettingConstants.MARK_VALUE_CALENDAR)) {
+          if(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR)) {
             return true;
           }
-          else if(current == null || current.trim().length() == 0) {
-            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, SettingConstants.MARK_VALUE_CALENDAR);
-          }
           else {
-            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current + ";"+SettingConstants.MARK_VALUE_CALENDAR);
+            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR, true);
           }
           
           if(menuView != null) {
@@ -701,38 +716,33 @@ public class UiUtils {
       info.close();
     }
     else if(item.getItemId() == R.id.prog_add_reminder) {
-      if(current != null && current.contains(SettingConstants.MARK_VALUE_REMINDER)) {
+      if(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) || markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) {
         return true;
       }
-      else if(current == null || current.trim().length() == 0) {
-        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, SettingConstants.MARK_VALUE_REMINDER);
-      }
       else {
-        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current + ";"+SettingConstants.MARK_VALUE_REMINDER);
+        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, true);
       }
       
       addReminder(activity.getApplicationContext(),programID,0);
     }
     else if(item.getItemId() == R.id.prog_remove_reminder) {
-      if(current == null || current.trim().length() == 0 || !current.contains(SettingConstants.MARK_VALUE_REMINDER)) {
+      if(!(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) || markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER))) {
         return true;
       }
       
-      current = current.replace(SettingConstants.MARK_VALUE_REMINDER, "").replace(";;", ";");
-      
-      if(current.endsWith(";")) {
-        current = current.substring(0,current.length()-1);
-      }
-      
-      values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current);
-      values.put(TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER, 1);
+      values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, false);
+      values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, false);
+      values.put(TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER, true);
       
       if(menuView != null) {
-        if(current.trim().length() == 0) {
+        markedColumns.remove(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
+        markedColumns.remove(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
+        
+        if(markedColumns.isEmpty()) {
           menuView.setBackgroundResource(android.R.drawable.list_selector_background);  
         }
         else {
-          handleMarkings(activity, null, menuView, current);
+          handleMarkings(activity, null, menuView, IOUtils.getStringArrayFromList(markedColumns));
         }
       }
       
@@ -1127,30 +1137,38 @@ public class UiUtils {
     
   }
   
-  public static void handleMarkings(Context activity, Cursor cursor, View view, String markingValues) {
+  public static void handleMarkings(Context activity, Cursor cursor, View view, String[] markingValues) {
     handleMarkings(activity, cursor, view, markingValues, null, false);
   }
   
-  public static void handleMarkings(Context context, Cursor cursor, View view, String markingValues, Handler handler, boolean vertical) {
+  public static void handleMarkings(Context context, Cursor cursor, View view, String[] markingValues, Handler handler, boolean vertical) {
     long startTime = cursor != null ? cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) : 0;
     long endTime = cursor != null ? cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) : 0;
     
     handleMarkings(context, cursor, startTime, endTime, view, markingValues,handler,vertical);
   }
   
-  public static void handleMarkings(Context context, Cursor cursor, long startTime, long endTime, View view, String markingValues) {
+  public static void handleMarkings(Context context, Cursor cursor, long startTime, long endTime, View view, String[] markingValues) {
     handleMarkings(context, cursor, startTime, endTime, view, markingValues, null);
   }
   
-  public static void handleMarkings(Context context, Cursor cursor, long startTime, long endTime, final View view, String markingValues, Handler handler) {
+  public static void handleMarkings(Context context, Cursor cursor, long startTime, long endTime, final View view, String[] markingValues, Handler handler) {
     handleMarkings(context, cursor, startTime, endTime, view, markingValues, handler, false);
   }
   
-  public static void handleMarkings(Context context, Cursor cursor, long startTime, long endTime, final View view, String markingValues, Handler handler, boolean vertical) {
-    String value = markingValues;
-    
-    if(value == null && cursor != null && !cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
-      value = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
+  public static void handleMarkings(Context context, Cursor cursor, long startTime, long endTime, final View view, String[] markedColumns, Handler handler, boolean vertical) {
+    if(markedColumns == null && cursor != null) {
+      ArrayList<String> markedColumnList = new ArrayList<String>();
+      
+      for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
+        int index = cursor.getColumnIndex(column);
+        
+        if(index >= 0 && cursor.getInt(index) == 1) {
+          markedColumnList.add(column);
+        }
+      }
+      
+      markedColumns = IOUtils.getStringArrayFromList(markedColumnList);
     }
     
     Paint base = new Paint();
@@ -1175,18 +1193,14 @@ public class UiUtils {
       draw.add(running);
     }
     
-    if(value != null && value.trim().length() > 0) {
-      if(value.startsWith(";")) {
-        value = value.substring(1);
-      }
+    if(markedColumns != null && markedColumns.length > 0) {
+      Log.d("info4"," " + markedColumns.length);
       
-      String[] markings = value.split(";");
-      
-      if(markings.length > 1) {
-        int[] colors = new int[markings.length];
+      if(markedColumns.length > 1) {
+        int[] colors = new int[markedColumns.length];
         
-        for(int i = 0; i < markings.length; i++) {
-          Integer color = SettingConstants.MARK_COLOR_KEY_MAP.get(markings[i]);
+        for(int i = 0; i < markedColumns.length; i++) {Log.d("info4"," i " + i + " " + markedColumns[i]);
+          Integer color = SettingConstants.MARK_COLOR_KEY_MAP.get(markedColumns[i]);
           
           if(color != null) {
             colors[i] = getColor(color.intValue(), context);
@@ -1199,7 +1213,7 @@ public class UiUtils {
         draw.add(gd);
       }
       else {
-        Integer color = SettingConstants.MARK_COLOR_KEY_MAP.get(value);
+        Integer color = SettingConstants.MARK_COLOR_KEY_MAP.get(markedColumns[0]);
         
         if(color != null) {
           draw.add(new ColorDrawable(getColor(color.intValue(), context)));

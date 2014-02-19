@@ -58,6 +58,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
@@ -65,6 +66,7 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -157,6 +159,9 @@ public class TvDataUpdateService extends Service {
   
   private void syncFavorites() {
     if(mSyncFavorites != null) {
+      ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+      ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
+      
       for(String fav : mSyncFavorites) {
         if(fav != null && fav.contains(";") && fav.contains(":")) {
           String[] parts = fav.split(";");
@@ -186,42 +191,52 @@ public class TvDataUpdateService extends Service {
                 Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
                 
                 if(program.moveToFirst()) {
-                  String current = program.getString(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
+                  boolean markedAsFavorite = program.getInt(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE)) == 1;
                   
-                  boolean update = false;
-                  
-                  if(current == null || current.trim().length() == 0) {
-                    current = SettingConstants.MARK_VALUE_SYNC_FAVORITE;
-                    update = true;
-                  }
-                  else if(!current.contains(SettingConstants.MARK_VALUE_SYNC_FAVORITE)) {
-                    current += ";" + SettingConstants.MARK_VALUE_SYNC_FAVORITE;
-                    update = true;
-                  }
-                  
-                  if(update) {
+                  if(!markedAsFavorite) {
                     ContentValues values = new ContentValues();
-                    values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current);
+                    values.put(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, true);
                     
                     long programID = program.getLong(program.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                     
+                    ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID));
+                    opBuilder.withValues(values);
                     
-                    getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA,programID), values, null, null);
+                    updateValuesList.add(opBuilder.build());
                     
-                    Intent indent = new Intent(SettingConstants.MARKINGS_CHANGED);
-                    indent.putExtra(SettingConstants.MARKINGS_ID, programID);
-      
-                    LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(indent);
+                    Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
+                    intent.putExtra(SettingConstants.MARKINGS_ID, programID);
+                    
+                    markingIntentList.add(intent);
                   }
                 }
                 
                 program.close();
               }
+              
               channel.close();
             }
             
             group.close();
           }
+        }
+      }
+      
+      if(!updateValuesList.isEmpty()) {
+        try {
+          getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+          
+          LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(TvDataUpdateService.this);
+          
+          for(Intent markUpdate : markingIntentList) {
+            localBroadcast.sendBroadcast(markUpdate);
+          }
+        } catch (RemoteException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
+        } catch (OperationApplicationException e) {
+          // TODO Auto-generated catch block
+          e.printStackTrace();
         }
       }
     }
@@ -682,26 +697,25 @@ public class TvDataUpdateService extends Service {
     StringBuilder where = new StringBuilder();
     
     if(syncFav) {
-      where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES).append(" LIKE '%").append(SettingConstants.MARK_VALUE_FAVORITE).append("%' ) ") ;
+      where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE).append(" ) ");
     }
     if(syncMarkings) {
       if(where.length() > 0) {
         where.append(" OR ");
       }
       
-      where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES).append(" LIKE '%").append(SettingConstants.MARK_VALUE).append("%' ) ") ;
+      where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING).append(" ) ");
     }
     if(syncCalendar) {
       if(where.length() > 0) {
         where.append(" OR ");
       }
       
-      where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES).append(" LIKE '%").append(SettingConstants.MARK_VALUE_CALENDAR).append("%' ) ") ;
+      where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR).append(" ) ");
     }
     
     String[] projection = {
         TvBrowserContentProvider.DATA_KEY_STARTTIME,
-        TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,
         TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
         TvBrowserContentProvider.GROUP_KEY_GROUP_ID,
         TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY
@@ -739,11 +753,15 @@ public class TvDataUpdateService extends Service {
       groups.close();
       
       if(groupInfo.size() > 0) {
+        int startTimeColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+        int groupKeyColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+        int channelKeyBaseCountryColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY);
+        
         while(programs.moveToNext()) {
-          int groupID = programs.getInt(3);
-          long startTime = programs.getLong(0) / 60000;
-          String channelID = programs.getString(2);
-          String baseCountry = programs.getString(4);
+          int groupID = programs.getInt(groupKeyColumnIndex);
+          long startTime = programs.getLong(startTimeColumnIndex) / 60000;
+          String channelID = programs.getString(1);
+          String baseCountry = programs.getString(channelKeyBaseCountryColumnIndex);
           
           SimpleGroupInfo info = groupInfo.get(groupID);
           

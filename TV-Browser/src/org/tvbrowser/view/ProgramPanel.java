@@ -80,7 +80,7 @@ public class ProgramPanel extends View {
   }
   
   public void setInfoString(String value) {
-    if(value != null) {
+    if(value != null && value.trim().length() > 0) {
       Object[] result = getBreakerText(value, getTextWidth() - mStartTimeBounds.width() - ProgramTableLayoutConstants.TIME_TITLE_GAP, ProgramTableLayoutConstants.NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT);
       
       mInfoString = result[0].toString();

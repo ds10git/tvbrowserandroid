@@ -184,12 +184,12 @@ public class SettingConstants {
   
   public static final String MARKINGS_ID = "MARKINGS_ID";
   public static final String FAVORITE_LIST = "FAVORITE_LIST";
-  public static final String MARK_VALUE = "marked";
+  /*public static final String MARK_VALUE = "marked";
   public static final String MARK_VALUE_FAVORITE = "favorite";
   public static final String MARK_VALUE_CALENDAR = "calendar";
   public static final String MARK_VALUE_SYNC_FAVORITE = "syncfav";
   public static final String MARK_VALUE_REMINDER = "reminder";
-
+*/
   
   /*AlarmManager alarmManager = (AlarmManager) getActivity().getApplicationContext().getSystemService(Context.ALARM_SERVICE);
   
@@ -231,11 +231,12 @@ public class SettingConstants {
   public static final int EXPIRED_DARK_COLOR = Color.rgb(GRAY_DARK_VALUE, GRAY_DARK_VALUE, GRAY_DARK_VALUE);
   
   static {
-    MARK_COLOR_KEY_MAP.put(MARK_VALUE, UiUtils.MARKED_COLOR_KEY);
-    MARK_COLOR_KEY_MAP.put(MARK_VALUE_CALENDAR, UiUtils.MARKED_REMINDER_COLOR_KEY);
-    MARK_COLOR_KEY_MAP.put(MARK_VALUE_REMINDER, UiUtils.MARKED_REMINDER_COLOR_KEY);
-    MARK_COLOR_KEY_MAP.put(MARK_VALUE_FAVORITE, UiUtils.MARKED_FAVORITE_COLOR_KEY);
-    MARK_COLOR_KEY_MAP.put(MARK_VALUE_SYNC_FAVORITE, UiUtils.MARKED_SYNC_COLOR_KEY);
+    MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, UiUtils.MARKED_COLOR_KEY);
+    MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR, UiUtils.MARKED_REMINDER_COLOR_KEY);
+    MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, UiUtils.MARKED_REMINDER_COLOR_KEY);
+    MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE, UiUtils.MARKED_FAVORITE_COLOR_KEY);
+    MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, UiUtils.MARKED_REMINDER_COLOR_KEY);
+    MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, UiUtils.MARKED_SYNC_COLOR_KEY);
     
     SHORT_CHANNEL_NAMES.put("NDR Niedersachsen", "NDR NDS");
     SHORT_CHANNEL_NAMES.put("NDR Mecklenburg-Vorpommern", "NDR MV");

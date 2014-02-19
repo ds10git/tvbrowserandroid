@@ -20,6 +20,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -87,7 +88,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private ArrayList<ChannelProgramBlock> mProgramBlockList;
   private ArrayList<ChannelProgramBlock> mCurrentViewList;
   
-  private LongSparseArray<String> mMarkingsMap;
+  private LongSparseArray<String[]> mMarkingsMap;
   
   private long mCurrentTime;
   
@@ -169,22 +170,22 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
                 
                 if(holder.mPrevious.getVisibility() == View.VISIBLE) {
                   if(holder.mPreviousStartTimeValue <= System.currentTimeMillis()) {
-                    String markingValues = mMarkingsMap.get(holder.mPreviousProgramID);
+                    String[] markedColumns = mMarkingsMap.get(holder.mPreviousProgramID);
                     
-                    UiUtils.handleMarkings(getActivity(), null, holder.mPreviousStartTimeValue, holder.mPreviousEndTimeValue, holder.mPrevious, markingValues, handler);
+                    UiUtils.handleMarkings(getActivity(), null, holder.mPreviousStartTimeValue, holder.mPreviousEndTimeValue, holder.mPrevious, markedColumns, handler);
                   }
                 }
                 
                 if(holder.mNowStartTimeValue <= System.currentTimeMillis()) {
-                  String markingValues = mMarkingsMap.get(holder.mNowProgramID);
+                  String[] markedColumns = mMarkingsMap.get(holder.mNowProgramID);
                   
-                  UiUtils.handleMarkings(getActivity(), null, holder.mNowStartTimeValue, holder.mNowEndTimeValue, holder.mNow, markingValues, handler);
+                  UiUtils.handleMarkings(getActivity(), null, holder.mNowStartTimeValue, holder.mNowEndTimeValue, holder.mNow, markedColumns, handler);
                 }
 
                 if(holder.mNextStartTimeValue <= System.currentTimeMillis()) {
-                  String markingValues = mMarkingsMap.get(holder.mNextProgramID);
+                  String[] markedColumns = mMarkingsMap.get(holder.mNextProgramID);
                   
-                  UiUtils.handleMarkings(getActivity(), null, holder.mNextStartTimeValue, holder.mNextEndTimeValue, holder.mNext, markingValues, handler);
+                  UiUtils.handleMarkings(getActivity(), null, holder.mNextStartTimeValue, holder.mNextEndTimeValue, holder.mNext, markedColumns, handler);
                 }
               }
             }
@@ -210,22 +211,31 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
             long programID = intent.getLongExtra(SettingConstants.MARKINGS_ID, -1);
             
             if(mMarkingsMap.indexOfKey(programID) >= 0) {
-              Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, TvBrowserContentProvider.DATA_KEY_STARTTIME, TvBrowserContentProvider.DATA_KEY_ENDTIME}, null, null, null);
+              String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
+              
+              Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), projection, null, null, null);
               
               if(c.moveToFirst()) {
-                final String newMarkingValues = c.getString(0);
-                final long startTime = c.getLong(1);
-                final long endTime = c.getLong(2);
-                
-                mMarkingsMap.put(programID, newMarkingValues);
-                
                 final View view = getListView().findViewWithTag(programID);
                 
                 if(view != null) {
-                  UiUtils.handleMarkings(getActivity(), null, startTime, endTime, view, newMarkingValues, handler);
+                  long startTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+                  long endTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+                  
+                  ArrayList<String> markedColumns = new ArrayList<String>();
+                  
+                  for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
+                    int index = c.getColumnIndex(column);
+                    
+                    if(index >= 0 && c.getInt(index) == 1) {
+                      markedColumns.add(column);
+                    }
+                  }
+                  
+                  UiUtils.handleMarkings(getActivity(), null, startTime, endTime, view, IOUtils.getStringArrayFromList(markedColumns), handler);
                 }
               }
-              
+                            
               c.close();
             }
           }
@@ -607,7 +617,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         episodeView.setText(episode);
         episodeView.setVisibility(View.VISIBLE);
       }
-      Log.d("info", " info " + showInfo + " " + infos);
+      
       if(!showInfo || infos == null || infos.trim().length() == 0) {
         infoView.setVisibility(View.GONE);
       }
@@ -677,9 +687,9 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       layout.setTag(Long.valueOf(programID));
       layout.setOnClickListener(mOnClickListener);
       
-      final String markingsValue = mMarkingsMap.get(programID);
+      final String[] markingsValue = mMarkingsMap.get(programID);
       
-      if(startTime <= System.currentTimeMillis() || (markingsValue != null && markingsValue.trim().length() > 0)) {
+      if(startTime <= System.currentTimeMillis() || (markingsValue != null && markingsValue.length > 0)) {
         final long startTime1 = startTime;
         final long endTime1 = endTime;
         final View layout1 = layout;
@@ -803,7 +813,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       mDayStart = -1;
     }
         
-    mMarkingsMap = new LongSparseArray<String>();
+    mMarkingsMap = new LongSparseArray<String[]>();
     
     mOnClickListener = new View.OnClickListener() {
       @Override
@@ -927,22 +937,11 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
 
   @Override
   public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    String[] projection = null;
+    String[] projection = new String[13 + TvBrowserContentProvider.MARKING_COLUMNS.length];
     
-    //showPicture = PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default);
-    //showGenre = PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_LISTS, R.bool.show_genre_in_lists_default);
     showEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_RUNNING_LIST, R.bool.show_episode_in_running_list_default);
     showInfo = PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_RUNNING_LIST, R.bool.show_info_in_running_list_default);
     mShowOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_RUNNING_LIST, R.bool.show_sort_number_in_running_list_default);
-    
-    /*if(showPicture) {
-      projection = new String[15];
-      
-      projection[14] = TvBrowserContentProvider.DATA_KEY_PICTURE;
-    }
-    else {*/
-      projection = new String[14];
-    //}
     
     projection[0] = TvBrowserContentProvider.KEY_ID;
     projection[1] = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID;
@@ -950,14 +949,19 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
     projection[3] = TvBrowserContentProvider.DATA_KEY_ENDTIME;
     projection[4] = TvBrowserContentProvider.DATA_KEY_TITLE;
     projection[5] = TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION;
-    projection[6] = TvBrowserContentProvider.DATA_KEY_MARKING_VALUES;
-    projection[7] = TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER;
-    projection[8] = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE;
-    projection[9] = TvBrowserContentProvider.DATA_KEY_GENRE;
-    projection[10] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
-    projection[11] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
-    projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
-    projection[13] = TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
+    projection[6] = TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER;
+    projection[7] = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE;
+    projection[8] = TvBrowserContentProvider.DATA_KEY_GENRE;
+    projection[9] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
+    projection[10] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
+    projection[11] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
+    projection[12] = TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
+    
+    int startIndex = 13;
+
+    for(int i = startIndex ; i < (startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length); i++) {
+      projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
+    }
     
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.MINUTE, 0);
@@ -1050,7 +1054,7 @@ Log.d("info", "" + new Date(mCurrentTime));
       mIsComplete = false;
     }
   }
-
+  
   @Override
   public synchronized void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, final Cursor c) {
     SparseArray<ChannelProgramBlock> channelProgramMap = new SparseArray<ChannelProgramBlock>();
@@ -1074,7 +1078,15 @@ Log.d("info", "" + new Date(mCurrentTime));
     int channelOrderColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
     int dontWantToSeeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE);
     
-    int markingColumn =  c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES);
+    HashMap<String, Integer> markingColumnsMap = new HashMap<String, Integer>();
+    
+    for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
+      int index = c.getColumnIndex(column);
+      
+      if(index >= 0) {
+        markingColumnsMap.put(column, Integer.valueOf(index));
+      }
+    }
     
     if(c.getCount() > 0) {
       try {
@@ -1082,6 +1094,7 @@ Log.d("info", "" + new Date(mCurrentTime));
           int channelID = c.getInt(mChannelIDColumn);
           
           ChannelProgramBlock block = channelProgramMap.get(channelID);
+          ArrayList<String> markedColumsList = new ArrayList<String>();
           
           if(block == null) {
             block = new ChannelProgramBlock();
@@ -1096,7 +1109,14 @@ Log.d("info", "" + new Date(mCurrentTime));
             long programID = c.getLong(mProgramIDColumn);
             String title = c.getString(mTitleColumn);
             String episode = c.getString(mEpsiodeColumn);
-            String markingValue = c.getString(markingColumn);
+            
+            for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
+              Integer value = markingColumnsMap.get(column);
+              
+              if(value != null && c.getInt(value.intValue()) == 1) {
+                markedColumsList.add(column);
+              }
+            }
             
             String channelName = c.getString(mChannelNameColumn);
             int channelOrderNumber = c.getInt(channelOrderColumn);
@@ -1105,21 +1125,10 @@ Log.d("info", "" + new Date(mCurrentTime));
             String category = null;
             String pictureCopyright = null;
             byte[] picture = null;
-    
-            /*if(!mIsCompactLayout) {
-              if(showGenre) {
-                genre = c.getString(mGenreColumn);
-              }
-              */
+            
             if(showInfo) {
               category = IOUtils.getInfoString(c.getInt(mCategoryColumn), getResources());
             }
-              
-       /*       if(showPicture && mPictureColumn > -1) {
-                pictureCopyright = c.getString(mPictureCopyrightColumn);
-                picture = c.getBlob(mPictureColumn);
-              }
-            }*/
                         
             if(c.getInt(dontWantToSeeColumn) == 0) {
               block.mChannelID = channelID;
@@ -1177,7 +1186,9 @@ Log.d("info", "" + new Date(mCurrentTime));
                 }
               }
               
-              mMarkingsMap.put(programID, markingValue);
+              mMarkingsMap.put(programID, IOUtils.getStringArrayFromList(markedColumsList));
+              markedColumsList.clear();
+              markedColumsList = null;
             }
           }
         }
