@@ -25,6 +25,7 @@ import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -64,6 +65,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   private BroadcastReceiver mDataUpdateReceiver;
   private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mDontWantToSeeReceiver;
+  private BroadcastReceiver mMarkingsChangedReceiver;
   
   private boolean mDontUpdate;
   private int mScrollPos;
@@ -114,11 +116,36 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
         startUpdateThread();
       }
     };
+    
+   /* mMarkingsChangedReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        if(getActivity() != null && !isDetached()) {
+          long programID = intent.getLongExtra(SettingConstants.MARKINGS_ID, -1);
+          
+          View view = getListView().findViewWithTag(programID);
+          
+          if(view != null) {
+            String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
+                        
+            Cursor cursor = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), projection, null, null, null);
+            
+            if(cursor.getCount() > 0) {
+              cursor.moveToFirst();
+              
+              UiUtils.handleMarkings(getActivity(), cursor, view, null, null, true);
+              cursor.close();
+            }
+          }
+        }
+      }
+    };*/
 
     IntentFilter intent = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, intent);
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
+  //  LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMarkingsChangedReceiver, new IntentFilter(SettingConstants.MARKINGS_CHANGED));
     
     mKeepRunning = true;
   }
@@ -138,6 +165,9 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     if(mDontWantToSeeReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDontWantToSeeReceiver);
     }
+    if(mMarkingsChangedReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMarkingsChangedReceiver);
+    }
   }
   
   public void setDay(long dayStart) {
@@ -156,16 +186,17 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   public void setMarkFilter(int pos) {
     switch(pos) {
       case 0: mFilterClause = "";;break;
-      case 1: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_FAVORITE + "%' ) ";break;
-      case 2: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE + "%' ) ";break;
+      case 1: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE + " ) ";break;
+      case 2: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_MARKING + " ) ";break;
       case 3: 
         if(Build.VERSION.SDK_INT >= 14) {
-          mFilterClause = " AND ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_CALENDAR + "%' ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_REMINDER + "%' ) ) "; 
+          mFilterClause = " AND ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER + " ) ) ";
         }
         else {
-          mFilterClause = " AND " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_REMINDER + "%'"; break;
-        }break;
-      case 4: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_SYNC_FAVORITE + "%' ) ";break;
+          mFilterClause = " AND ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER + " ) ) ";
+        }
+        break;
+      case 4: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_SYNC + " ) ";break;
       case 5: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";break;
     }
     
@@ -339,12 +370,12 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     String[] projection = null;
     
     if(PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default)) {
-      projection = new String[16];
+      projection = new String[15 + TvBrowserContentProvider.MARKING_COLUMNS.length];
       
-      projection[15] = TvBrowserContentProvider.DATA_KEY_PICTURE;
+      projection[projection.length-1] = TvBrowserContentProvider.DATA_KEY_PICTURE;
     }
     else {
-      projection = new String[15];
+      projection = new String[14 + TvBrowserContentProvider.MARKING_COLUMNS.length];
     }
     
     projection[0] = TvBrowserContentProvider.KEY_ID;
@@ -353,15 +384,20 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     projection[3] = TvBrowserContentProvider.DATA_KEY_ENDTIME;
     projection[4] = TvBrowserContentProvider.DATA_KEY_TITLE;
     projection[5] = TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION;
-    projection[6] = TvBrowserContentProvider.DATA_KEY_MARKING_VALUES;
-    projection[7] = TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER;
-    projection[8] = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE;
-    projection[9] = TvBrowserContentProvider.DATA_KEY_GENRE;
-    projection[10] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
-    projection[11] = TvBrowserContentProvider.DATA_KEY_UNIX_DATE;
-    projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
-    projection[13] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
-    projection[14] = TvBrowserContentProvider.CHANNEL_KEY_LOGO;
+    projection[6] = TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER;
+    projection[7] = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE;
+    projection[8] = TvBrowserContentProvider.DATA_KEY_GENRE;
+    projection[9] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
+    projection[10] = TvBrowserContentProvider.DATA_KEY_UNIX_DATE;
+    projection[11] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
+    projection[12] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
+    projection[13] = TvBrowserContentProvider.CHANNEL_KEY_LOGO;
+    
+    int startIndex = 14;
+
+    for(int i = startIndex ; i < (startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length); i++) {
+      projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
+    }
     
     long time = System.currentTimeMillis();
     

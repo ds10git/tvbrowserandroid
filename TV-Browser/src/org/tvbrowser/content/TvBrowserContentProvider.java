@@ -18,6 +18,9 @@ package org.tvbrowser.content;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Set;
+
+import org.tvbrowser.settings.SettingConstants;
 
 import android.app.SearchManager;
 import android.content.ContentProvider;
@@ -154,9 +157,14 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_SERIES = "series";
   public static final String DATA_KEY_UNIX_DATE = "unixDate";
   public static final String DATA_KEY_DATE_PROG_ID = "dateProgID";
-  public static final String DATA_KEY_MARKING_VALUES = "markingValues";
   public static final String DATA_KEY_DONT_WANT_TO_SEE = "dontWantToSee";
   public static final String DATA_KEY_REMOVED_REMINDER = "removedReminder";
+  public static final String DATA_KEY_MARKING_MARKING = "markingMarking";
+  public static final String DATA_KEY_MARKING_FAVORITE = "markingFavorite";
+  public static final String DATA_KEY_MARKING_FAVORITE_REMINDER = "markingFavoriteReminder";
+  public static final String DATA_KEY_MARKING_REMINDER = "markingReminder";
+  public static final String DATA_KEY_MARKING_CALENDAR = "markingCalendar";
+  public static final String DATA_KEY_MARKING_SYNC = "markingSync";
   
   // Column names for data version table
   public static final String VERSION_KEY_DAYS_SINCE_1970 = "daysSince1970";
@@ -165,6 +173,15 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String VERSION_KEY_MORE1600_VERSION = "more1600Version";
   public static final String VERSION_KEY_PICTURE0016_VERSION = "picture0016Version";
   public static final String VERSION_KEY_PICTURE1600_VERSION = "picture1600Version";
+  
+  public static final String[] MARKING_COLUMNS = {
+    DATA_KEY_MARKING_MARKING,
+    DATA_KEY_MARKING_FAVORITE,
+    DATA_KEY_MARKING_FAVORITE_REMINDER,
+    DATA_KEY_MARKING_REMINDER,
+    DATA_KEY_MARKING_CALENDAR,
+    DATA_KEY_MARKING_SYNC
+  };
   
   static {
     SEARCH_PROJECTION_MAP = new HashMap<String, String>();
@@ -199,6 +216,15 @@ public class TvBrowserContentProvider extends ContentProvider {
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataversion", DATA_VERSION);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataversion/#", DATA_VERSION_ID);
   }
+  
+  public static final String[] getColumnArrayWithMarkingColums(String... columns) {
+    String[] projection = new String[columns.length + TvBrowserContentProvider.MARKING_COLUMNS.length];
+    
+    System.arraycopy(TvBrowserContentProvider.MARKING_COLUMNS, 0, projection, 0, TvBrowserContentProvider.MARKING_COLUMNS.length);
+    System.arraycopy(columns, 0, projection, TvBrowserContentProvider.MARKING_COLUMNS.length, columns.length);
+    
+    return projection;
+ }
 
   @Override
   public int delete(Uri uri, String where, String[] whereArgs) {
@@ -298,19 +324,41 @@ public class TvBrowserContentProvider extends ContentProvider {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     database.beginTransaction();
     
+    HashMap<Uri, Uri> updateUris = new HashMap<Uri, Uri>();
+    
     for(ContentProviderOperation op : operations) {
       Uri uri = op.getUri();
+      
       ContentValues values = op.resolveValueBackReferences(null, 0);
       
       String segment = uri.getPathSegments().get(1);
       
       int count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, KEY_ID + "=" + segment, null);
       
+      if(count > 0) {
+        updateUris.put(uri, uri);
+      }
+      
       result.add(new ContentProviderResult(count));
     }
     
     database.setTransactionSuccessful();
     database.endTransaction();
+    
+    Set<Uri> uris = updateUris.keySet();
+    
+    if(INFORM_FOR_CHANGES) {
+      for(Uri uri : uris) {
+        getContext().getContentResolver().notifyChange(uri, null);
+        
+        switch (uriMatcher.match(uri)) {
+          case DATA: getContext().getContentResolver().notifyChange(uri, null);break;
+          case DATA_ID: String segment = uri.getPathSegments().get(1);
+          getContext().getContentResolver().notifyChange(ContentUris.withAppendedId(CONTENT_URI_DATA_WITH_CHANNEL,Integer.parseInt(segment)),null);
+            break;
+        }
+      }
+    }
     
     return result.toArray(new ContentProviderResult[result.size()]);
   }
@@ -596,6 +644,13 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     if(INFORM_FOR_CHANGES) {
       c.setNotificationUri(getContext().getContentResolver(), uri);
+      
+      switch (uriMatcher.match(uri)) {
+        case DATA: c.setNotificationUri(getContext().getContentResolver(), CONTENT_URI_DATA_WITH_CHANNEL);break;
+        case DATA_ID: String segment = uri.getPathSegments().get(1);
+          c.setNotificationUri(getContext().getContentResolver(), ContentUris.withAppendedId(CONTENT_URI_DATA_WITH_CHANNEL,Integer.parseInt(segment)));
+          break;
+      }
     }
     
     return c;
@@ -735,9 +790,15 @@ public class TvBrowserContentProvider extends ContentProvider {
         + DATA_KEY_SERIES + " TEXT, "
         + DATA_KEY_UNIX_DATE + " INTEGER, "
         + DATA_KEY_DATE_PROG_ID + " INTEGER, "
-        + DATA_KEY_MARKING_VALUES + " TEXT, "
         + DATA_KEY_DONT_WANT_TO_SEE + " INTEGER DEFAULT 0, "
-        + DATA_KEY_REMOVED_REMINDER	+ " INTEGER DEFAULT 0);";
+        + DATA_KEY_REMOVED_REMINDER	+ " INTEGER DEFAULT 0, "
+        + DATA_KEY_MARKING_MARKING + " INTEGER DEFAULT 0, "
+        + DATA_KEY_MARKING_FAVORITE + " INTEGER DEFAULT 0, "
+        + DATA_KEY_MARKING_FAVORITE_REMINDER + " INTEGER DEFAULT 0, "
+        + DATA_KEY_MARKING_REMINDER + " INTEGER DEFAULT 0, "
+        + DATA_KEY_MARKING_CALENDAR + " INTEGER DEFAULT 0, "
+        + DATA_KEY_MARKING_SYNC + " INTEGER DEFAULT 0"
+        + ");";
     
     private static final String CREATE_VERSION_TABLE = "create table " + VERSION_TABLE + " (" + KEY_ID + " integer primary key autoincrement, "
         + CHANNEL_KEY_CHANNEL_ID + " INTEGER REFERENCES " + CHANNEL_TABLE + "(" + KEY_ID + ") NOT NULL, "
@@ -761,10 +822,11 @@ public class TvBrowserContentProvider extends ContentProvider {
       db.execSQL(CREATE_VERSION_TABLE);
     }
 
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
     
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+      Log.d("info4", "oldVersion " + oldVersion + " newVersion " + newVersion);
       if(oldVersion == 1 && newVersion > 1) {
         boolean logoFound = false;
         
@@ -820,6 +882,161 @@ public class TvBrowserContentProvider extends ContentProvider {
         
         if(!removedReminderColumnFound) {
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_REMOVED_REMINDER + " INTEGER DEFAULT 0");
+        }
+      }
+      
+      if(oldVersion < 6) {
+        final String DATA_KEY_MARKING_VALUES = "markingValues";
+        
+        Cursor c = db.rawQuery("PRAGMA table_info(" + DATA_TABLE + ")", null);
+        
+        boolean oldMarkingColumnFound = false;
+        
+        while(c.moveToNext()) {
+          if(c.getString(c.getColumnIndex("name")).equals(DATA_KEY_MARKING_VALUES)) {
+            oldMarkingColumnFound = true;
+            break;
+          }
+        }
+        
+        if(oldMarkingColumnFound) {
+          Log.d("info4", "OLD MARKING COLUMN FOUND");
+          db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_MARKING + " INTEGER DEFAULT 0");
+          db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_FAVORITE + " INTEGER DEFAULT 0");
+          db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_FAVORITE_REMINDER + " INTEGER DEFAULT 0");
+          db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_REMINDER + " INTEGER DEFAULT 0");
+          db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_CALENDAR + " INTEGER DEFAULT 0");
+          db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_SYNC + " INTEGER DEFAULT 0");
+          
+          Cursor markings = db.query(DATA_TABLE, new String[] {KEY_ID,DATA_KEY_MARKING_VALUES}, "ifnull("+DATA_KEY_MARKING_VALUES+", '') != ''", null, null, null, KEY_ID);
+          
+          if(markings.getCount() > 0) {
+            markings.moveToFirst();
+            
+            ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+            
+            do {
+              long id = markings.getLong(0);
+              String markingValue = markings.getString(1);
+              
+              ContentValues values = new ContentValues();
+              
+              final String MARK_VALUE = "marked";
+              final String MARK_VALUE_FAVORITE = "favorite";
+              final String MARK_VALUE_CALENDAR = "calendar";
+              final String MARK_VALUE_SYNC_FAVORITE = "syncfav";
+              final String MARK_VALUE_REMINDER = "reminder";
+              
+              if(markingValue.contains(MARK_VALUE)) {
+                values.put(DATA_KEY_MARKING_MARKING, true);
+              }
+              if(markingValue.contains(MARK_VALUE_FAVORITE)) {
+                values.put(DATA_KEY_MARKING_FAVORITE, true);
+              }
+              if(markingValue.contains(MARK_VALUE_REMINDER)) {
+                values.put(DATA_KEY_MARKING_REMINDER, true);
+              }
+              if(markingValue.contains(MARK_VALUE_CALENDAR)) {
+                values.put(DATA_KEY_MARKING_CALENDAR, true);
+              }
+              if(markingValue.contains(MARK_VALUE_SYNC_FAVORITE)) {
+                values.put(DATA_KEY_MARKING_SYNC, true);
+              }
+              
+              ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
+              opBuilder.withValues(values);
+              
+              updateValuesList.add(opBuilder.build());
+            }while(markings.moveToNext());
+            
+            if(!updateValuesList.isEmpty()) {
+              db.beginTransaction();
+              
+              for(ContentProviderOperation op : updateValuesList) {
+                Uri uri = op.getUri();
+                ContentValues values = op.resolveValueBackReferences(null, 0);
+                
+                String segment = uri.getPathSegments().get(1);
+                
+                db.update(TvBrowserDataBaseHelper.DATA_TABLE, values, KEY_ID + "=" + segment, null);
+              }
+              
+              db.setTransactionSuccessful();
+              db.endTransaction();
+            }
+          }
+          
+          Log.d("info4", "ALTER TABLE " + DATA_TABLE + " RENAME TO " + DATA_TABLE + "_old");
+          db.execSQL("ALTER TABLE " + DATA_TABLE + " RENAME TO " + DATA_TABLE + "_old");
+          Log.d("info4", CREATE_DATA_TABLE);
+          db.execSQL(CREATE_DATA_TABLE);
+          
+          StringBuilder columnsSeparated = new StringBuilder();
+          
+          columnsSeparated.append(KEY_ID).append(",");
+          columnsSeparated.append(CHANNEL_KEY_CHANNEL_ID).append(",");
+          columnsSeparated.append(DATA_KEY_STARTTIME).append(",");
+          columnsSeparated.append(DATA_KEY_ENDTIME).append(",");
+          columnsSeparated.append(DATA_KEY_TITLE).append(",");
+          columnsSeparated.append(DATA_KEY_TITLE_ORIGINAL).append(",");
+          columnsSeparated.append(DATA_KEY_EPISODE_TITLE).append(",");
+          columnsSeparated.append(DATA_KEY_EPISODE_TITLE_ORIGINAL).append(",");
+          columnsSeparated.append(DATA_KEY_SHORT_DESCRIPTION).append(",");
+          columnsSeparated.append(DATA_KEY_DESCRIPTION).append(",");
+          columnsSeparated.append(DATA_KEY_ACTORS).append(",");
+          columnsSeparated.append(DATA_KEY_REGIE).append(",");
+          columnsSeparated.append(DATA_KEY_CUSTOM_INFO).append(",");
+          columnsSeparated.append(DATA_KEY_CATEGORIES).append(",");
+          columnsSeparated.append(DATA_KEY_AGE_LIMIT).append(",");
+          columnsSeparated.append(DATA_KEY_WEBSITE_LINK).append(",");
+          columnsSeparated.append(DATA_KEY_GENRE).append(",");
+          columnsSeparated.append(DATA_KEY_ORIGIN).append(",");
+          columnsSeparated.append(DATA_KEY_NETTO_PLAY_TIME).append(",");
+          columnsSeparated.append(DATA_KEY_VPS).append(",");
+          columnsSeparated.append(DATA_KEY_SCRIPT).append(",");
+          columnsSeparated.append(DATA_KEY_REPETITION_FROM).append(",");
+          columnsSeparated.append(DATA_KEY_MUSIC).append(",");
+          columnsSeparated.append(DATA_KEY_MODERATION).append(",");
+          columnsSeparated.append(DATA_KEY_YEAR).append(",");
+          columnsSeparated.append(DATA_KEY_REPETITION_ON).append(",");
+          columnsSeparated.append(DATA_KEY_PICTURE).append(",");
+          columnsSeparated.append(DATA_KEY_PICTURE_COPYRIGHT).append(",");
+          columnsSeparated.append(DATA_KEY_PICTURE_DESCRIPTION).append(",");
+          columnsSeparated.append(DATA_KEY_EPISODE_NUMBER).append(",");
+          columnsSeparated.append(DATA_KEY_EPISODE_COUNT).append(",");
+          columnsSeparated.append(DATA_KEY_SEASON_NUMBER).append(",");
+          columnsSeparated.append(DATA_KEY_PRODUCER).append(",");
+          columnsSeparated.append(DATA_KEY_CAMERA).append(",");
+          columnsSeparated.append(DATA_KEY_CUT).append(",");
+          columnsSeparated.append(DATA_KEY_OTHER_PERSONS).append(",");
+          columnsSeparated.append(DATA_KEY_RATING).append(",");
+          columnsSeparated.append(DATA_KEY_PRODUCTION_FIRM).append(",");
+          columnsSeparated.append(DATA_KEY_AGE_LIMIT_STRING).append(",");
+          columnsSeparated.append(DATA_KEY_LAST_PRODUCTION_YEAR).append(",");
+          columnsSeparated.append(DATA_KEY_ADDITIONAL_INFO).append(",");
+          columnsSeparated.append(DATA_KEY_SERIES).append(",");
+          columnsSeparated.append(DATA_KEY_UNIX_DATE).append(",");
+          columnsSeparated.append(DATA_KEY_DATE_PROG_ID).append(",");
+          columnsSeparated.append(DATA_KEY_DONT_WANT_TO_SEE).append(",");
+          columnsSeparated.append(DATA_KEY_REMOVED_REMINDER).append(",");
+          columnsSeparated.append(DATA_KEY_MARKING_MARKING).append(",");
+          columnsSeparated.append(DATA_KEY_MARKING_FAVORITE).append(",");
+          columnsSeparated.append(DATA_KEY_MARKING_FAVORITE_REMINDER).append(",");
+          columnsSeparated.append(DATA_KEY_MARKING_REMINDER).append(",");
+          columnsSeparated.append(DATA_KEY_MARKING_CALENDAR).append(",");
+          columnsSeparated.append(DATA_KEY_MARKING_SYNC);
+          
+          db.beginTransaction();
+          Log.d("info4", "INSERT INTO " + DATA_TABLE + "(" + columnsSeparated + ") SELECT "
+              + columnsSeparated + " FROM " + DATA_TABLE + "_old;");
+          db.execSQL("INSERT INTO " + DATA_TABLE + "(" + columnsSeparated + ") SELECT "
+              + columnsSeparated + " FROM " + DATA_TABLE + "_old;");
+          
+          db.setTransactionSuccessful();
+          db.endTransaction();
+          
+          Log.d("info4","DROP TABLE " + DATA_TABLE + "_old;");
+          db.execSQL("DROP TABLE " + DATA_TABLE + "_old;");
         }
       }
     }

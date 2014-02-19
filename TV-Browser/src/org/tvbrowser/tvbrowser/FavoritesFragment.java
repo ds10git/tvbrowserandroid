@@ -212,16 +212,16 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         mWhereClause = TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " ";
         
         switch (position) {
-          case 0: mWhereClause += TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE + "%'"; break;
+          case 0: mWhereClause += TvBrowserContentProvider.DATA_KEY_MARKING_MARKING; break;
           case 1: 
             if(Build.VERSION.SDK_INT >= 14) {
-              mWhereClause += " ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_CALENDAR + "%' ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_REMINDER + "%' ) ) "; 
+              mWhereClause += " ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER  + " ) ) ";
             }
             else {
-              mWhereClause += TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_REMINDER + "%'"; break;
+              mWhereClause +=  " ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER  + " ) ) ";
             }
             break;
-          case 2: mWhereClause += TvBrowserContentProvider.DATA_KEY_MARKING_VALUES + " LIKE '%" + SettingConstants.MARK_VALUE_SYNC_FAVORITE + "%'"; break;
+          case 2: mWhereClause += TvBrowserContentProvider.DATA_KEY_MARKING_SYNC; break;
           
           default: mWhereClause += TvBrowserContentProvider.DATA_KEY_STARTTIME + "=0 ";
         }
@@ -407,12 +407,12 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     String[] projection = null;
     
     if(PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default)) {
-      projection = new String[15];
+      projection = new String[14 + TvBrowserContentProvider.MARKING_COLUMNS.length];
       
-      projection[14] = TvBrowserContentProvider.DATA_KEY_PICTURE;
+      projection[projection.length-1] = TvBrowserContentProvider.DATA_KEY_PICTURE;
     }
     else {
-      projection = new String[14];
+      projection = new String[13 + TvBrowserContentProvider.MARKING_COLUMNS.length];
     }
     
     projection[0] = TvBrowserContentProvider.KEY_ID;
@@ -421,14 +421,19 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     projection[3] = TvBrowserContentProvider.DATA_KEY_ENDTIME;
     projection[4] = TvBrowserContentProvider.DATA_KEY_TITLE;
     projection[5] = TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION;
-    projection[6] = TvBrowserContentProvider.DATA_KEY_MARKING_VALUES;
-    projection[7] = TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER;
-    projection[8] = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE;
-    projection[9] = TvBrowserContentProvider.DATA_KEY_GENRE;
-    projection[10] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
-    projection[11] = TvBrowserContentProvider.DATA_KEY_UNIX_DATE;
-    projection[12] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
-    projection[13] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
+    projection[6] = TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER;
+    projection[7] = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE;
+    projection[8] = TvBrowserContentProvider.DATA_KEY_GENRE;
+    projection[9] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
+    projection[10] = TvBrowserContentProvider.DATA_KEY_UNIX_DATE;
+    projection[11] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
+    projection[12] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
+    
+    int startIndex = 13;
+
+    for(int i = startIndex ; i < (startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length); i++) {
+      projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
+    }
 
     String where = mWhereClause;
     

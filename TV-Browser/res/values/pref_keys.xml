@@ -148,7 +148,7 @@
     <item name="pref_sync_fav_to_desktop_default" type="bool" format="boolean">true</item>
     
     <string name="PREF_SYNC_REMINDERS_FROM_DESKTOP">PREF_SYNC_REMINDERS_FROM_DESKTOP</string>
-    <item name="pref_sync_reminders_from_desktop_default" type="bool" format="boolean">false</item>
+    <item name="pref_sync_reminders_from_desktop_default" type="bool" format="boolean">true</item>
     
     <string name="PREF_SYNC_REMINDERS_TO_DESKTOP">PREF_SYNC_REMINDERS_TO_DESKTOP</string>
     <item name="pref_sync_reminders_to_desktop_default" type="bool" format="boolean">true</item>

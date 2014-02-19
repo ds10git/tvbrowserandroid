@@ -218,8 +218,15 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
         int info = cursor.getInt(columnIndex);
         
         if(info != 0) {
-          view.setVisibility(View.VISIBLE);
-          ((TextView)view).setText(IOUtils.getInfoString(info,view.getResources()));
+          String text = IOUtils.getInfoString(info,view.getResources());
+          
+          if(text.trim().length() > 0) {
+            view.setVisibility(View.VISIBLE);
+            ((TextView)view).setText(text);
+          }
+          else {
+            view.setVisibility(View.GONE);
+          }
         }
         else {
           view.setVisibility(View.GONE);

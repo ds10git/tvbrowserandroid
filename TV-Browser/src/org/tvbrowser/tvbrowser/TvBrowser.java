@@ -693,7 +693,6 @@ public class TvBrowser extends FragmentActivity implements
   private byte[] getXmlBytes() {
     String[] projection = {
         TvBrowserContentProvider.DATA_KEY_STARTTIME,
-        TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,
         TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
         TvBrowserContentProvider.GROUP_KEY_GROUP_ID,
         TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY
@@ -701,7 +700,7 @@ public class TvBrowser extends FragmentActivity implements
     
     StringBuilder where = new StringBuilder();
     
-    where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES).append(" LIKE '%").append(SettingConstants.MARK_VALUE_REMINDER).append("%' ) ") ;
+    where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER).append(" OR ").append(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER).append(" ) ") ;
     
     Cursor programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
@@ -710,6 +709,10 @@ public class TvBrowser extends FragmentActivity implements
     SparseArray<SimpleGroupInfo> groupInfo = new SparseArray<SimpleGroupInfo>();
     
     if(programs.getCount() > 0) {
+      int startTimeColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      int groupKeyColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+      int channelKeyBaseCountryColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY);
+      
       String[] groupProjection = {
           TvBrowserContentProvider.KEY_ID,
           TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID,
@@ -736,10 +739,10 @@ public class TvBrowser extends FragmentActivity implements
       
       if(groupInfo.size() > 0) {
         while(programs.moveToNext()) {
-          int groupID = programs.getInt(3);
-          long startTime = programs.getLong(0) / 60000;
-          String channelID = programs.getString(2);
-          String baseCountry = programs.getString(4);
+          int groupID = programs.getInt(groupKeyColumnIndex);
+          long startTime = programs.getLong(startTimeColumnIndex) / 60000;
+          String channelID = programs.getString(1);
+          String baseCountry = programs.getString(channelKeyBaseCountryColumnIndex);
           
           SimpleGroupInfo info = groupInfo.get(groupID);
           
@@ -907,6 +910,9 @@ public class TvBrowser extends FragmentActivity implements
               
               String reminder = null;
               
+              ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+              ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
+              
               while((reminder = read.readLine()) != null) {
                 if(reminder != null && reminder.contains(";") && reminder.contains(":")) {
                   String[] parts = reminder.split(";");
@@ -936,44 +942,54 @@ public class TvBrowser extends FragmentActivity implements
                         Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
                         
                         if(program.moveToFirst()) {
-                          String current = program.getString(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
-                          
-                          boolean update = false;
-                          
-                          if(current == null || current.trim().length() == 0) {
-                            current = SettingConstants.MARK_VALUE_REMINDER;
-                            update = true;
-                          }
-                          else if(!current.contains(SettingConstants.MARK_VALUE_REMINDER)) {
-                            current += ";" + SettingConstants.MARK_VALUE_REMINDER;
-                            update = true;
-                          }
-                          
-                          if(update) {
+                          boolean marked = program.getInt(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER)) == 1;
+                                                    
+                          if(!marked) {
                             ContentValues values = new ContentValues();
-                            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, current);
+                            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, true);
                             
                             long programID = program.getLong(program.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                            
+                            ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID));
+                            opBuilder.withValues(values);
+                            
+                            updateValuesList.add(opBuilder.build());
+                            
+                            Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
+                            intent.putExtra(SettingConstants.MARKINGS_ID, programID);
+                            
+                            markingIntentList.add(intent);
                                                         
-                            getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA,programID), values, null, null);
-                            
-                            Intent indent = new Intent(SettingConstants.MARKINGS_CHANGED);
-                            indent.putExtra(SettingConstants.MARKINGS_ID, programID);
-                            
                             UiUtils.addReminder(TvBrowser.this, programID, time);
-              
-                            LocalBroadcastManager.getInstance(getApplication()).sendBroadcast(indent);
                           }
                         }
                         
                         program.close();
                       }
+                      
                       channel.close();
                     }
                     
                     group.close();
                   }
-                    
+                }
+              }
+              
+              if(!updateValuesList.isEmpty()) {
+                try {
+                  getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+                  
+                  LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(TvBrowser.this);
+                  
+                  for(Intent markUpdate : markingIntentList) {
+                    localBroadcast.sendBroadcast(markUpdate);
+                  }
+                } catch (RemoteException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
+                } catch (OperationApplicationException e) {
+                  // TODO Auto-generated catch block
+                  e.printStackTrace();
                 }
               }
             }

@@ -139,13 +139,11 @@ public class Favorite {
         TvBrowserContentProvider.DATA_KEY_ENDTIME,
         TvBrowserContentProvider.DATA_KEY_TITLE,
         TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
-        TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
         TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
         TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL,
-        TvBrowserContentProvider.DATA_KEY_GENRE,
-        TvBrowserContentProvider.DATA_KEY_MARKING_VALUES
+        TvBrowserContentProvider.DATA_KEY_GENRE
     };
     
     String where = favorite.getWhereClause();
@@ -158,7 +156,7 @@ public class Favorite {
     }
     
     where +=  " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
-    where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
+    where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE + " ) ";
     
     Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
@@ -170,30 +168,14 @@ public class Favorite {
       
       do {
         long id = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-        String marking = "";
-        
-        if(!cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
-          marking = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES));
-        }
-        
-        String[] parts = marking.split(";");
-        
-        StringBuilder newValue = new StringBuilder();
-        
-        for(String part : parts) {
-          if(!part.equalsIgnoreCase(SettingConstants.MARK_VALUE_FAVORITE) && !(favorite.mRemind && part.equalsIgnoreCase(SettingConstants.MARK_VALUE_REMINDER))) {
-            newValue.append(part);
-            newValue.append(";");
-          }
-        }
-        
-        if(newValue.length() > 0) {
-          newValue.deleteCharAt(newValue.length()-1);
-        }
           
         ContentValues values = new ContentValues();
         
-        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, newValue.toString());
+        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE, false);
+        
+        if(favorite.mRemind) {
+          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, false);
+        }
         
         ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
         opBuilder.withValues(values);
@@ -236,14 +218,15 @@ public class Favorite {
         TvBrowserContentProvider.DATA_KEY_STARTTIME,
         TvBrowserContentProvider.DATA_KEY_ENDTIME,
         TvBrowserContentProvider.DATA_KEY_TITLE,
+        TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER,
+        TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER,
+        TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER,
         TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
-        TvBrowserContentProvider.DATA_KEY_MARKING_VALUES,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
         TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
         TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL,
-        TvBrowserContentProvider.DATA_KEY_GENRE,
-        TvBrowserContentProvider.DATA_KEY_MARKING_VALUES
+        TvBrowserContentProvider.DATA_KEY_GENRE
     };
     
     String where = favorite.getWhereClause();
@@ -265,65 +248,45 @@ public class Favorite {
       
       int idColumn = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
       int startTimeColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-      int markColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES);
+      int reminderColumnFav = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
+      int reminderColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
+      int removedReminderColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER);
       
       ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
       ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
       
       do {
         long id = cursor.getLong(idColumn);
-        String marking = "";
+        long startTime = cursor.getLong(startTimeColumn);
         
-        if(!cursor.isNull(markColumn)) {
-          marking = cursor.getString(markColumn);
-        }
+        ContentValues values = new ContentValues();
         
-        if(!marking.contains(SettingConstants.MARK_VALUE_FAVORITE) || (favorite.mRemind && !marking.contains(SettingConstants.MARK_VALUE_REMINDER))
-            || (!favorite.mRemind && marking.contains(SettingConstants.MARK_VALUE_REMINDER))) {
-          if(!favorite.mRemind && marking.contains(SettingConstants.MARK_VALUE_REMINDER)) {
-            marking = marking.replace(SettingConstants.MARK_VALUE_REMINDER, "").replace(";;", ";");
-            
-            if(marking.endsWith(";")) {
-              marking = marking.substring(0,marking.length()-1);
-            }
-            
+        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE, true);
+        
+        if(cursor.getInt(reminderColumnFav) == 1 && !favorite.mRemind) {
+          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, false);
+          
+          if(cursor.getInt(reminderColumn) == 0) {
             UiUtils.removeReminder(context, id);
           }
-          
-          StringBuilder value = new StringBuilder();
-          value.append(marking.trim());
-          
-          if(!marking.contains(SettingConstants.MARK_VALUE_FAVORITE)) {
-            if(value.length() != 0) {
-              value.append(";");
-            }
-          
-            value.append(SettingConstants.MARK_VALUE_FAVORITE);
-          }
-          
-          if(favorite.mRemind && !marking.contains(SettingConstants.MARK_VALUE_REMINDER)) {
-            if(value.length() != 0) {
-              value.append(";");
-            }
-          
-            value.append(SettingConstants.MARK_VALUE_REMINDER);
-            UiUtils.addReminder(context, id, cursor.getLong(startTimeColumn));
-          }
-          
-          ContentValues values = new ContentValues();
-          
-          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES, value.toString());
-          
-          ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
-          opBuilder.withValues(values);
-          
-          updateValuesList.add(opBuilder.build());
-          
-          Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-          intent.putExtra(SettingConstants.MARKINGS_ID, id);
-          
-          markingIntentList.add(intent);
         }
+        
+        if(favorite.mRemind && cursor.getInt(removedReminderColumn) == 0) {
+          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, true);
+          
+          UiUtils.addReminder(context, id, startTime);
+        }
+        
+        ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
+        opBuilder.withValues(values);
+        
+        updateValuesList.add(opBuilder.build());
+        
+        Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
+        intent.putExtra(SettingConstants.MARKINGS_ID, id);
+        
+        markingIntentList.add(intent);
+          
       }while(cursor.moveToNext());
       
       if(!updateValuesList.isEmpty()) {
