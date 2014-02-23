@@ -521,7 +521,6 @@ public class UiUtils {
   public static boolean handleContextMenuSelection(final Context activity, MenuItem item, long programID, final View menuView) {
     Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE), null, null,null);
     
-  //  String current = null;
     String title = null;
     String episode = null;
     
@@ -537,10 +536,6 @@ public class UiUtils {
           markedColumns.add(column);
         }
       }
-      
-    /*  if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_VALUES))) {
-        current = info.getString(0);
-      }*/
       
       title = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
       
@@ -635,12 +630,21 @@ public class UiUtils {
         return true;
       }
       
-      for(String column : markedColumns) {
-        values.put(column, false);
+      for(int i = markedColumns.size() - 1; i >=0 ; i--) {
+        String column = markedColumns.get(i);
+        if(!column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) && !column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) {
+          values.put(column, false);
+          markedColumns.remove(column);
+        }
       }
       
       if(menuView != null) {
-        menuView.setBackgroundResource(android.R.drawable.list_selector_background);
+        if(markedColumns.isEmpty()) {
+          menuView.setBackgroundResource(android.R.drawable.list_selector_background);  
+        }
+        else {
+          handleMarkings(activity, null, menuView, IOUtils.getStringArrayFromList(markedColumns));
+        }
       }
     }
     else if(item.getItemId() == R.id.prog_create_calendar_entry) {

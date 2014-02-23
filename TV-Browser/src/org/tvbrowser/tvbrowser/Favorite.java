@@ -140,10 +140,10 @@ public class Favorite {
         TvBrowserContentProvider.DATA_KEY_TITLE,
         TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
-        TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
         TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL,
-        TvBrowserContentProvider.DATA_KEY_GENRE
+        TvBrowserContentProvider.DATA_KEY_GENRE,
+        TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER
     };
     
     String where = favorite.getWhereClause();
@@ -166,6 +166,8 @@ public class Favorite {
       ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
       ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
       
+      int reminderColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
+      
       do {
         long id = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
           
@@ -175,6 +177,10 @@ public class Favorite {
         
         if(favorite.mRemind) {
           values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, false);
+          
+          if(cursor.getInt(reminderColumnIndex) == 0) {
+            UiUtils.removeReminder(context, id);
+          }
         }
         
         ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
