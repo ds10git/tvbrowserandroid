@@ -39,7 +39,7 @@ public class UpdateAlarmValue extends BroadcastReceiver {
           long startTime = alarms.getLong(alarms.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
                     
           UiUtils.removeReminder(context, id);
-          UiUtils.addReminder(context, id, startTime);
+          UiUtils.addReminder(context, id, startTime, UpdateAlarmValue.class);
         }
         
         alarms.close();

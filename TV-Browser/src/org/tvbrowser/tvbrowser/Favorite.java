@@ -17,6 +17,9 @@
 package org.tvbrowser.tvbrowser;
 
 import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.Hashtable;
+import java.util.Set;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
@@ -30,7 +33,9 @@ import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.database.Cursor;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 public class Favorite {
   public static final String OLD_NAME_KEY = "OLD_NAME_KEY";
@@ -43,6 +48,26 @@ public class Favorite {
   private String mSearch;
   private boolean mOnlyTitle;
   private boolean mRemind;
+  
+  private final static String[] PROJECTION = {
+    TvBrowserContentProvider.KEY_ID,
+    TvBrowserContentProvider.DATA_KEY_UNIX_DATE,
+    TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
+    TvBrowserContentProvider.DATA_KEY_STARTTIME,
+    TvBrowserContentProvider.DATA_KEY_ENDTIME,
+    TvBrowserContentProvider.DATA_KEY_TITLE,
+    TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER,
+    TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER,
+    TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER,
+    TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
+    TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
+    TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
+    TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL,
+    TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL,
+    TvBrowserContentProvider.DATA_KEY_GENRE
+  };
+  
+  private static Hashtable<Long, boolean[]> DATA_REFRESH_TABLE = null;
   
   public Favorite(String name, String search, boolean onlyTitle, boolean remind) {
     setValues(name, search, onlyTitle, remind);
@@ -73,6 +98,10 @@ public class Favorite {
   
   public String toString() {
     return mName;
+  }
+  
+  public boolean isValid() {
+    return mSearch != null && mSearch.trim().length() > 0;
   }
   
   public String getWhereClause() {
@@ -170,28 +199,32 @@ public class Favorite {
       
       do {
         long id = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-          
-        ContentValues values = new ContentValues();
         
-        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE, false);
-        
-        if(favorite.mRemind) {
-          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, false);
+        boolean[] test = favoritesMatchesProgram(id, context, resolver, favorite);
+        Log.d("test", "" + test[0] + " " + test[1]);
+        if(!test[0]) {
+          ContentValues values = new ContentValues();
           
-          if(cursor.getInt(reminderColumnIndex) == 0) {
-            UiUtils.removeReminder(context, id);
+          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE, false);
+          
+          if(favorite.mRemind && !test[1]) {
+            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, false);
+            
+            if(cursor.getInt(reminderColumnIndex) == 0) {
+              UiUtils.removeReminder(context, id);
+            }
           }
+          
+          ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
+          opBuilder.withValues(values);
+          
+          updateValuesList.add(opBuilder.build());
+          
+          Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
+          intent.putExtra(SettingConstants.MARKINGS_ID, id);
+          
+          markingIntentList.add(intent);
         }
-        
-        ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
-        opBuilder.withValues(values);
-        
-        updateValuesList.add(opBuilder.build());
-        
-        Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-        intent.putExtra(SettingConstants.MARKINGS_ID, id);
-        
-        markingIntentList.add(intent);
       }while(cursor.moveToNext());
       
       if(!updateValuesList.isEmpty()) {
@@ -216,25 +249,74 @@ public class Favorite {
     cursor.close();
   }
   
-  public static void updateFavoriteMarking(Context context, ContentResolver resolver, Favorite favorite) {
-    String[] projection = {
-        TvBrowserContentProvider.KEY_ID,
-        TvBrowserContentProvider.DATA_KEY_UNIX_DATE,
-        TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
-        TvBrowserContentProvider.DATA_KEY_STARTTIME,
-        TvBrowserContentProvider.DATA_KEY_ENDTIME,
-        TvBrowserContentProvider.DATA_KEY_TITLE,
-        TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER,
-        TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER,
-        TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER,
-        TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
-        TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
-        TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
-        TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL,
-        TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL,
-        TvBrowserContentProvider.DATA_KEY_GENRE
-    };
+  public static boolean[] favoritesMatchesProgram(long programID, Context context, ContentResolver resolver, Favorite exclude) {
+    boolean[] returnValue = DATA_REFRESH_TABLE != null ? DATA_REFRESH_TABLE.get(Long.valueOf(programID)) : null;
     
+    if(returnValue == null) {
+      Set<String> favoritesSet = PreferenceManager.getDefaultSharedPreferences(context).getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
+      
+      boolean remindFor = false;
+      boolean matches = false;
+      
+      for(String favorite : favoritesSet) {
+        String[] values = favorite.split(";;");
+        
+        boolean remind = false;
+        
+        if(values.length > 3) {
+          remind = Boolean.valueOf(values[3]);
+        }
+        
+        Favorite fav = new Favorite(values[0], values[1], Boolean.valueOf(values[2]), remind);
+        
+        if(exclude == null || !fav.equals(exclude)) {
+          String where = fav.getWhereClause();
+          
+          if(where.trim().length() > 0) {
+            where += " AND ";
+          }
+          else {
+            where += " " + TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER;
+          }
+          
+          where += " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
+          where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
+          where += " AND " + TvBrowserContentProvider.KEY_ID + "=" + programID;
+          
+          Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, PROJECTION, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+          
+          if(cursor.getCount() > 0) {
+            matches = true;
+            
+            cursor.moveToFirst();
+            
+            remindFor = remindFor || cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) == 1;
+          }
+          
+          cursor.close();
+        }
+      }
+      
+      returnValue = new boolean[] {matches,remindFor};
+      
+      if(DATA_REFRESH_TABLE != null) {
+        DATA_REFRESH_TABLE.put(Long.valueOf(programID), returnValue);
+      }
+    }
+    
+    return returnValue;
+  }
+  
+  public static void handleDataUpdateStarted() {
+    DATA_REFRESH_TABLE = new Hashtable<Long, boolean[]>();
+  }
+  
+  public static void handleDataUpdateFinished() {
+    DATA_REFRESH_TABLE.clear();
+    DATA_REFRESH_TABLE = null;
+  }
+  
+  public static void updateFavoriteMarking(Context context, ContentResolver resolver, Favorite favorite) {
     String where = favorite.getWhereClause();
     
     if(where.trim().length() > 0) {
@@ -247,7 +329,7 @@ public class Favorite {
     where += " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
     where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
     
-    Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+    Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, PROJECTION, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
     if(cursor.getCount() > 0) {
       cursor.moveToFirst();
@@ -265,11 +347,13 @@ public class Favorite {
         long id = cursor.getLong(idColumn);
         long startTime = cursor.getLong(startTimeColumn);
         
+        boolean[] test = favoritesMatchesProgram(id, context, resolver, favorite);
+        
         ContentValues values = new ContentValues();
         
         values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE, true);
         
-        if(cursor.getInt(reminderColumnFav) == 1 && !favorite.mRemind) {
+        if(!test[1] && cursor.getInt(reminderColumnFav) == 1 && !favorite.mRemind) {
           values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, false);
           
           if(cursor.getInt(reminderColumn) == 0) {
@@ -280,7 +364,7 @@ public class Favorite {
         if(favorite.mRemind && cursor.getInt(removedReminderColumn) == 0) {
           values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, true);
           
-          UiUtils.addReminder(context, id, startTime);
+          UiUtils.addReminder(context, id, startTime, Favorite.class);
         }
         
         ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
@@ -292,7 +376,6 @@ public class Favorite {
         intent.putExtra(SettingConstants.MARKINGS_ID, id);
         
         markingIntentList.add(intent);
-          
       }while(cursor.moveToNext());
       
       if(!updateValuesList.isEmpty()) {

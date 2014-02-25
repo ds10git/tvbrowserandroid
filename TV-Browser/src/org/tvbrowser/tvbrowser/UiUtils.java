@@ -67,7 +67,9 @@ import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -79,6 +81,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -727,7 +730,7 @@ public class UiUtils {
         values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, true);
       }
       
-      addReminder(activity.getApplicationContext(),programID,0);
+      addReminder(activity.getApplicationContext(),programID,0,UiUtils.class);
     }
     else if(item.getItemId() == R.id.prog_remove_reminder) {
       if(!(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) || markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER))) {
@@ -1025,9 +1028,11 @@ public class UiUtils {
   }
   
   //TODO
-  public static void addReminder(Context context, long programID, long startTime) {try {
+  public static void addReminder(Context context, long programID, long startTime, Class<?> caller) {try {
+    Logging.log(ReminderBroadcastReceiver.tag, "addReminder called from: " + caller, Logging.REMINDER_TYPE, context);
+    
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-        
+    
     int reminderTime = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_REMINDER_TIME, R.string.pref_reminder_time_default)) * 60000;
     boolean remindAgain = PrefUtils.getBooleanValue(R.string.PREF_REMIND_AGAIN_AT_START, R.bool.pref_remind_again_at_start_default);
     
@@ -1255,6 +1260,8 @@ public class UiUtils {
       ((EditText)input.findViewById(R.id.favorite_search_value)).setText(searchString);
     }
     
+    final EditText searchValue = (EditText)input.findViewById(R.id.favorite_search_value);
+    
     builder.setView(input);
     
     builder.setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
@@ -1329,6 +1336,21 @@ public class UiUtils {
     
     AlertDialog dialog = builder.create();
     dialog.show();
+    
+    final Button positive = (Button)dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+    positive.setEnabled(searchValue.getText().toString().trim().length() > 0);
+    
+    searchValue.addTextChangedListener(new TextWatcher() {
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {}
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+      
+      @Override
+      public void afterTextChanged(Editable s) {
+        positive.setEnabled(searchValue.getText().toString().trim().length() > 0);
+      }
+    });
   }
   
   public static String formatDate(long date, Context context, boolean onlyDays) {

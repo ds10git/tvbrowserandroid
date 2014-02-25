@@ -1079,6 +1079,8 @@ public class TvDataUpdateService extends Service {
     edit.putLong(getString(R.string.LAST_DATA_UPDATE), System.currentTimeMillis());
     edit.commit();
     
+    Favorite.handleDataUpdateFinished();
+    
     IS_RUNNING = false;
     stopSelf();
   }
@@ -1162,6 +1164,8 @@ public class TvDataUpdateService extends Service {
     if(!IS_RUNNING) {
       mUnsuccessfulDownloads = 0;
       IS_RUNNING = true;
+      
+      Favorite.handleDataUpdateStarted();
       
       File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
       

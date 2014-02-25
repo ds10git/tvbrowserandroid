@@ -214,6 +214,46 @@ public class TvBrowser extends FragmentActivity implements
       SettingConstants.IS_DARK_THEME = false;
     }
     
+    try {
+      PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+      
+      int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
+      
+      if(oldVersion < 167) {
+        Set<String> favoritesSet = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
+        
+        HashSet<String> newFavorites = new HashSet<String>();
+        
+        for(String favorite : favoritesSet) {
+          String[] values = favorite.split(";;");
+          
+          boolean remind = false;
+          
+          if(values.length > 3) {
+            remind = Boolean.valueOf(values[3]);
+          }
+          
+          Favorite fav = new Favorite(values[0], values[1], Boolean.valueOf(values[2]), remind);
+          
+          if(fav.isValid()) {
+            newFavorites.add(favorite);
+          }
+          else {
+            Favorite.removeFavoriteMarking(TvBrowser.this, getContentResolver(), fav);
+          }
+        }
+        
+        Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+        edit.putStringSet(SettingConstants.FAVORITE_LIST, newFavorites);
+        edit.commit();
+      }
+      if(oldVersion !=  pInfo.versionCode) {
+        Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+        edit.putInt(getString(R.string.OLD_VERSION), pInfo.versionCode);
+        edit.commit();
+      }
+    } catch (NameNotFoundException e) {}
+    
     super.onCreate(savedInstanceState);
     
     SettingConstants.updateLogoMap(TvBrowser.this);
@@ -960,7 +1000,7 @@ public class TvBrowser extends FragmentActivity implements
                             
                             markingIntentList.add(intent);
                                                         
-                            UiUtils.addReminder(TvBrowser.this, programID, time);
+                            UiUtils.addReminder(TvBrowser.this, programID, time, TvBrowser.class);
                           }
                         }
                         
@@ -1059,13 +1099,13 @@ public class TvBrowser extends FragmentActivity implements
                   exclusionBuilder.append(line).append("\n");
                 }
               }
+
+              String key = getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES);
+              SharedPreferences pref1 = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
+              
+              Set<String> oldValues = pref1.getStringSet(key, null);
               
               if(exclusions.size() > 0) {
-                String key = getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES);
-                SharedPreferences pref1 = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
-                
-                Set<String> oldValues = pref1.getStringSet(key, null);
-                
                 if(!replace && oldValues != null) {
                   for(String old : oldValues) {
                     if(!exclusions.contains(old)) {
@@ -1111,8 +1151,6 @@ public class TvBrowser extends FragmentActivity implements
                   updateValuesList.add(opBuilder.build());
                 }
                 
-                notification.cancel(notifyID);
-                
                 c.close();
                 
                 if(!updateValuesList.isEmpty()) {
@@ -1139,6 +1177,14 @@ public class TvBrowser extends FragmentActivity implements
                 }
               }
               else {
+                if(!replace && oldValues != null && !oldValues.isEmpty()) {
+                  for(String old : oldValues) {
+                    exclusionBuilder.append(old).append("\n");
+                  }
+                  
+                  synchronizeUp(false, exclusionBuilder.toString(), "http://android.tvbrowser.org/data/scripts/syncUp.php?type=dontWantToSee");
+                }
+                
                 handler.post(new Runnable() {
                   @Override
                   public void run() {
@@ -1156,7 +1202,8 @@ public class TvBrowser extends FragmentActivity implements
               }
             });
           }
-  
+          
+          notification.cancel(notifyID);
           updateProgressIcon(false);
           
           SettingConstants.UPDATING_FILTER = false;
