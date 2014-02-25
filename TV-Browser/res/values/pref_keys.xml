@@ -1,5 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="OLD_VERSION">OLD_VERSION</string>
+    <item name="old_version_default" type="integer" format="integer">166</item>
+    
     <string name="DAYS_TO_DOWNLOAD">DAYS_TO_DOWNLOAD</string>
     <item name="days_to_download_default" type="string" format="string">2</item>
     
