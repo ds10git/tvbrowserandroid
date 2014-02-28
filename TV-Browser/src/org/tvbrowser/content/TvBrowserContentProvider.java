@@ -934,7 +934,12 @@ public class TvBrowserContentProvider extends ContentProvider {
                 values.put(DATA_KEY_MARKING_FAVORITE, true);
               }
               if(markingValue.contains(MARK_VALUE_REMINDER)) {
-                values.put(DATA_KEY_MARKING_REMINDER, true);
+                if(markingValue.contains(MARK_VALUE_FAVORITE)) {
+                  values.put(DATA_KEY_MARKING_FAVORITE_REMINDER, true);
+                }
+                else {
+                  values.put(DATA_KEY_MARKING_REMINDER, true);
+                }
               }
               if(markingValue.contains(MARK_VALUE_CALENDAR)) {
                 values.put(DATA_KEY_MARKING_CALENDAR, true);
