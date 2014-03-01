@@ -1728,7 +1728,7 @@ public class TvBrowser extends FragmentActivity implements
           
           LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(this);
           
-          boolean success = intent.getBooleanExtra(SettingConstants.CHANNEL_DOWNLOAD_SUCCESSFULLY, true);
+          boolean success = intent.getBooleanExtra(SettingConstants.CHANNEL_DOWNLOAD_SUCCESSFULLY, false);
           
           if(mIsActive) {
             if(success) {

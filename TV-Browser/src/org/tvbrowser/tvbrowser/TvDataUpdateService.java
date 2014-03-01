@@ -569,8 +569,15 @@ public class TvDataUpdateService extends Service {
         
         String line = null;
         
+        boolean returnValueOnceSet = false;
+        
         while((line = read.readLine()) != null) {
           String[] parts = line.split(";");
+          
+          if(!returnValueOnceSet) {
+            returnValue = true;
+            returnValueOnceSet = true;
+          }
           
           String baseCountry = parts[0];
           String timeZone = parts[1];
@@ -640,14 +647,14 @@ public class TvDataUpdateService extends Service {
           
           if(query == null || query.getCount() == 0) {
             // add channel
-            if(cr.insert(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values) != null) {
-              returnValue = true;
+            if(cr.insert(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values) == null) {
+              returnValue = false;
             }
           }
           else {
             // update channel
-            if(cr.update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, where, null) > 0) {
-              returnValue = true;
+            if(cr.update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, where, null) < 1) {
+              returnValue = false;
             }
           }
           
@@ -655,10 +662,10 @@ public class TvDataUpdateService extends Service {
         }
         read.close();
       } catch (FileNotFoundException e) {
-        // TODO Auto-generated catch block
+        returnValue = false;
         e.printStackTrace();
       } catch (IOException e) {
-        // TODO Auto-generated catch block
+        returnValue = false;
         e.printStackTrace();
       }
       
