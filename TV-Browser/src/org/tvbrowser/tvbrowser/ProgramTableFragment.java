@@ -729,7 +729,7 @@ public class ProgramTableFragment extends Fragment {
     
     Calendar test = Calendar.getInstance();
     
-    if(test.get(Calendar.DAY_OF_YEAR) == mCurrentDate.get(Calendar.DAY_OF_YEAR) || test.get(Calendar.DAY_OF_YEAR) - 1 == mCurrentDate.get(Calendar.DAY_OF_YEAR)) {
+    if(test.get(Calendar.DAY_OF_YEAR) == mCurrentDate.get(Calendar.DAY_OF_YEAR) || test.get(Calendar.DAY_OF_YEAR) - 2 == mCurrentDate.get(Calendar.DAY_OF_YEAR)) {
       handler.post(new Runnable() {
         @Override
         public void run() {

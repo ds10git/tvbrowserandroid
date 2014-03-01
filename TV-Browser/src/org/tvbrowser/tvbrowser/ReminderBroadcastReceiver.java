@@ -243,7 +243,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           builder.setContentInfo(channelName);
           
           if(led) {
-            builder.setLights(Color.RED, 1000, 2000);
+            builder.setLights(Color.GREEN, 1000, 2000);
           }
           
           java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(context);
