@@ -522,7 +522,18 @@ public class TvBrowser extends FragmentActivity implements
         int day = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
         
         if(mCurrentDay != day) {
-          LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.DATA_UPDATE_DONE));
+          new Thread() {
+            public void run() {
+              Calendar cal2 = Calendar.getInstance();
+              cal2.add(Calendar.DAY_OF_YEAR, -2);
+              
+              try {
+                getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + cal2.getTimeInMillis(), null);
+                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.DATA_UPDATE_DONE));
+              }catch(IllegalArgumentException e) {}
+            }
+          }.start();
+          
           mCurrentDay = day;
         }
         
