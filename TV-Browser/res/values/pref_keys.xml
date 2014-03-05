@@ -296,6 +296,8 @@
     <string name="PREF_COLOR_REMINDER">PREF_COLOR_REMINDER</string>
     <string name="PREF_COLOR_SYNC">PREF_COLOR_SYNC</string>
     
+    <string name="PREF_RUNNING_TIME_SELECTION">PREF_RUNNING_TIME_SELECTION</string>
+    
     <string name="PREF_SHOW_PROGRESS">PREF_SHOW_PROGRESS</string>
     <item name="pref_show_progress_default" type="bool" format="boolean">true</item>
     

@@ -425,4 +425,6 @@
     <string name="already_donated">You have already donated {0} on {1}. Thanks again for that donation.\n\nDo you really want to donate again?</string>
     <string name="donate_again">Yes, donate again</string>
     <string name="no_donation_possible">At the moment no donation is possible.\nPlease try again later.</string>
+    <string name="pref_running_time_selection">Time selection</string>
+    <string name="pref_running_time_selection_summary">Background color of the selected time.</string>
 </resources>

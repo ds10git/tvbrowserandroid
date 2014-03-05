@@ -986,7 +986,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       Button test = (Button)((View)getView().getParent()).findViewWithTag(Integer.valueOf(mWhereClauseTime));
       
       if(test != null) {
-        test.setBackgroundResource(R.color.filter_selection);
+        test.setBackgroundColor(UiUtils.getColor(UiUtils.RUNNING_TIME_SELECTION_KEY, getActivity()));
       }      
     }
     

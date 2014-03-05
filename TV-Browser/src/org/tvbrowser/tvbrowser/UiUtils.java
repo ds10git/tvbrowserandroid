@@ -99,6 +99,7 @@ public class UiUtils {
   public static final int MARKED_SYNC_COLOR_KEY = 4;
   public static final int ON_AIR_BACKGROUND_KEY = 5;
   public static final int ON_AIR_PROGRESS_KEY = 6;
+  public static final int RUNNING_TIME_SELECTION_KEY = 7;
   
   static {
     VALUE_MAP = new HashMap<String, Integer>();
@@ -1524,6 +1525,7 @@ public class UiUtils {
       case MARKED_SYNC_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_SYNC), context.getResources().getColor(R.color.mark_color_sync_favorite));break;
       case ON_AIR_BACKGROUND_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND), context.getResources().getColor(R.color.on_air_background));break;
       case ON_AIR_PROGRESS_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_PROGRESS), context.getResources().getColor(R.color.on_air_progress));break;
+      case RUNNING_TIME_SELECTION_KEY: color = pref.getInt(context.getString(R.string.PREF_RUNNING_TIME_SELECTION), context.getResources().getColor(R.color.filter_selection));break;
     }
     
     return color;

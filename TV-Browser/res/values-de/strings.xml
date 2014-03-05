@@ -413,4 +413,6 @@
     <string name="already_donated">Sie haben bereits am {1} {0} gespendet. Nochmal danke dafür.\n\nMöchten Sie tatsächlich nochmals spenden?</string>
     <string name="donate_again">Ja, nochmals spenden</string>
     <string name="no_donation_possible">Zur Zeit keine Spenden möglich.\nBitte versuchen Sie es später erneut.</string>
+    <string name="pref_running_time_selection">Zeitauswahl</string>
+    <string name="pref_running_time_selection_summary">Hintergrundfarbe der ausgewählten Zeit.</string>
 </resources>

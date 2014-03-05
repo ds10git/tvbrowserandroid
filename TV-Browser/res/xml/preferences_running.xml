@@ -1,15 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-<!-- 	<ListPreference
-	    android:key="@string/RUNNING_PROGRAMS_LAYOUT"
-	    android:title="@string/running_layout_title"
-	    android:defaultValue="1"
-	    android:entries="@array/running_layout_values"
-	    android:entryValues="@array/running_layout_prefs"
-	    android:summary="%s"/> -->
-  <!--    <PreferenceScreen
-        
-        >-->
 	<ListPreference
 		android:key="@string/PREF_RUNNING_DIVIDER_SIZE"
 		android:title="@string/divider_size"
@@ -23,6 +13,11 @@
 		android:entries="@array/show_logo_long"
 		android:entryValues="@array/logo_name_values_long"
 		android:summary="%s"/>
+    <org.tvbrowser.settings.ColorPreference
+        android:key="@string/PREF_RUNNING_TIME_SELECTION"
+        android:title="@string/pref_running_time_selection"
+        android:summary="@string/pref_running_time_selection_summary"
+        android:defaultValue="@color/filter_selection"/>
     <CheckBoxPreference android:key="@string/RUNNING_PROGRAMS_NEXT_DAY"
         android:defaultValue="@bool/running_programs_next_day_default"
         android:title="@string/pref_running_next_day"
