@@ -32,6 +32,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -39,6 +40,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
@@ -86,6 +88,10 @@ public class TvDataUpdateService extends Service {
   public static final String TYPE = "TYPE";
   public static final int TV_DATA_TYPE = 1;
   public static final int CHANNEL_TYPE = 2;
+  
+  private static final int BASE_LEVEL = 0;
+  private static final int MORE_LEVEL = 1;
+  private static final int PICTURE_LEVEL = 2;
     
   public static boolean IS_RUNNING = false;
   private ExecutorService mThreadPool;
@@ -112,6 +118,55 @@ public class TvDataUpdateService extends Service {
       "http://www.gamers-fusion.de/projects/tvbrowser.org/",
       "http://tvbrowser1.sam-schwedler.de/",
       "http://tvbrowser.nicht-langweilig.de/data/"
+  };
+  
+  private static final String[] BASE_LEVEL_FIELDS = {
+    TvBrowserContentProvider.DATA_KEY_STARTTIME,
+    TvBrowserContentProvider.DATA_KEY_ENDTIME,
+    TvBrowserContentProvider.DATA_KEY_TITLE,
+    TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL,
+    TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
+    TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL,
+    TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
+    TvBrowserContentProvider.DATA_KEY_REGIE,
+    TvBrowserContentProvider.DATA_KEY_CUSTOM_INFO,
+    TvBrowserContentProvider.DATA_KEY_CATEGORIES,
+    TvBrowserContentProvider.DATA_KEY_AGE_LIMIT,
+    TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK,
+    TvBrowserContentProvider.DATA_KEY_GENRE,
+    TvBrowserContentProvider.DATA_KEY_ORIGIN,
+    TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME,
+    TvBrowserContentProvider.DATA_KEY_VPS,
+    TvBrowserContentProvider.DATA_KEY_SCRIPT,
+    TvBrowserContentProvider.DATA_KEY_REPETITION_FROM,
+    TvBrowserContentProvider.DATA_KEY_MUSIC,
+    TvBrowserContentProvider.DATA_KEY_MODERATION,
+    TvBrowserContentProvider.DATA_KEY_YEAR,
+    TvBrowserContentProvider.DATA_KEY_REPETITION_ON,
+    TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER,
+    TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT,
+    TvBrowserContentProvider.DATA_KEY_SEASON_NUMBER,
+    TvBrowserContentProvider.DATA_KEY_PRODUCER,
+    TvBrowserContentProvider.DATA_KEY_CAMERA,
+    TvBrowserContentProvider.DATA_KEY_CUT,
+    TvBrowserContentProvider.DATA_KEY_OTHER_PERSONS,
+    TvBrowserContentProvider.DATA_KEY_RATING,
+    TvBrowserContentProvider.DATA_KEY_PRODUCTION_FIRM,
+    TvBrowserContentProvider.DATA_KEY_AGE_LIMIT_STRING,
+    TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR,
+    TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO,
+    TvBrowserContentProvider.DATA_KEY_SERIES
+  };
+  
+  private static final String[] MORE_LEVEL_FIELDS = {
+    TvBrowserContentProvider.DATA_KEY_DESCRIPTION,
+    TvBrowserContentProvider.DATA_KEY_ACTORS
+  };
+  
+  private static final String[] PICTURE_LEVEL_FIELDS = {
+    TvBrowserContentProvider.DATA_KEY_PICTURE,
+    TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT,
+    TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION
   };
   
   @Override
@@ -1469,7 +1524,7 @@ public class TvDataUpdateService extends Service {
             try {
               IOUtils.saveUrl(updateFile.getAbsolutePath(), update.getUrl());
               doLog("Data file saved from: " + update.getUrl() + " to: " +  updateFile.getAbsolutePath() + ": " + updateFile.isFile());
-              updateData(updateFile, update, true);
+              updateData(updateFile, update, BASE_LEVEL);
               mCurrentDownloadCount++;
               mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
               notification.notify(mNotifyID, mBuilder.build());
@@ -1496,7 +1551,7 @@ public class TvDataUpdateService extends Service {
             
             try {
               IOUtils.saveUrl(updateFile.getAbsolutePath(), update.getUrl());
-              updateData(updateFile, update, false);
+              updateData(updateFile, update, MORE_LEVEL);
               mCurrentDownloadCount++;
               mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
               notification.notify(mNotifyID, mBuilder.build());
@@ -1514,7 +1569,7 @@ public class TvDataUpdateService extends Service {
             
             try {
               IOUtils.saveUrl(updateFile.getAbsolutePath(), update.getUrl());
-              updateData(updateFile, update, false);
+              updateData(updateFile, update, PICTURE_LEVEL);
               mCurrentDownloadCount++;
               mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
               notification.notify(mNotifyID, mBuilder.build());
@@ -1715,12 +1770,28 @@ public class TvDataUpdateService extends Service {
     
     return summary;
   }
+  
+  private static final void addArrayToList(ArrayList<String> list, String[] values) {
+    if(values != null && list != null) {
+      for(String value : values) {
+        list.add(value);
+      }
+    }
+  }
     
-  private byte readValuesFromDataFile(ContentValues values, BufferedInputStream in, ChannelUpdate update) throws IOException {
+  private byte readValuesFromDataFile(ContentValues values, BufferedInputStream in, ChannelUpdate update, int level) throws IOException {
     // ID of this program frame
     byte frameId = (byte)in.read();
     // number of program fields
     byte fieldCount = (byte)in.read();
+    
+    ArrayList<String> columnList = new ArrayList<String>();
+    
+    switch(level)  {
+      case BASE_LEVEL: addArrayToList(columnList,BASE_LEVEL_FIELDS);break;
+      case MORE_LEVEL: addArrayToList(columnList,MORE_LEVEL_FIELDS);break;
+      case PICTURE_LEVEL: addArrayToList(columnList,PICTURE_LEVEL_FIELDS);break;
+    }
     
     if(!values.containsKey(TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID)) {
       values.put(TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID, frameId);
@@ -1736,6 +1807,8 @@ public class TvDataUpdateService extends Service {
       byte[] data = new byte[dataCount];
       
       in.read(data);
+      
+      String columnName = null;
                 
       switch(fieldType) {
         case 1: {
@@ -1754,7 +1827,7 @@ public class TvDataUpdateService extends Service {
                         
                         long time = (((long)(cal.getTimeInMillis() / 60000)) * 60000);
                         
-                        values.put(TvBrowserContentProvider.DATA_KEY_STARTTIME, time);
+                        values.put(columnName = TvBrowserContentProvider.DATA_KEY_STARTTIME, time);
                      }break;
         case 2: {
           int endTime = IOUtils.getIntForBytes(data);
@@ -1781,46 +1854,50 @@ public class TvDataUpdateService extends Service {
           
           long time =  (((long)(cal.getTimeInMillis() / 60000)) * 60000);
           
-          values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, time);
+          values.put(columnName = TvBrowserContentProvider.DATA_KEY_ENDTIME, time);
        }break;
-        case 3: values.put(TvBrowserContentProvider.DATA_KEY_TITLE, new String(data));break;
-        case 4: values.put(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL, new String(data));break;
-        case 5: values.put(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE, new String(data));break;
-        case 6: values.put(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL, new String(data));break;
-        case 7: values.put(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION, new String(data));break;
-        case 8: values.put(TvBrowserContentProvider.DATA_KEY_DESCRIPTION, new String(data));break;
-        case 0xA: values.put(TvBrowserContentProvider.DATA_KEY_ACTORS, new String(data));break;
-        case 0xB: values.put(TvBrowserContentProvider.DATA_KEY_REGIE, new String(data));break;
-        case 0xC: values.put(TvBrowserContentProvider.DATA_KEY_CUSTOM_INFO, new String(data));break;
-        case 0xD: values.put(TvBrowserContentProvider.DATA_KEY_CATEGORIES, IOUtils.getIntForBytes(data));break;
-        case 0xE: values.put(TvBrowserContentProvider.DATA_KEY_AGE_LIMIT, IOUtils.getIntForBytes(data));break;
-        case 0xF: values.put(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK, new String(data));break;
-        case 0x10: values.put(TvBrowserContentProvider.DATA_KEY_GENRE, new String(data));break;
-        case 0x11: values.put(TvBrowserContentProvider.DATA_KEY_ORIGIN, new String(data));break;
-        case 0x12: values.put(TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME, IOUtils.getIntForBytes(data));break;
-        case 0x13: values.put(TvBrowserContentProvider.DATA_KEY_VPS, IOUtils.getIntForBytes(data));break;
-        case 0x14: values.put(TvBrowserContentProvider.DATA_KEY_SCRIPT, new String(data));break;
-        case 0x15: values.put(TvBrowserContentProvider.DATA_KEY_REPETITION_FROM, new String(data));break;
-        case 0x16: values.put(TvBrowserContentProvider.DATA_KEY_MUSIC, new String(data));break;
-        case 0x17: values.put(TvBrowserContentProvider.DATA_KEY_MODERATION, new String(data));break;
-        case 0x18: values.put(TvBrowserContentProvider.DATA_KEY_YEAR, IOUtils.getIntForBytes(data));break;
-        case 0x19: values.put(TvBrowserContentProvider.DATA_KEY_REPETITION_ON, new String(data));break;
-        case 0x1A: values.put(TvBrowserContentProvider.DATA_KEY_PICTURE, data);break;
-        case 0x1B: values.put(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT, new String(data));break;
-        case 0x1C: values.put(TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION, new String(data));break;
-        case 0x1D: values.put(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER, IOUtils.getIntForBytes(data));break;
-        case 0x1E: values.put(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT, IOUtils.getIntForBytes(data));break;
-        case 0x1F: values.put(TvBrowserContentProvider.DATA_KEY_SEASON_NUMBER, IOUtils.getIntForBytes(data));break;
-        case 0x20: values.put(TvBrowserContentProvider.DATA_KEY_PRODUCER, new String(data));break;
-        case 0x21: values.put(TvBrowserContentProvider.DATA_KEY_CAMERA, new String(data));break;
-        case 0x22: values.put(TvBrowserContentProvider.DATA_KEY_CUT, new String(data));break;
-        case 0x23: values.put(TvBrowserContentProvider.DATA_KEY_OTHER_PERSONS, new String(data));break;
-        case 0x24: values.put(TvBrowserContentProvider.DATA_KEY_RATING, IOUtils.getIntForBytes(data));break;
-        case 0x25: values.put(TvBrowserContentProvider.DATA_KEY_PRODUCTION_FIRM, new String(data));break;
-        case 0x26: values.put(TvBrowserContentProvider.DATA_KEY_AGE_LIMIT_STRING, new String(data));break;
-        case 0x27: values.put(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR, IOUtils.getIntForBytes(data));break;
-        case 0x28: values.put(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO, new String(data));break;
-        case 0x29: values.put(TvBrowserContentProvider.DATA_KEY_SERIES, new String(data));break;
+        case 3: values.put(columnName = TvBrowserContentProvider.DATA_KEY_TITLE, new String(data));break;
+        case 4: values.put(columnName = TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL, new String(data));break;
+        case 5: values.put(columnName = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE, new String(data));break;
+        case 6: values.put(columnName = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL, new String(data));break;
+        case 7: values.put(columnName = TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION, new String(data));break;
+        case 8: values.put(columnName = TvBrowserContentProvider.DATA_KEY_DESCRIPTION, new String(data));break;
+        case 0xA: values.put(columnName = TvBrowserContentProvider.DATA_KEY_ACTORS, new String(data));break;
+        case 0xB: values.put(columnName = TvBrowserContentProvider.DATA_KEY_REGIE, new String(data));break;
+        case 0xC: values.put(columnName = TvBrowserContentProvider.DATA_KEY_CUSTOM_INFO, new String(data));break;
+        case 0xD: values.put(columnName = TvBrowserContentProvider.DATA_KEY_CATEGORIES, IOUtils.getIntForBytes(data));break;
+        case 0xE: values.put(columnName = TvBrowserContentProvider.DATA_KEY_AGE_LIMIT, IOUtils.getIntForBytes(data));break;
+        case 0xF: values.put(columnName = TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK, new String(data));break;
+        case 0x10: values.put(columnName = TvBrowserContentProvider.DATA_KEY_GENRE, new String(data));break;
+        case 0x11: values.put(columnName = TvBrowserContentProvider.DATA_KEY_ORIGIN, new String(data));break;
+        case 0x12: values.put(columnName = TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME, IOUtils.getIntForBytes(data));break;
+        case 0x13: values.put(columnName = TvBrowserContentProvider.DATA_KEY_VPS, IOUtils.getIntForBytes(data));break;
+        case 0x14: values.put(columnName = TvBrowserContentProvider.DATA_KEY_SCRIPT, new String(data));break;
+        case 0x15: values.put(columnName = TvBrowserContentProvider.DATA_KEY_REPETITION_FROM, new String(data));break;
+        case 0x16: values.put(columnName = TvBrowserContentProvider.DATA_KEY_MUSIC, new String(data));break;
+        case 0x17: values.put(columnName = TvBrowserContentProvider.DATA_KEY_MODERATION, new String(data));break;
+        case 0x18: values.put(columnName = TvBrowserContentProvider.DATA_KEY_YEAR, IOUtils.getIntForBytes(data));break;
+        case 0x19: values.put(columnName = TvBrowserContentProvider.DATA_KEY_REPETITION_ON, new String(data));break;
+        case 0x1A: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PICTURE, data);break;
+        case 0x1B: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT, new String(data));break;
+        case 0x1C: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION, new String(data));break;
+        case 0x1D: values.put(columnName = TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER, IOUtils.getIntForBytes(data));break;
+        case 0x1E: values.put(columnName = TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT, IOUtils.getIntForBytes(data));break;
+        case 0x1F: values.put(columnName = TvBrowserContentProvider.DATA_KEY_SEASON_NUMBER, IOUtils.getIntForBytes(data));break;
+        case 0x20: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PRODUCER, new String(data));break;
+        case 0x21: values.put(columnName = TvBrowserContentProvider.DATA_KEY_CAMERA, new String(data));break;
+        case 0x22: values.put(columnName = TvBrowserContentProvider.DATA_KEY_CUT, new String(data));break;
+        case 0x23: values.put(columnName = TvBrowserContentProvider.DATA_KEY_OTHER_PERSONS, new String(data));break;
+        case 0x24: values.put(columnName = TvBrowserContentProvider.DATA_KEY_RATING, IOUtils.getIntForBytes(data));break;
+        case 0x25: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PRODUCTION_FIRM, new String(data));break;
+        case 0x26: values.put(columnName = TvBrowserContentProvider.DATA_KEY_AGE_LIMIT_STRING, new String(data));break;
+        case 0x27: values.put(columnName = TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR, IOUtils.getIntForBytes(data));break;
+        case 0x28: values.put(columnName = TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO, new String(data));break;
+        case 0x29: values.put(columnName = TvBrowserContentProvider.DATA_KEY_SERIES, new String(data));break;
+      }
+      
+      if(columnName != null) {
+        columnList.remove(columnName);
       }
       
       data = null;
@@ -1828,12 +1905,35 @@ public class TvDataUpdateService extends Service {
     
     if(values.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME) && !values.containsKey(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
       values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, 0);
+      columnList.remove(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+    }
+    
+    for(String columnName : columnList) {
+      if(columnName.equals(TvBrowserContentProvider.DATA_KEY_CATEGORIES) ||
+         columnName.equals(TvBrowserContentProvider.DATA_KEY_AGE_LIMIT) ||
+         columnName.equals(TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME) ||
+         columnName.equals(TvBrowserContentProvider.DATA_KEY_VPS) ||
+         columnName.equals(TvBrowserContentProvider.DATA_KEY_YEAR) ||
+         columnName.equals(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER) ||
+         columnName.equals(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT) ||
+         columnName.equals(TvBrowserContentProvider.DATA_KEY_SEASON_NUMBER) ||
+         columnName.equals(TvBrowserContentProvider.DATA_KEY_RATING) ||
+         columnName.equals(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR)
+          ) {
+        values.put(columnName, (Integer)null);
+      }
+      else if(columnName.equals(TvBrowserContentProvider.DATA_KEY_PICTURE)) {
+        values.put(columnName, (byte[])null);
+      }
+      else {
+        values.put(columnName, (String)null);
+      }
     }
     
     return frameId;
   }
   
-  private void updateData(File dataFile, ChannelUpdate update, boolean baseLevel) {
+  private void updateData(File dataFile, ChannelUpdate update, int level) {
     ArrayList<ContentValues> insertValueList = new ArrayList<ContentValues>();
     ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
     
@@ -1860,7 +1960,7 @@ public class TvDataUpdateService extends Service {
         
         Hashtable<Byte, CurrentDataHolder> current = mCurrentData.get(key);
         
-        if(current != null && baseLevel) {
+        if(current != null && level == BASE_LEVEL) {
           Set<Byte> keySet = current.keySet();
           
           missingFrameIDs = new ArrayList<Byte>(keySet.size());
@@ -1873,7 +1973,7 @@ public class TvDataUpdateService extends Service {
         for(int i = 0; i < frameCount; i++) {
           ContentValues values = new ContentValues();
           
-          byte frameID = readValuesFromDataFile(values, in, update);
+          byte frameID = readValuesFromDataFile(values, in, update, level);
           
           long programID = -1;
           CurrentDataHolder value = null;
@@ -1894,7 +1994,7 @@ public class TvDataUpdateService extends Service {
             if(programID >= 0) {
               
               
-              if(baseLevel && mDontWantToSeeValues != null) {
+              if(level == BASE_LEVEL && mDontWantToSeeValues != null) {
                 String title = values.containsKey(TvBrowserContentProvider.DATA_KEY_TITLE) ? values.getAsString(TvBrowserContentProvider.DATA_KEY_TITLE) : null;
                 
                 if(title != null) {
@@ -1915,7 +2015,7 @@ public class TvDataUpdateService extends Service {
             }
             else if(values.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
               // program unknown insert it
-              if(baseLevel && mDontWantToSeeValues != null) {
+              if(level == BASE_LEVEL && mDontWantToSeeValues != null) {
                 String title = values.containsKey(TvBrowserContentProvider.DATA_KEY_TITLE) ? values.getAsString(TvBrowserContentProvider.DATA_KEY_TITLE) : null;
                 
                 if(title != null && UiUtils.filter(getApplicationContext(), title, mDontWantToSeeValues)) {
@@ -1930,7 +2030,7 @@ public class TvDataUpdateService extends Service {
         
         Log.d("info5", "Size of insertValueList for '" + dataFile.getName() + "' " + insertValueList.size());
         
-        if(baseLevel && !insertValueList.isEmpty()) {
+        if(level == BASE_LEVEL && !insertValueList.isEmpty()) {
           Collections.sort(insertValueList, new Comparator<ContentValues>() {
             @Override
             public int compare(ContentValues lhs, ContentValues rhs) {
@@ -1985,7 +2085,7 @@ public class TvDataUpdateService extends Service {
         
         updateVersionTable(update,dataVersion);
         
-        if(baseLevel && missingFrameIDs != null) {
+        if(level == BASE_LEVEL && missingFrameIDs != null) {
           StringBuilder where = new StringBuilder();
           
           for(Byte id : missingFrameIDs) {
