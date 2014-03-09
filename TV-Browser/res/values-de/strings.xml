@@ -2,6 +2,9 @@
 <resources>
 
     <string name="app_name">TV-Browser</string>
+    <string name="search_activity_name">TV-Browser-Suche</string>
+    <string name="search_no_result_title">Keine Sendung gefunden</string>
+    <string name="search_no_result_text">Es wurde keine Sendung für die Suche gefunden.</string>
     <string name="action_load_channels_again">Sender neu laden</string>
     <string name="action_select_channels">Sender auswählen</string>
     <string name="action_sort_channels">Sender sortieren</string>

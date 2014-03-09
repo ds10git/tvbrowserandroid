@@ -2,6 +2,9 @@
 <resources>
 
     <string name="app_name">TV-Browser</string>
+    <string name="search_activity_name">TV-Browser Search</string>
+    <string name="search_no_result_title">No program found</string>
+    <string name="search_no_result_text">No program was found for the search.</string>
     <string name="action_load_channels_again">Load channels again</string>
     <string name="action_select_channels">Select channels</string>
     <string name="action_sort_channels">Sort channels</string>

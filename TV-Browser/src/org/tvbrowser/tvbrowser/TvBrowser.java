@@ -187,9 +187,9 @@ public class TvBrowser extends FragmentActivity implements
   
   static {
     mRundate = Calendar.getInstance();
-    mRundate.set(Calendar.YEAR, 2014);
-    mRundate.set(Calendar.MONTH, Calendar.MARCH);
-    mRundate.set(Calendar.DAY_OF_MONTH, 10);
+    mRundate.set(Calendar.YEAR, 2015);
+    mRundate.set(Calendar.MONTH, Calendar.JANUARY);
+    mRundate.set(Calendar.DAY_OF_MONTH, 1);
   }
   
   @Override
@@ -524,6 +524,10 @@ public class TvBrowser extends FragmentActivity implements
         if(mCurrentDay != day) {
           new Thread() {
             public void run() {
+              try {
+                sleep(60000);
+              } catch (InterruptedException e1) {}
+              
               Calendar cal2 = Calendar.getInstance();
               cal2.add(Calendar.DAY_OF_YEAR, -2);
               

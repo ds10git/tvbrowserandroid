@@ -21,11 +21,13 @@ import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.view.SeparatorDrawable;
 
+import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.app.LoaderManager;
 import android.app.SearchManager;
 import android.content.ContentUris;
 import android.content.CursorLoader;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
@@ -239,6 +241,22 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
   @Override
   public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
     mProgramsListAdapter.swapCursor(cursor);
+    
+    if(cursor == null || cursor.getCount() < 1) {
+      AlertDialog.Builder info = new AlertDialog.Builder(TvBrowserSearchResults.this);
+      
+      info.setTitle(R.string.search_no_result_title);
+      info.setMessage(R.string.search_no_result_text);
+      
+      info.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          finish();
+        }
+      });
+      
+      info.show();
+    }
   }
 
   @Override
