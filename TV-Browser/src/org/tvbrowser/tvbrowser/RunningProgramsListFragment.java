@@ -238,7 +238,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
                 }
               }
                             
-              c.close();
+              IOUtils.closeSafely(c);
             }
           }
         }.start();
@@ -703,7 +703,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         }.start();
       }
       else {
-        layout.setBackgroundDrawable(getActivity().getResources().getDrawable(android.R.drawable.list_selector_background));
+        layout.setBackgroundResource(android.R.drawable.list_selector_background);
       }
     }
     else {
@@ -1016,7 +1016,7 @@ Log.d("info", "" + new Date(mCurrentTime));
     public int mChannelID;
     private String mChannelName;
     private int mChannelOrderNumber;
-    
+
     public int mPreviousPosition;
     public long mPreviousStart;
     public long mPreviousEnd;
@@ -1038,7 +1038,7 @@ Log.d("info", "" + new Date(mCurrentTime));
     public String mNowCategory;
     public String mNowPictureCopyright;
     public byte[] mNowPicture;
-    
+
     public int mNextPosition;
     public long mNextStart;
     public long mNextEnd;
@@ -1119,7 +1119,7 @@ Log.d("info", "" + new Date(mCurrentTime));
                 markedColumsList.add(column);
               }
             }
-            
+
             String channelName = c.getString(mChannelNameColumn);
             int channelOrderNumber = c.getInt(channelOrderColumn);
     
@@ -1127,7 +1127,7 @@ Log.d("info", "" + new Date(mCurrentTime));
             String category = null;
             String pictureCopyright = null;
             byte[] picture = null;
-            
+
             if(showInfo) {
               category = IOUtils.getInfoString(c.getInt(mCategoryColumn), getResources());
             }
@@ -1197,7 +1197,7 @@ Log.d("info", "" + new Date(mCurrentTime));
       }catch(IllegalStateException e1) {}
     }
     
-    c.close();
+    IOUtils.closeSafely(c);
     currentProgramMap.clear();
     channelProgramMap.clear();
     mRunningProgramListAdapter.notifyDataSetChanged();

@@ -18,6 +18,7 @@ package org.tvbrowser.tvbrowser;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -28,10 +29,10 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.Locale;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
@@ -129,7 +130,7 @@ public class IOUtils {
       connection = new URL(urlString).openConnection();
       connection.setConnectTimeout(10000);
       
-      if(urlString.toLowerCase().endsWith(".gz")) {
+      if(urlString.toLowerCase(Locale.US).endsWith(".gz")) {
         connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
       }
       
@@ -143,9 +144,7 @@ public class IOUtils {
       }
     } 
     finally {
-      if (in != null) {
-        in.close();
-      }
+      closeSafely(in);
     }
 
     return out.toByteArray();
@@ -163,9 +162,7 @@ public class IOUtils {
       fout.write(byteArr, 0, byteArr.length);
     }
     finally {
-      if (fout != null) {
-        fout.close();
-      }
+      closeSafely(fout);
     }
   }
   
@@ -196,9 +193,10 @@ public class IOUtils {
   
   public static byte[] getCompressedData(byte[] uncompressed) {
     ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-    
+
+    GZIPOutputStream out = null;
     try {
-      GZIPOutputStream out = new GZIPOutputStream(bytesOut);
+      out = new GZIPOutputStream(bytesOut);
       
       // SEND THE IMAGE
       int index = 0;
@@ -212,10 +210,11 @@ public class IOUtils {
       } while (index < uncompressed.length);
       
       out.flush();
-      out.close();
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+    } finally {
+      closeSafely(out);
     }
     
     return bytesOut.toByteArray();
@@ -293,5 +292,13 @@ public class IOUtils {
     }
     
     return null;
+  }
+  
+  public static void closeSafely(final Closeable closeable) {
+    if(closeable != null) {
+      try {
+	    closeable.close();
+      } catch (IOException ignored) {}
+    }
   }
 }

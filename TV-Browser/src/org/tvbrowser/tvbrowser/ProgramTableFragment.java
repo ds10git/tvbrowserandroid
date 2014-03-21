@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -71,6 +73,15 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 
 public class ProgramTableFragment extends Fragment {
+	
+  private static final IntentFilter DATE_TIME_SETTINGS_INTENT_FILTER;
+  static {
+	DATE_TIME_SETTINGS_INTENT_FILTER = new IntentFilter();
+	DATE_TIME_SETTINGS_INTENT_FILTER.addAction(Intent.ACTION_TIMEZONE_CHANGED);
+	DATE_TIME_SETTINGS_INTENT_FILTER.addAction(Intent.ACTION_TIME_CHANGED);
+	DATE_TIME_SETTINGS_INTENT_FILTER.addAction(Intent.ACTION_DATE_CHANGED);
+  }
+
   private boolean mKeepRunning;
   private boolean mUpdatingLayout;
   private boolean mUpdatingRunningPrograms;
@@ -89,7 +100,10 @@ public class ProgramTableFragment extends Fragment {
   private BroadcastReceiver mUpdateChannelsReceiver;
   private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mDontWantToSeeReceiver;
-  
+
+  private BroadcastReceiver mDateTimeSettingsChangedReceiver;
+  private Handler handler = new Handler();
+
   private int mCurrentLogoValue;
   private boolean mPictureShown;
   private int mTimeBlockSize;
@@ -103,7 +117,7 @@ public class ProgramTableFragment extends Fragment {
   
   private boolean mGrowPanels;
   
-  private ArrayList<Integer> mShowInfos;
+  private List<Integer> mShowInfos;
   
   private int mStartTimeIndex;
   private int mEndTimeIndex;
@@ -116,7 +130,7 @@ public class ProgramTableFragment extends Fragment {
   private int mPictureCopyrightIndex;
   private int mCategoryIndex;
   
-  private HashMap<String, Integer> mMarkingsMap;
+  private Map<String, Integer> mMarkingsMap;
   
   public void scrollToTime(int time, final MenuItem timeItem) {
     if(isResumed()) {
@@ -199,7 +213,7 @@ public class ProgramTableFragment extends Fragment {
                   if(activity != null && !activity.isFinishing()) {
                     Display display = activity.getWindowManager().getDefaultDisplay();
                     
-                    scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]-display.getHeight()/3);
+                    scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]-CompatUtils.getHeight(display)/3);
                   }
                 }
               });
@@ -207,7 +221,7 @@ public class ProgramTableFragment extends Fragment {
           }
         }
         
-        c.close();
+        IOUtils.closeSafely(c);
       }
     }
   }
@@ -236,9 +250,6 @@ public class ProgramTableFragment extends Fragment {
       }
     };
   }
-
-  
-  Handler handler = new Handler();
   
   @Override
   public void onResume() {
@@ -252,7 +263,6 @@ public class ProgramTableFragment extends Fragment {
   @Override
   public void onPause() {
     super.onPause();
-    
     mKeepRunning = false;
   }
   
@@ -279,7 +289,7 @@ public class ProgramTableFragment extends Fragment {
               UiUtils.handleMarkings(getActivity(), cursor, view, null, null, true);
             }
             
-            cursor.close();
+            IOUtils.closeSafely(cursor);
           }
         }
       }
@@ -350,7 +360,7 @@ public class ProgramTableFragment extends Fragment {
                   }
                 }
                 
-                test.close();
+                IOUtils.closeSafely(test);
               }
             }
           }
@@ -376,6 +386,31 @@ public class ProgramTableFragment extends Fragment {
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
     
+    mDateTimeSettingsChangedReceiver = new BroadcastReceiver() {
+
+		@Override
+		public void onReceive(Context context, Intent intent) {
+			final String action = intent.getAction();
+            if (action.equals(Intent.ACTION_DATE_CHANGED) ||
+                action.equals(Intent.ACTION_TIME_CHANGED) ||
+                action.equals(Intent.ACTION_TIMEZONE_CHANGED))
+            {
+            	handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      if(!isDetached() && getView() != null) {
+                        RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
+                        if (layout != null) {
+                          updateView(getActivity().getLayoutInflater(),layout);
+                        }
+                      }
+                    }
+                  });
+            }
+		}
+    };
+    getActivity().registerReceiver(mDateTimeSettingsChangedReceiver, DATE_TIME_SETTINGS_INTENT_FILTER);
+    
     mKeepRunning = true;
   }
   
@@ -384,6 +419,11 @@ public class ProgramTableFragment extends Fragment {
     super.onDetach();
     
     mKeepRunning = false;
+    
+    if (mDateTimeSettingsChangedReceiver != null) {
+      getActivity().unregisterReceiver(mDateTimeSettingsChangedReceiver);
+      mDateTimeSettingsChangedReceiver = null;
+    }
     
     if(mDataUpdateReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
@@ -430,7 +470,7 @@ public class ProgramTableFragment extends Fragment {
                             UiUtils.handleMarkings(getActivity(), c, progPanel, null, null, true);
                           }
                           
-                          c.close();
+                          IOUtils.closeSafely(c);
                         }
                       }
                     });
@@ -516,7 +556,7 @@ public class ProgramTableFragment extends Fragment {
               }
             }
             
-            c.close();
+            IOUtils.closeSafely(c);
           }
         }
       };
@@ -640,7 +680,7 @@ public class ProgramTableFragment extends Fragment {
     }
     
     LinearLayout channelBar = (LinearLayout)programTable.findViewById(R.id.program_table_channel_bar);
-    ArrayList<Integer> channelIDsOrdered = new ArrayList<Integer>();
+    List<Integer> channelIDsOrdered = new ArrayList<Integer>();
     
     while(channels.moveToNext()) {
       channelIDsOrdered.add(Integer.valueOf(channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.KEY_ID))));
@@ -719,7 +759,7 @@ public class ProgramTableFragment extends Fragment {
         addPanel(cursor, mProgramPanelLayout);
       }
       
-      cursor.close();
+      IOUtils.closeSafely(cursor);
     }
     
     if(mProgramPanelLayout instanceof CompactProgramTableLayout) {
@@ -750,7 +790,7 @@ public class ProgramTableFragment extends Fragment {
       }
     });
     
-    channels.close();
+    IOUtils.closeSafely(channels);
     
     mUpdatingLayout = false;
   }

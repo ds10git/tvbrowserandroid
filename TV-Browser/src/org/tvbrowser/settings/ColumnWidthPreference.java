@@ -21,6 +21,7 @@ import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.NumberPicker;
 
 public class ColumnWidthPreference extends DialogPreference {
@@ -46,7 +47,7 @@ public class ColumnWidthPreference extends DialogPreference {
     mNumberPicker = new NumberPicker(getContext());
     mNumberPicker.setMinValue(0);
     mNumberPicker.setMaxValue((MAX_VALUE - MIN_VALUE) / 10);
-    mNumberPicker.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+    mNumberPicker.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
     
     String[] displayedValues = new String[mNumberPicker.getMaxValue() + 1];
     

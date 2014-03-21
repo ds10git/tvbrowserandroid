@@ -42,7 +42,7 @@ public class UpdateAlarmValue extends BroadcastReceiver {
           UiUtils.addReminder(context, id, startTime, UpdateAlarmValue.class);
         }
         
-        alarms.close();
+        IOUtils.closeSafely(alarms);
       }
     }.start();
   }

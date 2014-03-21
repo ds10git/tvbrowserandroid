@@ -25,6 +25,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 
 import org.tvbrowser.settings.SettingConstants;
@@ -38,7 +39,7 @@ public class Mirror implements Comparable<Mirror> {
   private String mUrl;
   private int mWeight;
   
-  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
   
   public Mirror(String url, int weight) {
     mUrl = url;
@@ -139,7 +140,7 @@ public class Mirror implements Comparable<Mirror> {
   
   private static boolean useMirror(Mirror mirror, String group, int timeout, TvDataUpdateService update) {
     boolean success = false;
-    
+    BufferedReader read = null;
     try{
       URL myUrl = new URL(mirror.getUrl() + group + "_lastupdate");
       
@@ -152,10 +153,8 @@ public class Mirror implements Comparable<Mirror> {
       int responseCode = httpConnection.getResponseCode();
       update.doLog("HTTP-Response for group: '" + group + "' from URL: " + myUrl);
       if(responseCode == HttpURLConnection.HTTP_OK) {
-        BufferedReader read = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
+        read = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
         String date = read.readLine();
-        read.close();
-        
         Date serverDate = DATE_FORMAT.parse(date);
         update.doLog("Date of data for: '" + group + "' from URL '" + myUrl + "' " + serverDate + " diff to now: " + (((System.currentTimeMillis() - serverDate.getTime()) / 1000 / 60 / 60 / 24)));
         // only if update date on server is acceptable
@@ -173,7 +172,7 @@ public class Mirror implements Comparable<Mirror> {
       update.doLog("Exception for mirror check for '" + group + "' from URL: " + mirror.getUrl() + " ERROR: " + message.toString());
         // Handle your exceptions
       success = false;
-    }
+    } finally {IOUtils.closeSafely(read);}
       
     return success;
   }

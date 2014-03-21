@@ -27,8 +27,8 @@
 		                style="?android:attr/buttonBarButtonStyle"
 		                android:layout_width="wrap_content"
 		                android:layout_height="wrap_content"
-		                android:paddingLeft="15px"
-		                android:paddingRight="15px"/>
+		                android:paddingLeft="15dp"
+		                android:paddingRight="15dp"/>
 	            <Button android:id="@+id/now_button"
 	                android:text="@string/button_now"
 	                style="?android:attr/buttonBarButtonStyle"
@@ -39,8 +39,8 @@
 	                style="?android:attr/buttonBarButtonStyle"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
-	                android:paddingLeft="15px"
-	                android:paddingRight="15px"/>
+	                android:paddingLeft="15dp"
+	                android:paddingRight="15dp"/>
 	        </LinearLayout>
 	    </HorizontalScrollView>
     </LinearLayout>

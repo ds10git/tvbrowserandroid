@@ -224,7 +224,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
             }
           }
           
-          builder.setSmallIcon(R.drawable.reminder);
+          builder.setSmallIcon(R.drawable.ic_stat_notification);
           builder.setWhen(startTime);
           
           if(sound) {
@@ -272,7 +272,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(title,(int)(startTime / 60000), notification);
         }
         
-        values.close();
+        IOUtils.closeSafely(values);
       }
     }
   }

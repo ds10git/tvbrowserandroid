@@ -42,6 +42,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -50,9 +51,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 public class FavoritesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
@@ -249,8 +248,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     
     registerForContextMenu(favorites);
     
-    Button add = (Button)getView().findViewById(R.id.add_favorite);
-    add.setOnClickListener(new View.OnClickListener() {
+    getView().findViewById(R.id.add_favorite).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
         editFavorite(null);

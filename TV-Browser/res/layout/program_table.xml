@@ -1,40 +1,34 @@
 <?xml version="1.0" encoding="utf-8"?>
-<org.tvbrowser.view.ZoomableFrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="wrap_content"
-	    android:layout_height="wrap_content">
-	
-	<HorizontalScrollView 
-	    android:layout_width="wrap_content"
-	    android:layout_height="match_parent"
-	    android:id="@+id/horizontal_program_table_scroll"
-	     >
+
+<HorizontalScrollView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+	android:layout_width="wrap_content"
+	android:layout_height="match_parent"
+	android:id="@+id/horizontal_program_table_scroll">
 	
 	    <LinearLayout
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
-	        android:orientation="vertical" >
+	        android:orientation="vertical">
 	        <LinearLayout
 	            android:id="@+id/program_table_channel_bar"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content" 
 	            android:orientation="horizontal">
-	            <TextView style="@style/time_label_style"
+	            <TextView
+	                style="@style/time_label_style"
 	                android:textSize="@dimen/prog_table_channel_font_size"
 	    			android:textColor="@color/prog_table_channel_background"
 	    			android:textStyle="bold"
 	    			android:background="@color/prog_table_channel_background"
 	    			android:layout_height="@dimen/prog_table_channel_height"
-	    			android:layout_width="28dp"
-	            />
-	            <include layout="@layout/separator_line"/>
+	    			android:layout_width="28dp" />
+	            <include layout="@layout/separator_line" />
 	        </LinearLayout>
 	        <ScrollView
 	            android:id="@+id/vertical_program_table_scroll"
 	            android:layout_width="wrap_content"
-	            android:layout_height="wrap_content"
-	            >
-	            
-	        </ScrollView>        
+	            android:layout_height="wrap_content" />        
 	    </LinearLayout>
-	</HorizontalScrollView>
-</org.tvbrowser.view.ZoomableFrameLayout>
+
+</HorizontalScrollView>

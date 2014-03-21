@@ -383,10 +383,10 @@ public class DummySectionFragment extends Fragment {
         final Spinner channel = (Spinner)rootView.findViewById(R.id.channel_selection);
         
         final Button minus = (Button)rootView.findViewById(R.id.channel_minus);
-        minus.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));
+        minus.setBackgroundResource(android.R.drawable.list_selector_background);
         
         final Button plus = (Button)rootView.findViewById(R.id.channel_plus);
-        plus.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));
+        plus.setBackgroundResource(android.R.drawable.list_selector_background);
                 
         final ArrayList<ChannelSelection> channelEntries = new ArrayList<DummySectionFragment.ChannelSelection>();
         
@@ -404,9 +404,7 @@ public class DummySectionFragment extends Fragment {
               ((TextView)convertView).setCompoundDrawablePadding(10);
               ((TextView)convertView).setGravity(Gravity.CENTER_VERTICAL);
             }
-            
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            
+
             int logoValue = Integer.parseInt(PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST, R.string.channel_logo_name_programs_list_default));
             boolean showOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_PROGRAMS_LIST, R.bool.show_sort_number_in_programs_list_default);
             
@@ -521,12 +519,12 @@ public class DummySectionFragment extends Fragment {
             text.setText(sel);
             
             switch(position) {
-              case 0: convertView.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));break;
+              case 0: convertView.setBackgroundResource(android.R.drawable.list_selector_background);break;
               case 1: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_FAVORITE_COLOR_KEY, getContext()));break;
               case 2: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_COLOR_KEY, getContext()));break;
               case 3: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_REMINDER_COLOR_KEY, getContext()));break;
               case 4: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_SYNC_COLOR_KEY, getContext()));break;
-              case 5: convertView.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));break;
+              case 5: convertView.setBackgroundResource(android.R.drawable.list_selector_background);break;
             }
             
             return convertView;

@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Set;
 
+import org.tvbrowser.tvbrowser.IOUtils;
+
 import android.app.SearchManager;
 import android.content.ContentProvider;
 import android.content.ContentProviderOperation;
@@ -707,7 +709,6 @@ public class TvBrowserContentProvider extends ContentProvider {
   
   // Helper class for opneing, creating, and managing database version control
   private static class TvBrowserDataBaseHelper extends SQLiteOpenHelper {
-    private static final String TAG = "TvBrowserContentProvider";
     private static final String DATABASE_NAME = "tvbrowser.db";
     
     private static final String GROUPS_TABLE = "channelGroups";
@@ -837,7 +838,7 @@ public class TvBrowserContentProvider extends ContentProvider {
           }
         }
         
-        c.close();
+        IOUtils.closeSafely(c);
       
         if(!logoFound) {
           db.execSQL("DROP TABLE IF EXISTS " + DATA_TABLE);
