@@ -25,7 +25,6 @@ import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -40,9 +39,9 @@ import android.support.v4.app.ListFragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 
 public class ProgramsListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
@@ -134,7 +133,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
               cursor.moveToFirst();
               
               UiUtils.handleMarkings(getActivity(), cursor, view, null, null, true);
-              cursor.close();
+              IOUtils.closeSafely(cursor);
             }
           }
         }
@@ -350,7 +349,8 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   public void startUpdateThread() {
     if(!mDontUpdate && (mUpdateThread == null || !mUpdateThread.isAlive())) {
       mUpdateThread = new Thread() {
-        public void run() {
+        @Override
+		public void run() {
           handler.post(new Runnable() {
             @Override
             public void run() {

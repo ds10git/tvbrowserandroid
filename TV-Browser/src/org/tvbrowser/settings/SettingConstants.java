@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.UiUtils;
 
@@ -139,7 +140,7 @@ public class SettingConstants {
       }
     }
     
-    channels.close();
+    IOUtils.closeSafely(channels);
   }
   
   private static BitmapDrawable createDrawable(int baseHeight, Context context, Bitmap logoBitmap) {

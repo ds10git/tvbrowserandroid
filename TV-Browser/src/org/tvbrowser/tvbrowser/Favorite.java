@@ -96,7 +96,8 @@ public class Favorite {
     mRemind = remind;
   }
   
-  public String toString() {
+  @Override
+public String toString() {
     return mName;
   }
   
@@ -246,7 +247,7 @@ public class Favorite {
       }
     }
     
-    cursor.close();
+    IOUtils.closeSafely(cursor);
   }
   
   public static boolean[] favoritesMatchesProgram(long programID, Context context, ContentResolver resolver, Favorite exclude) {
@@ -293,7 +294,7 @@ public class Favorite {
             remindFor = remindFor || cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) == 1;
           }
           
-          cursor.close();
+          IOUtils.closeSafely(cursor);
         }
       }
       
@@ -397,7 +398,7 @@ public class Favorite {
       }
     }
     
-    cursor.close();
+    IOUtils.closeSafely(cursor);
   }
   
   @Override

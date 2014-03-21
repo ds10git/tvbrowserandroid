@@ -28,7 +28,6 @@
 	    android:layout_toLeftOf="@+id/switch_to_next_day"
 	    android:layout_toRightOf="@+id/switch_to_previous_day"
 	    android:gravity="center_horizontal|center_vertical"
-	    android:text="Sonntag\n20. November"
 	    android:clickable="true" />
     
      <Button

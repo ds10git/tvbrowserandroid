@@ -37,13 +37,13 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 
 public class TvBrowserSearchResults extends ListActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
   private SimpleCursorAdapter mProgramsListAdapter;
@@ -53,7 +53,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
   public static String QUERY_EXTRA_EPISODE_KEY = "QUERY_EXTRA_EPISODE_KEY";
   
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
-  
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);

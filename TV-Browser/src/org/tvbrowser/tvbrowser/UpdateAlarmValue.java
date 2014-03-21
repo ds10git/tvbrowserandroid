@@ -28,7 +28,8 @@ public class UpdateAlarmValue extends BroadcastReceiver {
   @Override
   public void onReceive(final Context context, Intent intent) {
     new Thread() {
-      public void run() {
+      @Override
+	public void run() {
         PrefUtils.initialize(context);
         IOUtils.handleDataUpdatePreferences(context);
         
@@ -42,7 +43,7 @@ public class UpdateAlarmValue extends BroadcastReceiver {
           UiUtils.addReminder(context, id, startTime, UpdateAlarmValue.class);
         }
         
-        alarms.close();
+        IOUtils.closeSafely(alarms);
       }
     }.start();
   }

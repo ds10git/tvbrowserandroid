@@ -23,7 +23,6 @@ import java.io.RandomAccessFile;
 import org.tvbrowser.settings.PrefUtils;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -36,10 +35,9 @@ public class Logging {
   private static RandomAccessFile DATA_UPDATE_LOG;
   
   public synchronized static void log(String tag, String message, int type, Context context) {
-    RandomAccessFile log = getLogFileForType(type, context);
-    
-    if(log != null) {
-      try {
+    RandomAccessFile log = null;
+    try {
+    	log = getLogFileForType(type, context);
         log.writeBytes(message + "\n");
         
         if(type == REMINDER_TYPE) {
@@ -49,16 +47,11 @@ public class Logging {
           
           log.writeBytes(" --- NEWEST ENTRY ABOVE THIS LINE --- \n");
         }
-      } catch (IOException e) {}
-      finally {
-        if(log != null) {
-          try {
-            log.close();
-          } catch (IOException e) {}
-        }
-      }
+    } catch (Exception e) {}
+    finally {
+        IOUtils.closeSafely(log);
     }
-    
+
     if(tag != null) {
       Log.d(tag, message);
     }
@@ -90,11 +83,7 @@ public class Logging {
   }
   
   public static void closeLogForDataUpdate() {
-    if(DATA_UPDATE_LOG != null) {
-      try {
-        DATA_UPDATE_LOG.close();
-      } catch (IOException e) {}
-    }
+    IOUtils.closeSafely(DATA_UPDATE_LOG);
   }
   
   private static RandomAccessFile getLogFileForType(int type, Context context) {
@@ -104,7 +93,6 @@ public class Logging {
       log = DATA_UPDATE_LOG;
     }
     else if(type == REMINDER_TYPE) {
-      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
       
       if(PrefUtils.getBooleanValue(R.string.WRITE_REMINDER_LOG, R.bool.write_reminder_log_default)) {
         try {

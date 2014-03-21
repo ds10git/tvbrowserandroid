@@ -188,7 +188,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           String episode = values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
           
           long startTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-          long endTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+          //long endTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
           
           boolean hasLogo = !values.isNull(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
                   
@@ -224,7 +224,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
             }
           }
           
-          builder.setSmallIcon(R.drawable.reminder);
+          builder.setSmallIcon(R.drawable.ic_stat_notification);
           builder.setWhen(startTime);
           
           if(sound) {
@@ -272,7 +272,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(title,(int)(startTime / 60000), notification);
         }
         
-        values.close();
+        IOUtils.closeSafely(values);
       }
     }
   }
