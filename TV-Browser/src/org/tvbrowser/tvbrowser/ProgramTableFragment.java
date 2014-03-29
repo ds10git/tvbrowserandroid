@@ -743,7 +743,15 @@ public class ProgramTableFragment extends Fragment {
       @Override
       public void run() {
         if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-          getView().findViewById(R.id.horizontal_program_table_scroll).setScrollX(mOldScrollX);
+          View view = getView();
+          
+          if(view != null) {
+            View scroll = view.findViewById(R.id.horizontal_program_table_scroll);
+            
+            if(scroll != null) {
+              scroll.setScrollX(mOldScrollX);
+            }
+          }
         }
         
         mOldScrollX = 0;
