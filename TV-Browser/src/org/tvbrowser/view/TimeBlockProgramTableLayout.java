@@ -21,6 +21,7 @@ import java.util.Calendar;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.util.Log;
 
 public class TimeBlockProgramTableLayout extends ProgramTableLayout {
   //private ArrayList<Integer> mChannelIDsOrdered;
@@ -56,7 +57,7 @@ public class TimeBlockProgramTableLayout extends ProgramTableLayout {
       int sortIndex = getIndexForChannelID(progPanel.getChannelID());
       int block = progPanel.getStartHour(mCurrentShownDay) / mBlockSize;
       
-      if(block >= 0 && sortIndex >= 0) {
+      if(block >= 0 && sortIndex >= 0 && block < blockProgCount.length) {
         progPanel.measure(widthSpec, heightMeasureSpec);
         blockHeightCalc[block][sortIndex] += progPanel.getMeasuredHeight();
         blockProgCount[block][sortIndex]++;
@@ -89,7 +90,7 @@ public class TimeBlockProgramTableLayout extends ProgramTableLayout {
         int sortIndex = getIndexForChannelID(progPanel.getChannelID());
         int block = progPanel.getStartHour(mCurrentShownDay) / mBlockSize;
         
-        if(block >= 0 && sortIndex >= 0) {
+        if(block >= 0 && sortIndex >= 0 && block < mBlockHeights.length) {
           int maxBlockHeight = mBlockHeights[block];
           int heightDiff = maxBlockHeight - blockHeightCalc[block][sortIndex];
           int blockProgCountValue = blockProgCount[block][sortIndex];
@@ -132,7 +133,7 @@ public class TimeBlockProgramTableLayout extends ProgramTableLayout {
       int sortIndex = getIndexForChannelID(progPanel.getChannelID());
       int block = progPanel.getStartHour(mCurrentShownDay) / mBlockSize;
       
-      if(block >= 0 && sortIndex >= 0) {
+      if(block >= 0 && sortIndex >= 0 && block < currentBlockHeight.length) {
         int x = l + ProgramTableLayoutConstants.ROW_HEADER + ProgramTableLayoutConstants.GAP + sortIndex * (ProgramTableLayoutConstants.COLUMN_WIDTH + ProgramTableLayoutConstants.GAP);
         int y = t + currentBlockHeight[block][sortIndex];
         
