@@ -52,7 +52,6 @@ import billing.util.Purchase;
 import billing.util.SkuDetails;
 
 import android.app.ActionBar;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.app.NotificationManager;
@@ -424,7 +423,8 @@ public class TvBrowser extends FragmentActivity implements
   
   private void handleResume() {
     new Thread() {
-      public void run() {
+      @Override
+	public void run() {
         Calendar cal2 = Calendar.getInstance();
         cal2.add(Calendar.DAY_OF_YEAR, -2);
         
@@ -507,7 +507,7 @@ public class TvBrowser extends FragmentActivity implements
       dialog.show();
     }
     
-    channels.close();
+    IOUtils.closeSafely(channels);
     
     Calendar now = Calendar.getInstance();
     
@@ -523,7 +523,8 @@ public class TvBrowser extends FragmentActivity implements
         
         if(mCurrentDay != day) {
           new Thread() {
-            public void run() {
+            @Override
+			public void run() {
               try {
                 sleep(60000);
               } catch (InterruptedException e1) {}
@@ -595,7 +596,7 @@ public class TvBrowser extends FragmentActivity implements
     
     int count = test.getCount();
     
-    test.close();
+    IOUtils.closeSafely(test);
     
     if(count > 0) {
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -625,7 +626,8 @@ public class TvBrowser extends FragmentActivity implements
   
   private void syncronizeChannels(final boolean replace) {
     new Thread() {
-      public void run() {
+      @Override
+	public void run() {
         boolean somethingSynchonized = false;
         
         if(replace) {
@@ -692,7 +694,7 @@ public class TvBrowser extends FragmentActivity implements
                       }
                     }
                     
-                    group.close();
+                    IOUtils.closeSafely(group);
                     
                     sort++;
                   }
@@ -790,7 +792,7 @@ public class TvBrowser extends FragmentActivity implements
         }
       }
       
-      groups.close();
+      IOUtils.closeSafely(groups);
       
       if(groupInfo.size() > 0) {
         while(programs.moveToNext()) {
@@ -806,17 +808,18 @@ public class TvBrowser extends FragmentActivity implements
       }
     }
     
-    programs.close();
+    IOUtils.closeSafely(programs);
     
     return IOUtils.getCompressedData(dat.toString().getBytes());
   }
-  
+
+  private static final String CrLf = "\r\n";
+
   private void synchronizeUp(boolean info, final String value, final String address) {
     new Thread() {
       @Override
       public void run() {
-        final String CrLf = "\r\n";
-        
+
         SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
         
         String car = pref.getString(SettingConstants.USER_NAME, null);
@@ -834,12 +837,8 @@ public class TvBrowser extends FragmentActivity implements
               URL url = new URL(address);
               
               conn = url.openConnection();
-              
               conn.setRequestProperty ("Authorization", basicAuth);
-              
               conn.setDoOutput(true);
-              
-              String postData = "";
               
               byte[] xmlData = value == null ? getXmlBytes() : IOUtils.getCompressedData(value.getBytes("UTF-8"));
               
@@ -918,18 +917,8 @@ public class TvBrowser extends FragmentActivity implements
               Log.d("info8", "" ,e);
           } finally {
             Log.d("info8","Close connection");
-              try {
-                  os.close();
-              } catch (Exception e) {
-              }
-              try {
-                  is.close();
-              } catch (Exception e) {
-              }
-              try {
-      
-              } catch (Exception e) {
-              }
+            IOUtils.closeSafely(os);
+            IOUtils.closeSafely(is);
           }
         }
       }
@@ -938,7 +927,8 @@ public class TvBrowser extends FragmentActivity implements
   
   private void synchronizeRemindersDown(boolean info) {
     new Thread() {
-      public void run() {
+      @Override
+	public void run() {
         if(!SettingConstants.UPDATING_REMINDERS) {
           SettingConstants.UPDATING_REMINDERS = true;
           
@@ -1019,13 +1009,13 @@ public class TvBrowser extends FragmentActivity implements
                           }
                         }
                         
-                        program.close();
+                        IOUtils.closeSafely(program);
                       }
                       
-                      channel.close();
+                      IOUtils.closeSafely(channel);
                     }
                     
-                    group.close();
+                    IOUtils.closeSafely(group);
                   }
                 }
               }
@@ -1063,14 +1053,15 @@ public class TvBrowser extends FragmentActivity implements
   
   private void synchronizeDontWantToSee(final boolean replace) {
     new Thread() {
-      public void run() {
+      @Override
+	public void run() {
         if(!SettingConstants.UPDATING_FILTER) {
           SettingConstants.UPDATING_FILTER = true;
           
           NotificationCompat.Builder builder;
           
           builder = new NotificationCompat.Builder(TvBrowser.this);
-          builder.setSmallIcon(R.drawable.ic_launcher);
+          builder.setSmallIcon(R.drawable.ic_stat_notification);
           builder.setOngoing(true);
           builder.setContentTitle(getResources().getText(R.string.action_dont_want_to_see));
           builder.setContentText(getResources().getText(R.string.dont_want_to_see_notification_text));
@@ -1166,7 +1157,7 @@ public class TvBrowser extends FragmentActivity implements
                   updateValuesList.add(opBuilder.build());
                 }
                 
-                c.close();
+                IOUtils.closeSafely(c);
                 
                 if(!updateValuesList.isEmpty()) {
                   try {
@@ -1250,7 +1241,7 @@ public class TvBrowser extends FragmentActivity implements
     }
     
     public boolean isCountry(String value) {
-      return value == null || mCountry.toLowerCase().contains(value.toLowerCase());
+      return value == null || mCountry.toLowerCase(Locale.getDefault()).contains(value.toLowerCase(Locale.getDefault()));
     }
     
     public boolean isSelected() {
@@ -1269,7 +1260,8 @@ public class TvBrowser extends FragmentActivity implements
       return mChannelLogo;
     }
     
-    public String toString() {
+    @Override
+	public String toString() {
       return mName;
     }
     
@@ -1298,7 +1290,8 @@ public class TvBrowser extends FragmentActivity implements
    * @author René Mach
    */
   private static class ArrayListWrapper extends ArrayList<ChannelSelection> {
-    Integer[] mValueMap = null;
+	private static final long serialVersionUID = 4735217720951379320L;
+	Integer[] mValueMap = null;
     
     @Override
     public ChannelSelection get(int index) {
@@ -1402,7 +1395,8 @@ public class TvBrowser extends FragmentActivity implements
       mLocale = locale;
     }
     
-    public String toString() {
+    @Override
+	public String toString() {
       if(mLocale == null) {
         return ALL_VALUE;
       }
@@ -1507,24 +1501,22 @@ public class TvBrowser extends FragmentActivity implements
     
     countryList.add(0,new Country(null));
     
-    channels.close();
+    IOUtils.closeSafely(channels);
     
     // create filter for filtering of category and country
     final ChannelFilter filter = new ChannelFilter(SettingConstants.TV_CATEGORY, null);
     
     channelSelectionList.setFilter(filter);
-    
-    // create default logo for channels without logo
-    final Bitmap defaultLogo = BitmapFactory.decodeResource( getResources(), R.drawable.ic_launcher);
-    
+
     // Custom array adapter for channel selection
     final ArrayAdapter<ChannelSelection> channelSelectionAdapter = new ArrayAdapter<ChannelSelection>(TvBrowser.this, R.layout.channel_row, channelSelectionList) {
-      public View getView(int position, View convertView, ViewGroup parent) {
+      @Override
+	public View getView(int position, View convertView, ViewGroup parent) {
         ChannelSelection value = getItem(position);
         ViewHolder holder = null;
         
         if (convertView == null) {
-          LayoutInflater mInflater = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+          LayoutInflater mInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
           
           holder = new ViewHolder();
           
@@ -1550,7 +1542,8 @@ public class TvBrowser extends FragmentActivity implements
           holder.mLogo.setImageBitmap(logo);
         }
         else {
-          holder.mLogo.setImageBitmap(defaultLogo);
+          // default logo
+          holder.mLogo.setImageResource( R.drawable.ic_launcher);
         }
         
         return convertView;
@@ -1712,7 +1705,8 @@ public class TvBrowser extends FragmentActivity implements
       return mSortNumber;
     }
     
-    public String toString() {
+    @Override
+	public String toString() {
       return (mSortNumber == 0 ? "-" : mSortNumber) + ". " + mName;
     }
     
@@ -1800,7 +1794,7 @@ public class TvBrowser extends FragmentActivity implements
       showChannelSelection();
     }
     
-    channels.close();
+    IOUtils.closeSafely(channels);
   }
   
   private void sortChannels() {
@@ -1862,7 +1856,7 @@ public class TvBrowser extends FragmentActivity implements
         }while(channels.moveToNext());
       }
       
-      channels.close();
+      IOUtils.closeSafely(channels);
       
       final Comparator<ChannelSort> sortComparator = new Comparator<TvBrowser.ChannelSort>() {
         @Override
@@ -1880,16 +1874,14 @@ public class TvBrowser extends FragmentActivity implements
       
       Collections.sort(channelSource, sortComparator);
 
-      // create default logo for channels without logo
-      final Bitmap defaultLogo = BitmapFactory.decodeResource( getResources(), R.drawable.ic_launcher);
-      
       final ArrayAdapter<ChannelSort> aa = new ArrayAdapter<TvBrowser.ChannelSort>(TvBrowser.this, R.layout.channel_sort_row, channelSource) {
-        public View getView(int position, View convertView, ViewGroup parent) {
+        @Override
+		public View getView(int position, View convertView, ViewGroup parent) {
           ChannelSort value = getItem(position);
           ViewHolder holder = null;
           
           if (convertView == null) {
-            LayoutInflater mInflater = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+            LayoutInflater mInflater = (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
             
             holder = new ViewHolder();
             
@@ -1924,7 +1916,8 @@ public class TvBrowser extends FragmentActivity implements
             holder.mLogo.setImageBitmap(logo);
           }
           else {
-            holder.mLogo.setImageBitmap(defaultLogo);
+            // default logo
+            holder.mLogo.setImageResource(R.drawable.ic_launcher);
           }
           
           return convertView;
@@ -1945,7 +1938,7 @@ public class TvBrowser extends FragmentActivity implements
           final NumberPicker number = (NumberPicker)numberSelection.findViewById(R.id.sort_picker);
           number.setMinValue(1);
           number.setMaxValue(channelSource.size());
-          number.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+          number.setDescendantFocusability(ViewGroup.FOCUS_BLOCK_DESCENDANTS);
           number.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
             @Override
             public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
@@ -2134,12 +2127,12 @@ public class TvBrowser extends FragmentActivity implements
         
         boolean loadAgain = test2.getCount() < 1;
         
-        test2.close();
+        IOUtils.closeSafely(test2);
         
         selectChannels(loadAgain);
       }
       
-      test.close();
+      IOUtils.closeSafely(test);
     }
   }
   
@@ -2200,7 +2193,8 @@ public class TvBrowser extends FragmentActivity implements
   private void setUserName(final String userName, final String password, final boolean syncChannels) {
     if(userName != null && password != null) {
       new Thread() {
-        public void run() {
+        @Override
+		public void run() {
           URL documentUrl;
           try {
             documentUrl = new URL("http://android.tvbrowser.org/data/scripts/testMyAccount.php");
@@ -2449,7 +2443,7 @@ public class TvBrowser extends FragmentActivity implements
           SettingConstants.UPDATING_FILTER = true;
           
           final NotificationCompat.Builder builder = new NotificationCompat.Builder(TvBrowser.this);
-          builder.setSmallIcon(R.drawable.ic_launcher);
+          builder.setSmallIcon(R.drawable.ic_stat_notification);
           builder.setOngoing(true);
           builder.setContentTitle(getResources().getText(R.string.action_dont_want_to_see));
           builder.setContentText(getResources().getText(R.string.dont_want_to_see_refresh_notification_text));
@@ -2472,7 +2466,8 @@ public class TvBrowser extends FragmentActivity implements
           }
           
           new Thread() {
-            public void run() {
+            @Override
+			public void run() {
               Cursor programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.KEY_ID);
               
               builder.setProgress(programs.getCount(), 0, true);
@@ -2505,7 +2500,7 @@ public class TvBrowser extends FragmentActivity implements
               
               notification.cancel(notifyID);
               
-              programs.close();
+              IOUtils.closeSafely(programs);
               
               if(!updateValuesList.isEmpty()) {
                 try {
@@ -2627,9 +2622,7 @@ public class TvBrowser extends FragmentActivity implements
     if(test1 instanceof DummySectionFragment) {
       ((DummySectionFragment)test1).updateChannels();
     }
-    
-    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    
+
     Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
     
     if(fragment instanceof FavoritesFragment) {
@@ -2971,9 +2964,7 @@ public class TvBrowser extends FragmentActivity implements
     mContinueReminder.setVisible(SettingConstants.IS_REMINDER_PAUSED);
     
     mScrollTimeItem.setVisible(mViewPager.getCurrentItem() == 1 || mViewPager.getCurrentItem() == 3);
-    
-    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
-    
+
     boolean dataUpdateLogEnabled = PrefUtils.getBooleanValue(R.string.WRITE_DATA_UPDATE_LOG, R.bool.write_data_update_log_default);
     boolean reminderLogEnabled = PrefUtils.getBooleanValue(R.string.WRITE_REMINDER_LOG, R.bool.write_reminder_log_default);
     

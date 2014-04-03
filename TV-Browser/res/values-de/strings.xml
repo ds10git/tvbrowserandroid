@@ -10,8 +10,6 @@
     <string name="action_sort_channels">Sender sortieren</string>
     <string name="action_delete_all_data">Daten löschen</string>
     <string name="action_username_password">Benutzername und -passwort eingeben</string>
-    <string name="action_exit">Beenden</string>
-    <string name="action_exit_now">TV-Browser jetzt beenden?</string>
     <string name="sort_alphabetically">Alphabetisch sortieren</string>
 	<string name="channel_download_warning_title">Senderdownload nicht vollständig</string>
     <string name="channel_download_warning_text">Nicht alle Sender konnten erfolgreich geladen werden.\nSollten Sie Sender vermissen versuchen Sie die Sender erneut zu laden.</string>
@@ -29,10 +27,8 @@
     <string name="title_program_table">Programmtabelle</string>
     <string name="title_favorites">Lieblingssendungen</string>
     <string name="button_now">Jetzt</string>
-    <string name="button_all_channels">Alle</string>
     <string name="button_after">Danach</string>
     <string name="button_before">Davor</string>
-    <string name="button_at">Genaue Zeit</string>
     <string name="no_channels">Keine Sender vorhanden.</string>
     <string name="select_channels">Sender jetzt auswählen</string>
     <string name="tv">Fernsehen</string>
@@ -168,8 +164,6 @@
 	<string name="pref_title">Einstellungen</string>
 	<string name="pref_summary">Einstellungen für TV-Browser</string>
 	<string name="pref_download_category">Datendownload</string>
-	<string name="pref_programs_list_category">Datendownload</string>
-	<string name="pref_summary_data_download">Einstellungen für den Datendownload</string>
 	<string name="pref_load_full_data">Vollständige Daten herunterladen</string>
     <string name="pref_load_picture_data">Bilder herunterladen</string>
 	<string name="pref_load_full_data_summary_on">Alle verfügbaren Informationen werden heruntergeladen</string>
@@ -181,11 +175,9 @@
 	<string name="show_name_only">Nur Sendername anzeigen</string>
 	<string name="pref_activated">Aktiviert</string>
 	<string name="pref_detail_category">Detail-Fenster</string>
-	<string name="pref_detail_category_summary">Welche Informationen sollen im Detail-Fenster angezeigt werden?</string>
 	<string name="pref_detail_picture_zoom">Bild skalieren</string>
 	<string name="pref_detail_text_scale">Text skalieren</string>
 	<string name="pref_list_category">Listen mit Sendungen</string>
-	<string name="pref_list_category_summary">Welche Informationen sollen in den Listen mit Sendungen angezeigt werden?</string>
 	<string name="pref_show_pictures">Bilder anzeigen</string>
 	<string name="pref_show_genre">Genre anzeigen</string>
 	<string name="pref_show_episode">Episodentitel anzeigen</string>
@@ -223,13 +215,8 @@
 	<string name="pref_prog_table_time_block_size">Anzahl der Stunden pro Block:</string>
 	<string name="sort_enter">Alternativ Nummer eingeben (beliebige positive Zahl):</string>
 	<string name="pref_time_buttons">Zeitknöpfe</string>
-	<string name="pref_time_buttons_summary">Zeitknöpfe der Laufenden Sendungen konfigurieren.</string>
 	<string name="pref_time_button_hint">Mehrfache Einträge werden ignoriert.</string>
 	<string name="running_until">, bis </string>
-	<string-array name="running_layout_values">
-	    <item>Ausführlich</item>
-	    <item>Kompakt</item>
-	</string-array>
 	<string-array name="prog_table_layout_values">
 	    <item>Zeitblock</item>
 	    <item>Kompakt</item>
@@ -242,7 +229,6 @@
 	<string name="pref_write_data_update_log_summary">Eine Log-Datei mit Informationen über das Datenupdate wird erstellt. Diese wird größer bis sie zu Beginn eines Datenupdates 5MB erreicht oder manuell gelöscht wird.</string>
 	<string name="pref_write_reminder_update_log">Log-Datei für Erinnerer schreiben</string>
 	<string name="pref_write_reminder_update_log_summary">Eine Log-Datei mit Informationen über die Funktion des Erinnerers wird erstellt. Diese wird größer bis sie eine Größe von 5MB erreicht.</string>	
-	<string name="pref_debug_summary">Einstellungen Beta-Tester</string>
 	<string name="action_send_data_update_log">Log-Datei des Datenupdates verschicken</string>
 	<string name="action_delete_data_update_log">Log-Datei des Datenupdates löschen</string>
 	<string name="action_send_reminder_log">Log-Datei des Erinnerers verschicken</string>
@@ -259,10 +245,7 @@
 	<string name="log_send_reminder">Erinnerer</string>
 	<string name="log_send_mail_subject">{0} Log-Datei für TV-Browser für Android</string>
 	<string name="log_send_mail_content">Der Anhang enthält die {0} Log-Datei für TV-Browser für Android vom </string>
-	<string name="pref_misc">Sonstiges</string>
 	<string name="pref_sync_title">Synchronisation</string>
-	<string name="pref_sync_summary_disabled">Um die Synchronistation mit dem Desktop-TV-Browser nutzen zu können, muss im Menü ein Benutzername und -passwort eingegeben werden.</string>
-	<string name="pref_sync_summary_enabled">Einstellungen für die Synchronistaion mit dem Desktop-TV-Browser</string>
 	<string name="pref_sync_reminder_from_desktop">Erinnerungen importieren</string>
 	<string name="pref_sync_reminder_from_desktop_summary">Erinnerungen die vom AndroidSync-Plugin aus der Desktop-Version exportiert werden, werden importiert.</string>
 	<string name="pref_sync_reminder_to_desktop">Erinnerungen exportieren</string>
@@ -321,14 +304,12 @@
 	</string-array>
 	<string name="pref_reminder_category">Erinnerungen</string>
 	<string name="pref_reminder_type">Tages-Modus</string>
-	<string name="pref_reminder_sound">Sound</string>
 	<string name="pref_reminder_no_sound">Kein Sound</string>
 	<string name="pref_reminder_sound_value_summary">Sound der bei Erinnerung abgespielt wird</string>
 	<string name="pref_reminder_vibrate">Vibrieren</string>
 	<string name="pref_reminder_led">Info-LED</string>
 	<string name="pref_reminder_night_type">Nacht-Modus</string>
 	<string name="pref_reminder_night_no_reminder">Keine Erinnerungen</string>
-	<string name="pref_reminder_dont_remind">Nicht erinnern</string>
 	<string name="pref_reminder_night_start">Start des Nacht-Modus</string>
 	<string name="pref_reminder_night_end">Ende des Nacht-Modus</string>
 	<string name="pref_reminder_work_mode_category">Arbeits-Modus</string>
@@ -340,7 +321,6 @@
 	<string name="saturday">Samstag</string>
 	<string name="sunday">Sonntag</string>
 	<string name="pref_reminder_work_days">Tage einstellen</string>
-	<string name="pref_reminder_work_days_summary">Genaue Einstellungen für jeden Wochentag vornehmen</string>
 	<string name="pref_reminder_work_start">Start</string>
 	<string name="pref_reminder_work_end">Ende</string>
 	<string name="pref_category_reminder_title">Erinnerungszeitpunkt:</string>
@@ -407,7 +387,7 @@
     <string name="donation_open_inapp">Zeige InApp-Spenden</string>
     <string name="donation_info_website">Alle Spendenmöglichkeiten sind auf der Webseite von TV-Browser für Android beschrieben.</string>
     <string name="donation_open_website">Webseite mit allen Spendenmöglichkeiten öffnen.</string>
-    <string name="donation_thanks_text">Vielen Dank für das Interesse an Spenden für TV-Browser, Sie können aus folgenden Beträgen auswählen (diese enthalen jeweils 30% Google Play Zahlungsgebühr):</string>
+    <string name="donation_thanks_text">Vielen Dank für das Interesse an Spenden für TV-Browser, Sie können aus folgenden Beträgen auswählen (diese enthalen jeweils 30\% Google Play Zahlungsgebühr):</string>
     <string name="make_donation_info">Sie sind dabei eine Spende von {0} zu leisten.\n\nMit dem Klick auf \'Ja, jetzt spenden\' bestätigen Sie, dass sie mindestens 18 Jahre alt sind und damit Spenden leisten dürfen.</string>
     <string name="make_donation">Ja, jetzt spenden</string>
     <string name="stop_donation">Nein, Danke</string>
@@ -415,7 +395,8 @@
     <string name="in_app_error">Konnte keine Verbindung zu Google Play herstellen.\n\nBitte versuchen Sie es später erneut oder verwenden Sie eine Spendenalternative.</string>
     <string name="already_donated">Sie haben bereits am {1} {0} gespendet. Nochmal danke dafür.\n\nMöchten Sie tatsächlich nochmals spenden?</string>
     <string name="donate_again">Ja, nochmals spenden</string>
-    <string name="no_donation_possible">Zur Zeit keine Spenden möglich.\nBitte versuchen Sie es später erneut.</string>
     <string name="pref_running_time_selection">Zeitauswahl</string>
     <string name="pref_running_time_selection_summary">Hintergrundfarbe der ausgewählten Zeit.</string>
+    <string name="picture">Bild</string>
+    <string name="logo">Logo</string>
 </resources>

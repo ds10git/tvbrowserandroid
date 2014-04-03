@@ -16,26 +16,29 @@
  */
 package org.tvbrowser.view;
 
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.Canvas;
 import android.util.Log;
 
 public class TimeBlockProgramTableLayout extends ProgramTableLayout {
-  //private ArrayList<Integer> mChannelIDsOrdered;
+
   private int[] mBlockHeights;
   private int[] mBlockCumulatedHeights;
   private int mBlockSize;
   private Calendar mCurrentShownDay;
   
   private boolean mGrowToBlock;
-  
-  public TimeBlockProgramTableLayout(Context context, final ArrayList<Integer> channelIDsOrdered, int blockSize, final Calendar day, boolean growToBlock) {
+
+  public TimeBlockProgramTableLayout(Context context) {
+    super(context);
+  }
+
+  public TimeBlockProgramTableLayout(Context context, final List<Integer> channelIDsOrdered, int blockSize, final Calendar day, boolean growToBlock) {
     super(context, channelIDsOrdered);
-    
-    //mChannelIDsOrdered = channelIDsOrdered;
+
     mGrowToBlock = growToBlock;
         
     mBlockHeights = new int[(ProgramTableLayoutConstants.HOURS/blockSize) + (ProgramTableLayoutConstants.HOURS % blockSize > 0 ? 1 : 0)];

@@ -1,18 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="pref_category_key">PREF_CATEGORY</string>
-    <string name="category_download">DOWNLOAD</string>
-    <string name="category_start">START</string>
-    <string name="category_theme">THEME</string>
-    <string name="category_reminder">REMINDER</string>
-    <string name="category_time_buttons">TIME_BUTTONS</string>
-    <string name="category_running_programs">RUNNING_PROGRAMS</string>
-    <string name="category_programs_list">PROGRAMS_LIST</string>
-    <string name="category_program_table">PROGRAMS_TABLE</string>
-    <string name="category_list">PROGRAM_LISTS</string>
-    <string name="category_details">DETAILS</string>
-    <string name="category_sync">SYNC</string>
-    <string name="category_email">EMAIL</string>
-    <string name="category_additional_infos">ADDITIONAL_INFO</string>
-    <string name="category_debug">DEBUG</string>
+    <string name="pref_category_key" translatable="false">PREF_CATEGORY</string>
+    <string name="category_download" translatable="false">DOWNLOAD</string>
+    <string name="category_start" translatable="false">START</string>
+    <string name="category_theme" translatable="false">THEME</string>
+    <string name="category_reminder" translatable="false">REMINDER</string>
+    <string name="category_time_buttons" translatable="false">TIME_BUTTONS</string>
+    <string name="category_running_programs" translatable="false">RUNNING_PROGRAMS</string>
+    <string name="category_programs_list" translatable="false">PROGRAMS_LIST</string>
+    <string name="category_program_table" translatable="false">PROGRAMS_TABLE</string>
+    <string name="category_list" translatable="false">PROGRAM_LISTS</string>
+    <string name="category_details" translatable="false">DETAILS</string>
+    <string name="category_sync" translatable="false">SYNC</string>
+    <string name="category_email" translatable="false">EMAIL</string>
+    <string name="category_additional_infos" translatable="false">ADDITIONAL_INFO</string>
+    <string name="category_debug" translatable="false">DEBUG</string>
 </resources>

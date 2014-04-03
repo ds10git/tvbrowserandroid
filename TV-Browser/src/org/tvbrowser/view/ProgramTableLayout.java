@@ -16,27 +16,33 @@
  */
 package org.tvbrowser.view;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.view.View;
 import android.view.ViewGroup;
 
 public abstract class ProgramTableLayout extends ViewGroup {
-  private ArrayList<Integer> mChannelIDsOrdered;
-  
-  public ProgramTableLayout(Context context, ArrayList<Integer> channelIDsOrdered) {
+  private List<Integer> mChannelIDsOrdered;
+
+  public ProgramTableLayout(Context context) {
+    super(context);
+  }
+
+  public ProgramTableLayout(Context context, List<Integer> channelIDsOrdered) {
     super(context);
     
     mChannelIDsOrdered = channelIDsOrdered;
   }
   
   final int getIndexForChannelID(int channelID) {
-    for(int i = 0; i < mChannelIDsOrdered.size(); i++) {
-      if(mChannelIDsOrdered.get(i).intValue() == channelID) {
-        return i;
-      }
-    }
+	  if (mChannelIDsOrdered!=null) {
+	    for(int i = 0; i < mChannelIDsOrdered.size(); i++) {
+	      if(mChannelIDsOrdered.get(i).intValue() == channelID) {
+	        return i;
+	      }
+	    }
+	  }
     
     return -1;
   }
@@ -51,6 +57,6 @@ public abstract class ProgramTableLayout extends ViewGroup {
   }
   
   final int getColumnCount() {
-    return mChannelIDsOrdered.size();
+    return mChannelIDsOrdered==null ? 0 : mChannelIDsOrdered.size();
   }
 }

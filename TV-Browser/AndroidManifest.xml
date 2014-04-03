@@ -25,7 +25,8 @@
         <meta-data android:name="android.app.default_searchable"
             android:value="org.tvbrowser.tvbrowser.TvBrowserSearchResults"/>
         <provider android:name="org.tvbrowser.content.TvBrowserContentProvider"
-            android:authorities="org.tvbrowser.tvbrowsercontentprovider" />
+            android:authorities="org.tvbrowser.tvbrowsercontentprovider" 
+            android:exported="false" />"
         <service android:name="org.tvbrowser.tvbrowser.TvDataUpdateService"
             android:enabled="true"></service>
         <activity

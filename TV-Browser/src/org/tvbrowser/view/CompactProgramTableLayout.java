@@ -16,13 +16,18 @@
  */
 package org.tvbrowser.view;
 
-import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
 import android.graphics.Canvas;
 
 public class CompactProgramTableLayout extends ProgramTableLayout {
-  public CompactProgramTableLayout(Context context, final ArrayList<Integer> channelIDsOrdered) {
+
+  public CompactProgramTableLayout(Context context) {
+    super(context);
+  }
+
+  public CompactProgramTableLayout(Context context, final List<Integer> channelIDsOrdered) {
     super(context, channelIDsOrdered);
   }
 
