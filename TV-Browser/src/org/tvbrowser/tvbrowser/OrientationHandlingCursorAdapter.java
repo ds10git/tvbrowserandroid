@@ -24,13 +24,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
-import android.widget.SimpleCursorAdapter;
 
 /**
  * A cursor adapter that handles orientation changes.
@@ -42,12 +42,9 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
   private View.OnClickListener mChannelSwitchListener;
   private View.OnCreateContextMenuListener mContextMenuListener;
   private AdapterView.AdapterContextMenuInfo mContextMenuInfo;
-  private Context mContext;
   
   public OrientationHandlingCursorAdapter(final Context context, int layout, Cursor c, String[] from, int[] to, int flags, boolean handleClicks) {
     super(context, layout, c, from, to, flags);
-    
-    mContext = context;
     
     if(handleClicks) {
       mOnClickListener = new View.OnClickListener() {

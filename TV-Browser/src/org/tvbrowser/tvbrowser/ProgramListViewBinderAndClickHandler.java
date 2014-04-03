@@ -25,14 +25,13 @@ import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.preference.PreferenceManager;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.format.DateFormat;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -43,17 +42,14 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBinder{
   private Activity mActivity;
-  private SharedPreferences mPref;
   private int mDefaultTextColor;
-  
+
   public ProgramListViewBinderAndClickHandler(Activity act) {
     mActivity = act;
-    mPref = PreferenceManager.getDefaultSharedPreferences(act);
     mDefaultTextColor = new TextView(mActivity).getTextColors().getDefaultColor();
   }
 

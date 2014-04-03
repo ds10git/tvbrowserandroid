@@ -42,17 +42,17 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 public class FavoritesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
@@ -149,7 +149,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     final ListView markings = (ListView)getView().findViewById(R.id.select_marking_list);
     final ListView favorites = (ListView)getView().findViewById(R.id.favorite_list);
     favorites.setAdapter(mFavoriteAdapter);
-    favorites.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+    favorites.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
     favorites.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> adapterView, View v, int position,
@@ -202,7 +202,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     
     updateSynchroButton(null);
     markings.setAdapter(mMarkingsAdapter);
-    markings.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
+    markings.setChoiceMode(AbsListView.CHOICE_MODE_SINGLE);
     markings.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> adapterView, View v, int position,
@@ -249,8 +249,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     
     registerForContextMenu(favorites);
     
-    Button add = (Button)getView().findViewById(R.id.add_favorite);
-    add.setOnClickListener(new View.OnClickListener() {
+    getView().findViewById(R.id.add_favorite).setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
         editFavorite(null);
@@ -296,7 +295,8 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       public void onReceive(Context context, final Intent intent) {
         if(mUpdateThread == null || !mUpdateThread.isAlive()) {
           mUpdateThread = new Thread() {
-            public void run() {
+            @Override
+			public void run() {
               String oldName = intent.getStringExtra(Favorite.OLD_NAME_KEY);
               
               Favorite fav = null;
@@ -489,7 +489,8 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         final Favorite fav = mFavoriteList.remove(pos);
         
         new Thread() {
-          public void run() {
+          @Override
+		public void run() {
             Favorite.removeFavoriteMarking(getActivity().getApplicationContext(), getActivity().getContentResolver(), fav);
           }
         }.start();

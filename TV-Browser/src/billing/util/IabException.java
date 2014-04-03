@@ -22,7 +22,10 @@ package billing.util;
  * call {@link #getResult()}.
  */
 public class IabException extends Exception {
-    IabResult mResult;
+
+	private static final long serialVersionUID = 2133612277388070901L;
+	
+	IabResult mResult;
 
     public IabException(IabResult r) {
         this(r, null);

@@ -162,9 +162,10 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           mShowOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_RUNNING_LIST, R.bool.show_sort_number_in_running_list_default);
           
           new Thread() {
-            public void run() {
+            @Override
+			public void run() {
               if(getActivity() != null && isAdded()) {
-                ViewGroup list = (ViewGroup)getListView();
+                ViewGroup list = getListView();
                 
                 for(int i = 0; i < list.getChildCount(); i++) {
                   CompactLayoutViewHolder holder = (CompactLayoutViewHolder) list.getChildAt(i).getTag();
@@ -209,7 +210,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       @Override
       public void onReceive(Context context, final Intent intent) {
         new Thread() {
-          public void run() {
+          @Override
+		public void run() {
             long programID = intent.getLongExtra(SettingConstants.MARKINGS_ID, -1);
             
             if(mMarkingsMap.indexOfKey(programID) >= 0) {
@@ -238,7 +240,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
                 }
               }
                             
-              c.close();
+              IOUtils.closeSafely(c);
             }
           }
         }.start();
@@ -697,13 +699,14 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
         final View layout1 = layout;
         
         new Thread() {
-          public void run() {
+          @Override
+		public void run() {
             UiUtils.handleMarkings(getActivity(), null, startTime1, endTime1, layout1, markingsValue, handler);
           }
         }.start();
       }
       else {
-        layout.setBackgroundDrawable(getActivity().getResources().getDrawable(android.R.drawable.list_selector_background));
+        layout.setBackgroundResource(android.R.drawable.list_selector_background);
       }
     }
     else {
@@ -922,7 +925,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private synchronized void startUpdateThread() {
     if(mUpdateThread == null || !mUpdateThread.isAlive()) {
       mUpdateThread = new Thread() {
-        public void run() {
+        @Override
+		public void run() {
           handler.post(new Runnable() {
             @Override
             public void run() {
@@ -992,7 +996,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       }      
     }
     
-    mCurrentTime = ((long)cal.getTimeInMillis() / 60000) * 60000;
+    mCurrentTime = (cal.getTimeInMillis() / 60000) * 60000;
 Log.d("info", "" + new Date(mCurrentTime));
     String sort = TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC";
     
@@ -1016,39 +1020,39 @@ Log.d("info", "" + new Date(mCurrentTime));
     public int mChannelID;
     private String mChannelName;
     private int mChannelOrderNumber;
-    
-    public int mPreviousPosition;
+
+//  public int mPreviousPosition;
     public long mPreviousStart;
     public long mPreviousEnd;
     public long mPreviousProgramID;
     public String mPreviousTitle;
     public String mPreviousEpisode;
-    public String mPreviousGenre;
+//  public String mPreviousGenre;
     public String mPreviousCategory;
-    public String mPreviousPictureCopyright;
-    public byte[] mPreviousPicture;
+//  public String mPreviousPictureCopyright;
+//  public byte[] mPreviousPicture;
 
-    public int mNowPosition;
+//  public int mNowPosition;
     public long mNowStart;
     public long mNowEnd;
     public long mNowProgramID;
     public String mNowTitle;
     public String mNowEpisode;
-    public String mNowGenre;
+//  public String mNowGenre;
     public String mNowCategory;
-    public String mNowPictureCopyright;
-    public byte[] mNowPicture;
-    
-    public int mNextPosition;
+//  public String mNowPictureCopyright;
+//  public byte[] mNowPicture;
+
+//  public int mNextPosition;
     public long mNextStart;
     public long mNextEnd;
     public long mNextProgramID;
     public String mNextTitle;
     public String mNextEpisode;
-    public String mNextGenre;
+//  public String mNextGenre;
     public String mNextCategory;
-    public String mNextPictureCopyright;
-    public byte[] mNextPicture;
+//  public String mNextPictureCopyright;
+//  public byte[] mNextPicture;
 
     public boolean mIsComplete;
     
@@ -1119,15 +1123,15 @@ Log.d("info", "" + new Date(mCurrentTime));
                 markedColumsList.add(column);
               }
             }
-            
+
             String channelName = c.getString(mChannelNameColumn);
             int channelOrderNumber = c.getInt(channelOrderColumn);
     
-            String genre = null;
+//          String genre = null;
             String category = null;
-            String pictureCopyright = null;
-            byte[] picture = null;
-            
+//          String pictureCopyright = null;
+//          byte[] picture = null;
+
             if(showInfo) {
               category = IOUtils.getInfoString(c.getInt(mCategoryColumn), getResources());
             }
@@ -1139,27 +1143,27 @@ Log.d("info", "" + new Date(mCurrentTime));
               
               if(startTime <= mCurrentTime) {
                 if(endTime <= mCurrentTime) {
-                  block.mPreviousPosition = c.getPosition();
+//                block.mPreviousPosition = c.getPosition();
                   block.mPreviousProgramID = programID;
                   block.mPreviousStart = startTime;
                   block.mPreviousEnd = endTime;
                   block.mPreviousTitle = title;
                   block.mPreviousEpisode = episode;
-                  block.mPreviousGenre = genre;
-                  block.mPreviousPicture = picture;
-                  block.mPreviousPictureCopyright = pictureCopyright;
+//                block.mPreviousGenre = genre;
+//                block.mPreviousPicture = picture;
+//                block.mPreviousPictureCopyright = pictureCopyright;
                   block.mPreviousCategory = category;
                 }
                 else if(startTime <= mCurrentTime && mCurrentTime < endTime) {
-                  block.mNowPosition = c.getPosition();
+//                block.mNowPosition = c.getPosition();
                   block.mNowProgramID = programID;
                   block.mNowStart = startTime;
                   block.mNowEnd = endTime;
                   block.mNowTitle = title;
                   block.mNowEpisode = episode;
-                  block.mNowGenre = genre;
-                  block.mNowPicture = picture;
-                  block.mNowPictureCopyright = pictureCopyright;
+//                block.mNowGenre = genre;
+//                block.mNowPicture = picture;
+//                block.mNowPictureCopyright = pictureCopyright;
                   block.mNowCategory = category;
                   
                   if(currentProgramMap.indexOfKey(channelID) < 0) { 
@@ -1169,15 +1173,15 @@ Log.d("info", "" + new Date(mCurrentTime));
                 }
               }
               else {
-                block.mNextPosition = c.getPosition();
+//              block.mNextPosition = c.getPosition();
                 block.mNextStart = startTime;
                 block.mNextEnd = endTime;
                 block.mNextProgramID = programID;
                 block.mNextTitle = title;
                 block.mNextEpisode = episode;
-                block.mNextGenre = genre;
-                block.mNextPicture = picture;
-                block.mNextPictureCopyright = pictureCopyright;
+//              block.mNextGenre = genre;
+//              block.mNextPicture = picture;
+//              block.mNextPictureCopyright = pictureCopyright;
                 block.mNextCategory = category;
                 
                 block.mIsComplete = true;
@@ -1197,7 +1201,7 @@ Log.d("info", "" + new Date(mCurrentTime));
       }catch(IllegalStateException e1) {}
     }
     
-    c.close();
+    IOUtils.closeSafely(c);
     currentProgramMap.clear();
     channelProgramMap.clear();
     mRunningProgramListAdapter.notifyDataSetChanged();

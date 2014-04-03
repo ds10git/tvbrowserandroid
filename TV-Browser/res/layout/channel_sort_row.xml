@@ -22,7 +22,7 @@
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:gravity="left"
-        android:contentDescription="logo"
+        android:contentDescription="@string/logo"
         android:scaleType="centerInside"
         android:src="@drawable/ic_launcher"
         android:layout_weight="0"

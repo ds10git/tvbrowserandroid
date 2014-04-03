@@ -202,7 +202,7 @@ public class UiUtils {
         date.setCompoundDrawables(logoDrawable, null, null, null);
       }
       
-      channel.close();
+      IOUtils.closeSafely(channel);
       
       String year = "";
           
@@ -389,7 +389,7 @@ public class UiUtils {
         }
       }
       
-      c.close();
+      IOUtils.closeSafely(c);
       
       if(finish != null) {
         builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
@@ -473,7 +473,7 @@ public class UiUtils {
       menu.findItem(R.id.program_popup_search_repetition).setVisible(false);
     }
     
-    cursor.close();
+    IOUtils.closeSafely(cursor);
   }
   
   public static void searchForRepetition(final Context activity, String title, String episode) {
@@ -548,7 +548,7 @@ public class UiUtils {
       }
     }
     
-    info.close();
+    IOUtils.closeSafely(info);
     
     ContentValues values = new ContentValues();
     
@@ -576,7 +576,7 @@ public class UiUtils {
           if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
             desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
             
-            if(desc != null && desc.trim().toLowerCase().equals("null")) {
+            if(desc != null && desc.trim().toLowerCase(Locale.getDefault()).equals("null")) {
               desc = null;
             }
           }
@@ -611,10 +611,10 @@ public class UiUtils {
           activity.startActivity(Intent.createChooser(sendMail, activity.getResources().getString(R.string.log_send_mail)));
         }
         
-        channel.close();
+        IOUtils.closeSafely(channel);
       }
       
-      info.close();
+      IOUtils.closeSafely(info);
       
       return true;
     }
@@ -652,6 +652,7 @@ public class UiUtils {
       }
     }
     else if(item.getItemId() == R.id.prog_create_calendar_entry) {
+      IOUtils.closeSafely(info);
       info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
       
       if(info.getCount() > 0) {
@@ -672,7 +673,7 @@ public class UiUtils {
           if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
             desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
             
-            if(desc != null && desc.trim().toLowerCase().equals("null")) {
+            if(desc != null && desc.trim().toLowerCase(Locale.getDefault()).equals("null")) {
               desc = null;
             }
           }
@@ -718,10 +719,10 @@ public class UiUtils {
           }
         }
         
-        channel.close();
+        IOUtils.closeSafely(channel);
       }
       
-      info.close();
+      IOUtils.closeSafely(info);
     }
     else if(item.getItemId() == R.id.prog_add_reminder) {
       if(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) || markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) {
@@ -792,7 +793,8 @@ public class UiUtils {
                 final String exclusion = exclusionText + ";;" + (caseSensitiveValue ? "1" : "0");
                 
                 new Thread() {
-                  public void run() {
+                  @Override
+				public void run() {
                     if(activity instanceof TvBrowser) {
                       ((TvBrowser)activity).updateProgressIcon(true);
                     }
@@ -800,7 +802,7 @@ public class UiUtils {
                     NotificationCompat.Builder builder;
                     
                     builder = new NotificationCompat.Builder(activity);
-                    builder.setSmallIcon(R.drawable.ic_launcher);
+                    builder.setSmallIcon(R.drawable.ic_stat_notification);
                     builder.setOngoing(true);
                     builder.setContentTitle(activity.getResources().getText(R.string.action_dont_want_to_see));
                     builder.setContentText(activity.getResources().getText(R.string.dont_want_to_see_refresh_notification_text));
@@ -856,7 +858,7 @@ public class UiUtils {
                       }
                     }
                     
-                    c.close();
+                    IOUtils.closeSafely(c);
                     
                     if(!updateValuesList.isEmpty()) {
                       try {
@@ -919,7 +921,8 @@ public class UiUtils {
         }
         
         new Thread() {
-          public void run() {
+          @Override
+		public void run() {
             if(activity instanceof TvBrowser) {
               ((TvBrowser)activity).updateProgressIcon(true);
             }
@@ -927,7 +930,7 @@ public class UiUtils {
             NotificationCompat.Builder builder;
             
             builder = new NotificationCompat.Builder(activity);
-            builder.setSmallIcon(R.drawable.ic_launcher);
+            builder.setSmallIcon(R.drawable.ic_stat_notification);
             builder.setOngoing(true);
             builder.setContentTitle(activity.getResources().getText(R.string.action_dont_want_to_see));
             builder.setContentText(activity.getResources().getText(R.string.dont_want_to_see_refresh_notification_text));
@@ -969,7 +972,7 @@ public class UiUtils {
             
             notification.cancel(notifyID);
             
-            c.close();
+            IOUtils.closeSafely(c);
             
             if(!updateValuesList.isEmpty()) {
               try {
@@ -1047,7 +1050,7 @@ public class UiUtils {
         startTime = time.getLong(0);
       }
       
-      time.close();
+      IOUtils.closeSafely(time);
     }
     
     if(startTime > System.currentTimeMillis()) {
@@ -1234,13 +1237,13 @@ public class UiUtils {
     draw.add(context.getResources().getDrawable(android.R.drawable.list_selector_background));
     
     if(handler == null) {
-      view.setBackgroundDrawable(new LayerDrawable(draw.toArray(new Drawable[draw.size()])));
+      CompatUtils.setBackground(view, new LayerDrawable(draw.toArray(new Drawable[draw.size()])));
     }
     else{
       handler.post(new Runnable() {
         @Override
         public void run() {
-          view.setBackgroundDrawable(new LayerDrawable(draw.toArray(new Drawable[draw.size()])));
+          CompatUtils.setBackground(view, new LayerDrawable(draw.toArray(new Drawable[draw.size()])));
         }
       });
     }
@@ -1269,7 +1272,8 @@ public class UiUtils {
       @Override
       public void onClick(DialogInterface dialog, int which) {
         new Thread() {
-          public void run() {
+          @Override
+		public void run() {
             String name = ((EditText)input.findViewById(R.id.favorite_name)).getText().toString();
             String search = ((EditText)input.findViewById(R.id.favorite_search_value)).getText().toString();
             boolean onlyTitle = ((CheckBox)input.findViewById(R.id.favorite_only_title)).isChecked();
@@ -1338,7 +1342,7 @@ public class UiUtils {
     AlertDialog dialog = builder.create();
     dialog.show();
     
-    final Button positive = (Button)dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+    final Button positive = dialog.getButton(DialogInterface.BUTTON_POSITIVE);
     positive.setEnabled(searchValue.getText().toString().trim().length() > 0);
     
     searchValue.addTextChangedListener(new TextWatcher() {
@@ -1397,12 +1401,12 @@ public class UiUtils {
           pattern += ".";
         }
         
-        SimpleDateFormat mdf = new SimpleDateFormat(pattern);
+        SimpleDateFormat mdf = new SimpleDateFormat(pattern, Locale.getDefault());
         
         value = mdf.format(progDate.getTime());
       }
       else if(withDayString) {
-        SimpleDateFormat mdf = new SimpleDateFormat("EEE ");
+        SimpleDateFormat mdf = new SimpleDateFormat("EEE ", Locale.getDefault());
         
         value = mdf.format(progDate.getTime());
       }
@@ -1436,7 +1440,7 @@ public class UiUtils {
     pattern = pattern.replace(".MM", ". MMM");
     pattern = pattern.replace("MM.", "MMM. ");
     
-    SimpleDateFormat mdf = new SimpleDateFormat(pattern);
+    SimpleDateFormat mdf = new SimpleDateFormat(pattern, Locale.getDefault());
     
     text.setText(mdf.format(progDate.getTime()));
     

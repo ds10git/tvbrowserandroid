@@ -16,6 +16,7 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.util.Locale;
 import java.util.regex.Pattern;
 
 /**
@@ -37,7 +38,7 @@ public class DontWantToSeeExclusion {
     mIsCaseSensitive = parts[1].equals("1");
     
     if(!mIsCaseSensitive) {
-      mPattern = mPattern.toLowerCase();
+      mPattern = mPattern.toLowerCase(Locale.getDefault());
     }
     
     if(mIsMatching) {
@@ -50,7 +51,7 @@ public class DontWantToSeeExclusion {
     boolean matches = false;
     
     if(!mIsCaseSensitive) {
-      title = title.toLowerCase();
+      title = title.toLowerCase(Locale.getDefault());
     }
     
     if(mIsMatching) {
