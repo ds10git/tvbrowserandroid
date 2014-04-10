@@ -4,6 +4,10 @@
 		android:title="@string/pref_activated"
 		android:defaultValue="@bool/prog_table_activated_default"
 		android:summary="@string/pref_prog_table_summary"/>
+	<CheckBoxPreference android:key="@string/PROG_TABLE_DELAYED" 
+		android:title="@string/pref_prog_table_delayed"
+		android:defaultValue="@bool/prog_table_delayed_default"
+		android:summary="@string/pref_prog_table_delayed_summary"/>
 	<ListPreference
 		android:key="@string/PROG_TABLE_LAYOUT"
 		android:title="@string/running_layout_title"

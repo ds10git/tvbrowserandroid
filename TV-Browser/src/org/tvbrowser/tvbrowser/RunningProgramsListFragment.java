@@ -28,6 +28,7 @@ import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.view.SeparatorDrawable;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
@@ -36,10 +37,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -532,6 +535,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   }
   
   
+  @SuppressLint("NewApi")
   private boolean fillCompactLayout(final CompactLayoutViewHolder viewHolder, final int type, final ChannelProgramBlock block, final java.text.DateFormat timeFormat, final int DEFAULT_TEXT_COLOR, boolean channelSet) {
     TextView startTimeView = null;
     TextView titleView = null;
@@ -707,11 +711,31 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       }
     }
     else {
-      viewHolder.setVisibility(type, View.GONE);
+      int viewType = View.GONE;
+      boolean isPortrait = viewHolder.mCurrentOrientation == Configuration.ORIENTATION_PORTRAIT;
+      
+      Configuration config = getResources().getConfiguration();
+      
+      if(Build.VERSION.SDK_INT >= 13) {
+        if(type == CompactLayoutViewHolder.PREVIOUS) {
+          if(config.smallestScreenWidthDp >= 600 && !isPortrait) {
+            viewType = View.INVISIBLE;
+          }
+        }
+        else if(type == CompactLayoutViewHolder.NOW && (config.smallestScreenWidthDp >= 600 || !isPortrait)) {
+          viewType = View.INVISIBLE;
+        }
+      }
+      
+      viewHolder.setVisibility(type, viewType);
       
       if(type == CompactLayoutViewHolder.PREVIOUS) {
-        viewHolder.setSeparatorVisibility(View.GONE);
+        viewHolder.setSeparatorVisibility(viewType);
       }
+      
+      titleView.setVisibility(View.GONE);
+      episodeView.setVisibility(View.GONE);
+      infoView.setVisibility(View.GONE);
     }
     
     return channelSet;

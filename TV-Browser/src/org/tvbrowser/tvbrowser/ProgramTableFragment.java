@@ -855,9 +855,17 @@ public class ProgramTableFragment extends Fragment {
     RelativeLayout layout = (RelativeLayout)programTableLayout.findViewById(R.id.program_table_base);
     layout.setTag("LAYOUT");
     
-    updateView(inflater,layout);
+    int startTab = Integer.parseInt(PrefUtils.getStringValue(R.string.TAB_TO_SHOW_AT_START, R.string.tab_to_show_at_start_default));
+    
+    if(!PrefUtils.getBooleanValue(R.string.PROG_TABLE_DELAYED, R.bool.prog_table_delayed_default) || startTab == 3) {
+      updateView(inflater,layout);
+    }
     
     return programTableLayout;
+  }
+  
+  public void removed() {
+    mDaySet = false;
   }
   
   @Override
@@ -927,6 +935,12 @@ public class ProgramTableFragment extends Fragment {
     }
     
     return mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth || updateTextScale || updateShownValues || updateInfoValues;
+  }
+  
+  public void firstLoad(LayoutInflater inflater) {
+    if(!mDaySet) {
+      updateView(inflater);
+    }
   }
   
   public void updateChannelBar() {
