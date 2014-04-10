@@ -430,4 +430,6 @@
     <string name="no_donation_possible">At the moment no donation is possible.\nPlease try again later.</string>
     <string name="pref_running_time_selection">Time selection</string>
     <string name="pref_running_time_selection_summary">Background color of the selected time.</string>
+    <string name="pref_prog_table_delayed">Delay loading until opening</string>
+    <string name="pref_prog_table_delayed_summary">Loading of program table is delayed until it is opened for the first time. (Speeds up startup if not started on program table tab.)</string>
 </resources>

@@ -298,6 +298,7 @@ public class TvBrowser extends FragmentActivity implements
             Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(position);
             
             if(fragment instanceof ProgramTableFragment) {
+              ((ProgramTableFragment)fragment).firstLoad(getLayoutInflater());
               ((ProgramTableFragment)fragment).scrollToTime(0, mScrollTimeItem);
             }
             
@@ -322,7 +323,7 @@ public class TvBrowser extends FragmentActivity implements
     int startTab = Integer.parseInt(PrefUtils.getStringValue(R.string.TAB_TO_SHOW_AT_START, R.string.tab_to_show_at_start_default));
     
     if(mSectionsPagerAdapter.getCount() > startTab) {
-      mViewPager.setCurrentItem(startTab);
+      mViewPager.setCurrentItem(startTab);      
     }
     
     IOUtils.handleDataUpdatePreferences(TvBrowser.this);
@@ -399,6 +400,8 @@ public class TvBrowser extends FragmentActivity implements
     
     mIsActive = true;
     showTerms();
+    
+    SettingConstants.ORIENTATION = getResources().getConfiguration().orientation;
     
     mUpdateDoneBroadcastReceiver = new BroadcastReceiver() {
       @Override
@@ -2641,6 +2644,7 @@ public class TvBrowser extends FragmentActivity implements
     Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
     
     if(!programTableActivated && test instanceof ProgramTableFragment) {
+      ((ProgramTableFragment)test).removed();
       mSectionsPagerAdapter.destroyItem(mViewPager, 3, mSectionsPagerAdapter.getRegisteredFragment(3));
       mSectionsPagerAdapter.notifyDataSetChanged();
       actionBar.removeTabAt(3);

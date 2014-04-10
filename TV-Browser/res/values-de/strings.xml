@@ -418,4 +418,6 @@
     <string name="no_donation_possible">Zur Zeit keine Spenden möglich.\nBitte versuchen Sie es später erneut.</string>
     <string name="pref_running_time_selection">Zeitauswahl</string>
     <string name="pref_running_time_selection_summary">Hintergrundfarbe der ausgewählten Zeit.</string>
+    <string name="pref_prog_table_delayed">Laden verzögern</string>
+    <string name="pref_prog_table_delayed_summary">Das Laden der Programmtabelle wird verzögert, bis zum ersten Öffnen dieser. (Beschleunigt den App-Start, wenn nicht der Tab der Programmtabelle zum Start ausgewählt.)</string>
 </resources>
