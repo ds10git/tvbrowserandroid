@@ -59,10 +59,10 @@
 	<string name="program_popup_send_mail">Send as email</string>
     <string name="pref_prog_table_width_hint">Column width</string>
     <string name="pref_email_title">To email address</string>
-    <string name="pref_email_summary">Email address for sending program informations.</string>
+    <string name="pref_email_summary">Email address for sending program information.</string>
     <string name="pref_category_email">Email</string>
-    <string name="pref_category_additonal_infos">Additional informations</string>
-    <string name="pref_category_additonal_infos_head">Shown informations</string>
+    <string name="pref_category_additonal_infos">Additional information</string>
+    <string name="pref_category_additonal_infos_head">Shown information</string>
     <string name="search">Search</string>
     <string name="title">Title:</string>
     <string name="title_hint">Enter title to search</string>
@@ -129,9 +129,9 @@
     <string name="terms_of_use_accept">Accept</string>
     <string name="terms_of_use_text">All TV/Radio listings provided by TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) are protected by copyright laws and may only be used within TV-Browser or other name like applications authorized by the manufacturer of TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) for information about the upcoming program of the available channels.\n\nEvery other manner of using, reproducing or redistributing of the TV/Radio listings is illegal and may be prosecuted on civil or criminal law. On downloading the TV/Radio listings you declare your agreement to these terms.\n\nIf you have any questions concerning these terms please contact <a href="mailto:dev@tvbrowser.org">dev@tvbrowser.org</a></string>
 	<string name="channel_selection_help">Click on a channel to select sort number.</string>
-	<string name="synchronize_title">Syncronize channels?</string>
+	<string name="synchronize_title">Synchronize channels?</string>
 	<string name="synchronize_text">You can synchronize your with the channels from your desktop TV-Browser.\n\nYou will have to <a href="http://android.tvbrowser.org/index.php?id=createaccount">register a user first</a> and export your channels from your desktop TV-Browser with the Android Sync plugin.\n\nDo you wish to synchronize your channels now or do you wish to select the channels manually?</string>
-	<string name="synchronize_ok">Syncronize channels now</string>
+	<string name="synchronize_ok">Synchronize channels now</string>
 	<string name="synchronize_cancel">Select channels manually</string>
 	<string name="synchronize_replace_add_title">Replace or add?</string>
 	<string name="synchronize_replace_add_text">You can replace your current selected channels with the synchronization data or only add new channels to your selected channels.\nWhat should be done?</string>
@@ -140,7 +140,7 @@
 	<string name="synchronize_done">Channels synchronizing done!</string>
 	<string name="synchronize_error">Channels could not be synchronized.</string>
 	
-	<string name="synchronize_replace_exclusion_add_text">You can replace your current exclusion list with the synchronization data or only add new exclusions for \"I don\'t want to see!\".\n\nThe joined exlcusions will be uploaded to the server if you add the new exclusions.\n\nWhat should be done?</string>
+	<string name="synchronize_replace_exclusion_add_text">You can replace your current exclusion list with the synchronization data or only add new exclusions for \"I don\'t want to see!\".\n\nThe joined exclusions will be uploaded to the server if you add the new exclusions.\n\nWhat should be done?</string>
 	<string name="synchronize_replace_exclusion">Replace exclusion</string>
 	<string name="synchronize_add_exclusion">Add new exclusions</string>
 	
@@ -164,7 +164,7 @@
 	<string name="info_omu">Original with subtitles</string>
 	<string name="info_news">News</string>
 	<string name="info_show">Show</string>
-	<string name="info_magazin">Magazin/Infotainment</string>
+	<string name="info_magazin">Magazine/Infotainment</string>
 	<string name="info_hd">HD</string>
 	<string name="info_docu">Documentation</string>
 	<string name="info_art">Art, Theater, Music</string>
@@ -193,11 +193,11 @@
 	<string name="pref_list_category">Lists with programs</string>
 	<string name="pref_list_category_summary">Which information should be shown in the lists with programs?</string>
 	<string name="pref_show_pictures">Show pictures</string>
-	<string name="pref_show_genre">Show enre</string>
+	<string name="pref_show_genre">Show genre</string>
 	<string name="pref_show_episode">Show episode title</string>
-	<string name="pref_show_info">Show additional informations</string>
-	<string name="pref_title_other">Select other informations</string>
-	<string name="pref_title_other_summary">Which other informations should be shown if available?</string>
+	<string name="pref_show_info">Show additional information</string>
+	<string name="pref_title_other">Select other information</string>
+	<string name="pref_title_other_summary">Which other information should be shown if available?</string>
 	<string name="pref_start_category">Startup</string>
 	<string name="pref_start_tab">With following tab:</string>
 	<string-array name="start_labels">
@@ -209,8 +209,8 @@
 	<string name="pref_show_link">Show website link:</string>
 	<string name="pref_prog_table_grow">Spread programs over block size</string>
 	<string name="customInfo">Custom Information:\n</string>
-	<string name="actors">Actors:\n</string>
-	<string name="regie">Regie:</string>
+	<string name="actors">Cast:\n</string>
+	<string name="regie">Director:</string>
 	<string name="ageLimit">Age Limit:</string>
 	<string name="nettoPlayTime">Netto Play Time:</string>
 	<string name="vps">VPS:</string>
@@ -231,12 +231,12 @@
 	<string name="additionalInfo">Additional information:\n</string>
 	<string name="series">Series:</string>
 	<string name="rundate">Usable until:</string>
-	<string name="pref_prog_table_summary">The program table needs a lot of memory. The more channels and details you\'ve selected the more memory wil be consumed. That can leed to a crash of the TV-Browser app. So make sure not to select to many channels and details or disable the program table</string>
+	<string name="pref_prog_table_summary">The program table needs a lot of memory. The more channels and details you\'ve selected the more memory wil be consumed. That can lead to a crash of the TV-Browser app. So make sure not to select to many channels and details or disable the program table</string>
 	<string name="pref_prog_table_time_block_size">Number of hours per block:</string>
 	<string name="sort_enter">Alternative: Enter number (any positive number):</string>
 	<string name="pref_time_buttons">Time Buttons</string>
 	<string name="pref_time_buttons_summary">Configure the time buttons in the running programs list.</string>
-	<string name="pref_time_button_hint">Dublicate entries are ignored</string>
+	<string name="pref_time_button_hint">Duplicate entries are ignored</string>
 	<string name="running_until">, until </string>
 	<string-array name="running_layout_values">
 	    <item>Extended</item>
@@ -251,9 +251,9 @@
 	<string name="pref_running_next_day_summary">Times that are expired for 3 hours are showing the programs of tomorrow.</string>
 	<string name="pref_debug">Debugging</string>
 	<string name="pref_write_data_update_log">Write log file for data update</string>
-	<string name="pref_write_data_update_log_summary">A log file with informations about the data update will be written. It is not deleted automatically and keeps growing until it is bigger than 5MB at the begin of the data update or you delete it manually.</string>
+	<string name="pref_write_data_update_log_summary">A log file with information about the data update will be written. It is not deleted automatically and keeps growing until it is bigger than 5MB at the begin of the data update or you delete it manually.</string>
 	<string name="pref_write_reminder_update_log">Write log file for Reminder</string>
-	<string name="pref_write_reminder_update_log_summary">A log file with informations about the function of the Reminder will be written. It is not deleted automatically and keeps growing until it reaches 5MB.</string>	
+	<string name="pref_write_reminder_update_log_summary">A log file with information about the function of the Reminder will be written. It is not deleted automatically and keeps growing until it reaches 5MB.</string>
 	<string name="pref_debug_summary">Settings for beta tester</string>
 	<string name="action_send_data_update_log">Send log file for data update</string>
 	<string name="action_delete_data_update_log">Delete log file of data update</string>
@@ -322,7 +322,7 @@
     <string name="dark_theme">Dark Theme</string>
     <string name="dark_theme_summary">(Needs restart)</string>
     <string name="pref_running_sort_time_buttons">Sort</string>
-    <string name="pref_running_sort_time_buttons_summary_on">Times buttons appear sorted by time</string>
+    <string name="pref_running_sort_time_buttons_summary_on">Time buttons appear sorted by time</string>
     <string name="pref_running_sort_time_buttons_summary_off">Time buttons appear in above order</string>
     <string name="action_scroll_time">Scroll to time</string>
     <string name="divider_size">Divider size:</string>
@@ -339,7 +339,7 @@
 	<string name="pref_reminder_vibrate">Vibrate</string>
 	<string name="pref_reminder_led">Info LED</string>
 	<string name="pref_reminder_night_type">Night mode</string>
-	<string name="pref_reminder_night_no_reminder">Keine Erinnerungen</string>
+	<string name="pref_reminder_night_no_reminder">No reminders</string>
 	<string name="pref_reminder_dont_remind">Don\'t remind</string>
 	<string name="pref_reminder_night_start">Start of night mode</string>
 	<string name="pref_reminder_night_end">End of night mode</string>

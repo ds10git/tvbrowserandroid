@@ -7,7 +7,7 @@
 
     <uses-sdk
         android:minSdkVersion="11"
-        android:targetSdkVersion="18" />
+        android:targetSdkVersion="19" />
     <uses-permission android:name="android.permission.INTERNET"/>
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>
@@ -25,7 +25,8 @@
         <meta-data android:name="android.app.default_searchable"
             android:value="org.tvbrowser.tvbrowser.TvBrowserSearchResults"/>
         <provider android:name="org.tvbrowser.content.TvBrowserContentProvider"
-            android:authorities="org.tvbrowser.tvbrowsercontentprovider" />
+            android:authorities="org.tvbrowser.tvbrowsercontentprovider" 
+            android:exported="false"/>
         <service android:name="org.tvbrowser.tvbrowser.TvDataUpdateService"
             android:enabled="true"></service>
         <activity

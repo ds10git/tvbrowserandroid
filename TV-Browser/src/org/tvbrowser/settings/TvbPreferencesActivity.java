@@ -20,10 +20,13 @@ import java.util.List;
 
 import org.tvbrowser.tvbrowser.R;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
+import android.util.Log;
 
 public class TvbPreferencesActivity extends PreferenceActivity {
   @Override
@@ -34,8 +37,19 @@ public class TvbPreferencesActivity extends PreferenceActivity {
     
     super.onCreate(savedInstanceState);
   }
-  
-  @Override
+
+	/**
+	 * Vulnerability fix as mentioned here:
+	 * http://securityintelligence.com/wp-content/uploads/2013/12/android-collapses-into-fragments.pdf
+	 */
+	@Override
+	@TargetApi(Build.VERSION_CODES.KITKAT)
+	protected boolean isValidFragment(final String fragmentName) {
+	  return "org.tvbrowser.settings.TvbPreferenceFragment".equals(fragmentName) ||
+	    super.isValidFragment(fragmentName);
+	}
+
+	@Override
   public void onBuildHeaders(List<Header> target) {
       loadHeadersFromResource(R.xml.tvbrowser_preferences_header, target);
       
