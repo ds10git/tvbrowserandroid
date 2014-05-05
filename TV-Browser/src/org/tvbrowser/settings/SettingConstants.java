@@ -131,10 +131,14 @@ public class SettingConstants {
         byte[] logoData = channels.getBlob(logoIndex);
         
         if(logoData != null && logoData.length > 0) {
-          Bitmap logoBitmap = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-          
-          SMALL_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(15,context,logoBitmap));
-          MEDIUM_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(25,context,logoBitmap));
+          try {
+            Bitmap logoBitmap = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+            
+            if(logoBitmap != null) {
+              SMALL_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(15,context,logoBitmap));
+              MEDIUM_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(25,context,logoBitmap));
+            }
+          }catch(NullPointerException e) {}
         }
       }
     }
