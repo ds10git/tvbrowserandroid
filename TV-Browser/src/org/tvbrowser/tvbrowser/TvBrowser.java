@@ -1475,24 +1475,20 @@ public class TvBrowser extends FragmentActivity implements
         }
       }
       
-      Bitmap channelLogo = null;
+      Bitmap channelLogo = UiUtils.createBitmapFromByteArray(logo);
       
-      if(logo != null && logo.length > 0) {
-        channelLogo = BitmapFactory.decodeByteArray(logo, 0, logo.length);
+      if(channelLogo != null) {
+        BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
         
-        if(channelLogo != null) {
-          BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
-          
-          ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
-          background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
-          
-          LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
-          logoDrawable.setBounds(background.getBounds());
-          
-          l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
-          
-          channelLogo = UiUtils.drawableToBitmap(logoDrawable);
-        }
+        ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+        background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
+        
+        LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+        logoDrawable.setBounds(background.getBounds());
+        
+        l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
+        
+        channelLogo = UiUtils.drawableToBitmap(logoDrawable);
       }
       
       ChannelSelection selection = new ChannelSelection(channelID, name, category, countries, channelLogo, isSelected);
@@ -1842,12 +1838,9 @@ public class TvBrowser extends FragmentActivity implements
             order = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
           }
           
-          byte[] logo = channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
-          Bitmap channelLogo = null;
+          Bitmap channelLogo = UiUtils.createBitmapFromByteArray(channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
           
-          if(logo != null) {
-            channelLogo = BitmapFactory.decodeByteArray(logo, 0, logo.length);
-            
+          if(channelLogo != null) {
             BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
             
             ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);

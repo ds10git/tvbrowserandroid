@@ -257,18 +257,23 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       
       int pictureIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
       
-      if(pictureIndex >= 0 && !cursor.isNull(pictureIndex) && showPicture) {
-        byte[] logoData = cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE));
-        Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+      if(pictureIndex >= 0 && showPicture) {
+        Bitmap logo = UiUtils.createBitmapFromByteArray(cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)));
         
-        BitmapDrawable l = new BitmapDrawable(view.getResources(), logo);
-        l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
-        
-        picture.setImageDrawable(l);
-        
-        text.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)));
-        text.setVisibility(View.VISIBLE);
-        picture.setVisibility(View.VISIBLE);
+        if(logo != null) {
+          BitmapDrawable l = new BitmapDrawable(view.getResources(), logo);
+          l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+          
+          picture.setImageDrawable(l);
+          
+          text.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)));
+          text.setVisibility(View.VISIBLE);
+          picture.setVisibility(View.VISIBLE);
+        }
+        else {
+          view.setVisibility(View.GONE);
+          picture.setVisibility(View.GONE);
+        }
       }
       else {
         view.setVisibility(View.GONE);

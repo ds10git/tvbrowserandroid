@@ -587,28 +587,20 @@ public class DummySectionFragment extends Fragment {
                 channelCursor.moveToFirst();
                   
                 do {
-                  boolean hasLogo = !channelCursor.isNull(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
-                  
                   LayerDrawable logoDrawable = null;
                   
-                  if(hasLogo) {
-                    byte[] logoData = channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+                  Bitmap logo = UiUtils.createBitmapFromByteArray(channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+                  
+                  if(logo != null) {
+                    BitmapDrawable l = new BitmapDrawable(getResources(), logo);
+                                            
+                    ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+                    background.setBounds(0, 0, logo.getWidth()+2,logo.getHeight()+2);
                     
-                    if(logoData != null && logoData.length > 0) {
-                      Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-                      
-                      if(logo != null) {
-                        BitmapDrawable l = new BitmapDrawable(getResources(), logo);
-                                                
-                        ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
-                        background.setBounds(0, 0, logo.getWidth()+2,logo.getHeight()+2);
-                        
-                        logoDrawable = new LayerDrawable(new Drawable[] {background,l});
-                        logoDrawable.setBounds(background.getBounds());
-                        
-                        l.setBounds(2, 2, logo.getWidth(), logo.getHeight());
-                      }
-                    }
+                    logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+                    logoDrawable.setBounds(background.getBounds());
+                    
+                    l.setBounds(2, 2, logo.getWidth(), logo.getHeight());
                   }
                   
                   String name = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
