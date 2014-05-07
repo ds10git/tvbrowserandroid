@@ -186,9 +186,9 @@ public class UiUtils {
       
       date.setText(day.format(start) + " " + java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT).format(start) + " " + DateFormat.getTimeFormat(context).format(start) + " - " + DateFormat.getTimeFormat(context)/*.getTimeInstance(java.text.DateFormat.SHORT)*/.format(new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)))) + ", " + channelName);
       
-      if(!channel.isNull(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))) {
-        byte[] logoData = channel.getBlob(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
-        Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
+      Bitmap logo = UiUtils.createBitmapFromByteArray(channel.getBlob(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+      
+      if(logo != null) {
         BitmapDrawable l = new BitmapDrawable(context.getResources(), logo);
         
         ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
@@ -243,17 +243,17 @@ public class UiUtils {
         
         pictureCopyright.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)));
         
-        byte[] pictureData = c.getBlob(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE));
+        Bitmap image = UiUtils.createBitmapFromByteArray(c.getBlob(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)));
         
-        Bitmap image = BitmapFactory.decodeByteArray(pictureData,0,pictureData.length);
-        
-        BitmapDrawable b = new BitmapDrawable(context.getResources(),image);
-        
-        float zoom = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_PICTURE_ZOOM, R.string.detail_picture_zoom_default));
-        
-        b.setBounds(0, 0, (int)(image.getWidth() * zoom), (int)(image.getHeight() * zoom));
-        
-        pictureDescription.setCompoundDrawables(b, null, null, null);
+        if(image != null) {        
+          BitmapDrawable b = new BitmapDrawable(context.getResources(),image);
+          
+          float zoom = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_PICTURE_ZOOM, R.string.detail_picture_zoom_default));
+          
+          b.setBounds(0, 0, (int)(image.getWidth() * zoom), (int)(image.getHeight() * zoom));
+          
+          pictureDescription.setCompoundDrawables(b, null, null, null);
+        }
       }
       
       if(PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_DETAILS, R.bool.show_genre_in_details_default) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
@@ -1604,5 +1604,17 @@ public class UiUtils {
       
       text.setTextSize(TypedValue.COMPLEX_UNIT_PX, text.getTextSize() * scale);
     }
+  }
+  
+  public static Bitmap createBitmapFromByteArray(byte[] data) {
+    Bitmap logoBitmap = null;
+    
+    if(data != null && data.length > 0) {
+      try {
+        logoBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
+      }catch(NullPointerException e) {}
+    }
+    
+    return logoBitmap;
   }
 }

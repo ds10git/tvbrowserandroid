@@ -190,45 +190,38 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           long startTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
           long endTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
           
-          boolean hasLogo = !values.isNull(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
-                  
-          if(hasLogo) {
-            byte[] logoData = values.getBlob(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+          Bitmap logo = UiUtils.createBitmapFromByteArray(values.getBlob(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+          
+          if(logo != null) {              
+            int width =  context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
+            int height = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
             
-            if(logoData.length > 0) {
-              Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-              
-              int width =  context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
-              int height = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
-              
-              float scale = 1;
-              
-              if(logo.getWidth() > width-4) {
-                scale = ((float)width-4)/logo.getWidth();
-              }
-              
-              if(logo.getHeight() * scale > height-4) {
-                scale = ((float)height-4)/logo.getHeight();
-              }
-              
-              if(scale < 1) {
-                logo = Bitmap.createScaledBitmap(logo, (int)(logo.getWidth() * scale), (int)(logo.getHeight() * scale), true);
-              }
-              
-              Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
-              Canvas canvas = new Canvas(bitmap);
-              canvas.drawColor(SettingConstants.LOGO_BACKGROUND_COLOR);
-              canvas.drawBitmap(logo, width/2 - logo.getWidth()/2, height/2 - logo.getHeight()/2, null);
-              
-              builder.setLargeIcon(bitmap);
+            float scale = 1;
+            
+            if(logo.getWidth() > width-4) {
+              scale = ((float)width-4)/logo.getWidth();
             }
+            
+            if(logo.getHeight() * scale > height-4) {
+              scale = ((float)height-4)/logo.getHeight();
+            }
+            
+            if(scale < 1) {
+              logo = Bitmap.createScaledBitmap(logo, (int)(logo.getWidth() * scale), (int)(logo.getHeight() * scale), true);
+            }
+            
+            Bitmap bitmap = Bitmap.createBitmap(width, height, Config.ARGB_8888);
+            Canvas canvas = new Canvas(bitmap);
+            canvas.drawColor(SettingConstants.LOGO_BACKGROUND_COLOR);
+            canvas.drawBitmap(logo, width/2 - logo.getWidth()/2, height/2 - logo.getHeight()/2, null);
+            
+            builder.setLargeIcon(bitmap);
           }
           
           builder.setSmallIcon(R.drawable.reminder);
           builder.setWhen(startTime);
           
           if(sound) {
-            //builder.setDefaults(Notification.DEFAULT_SOUND);
             builder.setSound(soundUri);
           }
           else {

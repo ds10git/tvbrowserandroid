@@ -655,12 +655,9 @@ public class ProgramTableFragment extends Fragment {
       
       int orderNumber = channels.getInt(orderNumberColumn);
       
-      Bitmap logo = null;
-      
-      if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))) {
-        byte[] logoData = channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
-        logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-        
+      Bitmap logo = UiUtils.createBitmapFromByteArray(channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+
+      if(logo != null) {
         int height = ProgramTableLayoutConstants.getChannelMaxFontHeight();
         
         float percent = height / (float)logo.getHeight();         
@@ -673,7 +670,6 @@ public class ProgramTableFragment extends Fragment {
       ChannelLabel channelLabel = new ChannelLabel(getActivity(), name, logo, orderNumber);
       
       channelBar.addView(channelLabel);
-      //channelBar.addView(inflater.inflate(R.layout.separator_line, channelBar, false));
     }
         
     if(channels.getCount() > 0) {
@@ -989,14 +985,15 @@ public class ProgramTableFragment extends Fragment {
     
     registerForContextMenu(panel);
         
-    if(mPictureIndex != -1 && !cursor.isNull(mPictureIndex)) {
-      byte[] logoData = cursor.getBlob(mPictureIndex);
-      Bitmap logo = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-                
-      BitmapDrawable l = new BitmapDrawable(getResources(), logo);
-      l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+    if(mPictureIndex != -1) {
+      Bitmap logo = UiUtils.createBitmapFromByteArray(cursor.getBlob(mPictureIndex));
       
-      panel.setPicture(cursor.getString(mPictureCopyrightIndex), l);
+      if(logo != null) {
+        BitmapDrawable l = new BitmapDrawable(getResources(), logo);
+        l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+        
+        panel.setPicture(cursor.getString(mPictureCopyrightIndex), l);
+      }
     }
     
     layout.addView(panel);

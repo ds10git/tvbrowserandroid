@@ -128,17 +128,11 @@ public class SettingConstants {
       int logoIndex = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
       
       while(channels.moveToNext()) {
-        byte[] logoData = channels.getBlob(logoIndex);
+        Bitmap logoBitmap = UiUtils.createBitmapFromByteArray(channels.getBlob(logoIndex));
         
-        if(logoData != null && logoData.length > 0) {
-          try {
-            Bitmap logoBitmap = BitmapFactory.decodeByteArray(logoData, 0, logoData.length);
-            
-            if(logoBitmap != null) {
-              SMALL_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(15,context,logoBitmap));
-              MEDIUM_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(25,context,logoBitmap));
-            }
-          }catch(NullPointerException e) {}
+        if(logoBitmap != null) {
+          SMALL_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(15,context,logoBitmap));
+          MEDIUM_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(25,context,logoBitmap));
         }
       }
     }
