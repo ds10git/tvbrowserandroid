@@ -218,7 +218,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
             builder.setLargeIcon(bitmap);
           }
           
-          builder.setSmallIcon(R.drawable.reminder);
+          builder.setSmallIcon(R.drawable.ic_stat_reminder);
           builder.setWhen(startTime);
           
           if(sound) {
