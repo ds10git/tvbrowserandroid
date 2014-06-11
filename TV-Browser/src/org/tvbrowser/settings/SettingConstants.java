@@ -21,10 +21,12 @@ import java.util.HashMap;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.tvbrowser.TvBrowser;
 import org.tvbrowser.tvbrowser.UiUtils;
 
 import android.content.Context;
 import android.content.IntentFilter;
+import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -33,11 +35,14 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.preference.PreferenceManager;
 import android.util.SparseArray;
 
 public class SettingConstants {
   public static boolean GOOGLE_PLAY = false;
   public static final int ACCEPTED_DAY_COUNT = 8;
+  
+  private static final String REMINDER_PAUSE_KEY = "REMINDER_PAUSE_KEY";
   
   public static final String EPG_FREE_KEY = "EPG_FREE";
   public static final String[] LEVEL_NAMES = {"base","more00-16","more16-00","picture00-16","picture16-00"};
@@ -107,15 +112,23 @@ public class SettingConstants {
   public static final String DONT_WANT_TO_SEE_ADDED_EXTRA = "DONT_WANT_TO_SEE_ADDED_EXTRA";
   
   public static boolean IS_DARK_THEME = false;
-  
-  public static boolean IS_REMINDER_PAUSED = false;
-  
+    
   public static final String UPDATE_RUNNING_KEY = "updateRunning";
   public static final String SELECTION_CHANNELS_KEY = "selectionChannels";
   public static final String REMINDER_STATE_KEY = "reminderState";
   
   public static final SparseArray<Drawable> SMALL_LOGO_MAP = new SparseArray<Drawable>();
   public static final SparseArray<Drawable> MEDIUM_LOGO_MAP = new SparseArray<Drawable>();
+  
+  public static void setReminderPaused(Context context, boolean reminderPaused) {
+    Editor editPref = PreferenceManager.getDefaultSharedPreferences(context).edit();
+    editPref.putBoolean(REMINDER_PAUSE_KEY, reminderPaused);
+    editPref.commit();
+  }
+  
+  public static boolean isReminderPaused(Context context) {
+    return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(REMINDER_PAUSE_KEY, false);
+  }
   
   public static void updateLogoMap(Context context) {
     Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, null);

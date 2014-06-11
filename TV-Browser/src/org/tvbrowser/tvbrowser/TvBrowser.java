@@ -192,12 +192,12 @@ public class TvBrowser extends FragmentActivity implements
     mRundate.set(Calendar.DAY_OF_MONTH, 1);
   }
   
+  
   @Override
   protected void onSaveInstanceState(Bundle outState) {
     outState.putBoolean(SettingConstants.UPDATE_RUNNING_KEY, updateRunning);
     outState.putBoolean(SettingConstants.SELECTION_CHANNELS_KEY, selectingChannels);
-    outState.putBoolean(SettingConstants.REMINDER_STATE_KEY, SettingConstants.IS_REMINDER_PAUSED);
-
+    
     super.onSaveInstanceState(outState);
   }
   
@@ -265,13 +265,12 @@ public class TvBrowser extends FragmentActivity implements
     mProgamListStateStack = new Stack<ProgramsListState>();
     
     ALL_VALUE = getResources().getString(R.string.filter_channel_all);
-    
+        
     if(savedInstanceState != null) {
       updateRunning = savedInstanceState.getBoolean(SettingConstants.UPDATE_RUNNING_KEY, false);
       selectingChannels = savedInstanceState.getBoolean(SettingConstants.SELECTION_CHANNELS_KEY, false);
-      SettingConstants.IS_REMINDER_PAUSED = savedInstanceState.getBoolean(SettingConstants.REMINDER_STATE_KEY, false);
     }
-    
+        
     // Set up the action bar.
     actionBar = getActionBar();
     actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
@@ -2741,7 +2740,7 @@ public class TvBrowser extends FragmentActivity implements
     builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
       @Override
       public void onClick(DialogInterface dialog, int which) {
-        SettingConstants.IS_REMINDER_PAUSED = true;
+        SettingConstants.setReminderPaused(TvBrowser.this, true);
         
         mPauseReminder.setVisible(false);
         mContinueReminder.setVisible(true);
@@ -2844,7 +2843,7 @@ public class TvBrowser extends FragmentActivity implements
       break;
       case R.id.action_donation: showDonationInfo(); break;
       case R.id.action_pause_reminder: pauseReminder(); break;
-      case R.id.action_continue_reminder: SettingConstants.IS_REMINDER_PAUSED = false; mPauseReminder.setVisible(true); mContinueReminder.setVisible(false); break;
+      case R.id.action_continue_reminder: SettingConstants.setReminderPaused(TvBrowser.this, false); mPauseReminder.setVisible(true); mContinueReminder.setVisible(false); break;
       case R.id.action_synchronize_reminders_down:
         if(isOnline()) {
           synchronizeRemindersDown(true);
@@ -2964,8 +2963,8 @@ public class TvBrowser extends FragmentActivity implements
     mPauseReminder = menu.findItem(R.id.action_pause_reminder);
     mContinueReminder = menu.findItem(R.id.action_continue_reminder);
     
-    mPauseReminder.setVisible(!SettingConstants.IS_REMINDER_PAUSED);
-    mContinueReminder.setVisible(SettingConstants.IS_REMINDER_PAUSED);
+    mPauseReminder.setVisible(!SettingConstants.isReminderPaused(TvBrowser.this));
+    mContinueReminder.setVisible(SettingConstants.isReminderPaused(TvBrowser.this));
     
     mScrollTimeItem.setVisible(mViewPager.getCurrentItem() == 1 || mViewPager.getCurrentItem() == 3);
     
