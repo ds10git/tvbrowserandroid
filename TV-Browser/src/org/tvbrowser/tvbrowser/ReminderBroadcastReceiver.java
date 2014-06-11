@@ -35,7 +35,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
-import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.media.Ringtone;
@@ -55,9 +54,9 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
     Logging.log(tag, "ReminderBroadcastReceiver.onReceive " + intent + " " + context, Logging.REMINDER_TYPE, context);
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
     
-    Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' reminder is paused '" + SettingConstants.IS_REMINDER_PAUSED + "'", Logging.REMINDER_TYPE, context);
+    Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' reminder is paused '" + SettingConstants.isReminderPaused(context) + "'", Logging.REMINDER_TYPE, context);
     
-    if(!SettingConstants.IS_REMINDER_PAUSED && programID >= 0) {
+    if(!SettingConstants.isReminderPaused(context) && programID >= 0) {
       Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
       
       String tone = PrefUtils.getStringValue(R.string.PREF_REMINDER_SOUND_VALUE, null);
