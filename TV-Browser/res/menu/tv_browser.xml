@@ -2,8 +2,12 @@
     <item android:id="@+id/search"
           android:title="@string/search_title"
           android:icon="@android:drawable/ic_menu_search"
-          android:showAsAction="collapseActionView|ifRoom"
+          android:showAsAction="collapseActionView|always"
           android:actionViewClass="android.widget.SearchView" />
+    <item android:id="@+id/action_filter_channels"
+          android:title="@string/action_filter_channels"
+          android:icon="@drawable/ic_filter_default"
+          android:showAsAction="always" />
     <item 
         android:id="@+id/action_scroll"
         android:orderInCategory="200"

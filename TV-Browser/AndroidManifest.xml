@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.tvbrowser.tvbrowser"
-	android:versionCode="180"
-	android:versionName="0.2.6.1"
+	android:versionCode="181"
+	android:versionName="0.3 Beta1"
 	android:installLocation="auto">
 
 	<uses-sdk
@@ -41,6 +41,12 @@
 			<meta-data android:name="android.app.searchable"
 				android:resource="@xml/searchable" />
 		</activity>
+		<activity
+			android:name="org.tvbrowser.tvbrowser.EditFavoriteActivity"
+			android:label="@string/favorite_edit"
+			android:configChanges="orientation|screenSize"
+			android:windowSoftInputMode="adjustResize" >
+		</activity>		
 		<activity android:name="org.tvbrowser.tvbrowser.TvBrowserSearchResults"
 			android:label="@string/search_activity_name"
 			android:launchMode="singleTop"

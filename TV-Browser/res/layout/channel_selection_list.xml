@@ -37,11 +37,37 @@
         android:layout_toRightOf="@id/channel_category_label"
         android:layout_below="@id/channel_country_value"
     />
+    <LinearLayout
+        android:id="@+id/channel_selection_selection_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:layout_below="@id/channel_category_value"
+        style="?android:attr/buttonBarStyle">
+        <Button
+	        android:id="@+id/channel_selection_select_all"
+	        android:paddingTop="5dp"
+	        android:layout_width="0dp"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="0.5"
+	        android:text="@string/channel_selection_select_all"
+	        style="?android:attr/buttonBarButtonStyle"
+	        />
+        <Button
+	        android:id="@+id/channel_selection_remove_selection"
+	        android:paddingTop="5dp"
+	        android:layout_width="0dp"
+	        android:layout_height="wrap_content"
+	        android:layout_weight="0.5"
+	        android:text="@string/channel_selection_remove_selection"
+	        style="?android:attr/buttonBarButtonStyle"
+	        />
+    </LinearLayout>
     <ListView android:id="@+id/channel_selection_list"
         android:paddingTop="5dp"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:layout_below="@id/channel_category_value"
+	    android:layout_below="@+id/channel_selection_selection_buttons"
 	    android:choiceMode="multipleChoice"
 	    android:clickable="true"
 	/>

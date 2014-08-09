@@ -42,6 +42,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -133,15 +134,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
         
     for(String favorite : favoritesSet) {
-      String[] values = favorite.split(";;");
-      
-      boolean remind = false;
-      
-      if(values.length > 3) {
-        remind = Boolean.valueOf(values[3]);
-      }
-      
-      mFavoriteList.add(new Favorite(values[0], values[1], Boolean.valueOf(values[2]), remind));
+      mFavoriteList.add(new Favorite(favorite));
     }
         
     mFavoriteAdapter = new ArrayAdapter<Favorite>(getActivity(), android.R.layout.simple_list_item_activated_1,mFavoriteList);
@@ -311,11 +304,13 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
               }
               
               if(fav == null) {
-                fav = new Favorite(intent.getStringExtra(Favorite.NAME_KEY), intent.getStringExtra(Favorite.SEARCH_KEY), intent.getBooleanExtra(Favorite.ONLY_TITLE_KEY, true), intent.getBooleanExtra(Favorite.REMIND_KEY, true));
+                fav = (Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA);
                 mFavoriteList.add(fav);
               }
               else {
-                fav.setValues(intent.getStringExtra(Favorite.NAME_KEY), intent.getStringExtra(Favorite.SEARCH_KEY), intent.getBooleanExtra(Favorite.ONLY_TITLE_KEY, true), intent.getBooleanExtra(Favorite.REMIND_KEY, true));
+                Favorite temp = (Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA);
+                
+                fav.setValues(temp.getName(), temp.getSearchValue(), temp.searchOnlyTitle(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs());
               }
               
               handler.post(new Runnable() {
