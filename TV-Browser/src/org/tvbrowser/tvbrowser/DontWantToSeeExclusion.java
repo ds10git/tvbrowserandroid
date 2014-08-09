@@ -24,25 +24,27 @@ import java.util.regex.Pattern;
  * @author René Mach
  */
 public class DontWantToSeeExclusion {
-  private String mPattern;
-  private boolean mIsMatching;
+  private String mExclusion;
+  private Pattern mPrecompiledPattern;
   private boolean mIsCaseSensitive;
   
   public DontWantToSeeExclusion(String exclusion) {
     String[] parts = exclusion.split(";;");
     
-    mIsMatching = parts[0].contains("*");
-    
-    mPattern = parts[0];
+    mExclusion = parts[0];
     mIsCaseSensitive = parts[1].equals("1");
     
     if(!mIsCaseSensitive) {
-      mPattern = mPattern.toLowerCase();
+      mExclusion = mExclusion.toLowerCase();
     }
     
-    if(mIsMatching) {
-      mPattern = Pattern.quote(mPattern);
-      mPattern = mPattern.replace("*", "\\E.*\\Q");
+    if(parts[0].contains("*")) {
+      String pattern = Pattern.quote(mExclusion);
+      pattern = pattern.replace("*", "\\E.*\\Q");
+      mPrecompiledPattern = Pattern.compile(pattern);
+    }
+    else {
+      mPrecompiledPattern = null;
     }
   }
   
@@ -53,11 +55,11 @@ public class DontWantToSeeExclusion {
       title = title.toLowerCase();
     }
     
-    if(mIsMatching) {
-      matches = title.matches(mPattern);
+    if(mPrecompiledPattern != null) {
+      matches = mPrecompiledPattern.matcher(title).matches();
     }
     else {
-      matches = title.equals(mPattern);
+      matches = title.equals(mExclusion);
     }
     
     return matches;

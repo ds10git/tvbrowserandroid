@@ -12,6 +12,11 @@
     <string name="action_username_password">Benutzername und -passwort eingeben</string>
     <string name="action_exit">Beenden</string>
     <string name="action_exit_now">TV-Browser jetzt beenden?</string>
+    <string name="action_filter_channels">Sender filtern</string>
+    <string name="channel_filter_all">Alle Sender</string>
+    <string name="channel_filter_tv">Nur TV-Sender</string>
+    <string name="channel_filter_radio">Nur Radio-Sender</string>
+    <string name="channel_filter_cinema">Nur Kino-Sender</string>
     <string name="sort_alphabetically">Alphabetisch sortieren</string>
 	<string name="channel_download_warning_title">Senderdownload nicht vollständig</string>
     <string name="channel_download_warning_text">Nicht alle Sender konnten erfolgreich geladen werden.\nSollten Sie Sender vermissen versuchen Sie die Sender erneut zu laden.</string>
@@ -71,7 +76,15 @@
     <string name="add">Hinzufügen</string>
     <string name="favorite_name">Name:</string>
     <string name="favorite_name_hint">Namen eingeben (optional)</string>
-    <string name="favorite_search">Suchen nach:</string>
+    <string name="favorite_search">Suchen:</string>
+    <string name="favorite_time">Uhrzeit:</string>
+    <string name="favorite_time_to">bis</string>
+    <string name="favorite_time_to_big">Bis:</string>
+    <string name="favorite_time_from">Von:</string>
+    <string name="favorite_days">Tage:</string>
+    <string name="favorite_days_default">Mo. Di. Mi. Do. Fr. Sa. So.</string>
+    <string name="favorite_channels">Sender:</string>
+    <string name="favorite_channels_default">Alle</string>
     <string name="favorite_search_hint">Suchbegriff eingeben</string>
     <string name="favorite_only_title">Nur im Titel suchen</string>
     <string name="favorite_edit">Lieblingssendung bearbeiten</string>
@@ -123,6 +136,8 @@
     <string name="terms_of_use_accept">Annehmen</string>
     <string name="terms_of_use_text">Die mit TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) verfügbaren TV/Radio-Programmdaten und Senderlogos sind durch Urheberrechtsgesetze geschützt und ausschließlich zur Nutzung innerhalb von TV-Browser oder der, vom Hersteller von TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) autorisierten, namensgleichen Applikationen zugänglich gemacht und dürfen nur zur Programmvorschau der verfügbaren Sender verwendet werden.\n\nJegliche andere Nutzung, Reproduktion, Archivierung oder Weitergabe der TV/Radio-Programmdaten verstößt ausdrücklich gegen das Gesetz und kann zivil- und strafrechtliche Folgen nach sich ziehen. Wenn Sie die TV/Radio-Programmdaten herunterladen, erklären Sie sich mit den Bedingungen der Nutzungsvereinbarung einverstanden.\n\nBei Fragen zu den Nutzungsbedingungen wenden Sie sich bitte per E-Mail an <a href="mailto:dev@tvbrowser.org">dev@tvbrowser.org</a></string>
     <string name="channel_selection_help">Auf Sender klicken um Sortierungsnummer auszuwählen.</string>
+    <string name="channel_selection_remove_selection">Auswahl aufheben</string>
+    <string name="channel_selection_select_all">Alle auswählen</string>
 	<string name="synchronize_title">Sender synchronisieren?</string>
 	<string name="synchronize_text">Sie können die Sender aus dem Desktop-TV-Browser synchronisieren.\n\nDazu müssen Sie sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> und die Sender aus dem Desktop-TV-Browser mit dem Android-Sync Plugin exportieren.\n\nMöchten Sie die Sender jetzt synchronisieren oder möchten Sie die Sender manuell auswählen?</string>
 	<string name="synchronize_ok">Sender jetzt synchronisieren</string>
@@ -223,6 +238,8 @@
 	<string name="pref_prog_table_time_block_size">Anzahl der Stunden pro Block:</string>
 	<string name="sort_enter">Alternativ Nummer eingeben (beliebige positive Zahl):</string>
 	<string name="pref_time_buttons">Zeitknöpfe</string>
+	<string name="pref_time_button_count">Anzahl Zeitknöpfe</string>
+	<string name="pref_time_buttons_configure_title">Zeitknöpfe konfigurieren</string>
 	<string name="pref_time_buttons_summary">Zeitknöpfe der Laufenden Sendungen konfigurieren.</string>
 	<string name="pref_time_button_hint">Mehrfache Einträge werden ignoriert.</string>
 	<string name="running_until">, bis </string>
@@ -311,7 +328,7 @@
     <string name="dark_theme_summary">(Neustart notwendig)</string>
     <string name="pref_running_sort_time_buttons">Sortieren</string>
     <string name="pref_running_sort_time_buttons_summary_on">Zeitknöpfe werden nach Zeit sortiert angeordnet</string>
-    <string name="pref_running_sort_time_buttons_summary_off">Zeitknöpfe erscheinen in der oben eingestellten Reihenfolge</string>
+    <string name="pref_running_sort_time_buttons_summary_off">Zeitknöpfe erscheinen in der unten eingestellten Reihenfolge</string>
 	<string name="action_scroll_time">Zu Zeit scrollen</string>
 	<string name="divider_size">Trennergröße:</string>
 	<string-array name="divider_value_names">
@@ -420,4 +437,11 @@
     <string name="pref_running_time_selection_summary">Hintergrundfarbe der ausgewählten Zeit.</string>
     <string name="pref_prog_table_delayed">Laden verzögern</string>
     <string name="pref_prog_table_delayed_summary">Das Laden der Programmtabelle wird verzögert, bis zum ersten Öffnen dieser. (Beschleunigt den App-Start, wenn nicht der Tab der Programmtabelle zum Start ausgewählt.)</string>
+    <string name="pref_category_calendar_export">Kalenderexport</string>
+    <string name="pref_export_category_info">Zu übertragende Informationen</string>
+    <string name="pref_export_description_type_title">Beschreibungstyp</string>
+    <string-array name="pref_export_description_type_entries">
+        <item>Kurzbeschreibung</item>
+        <item>Vollständige Beschreibung (wenn vorhanden)</item>
+    </string-array>
 </resources>

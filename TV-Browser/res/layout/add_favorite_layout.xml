@@ -1,52 +1,167 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
-    <TextView
-        android:id="@+id/favorite_search_label" 
-        android:layout_width="wrap_content"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:id="@+id/favorite_button_bar"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/favorite_search"
-        android:paddingRight="5dp"
-        android:layout_alignBaseline="@+id/favorite_search_value"/>
-    <EditText android:id="@+id/favorite_search_value"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_toRightOf="@id/favorite_search_label"
-        android:inputType="text"
-        android:hint="@string/favorite_search_hint"
-        
-        />
-    <TextView
-        android:id="@+id/favorite_name_label" 
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="@string/favorite_name"
-        android:paddingRight="5dp"
-        android:layout_alignBaseline="@+id/favorite_name"
-        android:layout_below="@+id/favorite_search_label"
-        />
-    <EditText android:id="@+id/favorite_name"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:layout_toRightOf="@+id/favorite_name_label"
-        android:inputType="text"
-        android:hint="@string/favorite_name_hint"
-        android:layout_below="@+id/favorite_search_value"
-        />
-
-
-
-    <CheckBox android:id="@+id/favorite_only_title"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="@string/favorite_only_title"
-        android:layout_below="@id/favorite_name"
-        android:checked="true"/>
-    <CheckBox android:id="@+id/favorite_remind"
-        android:layout_height="wrap_content"
-        android:layout_width="wrap_content"
-        android:text="@string/favorite_remind"
-        android:layout_below="@id/favorite_only_title"
-        android:checked="true"/>
+        android:layout_alignParentBottom="true"
+        style="?android:attr/buttonBarStyle"
+        >
+        <Button
+           	style="?android:attr/buttonBarButtonStyle" 
+            android:id="@+id/favorite_cancel"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:layout_height="wrap_content"
+            android:text="@android:string/cancel"
+            android:background="@android:drawable/list_selector_background"
+            android:onClick="cancel"/>
+        <Button
+            style="?android:attr/buttonBarButtonStyle"
+            android:id="@+id/favorite_ok"
+            android:layout_width="0dp"
+            android:layout_weight="0.5"
+            android:layout_height="wrap_content"
+            android:text="@android:string/ok"
+            android:background="@android:drawable/list_selector_background"
+            android:onClick="ok"/>
+    </LinearLayout>
+    <ScrollView
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        android:layout_alignParentTop="true"
+        android:layout_above="@+id/favorite_button_bar">
+	    <RelativeLayout 
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:padding="5dp" >
+			<TextView
+		        android:id="@+id/favorite_name_label" 
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="@string/favorite_name"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:paddingRight="5dp"
+		        android:layout_alignBaseline="@+id/favorite_name"
+		        android:layout_marginBottom="5dp"
+		        />
+		    <EditText android:id="@+id/favorite_name"
+		        android:layout_height="wrap_content"
+		        android:layout_width="match_parent"
+		        android:layout_toRightOf="@+id/favorite_search_label"
+		        android:inputType="text"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:hint="@string/favorite_name_hint"
+		        android:layout_marginBottom="5dp"
+		        />
+		    
+		    <TextView
+		        android:id="@+id/favorite_search_label" 
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="@string/favorite_search"
+		        android:paddingRight="5dp"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:layout_alignBaseline="@+id/favorite_search_value"
+		        android:layout_below="@+id/favorite_name_label"/>
+		    <EditText android:id="@+id/favorite_search_value"
+		        android:layout_height="wrap_content"
+		        android:layout_width="match_parent"
+		        android:layout_toRightOf="@id/favorite_search_label"
+		        android:inputType="text"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:hint="@string/favorite_search_hint"
+		        android:layout_below="@+id/favorite_name"
+		        />
+		    
+		    <CheckBox android:id="@+id/favorite_only_title"
+		        android:layout_height="wrap_content"
+		        android:layout_width="match_parent"
+		        android:layout_marginBottom="5dp"
+		        android:text="@string/favorite_only_title"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:layout_below="@id/favorite_search_value"
+		        android:layout_toRightOf="@+id/favorite_search_label"
+		        android:checked="true"/>
+		    <TextView
+		        android:id="@+id/favorite_time_restriction_label"
+		        android:layout_height="wrap_content"
+		        android:layout_width="wrap_content"
+		        android:paddingRight="5dp"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:layout_below="@+id/favorite_only_title"
+		        android:text="@string/favorite_time"
+		        android:layout_marginBottom="5dp"/>
+		    <TextView
+		        android:id="@+id/favorite_time_restriction"
+		        android:layout_height="wrap_content"
+		        android:layout_width="match_parent"
+		        android:text="00:00 to 23:59"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:layout_toRightOf="@+id/favorite_search_label"
+		        android:layout_below="@+id/favorite_only_title"
+		        android:clickable="true"
+		        android:background="@android:drawable/list_selector_background"
+		        android:onClick="changeTime"
+		        android:layout_marginBottom="5dp"/>
+		    <TextView
+		        android:id="@+id/favorite_day_restriction_label"
+		        android:layout_height="wrap_content"
+		        android:paddingRight="5dp"
+		        android:layout_width="wrap_content"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:text="@string/favorite_days"
+		        android:layout_below="@+id/favorite_time_restriction_label"
+		        android:layout_marginBottom="5dp"
+		        />
+		    <TextView
+		        android:id="@+id/favorite_day_restriction"
+		        android:layout_height="wrap_content"
+		        android:layout_width="match_parent"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:layout_toRightOf="@+id/favorite_search_label"
+		        android:layout_below="@+id/favorite_time_restriction_label"
+		        android:text="@string/favorite_days_default"
+		        android:clickable="true"
+		        android:onClick="changeDays"
+		        android:layout_marginBottom="5dp"
+		        android:background="@android:drawable/list_selector_background"/>
+		    <TextView
+		        android:id="@+id/favorite_channel_restriction_label"
+		        android:layout_height="wrap_content"
+		        android:layout_width="wrap_content"
+		        android:paddingRight="5dp"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:text="@string/favorite_channels"
+		        android:layout_below="@+id/favorite_day_restriction_label"
+		        android:layout_marginBottom="5dp"/>
+		    <TextView
+		        android:id="@+id/favorite_channel_restriction"
+		        android:layout_height="wrap_content"
+		        android:layout_width="match_parent"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:layout_toRightOf="@+id/favorite_search_label"
+		        android:layout_below="@+id/favorite_day_restriction_label"
+		        android:text="@string/favorite_channels_default"
+		        android:layout_marginBottom="5dp"
+		        android:clickable="true"
+		        android:onClick="changeChannels"
+		        android:background="@android:drawable/list_selector_background"
+		        />
+		    <CheckBox
+		        android:id="@+id/favorite_remind"
+		        android:layout_height="wrap_content"
+		        android:layout_width="match_parent"
+		        android:layout_marginTop="5dp"
+		        android:text="@string/favorite_remind"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:layout_below="@+id/favorite_channel_restriction"
+		        android:layout_alignParentLeft="true"
+		        android:checked="true"/>
+		    
+		</RelativeLayout>
+    </ScrollView>
 </RelativeLayout>
+

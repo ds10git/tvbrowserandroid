@@ -557,7 +557,7 @@ public class UiUtils {
       return true;
     }
     else if(item.getItemId() == R.id.prog_send_email) {
-      info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
+      info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
       
       if(info.getCount() > 0) {
         info.moveToFirst();
@@ -573,7 +573,21 @@ public class UiUtils {
           
           String desc = null;
           
-          if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
+          String type = PreferenceManager.getDefaultSharedPreferences(activity).getString(activity.getString(R.string.PREF_EMAIL_DESCRIPTION_TYPE), activity.getString(R.string.pref_export_description_type_default));
+          
+          Log.d("info15", " TYPE " + type + " " + type.equals(activity.getResources().getStringArray(R.array.pref_export_description_type_values)[1]));
+          
+          if(type.equals(activity.getResources().getStringArray(R.array.pref_export_description_type_values)[1])) {
+            if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION))) {
+              desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
+              
+              if(desc != null && desc.trim().toLowerCase().equals("null")) {
+                desc = null;
+              } 
+            }
+          }
+          
+          if(desc == null && !info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
             desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
             
             if(desc != null && desc.trim().toLowerCase().equals("null")) {
@@ -652,7 +666,7 @@ public class UiUtils {
       }
     }
     else if(item.getItemId() == R.id.prog_create_calendar_entry) {
-      info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
+      info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
       
       if(info.getCount() > 0) {
         info.moveToFirst();
@@ -669,7 +683,21 @@ public class UiUtils {
           
           String desc = null;
           
-          if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
+          String type = PreferenceManager.getDefaultSharedPreferences(activity).getString(activity.getString(R.string.PREF_CALENDAR_EXPORT_DESCRIPTION_TYPE), activity.getString(R.string.pref_export_description_type_default));
+          
+          Log.d("info15", " TYPE " + type + " " + type.equals(activity.getResources().getStringArray(R.array.pref_export_description_type_values)[1]));
+          
+          if(type.equals(activity.getResources().getStringArray(R.array.pref_export_description_type_values)[1])) {
+            if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION))) {
+              desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
+              
+              if(desc != null && desc.trim().toLowerCase().equals("null")) {
+                desc = null;
+              } 
+            }
+          }
+          Log.d("info15", " DESC " + desc + " " + info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
+          if(desc == null && !info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
             desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
             
             if(desc != null && desc.trim().toLowerCase().equals("null")) {
@@ -1247,6 +1275,18 @@ public class UiUtils {
   }
   
   public static void editFavorite(final Favorite fav, final Context activity, String searchString) {
+    Intent startEditFavorite = new Intent(activity, EditFavoriteActivity.class);
+    
+    if(fav != null) {
+      Log.d("info12", "IN " + fav.getName() + " " + fav.getSearchValue() + " " + fav.searchOnlyTitle() + " " + fav.remind());
+      startEditFavorite.putExtra(Favorite.FAVORITE_EXTRA, fav);
+    }
+    else if(searchString != null) {
+      startEditFavorite.putExtra(Favorite.SEARCH_EXTRA, searchString);
+    }
+    
+    activity.startActivity(startEditFavorite);
+    /*
     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     
     final View input = ((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.add_favorite_layout, null);
@@ -1351,7 +1391,7 @@ public class UiUtils {
       public void afterTextChanged(Editable s) {
         positive.setEnabled(searchValue.getText().toString().trim().length() > 0);
       }
-    });
+    });**/
   }
   
   public static String formatDate(long date, Context context, boolean onlyDays) {
@@ -1470,8 +1510,7 @@ public class UiUtils {
           values[i++] = new DontWantToSeeExclusion(exclusion);
         }
       }
-      
-      
+            
       if(values != null) {
         for(DontWantToSeeExclusion value : values) {
           if(filter(title, value)) {

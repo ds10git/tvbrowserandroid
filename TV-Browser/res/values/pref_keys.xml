@@ -151,6 +151,12 @@
 	    <item name="pref_reminder_night_mode_led_default" type="bool" format="boolean">false</item>
 	    
 	<!-- Time buttons settings -->
+	    <string name="TIME_BUTTON_COUNT">TIME_BUTTON_COUNT</string>
+	    <item name="time_button_count_default" type="integer" format="integer">6</item>
+	    
+	    <string name="time_button_key_prefix">TIME_BUTTON_</string>
+	    
+	    <string name="TIME_BUTTON_PREFERENCES_SUB_SCREEN">TIME_BUTTON_PREFERENCES_SUB_SCREEN</string>
 	    
 	    <string name="TIME_BUTTON_1">TIME_BUTTON_ONE</string>
 	    <item name="time_button_1_default" type="integer" format="integer">1215</item>
@@ -327,10 +333,17 @@
 	    
 	    <string name="PREF_SYNC_CALENDAR_TO_DESKTOP">PREF_SYNC_CALENDAR_TO_DESKTOP</string>
 	    <item name="pref_sync_calendar_to_desktop_default" type="bool" format="boolean">true</item>
-
+	    
+	<!-- Calendar export settings -->
+	
+		<string name="PREF_CALENDAR_EXPORT_DESCRIPTION_TYPE">PREF_CALENDAR_EXPORT_DESCRIPTION_TYPE</string>
+		
+		<item name="pref_export_description_type_default" type="string" format="string">0</item>
+		
 	<!-- Email settings -->
 	
 		<string name="PREF_EMAIL_TARGET_ADDRESS">PREF_EMAIL_TARGET_ADDRESS</string>
+		<string name="PREF_EMAIL_DESCRIPTION_TYPE">PREF_EMAIL_DESCRIPTION_TYPE</string>
 		
 	<!-- Additional information settings -->
 	

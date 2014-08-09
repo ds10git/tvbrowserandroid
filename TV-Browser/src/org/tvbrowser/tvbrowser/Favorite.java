@@ -16,6 +16,7 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Hashtable;
@@ -37,17 +38,23 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-public class Favorite {
+public class Favorite implements Serializable, Cloneable {
+  public static final String FAVORITE_EXTRA = "FAVORITE_EXTRA";
+  public static final String SEARCH_EXTRA = "SEARCH_EXTRA";
+  
   public static final String OLD_NAME_KEY = "OLD_NAME_KEY";
-  public static final String NAME_KEY = "NAME_KEY";
-  public static final String SEARCH_KEY = "SEARCH_KEY";
-  public static final String ONLY_TITLE_KEY = "ONLY_TITLE_KEY";
-  public static final String REMIND_KEY = "REMIND_KEY";
+  
+  private static final String START_MINUTE_COLUMN = "startMinute";
+  public static final String START_DAY_COLUMN = "startDayOfWeek";
   
   private String mName;
   private String mSearch;
   private boolean mOnlyTitle;
   private boolean mRemind;
+  private int mTimeRestrictionStart;
+  private int mTimeRestrictionEnd;
+  private int[] mDayRestriction;
+  private int[] mChannelRestrictionIDs;
   
   private final static String[] PROJECTION = {
     TvBrowserContentProvider.KEY_ID,
@@ -69,31 +76,168 @@ public class Favorite {
   
   private static Hashtable<Long, boolean[]> DATA_REFRESH_TABLE = null;
   
-  public Favorite(String name, String search, boolean onlyTitle, boolean remind) {
-    setValues(name, search, onlyTitle, remind);
+  public Favorite() {
+    this(null, "", true, true, -1, -1, null, null);
+  }
+  
+  public Favorite(String saveLine) {
+    String[] values = saveLine.split(";;");
+    
+    mName = values[0];
+    mSearch = values[1];
+    mOnlyTitle = Boolean.valueOf(values[2]);
+    
+    if(values.length > 3) {
+      mRemind = Boolean.valueOf(values[3]);
+    }
+    
+    if(values.length > 4) {
+      if(values[4].equals("null")) {
+        mTimeRestrictionStart = -1;
+        mTimeRestrictionEnd = -1;
+      }
+      else {
+        String[] parts = values[4].split(",");
+        
+        mTimeRestrictionStart = Integer.parseInt(parts[0]);
+        mTimeRestrictionEnd = Integer.parseInt(parts[1]);
+      }
+      
+      parseArray(DAY_RESTRICTION_TYPE, values[5]);
+      parseArray(CHANNEL_RESTRICTION_TYPE, values[6]);
+    }
+    else {
+      mTimeRestrictionStart = -1;
+      mTimeRestrictionEnd = -1;
+      mDayRestriction = null;
+      mChannelRestrictionIDs = null;
+    }
+  }
+  
+  private static final int DAY_RESTRICTION_TYPE = 0;
+  private static final int CHANNEL_RESTRICTION_TYPE = 1;
+  
+  private void parseArray(int type, String value) {
+    int[] array = null;
+    
+    if(value.equals("null")) {
+      array = null;
+    }
+    else {
+      if(value.contains(",")) {
+        String[] parts = value.split(",");
+        
+        array = new int[parts.length];
+        
+        for(int i = 0; i < parts.length; i++) {
+          array[i] = Integer.parseInt(parts[i]);
+        }
+      }
+      else {
+        array = new int[1];
+        array[0] = Integer.parseInt(value);
+      }      
+    }
+    
+    switch (type) {
+      case DAY_RESTRICTION_TYPE: mDayRestriction = array; break;
+      case CHANNEL_RESTRICTION_TYPE: mChannelRestrictionIDs = array; break;
+    }
+  }
+  
+ /* public Favorite(String name, String search, boolean onlyTitle, boolean remind) {
+    this(name, search, onlyTitle, remind, -1, -1, null, null);
+  }*/
+  
+  public Favorite(String name, String search, boolean onlyTitle, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs) {
+    setValues(name, search, onlyTitle, remind, timeRestrictionStart, timeRestrictionEnd, days, channelIDs);
   }
   
   public boolean searchOnlyTitle() {
     return mOnlyTitle;
   }
   
+  public void setSearchOnlyTitle(boolean value) {
+    mOnlyTitle = value;
+  }
+  
   public boolean remind() {
     return mRemind;
+  }
+  
+  public void setRemind(boolean value) {
+    mRemind = value;
   }
   
   public String getName() {
     return mName;
   }
   
+  public void setName(String name) {
+    mName = name;
+  }
+  
+  public void setSearchValue(String search) {
+    mSearch = search.replace("\"", "");
+  }
+  
   public String getSearchValue() {
     return mSearch;
   }
   
-  public void setValues(String name, String search, boolean onlyTitle, boolean remind) {
+  public boolean isTimeRestricted() {
+    return mTimeRestrictionStart >= 0 && mTimeRestrictionEnd >= 0;
+  }
+  
+  public int getTimeRestrictionStart() {
+    return mTimeRestrictionStart;
+  }
+  
+  public void setTimeRestrictionStart(int minutes) {
+    mTimeRestrictionStart = minutes;
+  }
+  
+  public int getTimeRestrictionEnd() {
+    return mTimeRestrictionEnd;
+  }
+  
+  public void setTimeRestrictionEnd(int minutes) {
+    mTimeRestrictionEnd = minutes;
+  }
+  
+  public boolean isDayRestricted() {
+    return mDayRestriction != null;
+  }
+  
+  public int[] getDayRestriction() {
+    return mDayRestriction;
+  }
+  
+  public boolean isChannelRestricted() {
+    return mChannelRestrictionIDs != null;
+  }
+  
+  public int[] getChannelRestrictionIDs() {
+    return mChannelRestrictionIDs;
+  }
+  
+  public void setChannelRestrictionIDs(int[] ids) {
+    mChannelRestrictionIDs = ids;
+  }
+    
+  public void setValues(String name, String search, boolean onlyTitle, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs) {
     mName = name;
     mSearch = search.replace("\"", "");
     mOnlyTitle = onlyTitle;
     mRemind = remind;
+    mTimeRestrictionStart = timeRestrictionStart;
+    mTimeRestrictionEnd = timeRestrictionEnd;
+    mDayRestriction = days;
+    mChannelRestrictionIDs = channelIDs;
+  }
+  
+  public void setDayRestriction(int[] days) {
+    mDayRestriction = days;
   }
   
   public String toString() {
@@ -145,6 +289,23 @@ public class Favorite {
     builder.append(" AS ");
     builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
     builder.append(" ");
+    
+    if(isTimeRestricted()) {
+      builder.append(", (strftime('%H', ");
+      builder.append(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      builder.append("/1000, 'unixepoch')*60 + strftime('%H', ");
+      builder.append(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      builder.append("/1000, 'unixepoch')) AS ");
+      builder.append(START_MINUTE_COLUMN);
+    }
+    
+    if(isDayRestricted()) {
+      builder.append(", (strftime('%w', ");
+      builder.append(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      builder.append("/1000, 'unixepoch', 'localtime')+1) AS ");
+      builder.append(START_DAY_COLUMN);
+    }
+    
     builder.append(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER);
     builder.append(" ( ");
     builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
@@ -152,11 +313,98 @@ public class Favorite {
     builder.append(mSearch);
     builder.append("%\")");
     
+    if(isTimeRestricted()) {
+      builder.append(" AND (");
+      builder.append(START_MINUTE_COLUMN);
+      builder.append(">=");
+      builder.append(mTimeRestrictionStart);
+      
+      if(mTimeRestrictionStart > mTimeRestrictionEnd) {
+        builder.append(" OR ");
+      }
+      else {
+        builder.append(" AND ");
+      }
+      
+      builder.append(" startMinute<=");
+      builder.append(mTimeRestrictionEnd);
+      
+      builder.append(" )");
+    }
+    
+    if(isDayRestricted()) {
+      builder.append(" AND ( ");
+      builder.append(START_DAY_COLUMN);
+      builder = appendInList(mDayRestriction,builder);
+      builder.append(")");
+    }
+    
+    if(isChannelRestricted()) {
+      builder.append(" AND ( ");
+      builder.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+      builder = appendInList(mChannelRestrictionIDs,builder);
+      builder.append(")");
+    }
+    
     return builder.toString();
   }
   
+  private StringBuilder appendInList(int[] array, StringBuilder builder) {
+    builder.append(" IN (");
+    
+    for(int i = 0; i < array.length-1; i++) {
+      builder.append(array[i]).append(", ");
+    }
+    
+    builder.append(array[array.length-1]);
+    builder.append(") ");
+    
+    return builder;
+  }
+  
   public String getSaveString() {
-    return mName + ";;" + mSearch + ";;" + String.valueOf(mOnlyTitle) + ";;" + String.valueOf(mRemind);
+    StringBuilder saveString = new StringBuilder();
+    
+    saveString.append(mName);
+    saveString.append(";;");
+    saveString.append(mSearch);
+    saveString.append(";;");
+    saveString.append(String.valueOf(mOnlyTitle));
+    saveString.append(";;");
+    saveString.append(String.valueOf(mRemind));
+    saveString.append(";;");
+    
+    if(isTimeRestricted()) {
+      saveString.append(mTimeRestrictionStart).append(",").append(mTimeRestrictionEnd);
+    }
+    else {
+      saveString.append("null");
+    }
+    
+    saveString.append(";;");
+    
+    saveString = appendSaveStringWithArray(mDayRestriction, saveString);
+    
+    saveString.append(";;");
+    
+    saveString = appendSaveStringWithArray(mChannelRestrictionIDs, saveString);
+    
+    return saveString.toString();
+  }
+  
+  private StringBuilder appendSaveStringWithArray(int[] array, StringBuilder saveString) {
+    if(array != null) {
+      for(int i = 0; i < array.length-1; i++) {
+        saveString.append(array[i]).append(",");
+      }
+      
+      saveString.append(array[array.length-1]);
+    }
+    else {
+      saveString.append("null");
+    }
+    
+    return saveString;
   }
   
   public static void removeFavoriteMarking(Context context, ContentResolver resolver, Favorite favorite) {
@@ -259,15 +507,7 @@ public class Favorite {
       boolean matches = false;
       
       for(String favorite : favoritesSet) {
-        String[] values = favorite.split(";;");
-        
-        boolean remind = false;
-        
-        if(values.length > 3) {
-          remind = Boolean.valueOf(values[3]);
-        }
-        
-        Favorite fav = new Favorite(values[0], values[1], Boolean.valueOf(values[2]), remind);
+        Favorite fav = new Favorite(favorite);
         
         if(exclude == null || !fav.equals(exclude)) {
           String where = fav.getWhereClause();
@@ -407,5 +647,16 @@ public class Favorite {
     }
     
     return super.equals(o);
+  }
+  
+  public Favorite copy() {
+    try {
+      return (Favorite)clone();
+    } catch (CloneNotSupportedException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+    
+    return null;
   }
 }

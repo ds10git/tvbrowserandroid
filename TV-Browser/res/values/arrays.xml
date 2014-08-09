@@ -138,4 +138,8 @@
 	    <item>30</item>
 	    <item>60</item>
 	</string-array>
+	<string-array name="pref_export_description_type_values">
+	    <item>0</item>
+	    <item>1</item>
+	</string-array>
 </resources>

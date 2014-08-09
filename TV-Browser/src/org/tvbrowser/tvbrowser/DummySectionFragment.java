@@ -33,7 +33,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -187,7 +186,9 @@ public class DummySectionFragment extends Fragment {
             
             int[] defaultValues = getResources().getIntArray(R.array.time_button_defaults);
             
-            for(int i = 1; i <= 6; i++) {
+            int timeButtonCount = pref.getInt(getString(R.string.TIME_BUTTON_COUNT),getResources().getInteger(R.integer.time_button_count_default));
+            
+            for(int i = 1; i <= Math.min(timeButtonCount, getResources().getInteger(R.integer.time_button_count_default)); i++) {
               try {
                 Class<?> string = R.string.class;
                 
@@ -199,6 +200,14 @@ public class DummySectionFragment extends Fragment {
                   values.add(value);
                 }
               } catch (Exception e) {}
+            }
+            
+            for(int i = 7; i <= timeButtonCount; i++) {
+                Integer value = Integer.valueOf(pref.getInt("TIME_BUTTON_" + i, 0));
+                
+                if(value >= -1 && !values.contains(value)) {
+                  values.add(value);
+                }
             }
             
             if(PrefUtils.getBooleanValue(R.string.SORT_RUNNING_TIMES, R.bool.sort_running_times_default)) {
@@ -579,10 +588,11 @@ public class DummySectionFragment extends Fragment {
               ContentResolver cr = getActivity().getContentResolver();
               
               StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
-              where.append("=1");
               
+              where.append(((TvBrowser)getActivity()).getChannelFilterSelection().replace(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, TvBrowserContentProvider.KEY_ID));
+              Log.d("info16", where.toString());
               Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-              
+              Log.d("info16", " COUNT " + channelCursor.getCount());
               if(channelCursor.getCount() > 0) {
                 channelCursor.moveToFirst();
                   

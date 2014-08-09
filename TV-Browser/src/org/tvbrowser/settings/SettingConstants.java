@@ -195,6 +195,11 @@ public class SettingConstants {
   
   public static final String MARKINGS_ID = "MARKINGS_ID";
   public static final String FAVORITE_LIST = "FAVORITE_LIST";
+  
+  public static final String SELECTED_RADIO_CHANNELS_LIST = "SELECTED_RADIO_CHANNELS_LIST";
+  public static final String SELECTED_TV_CHANNELS_LIST = "SELECTED_TV_CHANNELS_LIST";
+  public static final String SELECTED_CINEMA_CHANNELS_LIST = "SELECTED_CINEMA_CHANNELS_LIST";
+  
   /*public static final String MARK_VALUE = "marked";
   public static final String MARK_VALUE_FAVORITE = "favorite";
   public static final String MARK_VALUE_CALENDAR = "calendar";

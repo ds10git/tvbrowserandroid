@@ -1031,6 +1031,8 @@ Log.d("info", "" + new Date(mCurrentTime));
     
     where += " AND ( NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";
     
+    where += ((TvBrowser)getActivity()).getChannelFilterSelection();
+    
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " COLLATE NOCASE, " + sort);
     
     return loader;
