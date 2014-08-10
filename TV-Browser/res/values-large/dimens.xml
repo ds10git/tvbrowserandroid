@@ -6,7 +6,7 @@
     <dimen name="picture_copyright_font_size">11sp</dimen>
     <item name="favorite_list_weight" format="float" type="dimen">0.75</item>
     <item name="favorite_program_weight" format="float" type="dimen">0.25</item>
-    <item name="prog_table_default" type="bool" format="boolean">true</item>
+    <item name="prog_table_default" type="bool" format="boolean">false</item>
     <dimen name="detail_padding">10dp</dimen>
     <dimen name="running_bar_height">48dp</dimen>
 </resources>

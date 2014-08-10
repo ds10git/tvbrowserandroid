@@ -36,9 +36,11 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
   
   @Override
   public void onReceive(final Context context, Intent intent) {
+    Log.d("info22","HIER " + context + " " + intent);
+    
     PrefUtils.initialize(context);
     
-    Log.d("info","xxxyyy");
+    Log.d("info22","xxxyyy");
     final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
     
     String updateType = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
@@ -46,9 +48,9 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
     boolean autoUpdate = !updateType.equals("0");
     boolean internetConnection = updateType.equals("1");
     boolean timeUpdate = updateType.equals("2");
-    Log.d("info", "au " + autoUpdate + " " + updateType);
-    Log.d("info", "ic " + internetConnection);
-    Log.d("info", "tu " + timeUpdate);
+    Log.d("info22", "au " + autoUpdate + " " + updateType);
+    Log.d("info22", "ic " + internetConnection);
+    Log.d("info22", "tu " + timeUpdate);
     if(autoUpdate) {
       if(internetConnection) {
         int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default)) + 1;
@@ -58,10 +60,14 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
         Calendar last = Calendar.getInstance();
         last.setTimeInMillis(lastDate);
         
-        int dayDiff = (int)((System.currentTimeMillis() - last.getTimeInMillis()) / 60000. / 60. / 24.);
-        Log.d("info", "dayDiff " + dayDiff + " " + days);
+        int dayDiff = Calendar.getInstance().get(Calendar.DAY_OF_YEAR) - last.get(Calendar.DAY_OF_YEAR);//(int)((System.currentTimeMillis() - last.getTimeInMillis()) / 60000. / 60. / 24.);
+        
+        if(dayDiff < 0) {
+          dayDiff = Calendar.getInstance().getMaximum(Calendar.DAY_OF_YEAR) + dayDiff;
+        }
+        Log.d("info22", "dayDiff " + dayDiff + " " + days + " " + ((System.currentTimeMillis() - lastDate) / 1000 / 60 / 60));
 
-        autoUpdate = dayDiff >= days;
+        autoUpdate = dayDiff >= days && (System.currentTimeMillis() - lastDate) / 1000 / 60 / 60 > 12;
       }
       else if(timeUpdate) {
         autoUpdate = intent.getBooleanExtra(SettingConstants.TIME_DATA_UPDATE_EXTRA, false);
@@ -69,7 +75,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
       else {
         autoUpdate = false;
       }
-      Log.d("info", "" + autoUpdate);
+      Log.d("info22", "" + autoUpdate);
       if(autoUpdate) {
         ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         
@@ -81,9 +87,9 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
         boolean isConnected = wifi != null && wifi.isConnectedOrConnecting();
         
         if(!onlyWifi) {
-          isConnected = isConnected || mobile != null && mobile.isConnectedOrConnecting();
+          isConnected = isConnected || (mobile != null && mobile.isConnectedOrConnecting());
         }
-        Log.d("info", "isconn " + isConnected);
+        Log.d("info22", "isconn " + isConnected);
         
         if (isConnected && (mUpdateThread == null || !mUpdateThread.isAlive())) {
           mUpdateThread = new Thread() {
@@ -92,7 +98,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
               try {
                 sleep(10000);
               } catch (InterruptedException e) {}
-              Log.d("info", "autoUpdate");
+              Log.d("info22", "autoUpdate");
               if(!TvDataUpdateService.IS_RUNNING) {
                 Intent startDownload = new Intent(context, TvDataUpdateService.class);
                 startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
@@ -107,9 +113,9 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
           };
           mUpdateThread.start();
           
-          Editor edit = pref.edit();
+          /*Editor edit = pref.edit();
           edit.putLong(context.getString(R.string.LAST_DATA_UPDATE), System.currentTimeMillis());
-          edit.commit();
+          edit.commit();*/
         }
       }
       
