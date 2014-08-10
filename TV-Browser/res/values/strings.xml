@@ -141,7 +141,7 @@
     <string name="terms_of_use_data">Terms of Use of Data</string>
     <string name="terms_of_use_accept">Accept</string>
     <string name="terms_of_use_text">All TV/Radio listings provided by TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) are protected by copyright laws and may only be used within TV-Browser or other name like applications authorized by the manufacturer of TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) for information about the upcoming program of the available channels.\n\nEvery other manner of using, reproducing or redistributing of the TV/Radio listings is illegal and may be prosecuted on civil or criminal law. On downloading the TV/Radio listings you declare your agreement to these terms.\n\nIf you have any questions concerning these terms please contact <a href="mailto:dev@tvbrowser.org">dev@tvbrowser.org</a></string>
-	<string name="channel_selection_help">Click on a channel to select sort number.</string>
+	<string name="channel_selection_help">Click short on a channel to select sort number or click long and keep holding to move channel.</string>
 	<string name="channel_selection_remove_selection">Remove selection</string>
 	<string name="channel_selection_select_all">Select all</string>
 	<string name="synchronize_title">Synchronize channels?</string>
@@ -246,7 +246,9 @@
 	<string name="additionalInfo">Additional information:\n</string>
 	<string name="series">Series:</string>
 	<string name="rundate">Usable until:</string>
-	<string name="pref_prog_table_summary">The program table needs a lot of memory. The more channels and details you\'ve selected the more memory wil be consumed. That can lead to a crash of the TV-Browser app. So make sure not to select to many channels and details or disable the program table</string>
+	<string name="pref_prog_table_summary">The program table needs a lot of memory. The more channels and details you\'ve selected the more memory wil be consumed. That can lead to a crash of the TV-Browser app. So make sure not to select to many channels and details or disable the program table.</string>
+	<string name="warning_title">Warning!</string>
+	<string name="pref_prog_table_activation_warning">The usage of the program table may significantly slow down TV-Browser.</string>
 	<string name="pref_prog_table_time_block_size">Number of hours per block:</string>
 	<string name="sort_enter">Alternative: Enter number (any positive number):</string>
 	<string name="pref_time_button_count">Number of time buttons</string>

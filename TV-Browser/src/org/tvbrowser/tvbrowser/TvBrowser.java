@@ -39,6 +39,9 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
 
+import com.example.android.listviewdragginganimation.DynamicListView;
+import com.example.android.listviewdragginganimation.StableArrayAdapter;
+
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
@@ -82,7 +85,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.provider.Contacts.SettingsColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -1761,7 +1763,7 @@ public class TvBrowser extends FragmentActivity implements
     selectingChannels = false;
   }
   
-  private static class ChannelSort {
+  private static class ChannelSort implements SortInterface {
     private String mName;
     private int mKey;
     private int mSortNumber;
@@ -1779,10 +1781,12 @@ public class TvBrowser extends FragmentActivity implements
       return mKey;
     }
     
+    @Override
     public void setSortNumber(int value) {
       mSortNumber = value;
     }
     
+    @Override
     public int getSortNumber() {
       return mSortNumber;
     }
@@ -1791,6 +1795,7 @@ public class TvBrowser extends FragmentActivity implements
       return (mSortNumber == 0 ? "-" : mSortNumber) + ". " + mName;
     }
     
+    @Override
     public String getName() {
       return mName;
     }
@@ -1888,7 +1893,7 @@ public class TvBrowser extends FragmentActivity implements
     
     Button sortAlphabetically = (Button)main.findViewById(R.id.channel_sort_alpabetically);
     
-    ListView channelSort = (ListView)main.findViewById(R.id.channel_sort);
+    final DynamicListView channelSort = (DynamicListView)main.findViewById(R.id.channel_sort);
     
     String[] projection = {
         TvBrowserContentProvider.KEY_ID,
@@ -1900,7 +1905,7 @@ public class TvBrowser extends FragmentActivity implements
     
     Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
     
-    final ArrayList<ChannelSort> channelSource = new ArrayList<TvBrowser.ChannelSort>();
+    final ArrayList<SortInterface> channelSource = new ArrayList<SortInterface>();
       
     if(channels.getCount() > 0) {
       if(channels.moveToFirst()) {
@@ -1936,9 +1941,9 @@ public class TvBrowser extends FragmentActivity implements
       
       channels.close();
       
-      final Comparator<ChannelSort> sortComparator = new Comparator<TvBrowser.ChannelSort>() {
+      final Comparator<SortInterface> sortComparator = new Comparator<SortInterface>() {
         @Override
-        public int compare(ChannelSort lhs, ChannelSort rhs) {
+        public int compare(SortInterface lhs, SortInterface rhs) {
           if(lhs.getSortNumber() < rhs.getSortNumber()) {
             return -1;
           }
@@ -1955,9 +1960,9 @@ public class TvBrowser extends FragmentActivity implements
       // create default logo for channels without logo
       final Bitmap defaultLogo = BitmapFactory.decodeResource( getResources(), R.drawable.ic_launcher);
       
-      final ArrayAdapter<ChannelSort> aa = new ArrayAdapter<TvBrowser.ChannelSort>(TvBrowser.this, R.layout.channel_sort_row, channelSource) {
+      final StableArrayAdapter<SortInterface> aa = new StableArrayAdapter<SortInterface>(TvBrowser.this, R.layout.channel_sort_row, channelSource) {
         public View getView(int position, View convertView, ViewGroup parent) {
-          ChannelSort value = getItem(position);
+          ChannelSort value = (ChannelSort)getItem(position);
           ViewHolder holder = null;
           
           if (convertView == null) {
@@ -2003,6 +2008,44 @@ public class TvBrowser extends FragmentActivity implements
         }
       };
       channelSort.setAdapter(aa);
+      channelSort.setArrayList(channelSource);
+      channelSort.setSortDropListener(new SortDropListener() {
+        @Override
+        public void dropped(int originalPosition, int position) {
+          int startIndex = originalPosition;
+          int endIndex = position;
+          
+          int droppedPos = position;
+          
+          if(originalPosition > position) {
+            startIndex = position;
+            endIndex = originalPosition;
+          }
+          
+          int previousNumber = 0;
+          
+          if(startIndex > 0) {
+            previousNumber = aa.getItem(startIndex-1).getSortNumber();
+          }
+          
+          int firstVisible = channelSort.getFirstVisiblePosition();
+          
+          for(int i = startIndex; i <= endIndex; i++) {
+            if(i == droppedPos || aa.getItem(i).getSortNumber() != 0) {
+              aa.getItem(i).setSortNumber(++previousNumber);
+              
+              if(i >= firstVisible) {
+                View line = channelSort.getChildAt(i-firstVisible);
+                
+                if(line != null) {
+                  ((TextView)line.findViewById(R.id.row_of_channel_sort_number)).setText(String.valueOf(previousNumber)+".");
+                }
+              }
+            }
+          }
+        
+        }
+      });
       
       channelSort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
         @Override
@@ -2029,7 +2072,7 @@ public class TvBrowser extends FragmentActivity implements
           
           builder.setView(numberSelection);
           
-          final ChannelSort selection = channelSource.get(position);
+          final ChannelSort selection = (ChannelSort)channelSource.get(position);
           
           TextView name = (TextView)numberSelection.findViewById(R.id.sort_picker_channel_name);
           name.setText(selection.getName());
@@ -2078,9 +2121,9 @@ public class TvBrowser extends FragmentActivity implements
       sortAlphabetically.setOnClickListener(new View.OnClickListener() {
         @Override
         public void onClick(View v) {
-          Collections.sort(channelSource, new Comparator<ChannelSort>() {
+          Collections.sort(channelSource, new Comparator<SortInterface>() {
             @Override
-            public int compare(ChannelSort lhs, ChannelSort rhs) {
+            public int compare(SortInterface lhs, SortInterface rhs) {
               return lhs.getName().compareToIgnoreCase(rhs.getName());
             }
           });
@@ -2103,14 +2146,14 @@ public class TvBrowser extends FragmentActivity implements
         public void onClick(DialogInterface dialog, int which) {
           boolean somethingChanged = false;
           
-          for(ChannelSort selection : channelSource) {
-            if(selection.wasChanged()) {
+          for(SortInterface selection : channelSource) {
+            if(((ChannelSort)selection).wasChanged()) {
               somethingChanged = true;
               
               ContentValues values = new ContentValues();
               values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, selection.getSortNumber());
               
-              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, selection.getKey()), values, null, null);
+              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, ((ChannelSort)selection).getKey()), values, null, null);
             }
           }
           

@@ -12,9 +12,9 @@
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:text="@string/sort_alphabetically"/>
-    <ListView 
+    <com.example.android.listviewdragginganimation.DynamicListView 
     	android:id="@+id/channel_sort"
     	android:layout_width="match_parent"
     	android:layout_height="match_parent">
-	</ListView>
+	</com.example.android.listviewdragginganimation.DynamicListView>
 </LinearLayout>

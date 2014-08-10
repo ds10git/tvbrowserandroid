@@ -2043,7 +2043,14 @@ public class TvDataUpdateService extends Service {
     
     public ChannelUpdate(long channelID, String timezone, long date) {
       mChannelID = channelID;
-      mTimeZone = timezone;
+      
+      if(timezone.startsWith("GMT+01:00")) {
+        mTimeZone = "CET";
+      }
+      else {
+        mTimeZone = timezone;
+      }
+      
       mDate = date;
       mUrlList = new ArrayList<String>();
       mContentValueList = new SparseArray<ContentValues>(0);
