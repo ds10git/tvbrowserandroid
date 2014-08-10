@@ -19,6 +19,8 @@ package org.tvbrowser.settings;
 import org.tvbrowser.tvbrowser.R;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.app.AlertDialog.Builder;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.media.Ringtone;
@@ -283,6 +285,16 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         boolean isTimeBlock = layout == null || layout.getValue() == null || layout.getValue().equals("0");
         
         if(progTable != null) {
+          if(progTable.isChecked()) {
+            AlertDialog.Builder warning = new AlertDialog.Builder(getActivity());
+            
+            warning.setTitle(R.string.warning_title);
+            warning.setMessage(R.string.pref_prog_table_activation_warning);
+            
+            warning.setPositiveButton(android.R.string.ok, null);
+            warning.show();
+          }
+          
           if(progTableDelayed != null) {
             progTableDelayed.setEnabled(progTable.isChecked());
           }

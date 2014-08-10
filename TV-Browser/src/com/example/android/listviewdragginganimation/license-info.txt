@@ -1,0 +1,2 @@
+The license of TV-Browser for Android doesn't apply for all files in this folder.
+Only the license stated in the head comment of the files applies to these files.
