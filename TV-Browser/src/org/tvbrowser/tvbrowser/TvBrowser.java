@@ -320,7 +320,9 @@ public class TvBrowser extends FragmentActivity implements
               ((ProgramTableFragment)fragment).scrollToTime(0, mScrollTimeItem);
             }
             
-            mFilterItem.setVisible(mFilterItemWasVisible && !(fragment instanceof FavoritesFragment));
+            if(mFilterItem != null) {
+              mFilterItem.setVisible(mFilterItemWasVisible && !(fragment instanceof FavoritesFragment));
+            }
             
             mProgramsListWasShow = false;
             
@@ -2719,8 +2721,8 @@ public class TvBrowser extends FragmentActivity implements
     else if(!(test instanceof ProgramTableFragment) && programTableActivated) {
       actionBar.addTab(actionBar.newTab()
           .setText(mSectionsPagerAdapter.getPageTitle(3)).setTabListener(this));
-      mSectionsPagerAdapter.instantiateItem(mViewPager, 3);
       mSectionsPagerAdapter.notifyDataSetChanged();
+      mSectionsPagerAdapter.instantiateItem(mViewPager, 3);
     }
     else if(test instanceof ProgramTableFragment) {
       if(!((ProgramTableFragment)test).checkTimeBlockSize() && !((ProgramTableFragment)test).updateTable()) {
