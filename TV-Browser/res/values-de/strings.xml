@@ -90,6 +90,8 @@
     <string name="favorite_edit">Lieblingssendung bearbeiten</string>
     <string name="favorite_delete">Lieblingssendung löschen</string>
 	<string name="favorite_remind">An gefundene Sendungen erinnern</string>
+    <string name="favorite_exclusion">Ausschlüsse:</string>
+    <string name="favorite_exclusion_hint">Kommagetrennte Liste (optional)</string>
     <string name="no_network">Keine Internet-Verbindung</string>
     <string name="no_network_info">Ihre Internet-Verbindung ist abgeschaltet. Bitte aktivieren Sie diese bevor Sie das Datenupdate starten.</string>
     <string name="update_notification_title">TV-Daten Update</string>

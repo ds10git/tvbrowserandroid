@@ -310,7 +310,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
               else {
                 Favorite temp = (Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA);
                 
-                fav.setValues(temp.getName(), temp.getSearchValue(), temp.searchOnlyTitle(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs());
+                fav.setValues(temp.getName(), temp.getSearchValue(), temp.searchOnlyTitle(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs(), temp.getExclusions());
               }
               
               handler.post(new Runnable() {
