@@ -55,6 +55,7 @@ public class Favorite implements Serializable, Cloneable {
   private int mTimeRestrictionEnd;
   private int[] mDayRestriction;
   private int[] mChannelRestrictionIDs;
+  private String[] mExclusions;
   
   private final static String[] PROJECTION = {
     TvBrowserContentProvider.KEY_ID,
@@ -77,7 +78,7 @@ public class Favorite implements Serializable, Cloneable {
   private static Hashtable<Long, boolean[]> DATA_REFRESH_TABLE = null;
   
   public Favorite() {
-    this(null, "", true, true, -1, -1, null, null);
+    this(null, "", true, true, -1, -1, null, null, null);
   }
   
   public Favorite(String saveLine) {
@@ -111,6 +112,22 @@ public class Favorite implements Serializable, Cloneable {
       mTimeRestrictionEnd = -1;
       mDayRestriction = null;
       mChannelRestrictionIDs = null;
+    }
+    
+    if(values.length > 7) {
+      if(values[7].equals("null")) {
+        mExclusions = null;
+      }
+      else if(values[7].contains(",")) {
+        mExclusions = values[7].split(",");
+      }
+      else {
+        mExclusions = new String[1];
+        mExclusions[0] = values[7];
+      }
+    }
+    else {
+      mExclusions = null;
     }
   }
   
@@ -149,8 +166,8 @@ public class Favorite implements Serializable, Cloneable {
     this(name, search, onlyTitle, remind, -1, -1, null, null);
   }*/
   
-  public Favorite(String name, String search, boolean onlyTitle, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs) {
-    setValues(name, search, onlyTitle, remind, timeRestrictionStart, timeRestrictionEnd, days, channelIDs);
+  public Favorite(String name, String search, boolean onlyTitle, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions) {
+    setValues(name, search, onlyTitle, remind, timeRestrictionStart, timeRestrictionEnd, days, channelIDs, exclusions);
   }
   
   public boolean searchOnlyTitle() {
@@ -225,7 +242,7 @@ public class Favorite implements Serializable, Cloneable {
     mChannelRestrictionIDs = ids;
   }
     
-  public void setValues(String name, String search, boolean onlyTitle, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs) {
+  public void setValues(String name, String search, boolean onlyTitle, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions) {
     mName = name;
     mSearch = search.replace("\"", "");
     mOnlyTitle = onlyTitle;
@@ -234,10 +251,23 @@ public class Favorite implements Serializable, Cloneable {
     mTimeRestrictionEnd = timeRestrictionEnd;
     mDayRestriction = days;
     mChannelRestrictionIDs = channelIDs;
+    mExclusions = exclusions;
   }
   
   public void setDayRestriction(int[] days) {
     mDayRestriction = days;
+  }
+  
+  public boolean isHavingExclusions() {
+    return mExclusions != null;
+  }
+  
+  public String[] getExclusions() {
+    return mExclusions;
+  }
+  
+  public void setExclusions(String[] exclusions) {
+    mExclusions = exclusions;
   }
   
   public String toString() {
@@ -346,6 +376,26 @@ public class Favorite implements Serializable, Cloneable {
       builder.append(")");
     }
     
+    if(isHavingExclusions()) {
+      builder.append(" AND NOT ( ");
+      
+      for(int i = 0; i < mExclusions.length - 1; i++) {
+        builder.append(" ( ");
+        builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
+        builder.append(" LIKE \"%");
+        builder.append(mExclusions[i]);
+        builder.append("%\" ) OR ");
+      }
+      
+      builder.append(" ( ");
+      builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
+      builder.append(" LIKE \"%");
+      builder.append(mExclusions[mExclusions.length-1]);
+      builder.append("%\" ) ");
+      
+      builder.append(")");
+    }
+    
     return builder.toString();
   }
   
@@ -389,10 +439,29 @@ public class Favorite implements Serializable, Cloneable {
     
     saveString = appendSaveStringWithArray(mChannelRestrictionIDs, saveString);
     
+    saveString.append(";;");
+    
+    saveString = appendSaveStringWithObjectArray(mExclusions, saveString);
+    
     return saveString.toString();
   }
   
   private StringBuilder appendSaveStringWithArray(int[] array, StringBuilder saveString) {
+    if(array != null) {
+      for(int i = 0; i < array.length-1; i++) {
+        saveString.append(array[i]).append(",");
+      }
+      
+      saveString.append(array[array.length-1]);
+    }
+    else {
+      saveString.append("null");
+    }
+    
+    return saveString;
+  }
+  
+  private StringBuilder appendSaveStringWithObjectArray(Object[] array, StringBuilder saveString) {
     if(array != null) {
       for(int i = 0; i < array.length-1; i++) {
         saveString.append(array[i]).append(",");

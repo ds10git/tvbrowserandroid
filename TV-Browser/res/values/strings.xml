@@ -96,6 +96,8 @@
     <string name="favorite_edit">Edit Favorite</string>
     <string name="favorite_delete">Delete Favorite</string>
     <string name="favorite_remind">Remind on found programs</string>
+    <string name="favorite_exclusion">Exclusions:</string>
+    <string name="favorite_exclusion_hint">Comma separated list (optional)</string>
     <string name="no_network">No network connection</string>
     <string name="no_network_info">Your network connection is disabled. Enable it before starting data download.</string>
     <string name="update_notification_title">TV data update</string>

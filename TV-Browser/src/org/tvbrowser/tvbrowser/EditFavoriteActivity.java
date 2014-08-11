@@ -73,6 +73,7 @@ public class EditFavoriteActivity extends Activity {
   private TextView mTime;
   private TextView mDays;
   private TextView mChannels;
+  private EditText mExclusions;
   
   private int mCheckedCount;
   private Favorite mOldFavorite;
@@ -95,6 +96,7 @@ public class EditFavoriteActivity extends Activity {
     mTime = (TextView)findViewById(R.id.favorite_time_restriction);
     mDays = (TextView)findViewById(R.id.favorite_day_restriction);
     mChannels = (TextView)findViewById(R.id.favorite_channel_restriction);
+    mExclusions = (EditText)findViewById(R.id.favorite_exclusion);
     
     int color = getResources().getColor(android.R.color.primary_text_light);
     
@@ -111,13 +113,16 @@ public class EditFavoriteActivity extends Activity {
     mFavorite = (Favorite)getIntent().getSerializableExtra(Favorite.FAVORITE_EXTRA);
     
     if(mFavorite != null) {
-      
       mOldFavorite = mFavorite.copy();
       Log.d("info12", "OUT " + mFavorite.getName() + " " + mFavorite.getSearchValue() + " " + mFavorite.searchOnlyTitle() + " " + mFavorite.remind());
       mSearchValue.setText(mFavorite.getSearchValue());
       mName.setText(mFavorite.getName());
       mOnlyTitle.setChecked(mFavorite.searchOnlyTitle());
       mRemind.setChecked(mFavorite.remind());
+      
+      if(mFavorite.isHavingExclusions()) {
+        mExclusions.setText(TextUtils.join(", ", mFavorite.getExclusions()));
+      }
       Log.d("info12", "VALUES " + mName.getText() + " " + mSearchValue.getText() + " " + mOnlyTitle.isSelected() + " " + mRemind.isSelected());
     }
     else {
@@ -670,6 +675,20 @@ public class EditFavoriteActivity extends Activity {
     mFavorite.setSearchValue(mSearchValue.getText().toString());
     mFavorite.setSearchOnlyTitle(mOnlyTitle.isChecked());
     mFavorite.setRemind(mRemind.isChecked());
+    
+    String exclusions = mExclusions.getText().toString();
+    
+    if(exclusions.trim().length() > 0) {
+      if(exclusions.contains(",")) {
+        mFavorite.setExclusions(exclusions.split(",\\s+"));
+      }
+      else {
+        mFavorite.setExclusions(new String[] {exclusions.trim()});
+      }
+    }
+    else {
+      mFavorite.setExclusions(null);
+    }
     
     if(mFavorite.getName().trim().length() == 0) {
       mFavorite.setName(mFavorite.getSearchValue());

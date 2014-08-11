@@ -150,6 +150,27 @@
 		        android:onClick="changeChannels"
 		        android:background="@android:drawable/list_selector_background"
 		        />
+		    <TextView
+		        android:id="@+id/favorite_exclusion_label"
+		        android:layout_height="wrap_content"
+		        android:layout_width="wrap_content"
+		        android:paddingRight="5dp"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:text="@string/favorite_exclusion"
+		        android:layout_below="@+id/favorite_channel_restriction_label"
+		        android:layout_alignBaseline="@+id/favorite_exclusion"
+		        android:layout_marginBottom="5dp"/>
+		    <EditText
+		        android:id="@+id/favorite_exclusion"
+		        android:layout_height="wrap_content"
+		        android:layout_width="match_parent"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:layout_toRightOf="@+id/favorite_exclusion_label"
+		        android:layout_below="@+id/favorite_channel_restriction_label"
+		        android:hint="@string/favorite_exclusion_hint"
+		        android:inputType="text"
+		        android:layout_marginBottom="5dp"
+		        />
 		    <CheckBox
 		        android:id="@+id/favorite_remind"
 		        android:layout_height="wrap_content"
@@ -157,10 +178,9 @@
 		        android:layout_marginTop="5dp"
 		        android:text="@string/favorite_remind"
 		        android:textSize="@dimen/edit_favorite_font_size"
-		        android:layout_below="@+id/favorite_channel_restriction"
+		        android:layout_below="@+id/favorite_exclusion"
 		        android:layout_alignParentLeft="true"
 		        android:checked="true"/>
-		    
 		</RelativeLayout>
     </ScrollView>
 </RelativeLayout>
