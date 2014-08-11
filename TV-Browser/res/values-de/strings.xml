@@ -19,7 +19,7 @@
     <string name="channel_filter_cinema">Nur Kino-Sender</string>
     <string name="sort_alphabetically">Alphabetisch sortieren</string>
 	<string name="channel_download_warning_title">Senderdownload nicht vollständig</string>
-    <string name="channel_download_warning_text">Nicht alle Sender konnten erfolgreich geladen werden.\nSollten Sie Sender vermissen versuchen Sie die Sender erneut zu laden.</string>
+    <string name="channel_download_warning_text">Nicht alle Sender konnten erfolgreich geladen werden.\n\nSollten Sie Sender vermissen versuchen Sie die Sender erneut zu laden.</string>
     <string name="username">Benutzername:</string>
     <string name="password">Passwort:</string>
     <string name="userpass_save_anyway">Trotzdem speichern</string>
@@ -92,6 +92,8 @@
 	<string name="favorite_remind">An gefundene Sendungen erinnern</string>
     <string name="favorite_exclusion">Ausschlüsse:</string>
     <string name="favorite_exclusion_hint">Kommagetrennte Liste (optional)</string>
+    <string name="update_data_notification_favorites">Lieblingssendungen aktualisieren</string>
+    <string name="update_data_notification_synchronize">Sendungen synchronisieren&#8230;</string>
     <string name="no_network">Keine Internet-Verbindung</string>
     <string name="no_network_info">Ihre Internet-Verbindung ist abgeschaltet. Bitte aktivieren Sie diese bevor Sie das Datenupdate starten.</string>
     <string name="update_notification_title">TV-Daten Update</string>

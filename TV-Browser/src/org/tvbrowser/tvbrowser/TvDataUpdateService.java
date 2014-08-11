@@ -507,7 +507,9 @@ public class TvDataUpdateService extends Service {
                   else {
                     doLog("Not successfull load channels for group '" + info.getUniqueGroupID() + "' from: " + url);
                   }
-                } catch (Exception e) {}
+                } catch (Exception e) {
+                  groupSucces = false;
+                }
               }
               
               success.andUpdateBoolean(groupSucces);
@@ -1133,7 +1135,7 @@ public class TvDataUpdateService extends Service {
     TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
     getApplicationContext().getContentResolver().notifyChange(TvBrowserContentProvider.CONTENT_URI_DATA, null);
   
-    updateFavorites();
+    updateFavorites(notification);
     syncFavorites();
     
     Intent inform = new Intent(SettingConstants.DATA_UPDATE_DONE);
@@ -1167,19 +1169,28 @@ public class TvDataUpdateService extends Service {
     stopSelf();
   }
   
-  private void updateFavorites() {
+  private void updateFavorites(final NotificationManager notification) {
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
     
-    Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
+    final Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
+    
+    mBuilder.setProgress(favoritesSet.size(), 0, false);
+    mBuilder.setContentText(getResources().getText(R.string.update_data_notification_favorites));
+    notification.notify(mNotifyID, mBuilder.build());
     
     ExecutorService updateFavorites = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
     
+    int i = 1;
+    
     for(String favorite : favoritesSet) {
       final Favorite fav = new Favorite(favorite);
+      final int index = i++;
       
       updateFavorites.execute(new Thread() {
         @Override
         public void run() {
+          mBuilder.setProgress(favoritesSet.size(), index, false);
+          notification.notify(mNotifyID, mBuilder.build());
           Favorite.updateFavoriteMarking(getApplicationContext(), getContentResolver(), fav);
         }
       });
@@ -1190,6 +1201,10 @@ public class TvDataUpdateService extends Service {
     try {
       updateFavorites.awaitTermination(favoritesSet.size(), TimeUnit.MINUTES);
     } catch (InterruptedException e) {}
+    
+    mBuilder.setProgress(100, 0, true);
+    mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize));
+    notification.notify(mNotifyID, mBuilder.build());
     
     backSyncPrograms();
   }
