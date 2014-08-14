@@ -317,6 +317,13 @@
     <string name="marking_value_reminder">Reminder</string>
     <string name="show_sort_number">Show sort number</string>
     <string name="action_dont_want_to_see">I don\'t want to see!</string>
+    <string name="pref_i_dont_want_to_see_filter_type">Filter type</string>
+    <string-array name="pref_i_dont_want_to_see_filter_type_entries">
+        <item>Remove</item>
+        <item>Highlight</item>
+    </string-array>
+    <string name="pref_i_dont_want_to_see_highlight_color">Highlight color</string>
+    <string name="pref_i_dont_want_to_see_highlight_color_summary">Hightlight color for filtered programs</string>
     <string name="action_dont_want_to_see_edit">Edit \'I don\'t want to see!\'</string>
     <string name="action_want_to_see">I do want to see!</string>
     <string name="dont_want_to_see_edit_entry">What should be excluded? (You can use the wildcard *)</string>

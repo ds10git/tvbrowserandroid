@@ -26,7 +26,6 @@ import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
 import android.animation.ValueAnimator;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -34,6 +33,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
+import android.os.Handler;
 import android.util.AttributeSet;
 import android.util.DisplayMetrics;
 import android.view.MotionEvent;
@@ -107,6 +107,8 @@ public class DynamicListView extends ListView {
     
     // added listener for channel sort
     private SortDropListener mSortDropListener;
+    
+    private Handler mHandler;
 
     public DynamicListView(Context context) {
         super(context);
@@ -128,6 +130,7 @@ public class DynamicListView extends ListView {
         setOnScrollListener(mScrollListener);
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
         mSmoothScrollAmountAtEdge = (int)(SMOOTH_SCROLL_AMOUNT_AT_EDGE / metrics.density);
+        mHandler = new Handler();
     }
     
     @Override
@@ -150,7 +153,7 @@ public class DynamicListView extends ListView {
                     View selectedView = getChildAt(itemNum);
                     mMobileItemId = getAdapter().getItemId(mOriginalPos);
                     mHoverCell = getAndAddHoverView(selectedView);
-                    selectedView.setVisibility(INVISIBLE);
+                   // selectedView.setVisibility(INVISIBLE);
 
                     mCellIsMobile = true;
 
@@ -331,63 +334,68 @@ public class DynamicListView extends ListView {
      * its new position.
      */
     private void handleCellSwitch() {
-        final int deltaY = mLastEventY - mDownY;
-        int deltaYTotal = mHoverCellOriginalBounds.top + mTotalOffset + deltaY;
-
-        View belowView = getViewForID(mBelowItemId);
-        View mobileView = getViewForID(mMobileItemId);
-        View aboveView = getViewForID(mAboveItemId);
-
-        boolean isBelow = (belowView != null) && (deltaYTotal > belowView.getTop());
-        boolean isAbove = (aboveView != null) && (deltaYTotal < aboveView.getTop());
-
-        if (isBelow || isAbove) {
-
-            final long switchItemID = isBelow ? mBelowItemId : mAboveItemId;
-            View switchView = isBelow ? belowView : aboveView;
-            final int originalItem = getPositionForView(mobileView);
-
-            if (switchView == null) {
-                updateNeighborViewsForID(mMobileItemId);
-                return;
-            }
-
-            swapElements(mItemList, originalItem, getPositionForView(switchView));
-
-            ((BaseAdapter) getAdapter()).notifyDataSetChanged();
-
-            mDownY = mLastEventY;
-
-            final int switchViewStartTop = switchView.getTop();
-
-            mobileView.setVisibility(View.VISIBLE);
-            switchView.setVisibility(View.INVISIBLE);
-
-            updateNeighborViewsForID(mMobileItemId);
-
-            final ViewTreeObserver observer = getViewTreeObserver();
-            observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
-                public boolean onPreDraw() {
-                    observer.removeOnPreDrawListener(this);
-
-                    View switchView = getViewForID(switchItemID);
-
-                    mTotalOffset += deltaY;
-
-                    int switchViewNewTop = switchView.getTop();
-                    int delta = switchViewStartTop - switchViewNewTop;
-
-                    switchView.setTranslationY(delta);
-                    //use string value for property to make it compatible with API level 11
-                    ObjectAnimator animator = ObjectAnimator.ofFloat(switchView,
-                            "translationY", 0);
-                    animator.setDuration(MOVE_DURATION);
-                    animator.start();
-
-                    return true;
-                }
-            });
+      mHandler.post(new Runnable() {
+        @Override
+        public void run() {
+          final int deltaY = mLastEventY - mDownY;
+          int deltaYTotal = mHoverCellOriginalBounds.top + mTotalOffset + deltaY;
+  
+          View belowView = getViewForID(mBelowItemId);
+          View mobileView = getViewForID(mMobileItemId);
+          View aboveView = getViewForID(mAboveItemId);
+  
+          boolean isBelow = (belowView != null) && (deltaYTotal > belowView.getTop());
+          boolean isAbove = (aboveView != null) && (deltaYTotal < aboveView.getTop());
+  
+          if (isBelow || isAbove) {
+  
+              final long switchItemID = isBelow ? mBelowItemId : mAboveItemId;
+              View switchView = isBelow ? belowView : aboveView;
+              final int originalItem = getPositionForView(mobileView);
+  
+              if (switchView == null) {
+                  updateNeighborViewsForID(mMobileItemId);
+                  return;
+              }
+              
+              swapElements(mItemList, originalItem, getPositionForView(switchView));
+              
+              ((BaseAdapter) getAdapter()).notifyDataSetChanged(); 
+  
+              mDownY = mLastEventY;
+  
+              final int switchViewStartTop = switchView.getTop();
+  
+              mobileView.setVisibility(View.VISIBLE);
+            //  switchView.setVisibility(View.INVISIBLE);
+  
+              updateNeighborViewsForID(mMobileItemId);
+  
+              final ViewTreeObserver observer = getViewTreeObserver();
+              observer.addOnPreDrawListener(new ViewTreeObserver.OnPreDrawListener() {
+                  public boolean onPreDraw() {
+                      observer.removeOnPreDrawListener(this);
+  
+                      View switchView = getViewForID(switchItemID);
+  
+                      mTotalOffset += deltaY;
+  
+                      int switchViewNewTop = switchView.getTop();
+                      int delta = switchViewStartTop - switchViewNewTop;
+  
+                      switchView.setTranslationY(delta);
+                      //use string value for property to make it compatible with API level 11
+                      ObjectAnimator animator = ObjectAnimator.ofFloat(switchView,
+                              "translationY", 0);
+                      animator.setDuration(MOVE_DURATION);
+                      animator.start();
+  
+                      return true;
+                  }
+              });
+          } 
         }
+      });
     }
 
     // changed generic type of list
@@ -445,7 +453,7 @@ public class DynamicListView extends ListView {
                     mAboveItemId = INVALID_ID;
                     mMobileItemId = INVALID_ID;
                     mBelowItemId = INVALID_ID;
-                    mobileView.setVisibility(VISIBLE);
+                  //  mobileView.setVisibility(VISIBLE);
                     mHoverCell = null;
                     setEnabled(true);
                     invalidate();
@@ -461,12 +469,12 @@ public class DynamicListView extends ListView {
      * Resets all the appropriate fields to a default state.
      */
     private void touchEventsCancelled () {
-        View mobileView = getViewForID(mMobileItemId);
+      //  View mobileView = getViewForID(mMobileItemId);
         if (mCellIsMobile) {
             mAboveItemId = INVALID_ID;
             mMobileItemId = INVALID_ID;
             mBelowItemId = INVALID_ID;
-            mobileView.setVisibility(VISIBLE);
+          //  mobileView.setVisibility(VISIBLE);
             mHoverCell = null;
             invalidate();
         }

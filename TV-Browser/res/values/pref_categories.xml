@@ -15,5 +15,6 @@
     <string name="category_calendar_export">CALENDAR_EXPORT</string>
     <string name="category_email">EMAIL</string>
     <string name="category_additional_infos">ADDITIONAL_INFO</string>
+    <string name="category_i_dont_want_to_see">I_DONT_WANT_TO_SEE</string>
     <string name="category_debug">DEBUG</string>
 </resources>

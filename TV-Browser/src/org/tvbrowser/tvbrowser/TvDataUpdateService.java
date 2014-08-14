@@ -2153,7 +2153,7 @@ public class TvDataUpdateService extends Service {
              long meStart = toAdd.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
              int j = i + 0;
              
-             while(meStart == mInsertValuesList.get(j).getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
+             while(j < mInsertValuesList.size() && meStart == mInsertValuesList.get(j).getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
                j++;
              }
              
@@ -2181,7 +2181,7 @@ public class TvDataUpdateService extends Service {
          
          for(ContentValues value : mUpdateValueMap.keySet()) {
            Long programID = mUpdateValueMap.get(value);
-           Log.d("info15", String.valueOf(programID));
+           
            if(programID != null) {
              ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, programID));
              opBuilder.withValues(value);

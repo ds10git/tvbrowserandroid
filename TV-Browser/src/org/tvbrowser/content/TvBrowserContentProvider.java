@@ -178,7 +178,8 @@ public class TvBrowserContentProvider extends ContentProvider {
     DATA_KEY_MARKING_FAVORITE_REMINDER,
     DATA_KEY_MARKING_REMINDER,
     DATA_KEY_MARKING_CALENDAR,
-    DATA_KEY_MARKING_SYNC
+    DATA_KEY_MARKING_SYNC,
+    DATA_KEY_DONT_WANT_TO_SEE
   };
   
   static {

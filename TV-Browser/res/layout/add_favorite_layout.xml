@@ -70,7 +70,7 @@
 		        android:layout_height="wrap_content"
 		        android:layout_width="match_parent"
 		        android:layout_toRightOf="@id/favorite_search_label"
-		        android:inputType="text"
+		        android:inputType="textMultiLine"
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:hint="@string/favorite_search_hint"
 		        android:layout_below="@+id/favorite_name"
@@ -157,7 +157,7 @@
 		        android:paddingRight="5dp"
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:text="@string/favorite_exclusion"
-		        android:layout_below="@+id/favorite_channel_restriction_label"
+		        android:layout_below="@+id/favorite_channel_restriction"
 		        android:layout_alignBaseline="@+id/favorite_exclusion"
 		        android:layout_marginBottom="5dp"/>
 		    <EditText
@@ -166,9 +166,9 @@
 		        android:layout_width="match_parent"
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:layout_toRightOf="@+id/favorite_exclusion_label"
-		        android:layout_below="@+id/favorite_channel_restriction_label"
+		        android:layout_below="@+id/favorite_channel_restriction"
 		        android:hint="@string/favorite_exclusion_hint"
-		        android:inputType="text"
+		        android:inputType="textMultiLine"
 		        android:layout_marginBottom="5dp"
 		        />
 		    <CheckBox

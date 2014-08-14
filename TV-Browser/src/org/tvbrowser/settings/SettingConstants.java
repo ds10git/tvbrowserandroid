@@ -253,6 +253,7 @@ public class SettingConstants {
     MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE, UiUtils.MARKED_FAVORITE_COLOR_KEY);
     MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, UiUtils.MARKED_REMINDER_COLOR_KEY);
     MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, UiUtils.MARKED_SYNC_COLOR_KEY);
+    MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, UiUtils.I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR_KEY);
     
     SHORT_CHANNEL_NAMES.put("NDR Niedersachsen", "NDR NDS");
     SHORT_CHANNEL_NAMES.put("NDR Mecklenburg-Vorpommern", "NDR MV");

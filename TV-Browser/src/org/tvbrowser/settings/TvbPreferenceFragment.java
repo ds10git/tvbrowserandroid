@@ -20,7 +20,6 @@ import org.tvbrowser.tvbrowser.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.AlertDialog.Builder;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.media.Ringtone;
@@ -29,7 +28,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
-import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
@@ -45,42 +43,44 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     
     Log.d("info", "" + category + " " + getArguments());
     
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    
     if(getString(R.string.category_download).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_download);
       
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_AUTO_UPDATE_TYPE));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_AUTO_UPDATE_TYPE));
     }
     else if(getString(R.string.category_start).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_start);
       
-      onSharedPreferenceChanged(null,getResources().getString(R.string.TAB_TO_SHOW_AT_START));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.TAB_TO_SHOW_AT_START));
     }
     else if(getString(R.string.category_theme).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_layout);
       
-      onSharedPreferenceChanged(null, getString(R.string.PREF_SHOW_PROGRESS));
+      onSharedPreferenceChanged(pref, getString(R.string.PREF_SHOW_PROGRESS));
     }
     else if(getString(R.string.category_reminder).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_reminder);
       
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_TIME));
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED));
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_SOUND_VALUE));
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE));
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_ACTIVATED));
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SOUND_VALUE));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_TIME));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_SOUND_VALUE));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_ACTIVATED));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SOUND_VALUE));
 
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED));
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED));
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED));
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_THURSDAY_ACTIVATED));
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_FRIDAY_ACTIVATED));
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SATURDAY_ACTIVATED));
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SUNDAY_ACTIVATED));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_THURSDAY_ACTIVATED));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_FRIDAY_ACTIVATED));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SATURDAY_ACTIVATED));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SUNDAY_ACTIVATED));
     }
     else if(getString(R.string.category_time_buttons).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_time_buttons);
-      onSharedPreferenceChanged(PreferenceManager.getDefaultSharedPreferences(getActivity()),getString(R.string.TIME_BUTTON_COUNT));
+      onSharedPreferenceChanged(pref,getString(R.string.TIME_BUTTON_COUNT));
     }
     else if(getString(R.string.category_running_programs).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_running);
@@ -91,7 +91,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     else if(getString(R.string.category_program_table).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_program_table);
       
-      onSharedPreferenceChanged(null,getResources().getString(R.string.PROG_TABLE_ACTIVATED));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PROG_TABLE_ACTIVATED));
     }
     else if(getString(R.string.category_list).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_program_lists);
@@ -99,7 +99,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     else if(getString(R.string.category_details).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_details);
       
-      onSharedPreferenceChanged(null,getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS));
     }
     else if(getString(R.string.category_sync).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_sync);
@@ -112,6 +112,10 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     }
     else if(getString(R.string.category_additional_infos).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_additonal_infos);
+    }
+    else if(getString(R.string.category_i_dont_want_to_see).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_i_dont_want_to_see);
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE));
     }
     else if(getString(R.string.category_debug).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_debug);
@@ -220,6 +224,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_RUNNING))
           || key.equals(getResources().getString(R.string.PREF_CALENDAR_EXPORT_DESCRIPTION_TYPE))
           || key.equals(getResources().getString(R.string.PREF_EMAIL_DESCRIPTION_TYPE))
+          || key.equals(getResources().getString(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE))
           ) {
         ListPreference lp = (ListPreference) findPreference(key);
         
@@ -260,6 +265,13 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
             wifi.setEnabled(!noAutoUpdate);
             
             startTime.setEnabled(timeRange);
+          }
+        }
+        else if(key.equals(getResources().getString(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE))) {
+          ListPreference dontWantToSeeType = (ListPreference)findPreference(key);
+          
+          if(dontWantToSeeType != null) {            
+            findPreference(getResources().getString(R.string.PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR)).setEnabled(dontWantToSeeType.getValue().equals(getResources().getStringArray(R.array.pref_i_dont_want_to_see_filter_type_values)[1]));
           }
         }
       }
