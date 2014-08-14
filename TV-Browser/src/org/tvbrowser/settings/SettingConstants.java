@@ -136,21 +136,23 @@ public class SettingConstants {
     SMALL_LOGO_MAP.clear();
     MEDIUM_LOGO_MAP.clear();
     
-    if(channels.getCount() > 0 ) {
-      int keyIndex = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-      int logoIndex = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
-      
-      while(channels.moveToNext()) {
-        Bitmap logoBitmap = UiUtils.createBitmapFromByteArray(channels.getBlob(logoIndex));
+    if(channels != null) {
+      if(channels.getCount() > 0 ) {
+        int keyIndex = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+        int logoIndex = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
         
-        if(logoBitmap != null) {
-          SMALL_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(15,context,logoBitmap));
-          MEDIUM_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(25,context,logoBitmap));
+        while(channels.moveToNext()) {
+          Bitmap logoBitmap = UiUtils.createBitmapFromByteArray(channels.getBlob(logoIndex));
+          
+          if(logoBitmap != null) {
+            SMALL_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(15,context,logoBitmap));
+            MEDIUM_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(25,context,logoBitmap));
+          }
         }
       }
+      
+      channels.close();
     }
-    
-    channels.close();
   }
   
   private static BitmapDrawable createDrawable(int baseHeight, Context context, Bitmap logoBitmap) {
