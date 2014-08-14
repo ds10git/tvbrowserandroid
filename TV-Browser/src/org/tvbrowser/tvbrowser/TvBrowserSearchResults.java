@@ -231,7 +231,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
       uri = ContentUris.withAppendedId(uri, ID);
     }
     else {
-      where += " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
+      where += UiUtils.getDontWantToSeeFilterString(TvBrowserSearchResults.this);
     }
     
     // Create the new Cursor loader

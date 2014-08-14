@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <ListPreference
+        android:title="@string/pref_i_dont_want_to_see_filter_type"
+        android:key="@string/PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE"
+        android:entries="@array/pref_i_dont_want_to_see_filter_type_entries"
+        android:entryValues="@array/pref_i_dont_want_to_see_filter_type_values"
+        android:defaultValue="@string/pref_i_dont_want_to_see_filter_type_default"
+        android:summary="%s"/>
+	<org.tvbrowser.settings.ColorPreference
+	        android:key="@string/PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR"
+	        android:title="@string/pref_i_dont_want_to_see_highlight_color"
+	        android:summary="@string/pref_i_dont_want_to_see_highlight_color_summary"
+	        android:defaultValue="@color/i_dont_want_to_see_highlight"/>
+</PreferenceScreen>

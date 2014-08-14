@@ -100,6 +100,7 @@ public class UiUtils {
   public static final int ON_AIR_BACKGROUND_KEY = 5;
   public static final int ON_AIR_PROGRESS_KEY = 6;
   public static final int RUNNING_TIME_SELECTION_KEY = 7;
+  public static final int I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR_KEY = 8;
   
   static {
     VALUE_MAP = new HashMap<String, Integer>();
@@ -1240,6 +1241,10 @@ public class UiUtils {
         for(int i = 0; i < markedColumns.length; i++) {Log.d("info4"," i " + i + " " + markedColumns[i]);
           Integer color = SettingConstants.MARK_COLOR_KEY_MAP.get(markedColumns[i]);
           
+          if(markedColumns[i].equals(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE) && PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(context.getResources().getStringArray(R.array.pref_i_dont_want_to_see_filter_type_values)[0])) {
+            color = null;
+          }
+          
           if(color != null) {
             colors[i] = getColor(color.intValue(), context);
           }
@@ -1252,6 +1257,10 @@ public class UiUtils {
       }
       else {
         Integer color = SettingConstants.MARK_COLOR_KEY_MAP.get(markedColumns[0]);
+        
+        if(markedColumns[0].equals(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE) && PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(context.getResources().getStringArray(R.array.pref_i_dont_want_to_see_filter_type_values)[0])) {
+          color = null;
+        }
         
         if(color != null) {
           draw.add(new ColorDrawable(getColor(color.intValue(), context)));
@@ -1565,6 +1574,7 @@ public class UiUtils {
       case ON_AIR_BACKGROUND_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND), context.getResources().getColor(R.color.on_air_background));break;
       case ON_AIR_PROGRESS_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_PROGRESS), context.getResources().getColor(R.color.on_air_progress));break;
       case RUNNING_TIME_SELECTION_KEY: color = pref.getInt(context.getString(R.string.PREF_RUNNING_TIME_SELECTION), context.getResources().getColor(R.color.filter_selection));break;
+      case I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR), context.getResources().getColor(R.color.i_dont_want_to_see_highlight));break;
     }
     
     return color;
@@ -1655,5 +1665,14 @@ public class UiUtils {
     }
     
     return logoBitmap;
+  }
+  
+  public static String getDontWantToSeeFilterString(Context context) {
+    String returnValue = "";
+    if(PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(context.getResources().getStringArray(R.array.pref_i_dont_want_to_see_filter_type_values)[0])) {
+      returnValue = " AND ( NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";
+    }
+    
+    return returnValue;
   }
 }

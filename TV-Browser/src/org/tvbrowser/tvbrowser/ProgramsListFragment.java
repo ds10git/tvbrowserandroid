@@ -408,7 +408,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     }
     
     if(!mFilterClause.contains(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE)) {
-      where += " AND ( NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";
+      where += UiUtils.getDontWantToSeeFilterString(getActivity());
     }
     
     where += ((TvBrowser)getActivity()).getChannelFilterSelection();

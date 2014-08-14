@@ -688,7 +688,7 @@ public class ProgramTableFragment extends Fragment {
       ViewGroup test = (ViewGroup)programTable.findViewById(R.id.vertical_program_table_scroll);
       test.addView(mProgramPanelLayout);
       
-      where += " AND ( NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";
+      where += UiUtils.getDontWantToSeeFilterString(getActivity());
       
       Cursor cursor = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
       

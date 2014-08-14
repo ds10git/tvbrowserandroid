@@ -305,6 +305,13 @@
     <string name="marking_value_reminder">Erinnerungen</string>
     <string name="show_sort_number">Sortierungsnummer anzeigen</string>
     <string name="action_dont_want_to_see">Will ich nicht sehen!</string>
+    <string name="pref_i_dont_want_to_see_filter_type">Filtertyp</string>
+    <string-array name="pref_i_dont_want_to_see_filter_type_entries">
+        <item>Entfernen</item>
+        <item>Hervorheben</item>
+    </string-array>
+    <string name="pref_i_dont_want_to_see_highlight_color">Hervorhebungsfarbe</string>
+    <string name="pref_i_dont_want_to_see_highlight_color_summary">Farbe für Hervorhebung gefilterter Sendungen</string>
     <string name="action_dont_want_to_see_edit">\'Will ich nicht sehen!\' bearbeiten</string>
     <string name="action_want_to_see">Will ich doch sehen!</string>
     <string name="dont_want_to_see_edit_entry">Welche Sendungen sollen verborgen werden? (Der * kann als Platzhalter benutzt werden)</string>

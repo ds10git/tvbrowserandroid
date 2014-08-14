@@ -1029,7 +1029,7 @@ Log.d("info", "" + new Date(mCurrentTime));
       where += " OR ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + (mCurrentTime + (60000 * 60 * 12)) + " ) ";
     }
     
-    where += " AND ( NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";
+    where += UiUtils.getDontWantToSeeFilterString(getActivity());
     
     where += ((TvBrowser)getActivity()).getChannelFilterSelection();
     
@@ -1087,6 +1087,7 @@ Log.d("info", "" + new Date(mCurrentTime));
   public synchronized void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, final Cursor c) {
     SparseArray<ChannelProgramBlock> channelProgramMap = new SparseArray<ChannelProgramBlock>();
     SparseArray<ChannelProgramBlock> currentProgramMap = new SparseArray<ChannelProgramBlock>();
+    boolean showDontWantToSee = PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(getResources().getStringArray(R.array.pref_i_dont_want_to_see_filter_type_values)[1]);
     
     mProgramBlockList.clear();
     mCurrentViewList.clear();
@@ -1158,7 +1159,7 @@ Log.d("info", "" + new Date(mCurrentTime));
               category = IOUtils.getInfoString(c.getInt(mCategoryColumn), getResources());
             }
                         
-            if(c.getInt(dontWantToSeeColumn) == 0) {
+            if(showDontWantToSee || c.getInt(dontWantToSeeColumn) == 0) {
               block.mChannelID = channelID;
               block.mChannelName = channelName;
               block.mChannelOrderNumber = channelOrderNumber;

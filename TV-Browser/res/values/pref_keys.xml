@@ -374,6 +374,12 @@
 		<string name="PREF_INFO_SHOW_SIGN_LANGUAGE">PREF_INFO_SHOW_SIGN_LANGUAGE</string>
 	    <item name="pref_info_show_default" type="bool" format="boolean">true</item>
 	
+	<!-- I don't want to see settings -->
+		<string name="PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE">PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE</string>
+		<item name="pref_i_dont_want_to_see_filter_type_default" type="string" format="string">0</item>
+	    
+		<string name="PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR">PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR</string>
+		
 	<!-- Debugging settings -->
     
     	<string name="WRITE_DATA_UPDATE_LOG">WRITE_LOG</string>
