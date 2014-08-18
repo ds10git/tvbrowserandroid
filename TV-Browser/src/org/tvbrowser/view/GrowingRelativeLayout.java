@@ -16,6 +16,8 @@
  */
 package org.tvbrowser.view;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
@@ -67,4 +69,11 @@ public class GrowingRelativeLayout extends RelativeLayout {
       super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     }
   }
+  
+  /*
+   * Possible bug fix for bug:
+   * https://code.google.com/p/android/issues/detail?id=55933
+   */
+  @Override
+  public void addChildrenForAccessibility(ArrayList<View> childrenForAccessibility) {}
 }

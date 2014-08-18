@@ -1109,6 +1109,8 @@ Log.d("info", "" + new Date(mCurrentTime));
     
     HashMap<String, Integer> markingColumnsMap = new HashMap<String, Integer>();
     
+    c.moveToPosition(-1);
+    
     for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
       int index = c.getColumnIndex(column);
       

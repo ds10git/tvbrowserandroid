@@ -21,7 +21,6 @@ import java.util.HashMap;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.tvbrowser.R;
-import org.tvbrowser.tvbrowser.TvBrowser;
 import org.tvbrowser.tvbrowser.UiUtils;
 
 import android.content.Context;
@@ -29,7 +28,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
@@ -138,6 +136,7 @@ public class SettingConstants {
     
     if(channels != null) {
       if(channels.getCount() > 0 ) {
+        channels.moveToPosition(-1);
         int keyIndex = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
         int logoIndex = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
         
@@ -201,18 +200,7 @@ public class SettingConstants {
   public static final String SELECTED_RADIO_CHANNELS_LIST = "SELECTED_RADIO_CHANNELS_LIST";
   public static final String SELECTED_TV_CHANNELS_LIST = "SELECTED_TV_CHANNELS_LIST";
   public static final String SELECTED_CINEMA_CHANNELS_LIST = "SELECTED_CINEMA_CHANNELS_LIST";
-  
-  /*public static final String MARK_VALUE = "marked";
-  public static final String MARK_VALUE_FAVORITE = "favorite";
-  public static final String MARK_VALUE_CALENDAR = "calendar";
-  public static final String MARK_VALUE_SYNC_FAVORITE = "syncfav";
-  public static final String MARK_VALUE_REMINDER = "reminder";
-*/
-  
-  /*AlarmManager alarmManager = (AlarmManager) getActivity().getApplicationContext().getSystemService(Context.ALARM_SERVICE);
-  
-  PendingIntent.get*/
-    
+      
   public static final String USER_NAME = "CAR";
   public static final String USER_PASSWORD = "BICYCLE";
   
@@ -224,8 +212,7 @@ public class SettingConstants {
   public static final String CHANNEL_DOWNLOAD_SUCCESSFULLY = "CHANNEL_DOWNLOAD_SUCCESSFULLY";
   
   public static final IntentFilter RERESH_FILTER = new IntentFilter(REFRESH_VIEWS);
-    
- // public static final HashMap<String, Integer> MARK_COLOR_MAP = new HashMap<String, Integer>();
+  
   public static final HashMap<String, Integer> MARK_COLOR_KEY_MAP = new HashMap<String, Integer>();
   
   public static final HashMap<String, String> SHORT_CHANNEL_NAMES = new HashMap<String, String>();

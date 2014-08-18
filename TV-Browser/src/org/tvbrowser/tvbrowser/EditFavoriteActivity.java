@@ -417,7 +417,7 @@ public class EditFavoriteActivity extends Activity {
       
       Cursor channelNames = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.CHANNEL_KEY_NAME);
       
-      channelNames.move(-1);
+      channelNames.moveToPosition(-1);
       
       ArrayList<String> nameList = new ArrayList<String>();
       
@@ -495,7 +495,7 @@ public class EditFavoriteActivity extends Activity {
     
     int[] channelRestriction = mFavorite.getChannelRestrictionIDs();
     
-    channels.move(-1);
+    channels.moveToPosition(-1);
     
     // inflate channel selection view
     View channelSelectionView = getLayoutInflater().inflate(R.layout.channel_selection_list, null);

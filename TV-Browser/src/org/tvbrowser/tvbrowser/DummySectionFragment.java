@@ -593,9 +593,7 @@ public class DummySectionFragment extends Fragment {
               Log.d("info16", where.toString());
               Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
               Log.d("info16", " COUNT " + channelCursor.getCount());
-              if(channelCursor.getCount() > 0) {
-                channelCursor.moveToFirst();
-                  
+              if(channelCursor.moveToFirst()) {
                 do {
                   LayerDrawable logoDrawable = null;
                   

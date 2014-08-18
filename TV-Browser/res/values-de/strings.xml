@@ -19,7 +19,7 @@
     <string name="channel_filter_cinema">Nur Kino-Sender</string>
     <string name="sort_alphabetically">Alphabetisch sortieren</string>
 	<string name="channel_download_warning_title">Senderdownload nicht vollständig</string>
-    <string name="channel_download_warning_text">Nicht alle Sender konnten erfolgreich geladen werden.\n\nSollten Sie Sender vermissen versuchen Sie die Sender erneut zu laden.</string>
+    <string name="channel_download_warning_text">Nicht alle Sender konnten erfolgreich geladen werden.\n\nSollten Sie Sender vermissen, versuchen Sie die Sender später erneut zu laden.</string>
     <string name="username">Benutzername:</string>
     <string name="password">Passwort:</string>
     <string name="userpass_save_anyway">Trotzdem speichern</string>

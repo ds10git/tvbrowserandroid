@@ -18,6 +18,7 @@ package org.tvbrowser.content;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Set;
 
 import android.app.SearchManager;
@@ -32,9 +33,9 @@ import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
-import android.database.sqlite.SQLiteQueryBuilder;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
 import android.util.Log;
@@ -310,6 +311,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     switch(uriMatcher.match(uri)) {
       case DATA: return bulkInsertData(uri, values);
       case DATA_UPDATE: return bulkInsertData(uri, values);
+      case DATA_VERSION: return bulkInsertVersion(uri, values);
     }
   
     throw new SQLException("Failed to insert row into " + uri);
@@ -328,11 +330,18 @@ public class TvBrowserContentProvider extends ContentProvider {
     for(ContentProviderOperation op : operations) {
       Uri uri = op.getUri();
       
+      String table = TvBrowserDataBaseHelper.DATA_TABLE;
+      
+      switch(uriMatcher.match(uri)) {
+        case DATA_VERSION: table = TvBrowserDataBaseHelper.VERSION_TABLE;break;
+        case DATA_VERSION_ID: table = TvBrowserDataBaseHelper.VERSION_TABLE;break;
+      }
+      
       ContentValues values = op.resolveValueBackReferences(null, 0);
       
       String segment = uri.getPathSegments().get(1);
       
-      int count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, KEY_ID + "=" + segment, null);
+      int count = database.update(table, values, KEY_ID + "=" + segment, null);
       
       if(count > 0) {
         updateUris.put(uri, uri);
@@ -393,6 +402,37 @@ public class TvBrowserContentProvider extends ContentProvider {
     throw new SQLException("Failed to insert row into " + uri + " " + count);
   }
   
+  private int bulkInsertVersion(Uri uri, ContentValues[] values) {
+    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+    database.beginTransaction();
+    
+    int count = 0;
+    
+    for(ContentValues value : values) {
+      long rowID = database.insert(TvBrowserDataBaseHelper.VERSION_TABLE, "channel", value);
+      
+      if(rowID != -1) {
+        Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA_VERSION, rowID);
+        
+        if(INFORM_FOR_CHANGES) {
+          getContext().getContentResolver().notifyChange(newUri, null);
+        }
+      
+        count++;
+      }
+    }
+    
+    database.setTransactionSuccessful();
+    database.endTransaction();
+    
+    // Return a URI to the newly inserted row on success.
+    if(count >= 0) {
+      return count;
+    }
+    
+    throw new SQLException("Failed to insert row into " + uri + " " + count);
+  }
+  
   private Uri insertVersion(Uri uri, ContentValues values) {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
@@ -402,7 +442,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     // Return a URI to the newly inserted row on success.
     
     if(rowID >= 0) {
-      Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA, rowID);
+      Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA_VERSION, rowID);
       
       if(INFORM_FOR_CHANGES) {
         getContext().getContentResolver().notifyChange(newUri, null);
@@ -830,6 +870,7 @@ public class TvBrowserContentProvider extends ContentProvider {
         boolean logoFound = false;
         
         Cursor c = db.rawQuery("PRAGMA table_info(" + CHANNEL_TABLE + ")", null);
+        c.moveToPosition(-1);
         
         while(c.moveToNext()) {
           if(c.getString(c.getColumnIndex("name")).equals(CHANNEL_KEY_LOGO)) {
@@ -852,6 +893,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       
       if(oldVersion < 4) {
         Cursor c = db.rawQuery("PRAGMA table_info(" + DATA_TABLE + ")", null);
+        c.moveToPosition(-1);
         
         boolean dontWantColumnFound = false;
         
@@ -869,6 +911,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       
       if(oldVersion < 5) {
         Cursor c = db.rawQuery("PRAGMA table_info(" + DATA_TABLE + ")", null);
+        c.moveToPosition(-1);
         
         boolean removedReminderColumnFound = false;
         
@@ -888,6 +931,7 @@ public class TvBrowserContentProvider extends ContentProvider {
         final String DATA_KEY_MARKING_VALUES = "markingValues";
         
         Cursor c = db.rawQuery("PRAGMA table_info(" + DATA_TABLE + ")", null);
+        c.moveToPosition(-1);
         
         boolean oldMarkingColumnFound = false;
         
@@ -909,9 +953,7 @@ public class TvBrowserContentProvider extends ContentProvider {
           
           Cursor markings = db.query(DATA_TABLE, new String[] {KEY_ID,DATA_KEY_MARKING_VALUES}, "ifnull("+DATA_KEY_MARKING_VALUES+", '') != ''", null, null, null, KEY_ID);
           
-          if(markings.getCount() > 0) {
-            markings.moveToFirst();
-            
+          if(markings.moveToFirst()) {
             ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
             
             do {

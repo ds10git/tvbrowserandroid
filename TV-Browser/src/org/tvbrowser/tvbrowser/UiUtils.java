@@ -840,7 +840,8 @@ public class UiUtils {
                     notification.notify(notifyID, builder.build());
                     
                     Cursor c = activity.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, " NOT " +TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.KEY_ID);
-  
+                    c.moveToPosition(-1);
+                    
                     int size = c.getCount();
                     int count = 0;
                     
@@ -967,7 +968,8 @@ public class UiUtils {
             notification.notify(notifyID, builder.build());
             
             Cursor c = activity.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.KEY_ID);
-
+            c.moveToPosition(-1);
+            
             int size = c.getCount();
             int count = 0;
             

@@ -53,4 +53,11 @@ public abstract class ProgramTableLayout extends ViewGroup {
   final int getColumnCount() {
     return mChannelIDsOrdered.size();
   }
+  
+  /*
+   * Possible bug fix for bug:
+   * https://code.google.com/p/android/issues/detail?id=55933
+   */
+  @Override
+  public void addChildrenForAccessibility(ArrayList<View> childrenForAccessibility) {}
 }

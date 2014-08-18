@@ -16,10 +16,13 @@
  */
 package org.tvbrowser.view;
 
+import java.util.ArrayList;
+
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.ScaleGestureDetector;
+import android.view.View;
 import android.widget.FrameLayout;
 
 public class ZoomableFrameLayout extends FrameLayout {
@@ -81,4 +84,11 @@ public class ZoomableFrameLayout extends FrameLayout {
     
     
 }
+  
+  /*
+   * Possible bug fix for bug:
+   * https://code.google.com/p/android/issues/detail?id=55933
+   */
+  @Override
+  public void addChildrenForAccessibility(ArrayList<View> childrenForAccessibility) {}
 }

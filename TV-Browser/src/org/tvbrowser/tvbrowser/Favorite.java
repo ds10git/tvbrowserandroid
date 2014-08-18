@@ -38,7 +38,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.Log;
 
-public class Favorite implements Serializable, Cloneable {
+public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   public static final String FAVORITE_EXTRA = "FAVORITE_EXTRA";
   public static final String SEARCH_EXTRA = "SEARCH_EXTRA";
   
@@ -506,9 +506,7 @@ public class Favorite implements Serializable, Cloneable {
     
     Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
-    if(cursor.getCount() > 0) {
-      cursor.moveToFirst();
-      
+    if(cursor.moveToFirst()) {
       ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
       ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
       
@@ -640,9 +638,7 @@ public class Favorite implements Serializable, Cloneable {
     
     Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, PROJECTION, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
-    if(cursor.getCount() > 0) {
-      cursor.moveToFirst();
-      
+    if(cursor.moveToFirst()) {
       int idColumn = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
       int startTimeColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
       int reminderColumnFav = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
@@ -727,5 +723,10 @@ public class Favorite implements Serializable, Cloneable {
     }
     
     return null;
+  }
+
+  @Override
+  public int compareTo(Favorite another) {
+    return mName.compareToIgnoreCase(another.mName);
   }
 }
