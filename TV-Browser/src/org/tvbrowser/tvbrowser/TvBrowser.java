@@ -361,7 +361,7 @@ public class TvBrowser extends FragmentActivity implements
     Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_CATEGORY}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.CHANNEL_KEY_NAME);
     
     if(channels.getCount() > 0) {
-      channels.move(-1);
+      channels.moveToPosition(-1);
       
       int idColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
       int categoryColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CATEGORY);
@@ -500,9 +500,15 @@ public class TvBrowser extends FragmentActivity implements
         Calendar cal2 = Calendar.getInstance();
         cal2.add(Calendar.DAY_OF_YEAR, -2);
         
+        long daysSince1970 = cal2.getTimeInMillis() / 24 / 60 / 60000;
+        
         try {
           getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + cal2.getTimeInMillis(), null);
         }catch(IllegalArgumentException e) {}
+        
+        try {
+          getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + "<" + daysSince1970, null);
+        }catch(IllegalArgumentException e) {}        
       }
     }.start();
     
@@ -844,6 +850,8 @@ public class TvBrowser extends FragmentActivity implements
     SparseArray<SimpleGroupInfo> groupInfo = new SparseArray<SimpleGroupInfo>();
     
     if(programs.getCount() > 0) {
+      programs.moveToPosition(-1);
+      
       int startTimeColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
       int groupKeyColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
       int channelKeyBaseCountryColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY);
@@ -857,6 +865,8 @@ public class TvBrowser extends FragmentActivity implements
       Cursor groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, null, null, null);
       
       if(groups.getCount() > 0) {
+        groups.moveToPosition(-1);
+        
         while(groups.moveToNext()) {
           int groupKey = groups.getInt(0);
           String dataServiceID = groups.getString(1);
@@ -1219,6 +1229,7 @@ public class TvBrowser extends FragmentActivity implements
                 DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
                 
                 Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.KEY_ID);
+                c.moveToPosition(-1);
                 
                 builder.setProgress(c.getCount(), 0, true);
                 notification.notify(notifyID, builder.build());
@@ -1520,6 +1531,7 @@ public class TvBrowser extends FragmentActivity implements
     
     ContentResolver cr = getContentResolver();
     Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, null, null, null);
+    channels.moveToPosition(-1);
     
     // populate array list with all available channels
     final ArrayListWrapper channelSelectionList = new ArrayListWrapper();
@@ -1907,37 +1919,35 @@ public class TvBrowser extends FragmentActivity implements
     
     final ArrayList<SortInterface> channelSource = new ArrayList<SortInterface>();
       
-    if(channels.getCount() > 0) {
-      if(channels.moveToFirst()) {
-        do {
-          int key = channels.getInt(0);
-          String name = channels.getString(1);
+    if(channels.moveToFirst()) {
+      do {
+        int key = channels.getInt(0);
+        String name = channels.getString(1);
+        
+        int order = 0;
+        
+        if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER))) {
+          order = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
+        }
+        
+        Bitmap channelLogo = UiUtils.createBitmapFromByteArray(channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+        
+        if(channelLogo != null) {
+          BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
           
-          int order = 0;
+          ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+          background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
           
-          if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER))) {
-            order = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
-          }
+          LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+          logoDrawable.setBounds(background.getBounds());
           
-          Bitmap channelLogo = UiUtils.createBitmapFromByteArray(channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+          l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
           
-          if(channelLogo != null) {
-            BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
-            
-            ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
-            background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
-            
-            LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
-            logoDrawable.setBounds(background.getBounds());
-            
-            l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
-            
-            channelLogo = UiUtils.drawableToBitmap(logoDrawable);
-          }
-                    
-          channelSource.add(new ChannelSort(key, name, order, channelLogo));
-        }while(channels.moveToNext());
-      }
+          channelLogo = UiUtils.drawableToBitmap(logoDrawable);
+        }
+                  
+        channelSource.add(new ChannelSort(key, name, order, channelLogo));
+      }while(channels.moveToNext());
       
       channels.close();
       
@@ -2589,6 +2599,7 @@ public class TvBrowser extends FragmentActivity implements
           new Thread() {
             public void run() {
               Cursor programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.KEY_ID);
+              programs.moveToPosition(-1);
               
               builder.setProgress(programs.getCount(), 0, true);
               notification.notify(notifyID, builder.build());

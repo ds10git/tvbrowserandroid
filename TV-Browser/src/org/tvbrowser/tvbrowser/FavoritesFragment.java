@@ -17,6 +17,7 @@
 package org.tvbrowser.tvbrowser;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -42,7 +43,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -136,7 +136,9 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     for(String favorite : favoritesSet) {
       mFavoriteList.add(new Favorite(favorite));
     }
-        
+    
+    Collections.sort(mFavoriteList);
+    
     mFavoriteAdapter = new ArrayAdapter<Favorite>(getActivity(), android.R.layout.simple_list_item_activated_1,mFavoriteList);
     
     final ListView markings = (ListView)getView().findViewById(R.id.select_marking_list);
@@ -312,6 +314,8 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
                 
                 fav.setValues(temp.getName(), temp.getSearchValue(), temp.searchOnlyTitle(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs(), temp.getExclusions());
               }
+              
+              Collections.sort(mFavoriteList);
               
               handler.post(new Runnable() {
                 @Override

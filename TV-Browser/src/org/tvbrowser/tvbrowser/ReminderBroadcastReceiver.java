@@ -177,9 +177,10 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
       Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' showReminder '" + showReminder + "' sound '" + sound + "' vibrate '" + vibrate + "' led '" + led + "'", Logging.REMINDER_TYPE, context);
       
       if(showReminder) {
+        Logging.log(tag,  new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' CONTEXT: " + context + " contentResolver: " + context.getContentResolver(), Logging.REMINDER_TYPE, context);
         Cursor values = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, programID), SettingConstants.REMINDER_PROJECTION, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
-        
-        if(values.getCount() > 0 && values.moveToNext()) {
+        Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Tried to load program with given ID, cursor size: " + values.getCount(), Logging.REMINDER_TYPE, context);
+        if(values.moveToFirst()) {
           NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
           
           String channelName = values.getString(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
@@ -190,7 +191,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           long endTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
           
           Bitmap logo = UiUtils.createBitmapFromByteArray(values.getBlob(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
-          
+          Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' LOADED VALUES:  title '" + title + "' channelName '" + channelName + "' episode '" + episode + "' logo " + logo, Logging.REMINDER_TYPE, context);
           if(logo != null) {              
             int width =  context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
             int height = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
@@ -259,9 +260,11 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           startInfo.setAction("actionstring" + System.currentTimeMillis());
           
           builder.setContentIntent(PendingIntent.getActivity(context, 0, startInfo, 0));
-          
           Notification notification = builder.build();
+          
+          Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Create notification with intent: " + startInfo, Logging.REMINDER_TYPE, context);
           ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(title,(int)(startTime / 60000), notification);
+          Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Notification was send.", Logging.REMINDER_TYPE, context);
         }
         
         values.close();

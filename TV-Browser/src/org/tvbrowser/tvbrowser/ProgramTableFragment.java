@@ -25,7 +25,6 @@ import java.util.TimeZone;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.settings.TvbPreferenceFragment;
 import org.tvbrowser.view.ChannelLabel;
 import org.tvbrowser.view.CompactProgramTableLayout;
 import org.tvbrowser.view.ProgramPanel;
@@ -46,7 +45,6 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Build;
 import android.os.Build.VERSION_CODES;
@@ -174,9 +172,7 @@ public class ProgramTableFragment extends Fragment {
         
         Cursor c = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
         
-        if(c.getCount() > 0) {
-          c.moveToFirst();
-          
+        if(c.moveToFirst()) {
           long id = -1;
           
           do {
@@ -344,6 +340,7 @@ public class ProgramTableFragment extends Fragment {
                 long programID = (Long)child.getTag();
                 
                 Cursor test = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA,programID), new String[] {TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE}, null, null, null);
+                test.moveToPosition(-1);
                 
                 if(test.moveToNext()) {
                   if(test.getInt(0) == 1) {
@@ -479,6 +476,7 @@ public class ProgramTableFragment extends Fragment {
             String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
             
             Cursor c = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.KEY_ID);
+            c.moveToPosition(-1);
             
             int keyColumnIndex = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
             int statTimeColumnIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
@@ -494,7 +492,7 @@ public class ProgramTableFragment extends Fragment {
               }
             }
             
-            while(c.getCount() > 0 && c.moveToNext()) {
+            while(c.moveToNext()) {
               long key = c.getLong(keyColumnIndex);
               
               View view = mProgramPanelLayout.findViewWithTag(Long.valueOf(key));
@@ -606,6 +604,7 @@ public class ProgramTableFragment extends Fragment {
     where3.append(((TvBrowser)getActivity()).getChannelFilterSelection().replace(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, TvBrowserContentProvider.KEY_ID));
     
     Cursor channels = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, where3.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+    channels.moveToPosition(-1);
     
     String[] projection = null;
     
@@ -691,6 +690,7 @@ public class ProgramTableFragment extends Fragment {
       where += UiUtils.getDontWantToSeeFilterString(getActivity());
       
       Cursor cursor = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      cursor.moveToPosition(-1);
       
       mStartTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
       mEndTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);

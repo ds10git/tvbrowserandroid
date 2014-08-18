@@ -117,12 +117,13 @@ public class Logging {
           final File path = new File(parent,"tvbrowserdata");
           
           File logFile = new File(path,"reminder-log.txt");
+          boolean logFileExists = logFile.isFile();
           
           log = new RandomAccessFile(logFile, "rw");
           
           long pos = PrefUtils.getLongValueWithDefaultKey(R.string.REMINDER_LOG_LAST_POS, R.integer.reminder_log_last_pos_default);
           
-          if(pos > (5 * 1024 * 1024)) {
+          if(!logFileExists || pos > (5 * 1024 * 1024)) {
             log.seek(0);
           }
           else {

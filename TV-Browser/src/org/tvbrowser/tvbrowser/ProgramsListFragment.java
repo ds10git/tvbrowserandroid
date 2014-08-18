@@ -234,11 +234,10 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     
       Cursor c = mProgramListAdapter.getCursor();
       
-      if(c.getCount() > 0) {
+      if(c.moveToFirst()) {
         try {
           int index = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
           int count = 0;
-          c.moveToFirst();
           
           if(!c.isClosed()) {
             do {

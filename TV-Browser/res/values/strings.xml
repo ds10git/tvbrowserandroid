@@ -19,7 +19,7 @@
     <string name="channel_filter_cinema">Only Cinema channels</string>
     <string name="sort_alphabetically">Sort alphabetically</string>
     <string name="channel_download_warning_title">Channel download not complete</string>
-    <string name="channel_download_warning_text">Not all channels could be downloaded successfully.\n\nIf you are missing channels you should try loading the channels again.</string>
+    <string name="channel_download_warning_text">Not all channels could be downloaded successfully.\n\nIf you are missing channels you should try loading the channels later again.</string>
     <string name="username">Username:</string>
     <string name="password">Password:</string>
     <string name="userpass_save_anyway">Save anyway</string>
