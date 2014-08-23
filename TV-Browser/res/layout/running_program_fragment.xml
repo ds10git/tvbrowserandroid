@@ -20,7 +20,6 @@
 	            android:orientation="horizontal"
 	            android:layout_width="wrap_content"
 	            android:layout_height="@dimen/running_bar_height"
-	            android:paddingRight="5dp"
 	            style="?android:attr/buttonBarStyle">
 		        <Button android:id="@+id/button_before1"
 		                android:text="@string/button_before"
@@ -44,11 +43,17 @@
 	        </LinearLayout>
 	    </HorizontalScrollView>
     </LinearLayout>
-    <fragment 
+    <ListView 
+        android:id="@+id/running_list_fragment_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dip"
+        android:layout_weight="1"
+        />
+ <!--    <fragment 
         android:name="org.tvbrowser.tvbrowser.RunningProgramsListFragment"
         android:id="@+id/runningListFragment"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
-    />
+    />  -->
 </LinearLayout>

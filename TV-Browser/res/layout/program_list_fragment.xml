@@ -32,10 +32,14 @@
 		            android:layout_height="match_parent"/> 
 	        </LinearLayout>
         </HorizontalScrollView>
-    <fragment 
+    <ListView
+        android:id="@+id/program_list_fragment_list_view"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+<!--     <fragment 
         android:name="org.tvbrowser.tvbrowser.ProgramsListFragment"
         android:id="@+id/programListFragment"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-    />
+    />  -->
 </LinearLayout>
