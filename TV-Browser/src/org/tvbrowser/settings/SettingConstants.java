@@ -54,7 +54,6 @@ public class SettingConstants {
   public static final String UPDATE_TIME_BUTTONS = "org.tvbrowser.UPDATE_TIME_BUTTONS";
   public static final String REMINDER_INTENT = "org.tvbrowser.REMINDER_INTENT";
   public static final String SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT = "org.tvbrowser.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT";
-  public static final String SCROLL_TO_TIME_INTENT = "org.tvbrowser.SCROLL_TO_TIME_INTENT";
   public static final String REMINDER_PROGRAM_ID_EXTRA = "REMINDER_PROGRAM_ID_EXTRA";
   public static final String CHANNEL_ID_EXTRA = "CHANNEL_ID_EXTRA";
   public static final String DAY_POSITION_EXTRA = "DAY_POSITION_EXTRA";

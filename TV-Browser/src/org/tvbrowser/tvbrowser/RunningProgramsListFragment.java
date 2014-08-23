@@ -16,9 +16,11 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.lang.reflect.Field;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
@@ -46,7 +48,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
@@ -55,19 +57,23 @@ import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
+import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class RunningProgramsListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
+public class RunningProgramsListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
   private static final String WHERE_CLAUSE_KEY = "WHERE_CLAUSE_KEY";
   private static final String DAY_CLAUSE_KEY = "DAY_CLAUSE_KEY";
     
@@ -118,6 +124,9 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
   private View mContextView;
   private long mContextProgramID;
   private long mDayStart;
+  
+  private ListView mListView;
+  private LinearLayout mTimeBar;
   
   static {
     BEFORE_GRADIENT = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[] {Color.argb(0x84, 0, 0, 0xff),Color.WHITE});
@@ -283,10 +292,8 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
           time.performClick();
         }
         else {
-          LinearLayout timeBar = (LinearLayout)((ViewGroup)((ViewGroup)getView().getParent()).getParent()).findViewById(R.id.runnning_time_bar);
-          
-          if(timeBar.getChildCount() > 1) {
-            ((Button)timeBar.getChildAt(1)).performClick();
+          if(mTimeBar.getChildCount() > 1) {
+            ((Button)mTimeBar.getChildAt(1)).performClick();
           }
         }
         
@@ -909,7 +916,7 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       }
     };
     
-    setListAdapter(mRunningProgramListAdapter);
+    mListView.setAdapter(mRunningProgramListAdapter);
     
     SeparatorDrawable drawable = new SeparatorDrawable(getActivity());
     
@@ -960,7 +967,193 @@ public class RunningProgramsListFragment extends ListFragment implements LoaderM
       mUpdateThread.start();
     }
   }
+  
+  @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+      Bundle savedInstanceState) {
+    View view = inflater.inflate(R.layout.running_program_fragment, container, false);
+    
+    mListView = (ListView)view.findViewById(R.id.running_list_fragment_list_view);
+    mTimeBar = (LinearLayout)view.findViewById(R.id.runnning_time_bar);
+    
+    initialize(view);
+    
+    return view;
+  }
+  
+  private void initialize(View rootView) {
+    final Button now = (Button)rootView.findViewById(R.id.now_button);
+    final Spinner date = (Spinner)rootView.findViewById(R.id.running_date_selection);
+    now.setTag(Integer.valueOf(-1));
+    
+    final View.OnClickListener listener = new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        Log.d("info", "" + v.equals(now) + " " + date.getCount());
+        if(v.equals(now) && date.getCount() > 1) {
+          date.setSelection(1);
+        }
+        
+        setWhereClauseTime(v.getTag());
+      }
+    };
+    
+    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
+    
+    IntentFilter timeButtonsUpdateFilter = new IntentFilter(SettingConstants.UPDATE_TIME_BUTTONS);
+    
+    final BroadcastReceiver receiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        for(int i = mTimeBar.getChildCount() - 1; i >= 0; i--) {
+          Button button = (Button)mTimeBar.getChildAt(i);
+          
+          if(button != null) {
+            button.setOnClickListener(null);
+            mTimeBar.removeViewAt(i);
+          }
+        }
+        
+        if(getActivity() != null) {
+          SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+          now.setOnClickListener(listener);
+          
+          mTimeBar.addView(now);
+          
+          ArrayList<Integer> values = new ArrayList<Integer>();
+          
+          int[] defaultValues = getResources().getIntArray(R.array.time_button_defaults);
+          
+          int timeButtonCount = pref.getInt(getString(R.string.TIME_BUTTON_COUNT),getResources().getInteger(R.integer.time_button_count_default));
+          
+          for(int i = 1; i <= Math.min(timeButtonCount, getResources().getInteger(R.integer.time_button_count_default)); i++) {
+            try {
+              Class<?> string = R.string.class;
+              
+              Field setting = string.getDeclaredField("TIME_BUTTON_" + i);
+              
+              Integer value = Integer.valueOf(pref.getInt(getResources().getString((Integer)setting.get(string)), defaultValues[i-1]));
+              
+              if(value >= -1 && !values.contains(value)) {
+                values.add(value);
+              }
+            } catch (Exception e) {}
+          }
+          
+          for(int i = 7; i <= timeButtonCount; i++) {
+              Integer value = Integer.valueOf(pref.getInt("TIME_BUTTON_" + i, 0));
+              
+              if(value >= -1 && !values.contains(value)) {
+                values.add(value);
+              }
+          }
+          
+          if(PrefUtils.getBooleanValue(R.string.SORT_RUNNING_TIMES, R.bool.sort_running_times_default)) {
+            Collections.sort(values);
+          }
+          
+          for(Integer value : values) {
+            getActivity().getLayoutInflater().inflate(R.layout.time_button, mTimeBar);
+            
+            Calendar cal = Calendar.getInstance();
+            cal.set(Calendar.HOUR_OF_DAY, value / 60);
+            cal.set(Calendar.MINUTE, value % 60);
+            
+            Button time = (Button)mTimeBar.getChildAt(mTimeBar.getChildCount()-1);
+            time.setText(DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(cal.getTime()));
+            time.setTag(value);
+            time.setOnClickListener(listener);
+          }
+        }
+      }
+    };
+    
+    localBroadcastManager.registerReceiver(receiver, timeButtonsUpdateFilter);
+    receiver.onReceive(null, null);
+    
+    ArrayList<DateSelection> dateEntries = new ArrayList<DateSelection>();
+    
+    final ArrayAdapter<DateSelection> dateAdapter = new ArrayAdapter<DateSelection>(getActivity(), android.R.layout.simple_spinner_item, dateEntries);
+    dateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    date.setAdapter(dateAdapter);
 
+    date.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(AdapterView<?> parent, View view, 
+          int pos, long id) {
+        DateSelection selection = dateAdapter.getItem(pos);
+        
+        setDay(selection.getTime());
+      }
+      
+      @Override
+      public void onNothingSelected(AdapterView<?> parent) {
+        setDay(-1);
+      }
+    });
+    
+    BroadcastReceiver dataUpdateReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        if(getActivity() != null && !isDetached()) {
+          int pos = date.getSelectedItemPosition();
+          
+          dateAdapter.clear();
+                  
+          Cursor dates = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+          
+          if(dates.moveToLast()) {
+            long last = dates.getLong(0);
+            
+            Calendar lastDay = Calendar.getInstance();
+            lastDay.setTimeInMillis(last);
+            
+            lastDay.set(Calendar.HOUR_OF_DAY, 0);
+            lastDay.set(Calendar.MINUTE, 0);
+            lastDay.set(Calendar.SECOND, 0);
+            lastDay.set(Calendar.MILLISECOND, 0);
+            
+            Calendar yesterday = Calendar.getInstance();
+            yesterday.set(Calendar.HOUR_OF_DAY, 0);
+            yesterday.set(Calendar.MINUTE, 0);
+            yesterday.set(Calendar.SECOND, 0);
+            yesterday.set(Calendar.MILLISECOND, 0);
+            yesterday.add(Calendar.DAY_OF_YEAR, -1);
+            
+            long yesterdayStart = yesterday.getTimeInMillis();
+            long lastStart = lastDay.getTimeInMillis();
+            
+            for(long day = yesterdayStart; day <= lastStart; day += (24 * 60 * 60000)) {
+              dateAdapter.add(new DateSelection(day, getActivity()));
+            }
+          }
+          
+          dates.close();
+          
+          if(date.getCount() > pos) {
+            date.setSelection(pos);
+          }
+          else {
+            date.setSelection(date.getCount()-1);
+          }
+        }
+      }
+    };
+    
+    IntentFilter dataUpdateFilter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
+    
+    localBroadcastManager.registerReceiver(dataUpdateReceiver, dataUpdateFilter);
+    dataUpdateReceiver.onReceive(null, null);
+    
+    if(date.getCount() > 1) {
+      date.setSelection(1);
+    }
+  }
+
+  private ListView getListView() {
+    return mListView;
+  }
+  
   @Override
   public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
     String[] projection = new String[13 + TvBrowserContentProvider.MARKING_COLUMNS.length];
@@ -1270,6 +1463,18 @@ Log.d("info", "" + new Date(mCurrentTime));
     if(!isDetached() && getActivity() != null) {
       if(getString(R.string.PREF_RUNNING_DIVIDER_SIZE).equals(key)) {
         setDividerSize(PrefUtils.getStringValue(R.string.PREF_RUNNING_DIVIDER_SIZE, R.string.devider_size_default));
+      }
+    }
+  }
+  
+  public void selectTime(int time) {
+    for(int i = 0; i < mTimeBar.getChildCount(); i++) {
+      View button = mTimeBar.getChildAt(i);
+      
+      if(button.getTag().equals(Integer.valueOf(time-1))) {
+        button.performClick();
+        ((HorizontalScrollView)mTimeBar.getParent()).scrollTo(button.getLeft(), button.getTop());
+        break;
       }
     }
   }

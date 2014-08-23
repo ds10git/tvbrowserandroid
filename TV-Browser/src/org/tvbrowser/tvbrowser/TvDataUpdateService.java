@@ -559,40 +559,40 @@ public class TvDataUpdateService extends Service {
     int index = cursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS);
     
     if(index >= 0) {
-      cursor.moveToFirst();
-      
-      String temp = cursor.getString(index);
-      
-      index = cursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-      final String groupId = cursor.getString(index);
-      
-      String[] mirrors = null;
-      
-      if(temp.contains(";")) {
-        mirrors = temp.split(";");
-      }
-      else {
-        mirrors = new String[1];
-        mirrors[0] = temp;
-      }
-      
-      int idIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-      final int keyID = cursor.getInt(idIndex);
-      
-      ArrayList<String> mirrorList = new ArrayList<String>();
-      
-      for(String mirror : mirrors) {
-        if(isConnectedToServer(mirror,5000)) {
-          if(!mirror.endsWith("/")) {
-            mirror += "/";
-          }
-          
-          mirrorList.add(mirror);
+      if(cursor.moveToFirst()) {
+        String temp = cursor.getString(index);
+        
+        index = cursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+        final String groupId = cursor.getString(index);
+        
+        String[] mirrors = null;
+        
+        if(temp.contains(";")) {
+          mirrors = temp.split(";");
         }
-      }
-      
-      if(!mirrorList.isEmpty()) {
-        return new GroupInfo(mirrorList.toArray(new String[mirrorList.size()]),groupId+"_channellist.gz",keyID);
+        else {
+          mirrors = new String[1];
+          mirrors[0] = temp;
+        }
+        
+        int idIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+        final int keyID = cursor.getInt(idIndex);
+        
+        ArrayList<String> mirrorList = new ArrayList<String>();
+        
+        for(String mirror : mirrors) {
+          if(isConnectedToServer(mirror,5000)) {
+            if(!mirror.endsWith("/")) {
+              mirror += "/";
+            }
+            
+            mirrorList.add(mirror);
+          }
+        }
+        
+        if(!mirrorList.isEmpty()) {
+          return new GroupInfo(mirrorList.toArray(new String[mirrorList.size()]),groupId+"_channellist.gz",keyID);
+        }
       }
     }
     
@@ -1331,147 +1331,164 @@ public class TvDataUpdateService extends Service {
         Mirror mirror = null;
         String groupId = null;
         Summary summary = null;
+        String channelName = null;
         
         do {
-          int groupKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
-          int channelKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-          String timeZone = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE));
-          doLog("Load info for channel '" + channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
-          
-          if(lastGroup != groupKey) {
-            summary = null;
-            mirror = null;
-            groupId = null;
+          try {
+            int groupKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
+            int channelKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+            String timeZone = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE));
+            channelName = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+            doLog("Load info for channel " + channelName);
             
-            Cursor group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
-            doLog("Cursor size for groupKey '" + group.getCount());
-            if(group.getCount() > 0) {
-              group.moveToFirst();
-              
-              groupId = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
-              String mirrorURL = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS));
-
-              doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
-              doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
-              
-              if(!mirrorURL.contains("http://") && !mirrorURL.contains("https://")) {
-                doLog("RELOAD MIRRORS FOR '" + groupId);
-                mirrorURL = reloadMirrors(groupId, path);
+            if(lastGroup != groupKey) {
+              summary = null;
+              mirror = null;
+              groupId = null;
+              doLog("Content URI for data update " + ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey));
+              Cursor group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
+              doLog("Cursor size for groupKey '" + group.getCount());
+              if(group.getCount() > 0) {
+                group.moveToFirst();
                 
+                groupId = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
+                String mirrorURL = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS));
+  
                 doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
                 doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
+                
+                if(!mirrorURL.contains("http://") && !mirrorURL.contains("https://")) {
+                  doLog("RELOAD MIRRORS FOR '" + groupId);
+                  mirrorURL = reloadMirrors(groupId, path);
+                  
+                  doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
+                  doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
+                }
+                
+                Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL);
+                
+                mirror = Mirror.getMirrorToUseForGroup(mirrors, groupId, this);                
+                doLog("Choosen mirror for group '" + groupId + "': " + mirror);
+                if(mirror != null) {
+                  doLog("Donwload summary from: " + mirror.getUrl() + groupId + "_summary.gz");
+                  summary = readSummary(new File(path,groupId + "_summary.gz"), mirror.getUrl() + groupId + "_summary.gz");
+                  doLog("To download: " + mirror.getUrl() + groupId + "_mirrorlist.gz");
+                  downloadMirrorList.add(mirror.getUrl() + groupId + "_mirrorlist.gz");
+                }
               }
               
-              Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL);
-              
-              mirror = Mirror.getMirrorToUseForGroup(mirrors, groupId, this);                
-              doLog("Choosen mirror for group '" + groupId + "': " + mirror);
-              if(mirror != null) {
-                doLog("Donwload summary from: " + mirror.getUrl() + groupId + "_summary.gz");
-                summary = readSummary(new File(path,groupId + "_summary.gz"), mirror.getUrl() + groupId + "_summary.gz");
-                doLog("To download: " + mirror.getUrl() + groupId + "_mirrorlist.gz");
-                downloadMirrorList.add(mirror.getUrl() + groupId + "_mirrorlist.gz");
-              }
+              group.close();
             }
             
-            group.close();
-          }
-          
-          doLog("Summary downloaded: " + (summary != null));
-          
-          if(summary != null && mirror != null) {
-            String channelID = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
-            doLog("Load summary info for: " + channelID);
-            ChannelFrame frame = summary.getChannelFrame(channelID);
-            doLog("Summary frame with ID '" + channelID + "' read: " + (frame != null));
+            doLog("Summary downloaded: " + (summary != null));
             
-            if(frame != null) {
-              Calendar startDate = summary.getStartDate();
+            if(summary != null && mirror != null) {
+              String channelID = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+              doLog("Load summary info for: " + channelID);
+              ChannelFrame frame = summary.getChannelFrame(channelID);
+              doLog("Summary frame with ID '" + channelID + "' read: " + (frame != null));
               
-              Calendar testDate = Calendar.getInstance();
-              testDate.setTimeInMillis(startDate.getTimeInMillis());
-              testDate.set(Calendar.HOUR_OF_DAY, 0);
-              
-              doLog("Start date of data for frame with ID '" + channelID + "': " + startDate.getTime());
-              Calendar now = Calendar.getInstance();
-              now.add(Calendar.DAY_OF_MONTH, -2);
-
-              Calendar to = Calendar.getInstance();
-              to.add(Calendar.DAY_OF_MONTH, mDaysToLoad);
-              doLog("End date of data to download for frame with ID '" + channelID + "': " + to.getTime());
-              
-              for(int i = 0; i < frame.getDayCount(); i++) {
-                startDate.add(Calendar.DAY_OF_YEAR, 1);
-                testDate.add(Calendar.DAY_OF_YEAR, 1);
+              if(frame != null) {
+                Calendar startDate = summary.getStartDate();
                 
-                if(testDate.compareTo(now) >= 0 && testDate.compareTo(to) <= 0) {
-                  int[] version = frame.getVersionForDay(i);
-                  doLog("Version found for frame with ID '" + channelID + "': " + (version != null));
+                Calendar testDate = Calendar.getInstance();
+                testDate.setTimeInMillis(startDate.getTimeInMillis());
+                testDate.set(Calendar.HOUR_OF_DAY, 0);
+                
+                doLog("Start date of data for frame with ID '" + channelID + "': " + startDate.getTime());
+                Calendar now = Calendar.getInstance();
+                now.add(Calendar.DAY_OF_MONTH, -2);
+  
+                Calendar to = Calendar.getInstance();
+                to.add(Calendar.DAY_OF_MONTH, mDaysToLoad);
+                doLog("End date of data to download for frame with ID '" + channelID + "': " + to.getTime());
+                
+                for(int i = 0; i < frame.getDayCount(); i++) {
+                  startDate.add(Calendar.DAY_OF_YEAR, 1);
+                  testDate.add(Calendar.DAY_OF_YEAR, 1);
                   
-                  if(version != null) {
-                    long daysSince1970 = startDate.getTimeInMillis() / 24 / 60 / 60000;
+                  if(testDate.compareTo(now) >= 0 && testDate.compareTo(to) <= 0) {
+                    int[] version = frame.getVersionForDay(i);
+                    doLog("Version found for frame with ID '" + channelID + "': " + (version != null));
                     
-                    String versionKey = channelKey + "_" + daysSince1970;
-                                        
-                    ChannelUpdate channelUpdate = new ChannelUpdate(channelKey, timeZone, startDate.getTimeInMillis());
-                    
-                    for(int level : levels) {
-                      int testVersion = 0;
-                                            
-                      int[] versionInfo = mCurrentVersionIDs.get(versionKey);
+                    if(version != null) {
+                      long daysSince1970 = startDate.getTimeInMillis() / 24 / 60 / 60000;
                       
-                      if(versionInfo != null) {
-                        testVersion = versionInfo[level+1];
-                      }
+                      String versionKey = channelKey + "_" + daysSince1970;
+                                          
+                      ChannelUpdate channelUpdate = new ChannelUpdate(channelKey, timeZone, startDate.getTimeInMillis());
                       
-                      doLog("Currently known version for '" + channelID + "' and days since 1970 '" + daysSince1970 + "': " + testVersion);
-                      
-                      if(version.length > level && version[level] > testVersion) {
-                        String month = String.valueOf(startDate.get(Calendar.MONTH)+1);
-                        String day = String.valueOf(startDate.get(Calendar.DAY_OF_MONTH));
+                      for(int level : levels) {
+                        int testVersion = 0;
+                                              
+                        int[] versionInfo = mCurrentVersionIDs.get(versionKey);
                         
-                        if(month.length() == 1) {
-                          month = "0" + month;
+                        if(versionInfo != null) {
+                          testVersion = versionInfo[level+1];
                         }
                         
-                        if(day.length() == 1) {
-                          day = "0" + day;
+                        doLog("Currently known version for '" + channelID + "' and days since 1970 '" + daysSince1970 + "': " + testVersion);
+                        
+                        if(version.length > level && version[level] > testVersion) {
+                          String month = String.valueOf(startDate.get(Calendar.MONTH)+1);
+                          String day = String.valueOf(startDate.get(Calendar.DAY_OF_MONTH));
+                          
+                          if(month.length() == 1) {
+                            month = "0" + month;
+                          }
+                          
+                          if(day.length() == 1) {
+                            day = "0" + day;
+                          }
+                          doLog("Version for day unknown for '" + channelID + "'");
+                          StringBuilder dateFile = new StringBuilder();
+                          dateFile.append(mirror.getUrl());
+                          dateFile.append(startDate.get(Calendar.YEAR));
+                          dateFile.append("-");
+                          dateFile.append(month);
+                          dateFile.append("-");
+                          dateFile.append(day);
+                          dateFile.append("_");
+                          dateFile.append(frame.getCountry());
+                          dateFile.append("_");
+                          dateFile.append(frame.getChannelID());
+                          dateFile.append("_");
+                          dateFile.append(SettingConstants.LEVEL_NAMES[level]);
+                          dateFile.append("_full.prog.gz");
+                          
+                          doLog("Download data for '" + channelID + "' from " + dateFile.toString() + " for level: " + level);
+                          
+                          channelUpdate.addURL(dateFile.toString());
                         }
-                        doLog("Version for day unknown for '" + channelID + "'");
-                        StringBuilder dateFile = new StringBuilder();
-                        dateFile.append(mirror.getUrl());
-                        dateFile.append(startDate.get(Calendar.YEAR));
-                        dateFile.append("-");
-                        dateFile.append(month);
-                        dateFile.append("-");
-                        dateFile.append(day);
-                        dateFile.append("_");
-                        dateFile.append(frame.getCountry());
-                        dateFile.append("_");
-                        dateFile.append(frame.getChannelID());
-                        dateFile.append("_");
-                        dateFile.append(SettingConstants.LEVEL_NAMES[level]);
-                        dateFile.append("_full.prog.gz");
-                        
-                        doLog("Download data for '" + channelID + "' from " + dateFile.toString() + " for level: " + level);
-                        
-                        channelUpdate.addURL(dateFile.toString());
                       }
-                    }
-                    
-                    doLogData(" CHANNEL UPDATE TO DOWNLOAD " + channelUpdate.getChannelID() + " " + channelUpdate.getDate() + " " + channelUpdate.toDownload());
-                    
-                    if(channelUpdate.toDownload()) {
-                      updateList.add(channelUpdate);
-                      downloadCountTemp += channelUpdate.size();
+                      
+                      doLogData(" CHANNEL UPDATE TO DOWNLOAD " + channelUpdate.getChannelID() + " " + channelUpdate.getDate() + " " + channelUpdate.toDownload());
+                      
+                      if(channelUpdate.toDownload()) {
+                        updateList.add(channelUpdate);
+                        downloadCountTemp += channelUpdate.size();
+                      }
                     }
                   }
                 }
               }
             }
+            
+            lastGroup = groupKey;
+          }catch(Exception e) {
+            StringBuilder stackTrace = new StringBuilder("PROBLEM FOR CHANNEL: ");
+            stackTrace.append(channelName);
+            stackTrace.append(" ");
+            stackTrace.append(e.getLocalizedMessage());
+            stackTrace.append("\n");
+            
+            for(StackTraceElement element : e.getStackTrace()) {
+              stackTrace.append(element.getLineNumber()).append(" ").append(element.getFileName()).append(" ").append(element.getClassName()).append(" ").append(element.getMethodName());
+              stackTrace.append("\n");
+            }
+            
+            doLog(stackTrace.toString());
           }
-          
-          lastGroup = groupKey;
         }while(channelCursor.moveToNext());
         
       }

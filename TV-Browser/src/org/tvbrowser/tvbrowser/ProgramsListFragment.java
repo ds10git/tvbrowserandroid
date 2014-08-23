@@ -16,6 +16,7 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -25,27 +26,41 @@ import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.Activity;
 import android.content.BroadcastReceiver;
-import android.content.ContentUris;
+import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v4.app.ListFragment;
+import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Button;
+import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
+import android.widget.TextView;
 
-public class ProgramsListFragment extends ListFragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
+public class ProgramsListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
   private SimpleCursorAdapter mProgramListAdapter;
   
   private Handler handler = new Handler();
@@ -66,9 +81,12 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mDontWantToSeeReceiver;
   private BroadcastReceiver mMarkingsChangedReceiver;
+  private BroadcastReceiver mChannelUpdateReceiver;
   
   private boolean mDontUpdate;
   private int mScrollPos;
+  
+  private ListView mListView;
   
   @Override
   public void onResume() {
@@ -116,37 +134,11 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
         startUpdateThread();
       }
     };
-    
-   /* mMarkingsChangedReceiver = new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, Intent intent) {
-        if(getActivity() != null && !isDetached()) {
-          long programID = intent.getLongExtra(SettingConstants.MARKINGS_ID, -1);
-          
-          View view = getListView().findViewWithTag(programID);
-          
-          if(view != null) {
-            String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
-                        
-            Cursor cursor = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), projection, null, null, null);
-            
-            if(cursor.getCount() > 0) {
-              cursor.moveToFirst();
-              
-              UiUtils.handleMarkings(getActivity(), cursor, view, null, null, true);
-              cursor.close();
-            }
-          }
-        }
-      }
-    };*/
 
     IntentFilter intent = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, intent);
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
-  //  LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMarkingsChangedReceiver, new IntentFilter(SettingConstants.MARKINGS_CHANGED));
-    
     mKeepRunning = true;
   }
   
@@ -262,12 +254,12 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
       handler.post(new Runnable() {
         @Override
         public void run() {
-          if(getListView() != null) {
-            setSelection(scollIndex);
+          if(mListView != null) {
+            mListView.setSelection(scollIndex);
             handler.post(new Runnable() {
               @Override
               public void run() {
-                setSelection(scollIndex);
+                mListView.setSelection(scollIndex);
               }
             });
           }
@@ -287,7 +279,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
           @Override
           public void run() {
             if(getView() != null) {
-              setSelection(0);
+              mListView.setSelection(0);
             }
           }
         });
@@ -299,6 +291,389 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     mChannelID = id;
     
     startUpdateThread();
+  }
+  
+  @Override
+  public View onCreateView(LayoutInflater inflater, ViewGroup container,
+      Bundle savedInstanceState) {
+    View view = inflater.inflate(R.layout.program_list_fragment, container, false);
+    
+    mListView = (ListView)view.findViewById(R.id.program_list_fragment_list_view);
+    
+    initialize(view);
+    
+    return view;
+  }
+  
+  private void initialize(View rootView) {
+    LocalBroadcastManager localBroadcastManager = LocalBroadcastManager.getInstance(getActivity());
+    
+    IntentFilter channelUpdateFilter = new IntentFilter(SettingConstants.CHANNEL_UPDATE_DONE);
+    IntentFilter dataUpdateFilter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
+    
+    final Spinner date = (Spinner)rootView.findViewById(R.id.date_selection);
+    
+    ArrayList<DateSelection> dateEntries = new ArrayList<DateSelection>();
+    
+    final ArrayAdapter<DateSelection> dateAdapter = new ArrayAdapter<DateSelection>(getActivity(), android.R.layout.simple_spinner_item, dateEntries);
+    dateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    date.setAdapter(dateAdapter);
+    
+    date.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(AdapterView<?> parent, View view, 
+          int pos, long id) {
+        DateSelection selection = dateAdapter.getItem(pos);
+        
+        setDay(selection.getTime());
+      }
+      
+      @Override
+      public void onNothingSelected(AdapterView<?> parent) {
+        setDay(-1);
+      }
+    });
+    
+    BroadcastReceiver dataUpdateReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        if(getActivity() != null && mKeepRunning) {
+          dateAdapter.clear();
+        
+          dateAdapter.add(new DateSelection(-1, getActivity()));
+        
+          Cursor dates = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+          
+          if(dates.moveToLast()) {
+            long last = dates.getLong(0);
+            
+            Calendar lastDay = Calendar.getInstance();
+            lastDay.setTimeInMillis(last);
+            
+            lastDay.set(Calendar.HOUR_OF_DAY, 0);
+            lastDay.set(Calendar.MINUTE, 0);
+            lastDay.set(Calendar.SECOND, 0);
+            lastDay.set(Calendar.MILLISECOND, 0);
+            
+            Calendar yesterday = Calendar.getInstance();
+            yesterday.set(Calendar.HOUR_OF_DAY, 0);
+            yesterday.set(Calendar.MINUTE, 0);
+            yesterday.set(Calendar.SECOND, 0);
+            yesterday.set(Calendar.MILLISECOND, 0);
+            yesterday.add(Calendar.DAY_OF_YEAR, -1);
+            
+            long yesterdayStart = yesterday.getTimeInMillis();
+            long lastStart = lastDay.getTimeInMillis();
+            
+            for(long day = yesterdayStart; day <= lastStart; day += (24 * 60 * 60000)) {
+              dateAdapter.add(new DateSelection(day, getActivity()));
+            }
+          }
+          
+          dates.close();
+        }
+      }
+    };
+    
+    localBroadcastManager.registerReceiver(dataUpdateReceiver, dataUpdateFilter);
+    dataUpdateReceiver.onReceive(null, null);
+    
+    final Spinner channel = (Spinner)rootView.findViewById(R.id.channel_selection);
+    
+    final Button minus = (Button)rootView.findViewById(R.id.channel_minus);
+    minus.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));
+    
+    final Button plus = (Button)rootView.findViewById(R.id.channel_plus);
+    plus.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));
+            
+    final ArrayList<ChannelSelection> channelEntries = new ArrayList<ChannelSelection>();
+    
+    final ArrayAdapter<ChannelSelection> channelAdapter = new ArrayAdapter<ChannelSelection>(getActivity(), android.R.layout.simple_spinner_item, channelEntries) {
+      @Override
+      public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        return getView(position, convertView, parent, android.R.layout.simple_spinner_dropdown_item);
+      }
+      
+      private View getView(int position, View convertView, ViewGroup parent, int id) {
+        if(convertView == null) {
+          LayoutInflater inflater = getActivity().getLayoutInflater();
+          
+          convertView = inflater.inflate(id, parent, false);
+          ((TextView)convertView).setCompoundDrawablePadding(10);
+          ((TextView)convertView).setGravity(Gravity.CENTER_VERTICAL);
+        }
+        
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        
+        int logoValue = Integer.parseInt(PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST, R.string.channel_logo_name_programs_list_default));
+        boolean showOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_PROGRAMS_LIST, R.bool.show_sort_number_in_programs_list_default);
+        
+        ChannelSelection sel = getItem(position);
+        
+        TextView text = (TextView)convertView;
+        
+        if(sel.getID() == -1) {
+          text.setText(getResources().getString(R.string.all_channels));
+          text.setCompoundDrawables(null, null, null, null);
+        }
+        else {
+          if(logoValue == 0 || logoValue == 2 || sel.getLogo() == null) {
+            if(showOrderNumber) {
+              text.setText(sel.getOrderNumber() + sel.getName());
+            }
+            else {
+              text.setText(sel.getName());
+            }
+          }
+          else if(showOrderNumber) {
+            text.setText(sel.getOrderNumber());
+          }
+          else {
+            text.setText("");
+          }
+          
+          if((logoValue == 0 || logoValue == 1) && sel.getLogo() != null) {
+            Drawable l = sel.getLogo();
+                            
+            text.setCompoundDrawables(l, null, null, null);
+          }
+          else {
+            text.setCompoundDrawables(null, null, null, null);
+          }
+        }
+        
+        return convertView;
+      }
+      
+      @Override
+      public View getView(int position, View convertView, ViewGroup parent) {
+        return getView(position, convertView, parent, android.R.layout.simple_spinner_item);
+      }
+    };
+    channelAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    channel.setAdapter(channelAdapter);
+    
+    channel.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(AdapterView<?> parent, View view, 
+          int pos, long id) {
+        ChannelSelection selection = channelAdapter.getItem(pos);
+        
+        setChannelID(selection.getID());
+      }
+      
+      @Override
+      public void onNothingSelected(AdapterView<?> parent) {
+        setChannelID(-1);
+      }
+    });
+    
+    View.OnClickListener onClick = new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        int pos = channel.getSelectedItemPosition();
+        
+        if(v.equals(minus)) {
+          if(--pos < 0) {
+            pos = channel.getCount()-1;
+          }
+          
+          channel.setSelection(pos);
+        }
+        else {
+          if(++pos >= channel.getCount()) {
+            pos = 0;
+          }
+          
+          channel.setSelection(pos);
+        }
+      }
+    };
+    
+    minus.setOnClickListener(onClick);
+    plus.setOnClickListener(onClick);
+    
+    final Spinner filter = (Spinner)rootView.findViewById(R.id.program_selection);
+    
+    ArrayList<String> filterEntries = new ArrayList<String>();
+    
+    final ArrayAdapter<String> filterAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, filterEntries) {
+      @Override
+      public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        return getView(position, convertView, parent, android.R.layout.simple_spinner_dropdown_item);
+      }
+      
+      private View getView(int position, View convertView, ViewGroup parent, int id) {
+        if(convertView == null) {
+          LayoutInflater inflater = getActivity().getLayoutInflater();
+          
+          convertView = inflater.inflate(id, parent, false);
+          ((TextView)convertView).setGravity(Gravity.CENTER_VERTICAL);
+        }
+        
+        String sel = getItem(position);
+        
+        TextView text = (TextView)convertView;
+        text.setText(sel);
+        
+        switch(position) {
+          case 0: convertView.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));break;
+          case 1: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_FAVORITE_COLOR_KEY, getContext()));break;
+          case 2: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_COLOR_KEY, getContext()));break;
+          case 3: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_REMINDER_COLOR_KEY, getContext()));break;
+          case 4: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_SYNC_COLOR_KEY, getContext()));break;
+          case 5: convertView.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));break;
+        }
+        
+        return convertView;
+      }
+      
+      @Override
+      public View getView(int position, View convertView, ViewGroup parent) {
+        return getView(position, convertView, parent, android.R.layout.simple_spinner_item);
+      }
+    };
+    filterAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    filter.setAdapter(filterAdapter);
+    
+    filterAdapter.add(" "  + getActivity().getString(R.string.all_programs));
+    filterAdapter.add(getResources().getString(R.string.title_favorites));
+    filterAdapter.add(getResources().getString(R.string.marking_value_marked));
+    
+    if(Build.VERSION.SDK_INT >= 14) {
+      filterAdapter.add(getResources().getString(R.string.marking_value_reminder) + "/" + getResources().getString(R.string.marking_value_calendar));
+    }
+    else {
+      filterAdapter.add(getResources().getString(R.string.marking_value_reminder));
+    }
+    
+    filterAdapter.add(getResources().getString(R.string.marking_value_sync));
+    filterAdapter.add(" "  + getResources().getString(R.string.action_dont_want_to_see));
+    
+    filter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+          setMarkFilter(pos);
+      }
+      
+      @Override
+      public void onNothingSelected(AdapterView<?> parent) {
+        setMarkFilter(-1);
+      }
+    });
+    
+    mChannelUpdateReceiver = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        if(getActivity() != null && mKeepRunning) {
+          channelAdapter.clear();
+          
+          channelAdapter.add(new ChannelSelection(-1, "0", getResources().getString(R.string.all_channels), null));
+          
+          ContentResolver cr = getActivity().getContentResolver();
+          
+          StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
+          
+          where.append(((TvBrowser)getActivity()).getChannelFilterSelection().replace(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, TvBrowserContentProvider.KEY_ID));
+          Log.d("info16", where.toString());
+          Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+          Log.d("info16", " COUNT " + channelCursor.getCount());
+          if(channelCursor.moveToFirst()) {
+            do {
+              LayerDrawable logoDrawable = null;
+              
+              Bitmap logo = UiUtils.createBitmapFromByteArray(channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+              
+              if(logo != null) {
+                BitmapDrawable l = new BitmapDrawable(getResources(), logo);
+                                        
+                ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+                background.setBounds(0, 0, logo.getWidth()+2,logo.getHeight()+2);
+                
+                logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+                logoDrawable.setBounds(background.getBounds());
+                
+                l.setBounds(2, 2, logo.getWidth(), logo.getHeight());
+              }
+              
+              String name = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+              String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
+              
+              if(shortName != null) {
+                name = shortName;
+              }
+              
+              ChannelSelection channelSel = new ChannelSelection(channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ", name, logoDrawable);
+              
+              channelAdapter.add(channelSel);
+            }while(channelCursor.moveToNext());
+          }
+          
+          channelCursor.close();
+        }
+      }
+    };
+    
+    localBroadcastManager.registerReceiver(mChannelUpdateReceiver, channelUpdateFilter);
+    mChannelUpdateReceiver.onReceive(null, null);
+    
+    IntentFilter showChannelFilter = new IntentFilter(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
+    
+    BroadcastReceiver showChannel = new BroadcastReceiver() {
+      @Override
+      public void onReceive(Context context, Intent intent) {
+        if(getActivity() instanceof TvBrowser && mKeepRunning) {
+          int id = intent.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA, -1);
+          long startTime = intent.getLongExtra(SettingConstants.START_TIME_EXTRA, -1);
+          int scrollIndex = intent.getIntExtra(SettingConstants.SCROLL_POSITION_EXTRA, -1);
+          
+          int daySelection = intent.getIntExtra(SettingConstants.DAY_POSITION_EXTRA, -1);
+          int filterSelection = intent.getIntExtra(SettingConstants.FILTER_POSITION_EXTRA, -1);
+          
+          ChannelSelection current = (ChannelSelection)channel.getSelectedItem();
+          
+          if(current != null && filterSelection == -1) {                
+            ((TvBrowser)getActivity()).addProgramListState(date.getSelectedItemPosition(), current.getID(), filter.getSelectedItemPosition(), getCurrentScrollIndex());
+          }
+          
+          setDontUpdate(true);
+          
+          if(current == null || current.getID() != id) {
+            for(int i = 0; i < channelEntries.size(); i++) {
+              ChannelSelection sel = channelEntries.get(i);
+              
+              if(sel.getID() == id) {
+                channel.setSelection(i);
+                break;
+              }
+            }
+          }
+          
+          if(filterSelection >= 0) {
+            filter.setSelection(filterSelection);
+          }
+          else {
+            filter.setSelection(0);
+          }
+          
+          if(daySelection >= 0) {
+            date.setSelection(daySelection);
+          }
+          else {
+            date.setSelection(0);
+          }
+                        
+          setScrollPos(scrollIndex);
+          setScrollTime(startTime);
+          setDontUpdate(false);
+          startUpdateThread();
+                        
+          ((TvBrowser)getActivity()).showProgramsListTab();
+        }
+      }
+    };
+    
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(showChannel, showChannelFilter);
   }
   
   @Override
@@ -331,13 +706,14 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     
     mProgramListAdapter.setViewBinder(mViewAndClickHandler);
     
-    setListAdapter(mProgramListAdapter);
+    mListView.setAdapter(mProgramListAdapter);
     
     SeparatorDrawable drawable = new SeparatorDrawable(getActivity());
     
-    getListView().setDivider(drawable);
+    mListView.setDivider(drawable);
     
     setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.devider_size_default));
+    
     
     getLoaderManager().initLoader(0, null, this);
   }
@@ -353,7 +729,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
           handler.post(new Runnable() {
             @Override
             public void run() {
-              if(mKeepRunning && !isDetached() && !isRemoving()) {
+              if(mKeepRunning && !isRemoving()) {
                 getLoaderManager().restartLoader(0, null, ProgramsListFragment.this);
               }
             }
@@ -365,7 +741,7 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   }
 
   @Override
-  public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
+  public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     String[] projection = null;
     
     if(PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default)) {
@@ -418,15 +794,15 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   }
 
   @Override
-  public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, Cursor c) {
+  public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
     mProgramListAdapter.swapCursor(c);
     
     if(mScrollPos == -1) {
       scrollToTime();
     }
     else {
-      if(getListView() != null) {
-        getListView().setSelection(mScrollPos);
+      if(mListView != null) {
+        mListView.setSelection(mScrollPos);
       }
       
       mScrollPos = -1;
@@ -434,17 +810,17 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   }
 
   @Override
-  public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
+  public void onLoaderReset(Loader<Cursor> loader) {
     mProgramListAdapter.swapCursor(null);
   }
   
   private void setDividerSize(String size) {    
-    getListView().setDividerHeight(UiUtils.convertDpToPixel(Integer.parseInt(size), getResources()));
+    mListView.setDividerHeight(UiUtils.convertDpToPixel(Integer.parseInt(size), getResources()));
   }
 
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    if(!isDetached() && getActivity() != null && key != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE) != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
+    if(getActivity() != null && mKeepRunning && key != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE) != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
       setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.devider_size_default));
     }
   }
@@ -454,9 +830,9 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
   }
   
   public int getCurrentScrollIndex() {
-    int pos = getListView().getFirstVisiblePosition();
+    int pos = mListView.getFirstVisiblePosition();
     
-    View view = getListView().getChildAt(0);
+    View view = mListView.getChildAt(0);
     
     if(view != null && mProgramListAdapter.getCount() > 1 && view.getTop() < 0) {
       pos++;
@@ -467,5 +843,46 @@ public class ProgramsListFragment extends ListFragment implements LoaderManager.
     }
     
     return pos;
+  }
+  
+  private static final class ChannelSelection {
+    private int mID;
+    private String mOrderNumber;
+    private String mName;
+    private Drawable mLogo;
+    
+    public ChannelSelection(int ID, String orderNumber, String name, Drawable logo) {
+      mID = ID;
+      mOrderNumber = orderNumber;
+      mName = name;
+      mLogo = logo;
+    }
+    
+    public int getID() {
+      return mID;
+    }
+    
+    public String getOrderNumber() {
+      return mOrderNumber;
+    }
+    
+    public String getName() {
+      return mName;
+    }
+    
+    public Drawable getLogo() {
+      return mLogo;
+    }
+    
+    @Override
+    public String toString() {
+      return mName;
+    }
+  }
+  
+  public void updateChannels() {
+    if(mChannelUpdateReceiver != null && getActivity() != null && mKeepRunning) {
+      mChannelUpdateReceiver.onReceive(getActivity(), null);
+    }
   }
 }

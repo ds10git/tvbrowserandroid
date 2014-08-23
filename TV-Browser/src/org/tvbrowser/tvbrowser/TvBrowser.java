@@ -360,7 +360,7 @@ public class TvBrowser extends FragmentActivity implements
     
     Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_CATEGORY}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.CHANNEL_KEY_NAME);
     
-    if(channels.getCount() > 0) {
+    if(channels != null && channels.getCount() > 0) {
       channels.moveToPosition(-1);
       
       int idColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
@@ -2750,8 +2750,8 @@ public class TvBrowser extends FragmentActivity implements
   private void updateFromPreferences() {
     Fragment test1 = mSectionsPagerAdapter.getRegisteredFragment(1);
     
-    if(test1 instanceof DummySectionFragment) {
-      ((DummySectionFragment)test1).updateChannels();
+    if(test1 instanceof ProgramsListFragment) {
+      ((ProgramsListFragment)test1).updateChannels();
     }
     
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
@@ -3148,11 +3148,20 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   private void scrollToTime(int time) {
-    if(mViewPager.getCurrentItem() == 1) {
-      Intent scroll = new Intent(SettingConstants.SCROLL_TO_TIME_INTENT);
-      scroll.putExtra(SettingConstants.START_TIME_EXTRA, (long)time);
+    if(mViewPager.getCurrentItem() == 0) {
+      Fragment test = mSectionsPagerAdapter.getRegisteredFragment(0);
       
-      LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcast(scroll);
+      if(test instanceof RunningProgramsListFragment && time >= 0) {
+        ((RunningProgramsListFragment)test).selectTime(time);
+      }
+    }
+    else if(mViewPager.getCurrentItem() == 1) {
+      Fragment test = mSectionsPagerAdapter.getRegisteredFragment(1);
+      
+      if(test instanceof ProgramsListFragment && time >= 0) {
+        ((ProgramsListFragment)test).setScrollTime(time);
+        ((ProgramsListFragment)test).scrollToTime();
+      }
     }
     else if(mViewPager.getCurrentItem() == 3) {
       Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
@@ -3199,7 +3208,7 @@ public class TvBrowser extends FragmentActivity implements
     mPauseReminder.setVisible(!SettingConstants.isReminderPaused(TvBrowser.this));
     mContinueReminder.setVisible(SettingConstants.isReminderPaused(TvBrowser.this));
     
-    mScrollTimeItem.setVisible(mViewPager.getCurrentItem() == 1 || mViewPager.getCurrentItem() == 3);
+    mScrollTimeItem.setVisible(mViewPager.getCurrentItem() != 2);
     
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
     
@@ -3314,10 +3323,9 @@ public class TvBrowser extends FragmentActivity implements
     
     if(mScrollTimeItem != null) {
       switch(tab.getPosition()) {
-        case 1:
-        case 3:mScrollTimeItem.setVisible(true);break;
+        case 2:mScrollTimeItem.setVisible(false);break;
         
-        default:mScrollTimeItem.setVisible(false);break;
+        default:mScrollTimeItem.setVisible(true);break;
       }
     }
   }
@@ -3350,8 +3358,11 @@ public class TvBrowser extends FragmentActivity implements
       // below) with the page number as its lone argument.
       Fragment fragment = null;
       
-      if(position < 2) {
-        fragment = new DummySectionFragment();
+      if(position == 0) {
+        fragment = new RunningProgramsListFragment();
+      }
+      else if(position == 1) {
+        fragment = new ProgramsListFragment();
       }
       else if(position == 2) {
         fragment = new FavoritesFragment();
@@ -3359,10 +3370,6 @@ public class TvBrowser extends FragmentActivity implements
       else if(position == 3) {
         fragment = new ProgramTableFragment();
       }
-      
-      Bundle args = new Bundle();
-      args.putInt(DummySectionFragment.ARG_SECTION_NUMBER, position + 1);
-      fragment.setArguments(args);
       
       return fragment;
     }
