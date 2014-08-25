@@ -2281,28 +2281,25 @@ public class TvDataUpdateService extends Service {
           mVersionMap.put(dataFile.getName(), Byte.valueOf(fileInfoBuffer[1]));
                     
           if(level == BASE_LEVEL && missingFrameIDs != null && !missingFrameIDs.isEmpty()) {
-            StringBuilder where = new StringBuilder();
+            StringBuilder where = new StringBuilder(" ( ");
             
             where.append(TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID);
             where.append(" IN ( ");
             where.append(TextUtils.join(", ", missingFrameIDs));
+            where.append(" ) ) ");            
+            where.append(" AND ");
+            where.append(" ( ");
+            where.append(TvBrowserContentProvider.DATA_KEY_UNIX_DATE);
+            where.append(" = ");
+            where.append(getDate());
+            where.append(" ) AND ( ");
+            where.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+            where.append(" = ");
+            where.append(getChannelID());
             where.append(" ) ");
+            Log.d("info66", " DELETE WHERE " + where);
             
-            if(where.toString().trim().length() > 0) {
-              where.append(" ) AND ");
-              where.append(" ( ");
-              where.append(TvBrowserContentProvider.DATA_KEY_UNIX_DATE);
-              where.append(" = ");
-              where.append(getDate());
-              where.append(" ) AND ( ");
-              where.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-              where.append(" = ");
-              where.append(getChannelID());
-              where.append(" ) ");
-              Log.d("info66", " DELETE WHERE " + where);
-              
-              getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, where.toString(), null);
-            }
+            getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, where.toString(), null);
           }
           Log.d("info5", "INSERTED");
           in.close();
