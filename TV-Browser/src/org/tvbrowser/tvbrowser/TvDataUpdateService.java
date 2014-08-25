@@ -1347,7 +1347,7 @@ public class TvDataUpdateService extends Service {
               groupId = null;
               doLog("Content URI for data update " + ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey));
               Cursor group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
-              doLog("Cursor size for groupKey '" + group.getCount());
+              doLog("Cursor size for groupKey: " + group.getCount());
               if(group.getCount() > 0) {
                 group.moveToFirst();
                 
@@ -1427,7 +1427,7 @@ public class TvDataUpdateService extends Service {
                           testVersion = versionInfo[level+1];
                         }
                         
-                        doLog("Currently known version for '" + channelID + "' and days since 1970 '" + daysSince1970 + "': " + testVersion);
+                        doLog("Currently known version for '" + channelID + "' for level '" + level + "' and days since 1970 '" + daysSince1970 + "': " + testVersion);
                         
                         if(version.length > level && version[level] > testVersion) {
                           String month = String.valueOf(startDate.get(Calendar.MONTH)+1);

@@ -470,6 +470,10 @@ public class TvBrowser extends FragmentActivity implements
     mIsActive = true;
     showTerms();
     
+    if(mUpdateItem != null && !TvDataUpdateService.IS_RUNNING) {
+      mUpdateItem.setActionView(null);
+    }
+    
     SettingConstants.ORIENTATION = getResources().getConfiguration().orientation;
     
     mUpdateDoneBroadcastReceiver = new BroadcastReceiver() {
@@ -585,7 +589,9 @@ public class TvBrowser extends FragmentActivity implements
       dialog.show();
     }
     
-    channels.close();
+    if(channels != null && !channels.isClosed()) {
+      channels.close();
+    }
     
     Calendar now = Calendar.getInstance();
     
