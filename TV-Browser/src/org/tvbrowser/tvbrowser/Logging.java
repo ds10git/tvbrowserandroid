@@ -51,7 +51,7 @@ public class Logging {
         }
       } catch (IOException e) {}
       finally {
-        if(log != null) {
+        if(log != null && type == REMINDER_TYPE) {
           try {
             log.close();
           } catch (IOException e) {}
