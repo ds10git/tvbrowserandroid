@@ -469,4 +469,6 @@
         <item>Short description</item>
         <item>Full description (if available)</item>
     </string-array>
+    <string name="error_no_calendar_app_title">No calendar app found</string>
+    <string name="error_no_calendar_app_message">No calendar app was found on your device.</string>
 </resources>

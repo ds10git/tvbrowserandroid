@@ -36,6 +36,7 @@ import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.SearchManager;
+import android.content.ActivityNotFoundException;
 import android.content.ContentProviderOperation;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -67,9 +68,7 @@ import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.Editable;
 import android.text.Html;
-import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -81,7 +80,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
-import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
@@ -459,11 +457,18 @@ public class UiUtils {
       boolean isFutureReminder = startTime > System.currentTimeMillis() - 5 * 60000;
       boolean isFutureCalendar = startTime > System.currentTimeMillis();
       
+      boolean showCalender = false;
+      
+      try {
+        Class.forName("android.provider.CalendarContract$Events");
+        showCalender = true;
+      } catch (ClassNotFoundException e) {}
+      
       menu.findItem(R.id.prog_mark_item).setVisible(showMark);
       menu.findItem(R.id.prog_unmark_item).setVisible(showUnMark);
       menu.findItem(R.id.prog_add_reminder).setVisible(showReminder && isFutureReminder);
       menu.findItem(R.id.prog_remove_reminder).setVisible(!showReminder);
-      menu.findItem(R.id.prog_create_calendar_entry).setVisible(isFutureCalendar);
+      menu.findItem(R.id.prog_create_calendar_entry).setVisible(isFutureCalendar && showCalender);
       menu.findItem(R.id.create_favorite_item).setVisible(createFavorite);
       
       menu.findItem(R.id.program_popup_dont_want_to_see).setVisible(showDontWantToSee && !SettingConstants.UPDATING_FILTER);
@@ -732,18 +737,29 @@ public class UiUtils {
           addCalendarEntry.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,info.getLong(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
           addCalendarEntry.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,info.getLong(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)));
           
-          // Use the Calendar app to add the new event.
-          activity.startActivity(addCalendarEntry);
-          
-          if(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR)) {
-            return true;
-          }
-          else {
-            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR, true);
-          }
-          
-          if(menuView != null) {
-            menuView.setBackgroundColor(getColor(MARKED_REMINDER_COLOR_KEY, activity));
+          try {
+            // Use the Calendar app to add the new event.
+            activity.startActivity(addCalendarEntry);
+            
+            if(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR)) {
+              return true;
+            }
+            else {
+              values.put(TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR, true);
+            }
+            
+            if(menuView != null) {
+              menuView.setBackgroundColor(getColor(MARKED_REMINDER_COLOR_KEY, activity));
+            }
+          }catch(ActivityNotFoundException anfe) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            
+            builder.setTitle(R.string.error_no_calendar_app_title);
+            builder.setMessage(R.string.error_no_calendar_app_message);
+            
+            builder.setPositiveButton(android.R.string.ok, null);
+            
+            builder.show();
           }
         }
         

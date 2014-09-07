@@ -100,8 +100,13 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       else {
         String[] parts = values[4].split(",");
         
-        mTimeRestrictionStart = Integer.parseInt(parts[0]);
-        mTimeRestrictionEnd = Integer.parseInt(parts[1]);
+        try {
+          mTimeRestrictionStart = Integer.parseInt(parts[0]);
+          mTimeRestrictionEnd = Integer.parseInt(parts[1]);
+        }catch(NumberFormatException nfe) {
+          mTimeRestrictionStart = -1;
+          mTimeRestrictionEnd = -1;
+        }
       }
       
       parseArray(DAY_RESTRICTION_TYPE, values[5]);
