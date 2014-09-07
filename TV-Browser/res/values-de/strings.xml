@@ -457,4 +457,6 @@
         <item>Kurzbeschreibung</item>
         <item>Vollständige Beschreibung (wenn vorhanden)</item>
     </string-array>
+    <string name="error_no_calendar_app_title">Keine Kalender-App gefunden</string>
+    <string name="error_no_calendar_app_message">Auf Ihrem Gerät konnte keine Kalender-App gefunden werden.</string>
 </resources>

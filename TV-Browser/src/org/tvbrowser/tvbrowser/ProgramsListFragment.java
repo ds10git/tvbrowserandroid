@@ -729,7 +729,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
           handler.post(new Runnable() {
             @Override
             public void run() {
-              if(mKeepRunning && !isRemoving()) {
+              if(mKeepRunning && !isRemoving() && !TvDataUpdateService.IS_RUNNING) {
                 getLoaderManager().restartLoader(0, null, ProgramsListFragment.this);
               }
             }

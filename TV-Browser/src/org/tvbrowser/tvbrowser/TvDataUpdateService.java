@@ -2181,7 +2181,7 @@ public class TvDataUpdateService extends Service {
           
           in.read(fileInfoBuffer);
           
-          doLog("Frame count of data file: '" +dataFile.getName() + "': " + fileInfoBuffer[2]);
+          doLog("Frame count of data file: '" +dataFile.getName() + "': " + fileInfoBuffer[2] + " CURRENT DATA STATE: " + (mCurrentData != null));
           ArrayList<Byte> missingFrameIDs = null;
                   
           String key = getChannelID() + "_" + getDate();
@@ -2319,6 +2319,8 @@ public class TvDataUpdateService extends Service {
         if(!dataFile.delete()) {
           dataFile.deleteOnExit();
         }
+        
+        doLog("Read data DONE from file: " +dataFile.getAbsolutePath());
       }
       else {
         Log.d("info5", "file not available " + dataFile.getPath());

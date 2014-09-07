@@ -67,13 +67,15 @@ public class Mirror implements Comparable<Mirror> {
       if(part.contains("#")) {
         String[] mirrorValues = part.split("#");
         
-        if(!mirrorValues[0].endsWith("/")) {
-          mirrorValues[0] += "/";
+        if(mirrorValues.length == 2) {
+          if(!mirrorValues[0].endsWith("/")) {
+            mirrorValues[0] += "/";
+          }
+          
+          try {
+            mirrors.add(new Mirror(mirrorValues[0], Integer.valueOf(mirrorValues[1])));
+          }catch(NumberFormatException e) {}
         }
-        
-        try {
-          mirrors.add(new Mirror(mirrorValues[0], Integer.valueOf(mirrorValues[1])));
-        }catch(NumberFormatException e) {}
       }
       else {
         if(!part.endsWith("/")) {

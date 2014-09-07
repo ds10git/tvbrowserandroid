@@ -797,9 +797,17 @@ public class ProgramTableFragment extends Fragment {
     
     RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
     
-    mOldScrollX = getView().findViewById(R.id.horizontal_program_table_scroll).getScrollX();
+    View parent = getView();
     
-    updateView(getActivity().getLayoutInflater(), layout);
+    if(parent != null) {
+      View horizontalScroll = parent.findViewById(R.id.horizontal_program_table_scroll);
+      
+      if(horizontalScroll != null) {
+        mOldScrollX = horizontalScroll.getScrollX();
+    
+        updateView(getActivity().getLayoutInflater(), layout);
+      }
+    }
   }
   
   void updateView(LayoutInflater inflater) {

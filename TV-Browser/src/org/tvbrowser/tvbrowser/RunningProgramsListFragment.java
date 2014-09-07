@@ -230,24 +230,26 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
               Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), projection, null, null, null);
               
               if(c.moveToFirst()) {
-                final View view = getListView().findViewWithTag(programID);
-                
-                if(view != null) {
-                  long startTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-                  long endTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+                try {
+                  final View view = getListView().findViewWithTag(programID);
                   
-                  ArrayList<String> markedColumns = new ArrayList<String>();
-                  
-                  for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
-                    int index = c.getColumnIndex(column);
+                  if(view != null) {
+                    long startTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+                    long endTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
                     
-                    if(index >= 0 && c.getInt(index) == 1) {
-                      markedColumns.add(column);
+                    ArrayList<String> markedColumns = new ArrayList<String>();
+                    
+                    for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
+                      int index = c.getColumnIndex(column);
+                      
+                      if(index >= 0 && c.getInt(index) == 1) {
+                        markedColumns.add(column);
+                      }
                     }
+                    
+                    UiUtils.handleMarkings(getActivity(), null, startTime, endTime, view, IOUtils.getStringArrayFromList(markedColumns), handler);
                   }
-                  
-                  UiUtils.handleMarkings(getActivity(), null, startTime, endTime, view, IOUtils.getStringArrayFromList(markedColumns), handler);
-                }
+                }catch(NullPointerException npe) {}
               }
                             
               c.close();
