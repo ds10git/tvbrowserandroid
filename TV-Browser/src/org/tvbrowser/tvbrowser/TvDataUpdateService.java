@@ -47,6 +47,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
@@ -90,6 +91,8 @@ public class TvDataUpdateService extends Service {
   public static final String TYPE = "TYPE";
   public static final int TV_DATA_TYPE = 1;
   public static final int CHANNEL_TYPE = 2;
+  public static final int REMINDER_DOWN_TYPE = 3;
+  public static final int SYNCHRONIZE_UP_TYPE = 4;
   
   private static final int BASE_LEVEL = 0;
   private static final int MORE_LEVEL = 1;
@@ -214,10 +217,366 @@ public class TvDataUpdateService extends Service {
         else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
           updateChannels();
         }
+        else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == REMINDER_DOWN_TYPE) {
+          startSynchronizeRemindersDown(intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true));
+        }
+        else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == SYNCHRONIZE_UP_TYPE) {
+          if(intent.hasExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA)) {
+            String address = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA);
+            String value = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_VALUE_EXTRA);
+            boolean showInfo = intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true);
+            
+            startSynchronizeUp(showInfo, value, address);
+          }
+        }
       }
     }.start();
         
     return Service.START_NOT_STICKY;
+  }
+  
+  private void startSynchronizeRemindersDown(boolean info) {
+    synchronizeRemindersDown(info);
+    
+    Intent synchronizeRemindersUpDone = new Intent(SettingConstants.REMINDER_DOWN_DONE);
+    LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(synchronizeRemindersUpDone);
+    
+    stopSelf();
+  }
+  
+  private void startSynchronizeUp(boolean info, final String value, final String address) {
+    synchronizeUp(info, value, address);
+    
+    Intent synchronizeUpDone = new Intent(SettingConstants.SYNCHRONIZE_UP_DONE);
+    LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(synchronizeUpDone);
+    
+    stopSelf();
+  }
+  
+  private void synchronizeUp(boolean info, final String value, final String address) {
+    final String CrLf = "\r\n";
+    
+    SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+    
+    String car = pref.getString(SettingConstants.USER_NAME, null);
+    String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+    
+    if(car != null && car.trim().length() > 0 && bicycle != null && bicycle.trim().length() > 0) {
+      String userpass = car.trim() + ":" + bicycle.trim();
+      String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
+      
+      URLConnection conn = null;
+      OutputStream os = null;
+      InputStream is = null;
+  
+      try {
+          URL url = new URL(address);
+          
+          conn = url.openConnection();
+          
+          conn.setRequestProperty ("Authorization", basicAuth);
+          
+          conn.setDoOutput(true);
+          
+          String postData = "";
+          
+          byte[] xmlData = value == null ? getBytesForReminders() : IOUtils.getCompressedData(value.getBytes("UTF-8"));
+          
+          String message1 = "";
+          message1 += "-----------------------------4664151417711" + CrLf;
+          message1 += "Content-Disposition: form-data; name=\"uploadedfile\"; filename=\""+car+".gz\""
+                  + CrLf;
+          message1 += "Content-Type: text/plain" + CrLf;
+          message1 += CrLf;
+  
+          // the image is sent between the messages in the multipart message.
+  
+          String message2 = "";
+          message2 += CrLf + "-----------------------------4664151417711--"
+                  + CrLf;
+  
+          conn.setRequestProperty("Content-Type",
+                  "multipart/form-data; boundary=---------------------------4664151417711");
+          // might not need to specify the content-length when sending chunked
+          // data.
+          conn.setRequestProperty("Content-Length", String.valueOf((message1
+                  .length() + message2.length() + xmlData.length)));
+  
+          Log.d("info8","open os");
+          os = conn.getOutputStream();
+  
+          Log.d("info8",message1);
+          os.write(message1.getBytes());
+          
+          // SEND THE IMAGE
+          int index = 0;
+          int size = 1024;
+          do {
+            Log.d("info8","write:" + index);
+              if ((index + size) > xmlData.length) {
+                  size = xmlData.length - index;
+              }
+              os.write(xmlData, index, size);
+              index += size;
+          } while (index < xmlData.length);
+          
+          Log.d("info8","written:" + index);
+  
+          Log.d("info8",message2);
+          os.write(message2.getBytes());
+          os.flush();
+  
+          Log.d("info8","open is");
+          is = conn.getInputStream();
+  
+          char buff = 512;
+          int len;
+          byte[] data = new byte[buff];
+          do {
+            Log.d("info8","READ");
+              len = is.read(data);
+  
+              if (len > 0) {
+                Log.d("info8",new String(data, 0, len));
+              }
+          } while (len > 0);
+  
+          Log.d("info8","DONE");
+      } catch (Exception e) {
+        /*int response = 0;
+        
+        if(conn != null) {
+          try {
+            response = ((HttpURLConnection)conn).getResponseCode();
+          } catch (IOException e1) {
+            // TODO Auto-generated catch block
+            e1.printStackTrace();
+          }
+        }*/
+        
+          Log.d("info8", "" ,e);
+      } finally {
+        Log.d("info8","Close connection");
+          try {
+              os.close();
+          } catch (Exception e) {
+          }
+          try {
+              is.close();
+          } catch (Exception e) {
+          }
+          try {
+  
+          } catch (Exception e) {
+          }
+      }
+    }
+  }
+  
+  private byte[] getBytesForReminders() {
+    String[] projection = {
+        TvBrowserContentProvider.DATA_KEY_STARTTIME,
+        TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
+        TvBrowserContentProvider.GROUP_KEY_GROUP_ID,
+        TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY
+    };
+    
+    StringBuilder where = new StringBuilder();
+    
+    where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER).append(" OR ").append(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER).append(" ) ") ;
+    
+    Cursor programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+    
+    StringBuilder dat = new StringBuilder();
+    
+    SparseArray<SimpleGroupInfo> groupInfo = new SparseArray<SimpleGroupInfo>();
+    
+    if(programs.getCount() > 0) {
+      programs.moveToPosition(-1);
+      
+      int startTimeColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      int groupKeyColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+      int channelKeyBaseCountryColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY);
+      
+      String[] groupProjection = {
+          TvBrowserContentProvider.KEY_ID,
+          TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID,
+          TvBrowserContentProvider.GROUP_KEY_GROUP_ID
+      };
+      
+      Cursor groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, null, null, null);
+      
+      if(groups.getCount() > 0) {
+        groups.moveToPosition(-1);
+        
+        while(groups.moveToNext()) {
+          int groupKey = groups.getInt(0);
+          String dataServiceID = groups.getString(1);
+          String groupID = groups.getString(2);
+          
+          if(dataServiceID.equals(SettingConstants.EPG_FREE_KEY)) {
+            dataServiceID = "1";
+          }
+          
+          groupInfo.put(groupKey, new SimpleGroupInfo(dataServiceID, groupID));
+        }
+      }
+      
+      groups.close();
+      
+      if(groupInfo.size() > 0) {
+        while(programs.moveToNext()) {
+          int groupID = programs.getInt(groupKeyColumnIndex);
+          long startTime = programs.getLong(startTimeColumnIndex) / 60000;
+          String channelID = programs.getString(1);
+          String baseCountry = programs.getString(channelKeyBaseCountryColumnIndex);
+          
+          SimpleGroupInfo info = groupInfo.get(groupID);
+          
+          dat.append(startTime).append(";").append(info.mDataServiceID).append(":").append(info.mGroupID).append(":").append(baseCountry).append(":").append(channelID).append("\n");
+        }
+      }
+    }
+    
+    programs.close();
+    
+    return IOUtils.getCompressedData(dat.toString().getBytes());
+  }
+  
+  private void synchronizeRemindersDown(boolean info) {
+    if(!SettingConstants.UPDATING_REMINDERS) {
+      SettingConstants.UPDATING_REMINDERS = true;
+      
+      URL documentUrl;
+      
+      try {
+        documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=reminderFromDesktop");
+        URLConnection connection = documentUrl.openConnection();
+        
+        SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+        
+        String car = pref.getString(SettingConstants.USER_NAME, null);
+        String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+        
+        if(car != null && bicycle != null && car.trim().length() > 0 && bicycle.trim().length() > 0) {
+          String userpass = car + ":" + bicycle;
+          String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
+          
+          connection.setRequestProperty ("Authorization", basicAuth);
+          
+          BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+          
+          String reminder = null;
+          
+          ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+          ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
+          
+          while((reminder = read.readLine()) != null) {
+            if(reminder != null && reminder.contains(";") && reminder.contains(":")) {
+              String[] parts = reminder.split(";");
+              
+              long time = Long.parseLong(parts[0]) * 60000;
+              String[] idParts = parts[1].split(":");
+            
+              if(idParts[0].equals("1")) {
+                String dataService = "EPG_FREE";
+                
+                String where = " ( " +TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = \"" + dataService + "\" ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + idParts[1] + "\" ) ";
+                
+                Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
+                
+                if(group.moveToFirst()) {
+                  int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                  
+                  where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + idParts[2] + "\' ) ";
+                  
+                  Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
+                  
+                  if(channel.moveToFirst()) {
+                    int channelId = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                    
+                    where = " ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelId + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time + " ) " + " AND ( NOT " + TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER + " ) ";
+                    
+                    Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
+                    
+                    if(program.moveToFirst()) {
+                      boolean marked = program.getInt(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER)) == 1;
+                                                
+                      if(!marked) {
+                        ContentValues values = new ContentValues();
+                        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, true);
+                        
+                        long programID = program.getLong(program.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                        
+                        ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID));
+                        opBuilder.withValues(values);
+                        
+                        updateValuesList.add(opBuilder.build());
+                        
+                        Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
+                        intent.putExtra(SettingConstants.MARKINGS_ID, programID);
+                        
+                        markingIntentList.add(intent);
+                                                    
+                        UiUtils.addReminder(TvDataUpdateService.this, programID, time, TvBrowser.class);
+                      }
+                    }
+                    
+                    program.close();
+                  }
+                  
+                  channel.close();
+                }
+                
+                group.close();
+              }
+            }
+          }
+          
+          if(!updateValuesList.isEmpty()) {
+            try {
+              getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+              
+              LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(TvDataUpdateService.this);
+              
+              for(Intent markUpdate : markingIntentList) {
+                localBroadcast.sendBroadcast(markUpdate);
+              }
+              
+              if(info) {
+                mHandler.post(new Runnable() {
+                  @Override
+                  public void run() {
+                    Toast.makeText(TvDataUpdateService.this, R.string.synchronize_reminder_down_done, Toast.LENGTH_SHORT).show();
+                  }
+                });
+              }
+            } catch (RemoteException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+            } catch (OperationApplicationException e) {
+              // TODO Auto-generated catch block
+              e.printStackTrace();
+            }
+          }
+          else {
+            if(info) {
+              mHandler.post(new Runnable() {
+                @Override
+                public void run() {
+                  Toast.makeText(TvDataUpdateService.this, R.string.synchronize_reminder_down_nothing, Toast.LENGTH_SHORT).show();
+                }
+              });
+            }
+          }
+        }
+      }catch(Exception e) {
+        Log.d("info", "", e);
+        
+      }
+      
+      SettingConstants.UPDATING_REMINDERS = false;
+    }
   }
   
   private void syncFavorites() {
@@ -1092,6 +1451,17 @@ public class TvDataUpdateService extends Service {
     }
     
     syncFavorites();
+    
+    boolean fromRemider = PrefUtils.getBooleanValue(R.string.PREF_SYNC_REMINDERS_FROM_DESKTOP, R.bool.pref_sync_reminders_from_desktop_default);
+    boolean toRemider = PrefUtils.getBooleanValue(R.string.PREF_SYNC_REMINDERS_TO_DESKTOP, R.bool.pref_sync_reminders_to_desktop_default);
+    
+    if(fromRemider) {
+      synchronizeRemindersDown(false);
+    }
+    
+    if(toRemider) {
+      synchronizeUp(false, null, "http://android.tvbrowser.org/data/scripts/syncUp.php?type=reminderFromApp");
+    }
     
     Intent inform = new Intent(SettingConstants.DATA_UPDATE_DONE);
     

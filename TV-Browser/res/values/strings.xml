@@ -463,6 +463,8 @@
     <string name="pref_prog_table_delayed">Delay loading until opening</string>
     <string name="pref_prog_table_delayed_summary">Loading of program table is delayed until it is opened for the first time. (Speeds up startup if not started on program table tab.)</string>
     <string name="pref_category_calendar_export">Calendar export</string>
+    <string name="synchronize_reminder_down_done">Successful received Reminders</string>
+    <string name="synchronize_reminder_down_nothing">No Reminders to update where received</string>
     <string name="pref_export_description_type_title">Description type</string>
     <string name="pref_export_category_info">Exported values</string>
     <string-array name="pref_export_description_type_entries">
