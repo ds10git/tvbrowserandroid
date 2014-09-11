@@ -49,6 +49,8 @@ public class SettingConstants {
   public static final String FAVORITES_CHANGED = "org.tvbrowser.FAVORTES_CHANGED";
   public static final String DONT_WANT_TO_SEE_CHANGED = "org.tvbrowser.DONT_WANT_TO_SEE_CHANGED";
   public static final String DATA_UPDATE_DONE = "org.tvbrowser.DATA_UPDATE_DONE";
+  public static final String REMINDER_DOWN_DONE = "org.tvbrowser.REMINDER_DOWN_DONE";
+  public static final String SYNCHRONIZE_UP_DONE = "org.tvbrowser.SYNCHRONIZE_UP_DONE";
   public static final String CHANNEL_UPDATE_DONE = "org.tvbrowser.CHANNEL_UPDATE_DONE";
   public static final String REFRESH_VIEWS = "org.tvbrowser.REFRESH_VIEWS";
   public static final String UPDATE_TIME_BUTTONS = "org.tvbrowser.UPDATE_TIME_BUTTONS";
@@ -61,6 +63,10 @@ public class SettingConstants {
   public static final String START_TIME_EXTRA = "START_TIME_EXTRA";
   public static final String SCROLL_POSITION_EXTRA = "SCROLL_POSITION_EXTRA";
   public static final String TIME_DATA_UPDATE_EXTRA = "TIME_DATA_UPDATE_EXTRA";
+  
+  public static final String SYNCHRONIZE_SHOW_INFO_EXTRA = "SYNCHRONIZE_SHOW_INFO_EXTRA";
+  public static final String SYNCHRONIZE_UP_URL_EXTRA = "SYNCHRONIZE_UP_URL_EXTRA";
+  public static final String SYNCHRONIZE_UP_VALUE_EXTRA = "SYNCHRONIZE_UP_STRING_EXTRA";
   
   public static final String SKU_ONE_STAR_DONATION = "one_star_donation";
   public static final String SKU_TWO_STAR_DONATION = "two_star_donation";

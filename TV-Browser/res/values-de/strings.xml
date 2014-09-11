@@ -451,6 +451,8 @@
     <string name="pref_prog_table_delayed">Laden verzögern</string>
     <string name="pref_prog_table_delayed_summary">Das Laden der Programmtabelle wird verzögert, bis zum ersten Öffnen dieser. (Beschleunigt den App-Start, wenn nicht der Tab der Programmtabelle zum Start ausgewählt.)</string>
     <string name="pref_category_calendar_export">Kalenderexport</string>
+    <string name="synchronize_reminder_down_done">Erinnerungen erfolgreich empfangen</string>
+    <string name="synchronize_reminder_down_nothing">Es gab keine Erinnerungen zur Aktualisierung</string>
     <string name="pref_export_category_info">Zu übertragende Informationen</string>
     <string name="pref_export_description_type_title">Beschreibungstyp</string>
     <string-array name="pref_export_description_type_entries">

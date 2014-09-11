@@ -24,10 +24,12 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.util.Log;
 
 public class UpdateAlarmValue extends BroadcastReceiver {
   @Override
   public void onReceive(final Context context, Intent intent) {
+    Log.d("info44", "hier");
     if(intent != null && intent.getAction() != null && (intent.getAction().equals("android.intent.action.BOOT_COMPLETED") || intent.getAction().equals("android.intent.action.QUICKBOOT_POWERON"))) {
       SettingConstants.setReminderPaused(context, false);
     }
