@@ -406,4 +406,7 @@
     
 	    <string name="PREF_RATING_DONATION_INFO_SHOWN">PREF_RATING_DONATION_INFO_SHOWN</string>
 	    <item name="pref_rating_donation_info_shown_default" type="bool" format="boolean">false</item>
+	    
+	    <string name="AUTO_UPDATE_CURRENT_START_TIME">AUTO_UPDATE_CURRENT_START_TIME</string>
+	    <item name="auto_update_current_start_time_default" type="integer" format="integer">0</item>
 </resources>

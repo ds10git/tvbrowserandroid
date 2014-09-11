@@ -254,36 +254,51 @@ public class IOUtils {
     if(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("2")) {
       int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default)) + 1;
       int time = PrefUtils.getIntValue(R.string.PREF_AUTO_UPDATE_START_TIME, R.integer.pref_auto_update_start_time_default);
-      
-      long lastDate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, R.integer.last_data_update_default);
-      
-      if(lastDate == 0) {
-        lastDate = (System.currentTimeMillis() - (24 * 60 * 60000));
+      long current = PrefUtils.getLongValue(R.string.AUTO_UPDATE_CURRENT_START_TIME, R.integer.auto_update_current_start_time_default);
+
+      if(current < System.currentTimeMillis()) {
+        long lastDate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, R.integer.last_data_update_default);
+             
+        if(lastDate == 0) {
+          lastDate = (System.currentTimeMillis() - (24 * 60 * 60000));
+          
+          Editor edit = pref.edit();
+          edit.putLong(context.getString(R.string.LAST_DATA_UPDATE), lastDate);
+          edit.commit();
+        }
         
-        Editor edit = pref.edit();
-        edit.putLong(context.getString(R.string.LAST_DATA_UPDATE), lastDate);
-        edit.commit();
+        time += ((int)(Math.random() * 6 * 60));
+        
+        Calendar last = Calendar.getInstance();
+        last.setTimeInMillis(lastDate);
+        
+        last.add(Calendar.DAY_OF_YEAR, days);
+        last.set(Calendar.HOUR_OF_DAY, time/60);
+        last.set(Calendar.MINUTE, time%60);
+        last.set(Calendar.SECOND, 0);
+        last.set(Calendar.MILLISECOND, 0);
+        
+        if(last.getTimeInMillis() < System.currentTimeMillis()) {
+          last.set(Calendar.DAY_OF_YEAR, Calendar.getInstance().get(Calendar.DAY_OF_YEAR));
+          
+          if(last.get(Calendar.YEAR) < Calendar.getInstance().get(Calendar.YEAR)) {
+            last.set(Calendar.YEAR, Calendar.getInstance().get(Calendar.YEAR));
+          }
+        }
+        
+        current = last.getTimeInMillis();
+        
+        if(current < System.currentTimeMillis()) {
+          current += (24 * 60 * 60000);
+        }
+        
+        Editor currentTime = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        currentTime.putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), current);
+        currentTime.commit();
       }
       
-      time += ((int)(Math.random() * 6 * 60));
-      
-      Calendar last = Calendar.getInstance();
-      last.setTimeInMillis(lastDate);
-      
-      last.add(Calendar.DAY_OF_YEAR, days);
-      last.set(Calendar.HOUR_OF_DAY, time/60);
-      last.set(Calendar.MINUTE, time%60);
-      last.set(Calendar.SECOND, 0);
-      last.set(Calendar.MILLISECOND, 0);
-      
-      long updateTime = last.getTimeInMillis();
-      
-      if(updateTime < System.currentTimeMillis()) {
-        updateTime += (24 * 60 * 60000);
-      }
-      
-      Log.d("info", "xxx " + new Date(updateTime));
-      IOUtils.setDataUpdateTime(context, updateTime, pref);
+      Log.d("info", "xxx " + new Date(current));
+      IOUtils.setDataUpdateTime(context, current, pref);
     }
   }
   

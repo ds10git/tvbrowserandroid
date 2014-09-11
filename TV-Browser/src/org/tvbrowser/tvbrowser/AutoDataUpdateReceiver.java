@@ -117,10 +117,20 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
           edit.putLong(context.getString(R.string.LAST_DATA_UPDATE), System.currentTimeMillis());
           edit.commit();*/
         }
+        else if(!isConnected && timeUpdate) {
+          IOUtils.removeDataUpdateTime(context, pref);
+          
+          long current = System.currentTimeMillis() + (30 * 60000);
+          
+          Editor currentTime = PreferenceManager.getDefaultSharedPreferences(context).edit();
+          currentTime.putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), current);
+          currentTime.commit();
+          
+          IOUtils.setDataUpdateTime(context, current, pref);
+        }
       }
       
       IOUtils.handleDataUpdatePreferences(context);
     }
   }
-
 }

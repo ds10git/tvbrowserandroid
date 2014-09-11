@@ -19,6 +19,8 @@ package org.tvbrowser.tvbrowser;
 import java.io.File;
 import java.io.IOException;
 import java.io.RandomAccessFile;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 import org.tvbrowser.settings.PrefUtils;
 
@@ -34,13 +36,14 @@ public class Logging {
   public static final int REMINDER_TYPE = 1;
   
   private static RandomAccessFile DATA_UPDATE_LOG;
+  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
   
   public synchronized static void log(String tag, String message, int type, Context context) {
     RandomAccessFile log = getLogFileForType(type, context);
     
     if(log != null) {
       try {
-        log.writeBytes(message + "\n");
+        log.writeBytes(DATE_FORMAT.format(new Date(System.currentTimeMillis())) + ": " + message + "\n");
         
         if(type == REMINDER_TYPE) {
           Editor edit = PreferenceManager.getDefaultSharedPreferences(context).edit();
