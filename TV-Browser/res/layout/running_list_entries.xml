@@ -6,8 +6,8 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:id="@+id/running_layout"
-    android:paddingTop="3dp"
-    android:paddingBottom="3dp"
+    android:layout_marginTop="3dp"
+    android:layout_marginBottom="3dp"
     >
     <TextView android:id="@+id/channelLabel"
         android:textSize="@dimen/title_font_size"
@@ -30,7 +30,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_below="@id/channelLabel"
-        android:paddingRight="5sp"
+        android:layout_marginRight="5sp"
 		android:layout_alignParentLeft="true"
         />
     <TextView android:id="@+id/titleLabel"

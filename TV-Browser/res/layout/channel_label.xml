@@ -9,7 +9,7 @@
     android:textStyle="bold"
     android:background="#787878"
     android:drawablePadding="2dp"
-    android:paddingLeft="2dp"
+    android:layout_marginLeft="2dp"
      >
     
 

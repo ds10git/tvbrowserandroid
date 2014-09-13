@@ -11,34 +11,34 @@
 		    android:layout_height="wrap_content"
 		    android:layout_width="match_parent"
 		    android:textSize="18sp"	    
-		    android:paddingLeft="5dp"
-		    android:paddingRight="5dp"
-		    android:paddingBottom="5dp"/>
+		    android:layout_marginLeft="5dp"
+		    android:layout_marginRight="5dp"
+		    android:layout_marginBottom="5dp"/>
 		<Button 
 		    android:id="@+id/rating_button"
 		    android:layout_height="wrap_content"
 		    android:layout_width="match_parent"
 		    android:text="@string/rating_button"
 		    android:textSize="22sp"
-		    android:paddingLeft="5dp"
-		    android:paddingRight="5dp"
+		    android:layout_marginLeft="5dp"
+		    android:layout_marginRight="5dp"
 		    android:layout_marginBottom="10dp"/>
 		<TextView 
 		    android:id="@+id/donation_info"
 		    android:textSize="18sp"
 		    android:layout_height="wrap_content"
 		    android:layout_width="match_parent"
-		    android:paddingLeft="5dp"
-		    android:paddingRight="5dp"
-		    android:paddingBottom="5dp"/>
+		    android:layout_marginLeft="5dp"
+		    android:layout_marginRight="5dp"
+		    android:layout_marginBottom="5dp"/>
 		<Button 
 		    android:id="@+id/donation_button"
 		    android:layout_height="wrap_content"
 		    android:layout_width="match_parent"
 		    android:text="@string/donate_button"
 		    android:textSize="22sp"
-		    android:paddingLeft="5dp"
-		    android:paddingRight="5dp"
+		    android:layout_marginLeft="5dp"
+		    android:layout_marginRight="5dp"
 		    android:layout_marginBottom="10dp"/>
 		<Button 
 		    android:id="@+id/rating_donation_cancel"
@@ -46,8 +46,8 @@
 		    android:layout_width="match_parent"
 		    android:text="@string/not_now"
 		    android:textSize="16sp"
-		    android:paddingLeft="5dp"
-		    android:paddingRight="5dp"
+		    android:layout_marginLeft="5dp"
+		    android:layout_marginRight="5dp"
 		    android:layout_marginBottom="5dp"/>
     </LinearLayout>
 </ScrollView>

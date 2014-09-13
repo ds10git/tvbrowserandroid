@@ -56,7 +56,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-public class FavoritesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
+public class FavoritesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface {
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   private SimpleCursorAdapter mProgramListAdapter;
   private ArrayAdapter<Favorite> mFavoriteAdapter;
@@ -264,7 +264,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         TvBrowserContentProvider.DATA_KEY_CATEGORIES
     };
     
-    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity());
+    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity(),this);
     
     // Create a new Adapter an bind it to the List View
     mProgramListAdapter = new OrientationHandlingCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
@@ -530,5 +530,10 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   
   public void updateProgramsList() {
     mProgramListAdapter.notifyDataSetChanged();
+  }
+
+  @Override
+  public boolean showDate() {
+    return true;
   }
 }

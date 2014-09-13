@@ -3,8 +3,8 @@
     android:layout_width="200dp"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingRight="2dp"
-    android:paddingLeft="2dp" >
+    android:layout_marginRight="2dp"
+    android:layout_marginLeft="2dp" >
     
 
 </LinearLayout>

@@ -6,7 +6,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/dont_want_to_see_edit_entry"
-        android:paddingRight="5dp"/>
+        android:layout_marginRight="5dp"/>
 	<EditText android:id="@+id/dont_want_to_see_value" 
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"

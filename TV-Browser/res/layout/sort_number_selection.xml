@@ -9,8 +9,8 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="20sp"
-        android:paddingBottom="5dp"
-        android:paddingTop="5dp"
+        android:layout_marginBottom="5dp"
+        android:layout_marginTop="5dp"
         android:gravity="center_horizontal"
         />
 	<NumberPicker
@@ -20,8 +20,8 @@
 	</NumberPicker>
 	<TextView android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:paddingTop="5dp"
-	    android:paddingBottom="5dp"
+	    android:layout_marginTop="5dp"
+	    android:layout_marginBottom="5dp"
 	    android:text="@string/sort_enter"/>
 	<EditText android:id="@+id/sort_entered_number"
 	    android:layout_width="match_parent"

@@ -6,7 +6,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="@string/title"
-        android:paddingRight="5dp"
+        android:layout_marginRight="5dp"
         android:layout_alignBaseline="@+id/search_repetition_title"/>
 	<EditText android:id="@id/search_repetition_title" 
 	    android:layout_width="wrap_content"
@@ -17,7 +17,7 @@
     <TextView android:id="@+id/search_repetition_episode_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:paddingRight="5dp"
+        android:layout_marginRight="5dp"
         android:text="@string/episode"
         android:layout_alignBaseline="@+id/search_repetition_episode"
         android:layout_below="@id/search_repetition_title_label"/>

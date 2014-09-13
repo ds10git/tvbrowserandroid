@@ -145,4 +145,8 @@
 		        android:title="@string/action_send_reminder_log"/>
         </menu>
     </item>
+    <item android:id="@+id/action_reset"
+	    android:orderInCategory="100"
+	    android:showAsAction="never"
+	    android:title="Reset data update date"/>
 </menu>
