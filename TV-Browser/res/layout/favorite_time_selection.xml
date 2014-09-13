@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="5dp" >
+    android:layout_margin="5dp" >
     <TextView
         android:id="@+id/favorite_time_selection_from_label"
         android:layout_width="wrap_content"
@@ -10,7 +10,7 @@
         android:textSize="@dimen/edit_favorite_font_size"
         android:layout_alignParentLeft="true"
         android:text="@string/favorite_time_from"
-        android:paddingRight="5dp"/>
+        android:layout_marginRight="5dp"/>
     <TimePicker
         android:id="@+id/favorite_time_selection_from"
         android:layout_width="wrap_content"
@@ -25,7 +25,7 @@
         android:textSize="@dimen/edit_favorite_font_size"
         android:text="@string/favorite_time_to_big"
         android:layout_marginTop="15dp"
-        android:paddingRight="5dp"
+        android:layout_marginRight="5dp"
         android:layout_alignParentLeft="true"
         android:layout_below="@+id/favorite_time_selection_from"/>
     <TimePicker

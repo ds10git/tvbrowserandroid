@@ -36,14 +36,14 @@
 	    <RelativeLayout 
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
-		    android:padding="5dp" >
+		    android:layout_margin="5dp" >
 			<TextView
 		        android:id="@+id/favorite_name_label" 
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:text="@string/favorite_name"
 		        android:textSize="@dimen/edit_favorite_font_size"
-		        android:paddingRight="5dp"
+		        android:layout_marginRight="5dp"
 		        android:layout_alignBaseline="@+id/favorite_name"
 		        android:layout_marginBottom="5dp"
 		        />
@@ -62,7 +62,7 @@
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:text="@string/favorite_search"
-		        android:paddingRight="5dp"
+		        android:layout_marginRight="5dp"
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:layout_alignBaseline="@+id/favorite_search_value"
 		        android:layout_below="@+id/favorite_name_label"/>
@@ -89,7 +89,7 @@
 		        android:id="@+id/favorite_time_restriction_label"
 		        android:layout_height="wrap_content"
 		        android:layout_width="wrap_content"
-		        android:paddingRight="5dp"
+		        android:layout_marginRight="5dp"
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:layout_below="@+id/favorite_only_title"
 		        android:text="@string/favorite_time"
@@ -109,7 +109,7 @@
 		    <TextView
 		        android:id="@+id/favorite_day_restriction_label"
 		        android:layout_height="wrap_content"
-		        android:paddingRight="5dp"
+		        android:layout_marginRight="5dp"
 		        android:layout_width="wrap_content"
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:text="@string/favorite_days"
@@ -132,7 +132,7 @@
 		        android:id="@+id/favorite_channel_restriction_label"
 		        android:layout_height="wrap_content"
 		        android:layout_width="wrap_content"
-		        android:paddingRight="5dp"
+		        android:layout_marginRight="5dp"
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:text="@string/favorite_channels"
 		        android:layout_below="@+id/favorite_day_restriction_label"
@@ -154,7 +154,7 @@
 		        android:id="@+id/favorite_exclusion_label"
 		        android:layout_height="wrap_content"
 		        android:layout_width="wrap_content"
-		        android:paddingRight="5dp"
+		        android:layout_marginRight="5dp"
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:text="@string/favorite_exclusion"
 		        android:layout_below="@+id/favorite_channel_restriction"

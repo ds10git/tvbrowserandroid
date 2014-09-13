@@ -9,4 +9,10 @@
 	<CheckBoxPreference android:key="@string/SHOW_SORT_NUMBER_IN_PROGRAMS_LIST" 
 		android:title="@string/show_sort_number"
 		android:defaultValue="@bool/show_sort_number_in_programs_list_default"/>
+	<ListPreference android:key="@string/SHOW_DATE_FOR_PROGRAMS_LIST"
+		android:title="@string/pref_programs_list_show_date"
+		android:defaultValue="@string/show_date_for_programs_list_default"
+		android:entries="@array/pref_programs_list_show_date_entries"
+		android:entryValues="@array/pref_programs_list_show_date_values"
+		android:summary="%s"/>
 </PreferenceScreen>

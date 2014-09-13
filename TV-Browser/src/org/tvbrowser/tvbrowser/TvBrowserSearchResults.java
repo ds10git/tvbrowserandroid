@@ -45,7 +45,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-public class TvBrowserSearchResults extends ListActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
+public class TvBrowserSearchResults extends ListActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface {
   private SimpleCursorAdapter mProgramsListAdapter;
 
   private static String QUERY_EXTRA_KEY = "QUERY_EXTRA_KEY";
@@ -83,7 +83,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     
     // Create a new Adapter an bind it to the List View
     
-    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(this);
+    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(this,this);
     mProgramsListAdapter = new OrientationHandlingCursorAdapter(this,/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
         projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0,false);
     mProgramsListAdapter.setViewBinder(mViewAndClickHandler);
@@ -294,5 +294,10 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     SettingConstants.ORIENTATION = newConfig.orientation;
     
     //UiUtils.handleConfigurationChange(new Handler(), mProgramsListAdapter, newConfig);
+  }
+
+  @Override
+  public boolean showDate() {
+    return true;
   }
 }

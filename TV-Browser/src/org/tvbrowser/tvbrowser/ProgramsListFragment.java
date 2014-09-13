@@ -60,7 +60,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class ProgramsListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
+public class ProgramsListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface {
   private SimpleCursorAdapter mProgramListAdapter;
   
   private Handler handler = new Handler();
@@ -87,7 +87,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
   private int mScrollPos;
   
   private ListView mListView;
-  
+    
   @Override
   public void onResume() {
     super.onResume();
@@ -165,7 +165,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
   public void setDay(long dayStart) {
     if(dayStart >= 0) {
       mDayStart = dayStart;
-      mDayClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">=" + dayStart + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + (dayStart + (24 * 60 * 60000)) + " ) ";
+      mDayClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">=" + dayStart + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + (dayStart + (24 * 60 * 60000)) + " ) ";
     }
     else {
       mDayClause = "";
@@ -698,7 +698,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
         TvBrowserContentProvider.DATA_KEY_CATEGORIES
     };
     
-    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity());
+    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity(),this);
     
     // Create a new Adapter an bind it to the List View
     mProgramListAdapter = new OrientationHandlingCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
@@ -796,7 +796,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
   @Override
   public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
     mProgramListAdapter.swapCursor(c);
-    
+        
     if(mScrollPos == -1) {
       scrollToTime();
     }
@@ -884,5 +884,19 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
     if(mChannelUpdateReceiver != null && getActivity() != null && mKeepRunning) {
       mChannelUpdateReceiver.onReceive(getActivity(), null);
     }
+  }
+
+  @Override
+  public boolean showDate() {
+    String value = PrefUtils.getStringValue(R.string.SHOW_DATE_FOR_PROGRAMS_LIST, R.string.show_date_for_programs_list_default);
+    
+    boolean returnValue = true;
+    
+    switch(Integer.parseInt(value)) {
+      case 1: returnValue = (mDayStart == 0);break;
+      case 2: returnValue = false;break;
+    }
+    
+    return returnValue;
   }
 }

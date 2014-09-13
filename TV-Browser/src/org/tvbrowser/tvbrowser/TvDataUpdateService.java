@@ -1443,6 +1443,7 @@ public class TvDataUpdateService extends Service {
   }
     
   private void finishUpdate(NotificationManager notification, boolean updateFavorites) {
+    doLog("FINISH DATA UPDATE");
     TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
     getApplicationContext().getContentResolver().notifyChange(TvBrowserContentProvider.CONTENT_URI_DATA, null);
   
@@ -1480,7 +1481,7 @@ public class TvDataUpdateService extends Service {
       }
     });
     
-    Log.d("info1", "Unsuccessful downloads: " + String.valueOf(mUnsuccessfulDownloads));
+    doLog("Unsuccessful downloads: " + String.valueOf(mUnsuccessfulDownloads));
     
     Logging.closeLogForDataUpdate();
     

@@ -473,4 +473,10 @@
     </string-array>
     <string name="error_no_calendar_app_title">No calendar app found</string>
     <string name="error_no_calendar_app_message">No calendar app was found on your device.</string>
+    <string name="pref_programs_list_show_date">Show date for programs</string>
+    <string-array name="pref_programs_list_show_date_entries">
+        <item>Always for all programs</item>
+        <item>Only for all programs if all data is displayed</item>
+        <item>Never for all programs</item>
+    </string-array>
 </resources>

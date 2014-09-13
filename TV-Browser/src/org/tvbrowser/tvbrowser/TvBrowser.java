@@ -856,7 +856,7 @@ public class TvBrowser extends FragmentActivity implements
             
             String car = pref.getString(SettingConstants.USER_NAME, null);
             String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
-            
+            Log.d("info", car + " "+ bicycle);
             if(car != null && bicycle != null) {
               String userpass = car + ":" + bicycle;
               String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
@@ -2759,6 +2759,13 @@ public class TvBrowser extends FragmentActivity implements
                                         break;
       case R.id.action_scroll_now:scrollToTime(0);break;
       case R.id.action_filter_channels:filterChannels();break;
+      case R.id.action_reset: {
+        Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+        edit.putLong(getString(R.string.LAST_DATA_UPDATE), 0);
+        edit.commit();
+        
+        break;
+      }
     }
     
     for(int i = 0; i < SCROLL_IDS.length; i++) {
@@ -2911,6 +2918,8 @@ public class TvBrowser extends FragmentActivity implements
     
     mUpdateItem = menu.findItem(R.id.action_update);
     mFilterItem = menu.findItem(R.id.action_filter_channels);
+    
+    menu.findItem(R.id.action_reset).setVisible(false);
     
    // menu.findItem(R.id.action_synchronize_dont_want_to_see).setVisible(false);
     menu.findItem(R.id.action_synchronize_favorites).setVisible(false);

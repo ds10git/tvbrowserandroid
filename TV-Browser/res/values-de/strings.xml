@@ -461,4 +461,10 @@
     </string-array>
     <string name="error_no_calendar_app_title">Keine Kalender-App gefunden</string>
     <string name="error_no_calendar_app_message">Auf Ihrem Gerät konnte keine Kalender-App gefunden werden.</string>
+    <string name="pref_programs_list_show_date">Datum für Sendungen anzeigen</string>
+    <string-array name="pref_programs_list_show_date_entries">
+        <item>Immer für alle Sendungen</item>
+        <item>Nur für alle Sendungen, wenn alle Daten angezeigt werden</item>
+        <item>Niemals für alle Sendungen</item>
+    </string-array>
 </resources>

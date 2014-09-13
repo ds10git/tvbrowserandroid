@@ -2,14 +2,14 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:padding="5dp" >
+    android:layout_margin="5dp" >
     <org.tvbrowser.view.ColorView
     	android:id="@+id/color_pref_color_view"
     	android:layout_width="130dp"
     	android:layout_height="wrap_content"
     	android:layout_alignParentLeft="true"
     	android:layout_alignParentTop="true"
-    	android:padding="5dp"
+    	android:layout_margin="5dp"
     	android:layout_alignBottom="@+id/color_pref_blue1"/>
     <Button 
         android:id="@+id/color_pref_reset"
@@ -23,7 +23,7 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/color_pref_color_view"
         android:layout_alignBottom="@+id/color_pref_red1"
-        android:paddingLeft="10dp"
+        android:layout_marginLeft="10dp"
         android:text="@string/pref_marking_color_red"/>
     <TextView
         android:id="@+id/color_pref_green_label"
@@ -31,7 +31,7 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/color_pref_color_view"
         android:layout_alignBottom="@+id/color_pref_green1"
-        android:paddingLeft="10dp"
+        android:layout_marginLeft="10dp"
         android:text="@string/pref_marking_color_green"/>
     <TextView
         android:id="@+id/color_pref_blue_label"
@@ -39,7 +39,7 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/color_pref_color_view"
         android:layout_alignBottom="@+id/color_pref_blue1"
-        android:paddingLeft="10dp"
+        android:layout_marginLeft="10dp"
         android:text="@string/pref_marking_color_blue"/>
     <TextView
         android:id="@+id/color_pref_alpha_label"
@@ -47,8 +47,8 @@
         android:layout_height="wrap_content"
         android:layout_toRightOf="@+id/color_pref_color_view"
         android:layout_alignBottom="@+id/color_pref_alpha1"
-        android:paddingLeft="10dp"
-		android:paddingRight="10dp"
+        android:layout_marginLeft="10dp"
+		android:layout_marginRight="10dp"
         android:text="@string/pref_marking_color_alpha"/>
     <SeekBar
         android:id="@+id/color_pref_red1"

@@ -8,8 +8,8 @@
      android:orientation="vertical"
      android:layout_alignParentLeft="true"
      android:layout_centerVertical="true"
-     android:paddingTop="2dp"
-     android:paddingBottom="2dp">
+     android:layout_marginTop="2dp"
+     android:layout_marginBottom="2dp">
      <ImageView 
      	android:id="@+id/running_list_channel_logo"
     	android:layout_width="100dp"
@@ -29,12 +29,12 @@
         android:layout_width="100dp"
         android:layout_height="fill_parent"
         android:textSize="@dimen/title_font_size"
-        android:paddingRight="5dp"
+        android:layout_marginRight="5dp"
         android:layout_alignParentLeft="true"
         android:layout_centerVertical="true"
         android:gravity="center_horizontal"
-	    android:paddingTop="3dp"
-	    android:paddingBottom="3dp"
+	    android:layout_marginTop="3dp"
+	    android:layout_marginBottom="3dp"
         />-->
     <RelativeLayout android:id="@+id/running_compact_previous"
         android:layout_width="match_parent"
@@ -45,7 +45,7 @@
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/title_font_size"
-		    android:paddingRight="5dp"
+		    android:layout_marginRight="5dp"
 		    android:layout_alignParentLeft="true"
 		    android:layout_alignParentTop="true"/>
 		<TextView 
@@ -53,7 +53,7 @@
 		    android:layout_width="wrap_content"
 		    android:layout_height="match_parent"
 		    android:textSize="@dimen/title_font_size"
-		    android:paddingRight="2dp"
+		    android:layout_marginRight="2dp"
 		    android:layout_toRightOf="@id/running_compact_previous_start"
 		    android:layout_alignParentTop="true"/>
 		<TextView 
@@ -62,7 +62,7 @@
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/info_font_size"
 		    android:textStyle="normal"
-		    android:paddingRight="2dp"
+		    android:layout_marginRight="2dp"
 		    android:layout_toRightOf="@id/running_compact_previous_start"
 		    android:layout_below="@id/running_compact_previous_title"
 	        />
@@ -72,7 +72,7 @@
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/episode_font_size"
 		    android:textStyle="italic"
-		    android:paddingRight="2dp"
+		    android:layout_marginRight="2dp"
 		    android:layout_toRightOf="@id/running_compact_previous_start"
 		    android:layout_below="@id/running_compact_previous_infos"
 	        />
@@ -89,7 +89,7 @@
 		    android:layout_height="wrap_content"
 		    android:textStyle="bold"
 		    android:textSize="@dimen/title_font_size"
-		    android:paddingRight="5dp"
+		    android:layout_marginRight="5dp"
 		    android:layout_alignParentLeft="true"
 		    android:layout_alignParentTop="true"
 		    />
@@ -99,7 +99,7 @@
 		    android:layout_height="match_parent"
 		    android:textStyle="bold"
 		    android:textSize="@dimen/title_font_size"
-		    android:paddingRight="2dp"
+		    android:layout_marginRight="2dp"
 		    android:layout_toRightOf="@id/running_compact_now_start"
 		    android:layout_alignParentTop="true"
 			/>
@@ -109,7 +109,7 @@
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/info_font_size"
 		    android:textStyle="normal"
-		    android:paddingRight="2dp"
+		    android:layout_marginRight="2dp"
 		    android:layout_toRightOf="@id/running_compact_now_start"
 		    android:layout_below="@id/running_compact_now_title"
 	        />
@@ -119,7 +119,7 @@
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/episode_font_size"
 		    android:textStyle="italic"
-		    android:paddingRight="2dp"
+		    android:layout_marginRight="2dp"
 		    android:layout_toRightOf="@id/running_compact_now_start"
 		    android:layout_below="@id/running_compact_now_infos"
 		    />
@@ -135,7 +135,7 @@
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/title_font_size"
-		    android:paddingRight="5dp"
+		    android:layout_marginRight="5dp"
 		    android:layout_alignParentLeft="true"
 		    android:layout_alignParentTop="true"
 		    />
@@ -144,7 +144,7 @@
 		    android:layout_width="wrap_content"
 		    android:layout_height="match_parent"
 		    android:textSize="@dimen/title_font_size"
-		    android:paddingRight="2dp"
+		    android:layout_marginRight="2dp"
 			android:layout_alignParentTop="true"
 			android:layout_toRightOf="@id/running_compact_next_start"
 			/>
@@ -154,7 +154,7 @@
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/info_font_size"
 		    android:textStyle="normal"
-		    android:paddingRight="2dp"
+		    android:layout_marginRight="2dp"
 		    android:layout_toRightOf="@id/running_compact_next_start"
 		    android:layout_below="@id/running_compact_next_title"
 	        />
@@ -164,7 +164,7 @@
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/episode_font_size"
 		    android:textStyle="italic"
-		    android:paddingRight="2dp"
+		    android:layout_marginRight="2dp"
 		    android:layout_toRightOf="@id/running_compact_next_start"
 		    android:layout_below="@id/running_compact_next_infos"
 		    />

@@ -29,7 +29,6 @@ import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.preference.PreferenceManager;
@@ -44,17 +43,20 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
+import android.widget.TextClock;
 import android.widget.TextView;
 
 public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBinder{
   private Activity mActivity;
   private SharedPreferences mPref;
   private int mDefaultTextColor;
+  private ShowDateInterface mDateShowInterface;
   
-  public ProgramListViewBinderAndClickHandler(Activity act) {
+  public ProgramListViewBinderAndClickHandler(Activity act, ShowDateInterface showDateInterface) {
     mActivity = act;
     mPref = PreferenceManager.getDefaultSharedPreferences(act);
     mDefaultTextColor = new TextView(mActivity).getTextColors().getDefaultColor();
+    mDateShowInterface = showDateInterface;
   }
 
   @Override
@@ -83,12 +85,24 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
     }
     
     if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
-      View until = ((ViewGroup)view.getParent()).findViewById(R.id.untilLabelPL);
+      TextView until = (TextView)((ViewGroup)view.getParent()).findViewById(R.id.untilLabelPL);
       
       if(showEndTime) {
         TextView text = (TextView)view;
         text.setText(DateFormat.getTimeFormat(mActivity).format(new Date(endTime)));
         text.setVisibility(View.VISIBLE);
+        
+        String test = until.getText().toString();
+        
+        if(!mDateShowInterface.showDate()) {
+          if(test.startsWith(",")) {
+            until.setText(test.substring(2));
+          }
+        }
+        else if(!test.startsWith(",")) {
+          until.setText(", "+test);
+        }
+        
         until.setVisibility(View.VISIBLE);
       }
       else {
@@ -106,15 +120,29 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       return true;
     } 
     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_UNIX_DATE)) {
-      UiUtils.formatDayView(mActivity, cursor, view, R.id.startDayLabelPL);
-      
       TextView date = (TextView)((ViewGroup)view.getParent()).findViewById(R.id.startDayLabelPL);
       
-      if(endTime < System.currentTimeMillis()) {
-        date.setTextColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, mActivity));
+      if(mDateShowInterface.showDate()) {
+        UiUtils.formatDayView(mActivity, cursor, view, R.id.startDayLabelPL);
+        
+        if(endTime < System.currentTimeMillis()) {
+          date.setTextColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, mActivity));
+        }
+        else {
+          date.setTextColor(mDefaultTextColor);
+        }
+        
+        date.setVisibility(View.VISIBLE);
+        view.setVisibility(View.VISIBLE);
       }
       else {
-        date.setTextColor(mDefaultTextColor);
+        UiUtils.handleMarkings(mActivity, cursor, ((RelativeLayout)view.getParent()), null);
+        date.setVisibility(View.GONE);
+        ((TextView)view).setText("");
+        
+        if(!showEndTime) {
+          view.setVisibility(View.GONE);
+        }
       }
       
       return true;

@@ -211,6 +211,9 @@
 	    <string name="SHOW_SORT_NUMBER_IN_PROGRAMS_LIST">SHOW_SORT_NUMBER_IN_PROGRAMS_LIST</string>
 	    <item name="show_sort_number_in_programs_list_default" type="bool" format="boolean">false</item>
 
+	    <string name="SHOW_DATE_FOR_PROGRAMS_LIST">SHOW_DATE_FOR_PROGRAMS_LIST</string>
+	    <item name="show_date_for_programs_list_default" type="string" format="string">1</item>
+	    
 	<!-- Program table settings -->
 	
 	    <string name="PROG_TABLE_ACTIVATED">PROG_TABLE_ACTIVATED</string>
