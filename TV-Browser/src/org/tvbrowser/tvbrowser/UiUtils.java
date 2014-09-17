@@ -1116,6 +1116,9 @@ public class UiUtils {
         alarmManager.set(AlarmManager.RTC_WAKEUP, startTime, pending);
       }
     }
+    else {
+      Logging.log(ReminderBroadcastReceiver.tag, "Reminder for programID: '" + programID + "' not created, starttime in past: " + new Date(startTime) + " of now: " + new Date(System.currentTimeMillis()), Logging.REMINDER_TYPE, context);
+    }
   }catch(Throwable t) {t.printStackTrace();}
   }
   //TODO
