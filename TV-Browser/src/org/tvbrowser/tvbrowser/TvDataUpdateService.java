@@ -2379,14 +2379,16 @@ public class TvDataUpdateService extends Service {
         Collections.sort(mInsertValuesList, new Comparator<ContentValues>() {
            @Override
            public int compare(ContentValues lhs, ContentValues rhs) {
-             long lStart = lhs.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-             long rStart = rhs.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-             
-             if(lStart < rStart) {
-               return -1;
-             }
-             else if(lStart > rStart) {
-               return 1;
+             if(lhs.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME) && rhs.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
+               long lStart = lhs.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+               long rStart = rhs.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+               
+               if(lStart < rStart) {
+                 return -1;
+               }
+               else if(lStart > rStart) {
+                 return 1;
+               }
              }
              
              return 0;
@@ -2396,7 +2398,7 @@ public class TvDataUpdateService extends Service {
          ContentValues toAdd = mInsertValuesList.get(0);
          
          for(int i = 1; i < mInsertValuesList.size()-1; i++) {
-           if(toAdd.getAsLong(TvBrowserContentProvider.DATA_KEY_ENDTIME) == 0) {
+           if(toAdd.getAsLong(TvBrowserContentProvider.DATA_KEY_ENDTIME) == 0 && toAdd.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
              long meStart = toAdd.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
              int j = i + 0;
              
@@ -2418,7 +2420,9 @@ public class TvDataUpdateService extends Service {
            toAdd = mInsertValuesList.get(i);
          }
          for(ContentValues values : mInsertValuesList) {
-           addInsert(values);
+           if(values.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
+             addInsert(values);
+           }
          }
        //  getContentResolver().bulkInsert(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, mInsertValuesList.toArray(new ContentValues[mInsertValuesList.size()]));
        }
