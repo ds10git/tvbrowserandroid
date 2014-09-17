@@ -116,6 +116,9 @@
     <string name="android">Android:</string>
     <string name="copyright">Copyright &#169; 2013, René Mach.</string>
     <string name="last_data_update">Letztes Datenupdate:</string>
+	<string name="next_data_update">Nächstes Datenupdate:</string>
+    <string name="next_data_update_manually">Wenn manuell ausgelöst</string>
+    <string name="next_data_update_connection">Wenn Internetverbindung besteht</string>
     <string name="license"><![CDATA[<p>Hiermit wird unentgeltlich, jeder Person, die eine Kopie der Software und der zugehörigen Dokumentationen (die "Software") erhält,
   die Erlaubnis erteilt, sie zu verwenden, kopieren, ändern oder zu fusionieren, darüber hinaus sie unverändert und unentgeltlich zu verlegen und zu verbreiten
   und Personen, die diese Software erhalten, diese Rechte zu geben, unter den folgenden Bedingungen:</p>
