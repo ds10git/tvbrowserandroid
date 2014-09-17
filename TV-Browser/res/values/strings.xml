@@ -121,6 +121,9 @@
     <string name="version">Version:</string>
     <string name="android">Android:</string>
     <string name="last_data_update">Last data update:</string>
+    <string name="next_data_update">Next data update:</string>
+    <string name="next_data_update_manually">When manually started</string>
+    <string name="next_data_update_connection">When connected to Internet</string>
     <string name="copyright">Copyright &#169; 2013, René Mach.</string>
     <string name="license"><![CDATA[<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software
   and associated documentation files (the "Software"), to use, copy, modify or merge the Software,

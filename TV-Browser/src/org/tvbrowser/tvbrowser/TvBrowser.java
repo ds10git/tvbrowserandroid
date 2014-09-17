@@ -2549,6 +2549,17 @@ public class TvBrowser extends FragmentActivity implements
     TextView lastUpdate = (TextView)about.findViewById(R.id.data_update);
     lastUpdate.setText(DateFormat.getLongDateFormat(TvBrowser.this).format(new Date(PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, 0))));
     
+    TextView nextUpdate = (TextView)about.findViewById(R.id.next_data_update);
+    
+    switch(Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
+      case 0: nextUpdate.setText(R.string.next_data_update_manually);break;
+      case 1: nextUpdate.setText(R.string.next_data_update_connection);break;
+      case 2: {
+        Date date = new Date(PrefUtils.getLongValue(R.string.AUTO_UPDATE_CURRENT_START_TIME, 0)); 
+        nextUpdate.setText(DateFormat.getMediumDateFormat(TvBrowser.this).format(date) + " " + DateFormat.getTimeFormat(TvBrowser.this).format(date));
+      } break;
+    }
+    
     ((TextView)about.findViewById(R.id.rundate_value)).setText(DateFormat.getLongDateFormat(getApplicationContext()).format(mRundate.getTime()));
     
     builder.setTitle(R.string.action_about);
