@@ -1077,7 +1077,7 @@ public class UiUtils {
   
   //TODO
   public static void addReminder(Context context, long programID, long startTime, Class<?> caller) {try {
-    Logging.log(ReminderBroadcastReceiver.tag, "addReminder called from: " + caller, Logging.REMINDER_TYPE, context);
+    Logging.log(ReminderBroadcastReceiver.tag, "addReminder called from: " + caller + " for programID: '" + programID + "' with start time: " + new Date(startTime), Logging.REMINDER_TYPE, context);
     
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
@@ -1097,7 +1097,7 @@ public class UiUtils {
       time.close();
     }
     
-    if(startTime > System.currentTimeMillis()) {
+    if(startTime >= System.currentTimeMillis()) {
       PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
       
       if(startTime-reminderTime > System.currentTimeMillis()) {
