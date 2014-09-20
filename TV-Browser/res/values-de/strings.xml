@@ -94,6 +94,8 @@
     <string name="favorite_exclusion_hint">Kommagetrennte Liste (optional)</string>
     <string name="update_data_notification_favorites">Lieblingssendungen aktualisieren</string>
     <string name="update_data_notification_synchronize">Sendungen synchronisieren&#8230;</string>
+    <string name="update_data_notification_synchronize_remiders">Erinnerungen synchronisieren&#8230;</string>
+    <string name="update_data_notification_synchronize_favorites">Lieblingssendungen synchronisieren&#8230;</string>
     <string name="no_network">Keine Internet-Verbindung</string>
     <string name="no_network_info">Ihre Internet-Verbindung ist abgeschaltet. Bitte aktivieren Sie diese bevor Sie das Datenupdate starten.</string>
     <string name="update_notification_title">TV-Daten Update</string>
