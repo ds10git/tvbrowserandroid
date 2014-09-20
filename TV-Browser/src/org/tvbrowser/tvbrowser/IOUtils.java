@@ -43,6 +43,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
+import android.provider.Contacts.SettingsColumns;
 import android.util.Log;
 
 /**
@@ -256,7 +257,7 @@ public class IOUtils {
       int time = PrefUtils.getIntValue(R.string.PREF_AUTO_UPDATE_START_TIME, R.integer.pref_auto_update_start_time_default);
       long current = PrefUtils.getLongValue(R.string.AUTO_UPDATE_CURRENT_START_TIME, R.integer.auto_update_current_start_time_default);
 
-      if(current < System.currentTimeMillis()) {
+      if(current < System.currentTimeMillis() - 5000) {
         long lastDate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, R.integer.last_data_update_default);
              
         if(lastDate == 0) {

@@ -103,7 +103,7 @@ public class TvDataUpdateService extends Service {
   private ExecutorService mDataUpdatePool;
   private Handler mHandler;
   
-  private int mNotifyID = 1;
+  private static final int NOTIFY_ID = 511;
   private NotificationCompat.Builder mBuilder;
   private int mCurrentDownloadCount;
   private int mUnsuccessfulDownloads;
@@ -236,24 +236,37 @@ public class TvDataUpdateService extends Service {
   }
   
   private void startSynchronizeRemindersDown(boolean info) {
-    synchronizeRemindersDown(info);
+    NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+    
+    synchronizeRemindersDown(info,notification);
     
     Intent synchronizeRemindersUpDone = new Intent(SettingConstants.REMINDER_DOWN_DONE);
     LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(synchronizeRemindersUpDone);
     
+    stopSelfInternal();
+  }
+  
+  private void stopSelfInternal() {
+    ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFY_ID);
     stopSelf();
   }
   
   private void startSynchronizeUp(boolean info, final String value, final String address) {
-    synchronizeUp(info, value, address);
+    NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+    
+    synchronizeUp(info, value, address, notification);
     
     Intent synchronizeUpDone = new Intent(SettingConstants.SYNCHRONIZE_UP_DONE);
     LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(synchronizeUpDone);
     
-    stopSelf();
+    stopSelfInternal();
   }
   
-  private void synchronizeUp(boolean info, final String value, final String address) {
+  private void synchronizeUp(boolean info, final String value, final String address, final NotificationManager notification) {
+    mBuilder.setProgress(100, 0, true);
+    mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize));
+    notification.notify(NOTIFY_ID, mBuilder.build());
+    
     final String CrLf = "\r\n";
     
     SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
@@ -371,6 +384,8 @@ public class TvDataUpdateService extends Service {
           }
       }
     }
+    
+    notification.cancel(NOTIFY_ID);
   }
   
   private byte[] getBytesForReminders() {
@@ -443,9 +458,13 @@ public class TvDataUpdateService extends Service {
     return IOUtils.getCompressedData(dat.toString().getBytes());
   }
   
-  private void synchronizeRemindersDown(boolean info) {
-    if(!SettingConstants.UPDATING_REMINDERS) {
+  private void synchronizeRemindersDown(boolean info, final NotificationManager notification) {
+    if(!SettingConstants.UPDATING_REMINDERS) {      
       SettingConstants.UPDATING_REMINDERS = true;
+      
+      mBuilder.setProgress(100, 0, true);
+      mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize_remiders));
+      notification.notify(NOTIFY_ID, mBuilder.build());
       
       URL documentUrl;
       
@@ -576,11 +595,17 @@ public class TvDataUpdateService extends Service {
       }
       
       SettingConstants.UPDATING_REMINDERS = false;
+      
+      notification.cancel(NOTIFY_ID);
     }
   }
   
-  private void syncFavorites() {
+  private void syncFavorites(final NotificationManager notification) {
     if(mSyncFavorites != null) {
+      mBuilder.setProgress(100, 0, true);
+      mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize_favorites));
+      notification.notify(NOTIFY_ID, mBuilder.build());
+      
       ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
       ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
       
@@ -659,6 +684,8 @@ public class TvDataUpdateService extends Service {
           e.printStackTrace();
         }
       }
+      
+      notification.cancel(NOTIFY_ID);
     }
     
     mSyncFavorites = null;
@@ -672,7 +699,7 @@ public class TvDataUpdateService extends Service {
       mBuilder.setProgress(100, 0, true);
       mBuilder.setContentTitle(getResources().getText(R.string.channel_notification_title));
       mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
-      notification.notify(mNotifyID, mBuilder.build());
+      notification.notify(NOTIFY_ID, mBuilder.build());
       
       File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
       
@@ -710,7 +737,7 @@ public class TvDataUpdateService extends Service {
               
               LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
               
-              stopSelf();
+              stopSelfInternal();
             }
           }
         }
@@ -891,7 +918,7 @@ public class TvDataUpdateService extends Service {
         } catch (InterruptedException e) {}
         
         NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        notification.cancel(mNotifyID);
+        notification.cancel(NOTIFY_ID);
       }
       else {
         success.setBoolean(false);
@@ -911,7 +938,7 @@ public class TvDataUpdateService extends Service {
     LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
     
     IS_RUNNING = false;
-    stopSelf();
+    stopSelfInternal();
   }
   
   private synchronized GroupInfo loadChannelForGroup(final Cursor cursor) { 
@@ -1210,7 +1237,11 @@ public class TvDataUpdateService extends Service {
     return IOUtils.getCompressedData(dat.toString().getBytes());
   }
   
-  public void backSyncPrograms() {
+  public void backSyncPrograms(final NotificationManager notification) {
+    mBuilder.setProgress(100, 0, true);
+    mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize));
+    notification.notify(NOTIFY_ID, mBuilder.build());
+    
     final String CrLf = "\r\n";
     
     SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
@@ -1319,6 +1350,8 @@ public class TvDataUpdateService extends Service {
           }
       }
     }
+    
+    notification.cancel(NOTIFY_ID);
   }
   
   private void loadAccessAndFavoriteSync() {
@@ -1365,7 +1398,7 @@ public class TvDataUpdateService extends Service {
     try {
       mBuilder.setProgress(100, 0, true);
       mBuilder.setContentText(getResources().getText(R.string.update_notification_calculate));
-      notification.notify(mNotifyID, mBuilder.build());
+      notification.notify(NOTIFY_ID, mBuilder.build());
       
       // Only ID, channel ID, start and end time are needed for update, so use only these columns
       String[] projection = {
@@ -1451,17 +1484,17 @@ public class TvDataUpdateService extends Service {
       updateFavorites(notification);
     }
     
-    syncFavorites();
+    syncFavorites(notification);
     
     boolean fromRemider = PrefUtils.getBooleanValue(R.string.PREF_SYNC_REMINDERS_FROM_DESKTOP, R.bool.pref_sync_reminders_from_desktop_default);
     boolean toRemider = PrefUtils.getBooleanValue(R.string.PREF_SYNC_REMINDERS_TO_DESKTOP, R.bool.pref_sync_reminders_to_desktop_default);
     
     if(fromRemider) {
-      synchronizeRemindersDown(false);
+      synchronizeRemindersDown(false, notification);
     }
     
     if(toRemider) {
-      synchronizeUp(false, null, "http://android.tvbrowser.org/data/scripts/syncUp.php?type=reminderFromApp");
+      synchronizeUp(false, null, "http://android.tvbrowser.org/data/scripts/syncUp.php?type=reminderFromApp", notification);
     }
     
     Intent inform = new Intent(SettingConstants.DATA_UPDATE_DONE);
@@ -1469,9 +1502,6 @@ public class TvDataUpdateService extends Service {
     LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(inform);
     
     mDontWantToSeeValues = null;
-    
-    mBuilder.setProgress(0, 0, false);
-    notification.cancel(mNotifyID);
     
     // Data update complete inform user
     mHandler.post(new Runnable() {
@@ -1492,7 +1522,8 @@ public class TvDataUpdateService extends Service {
     Favorite.handleDataUpdateFinished();
     
     IS_RUNNING = false;
-    stopSelf();
+    
+    stopSelfInternal();
   }
   
   private AtomicInteger mFavoriteUpdateCount;
@@ -1504,7 +1535,7 @@ public class TvDataUpdateService extends Service {
     
     mBuilder.setProgress(favoritesSet.size(), 0, false);
     mBuilder.setContentText(getResources().getText(R.string.update_data_notification_favorites));
-    notification.notify(mNotifyID, mBuilder.build());
+    notification.notify(NOTIFY_ID, mBuilder.build());
     
     ExecutorService updateFavorites = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
     
@@ -1518,7 +1549,7 @@ public class TvDataUpdateService extends Service {
         public void run() {
           Favorite.updateFavoriteMarking(getApplicationContext(), getContentResolver(), fav);
           mBuilder.setProgress(favoritesSet.size(), mFavoriteUpdateCount.getAndIncrement(), false);
-          notification.notify(mNotifyID, mBuilder.build());
+          notification.notify(NOTIFY_ID, mBuilder.build());
         }
       });
     }
@@ -1529,11 +1560,9 @@ public class TvDataUpdateService extends Service {
       updateFavorites.awaitTermination(favoritesSet.size(), TimeUnit.MINUTES);
     } catch (InterruptedException e) {}
     
-    mBuilder.setProgress(100, 0, true);
-    mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize));
-    notification.notify(mNotifyID, mBuilder.build());
+    notification.cancel(NOTIFY_ID);
     
-    backSyncPrograms();
+    backSyncPrograms(notification);
   }
   
   public void doLog(String value) {
@@ -1677,7 +1706,7 @@ public class TvDataUpdateService extends Service {
       mBuilder.setContentText(getResources().getText(R.string.update_notification_text));
       
       final NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-      notification.notify(mNotifyID, mBuilder.build());
+      notification.notify(NOTIFY_ID, mBuilder.build());
 
       loadAccessAndFavoriteSync();
       
@@ -1872,7 +1901,7 @@ public class TvDataUpdateService extends Service {
       mDataUpdatePool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
       
       mBuilder.setProgress(downloadCount, 0, false);
-      notification.notify(mNotifyID, mBuilder.build());
+      notification.notify(NOTIFY_ID, mBuilder.build());
       
       for(final String mirror : downloadMirrorList) {
         final File mirrorFile = new File(path,mirror.substring(mirror.lastIndexOf("/")+1));
@@ -1883,8 +1912,11 @@ public class TvDataUpdateService extends Service {
               IOUtils.saveUrl(mirrorFile.getAbsolutePath(), mirror);
               updateMirror(mirrorFile);
               mCurrentDownloadCount++;
-              mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-              notification.notify(mNotifyID, mBuilder.build());
+              
+              if(IS_RUNNING) {
+                mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+                notification.notify(NOTIFY_ID, mBuilder.build());
+              }
             } catch (Exception e) {
               mUnsuccessfulDownloads++;
             }
@@ -1913,16 +1945,20 @@ public class TvDataUpdateService extends Service {
       }
       
       mThreadPool.shutdown();
-      
+      // Always wait at least two hours
       try {
-        mThreadPool.awaitTermination(updateList.size(), TimeUnit.MINUTES);
-      } catch (InterruptedException e) {}
+        mThreadPool.awaitTermination(Math.max(120,updateList.size()), TimeUnit.MINUTES);
+      } catch (InterruptedException e) {
+        doLog("DOWNLOAD WAITING INTERRUPTED " + e.getLocalizedMessage());
+      }
       
       mDataUpdatePool.shutdown();
       
       try {
-        mDataUpdatePool.awaitTermination(updateList.size(), TimeUnit.MINUTES);
-      } catch (InterruptedException e) {}
+        mDataUpdatePool.awaitTermination(Math.max(120,updateList.size()), TimeUnit.MINUTES);
+      } catch (InterruptedException e) {
+        doLog("UPDATE DATE INTERRUPTED " + e.getLocalizedMessage());
+      }
       
       insert(mDataInsertList);
       insertVersion(mVersionInsertList);
@@ -1937,7 +1973,7 @@ public class TvDataUpdateService extends Service {
       mVersionUpdateList = null;
 
       mBuilder.setProgress(100, 0, true);
-      notification.notify(mNotifyID, mBuilder.build());
+      notification.notify(NOTIFY_ID, mBuilder.build());
       
       if(updateList.size() > 0) {
         calculateMissingEnds(notification,true);
@@ -2364,9 +2400,12 @@ public class TvDataUpdateService extends Service {
         public void run() {
           for(File updateFile : downloadList) {
             handleDownload(updateFile);
-            mCurrentDownloadCount++;
-            mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-            notification.notify(mNotifyID, mBuilder.build());
+            
+            if(IS_RUNNING) {
+              mCurrentDownloadCount++;
+              mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+              notification.notify(NOTIFY_ID, mBuilder.build());
+            }
           }
           
           handleData();

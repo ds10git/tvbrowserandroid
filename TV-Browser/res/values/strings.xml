@@ -100,6 +100,8 @@
     <string name="favorite_exclusion_hint">Comma separated list (optional)</string>
     <string name="update_data_notification_favorites">Update Favorites</string>
     <string name="update_data_notification_synchronize">Synchronize programs&#8230;</string>
+    <string name="update_data_notification_synchronize_remiders">Synchronize Reminders&#8230;</string>
+    <string name="update_data_notification_synchronize_favorites">Synchronize Favorites&#8230;</string>
     <string name="no_network">No network connection</string>
     <string name="no_network_info">Your network connection is disabled. Enable it before starting data download.</string>
     <string name="update_notification_title">TV data update</string>

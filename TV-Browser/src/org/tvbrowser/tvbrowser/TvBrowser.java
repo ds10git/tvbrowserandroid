@@ -129,6 +129,8 @@ import billing.util.SkuDetails;
 
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
+  private static final boolean TEST_VERSION = false;
+  
   private static final int SHOW_PREFERENCES = 1;
   
   private static final int ALL_FILTER = 0;
@@ -204,7 +206,7 @@ public class TvBrowser extends FragmentActivity implements
   static {
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2015);
-    mRundate.set(Calendar.MONTH, Calendar.JANUARY);
+    mRundate.set(Calendar.MONTH, Calendar.AUGUST);
     mRundate.set(Calendar.DAY_OF_MONTH, 1);
   }
   
@@ -2930,7 +2932,7 @@ public class TvBrowser extends FragmentActivity implements
     mUpdateItem = menu.findItem(R.id.action_update);
     mFilterItem = menu.findItem(R.id.action_filter_channels);
     
-    menu.findItem(R.id.action_reset).setVisible(false);
+    menu.findItem(R.id.action_reset).setVisible(TEST_VERSION);
     
    // menu.findItem(R.id.action_synchronize_dont_want_to_see).setVisible(false);
     menu.findItem(R.id.action_synchronize_favorites).setVisible(false);
