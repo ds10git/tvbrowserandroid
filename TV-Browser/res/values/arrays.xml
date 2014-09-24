@@ -137,6 +137,26 @@
 	    <item>15</item>
 	    <item>30</item>
 	    <item>60</item>
+	    <item>120</item>
+	    <item>360</item>
+	    <item>720</item>
+	    <item>1440</item>
+	</string-array>
+	<string-array name="pref_category_reminder_values_second">
+	    <item>-1</item>
+	    <item>0</item>
+	    <item>1</item>
+	    <item>2</item>
+	    <item>3</item>
+	    <item>5</item>
+	    <item>10</item>
+	    <item>15</item>
+	    <item>30</item>
+	    <item>60</item>
+	    <item>120</item>
+	    <item>360</item>
+	    <item>720</item>
+	    <item>1440</item>
 	</string-array>
 	<string-array name="pref_export_description_type_values">
 	    <item>0</item>

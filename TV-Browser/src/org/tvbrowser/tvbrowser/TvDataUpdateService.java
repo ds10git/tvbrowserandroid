@@ -210,6 +210,12 @@ public class TvDataUpdateService extends Service {
         
         Logging.openLogForDataUpdate(getApplicationContext());
         
+        doLog("Received intent: " + intent);
+        
+        if(intent != null) {
+          doLog("Extra Type: " + intent.getIntExtra(TYPE, TV_DATA_TYPE));
+        }
+        
         if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
           mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(getResources().getString(R.string.days_to_download_default)));
           updateTvData();
@@ -1623,10 +1629,12 @@ public class TvDataUpdateService extends Service {
   }
   
   private void updateTvData() {
+    doLog("Running state: " + IS_RUNNING);
     if(!IS_RUNNING) {
       mUnsuccessfulDownloads = 0;
       IS_RUNNING = true;
       
+      doLog("Favorite.handleDataUpdateStarted()");
       Favorite.handleDataUpdateStarted();
       
       File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
@@ -1707,7 +1715,7 @@ public class TvDataUpdateService extends Service {
       
       final NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
       notification.notify(NOTIFY_ID, mBuilder.build());
-
+      doLog("loadAccessAndFavoriteSync()");
       loadAccessAndFavoriteSync();
       
       TvBrowserContentProvider.INFORM_FOR_CHANGES = false;
@@ -1719,13 +1727,13 @@ public class TvDataUpdateService extends Service {
       
       final ArrayList<ChannelUpdate> updateList = new ArrayList<ChannelUpdate>();
       int downloadCountTemp = 0;
-      
+      doLog("readCurrentVersionIDs()");
       readCurrentVersionIDs();
       
       ArrayList<String> downloadMirrorList = new ArrayList<String>();
       
       Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-      
+      doLog("channelCursor: " + channelCursor);
       if(channelCursor.moveToFirst()) {
         int lastGroup = -1;
         Mirror mirror = null;
