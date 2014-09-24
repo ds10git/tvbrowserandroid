@@ -51,9 +51,8 @@
 	    
 	    <string name="PREF_REMINDER_TIME">PREF_REMINDER_TIME</string>
 	    <item name="pref_reminder_time_default" type="string" format="string">0</item>
-	    
-	    <string name="PREF_REMIND_AGAIN_AT_START">PREF_REMIND_AGAIN_AT_START</string>
-	    <item name="pref_remind_again_at_start_default" type="bool" format="boolean">true</item>
+	    <string name="PREF_REMINDER_TIME_SECOND">PREF_REMINDER_TIME_SECOND</string>
+	    <item name="pref_reminder_time_second_default" type="string" format="string">-1</item>
 	        
 	    <string name="PREF_REMINDER_SOUND_VALUE">PREF_REMINDER_SOUND_VALUE</string>
 	    

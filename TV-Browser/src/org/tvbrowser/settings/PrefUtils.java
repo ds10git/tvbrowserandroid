@@ -107,6 +107,29 @@ public class PrefUtils {
     return null;
   }
   
+  public static int getStringValueAsInt(int prefKey, String defaultValue) throws NumberFormatException {
+    if(mPref != null) {
+      String value = mPref.getString(mContext.getString(prefKey), defaultValue);
+      
+      if(value != null) {
+        return Integer.parseInt(value);
+      }
+    }
+    
+    return Integer.MIN_VALUE;
+  }
+  
+  public static int getStringValueAsInt(int prefKey, int defaultKey) throws NumberFormatException {
+    if(mPref != null) {
+      String value = getStringValue(prefKey,mContext.getResources().getString(defaultKey));
+      
+      if(value != null) {
+        return Integer.parseInt(value);
+      }
+    }
+    
+    return Integer.MIN_VALUE;
+  }
 
   public static Set<String> getStringSetValue(int prefKey, Set<String> defaultValue) {
     if(mPref != null) {

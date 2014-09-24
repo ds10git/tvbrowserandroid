@@ -1081,8 +1081,10 @@ public class UiUtils {
     
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
-    int reminderTime = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_REMINDER_TIME, R.string.pref_reminder_time_default)) * 60000;
-    boolean remindAgain = PrefUtils.getBooleanValue(R.string.PREF_REMIND_AGAIN_AT_START, R.bool.pref_remind_again_at_start_default);
+    int reminderTime = PrefUtils.getStringValueAsInt(R.string.PREF_REMINDER_TIME, R.string.pref_reminder_time_default) * 60000;
+    int reminderTimeSecond = PrefUtils.getStringValueAsInt(R.string.PREF_REMINDER_TIME_SECOND, R.string.pref_reminder_time_default) * 60000;
+    
+    boolean remindAgain = reminderTimeSecond >= 0 && reminderTime != reminderTimeSecond;
     
     Intent remind = new Intent(context,ReminderBroadcastReceiver.class);
     remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
@@ -1100,15 +1102,15 @@ public class UiUtils {
     if(startTime >= System.currentTimeMillis()) {
       PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
       
-      if(startTime-reminderTime > System.currentTimeMillis()) {
+      if(reminderTime >= 0 && startTime-reminderTime > System.currentTimeMillis()) {
         Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime-reminderTime) + " with programID: '" + programID + "' " + pending.toString(), Logging.REMINDER_TYPE, context);
         alarmManager.set(AlarmManager.RTC_WAKEUP, startTime-reminderTime, pending);
         
-        if(remindAgain && reminderTime > 0) {
+        if(remindAgain && startTime-reminderTimeSecond > System.currentTimeMillis()) {
           pending = PendingIntent.getBroadcast(context, (int)-programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
           
-          Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime) + " with programID: '-" + programID + "' " + pending.toString(), Logging.REMINDER_TYPE, context);
-          alarmManager.set(AlarmManager.RTC_WAKEUP, startTime, pending);
+          Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime-reminderTimeSecond) + " with programID: '-" + programID + "' " + pending.toString(), Logging.REMINDER_TYPE, context);
+          alarmManager.set(AlarmManager.RTC_WAKEUP, startTime-reminderTimeSecond, pending);
         }
       }
       else {

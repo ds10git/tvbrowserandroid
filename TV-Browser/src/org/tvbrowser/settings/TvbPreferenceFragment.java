@@ -16,11 +16,13 @@
  */
 package org.tvbrowser.settings;
 
+import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.R;
 
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
@@ -139,7 +141,14 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     if(getActivity() != null) {
-      if(key.equals(getString(R.string.TIME_BUTTON_COUNT))) {
+      if(key.equals(getString(R.string.PREF_AUTO_UPDATE_START_TIME))) {
+        Editor edit = sharedPreferences.edit();
+        edit.putLong(getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), 0);
+        edit.commit();
+        
+        IOUtils.handleDataUpdatePreferences(getActivity());
+      }
+      else if(key.equals(getString(R.string.TIME_BUTTON_COUNT))) {
         PreferenceScreen screen = (PreferenceScreen)findPreference(getString(R.string.TIME_BUTTON_PREFERENCES_SUB_SCREEN));
         
         int timeButtonCount = sharedPreferences.getInt(key, getResources().getInteger(R.integer.time_button_count_default));
@@ -215,6 +224,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.PREF_RUNNING_DIVIDER_SIZE))
           || key.equals(getResources().getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE))
           || key.equals(getResources().getString(R.string.PREF_REMINDER_TIME))
+          || key.equals(getResources().getString(R.string.PREF_REMINDER_TIME_SECOND))
           || key.equals(getResources().getString(R.string.DETAIL_TEXT_SCALE))
           || key.equals(getResources().getString(R.string.PREF_PROGRAM_LISTS_TEXT_SCALE))
           || key.equals(getResources().getString(R.string.PROG_TABLE_TEXT_SCALE))
@@ -241,12 +251,12 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           lp.setSummary(value);
         }
   
-        if(key.equals(getResources().getString(R.string.PREF_REMINDER_TIME))) {
-          CheckBoxPreference remindAgain = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMIND_AGAIN_AT_START));
-          ListPreference reminderTime = (ListPreference) findPreference(key);
-          
-          if(remindAgain != null) {
-            remindAgain.setEnabled(reminderTime.getValue() == null || !reminderTime.getValue().equals("0"));
+        if(key.equals(getString(R.string.PREF_REMINDER_TIME)) || key.equals(getString(R.string.PREF_REMINDER_TIME_SECOND))) {
+          ListPreference reminderTime = (ListPreference) findPreference(getString(R.string.PREF_REMINDER_TIME));
+          ListPreference reminderTimeSecond = (ListPreference) findPreference(getString(R.string.PREF_REMINDER_TIME_SECOND));
+
+          if(reminderTime.getValue().equals(reminderTimeSecond.getValue())) {
+            reminderTimeSecond.setValue(getString(R.string.pref_reminder_time_second_default));
           }
         }
         else if(key.equals(getResources().getString(R.string.PREF_AUTO_UPDATE_TYPE))) {

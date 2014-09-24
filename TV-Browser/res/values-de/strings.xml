@@ -378,8 +378,8 @@
 	<string name="pref_reminder_work_days_summary">Genaue Einstellungen für jeden Wochentag vornehmen</string>
 	<string name="pref_reminder_work_start">Start</string>
 	<string name="pref_reminder_work_end">Ende</string>
-	<string name="pref_category_reminder_title">Erinnerungszeitpunkt:</string>
-	<string name="pref_category_reminder_again_title">Zu Beginn erneut erinnern</string>
+	<string name="pref_reminder_time_first">Erster Erinnerungszeitpunkt:</string>
+	<string name="pref_reminder_time_second">Zweiter Erinnerungszeitpunkt:</string>
 	<string-array name="pref_category_reminder_names">
 	    <item>Zu Beginn</item>
 	    <item>1 Minute vorher</item>
@@ -390,6 +390,26 @@
 	    <item>15 Minuten vorher</item>
 	    <item>30 Minuten vorher</item>
 	    <item>1 Stunde vorher</item>
+	    <item>2 Stunden vorher</item>
+	    <item>6 Stunden vorher</item>
+	    <item>12 Stunden vorher</item>
+	    <item>24 Stunden vorher</item>
+	</string-array>
+	<string-array name="pref_category_reminder_names_second">
+	    <item>Nicht erinnern</item>
+	    <item>Zu Beginn</item>
+	    <item>1 Minute vorher</item>
+	    <item>2 Minuten vorher</item>
+	    <item>3 Minuten vorher</item>
+	    <item>5 Minuten vorher</item>
+	    <item>10 Minuten vorher</item>
+	    <item>15 Minuten vorher</item>
+	    <item>30 Minuten vorher</item>
+	    <item>1 Stunde vorher</item>
+	    <item>2 Stunden vorher</item>
+	    <item>6 Stunden vorher</item>
+	    <item>12 Stunden vorher</item>
+	    <item>24 Stunden vorher</item>
 	</string-array>
 	<string name="pref_program_lists_show_end_time">Endzeit anzeigen</string>
 	<string name="pref_program_lists_show_list_on_channel_click">Sender anklickbar</string>

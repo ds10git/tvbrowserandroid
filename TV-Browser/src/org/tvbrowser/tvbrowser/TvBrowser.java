@@ -262,6 +262,21 @@ public class TvBrowser extends FragmentActivity implements
       if(oldVersion < 181) {
         updateSelectedChannelsLists();
       }
+      if(oldVersion < 204) {
+        int firstTime = PrefUtils.getStringValueAsInt(R.string.PREF_REMINDER_TIME, R.string.pref_reminder_time_default);
+        boolean remindAgain = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).getBoolean("PREF_REMIND_AGAIN_AT_START", false);
+        Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+        edit.remove("PREF_REMIND_AGAIN_AT_START");
+        edit.commit();
+        
+        if(remindAgain && firstTime > 0) {
+          edit.putString(getString(R.string.PREF_REMINDER_TIME_SECOND), getString(R.string.pref_reminder_time_default));
+          edit.commit();
+          
+          Intent updateAlarmValues = new Intent(UpdateAlarmValue.class.getCanonicalName());
+          sendBroadcast(updateAlarmValues);
+        }
+      }
       if(oldVersion !=  pInfo.versionCode) {
         Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
         edit.putInt(getString(R.string.OLD_VERSION), pInfo.versionCode);

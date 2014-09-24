@@ -2,15 +2,18 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
 	<ListPreference
 		android:key="@string/PREF_REMINDER_TIME"
-		android:title="@string/pref_category_reminder_title"
+		android:title="@string/pref_reminder_time_first"
 		android:defaultValue="@string/pref_reminder_time_default"
 		android:entries="@array/pref_category_reminder_names"
 		android:entryValues="@array/pref_category_reminder_values"
 		android:summary="%s"/>
-	<CheckBoxPreference android:key="@string/PREF_REMIND_AGAIN_AT_START"
-		android:title="@string/pref_category_reminder_again_title"
-		android:defaultValue="@bool/pref_remind_again_at_start_default"
-		/>
+	<ListPreference
+		android:key="@string/PREF_REMINDER_TIME_SECOND"
+		android:title="@string/pref_reminder_time_second"
+		android:defaultValue="@string/pref_reminder_time_second_default"
+		android:entries="@array/pref_category_reminder_names_second"
+		android:entryValues="@array/pref_category_reminder_values_second"
+		android:summary="%s"/>
 	<PreferenceCategory android:title="@string/pref_reminder_type">
 		<RingtonePreference android:key="@string/PREF_REMINDER_SOUND_VALUE"
 		    android:summary="@string/pref_reminder_sound_value_summary"
