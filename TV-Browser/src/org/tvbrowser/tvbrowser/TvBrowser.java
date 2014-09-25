@@ -129,7 +129,7 @@ import billing.util.SkuDetails;
 
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
-  private static final boolean TEST_VERSION = false;
+  private static final boolean TEST_VERSION = true;
   
   private static final int SHOW_PREFERENCES = 1;
   

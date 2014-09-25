@@ -16,6 +16,8 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
@@ -29,9 +31,11 @@ import android.util.Log;
 public class UpdateAlarmValue extends BroadcastReceiver {
   @Override
   public void onReceive(final Context context, Intent intent) {
-    Log.d("info44", "hier");
+    final AtomicBoolean firstStart = new AtomicBoolean(false);
+    
     if(intent != null && intent.getAction() != null && (intent.getAction().equals("android.intent.action.BOOT_COMPLETED") || intent.getAction().equals("android.intent.action.QUICKBOOT_POWERON"))) {
       SettingConstants.setReminderPaused(context, false);
+      firstStart.set(true);
     }
     
     new Thread() {
@@ -47,7 +51,7 @@ public class UpdateAlarmValue extends BroadcastReceiver {
           long startTime = alarms.getLong(alarms.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
           
           UiUtils.removeReminder(context, id);
-          UiUtils.addReminder(context, id, startTime, UpdateAlarmValue.class);
+          UiUtils.addReminder(context, id, startTime, UpdateAlarmValue.class, firstStart.get());
         }
         
         alarms.close();

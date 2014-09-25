@@ -674,7 +674,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         if(favorite.mRemind && cursor.getInt(removedReminderColumn) == 0) {
           values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, true);
           
-          UiUtils.addReminder(context, id, startTime, Favorite.class);
+          UiUtils.addReminder(context, id, startTime, Favorite.class, true);
         }
         
         ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));

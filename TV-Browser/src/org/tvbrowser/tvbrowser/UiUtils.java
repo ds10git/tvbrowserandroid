@@ -776,7 +776,7 @@ public class UiUtils {
         values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, true);
       }
       
-      addReminder(activity.getApplicationContext(),programID,0,UiUtils.class);
+      addReminder(activity.getApplicationContext(),programID,0,UiUtils.class,true);
     }
     else if(item.getItemId() == R.id.prog_remove_reminder) {
       if(!(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) || markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER))) {
@@ -1076,7 +1076,7 @@ public class UiUtils {
   }
   
   //TODO
-  public static void addReminder(Context context, long programID, long startTime, Class<?> caller) {try {
+  public static void addReminder(Context context, long programID, long startTime, Class<?> caller, boolean firstCreation) {try {
     Logging.log(ReminderBroadcastReceiver.tag, "addReminder called from: " + caller + " for programID: '" + programID + "' with start time: " + new Date(startTime), Logging.REMINDER_TYPE, context);
     
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
@@ -1102,20 +1102,20 @@ public class UiUtils {
     if(startTime >= System.currentTimeMillis()) {
       PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
       
-      if(reminderTime >= 0 && startTime-reminderTime > System.currentTimeMillis()) {
+      if(startTime-reminderTime > System.currentTimeMillis()) {
         Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime-reminderTime) + " with programID: '" + programID + "' " + pending.toString(), Logging.REMINDER_TYPE, context);
         alarmManager.set(AlarmManager.RTC_WAKEUP, startTime-reminderTime, pending);
-        
-        if(remindAgain && startTime-reminderTimeSecond > System.currentTimeMillis()) {
-          pending = PendingIntent.getBroadcast(context, (int)-programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
-          
-          Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime-reminderTimeSecond) + " with programID: '-" + programID + "' " + pending.toString(), Logging.REMINDER_TYPE, context);
-          alarmManager.set(AlarmManager.RTC_WAKEUP, startTime-reminderTimeSecond, pending);
-        }
       }
-      else {
-        Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime) + " with programID: '" + programID + "' " + pending.toString(), Logging.REMINDER_TYPE, context);
-        alarmManager.set(AlarmManager.RTC_WAKEUP, startTime, pending);
+      else if(firstCreation) {
+        Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(System.currentTimeMillis()) + " with programID: '" + programID + "' " + pending.toString(), Logging.REMINDER_TYPE, context);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pending);
+      }
+      
+      if(remindAgain && startTime-reminderTimeSecond > System.currentTimeMillis()) {
+        pending = PendingIntent.getBroadcast(context, (int)-programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
+        
+        Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime-reminderTimeSecond) + " with programID: '-" + programID + "' " + pending.toString(), Logging.REMINDER_TYPE, context);
+        alarmManager.set(AlarmManager.RTC_WAKEUP, startTime-reminderTimeSecond, pending);
       }
     }
     else {
