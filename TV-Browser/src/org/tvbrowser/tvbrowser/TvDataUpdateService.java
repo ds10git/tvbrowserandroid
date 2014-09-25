@@ -543,7 +543,7 @@ public class TvDataUpdateService extends Service {
                         
                         markingIntentList.add(intent);
                                                     
-                        UiUtils.addReminder(TvDataUpdateService.this, programID, time, TvBrowser.class);
+                        UiUtils.addReminder(TvDataUpdateService.this, programID, time, TvBrowser.class, true);
                       }
                     }
                     

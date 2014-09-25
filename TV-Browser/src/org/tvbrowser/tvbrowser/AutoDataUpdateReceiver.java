@@ -17,6 +17,7 @@
 package org.tvbrowser.tvbrowser;
 
 import java.util.Calendar;
+import java.util.Date;
 
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
@@ -29,18 +30,17 @@ import android.content.SharedPreferences.Editor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 public class AutoDataUpdateReceiver extends BroadcastReceiver {
-  private static Thread mUpdateThread;
+  private static Thread UPDATE_THREAD;
   
   @Override
-  public void onReceive(final Context context, Intent intent) {
-    Log.d("info22","HIER " + context + " " + intent);
-    
+  public void onReceive(final Context context, Intent intent) {    
     PrefUtils.initialize(context);
     
-    Log.d("info22","xxxyyy");
+    Logging.openLogForDataUpdate(context);    
+    Logging.log(null, "AUTO DATA UPDATE onReceive Intent: " + intent + " Context: " + context, Logging.DATA_UPDATE_TYPE, context);
+    
     final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
     
     String updateType = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
@@ -48,9 +48,9 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
     boolean autoUpdate = !updateType.equals("0");
     boolean internetConnection = updateType.equals("1");
     boolean timeUpdate = updateType.equals("2");
-    Log.d("info22", "au " + autoUpdate + " " + updateType);
-    Log.d("info22", "ic " + internetConnection);
-    Log.d("info22", "tu " + timeUpdate);
+    
+    Logging.log(null, "AUTO DATA UPDATE autoUpdateActive: " + autoUpdate + " Internet type: " + internetConnection + " Time type: " + timeUpdate, Logging.DATA_UPDATE_TYPE, context);
+    
     if(autoUpdate) {
       if(internetConnection) {
         int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default)) + 1;
@@ -65,7 +65,6 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
         if(dayDiff < 0) {
           dayDiff = Calendar.getInstance().getMaximum(Calendar.DAY_OF_YEAR) + dayDiff;
         }
-        Log.d("info22", "dayDiff " + dayDiff + " " + days + " " + ((System.currentTimeMillis() - lastDate) / 1000 / 60 / 60));
 
         autoUpdate = dayDiff >= days && (System.currentTimeMillis() - lastDate) / 1000 / 60 / 60 > 12;
       }
@@ -75,7 +74,9 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
       else {
         autoUpdate = false;
       }
-      Log.d("info22", "" + autoUpdate);
+      
+      Logging.log(null, "AUTO DATA UPDATE doUpdateNow ('" + new Date(System.currentTimeMillis()) +"'): " + autoUpdate , Logging.DATA_UPDATE_TYPE, context);
+      
       if(autoUpdate) {
         ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
         
@@ -89,16 +90,19 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
         if(!onlyWifi) {
           isConnected = isConnected || (mobile != null && mobile.isConnectedOrConnecting());
         }
-        Log.d("info22", "isconn " + isConnected);
         
-        if (isConnected && (mUpdateThread == null || !mUpdateThread.isAlive())) {
-          mUpdateThread = new Thread() {
+        Logging.log(null, "AUTO DATA UPDATE isConnected: " + isConnected + " IS_RUNNING: " + TvDataUpdateService.IS_RUNNING + " UPDATE_THREAD: " + UPDATE_THREAD, Logging.DATA_UPDATE_TYPE, context);
+        
+        Logging.closeLogForDataUpdate();
+        
+        if (isConnected && (UPDATE_THREAD == null || !UPDATE_THREAD.isAlive())) {
+          UPDATE_THREAD = new Thread() {
             @Override
             public void run() {
               try {
                 sleep(10000);
               } catch (InterruptedException e) {}
-              Log.d("info22", "autoUpdate");
+              
               if(!TvDataUpdateService.IS_RUNNING) {
                 Intent startDownload = new Intent(context, TvDataUpdateService.class);
                 startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
@@ -111,7 +115,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
               }
             }
           };
-          mUpdateThread.start();
+          UPDATE_THREAD.start();
           
           /*Editor edit = pref.edit();
           edit.putLong(context.getString(R.string.LAST_DATA_UPDATE), System.currentTimeMillis());
@@ -129,8 +133,14 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
           IOUtils.setDataUpdateTime(context, current, pref);
         }
       }
+      else {
+        Logging.closeLogForDataUpdate();
+      }
       
       IOUtils.handleDataUpdatePreferences(context);
+    }
+    else {
+      Logging.closeLogForDataUpdate();
     }
   }
 }
