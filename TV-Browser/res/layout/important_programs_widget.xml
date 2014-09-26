@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#88000000"
+     >
+    <ListView
+        android:id="@+id/important_widget_list_view"
+        android:layout_width="match_parent"
+        android:dividerHeight="3dp"
+        android:layout_height="match_parent"/>
+	<TextView
+	    android:id="@+id/important_widget_empty_text"
+	    android:layout_width="match_parent"
+	    android:layout_height="match_parent"
+	    android:padding="5dp"
+	    android:gravity="center"
+	    android:text="No important programs"/>
+</FrameLayout>

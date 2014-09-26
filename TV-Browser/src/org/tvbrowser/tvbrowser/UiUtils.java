@@ -28,6 +28,7 @@ import java.util.Set;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.widgets.ImportantProgramsListWidget;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -36,7 +37,9 @@ import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.SearchManager;
+import android.appwidget.AppWidgetManager;
 import android.content.ActivityNotFoundException;
+import android.content.ComponentName;
 import android.content.ContentProviderOperation;
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -1073,6 +1076,7 @@ public class UiUtils {
     intent.putExtra(SettingConstants.MARKINGS_ID, programID);
     
     LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    updateImportantProgramsWidget(context.getApplicationContext());
   }
   
   //TODO
@@ -1219,6 +1223,22 @@ public class UiUtils {
   }
   
   public static void handleMarkings(Context context, Cursor cursor, long startTime, long endTime, final View view, String[] markedColumns, Handler handler, boolean vertical) {
+    final LayerDrawable draw = getMarkingsDrawable(context, cursor, startTime, endTime, markedColumns, vertical);
+    
+    if(handler == null) {
+      view.setBackgroundDrawable(draw);
+    }
+    else{
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          view.setBackgroundDrawable(draw);
+        }
+      });
+    }
+  }
+  
+  public static LayerDrawable getMarkingsDrawable(Context context, Cursor cursor, long startTime, long endTime, String[] markedColumns,boolean vertical) {
     if(markedColumns == null && cursor != null) {
       ArrayList<String> markedColumnList = new ArrayList<String>();
       
@@ -1293,17 +1313,7 @@ public class UiUtils {
     
     draw.add(context.getResources().getDrawable(android.R.drawable.list_selector_background));
     
-    if(handler == null) {
-      view.setBackgroundDrawable(new LayerDrawable(draw.toArray(new Drawable[draw.size()])));
-    }
-    else{
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          view.setBackgroundDrawable(new LayerDrawable(draw.toArray(new Drawable[draw.size()])));
-        }
-      });
-    }
+    return new LayerDrawable(draw.toArray(new Drawable[draw.size()]));
   }
   
   public static void editFavorite(final Favorite fav, final Context activity, String searchString) {
@@ -1697,5 +1707,13 @@ public class UiUtils {
     }
     
     return returnValue;
+  }
+  
+  public static void updateImportantProgramsWidget(Context context) {
+    AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
+    ComponentName importantProgramsWidget = new ComponentName(context, ImportantProgramsListWidget.class);
+    int[] appWidgetIds = appWidgetManager.getAppWidgetIds(importantProgramsWidget);
+    
+    appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.important_widget_list_view);
   }
 }

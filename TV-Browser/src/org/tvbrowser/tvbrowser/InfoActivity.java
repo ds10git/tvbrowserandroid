@@ -41,7 +41,7 @@ public class InfoActivity extends Activity {
     Intent intent = getIntent();
     
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
-    Log.d("info", "" + programID + " " + intent);
+    Log.d("info", "" + programID + " " + intent + " " + intent.getExtras());
     if(programID >= 0) {
       UiUtils.showProgramInfo(this, programID, this);
     }

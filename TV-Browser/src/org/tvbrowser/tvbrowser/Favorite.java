@@ -563,6 +563,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
+        
+        UiUtils.updateImportantProgramsWidget(context.getApplicationContext());
       }
     }
     
@@ -704,6 +706,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           // TODO Auto-generated catch block
           e.printStackTrace();
         }
+        
+        UiUtils.updateImportantProgramsWidget(context.getApplicationContext());
       }
     }
     
