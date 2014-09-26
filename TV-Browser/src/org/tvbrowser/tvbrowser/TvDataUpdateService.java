@@ -207,6 +207,7 @@ public class TvDataUpdateService extends Service {
     new Thread() {
       public void run() {
         setPriority(MIN_PRIORITY);
+        PrefUtils.initialize(getApplicationContext(),true);
         
         Logging.openLogForDataUpdate(getApplicationContext());
         
@@ -583,6 +584,8 @@ public class TvDataUpdateService extends Service {
               // TODO Auto-generated catch block
               e.printStackTrace();
             }
+            
+            UiUtils.updateImportantProgramsWidget(getApplicationContext());
           }
           else {
             if(info) {
@@ -689,6 +692,8 @@ public class TvDataUpdateService extends Service {
         } catch (OperationApplicationException e) {
           e.printStackTrace();
         }
+        
+        UiUtils.updateImportantProgramsWidget(getApplicationContext());
       }
       
       notification.cancel(NOTIFY_ID);

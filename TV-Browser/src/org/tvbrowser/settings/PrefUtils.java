@@ -31,7 +31,11 @@ public class PrefUtils {
   private PrefUtils() {}
   
   public static void initialize(Context context) {
-    if(mContext == null) {
+    initialize(context,false);
+  }
+  
+  public static void initialize(Context context, boolean reload) {
+    if(mContext == null || reload) {
       mContext = context;
       mPref = PreferenceManager.getDefaultSharedPreferences(context);
       
