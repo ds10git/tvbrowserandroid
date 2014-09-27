@@ -489,6 +489,15 @@ public class TvBrowser extends FragmentActivity implements
       mUpdateItem.setActionView(null);
     }
     
+    if(TEST_VERSION) {
+      Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+      edit.putLong(getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), System.currentTimeMillis() + 60000);
+      edit.commit();
+      
+      IOUtils.handleDataUpdatePreferences(TvBrowser.this);
+      //R.string.AUTO_UPDATE_CURRENT_START_TIME
+    }
+    
     SettingConstants.ORIENTATION = getResources().getConfiguration().orientation;
     
     mUpdateDoneBroadcastReceiver = new BroadcastReceiver() {

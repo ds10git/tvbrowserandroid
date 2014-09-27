@@ -1719,13 +1719,13 @@ public class UiUtils {
     
     return returnValue;
   }
-  
+    
   public static void updateImportantProgramsWidget(Context context) {
     try {
       AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
+
       ComponentName importantProgramsWidget = new ComponentName(context, ImportantProgramsListWidget.class);
       int[] appWidgetIds = appWidgetManager.getAppWidgetIds(importantProgramsWidget);
-      
       appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.important_widget_list_view);
     }catch(Throwable t) {}
   }

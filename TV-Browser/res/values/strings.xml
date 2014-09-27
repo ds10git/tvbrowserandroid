@@ -504,4 +504,9 @@
         <item>Only for all programs if all data is displayed</item>
         <item>Never for all programs</item>
     </string-array>
+    
+    <!-- WIDGETS -->
+    
+    <string name="widget_important_default_title">Important programs</string>
+    <string name="widget_important_empty">No important programs available</string>
 </resources>
