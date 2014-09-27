@@ -70,7 +70,9 @@ import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PowerManager;
 import android.os.RemoteException;
+import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -1536,6 +1538,12 @@ public class TvDataUpdateService extends Service {
     
     IS_RUNNING = false;
     
+    if(mWakeLock != null && mWakeLock.isHeld()) {
+      mWakeLock.release();
+    }
+    
+    stopForeground(true);
+    
     stopSelfInternal();
   }
   
@@ -1635,9 +1643,15 @@ public class TvDataUpdateService extends Service {
     return mirrorLine;
   }
   
+  private WakeLock mWakeLock;
+  
   private void updateTvData() {
     doLog("Running state: " + IS_RUNNING);
     if(!IS_RUNNING) {
+      PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+      mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBUPDATE_LOCK");
+      mWakeLock.acquire(120*60000L);
+      
       mShowNotification = true;
       mUnsuccessfulDownloads = 0;
       IS_RUNNING = true;
@@ -1721,8 +1735,9 @@ public class TvDataUpdateService extends Service {
       mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
       mBuilder.setContentText(getResources().getText(R.string.update_notification_text));
       
+      startForeground(NOTIFY_ID, mBuilder.build());
       final NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-      notification.notify(NOTIFY_ID, mBuilder.build());
+      //notification.notify(NOTIFY_ID, mBuilder.build());*/
       doLog("loadAccessAndFavoriteSync()");
       loadAccessAndFavoriteSync();
       
@@ -1997,19 +2012,19 @@ public class TvDataUpdateService extends Service {
       mBuilder.setProgress(100, 0, true);
       notification.notify(NOTIFY_ID, mBuilder.build());
       
-      if(updateList.size() > 0) {
-        calculateMissingEnds(notification,true);
-      }
-      else {
-        finishUpdate(notification,false);
-      }
-      
       mCurrentVersionIDs.clear();
       mCurrentVersionIDs = null;
       
       if(mCurrentData != null) {
         mCurrentData.clear();
         mCurrentData = null;
+      }
+      
+      if(updateList.size() > 0) {
+        calculateMissingEnds(notification,true);
+      }
+      else {
+        finishUpdate(notification,false);
       }
     }
   }

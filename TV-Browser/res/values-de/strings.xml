@@ -492,4 +492,9 @@
         <item>Nur für alle Sendungen, wenn alle Daten angezeigt werden</item>
         <item>Niemals für alle Sendungen</item>
     </string-array>
+    
+    <!-- WIDGETS -->
+    
+    <string name="widget_important_default_title">Wichtige Sendungen</string>
+    <string name="widget_important_empty">Keine wichtigen Sendungen vorhanden</string>
 </resources>

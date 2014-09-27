@@ -68,6 +68,8 @@ public class SettingConstants {
   public static final String SYNCHRONIZE_UP_URL_EXTRA = "SYNCHRONIZE_UP_URL_EXTRA";
   public static final String SYNCHRONIZE_UP_VALUE_EXTRA = "SYNCHRONIZE_UP_STRING_EXTRA";
   
+  public static final String UPDATE_APP_WIDGET_ID_EXTRA = "UPDATE_APP_WIDGET_ID_EXTRA";
+  
   public static final String SKU_ONE_STAR_DONATION = "one_star_donation";
   public static final String SKU_TWO_STAR_DONATION = "two_star_donation";
   public static final String SKU_THREE_STAR_DONATION = "three_star_donation";
