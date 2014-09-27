@@ -129,18 +129,22 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       String id = mCursor.getString(idIndex);
       long startTime = mCursor.getLong(startTimeIndex);
       String title = mCursor.getString(titleIndex);
-      String channelName = mCursor.getString(channelNameIndex);
       
       String name = mCursor.getString(channelNameIndex);
       String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
       String number = null;
-      String episodeTitle = mCursor.getString(episodeIndex);
+      String episodeTitle = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_LISTS, R.bool.show_episode_in_lists_default) ? mCursor.getString(episodeIndex) : null;
       
       if(shortName != null) {
         name = shortName;
       }
       
-      if(true) {
+      String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS, R.string.channel_logo_name_program_lists_default);
+      
+      boolean showChannelName = logoNamePref.equals("0") || logoNamePref.equals("2");
+      boolean showChannelLogo = logoNamePref.equals("0") || logoNamePref.equals("1");
+      
+      if(PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_LISTS, R.bool.show_sort_number_in_lists_default)) {
         number = mCursor.getString(orderNumberIndex);
         
         if(number == null) {
@@ -154,20 +158,27 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       
       Drawable logo = null;
       
-      if(true && logoIndex >= 0) {
+      if(showChannelLogo && logoIndex >= 0) {
         int key = mCursor.getInt(logoIndex);
         logo = SettingConstants.SMALL_LOGO_MAP.get(key);
       }
       
       RemoteViews rv = new RemoteViews(mContext.getPackageName(), R.layout.important_programs_widget_row);
       
-      String date = UiUtils.formatDate(startTime, mContext, false, true);
+      String date = UiUtils.formatDate(startTime, mContext, false, true, true);
       String time = DateFormat.getTimeFormat(mContext).format(new Date(startTime));
       
-      rv.setTextViewText(R.id.important_programs_widget_row_start_day, date);
-      rv.setTextViewText(R.id.important_programs_widget_row_start_time, time);
-      rv.setTextViewText(R.id.important_programs_widget_row_title, title);
-      rv.setTextViewText(R.id.important_programs_widget_row_channel_name, channelName);
+      rv.setTextViewText(R.id.important_programs_widget_row_start_date1, date);
+      rv.setTextViewText(R.id.important_programs_widget_row_start_time1, time);
+      rv.setTextViewText(R.id.important_programs_widget_row_title1, title);
+      
+      if(showChannelName || logo == null) {
+        rv.setTextViewText(R.id.important_programs_widget_row_channel_name1, name);
+        rv.setViewVisibility(R.id.important_programs_widget_row_channel_name1, View.VISIBLE);
+      }
+      else {
+        rv.setViewVisibility(R.id.important_programs_widget_row_channel_name1, View.GONE);
+      }
       
       ArrayList<String> markedColumns = new ArrayList<String>();
       
@@ -192,11 +203,11 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       
       Log.d("info", "LOGO " + logo);
       if(logo != null && ((BitmapDrawable)logo).getBitmap() != null) {
-        rv.setImageViewBitmap(R.id.important_programs_widget_row_channel_logo, ((BitmapDrawable)logo).getBitmap());
-        rv.setViewVisibility(R.id.important_programs_widget_row_channel_logo, View.VISIBLE);
+        rv.setImageViewBitmap(R.id.important_programs_widget_row_channel_logo1, ((BitmapDrawable)logo).getBitmap());
+        rv.setViewVisibility(R.id.important_programs_widget_row_channel_logo1, View.VISIBLE);
       }
       else {
-        rv.setViewVisibility(R.id.important_programs_widget_row_channel_logo, View.GONE);
+        rv.setViewVisibility(R.id.important_programs_widget_row_channel_logo1, View.GONE);
       }
       
       if(episodeTitle != null) {

@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#88000000"
      >
+     <TextView android:id="@+id/important_widget_header"
+         android:layout_width="match_parent"
+         android:layout_height="wrap_content"
+         android:background="@drawable/rounded_corners_shape_light"
+         android:layout_alignParentTop="true"
+         android:gravity="center_vertical"
+         android:textSize="@dimen/title_font_size"
+         android:drawableLeft="@drawable/ic_launcher"
+         android:layout_alignParentLeft="true"/>
     <ListView
+        android:background="@drawable/rounded_corners_shape_dark"
         android:id="@+id/important_widget_list_view"
         android:layout_width="match_parent"
         android:dividerHeight="3dp"
-        android:layout_height="match_parent"/>
+        android:layout_height="match_parent"
+        android:layout_below="@id/important_widget_header"/>
 	<TextView
 	    android:id="@+id/important_widget_empty_text"
 	    android:layout_width="match_parent"
@@ -16,4 +26,4 @@
 	    android:padding="5dp"
 	    android:gravity="center"
 	    android:text="No important programs"/>
-</FrameLayout>
+</RelativeLayout>
