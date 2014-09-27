@@ -2,6 +2,7 @@ package org.tvbrowser.widgets;
 
 import org.tvbrowser.tvbrowser.InfoActivity;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.tvbrowser.TvBrowser;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -27,6 +28,13 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
       
       views.setRemoteAdapter(appWidgetId,R.id.important_widget_list_view, intent);
       views.setEmptyView(R.id.important_widget_list_view, R.id.important_widget_empty_text);
+      
+      Intent tvb = new Intent(context, TvBrowser.class);
+      
+      views.setTextViewText(R.id.important_widget_header, "TV-Browser important programs");
+      
+      PendingIntent tvbstart = PendingIntent.getActivity(context, 0, tvb, PendingIntent.FLAG_UPDATE_CURRENT);
+      views.setOnClickPendingIntent(R.id.important_widget_header, tvbstart);
       
       Intent templateIntent = new Intent(context, InfoActivity.class);
       templateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);

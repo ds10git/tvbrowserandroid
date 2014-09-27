@@ -129,7 +129,7 @@ import billing.util.SkuDetails;
 
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
-  private static final boolean TEST_VERSION = true;
+  private static final boolean TEST_VERSION = false;
   
   private static final int SHOW_PREFERENCES = 1;
   
@@ -2537,6 +2537,8 @@ public class TvBrowser extends FragmentActivity implements
       mSendReminderLogItem.setEnabled(reminderLogEnabled);
       mDeleteReminderLogItem.setEnabled(reminderLogEnabled);
     }
+    
+    UiUtils.updateImportantProgramsWidget(getApplicationContext());
     
     LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(SettingConstants.UPDATE_TIME_BUTTONS));
     updateScrollMenu();

@@ -184,6 +184,8 @@ public class TvDataUpdateService extends Service {
     TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION
   };
   
+  private boolean mShowNotification;
+  
   @Override
   public void onCreate() {
     super.onCreate();
@@ -209,7 +211,7 @@ public class TvDataUpdateService extends Service {
         setPriority(MIN_PRIORITY);
         PrefUtils.initialize(getApplicationContext(),true);
         
-        Logging.openLogForDataUpdate(getApplicationContext());
+        Logging.openLogForDataUpdate(TvDataUpdateService.this);
         
         doLog("Received intent: " + intent);
         
@@ -585,7 +587,7 @@ public class TvDataUpdateService extends Service {
               e.printStackTrace();
             }
             
-            UiUtils.updateImportantProgramsWidget(getApplicationContext());
+            UiUtils.updateImportantProgramsWidget(TvDataUpdateService.this);
           }
           else {
             if(info) {
@@ -693,7 +695,7 @@ public class TvDataUpdateService extends Service {
           e.printStackTrace();
         }
         
-        UiUtils.updateImportantProgramsWidget(getApplicationContext());
+        UiUtils.updateImportantProgramsWidget(TvDataUpdateService.this);
       }
       
       notification.cancel(NOTIFY_ID);
@@ -1489,7 +1491,7 @@ public class TvDataUpdateService extends Service {
   private void finishUpdate(NotificationManager notification, boolean updateFavorites) {
     doLog("FINISH DATA UPDATE");
     TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
-    getApplicationContext().getContentResolver().notifyChange(TvBrowserContentProvider.CONTENT_URI_DATA, null);
+    getContentResolver().notifyChange(TvBrowserContentProvider.CONTENT_URI_DATA, null);
   
     if(updateFavorites) {
       updateFavorites(notification);
@@ -1510,7 +1512,7 @@ public class TvDataUpdateService extends Service {
     
     Intent inform = new Intent(SettingConstants.DATA_UPDATE_DONE);
     
-    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(inform);
+    LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(inform);
     
     mDontWantToSeeValues = null;
     
@@ -1518,7 +1520,7 @@ public class TvDataUpdateService extends Service {
     mHandler.post(new Runnable() {
       @Override
       public void run() {
-        Toast.makeText(getApplicationContext(), R.string.update_complete, Toast.LENGTH_LONG).show();
+        Toast.makeText(TvDataUpdateService.this, R.string.update_complete, Toast.LENGTH_LONG).show();
       }
     });
     
@@ -1526,7 +1528,7 @@ public class TvDataUpdateService extends Service {
     
     Logging.closeLogForDataUpdate();
     
-    Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+    Editor edit = PreferenceManager.getDefaultSharedPreferences(TvDataUpdateService.this).edit();
     edit.putLong(getString(R.string.LAST_DATA_UPDATE), System.currentTimeMillis());
     edit.commit();
     
@@ -1540,7 +1542,7 @@ public class TvDataUpdateService extends Service {
   private AtomicInteger mFavoriteUpdateCount;
   
   private void updateFavorites(final NotificationManager notification) {
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(TvDataUpdateService.this);
     
     final Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
     
@@ -1558,7 +1560,7 @@ public class TvDataUpdateService extends Service {
       updateFavorites.execute(new Thread() {
         @Override
         public void run() {
-          Favorite.updateFavoriteMarking(getApplicationContext(), getContentResolver(), fav);
+          Favorite.updateFavoriteMarking(TvDataUpdateService.this, getContentResolver(), fav);
           mBuilder.setProgress(favoritesSet.size(), mFavoriteUpdateCount.getAndIncrement(), false);
           notification.notify(NOTIFY_ID, mBuilder.build());
         }
@@ -1577,7 +1579,7 @@ public class TvDataUpdateService extends Service {
   }
   
   public void doLog(String value) {
-    Logging.log(null, value, Logging.DATA_UPDATE_TYPE, getApplicationContext());
+    Logging.log(null, value, Logging.DATA_UPDATE_TYPE, TvDataUpdateService.this);
   }
   
   private void doLogData(String msg) {
@@ -1636,6 +1638,7 @@ public class TvDataUpdateService extends Service {
   private void updateTvData() {
     doLog("Running state: " + IS_RUNNING);
     if(!IS_RUNNING) {
+      mShowNotification = true;
       mUnsuccessfulDownloads = 0;
       IS_RUNNING = true;
       
@@ -1926,7 +1929,7 @@ public class TvDataUpdateService extends Service {
               updateMirror(mirrorFile);
               mCurrentDownloadCount++;
               
-              if(IS_RUNNING) {
+              if(mShowNotification) {
                 mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
                 notification.notify(NOTIFY_ID, mBuilder.build());
               }
@@ -1967,11 +1970,17 @@ public class TvDataUpdateService extends Service {
       
       mDataUpdatePool.shutdown();
       
+      doLog("WAIT FOR DATA UPDATE FOR: " + Math.max(120,updateList.size()) + " MINUTES");
+      
       try {
         mDataUpdatePool.awaitTermination(Math.max(120,updateList.size()), TimeUnit.MINUTES);
       } catch (InterruptedException e) {
         doLog("UPDATE DATE INTERRUPTED " + e.getLocalizedMessage());
       }
+      
+      doLog("WAIT FOR DATA UPDATE FOR DONE, DOWNLOAD: " + mThreadPool.isTerminated() + " DATA: " + mDataUpdatePool.isTerminated());
+      
+      mShowNotification = false;
       
       insert(mDataInsertList);
       insertVersion(mVersionInsertList);
@@ -2414,7 +2423,7 @@ public class TvDataUpdateService extends Service {
           for(File updateFile : downloadList) {
             handleDownload(updateFile);
             
-            if(IS_RUNNING) {
+            if(mShowNotification) {
               mCurrentDownloadCount++;
               mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
               notification.notify(NOTIFY_ID, mBuilder.build());
@@ -2672,7 +2681,7 @@ public class TvDataUpdateService extends Service {
                     if(title.equals(value.mTitle)) {
                       contentValues.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, value.mDontWantToSee ? 1 : 0);
                     }
-                    else if(UiUtils.filter(getApplicationContext(), title, mDontWantToSeeValues)) {
+                    else if(UiUtils.filter(TvDataUpdateService.this, title, mDontWantToSeeValues)) {
                       contentValues.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, 1);
                     }
                   }
@@ -2688,7 +2697,7 @@ public class TvDataUpdateService extends Service {
                 if(level == BASE_LEVEL && mDontWantToSeeValues != null) {
                   String title = contentValues.getAsString(TvBrowserContentProvider.DATA_KEY_TITLE);
                   
-                  if(UiUtils.filter(getApplicationContext(), title, mDontWantToSeeValues)) {
+                  if(UiUtils.filter(TvDataUpdateService.this, title, mDontWantToSeeValues)) {
                     contentValues.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, 1);
                   }
                 }

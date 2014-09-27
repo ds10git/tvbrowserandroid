@@ -1441,6 +1441,10 @@ public class UiUtils {
   }
   
   public static String formatDate(long date, Context context, boolean onlyDays, boolean withDayString) {
+    return formatDate(date, context, onlyDays, false, false);
+  }
+  
+  public static String formatDate(long date, Context context, boolean onlyDays, boolean withDayString, boolean withDate) {
     Calendar progDate = Calendar.getInstance();
     progDate.setTimeInMillis(date);
     
@@ -1466,7 +1470,14 @@ public class UiUtils {
       }
     }
     
-    if(value == null) {
+    if(value == null || withDate) {
+      if(value == null) {
+        value = "";
+      }
+      else if(value.trim().length() > 0) {
+        value += ", ";
+      }
+      
       if(!onlyDays) {
         SimpleDateFormat df = (SimpleDateFormat)java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT);
         String pattern = df.toLocalizedPattern().replaceAll(".?[Yy].?", "");
@@ -1481,12 +1492,12 @@ public class UiUtils {
         
         SimpleDateFormat mdf = new SimpleDateFormat(pattern);
         
-        value = mdf.format(progDate.getTime());
+        value += mdf.format(progDate.getTime());
       }
       else if(withDayString) {
         SimpleDateFormat mdf = new SimpleDateFormat("EEE ");
         
-        value = mdf.format(progDate.getTime());
+        value += mdf.format(progDate.getTime());
       }
     }
     
@@ -1505,7 +1516,7 @@ public class UiUtils {
     
     CharSequence startDayValue = formatDate(date, activity, true);
     
-    if(startDayValue != null) {
+    if(startDayValue != null && startDayValue.toString().trim().length() > 0) {
       startDay.setText(startDayValue + ", " + startDay.getText());
     }
     
@@ -1710,10 +1721,12 @@ public class UiUtils {
   }
   
   public static void updateImportantProgramsWidget(Context context) {
-    AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context);
-    ComponentName importantProgramsWidget = new ComponentName(context, ImportantProgramsListWidget.class);
-    int[] appWidgetIds = appWidgetManager.getAppWidgetIds(importantProgramsWidget);
-    
-    appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.important_widget_list_view);
+    try {
+      AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
+      ComponentName importantProgramsWidget = new ComponentName(context, ImportantProgramsListWidget.class);
+      int[] appWidgetIds = appWidgetManager.getAppWidgetIds(importantProgramsWidget);
+      
+      appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.important_widget_list_view);
+    }catch(Throwable t) {}
   }
 }
