@@ -496,5 +496,15 @@
     <!-- WIDGETS -->
     
     <string name="widget_important_default_title">Wichtige Sendungen</string>
-    <string name="widget_important_empty">Keine wichtigen Sendungen vorhanden</string>
+    <string name="widget_important_empty">Keine Sendungen vorhanden</string>
+    <string name="widget_important_config_name_label">Widget-Titel:</string>
+    <string name="widget_important_config_name_value_hint">Titel des Widgets eingeben</string>
+    <string name="widget_important_config_shown_selection_label">ANGEZEIGTE SENDUNGEN AUSWÄHLEN</string>
+    <string name="widget_important_config_show_marked">Manuell markierte Sendungen</string>
+    <string name="widget_important_config_show_favorite">Lieblingssendungen</string>
+    <string name="widget_important_config_show_reminder">Erinnerungen</string>
+    <string name="widget_important_config_show_calendar">In Kalender eingetragene Sendungen</string>
+    <string name="widget_important_config_show_sync">Synchonisierte Sendungen</string>
+    
+    <string name="widget_running_title">Jetzt läuft</string>
 </resources>

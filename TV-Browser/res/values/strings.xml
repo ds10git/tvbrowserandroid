@@ -508,5 +508,15 @@
     <!-- WIDGETS -->
     
     <string name="widget_important_default_title">Important programs</string>
-    <string name="widget_important_empty">No important programs available</string>
+    <string name="widget_important_empty">No programs available</string>
+    <string name="widget_important_config_name_label">Widget title:</string>
+    <string name="widget_important_config_name_value_hint">Enter title of widget</string>
+    <string name="widget_important_config_shown_selection_label">SELECT SHOWN PROGRAMS</string>
+    <string name="widget_important_config_show_marked">Manually marked programs</string>
+    <string name="widget_important_config_show_favorite">Favorite programs</string>
+    <string name="widget_important_config_show_reminder">Reminder programs</string>
+    <string name="widget_important_config_show_calendar">Calendar programs</string>
+    <string name="widget_important_config_show_sync">Synchronized programs</string>
+    
+    <string name="widget_running_title">Now running</string>
 </resources>

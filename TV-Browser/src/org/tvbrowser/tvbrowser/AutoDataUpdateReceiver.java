@@ -29,16 +29,22 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
+import android.os.PowerManager;
+import android.os.PowerManager.WakeLock;
 import android.preference.PreferenceManager;
 
 public class AutoDataUpdateReceiver extends BroadcastReceiver {
   private static Thread UPDATE_THREAD;
   
   @Override
-  public void onReceive(final Context context, Intent intent) {    
+  public void onReceive(final Context context, Intent intent) {
+    PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+    final WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBAUTOUPDATE_LOCK");
+    wakeLock.acquire(2*60000L);
+    
     PrefUtils.initialize(context);
     
-    Logging.openLogForDataUpdate(context);    
+    Logging.openLogForDataUpdate(context);
     Logging.log(null, "AUTO DATA UPDATE onReceive Intent: " + intent + " Context: " + context, Logging.DATA_UPDATE_TYPE, context);
     
     final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
@@ -99,6 +105,11 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
           UPDATE_THREAD = new Thread() {
             @Override
             public void run() {
+              if(!TvDataUpdateService.IS_RUNNING) {
+                Logging.openLogForDataUpdate(context);
+                Logging.log(null, "UPDATE_THREAD STARTED", Logging.DATA_UPDATE_TYPE, context);
+                Logging.closeLogForDataUpdate();                
+              }
               try {
                 sleep(10000);
               } catch (InterruptedException e) {}
@@ -106,12 +117,21 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
               if(!TvDataUpdateService.IS_RUNNING) {
                 Intent startDownload = new Intent(context, TvDataUpdateService.class);
                 startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
+                startDownload.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 
                 int daysToDownload = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_RANGE, R.string.pref_auto_update_range_default));
                 
                 startDownload.putExtra(context.getString(R.string.DAYS_TO_DOWNLOAD), daysToDownload);
                 
+                Logging.openLogForDataUpdate(context);
+                Logging.log(null, "UPDATE START INTENT " + startDownload, Logging.DATA_UPDATE_TYPE, context);
+                Logging.closeLogForDataUpdate();
+                
                 context.startService(startDownload);
+                
+                if(wakeLock.isHeld()) {
+                  wakeLock.release();
+                }
               }
             }
           };
@@ -131,15 +151,27 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
           currentTime.commit();
           
           IOUtils.setDataUpdateTime(context, current, pref);
+          
+          if(wakeLock.isHeld()) {
+            wakeLock.release();
+          }
         }
       }
       else {
         Logging.closeLogForDataUpdate();
+        
+        if(wakeLock.isHeld()) {
+          wakeLock.release();
+        }
       }
       
       IOUtils.handleDataUpdatePreferences(context);
     }
     else {
+      if(wakeLock.isHeld()) {
+        wakeLock.release();
+      }
+      
       Logging.closeLogForDataUpdate();
     }
   }

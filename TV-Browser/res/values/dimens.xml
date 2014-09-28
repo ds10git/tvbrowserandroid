@@ -21,4 +21,6 @@
     <dimen name="prog_table_channel_font_size">17sp</dimen>
     <dimen name="prog_table_channel_height">25sp</dimen>
     <dimen name="edit_favorite_font_size">20sp</dimen>
+    <dimen name="widget_config_devider_font_size">18sp</dimen>
+    <dimen name="widget_config_font_size">18sp</dimen>
 </resources>

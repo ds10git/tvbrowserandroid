@@ -29,6 +29,7 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.widgets.ImportantProgramsListWidget;
+import org.tvbrowser.widgets.RunningProgramsListWidget;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -845,6 +846,8 @@ public class UiUtils {
                       ((TvBrowser)activity).updateProgressIcon(true);
                     }
                     
+                    Context applicationContext = activity.getApplicationContext();
+                    
                     NotificationCompat.Builder builder;
                     
                     builder = new NotificationCompat.Builder(activity);
@@ -910,7 +913,7 @@ public class UiUtils {
                     if(!updateValuesList.isEmpty()) {
                       try {
                         activity.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
-                        sendDontWantToSeeChangedBroadcast(activity,true);
+                        sendDontWantToSeeChangedBroadcast(applicationContext,true);
                       } catch (RemoteException e) {
                         // TODO Auto-generated catch block
                         e.printStackTrace();
@@ -973,6 +976,8 @@ public class UiUtils {
               ((TvBrowser)activity).updateProgressIcon(true);
             }
             
+            Context applicationContext = activity.getApplicationContext();
+            
             NotificationCompat.Builder builder;
             
             builder = new NotificationCompat.Builder(activity);
@@ -1024,7 +1029,7 @@ public class UiUtils {
             if(!updateValuesList.isEmpty()) {
               try {
                 activity.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
-                sendDontWantToSeeChangedBroadcast(activity,false);
+                sendDontWantToSeeChangedBroadcast(applicationContext,false);
               } catch (RemoteException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -1069,6 +1074,9 @@ public class UiUtils {
     intent.putExtra(SettingConstants.DONT_WANT_TO_SEE_ADDED_EXTRA, added);
     
     LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+    
+    updateImportantProgramsWidget(context);
+    updateRunningProgramsWidget(context);
   }
   
   private static void sendMarkingChangedBroadcast(Context context, long programID) {
@@ -1441,7 +1449,7 @@ public class UiUtils {
   }
   
   public static String formatDate(long date, Context context, boolean onlyDays, boolean withDayString) {
-    return formatDate(date, context, onlyDays, false, false);
+    return formatDate(date, context, onlyDays, withDayString, false);
   }
   
   public static String formatDate(long date, Context context, boolean onlyDays, boolean withDayString, boolean withDate) {
@@ -1727,6 +1735,16 @@ public class UiUtils {
       ComponentName importantProgramsWidget = new ComponentName(context, ImportantProgramsListWidget.class);
       int[] appWidgetIds = appWidgetManager.getAppWidgetIds(importantProgramsWidget);
       appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.important_widget_list_view);
+    }catch(Throwable t) {}
+  }
+  
+  public static void updateRunningProgramsWidget(Context context) {
+    try {
+      AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
+
+      ComponentName importantProgramsWidget = new ComponentName(context, RunningProgramsListWidget.class);
+      int[] appWidgetIds = appWidgetManager.getAppWidgetIds(importantProgramsWidget);
+      appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.running_widget_list_view);
     }catch(Throwable t) {}
   }
 }

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.tvbrowser.tvbrowser"
-	android:versionCode="208"
-	android:versionName="0.3.3.2 Beta3"
+	android:versionCode="209"
+	android:versionName="0.4 Beta1"
 	android:installLocation="auto">
 
 	<uses-sdk
@@ -31,6 +31,8 @@
 		<service android:name="org.tvbrowser.tvbrowser.TvDataUpdateService"
 			android:enabled="true"></service>
 		<service android:name="org.tvbrowser.widgets.ImportantProgramsRemoveViewsService"
+		    android:permission="android.permission.BIND_REMOTEVIEWS"></service>
+		<service android:name="org.tvbrowser.widgets.RunningProgramsRemoteViewsService"
 		    android:permission="android.permission.BIND_REMOTEVIEWS"></service>
 		<activity
 			android:name="org.tvbrowser.tvbrowser.TvBrowser"
@@ -65,6 +67,12 @@
 			android:label="@string/pref_summary"/>
 		<activity android:name="org.tvbrowser.tvbrowser.InfoActivity"
 			android:theme="@android:style/Theme.Translucent.NoTitleBar"/>
+		<activity android:name="org.tvbrowser.widgets.ImportantProgramsWidgetConfigurationActivity"
+		    android:label="@string/widget_important_default_title">
+		    <intent-filter>
+		        <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE"/>
+		    </intent-filter>
+		</activity>
 		<receiver android:name="org.tvbrowser.tvbrowser.ReminderBroadcastReceiver" android:enabled="true"/>
 		<receiver android:name="org.tvbrowser.tvbrowser.UpdateAlarmValue" android:enabled="true">  
 			<intent-filter>  
@@ -80,17 +88,33 @@
 			</intent-filter>
 		</receiver>
 		<receiver android:name="org.tvbrowser.widgets.ImportantProgramsListWidget"
-		    android:label="Important programs list">
+		    android:label="@string/widget_important_default_title">
 		    <intent-filter>
 		        <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+		        <action android:name="org.tvbrowser.UPDATE_IMPORTANT_APP_WIDGET"/>
 		    </intent-filter>
 		    <meta-data
 		        android:name="android.appwidget.provider"
 		        android:resource="@xml/important_programs_widget_info"/>
 		</receiver>
-		<receiver android:name="org.tvbrowser.widgets.ImportantProgramsWidgetUpdateReceiver" android:enabled="true">  
+		<receiver android:name="org.tvbrowser.widgets.RunningProgramsListWidget"
+		    android:label="@string/widget_running_title">
+		    <intent-filter>
+		        <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+		        <action android:name="org.tvbrowser.UPDATE_RUNNING_APP_WIDGET"/>
+		    </intent-filter>
+		    <meta-data
+		        android:name="android.appwidget.provider"
+		        android:resource="@xml/running_programs_widget_info"/>
+		</receiver>
+		<receiver android:name="org.tvbrowser.widgets.ProgramsWidgetsUpdateReceiver" android:enabled="true">  
 			<intent-filter>
 				<action android:name="android.intent.action.USER_PRESENT" />
+			</intent-filter>  
+		</receiver>
+		<receiver android:name="org.tvbrowser.widgets.WidgetOnClickReceiver" android:enabled="true" android:exported="false">  
+			<intent-filter>
+				<action android:name="org.tvbrowser.HANDLE_APP_WIDGET_CLICK" />
 			</intent-filter>  
 		</receiver>
 	</application>
