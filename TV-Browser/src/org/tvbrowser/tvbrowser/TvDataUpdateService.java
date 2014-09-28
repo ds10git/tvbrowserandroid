@@ -210,8 +210,8 @@ public class TvDataUpdateService extends Service {
   public int onStartCommand(final Intent intent, int flags, int startId) {
     new Thread() {
       public void run() {
-        setPriority(MIN_PRIORITY);
-        PrefUtils.initialize(getApplicationContext(),true);
+        setPriority(NORM_PRIORITY);
+        PrefUtils.initialize(TvDataUpdateService.this,true);
         
         Logging.openLogForDataUpdate(TvDataUpdateService.this);
         
@@ -1543,6 +1543,13 @@ public class TvDataUpdateService extends Service {
     }
     
     stopForeground(true);
+    
+    PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+    
+    if(pm.isScreenOn()) {
+      UiUtils.updateImportantProgramsWidget(getApplicationContext());
+      UiUtils.updateRunningProgramsWidget(getApplicationContext());
+    }
     
     stopSelfInternal();
   }

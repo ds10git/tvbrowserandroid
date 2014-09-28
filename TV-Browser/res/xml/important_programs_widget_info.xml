@@ -7,5 +7,7 @@
     android:label="@string/widget_important_default_title"
     android:updatePeriodMillis="8640000"
     android:resizeMode="horizontal|vertical"
+    android:configure="org.tvbrowser.widgets.ImportantProgramsWidgetConfigurationActivity"
+    android:previewImage="@drawable/img_important_widget"
     />
     

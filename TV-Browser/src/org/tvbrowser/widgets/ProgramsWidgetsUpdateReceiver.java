@@ -21,18 +21,16 @@ import org.tvbrowser.tvbrowser.UiUtils;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.util.Log;
 
 /**
  * A broadcast receiver for updating the important programs widget.
  * 
  * @author René Mach
  */
-public class ImportantProgramsWidgetUpdateReceiver extends BroadcastReceiver {
-
+public class ProgramsWidgetsUpdateReceiver extends BroadcastReceiver {
   @Override
   public void onReceive(Context context, Intent intent) {
-    Log.d("info6", "UPDATE IMPORTANT " + intent);
-    UiUtils.updateImportantProgramsWidget(context);
+    UiUtils.updateRunningProgramsWidget(context);
+    UiUtils.updateImportantProgramsWidget(context);    
   }
 }

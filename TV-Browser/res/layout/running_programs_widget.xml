@@ -4,19 +4,11 @@
     android:layout_height="match_parent"
      >
      <RelativeLayout
-         android:id="@+id/important_widget_header_wrapper"
+         android:id="@+id/running_widget_header_wrapper"
          android:layout_width="match_parent"
          android:layout_height="wrap_content"
          android:background="@drawable/rounded_corners_shape_light">
-	     <ImageButton android:id="@+id/important_widget_config"
-	         android:layout_width="wrap_content"
-	         android:layout_height="wrap_content"
-	         android:contentDescription="button"
-	         android:layout_centerVertical="true"
-	         android:src="@android:drawable/ic_menu_preferences"
-	         android:layout_alignParentRight="true"
-	         android:background="@drawable/rounded_corners_shape_light_light_border"/>
-	     <TextView android:id="@+id/important_widget_header"
+	     <TextView android:id="@+id/running_widget_header"
 	         android:layout_width="match_parent"
 	         android:layout_height="wrap_content"
 	         android:layout_alignParentTop="true"
@@ -24,23 +16,23 @@
 	         android:textSize="@dimen/title_font_size"
 	         android:drawableLeft="@drawable/ic_widget"
 	         android:layout_alignParentLeft="true"
-	         android:layout_toLeftOf="@id/important_widget_config"/>
+	         android:layout_alignParentStart="true"/>
      </RelativeLayout>
     <ListView
         android:background="@drawable/rounded_corners_shape_dark"
-        android:id="@+id/important_widget_list_view"
+        android:id="@+id/running_widget_list_view"
         android:layout_width="match_parent"
         android:dividerHeight="3dp"
         android:layout_height="match_parent"
-        android:layout_below="@id/important_widget_header_wrapper"/>
+        android:layout_below="@id/running_widget_header_wrapper"/>
 	<TextView
 	    android:background="@drawable/rounded_corners_shape_dark"
-	    android:id="@+id/important_widget_empty_text"
+	    android:id="@+id/running_widget_empty_text"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
 	    android:textSize="@dimen/title_font_size"
 	    android:padding="5dp"
 	    android:gravity="center"
 	    android:text="@string/widget_important_empty"
-	    android:layout_below="@id/important_widget_header_wrapper"/>
+	    android:layout_below="@id/running_widget_header_wrapper"/>
 </RelativeLayout>

@@ -630,9 +630,11 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
           int daySelection = intent.getIntExtra(SettingConstants.DAY_POSITION_EXTRA, -1);
           int filterSelection = intent.getIntExtra(SettingConstants.FILTER_POSITION_EXTRA, -1);
           
-          ChannelSelection current = (ChannelSelection)channel.getSelectedItem();
+          boolean backstackup = !intent.getBooleanExtra(SettingConstants.NO_BACK_STACKUP_EXTRA, false);
           
-          if(current != null && filterSelection == -1) {                
+          ChannelSelection current = (ChannelSelection)channel.getSelectedItem();
+          Log.d("info8", "backstackup " + backstackup);
+          if(current != null && filterSelection == -1 && backstackup) {                
             ((TvBrowser)getActivity()).addProgramListState(date.getSelectedItemPosition(), current.getID(), filter.getSelectedItemPosition(), getCurrentScrollIndex());
           }
           
@@ -668,7 +670,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
           setDontUpdate(false);
           startUpdateThread();
                         
-          ((TvBrowser)getActivity()).showProgramsListTab();
+          ((TvBrowser)getActivity()).showProgramsListTab(backstackup);
         }
       }
     };

@@ -60,6 +60,7 @@ public class SettingConstants {
   public static final String CHANNEL_ID_EXTRA = "CHANNEL_ID_EXTRA";
   public static final String DAY_POSITION_EXTRA = "DAY_POSITION_EXTRA";
   public static final String FILTER_POSITION_EXTRA = "FILTER_POSITION_EXTRA";
+  public static final String NO_BACK_STACKUP_EXTRA = "NO_BACK_STACKUP_EXTRA";
   public static final String START_TIME_EXTRA = "START_TIME_EXTRA";
   public static final String SCROLL_POSITION_EXTRA = "SCROLL_POSITION_EXTRA";
   public static final String TIME_DATA_UPDATE_EXTRA = "TIME_DATA_UPDATE_EXTRA";
@@ -68,6 +69,9 @@ public class SettingConstants {
   public static final String SYNCHRONIZE_UP_URL_EXTRA = "SYNCHRONIZE_UP_URL_EXTRA";
   public static final String SYNCHRONIZE_UP_VALUE_EXTRA = "SYNCHRONIZE_UP_STRING_EXTRA";
   
+  public static final String HANDLE_APP_WIDGET_CLICK = "org.tvbrowser.HANDLE_APP_WIDGET_CLICK";
+  public static final String UPDATE_RUNNING_APP_WIDGET = "org.tvbrowser.UPDATE_RUNNING_APP_WIDGET";
+  public static final String UPDATE_IMPORTANT_APP_WIDGET = "org.tvbrowser.UPDATE_IMPORTANT_APP_WIDGET";
   public static final String UPDATE_APP_WIDGET_ID_EXTRA = "UPDATE_APP_WIDGET_ID_EXTRA";
   
   public static final String SKU_ONE_STAR_DONATION = "one_star_donation";

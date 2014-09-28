@@ -83,6 +83,7 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.provider.Contacts.SettingsColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -365,7 +366,7 @@ public class TvBrowser extends FragmentActivity implements
       mViewPager.setCurrentItem(startTab);      
     }
     
-    IOUtils.handleDataUpdatePreferences(TvBrowser.this);
+    IOUtils.handleDataUpdatePreferences(TvBrowser.this);    
   }
   
   private void updateSelectedChannelsLists() {
@@ -510,6 +511,12 @@ public class TvBrowser extends FragmentActivity implements
     IntentFilter filter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
     
     LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mUpdateDoneBroadcastReceiver, filter);
+    
+    Log.d("info7", "INTENT " + getIntent() + " " + getIntent().hasExtra(SettingConstants.CHANNEL_ID_EXTRA));
+    
+    /*if(getIntent().hasExtra(SettingConstants.CHANNEL_ID_EXTRA) && getIntent().hasExtra(SettingConstants.START_TIME_EXTRA)) {
+      
+    }*/
   }
   
   private void handleResume() {
@@ -857,6 +864,8 @@ public class TvBrowser extends FragmentActivity implements
         if(!SettingConstants.UPDATING_FILTER) {
           SettingConstants.UPDATING_FILTER = true;
           
+          Context applicationContext = getApplicationContext();
+          
           NotificationCompat.Builder builder;
           
           builder = new NotificationCompat.Builder(TvBrowser.this);
@@ -962,7 +971,7 @@ public class TvBrowser extends FragmentActivity implements
                 if(!updateValuesList.isEmpty()) {
                   try {
                     getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
-                    UiUtils.sendDontWantToSeeChangedBroadcast(getApplicationContext(),true);
+                    UiUtils.sendDontWantToSeeChangedBroadcast(applicationContext,true);
                     handler.post(new Runnable() {
                       @Override
                       public void run() {
@@ -3205,11 +3214,17 @@ public class TvBrowser extends FragmentActivity implements
     });
   }
   
-  public void showProgramsListTab() {
+  public void showProgramsListTab(boolean remember) {
     if(mViewPager.getCurrentItem() != 1) {
       mLastSelectedTab = mViewPager.getCurrentItem();
       mViewPager.setCurrentItem(1,true);
-      mProgramsListWasShow = true;
+      
+      if(remember) {
+        mProgramsListWasShow = true;
+      }
+      else {
+        mProgramsListWasShow = false;
+      }
     }
   }
   
