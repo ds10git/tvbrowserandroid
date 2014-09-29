@@ -167,7 +167,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     public ImportantProgramsRemoteViewsFactory(Context context, Bundle extras) {
       PrefUtils.initialize(context);
       mContext = context;
-      SettingConstants.updateLogoMap(context);
+      SettingConstants.initializeLogoMap(context, false);
       
       if(extras != null && extras.containsKey(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
         mAppWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,AppWidgetManager.INVALID_APPWIDGET_ID);

@@ -18,6 +18,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -76,8 +77,9 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
     }
     
     public RunningProgramsRemoteViewsFactory(Context context, Bundle extras) {
-      
       mContext = context;
+      PrefUtils.initialize(context);
+      SettingConstants.initializeLogoMap(context, false);
       
       if(extras != null) {
         mAppWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
@@ -157,8 +159,8 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       
       String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_RUNNING, R.string.channel_logo_name_running_default);
       
-      boolean showChannelName = logoNamePref.equals("0") || logoNamePref.equals("2");
-      boolean showChannelLogo = logoNamePref.equals("0") || logoNamePref.equals("1");
+      boolean showChannelName = (logoNamePref.equals("0") || logoNamePref.equals("2"));
+      boolean showChannelLogo = (logoNamePref.equals("0") || logoNamePref.equals("1"));
       
       if(PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_RUNNING_LIST, R.bool.show_sort_number_in_running_list_default)) {
         number = mCursor.getString(orderNumberIndex);

@@ -31,12 +31,8 @@ public class PrefUtils {
   private PrefUtils() {}
   
   public static void initialize(Context context) {
-    initialize(context,false);
-  }
-  
-  public static void initialize(Context context, boolean reload) {
-    if(mContext == null || reload) {
-      mContext = context;
+    if(mContext == null) {
+      mContext = context.getApplicationContext();
       mPref = PreferenceManager.getDefaultSharedPreferences(context);
       
       String installerSouce = context.getPackageManager().getInstallerPackageName(context.getPackageName());
@@ -52,7 +48,7 @@ public class PrefUtils {
       return mPref.getInt(mContext.getString(prefKey), defaultValue);
     }
     
-    return -1;
+    return defaultValue;
   }
   
   public static int getIntValueWithDefaultKey(int prefKey, int defaultKey) {
@@ -68,7 +64,7 @@ public class PrefUtils {
       return mPref.getLong(mContext.getString(prefKey), defaultValue);
     }
     
-    return -1;
+    return defaultValue;
   }
   
   public static long getLongValueWithDefaultKey(int prefKey, int defaultKey) {
@@ -84,7 +80,7 @@ public class PrefUtils {
       return mPref.getBoolean(mContext.getString(prefKey), defaultValue);
     }
     
-    return false;
+    return defaultValue;
   }
   
   public static boolean getBooleanValue(int prefKey, int defaultKey) {
@@ -100,11 +96,11 @@ public class PrefUtils {
       return mPref.getString(mContext.getString(prefKey), defaultValue);
     }
     
-    return null;
+    return defaultValue;
   }
   
   public static String getStringValue(int prefKey, int defaultKey) {
-    if(mPref != null) {
+    if(mContext != null) {
       return getStringValue(prefKey,mContext.getResources().getString(defaultKey));
     }
     
@@ -119,12 +115,15 @@ public class PrefUtils {
         return Integer.parseInt(value);
       }
     }
+    else if(defaultValue != null) {
+      return Integer.parseInt(defaultValue);
+    }
     
     return Integer.MIN_VALUE;
   }
   
   public static int getStringValueAsInt(int prefKey, int defaultKey) throws NumberFormatException {
-    if(mPref != null) {
+    if(mContext != null) {
       String value = getStringValue(prefKey,mContext.getResources().getString(defaultKey));
       
       if(value != null) {
@@ -140,17 +139,19 @@ public class PrefUtils {
       return mPref.getStringSet(mContext.getString(prefKey), defaultValue);
     }
     
-    return null;
+    return defaultValue;
   }
   
   public static Set<String> getStringSetValue(int prefKey, int defaultKey) {
-    if(mPref != null) {
+    if(mContext != null) {
       String[] tempValues = mContext.getResources().getStringArray(defaultKey);
       
-      HashSet<String> defaultValues = new HashSet<String>(tempValues.length);
+      HashSet<String> defaultValues = new HashSet<String>();
       
-      for(String value : tempValues) {
-        defaultValues.add(value);
+      if(tempValues != null) {
+        for(String value : tempValues) {
+          defaultValues.add(value);
+        }
       }
       
       return getStringSetValue(prefKey,defaultValues);
