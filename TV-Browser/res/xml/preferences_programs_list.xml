@@ -15,4 +15,10 @@
 		android:entries="@array/pref_programs_list_show_date_entries"
 		android:entryValues="@array/pref_programs_list_show_date_values"
 		android:summary="%s"/>
+	<ListPreference android:key="@string/SHOW_CHANNEL_FOR_PROGRAMS_LIST"
+		android:title="@string/pref_programs_list_show_channel"
+		android:defaultValue="@string/show_channel_for_programs_list_default"
+		android:entries="@array/pref_programs_list_show_channel_entries"
+		android:entryValues="@array/pref_programs_list_show_channel_values"
+		android:summary="%s"/>
 </PreferenceScreen>

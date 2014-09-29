@@ -169,6 +169,10 @@ public class SettingConstants {
   }
   
   private static BitmapDrawable createDrawable(int baseHeight, Context context, Bitmap logoBitmap) {
+    return new BitmapDrawable(context.getResources(), UiUtils.drawableToBitmap(createLayerDrawable(baseHeight,context,logoBitmap)));
+  }
+  
+  public static LayerDrawable createLayerDrawable(int baseHeight, Context context, Bitmap logoBitmap) {
     float scale = UiUtils.convertDpToPixel(baseHeight, context.getResources()) / (float)logoBitmap.getHeight();
     int maxwidth = UiUtils.convertDpToPixel(80, context.getResources());
     
@@ -190,7 +194,7 @@ public class SettingConstants {
     
     logo1.setBounds(2, 2, width, height);
     
-    return new BitmapDrawable(context.getResources(), UiUtils.drawableToBitmap(logo));
+    return logo;
   }
   
   public static int ORIENTATION;

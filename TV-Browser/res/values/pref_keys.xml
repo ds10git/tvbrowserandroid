@@ -213,6 +213,9 @@
 	    <string name="SHOW_DATE_FOR_PROGRAMS_LIST">SHOW_DATE_FOR_PROGRAMS_LIST</string>
 	    <item name="show_date_for_programs_list_default" type="string" format="string">1</item>
 	    
+	    <string name="SHOW_CHANNEL_FOR_PROGRAMS_LIST">SHOW_CHANNEL_FOR_PROGRAMS_LIST</string>
+	    <item name="show_channel_for_programs_list_default" type="string" format="string">1</item>
+	    
 	<!-- Program table settings -->
 	
 	    <string name="PROG_TABLE_ACTIVATED">PROG_TABLE_ACTIVATED</string>

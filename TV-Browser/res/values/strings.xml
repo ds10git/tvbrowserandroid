@@ -504,6 +504,12 @@
         <item>Only for all programs if all data is displayed</item>
         <item>Never for all programs</item>
     </string-array>
+    <string name="pref_programs_list_show_channel">Show channel for programs</string>
+    <string-array name="pref_programs_list_show_channel_entries">
+        <item>Always for all programs</item>
+        <item>Only for all programs if all channels are selected</item>
+    </string-array>
+    
     
     <!-- WIDGETS -->
     

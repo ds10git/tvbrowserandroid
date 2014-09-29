@@ -492,6 +492,11 @@
         <item>Nur für alle Sendungen, wenn alle Daten angezeigt werden</item>
         <item>Niemals für alle Sendungen</item>
     </string-array>
+    <string name="pref_programs_list_show_channel">Sender für Sendungen anzeigen</string>
+    <string-array name="pref_programs_list_show_channel_entries">
+        <item>Immer für alle Sendungen</item>
+        <item>Nur für alle Sendungen, wenn alle Sender ausgewählt sind</item>
+    </string-array>
     
     <!-- WIDGETS -->
     
