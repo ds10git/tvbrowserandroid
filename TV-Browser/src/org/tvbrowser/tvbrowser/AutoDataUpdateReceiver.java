@@ -40,7 +40,8 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
   public void onReceive(final Context context, Intent intent) {
     PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
     final WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBAUTOUPDATE_LOCK");
-    wakeLock.acquire(2*60000L);
+    wakeLock.setReferenceCounted(false);
+    wakeLock.acquire(60000);
     
     PrefUtils.initialize(context);
     
@@ -132,9 +133,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
                 
                 context.startService(startDownload);
                 
-                if(wakeLock.isHeld()) {
-                  wakeLock.release();
-                }
+                releaseLock(wakeLock);
               }
             }
           };
@@ -155,27 +154,27 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
           
           IOUtils.setDataUpdateTime(context, current, pref);
           
-          if(wakeLock.isHeld()) {
-            wakeLock.release();
-          }
+          releaseLock(wakeLock);
         }
       }
       else {
+        releaseLock(wakeLock);
         Logging.closeLogForDataUpdate();
-        
-        if(wakeLock.isHeld()) {
-          wakeLock.release();
-        }
       }
       
       IOUtils.handleDataUpdatePreferences(context);
     }
     else {
+      releaseLock(wakeLock);      
+      Logging.closeLogForDataUpdate();
+    }
+  }
+  
+  private void releaseLock(WakeLock wakeLock) {
+    try {
       if(wakeLock.isHeld()) {
         wakeLock.release();
       }
-      
-      Logging.closeLogForDataUpdate();
-    }
+    }catch(Throwable t) {}
   }
 }

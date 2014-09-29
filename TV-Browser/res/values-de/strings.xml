@@ -495,6 +495,8 @@
     
     <!-- WIDGETS -->
     
+    <string name="widget_important_widget_title">TV-Browser: Wichtige Sendungen</string>
+    
     <string name="widget_important_default_title">Wichtige Sendungen</string>
     <string name="widget_important_empty">Keine Sendungen vorhanden</string>
     <string name="widget_important_config_name_label">Widget-Titel:</string>
@@ -505,6 +507,10 @@
     <string name="widget_important_config_show_reminder">Erinnerungen</string>
     <string name="widget_important_config_show_calendar">In Kalender eingetragene Sendungen</string>
     <string name="widget_important_config_show_sync">Synchonisierte Sendungen</string>
+    <string name="widget_important_config_limit_selection">Anzahl beschränken</string>
+    <string name="widget_important_config_limit_selection_button">Anzahl festlegen</string>
+    
+    <string name="widget_running_widget_title">TV-Browser: Jetzt läuft</string>
     
     <string name="widget_running_title">Jetzt läuft</string>
 </resources>

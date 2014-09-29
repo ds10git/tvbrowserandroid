@@ -1657,6 +1657,7 @@ public class TvDataUpdateService extends Service {
     if(!IS_RUNNING) {
       PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
       mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBUPDATE_LOCK");
+      mWakeLock.setReferenceCounted(false);
       mWakeLock.acquire(120*60000L);
       
       mShowNotification = true;

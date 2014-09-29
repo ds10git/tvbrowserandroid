@@ -121,14 +121,20 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
         where = " ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis() + " ) AND ( " + TextUtils.join(" OR ", columns) + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
       }
       else {
-        where += TvBrowserContentProvider.DATA_KEY_ENDTIME + "< 0";
+        where += TvBrowserContentProvider.DATA_KEY_ENDTIME + "<0 ";
+      }
+      
+      String limit = "";
+      
+      if(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT), false)) {
+        limit = " LIMIT " + String.valueOf(pref.getInt(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT), 15));
       }
       
       Cursor c = null;
       
       final long token = Binder.clearCallingIdentity();
       try {
-          c = getApplicationContext().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + ", " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+          c = getApplicationContext().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + ", " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + limit);
           
           mMarkingColumsIndexMap = new HashMap<String, Integer>();
           
@@ -154,7 +160,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
               
               PendingIntent pending = PendingIntent.getBroadcast(mContext, (int)(startTime/60000), update, PendingIntent.FLAG_UPDATE_CURRENT);
               
-              alarm.set(AlarmManager.RTC, startTime + 5000, pending);
+              alarm.set(AlarmManager.RTC, startTime + 2000, pending);
             }
           }
       } finally {

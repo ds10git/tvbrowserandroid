@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.tvbrowser.tvbrowser"
-	android:versionCode="210"
-	android:versionName="0.4 Beta2"
+	android:versionCode="211"
+	android:versionName="0.4 Beta3"
 	android:installLocation="auto">
 
 	<uses-sdk
@@ -88,7 +88,7 @@
 			</intent-filter>
 		</receiver>
 		<receiver android:name="org.tvbrowser.widgets.ImportantProgramsListWidget"
-		    android:label="@string/widget_important_default_title">
+		    android:label="@string/widget_important_widget_title">
 		    <intent-filter>
 		        <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
 		        <action android:name="org.tvbrowser.UPDATE_IMPORTANT_APP_WIDGET"/>
@@ -98,7 +98,7 @@
 		        android:resource="@xml/important_programs_widget_info"/>
 		</receiver>
 		<receiver android:name="org.tvbrowser.widgets.RunningProgramsListWidget"
-		    android:label="@string/widget_running_title">
+		    android:label="@string/widget_running_widget_title">
 		    <intent-filter>
 		        <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
 		        <action android:name="org.tvbrowser.UPDATE_RUNNING_APP_WIDGET"/>

@@ -4,7 +4,7 @@
     
     android:minWidth="300dp"
     android:minHeight="300dp"
-    android:label="@string/widget_running_title"
+    android:label="@string/widget_running_widget_title"
     android:updatePeriodMillis="8640000"
     android:resizeMode="horizontal|vertical"
     android:previewImage="@drawable/img_running_widget"
