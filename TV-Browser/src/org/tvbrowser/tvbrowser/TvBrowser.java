@@ -2556,6 +2556,7 @@ public class TvBrowser extends FragmentActivity implements
     }
     
     UiUtils.updateImportantProgramsWidget(getApplicationContext());
+    UiUtils.updateRunningProgramsWidget(getApplicationContext());
     
     LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(SettingConstants.UPDATE_TIME_BUTTONS));
     updateScrollMenu();

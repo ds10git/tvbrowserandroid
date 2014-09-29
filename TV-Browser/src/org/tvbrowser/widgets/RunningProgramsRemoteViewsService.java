@@ -160,7 +160,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_RUNNING, R.string.channel_logo_name_running_default);
       
       boolean showChannelName = (logoNamePref.equals("0") || logoNamePref.equals("2"));
-      boolean showChannelLogo = (logoNamePref.equals("0") || logoNamePref.equals("1"));
+      boolean showChannelLogo = (logoNamePref.equals("0") || logoNamePref.equals("1") || logoNamePref.equals("3"));
       
       if(PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_RUNNING_LIST, R.bool.show_sort_number_in_running_list_default)) {
         number = mCursor.getString(orderNumberIndex);

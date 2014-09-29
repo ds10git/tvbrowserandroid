@@ -34,8 +34,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Build;
@@ -60,7 +58,9 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class ProgramsListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface {
+public class ProgramsListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, ShowChannelInterface {
+  private static final int NO_CHANNEL_SELECTION_ID = -1;
+  
   private SimpleCursorAdapter mProgramListAdapter;
   
   private Handler handler = new Handler();
@@ -575,27 +575,19 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
           StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
           
           where.append(((TvBrowser)getActivity()).getChannelFilterSelection().replace(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, TvBrowserContentProvider.KEY_ID));
-          Log.d("info16", where.toString());
+          
           Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-          Log.d("info16", " COUNT " + channelCursor.getCount());
+          
           if(channelCursor.moveToFirst()) {
             do {
+              Bitmap logo = UiUtils.createBitmapFromByteArray(channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+                            
               LayerDrawable logoDrawable = null;
               
-              Bitmap logo = UiUtils.createBitmapFromByteArray(channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
-              
               if(logo != null) {
-                BitmapDrawable l = new BitmapDrawable(getResources(), logo);
-                                        
-                ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
-                background.setBounds(0, 0, logo.getWidth()+2,logo.getHeight()+2);
-                
-                logoDrawable = new LayerDrawable(new Drawable[] {background,l});
-                logoDrawable.setBounds(background.getBounds());
-                
-                l.setBounds(2, 2, logo.getWidth(), logo.getHeight());
+                logoDrawable = SettingConstants.createLayerDrawable(22, getActivity(), logo);
               }
-              
+                            
               String name = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
               String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
               
@@ -684,7 +676,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
     pref.registerOnSharedPreferenceChangeListener(this);
     
     super.onActivityCreated(savedInstanceState);
-    mChannelID = -1;
+    mChannelID = NO_CHANNEL_SELECTION_ID;
     mDontUpdate = false;
     mScrollPos = -1;
     
@@ -780,7 +772,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
     
     String where = mDayClause.trim().length() == 0 ? " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + time + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + time + " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + time + " ) " : " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " > 0 ) ";
         
-    if(mChannelID != -1) {
+    if(mChannelID != NO_CHANNEL_SELECTION_ID) {
       where += "AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + mChannelID;
     }
     
@@ -897,6 +889,19 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
     switch(Integer.parseInt(value)) {
       case 1: returnValue = (mDayStart == 0);break;
       case 2: returnValue = false;break;
+    }
+    
+    return returnValue;
+  }
+
+  @Override
+  public boolean showChannel() {
+    String value = PrefUtils.getStringValue(R.string.SHOW_CHANNEL_FOR_PROGRAMS_LIST, R.string.show_channel_for_programs_list_default);
+    
+    boolean returnValue = true;
+    
+    if(Integer.parseInt(value) == 1) {
+      returnValue = (mChannelID == NO_CHANNEL_SELECTION_ID);
     }
     
     return returnValue;

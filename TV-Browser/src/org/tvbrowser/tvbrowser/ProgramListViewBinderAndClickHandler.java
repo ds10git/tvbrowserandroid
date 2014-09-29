@@ -25,13 +25,11 @@ import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.app.Activity;
-import android.content.SharedPreferences;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
-import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -43,18 +41,15 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.SimpleCursorAdapter;
-import android.widget.TextClock;
 import android.widget.TextView;
 
 public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBinder{
   private Activity mActivity;
-  private SharedPreferences mPref;
   private int mDefaultTextColor;
   private ShowDateInterface mDateShowInterface;
   
   public ProgramListViewBinderAndClickHandler(Activity act, ShowDateInterface showDateInterface) {
     mActivity = act;
-    mPref = PreferenceManager.getDefaultSharedPreferences(act);
     mDefaultTextColor = new TextView(mActivity).getTextColors().getDefaultColor();
     mDateShowInterface = showDateInterface;
   }
@@ -148,65 +143,77 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
       return true;
     }
     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) {
-      TextView text = (TextView)view;
+      boolean show = true;
       
-      String name = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-      String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
-      String number = null;
-      
-      if(shortName != null) {
-        name = shortName;
+      if(mDateShowInterface instanceof ShowChannelInterface) {
+        show = ((ShowChannelInterface)mDateShowInterface).showChannel();
       }
       
-      if(showOrderNumber) {
-        number = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
+      if(show) {
+        TextView text = (TextView)view;
+        ((ViewGroup)view.getParent()).setVisibility(View.VISIBLE);
         
-        if(number == null) {
-          number = "0";
+        String name = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+        String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
+        String number = null;
+        
+        if(shortName != null) {
+          name = shortName;
         }
         
-        number += ".";
+        if(showOrderNumber) {
+          number = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
+          
+          if(number == null) {
+            number = "0";
+          }
+          
+          number += ".";
+          
+          name =  number + " " + name;
+        }
         
-        name =  number + " " + name;
-      }
-      
-      int logoIndex = cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-      
-      Drawable logo = null;
-      
-      ImageView image = (ImageView)((ViewGroup)view.getParent()).findViewById(R.id.program_list_channel_logo);
-      
-      if(showChannelLogo && logoIndex >= 0) {
-        int key = cursor.getInt(logoIndex);
+        int logoIndex = cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
         
-        if(showChannelName || showOrderNumber || mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && (mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE) {
-          logo = SettingConstants.SMALL_LOGO_MAP.get(key);
+        Drawable logo = null;
+        
+        if(showChannelLogo && logoIndex >= 0) {
+          int key = cursor.getInt(logoIndex);
+          
+          if(showChannelName || showOrderNumber || mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && (mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE) {
+            logo = SettingConstants.SMALL_LOGO_MAP.get(key);
+          }
+          else {
+            logo = SettingConstants.MEDIUM_LOGO_MAP.get(key);
+          }
+        }
+        
+        ImageView logoView = (ImageView)((ViewGroup)view.getParent()).findViewById(R.id.program_list_channel_logo);
+        
+        if(logo != null) {
+          logoView.setImageDrawable(logo);
+          logoView.setVisibility(View.VISIBLE);
+          
+          if(!showChannelName && !showOrderNumber) {
+            text.setVisibility(View.GONE);
+          }
+          else {
+            text.setVisibility(View.VISIBLE);
+          }
         }
         else {
-          logo = SettingConstants.MEDIUM_LOGO_MAP.get(key);
-        }
-      }
-      
-      if(logo != null) {
-        image.setImageDrawable(logo);
-        image.setVisibility(View.VISIBLE);
-        
-        if(!showChannelName && !showOrderNumber) {
-          text.setVisibility(View.GONE);
-        }
-        else {
+          logoView.setVisibility(View.GONE);
           text.setVisibility(View.VISIBLE);
+        }
+        if(showChannelName) {
+          text.setText(name);
+        }
+        else if(showOrderNumber) {
+          text.setText(number);
         }
       }
       else {
-        image.setVisibility(View.GONE);
-        text.setVisibility(View.VISIBLE);
-      }
-      if(showChannelName) {
-        text.setText(name);
-      }
-      else if(showOrderNumber) {
-        text.setText(number);
+        ((ViewGroup)view.getParent()).setVisibility(View.GONE);
       }
        
       return true;

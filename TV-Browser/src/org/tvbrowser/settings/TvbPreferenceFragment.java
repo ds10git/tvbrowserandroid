@@ -236,6 +236,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.PREF_EMAIL_DESCRIPTION_TYPE))
           || key.equals(getResources().getString(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE))
           || key.equals(getResources().getString(R.string.SHOW_DATE_FOR_PROGRAMS_LIST))
+          || key.equals(getResources().getString(R.string.SHOW_CHANNEL_FOR_PROGRAMS_LIST))
           ) {
         ListPreference lp = (ListPreference) findPreference(key);
         
