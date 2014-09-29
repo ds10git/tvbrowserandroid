@@ -34,6 +34,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.util.SparseArray;
 
 public class SettingConstants {
@@ -139,29 +140,31 @@ public class SettingConstants {
     return PreferenceManager.getDefaultSharedPreferences(context).getBoolean(REMINDER_PAUSE_KEY, false);
   }
   
-  public static void updateLogoMap(Context context) {
-    Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, null);
-    
-    SMALL_LOGO_MAP.clear();
-    MEDIUM_LOGO_MAP.clear();
-    
-    if(channels != null) {
-      if(channels.getCount() > 0 ) {
-        channels.moveToPosition(-1);
-        int keyIndex = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-        int logoIndex = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
-        
-        while(channels.moveToNext()) {
-          Bitmap logoBitmap = UiUtils.createBitmapFromByteArray(channels.getBlob(logoIndex));
+  public static synchronized void initializeLogoMap(Context context, boolean reload) {
+    if(SMALL_LOGO_MAP.size() == 0 || MEDIUM_LOGO_MAP.size() == 0 || reload) {
+      Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, null);
+      
+      SMALL_LOGO_MAP.clear();
+      MEDIUM_LOGO_MAP.clear();
+      
+      if(channels != null) {
+        if(channels.getCount() > 0 ) {
+          channels.moveToPosition(-1);
+          int keyIndex = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+          int logoIndex = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
           
-          if(logoBitmap != null) {
-            SMALL_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(15,context,logoBitmap));
-            MEDIUM_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(25,context,logoBitmap));
+          while(channels.moveToNext()) {
+            Bitmap logoBitmap = UiUtils.createBitmapFromByteArray(channels.getBlob(logoIndex));
+            
+            if(logoBitmap != null) {
+              SMALL_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(15,context,logoBitmap));
+              MEDIUM_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(25,context,logoBitmap));
+            }
           }
         }
+        
+        channels.close();
       }
-      
-      channels.close();
     }
   }
   

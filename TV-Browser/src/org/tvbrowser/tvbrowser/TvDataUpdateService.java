@@ -211,7 +211,7 @@ public class TvDataUpdateService extends Service {
     new Thread() {
       public void run() {
         setPriority(NORM_PRIORITY);
-        PrefUtils.initialize(TvDataUpdateService.this,true);
+        PrefUtils.initialize(TvDataUpdateService.this);
         
         Logging.openLogForDataUpdate(TvDataUpdateService.this);
         

@@ -52,13 +52,13 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
     String updateType = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
     
     boolean autoUpdate = !updateType.equals("0");
-    boolean internetConnection = updateType.equals("1");
-    boolean timeUpdate = updateType.equals("2");
+    final boolean internetConnectionType = updateType.equals("1");
+    boolean timeUpdateType = updateType.equals("2");
     
-    Logging.log(null, "AUTO DATA UPDATE autoUpdateActive: " + autoUpdate + " Internet type: " + internetConnection + " Time type: " + timeUpdate, Logging.DATA_UPDATE_TYPE, context);
+    Logging.log(null, "AUTO DATA UPDATE autoUpdateActive: " + autoUpdate + " Internet type: " + internetConnectionType + " Time type: " + timeUpdateType, Logging.DATA_UPDATE_TYPE, context);
     
     if(autoUpdate) {
-      if(internetConnection) {
+      if(internetConnectionType) {
         int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default)) + 1;
         
         long lastDate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, R.integer.last_data_update_default);
@@ -74,7 +74,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
 
         autoUpdate = dayDiff >= days && (System.currentTimeMillis() - lastDate) / 1000 / 60 / 60 > 12;
       }
-      else if(timeUpdate) {
+      else if(timeUpdateType) {
         autoUpdate = intent.getBooleanExtra(SettingConstants.TIME_DATA_UPDATE_EXTRA, false);
       }
       else {
@@ -110,9 +110,12 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
                 Logging.log(null, "UPDATE_THREAD STARTED", Logging.DATA_UPDATE_TYPE, context);
                 Logging.closeLogForDataUpdate();                
               }
-              try {
-                sleep(10000);
-              } catch (InterruptedException e) {}
+              
+              if(internetConnectionType) {
+                try {
+                  sleep(10000);
+                } catch (InterruptedException e) {}
+              }
               
               if(!TvDataUpdateService.IS_RUNNING) {
                 Intent startDownload = new Intent(context, TvDataUpdateService.class);
@@ -141,7 +144,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
           edit.putLong(context.getString(R.string.LAST_DATA_UPDATE), System.currentTimeMillis());
           edit.commit();*/
         }
-        else if(!isConnected && timeUpdate) {
+        else if(!isConnected && timeUpdateType) {
           IOUtils.removeDataUpdateTime(context, pref);
           
           long current = System.currentTimeMillis() + (30 * 60000);

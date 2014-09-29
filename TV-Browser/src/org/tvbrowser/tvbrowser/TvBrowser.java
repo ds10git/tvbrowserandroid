@@ -287,7 +287,7 @@ public class TvBrowser extends FragmentActivity implements
     
     super.onCreate(savedInstanceState);
     
-    SettingConstants.updateLogoMap(TvBrowser.this);
+    SettingConstants.initializeLogoMap(TvBrowser.this,false);
     
     setContentView(R.layout.activity_tv_browser);
     
@@ -817,7 +817,7 @@ public class TvBrowser extends FragmentActivity implements
               handler.post(new Runnable() {
                 @Override
                 public void run() {
-                  SettingConstants.updateLogoMap(TvBrowser.this);
+                  SettingConstants.initializeLogoMap(TvBrowser.this, true);
                   updateProgramListChannelBar();
                   Toast.makeText(getApplicationContext(), R.string.synchronize_done, Toast.LENGTH_LONG).show();
                   checkTermsAccepted();
@@ -1512,7 +1512,7 @@ public class TvBrowser extends FragmentActivity implements
           
           // if something was changed we need to update channel list bar in program list and the complete program table
           if(somethingChanged) {
-            SettingConstants.updateLogoMap(TvBrowser.this);
+            SettingConstants.initializeLogoMap(TvBrowser.this, true);
             updateProgramListChannelBar();
           }
           
