@@ -4,7 +4,7 @@
     
     android:minWidth="300dp"
     android:minHeight="300dp"
-    android:label="@string/widget_important_default_title"
+    android:label="@string/widget_important_widget_title"
     android:updatePeriodMillis="8640000"
     android:resizeMode="horizontal|vertical"
     android:configure="org.tvbrowser.widgets.ImportantProgramsWidgetConfigurationActivity"

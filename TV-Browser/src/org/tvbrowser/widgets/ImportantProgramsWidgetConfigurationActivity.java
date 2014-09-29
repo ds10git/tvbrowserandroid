@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 
 public class ImportantProgramsWidgetConfigurationActivity extends Activity {
@@ -24,6 +25,9 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
   private CheckBox mReminder;
   private CheckBox mCalendar;
   private CheckBox mSync;
+  private CheckBox mLimit;
+  
+  private EditText mLimitNumber;
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -43,6 +47,16 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
     mReminder = (CheckBox)findViewById(R.id.important_programs_widget_config_show_reminder);
     mCalendar = (CheckBox)findViewById(R.id.important_programs_widget_config_show_calendar);
     mSync = (CheckBox)findViewById(R.id.important_programs_widget_config_show_synchronized);
+    mLimit = (CheckBox)findViewById(R.id.important_programs_widget_config_limit_selection);
+    mLimitNumber = (EditText)findViewById(R.id.important_programs_widget_config_limit_selection_edit);
+    mLimitNumber.setText(String.valueOf(15));
+    
+    mLimit.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        mLimitNumber.setEnabled(isChecked);
+      }
+    });
     
     mMarked.requestFocusFromTouch();
     
@@ -61,6 +75,9 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
         mReminder.setChecked(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_REMINDER), true));
         mCalendar.setChecked(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_CALENDER), true));
         mSync.setChecked(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_SYNCHRONIZED), true));
+        mLimit.setChecked(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT), false));
+        mLimitNumber.setText(String.valueOf(pref.getInt(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT), 15)));
+        mLimitNumber.setEnabled(mLimit.isChecked());
       }
     }
     
@@ -79,7 +96,14 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
     edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_FAVORITE), mFavorite.isChecked());
     edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_REMINDER), mReminder.isChecked());
     edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_CALENDER), mCalendar.isChecked());
-    edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_SYNCHRONIZED), mSync.isChecked());
+    edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT), mLimit.isChecked());
+    
+    if(mLimitNumber.getText().toString().trim().length() > 0) {
+      try {
+        int value = Integer.parseInt(mLimitNumber.getText().toString());
+        edit.putInt(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT), value);  
+      }catch(NumberFormatException e) {}
+    }
     
     edit.commit();
     

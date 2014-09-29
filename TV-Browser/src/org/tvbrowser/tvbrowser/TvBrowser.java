@@ -37,9 +37,6 @@ import java.util.Timer;
 import java.util.TimerTask;
 import java.util.zip.GZIPInputStream;
 
-import com.example.android.listviewdragginganimation.DynamicListView;
-import com.example.android.listviewdragginganimation.StableArrayAdapter;
-
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
@@ -83,7 +80,6 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.provider.Contacts.SettingsColumns;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
@@ -127,6 +123,9 @@ import billing.util.IabResult;
 import billing.util.Inventory;
 import billing.util.Purchase;
 import billing.util.SkuDetails;
+
+import com.example.android.listviewdragginganimation.DynamicListView;
+import com.example.android.listviewdragginganimation.StableArrayAdapter;
 
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
@@ -225,7 +224,7 @@ public class TvBrowser extends FragmentActivity implements
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     PrefUtils.initialize(TvBrowser.this);
-    
+    Log.d("info1", getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE).getAbsolutePath());
     if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default)) {
       setTheme(android.R.style.Theme_Holo);
       

@@ -507,6 +507,8 @@
     
     <!-- WIDGETS -->
     
+    <string name="widget_important_widget_title">TV-Browser: Important programs</string>
+    
     <string name="widget_important_default_title">Important programs</string>
     <string name="widget_important_empty">No programs available</string>
     <string name="widget_important_config_name_label">Widget title:</string>
@@ -517,6 +519,10 @@
     <string name="widget_important_config_show_reminder">Reminder programs</string>
     <string name="widget_important_config_show_calendar">Calendar programs</string>
     <string name="widget_important_config_show_sync">Synchronized programs</string>
+    <string name="widget_important_config_limit_selection">Limit shown programs</string>
+    <string name="widget_important_config_limit_selection_button">Select number</string>
+    
+    <string name="widget_running_widget_title">TV-Browser: Now running</string>
     
     <string name="widget_running_title">Now running</string>
 </resources>
