@@ -9,5 +9,7 @@
     android:resizeMode="horizontal|vertical"
     android:configure="org.tvbrowser.widgets.ImportantProgramsWidgetConfigurationActivity"
     android:previewImage="@drawable/img_important_widget"
+    android:minResizeWidth="160dp"
+    android:minResizeHeight="80dp"
     />
     

@@ -196,6 +196,10 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
         mUpdateHandler.removeCallbacks(mUpdateRunnable);
         mUpdateRunnable = null;
       }
+      if(mCursor != null && !mCursor.isClosed()) {
+        mCursor.close();
+      }
+      
       mCursor = executeQuery();
     }
     

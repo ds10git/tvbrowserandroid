@@ -110,6 +110,10 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
 
     @Override
     public void onDataSetChanged() {
+      if(mCursor != null && !mCursor.isClosed()) {
+        mCursor.close();
+      }
+      
       mCursor = executeQuery();
     }
 

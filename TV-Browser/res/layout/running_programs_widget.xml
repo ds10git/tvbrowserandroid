@@ -12,6 +12,7 @@
 	         android:layout_width="match_parent"
 	         android:layout_height="wrap_content"
 	         android:layout_alignParentTop="true"
+	         android:text="@string/widget_running_title"
 	         android:gravity="center_vertical"
 	         android:textSize="@dimen/title_font_size"
 	         android:drawableLeft="@drawable/ic_widget"
