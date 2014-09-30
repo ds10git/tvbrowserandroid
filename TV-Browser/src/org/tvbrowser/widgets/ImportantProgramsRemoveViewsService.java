@@ -67,7 +67,22 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     private PendingIntent mPendingUpdate;
     private int mAppWidgetId;
     
-    private Cursor executeQuery() {
+    private int mIdIndex;
+    private int mStartTimeIndex;
+    private int mEndTimeIndex;
+    private int mTitleIndex;
+    private int mChannelNameIndex;
+    private int mOrderNumberIndex;
+    private int mLogoIndex;
+    private int mEpisodeIndex;
+    
+    private boolean mShowChannelName;
+    private boolean mShowChannelLogo;
+    private boolean mShowEpisode;
+    private boolean mShowOrderNumber;
+    private boolean mChannelClickToProgramsList;
+    
+    private void executeQuery() {
       if(mCursor != null && !mCursor.isClosed()) {
         mCursor.close();
       }
@@ -130,24 +145,39 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
         limit = " LIMIT " + String.valueOf(pref.getInt(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT), 15));
       }
       
-      Cursor c = null;
-      
       final long token = Binder.clearCallingIdentity();
       try {
-          c = getApplicationContext().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + ", " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + limit);
+          mCursor = getApplicationContext().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + ", " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + limit);
           
           mMarkingColumsIndexMap = new HashMap<String, Integer>();
           
+          mIdIndex = mCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+          mStartTimeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+          mEndTimeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+          mTitleIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+          mChannelNameIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+          mOrderNumberIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+          mLogoIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+          mEpisodeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
+          
+          String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST, R.string.channel_logo_name_program_lists_default);
+          
+          mShowEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_LISTS, R.bool.show_episode_in_lists_default);
+          mShowChannelName = (logoNamePref.equals("0") || logoNamePref.equals("2"));
+          mShowChannelLogo = (logoNamePref.equals("0") || logoNamePref.equals("1"));
+          mShowOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_LISTS, R.bool.show_sort_number_in_lists_default);
+          mChannelClickToProgramsList = PrefUtils.getBooleanValue(R.string.PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_program_lists_click_to_channel_to_list_default);
+          
           for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
-            int index = c.getColumnIndex(column);
+            int index = mCursor.getColumnIndex(column);
             
             if(index >= 0) {
               mMarkingColumsIndexMap.put(column, Integer.valueOf(index));
             }
           }
           
-          if(c.getCount() > 0 && c.moveToFirst()) {
-            long startTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+          if(mCursor.getCount() > 0 && mCursor.moveToFirst()) {
+            long startTime = mCursor.getLong(mStartTimeIndex);
             
             AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
             
@@ -166,8 +196,6 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       } finally {
           Binder.restoreCallingIdentity(token);
       }
-      
-      return c; 
     }
     
     public ImportantProgramsRemoteViewsFactory(Context context, Bundle extras) {
@@ -187,7 +215,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     public void onCreate() {
       mUpdateHandler = new Handler();
       
-      mCursor = executeQuery();
+      executeQuery();
     }
 
     @Override
@@ -196,16 +224,13 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
         mUpdateHandler.removeCallbacks(mUpdateRunnable);
         mUpdateRunnable = null;
       }
-      if(mCursor != null && !mCursor.isClosed()) {
-        mCursor.close();
-      }
       
-      mCursor = executeQuery();
+      executeQuery();
     }
     
     @Override
     public int getCount() {
-      if(mCursor != null) {
+      if(mCursor != null && !mCursor.isClosed()) {
         return mCursor.getCount();
       }
       
@@ -214,8 +239,10 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
 
     @Override
     public long getItemId(int position) {
-      if(mCursor != null) {
-        return mCursor.getLong(mCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+      if(mCursor != null && !mCursor.isClosed()) {
+        mCursor.moveToPosition(position);
+        
+        return mCursor.getLong(mIdIndex);
       }
       
       return position;
@@ -225,36 +252,22 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     public RemoteViews getViewAt(int position) {
       mCursor.moveToPosition(position);
       
-      int idIndex = mCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-      int startTimeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-      int endTimeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
-      int titleIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-      int channelNameIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-      int orderNumberIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
-      int logoIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-      int episodeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
+      String id = mCursor.getString(mIdIndex);
+      long startTime = mCursor.getLong(mStartTimeIndex);
+      long endTime = mCursor.getLong(mEndTimeIndex);
+      String title = mCursor.getString(mTitleIndex);
       
-      String id = mCursor.getString(idIndex);
-      long startTime = mCursor.getLong(startTimeIndex);
-      long endTime = mCursor.getLong(endTimeIndex);
-      String title = mCursor.getString(titleIndex);
-      
-      String name = mCursor.getString(channelNameIndex);
+      String name = mCursor.getString(mChannelNameIndex);
       String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
       String number = null;
-      String episodeTitle = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_LISTS, R.bool.show_episode_in_lists_default) ? mCursor.getString(episodeIndex) : null;
+      String episodeTitle = mShowEpisode ? mCursor.getString(mEpisodeIndex) : null;
       
       if(shortName != null) {
         name = shortName;
       }
-      
-      String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS, R.string.channel_logo_name_program_lists_default);
-      
-      boolean showChannelName = logoNamePref.equals("0") || logoNamePref.equals("2");
-      boolean showChannelLogo = logoNamePref.equals("0") || logoNamePref.equals("1");
-      
-      if(PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_LISTS, R.bool.show_sort_number_in_lists_default)) {
-        number = mCursor.getString(orderNumberIndex);
+            
+      if(mShowOrderNumber) {
+        number = mCursor.getString(mOrderNumberIndex);
         
         if(number == null) {
           number = "0";
@@ -267,9 +280,9 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       
       Drawable logo = null;
       
-      int channelKey = mCursor.getInt(logoIndex);
+      int channelKey = mCursor.getInt(mLogoIndex);
       
-      if(showChannelLogo) {
+      if(mShowChannelLogo) {
         logo = SettingConstants.SMALL_LOGO_MAP.get(channelKey);
       }
       
@@ -310,7 +323,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       rv.setTextViewText(R.id.important_programs_widget_row_start_time1, time);
       rv.setTextViewText(R.id.important_programs_widget_row_title1, title);
       
-      if(showChannelName || logo == null) {
+      if(mShowChannelName || logo == null) {
         rv.setTextViewText(R.id.important_programs_widget_row_channel_name1, name);
         rv.setViewVisibility(R.id.important_programs_widget_row_channel_name1, View.VISIBLE);
       }
@@ -349,7 +362,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       
       rv.setOnClickFillInIntent(R.id.important_programs_widget_row_program, fillInIntent);
       
-      if(PrefUtils.getBooleanValue(R.string.PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_program_lists_click_to_channel_to_list_default)) {
+      if(mChannelClickToProgramsList) {
         Intent startTvbProgramList = new Intent();
         startTvbProgramList.putExtra(SettingConstants.CHANNEL_ID_EXTRA, channelKey);
         startTvbProgramList.putExtra(SettingConstants.START_TIME_EXTRA, startTime);
