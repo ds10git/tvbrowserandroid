@@ -66,6 +66,8 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.net.Uri;
 import android.os.Environment;
 import android.os.Handler;
@@ -206,8 +208,12 @@ public class TvDataUpdateService extends Service {
     return null;
   }
   
+  private int mStartId;
+  
   @Override
   public int onStartCommand(final Intent intent, int flags, int startId) {
+    mStartId = startId;
+    
     new Thread() {
       public void run() {
         setPriority(NORM_PRIORITY);
@@ -221,29 +227,58 @@ public class TvDataUpdateService extends Service {
           doLog("Extra Type: " + intent.getIntExtra(TYPE, TV_DATA_TYPE));
         }
         
-        if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
-          mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(getResources().getString(R.string.days_to_download_default)));
-          updateTvData();
+        boolean isConnected = false;
+        boolean onlyWifi = false;
+        
+        if(intent.hasExtra(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA)) {
+          onlyWifi = intent.getExtras().getBoolean(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA);
         }
-        else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
-          updateChannels();
+        
+        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        
+        NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+        NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+        
+        if(wifi != null && wifi.isConnected()) {
+          isConnected = true;
         }
-        else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == REMINDER_DOWN_TYPE) {
-          startSynchronizeRemindersDown(intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true));
+        
+        if(!isConnected && !onlyWifi && mobile != null && mobile.isConnected()) {
+          isConnected = true;
         }
-        else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == SYNCHRONIZE_UP_TYPE) {
-          if(intent.hasExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA)) {
-            String address = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA);
-            String value = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_VALUE_EXTRA);
-            boolean showInfo = intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true);
-            
-            startSynchronizeUp(showInfo, value, address);
+        
+        if(isConnected) {
+          if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
+            mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(getResources().getString(R.string.days_to_download_default)));
+            updateTvData();
           }
+          else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
+            updateChannels();
+          }
+          else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == REMINDER_DOWN_TYPE) {
+            startSynchronizeRemindersDown(intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true));
+          }
+          else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == SYNCHRONIZE_UP_TYPE) {
+            if(intent.hasExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA)) {
+              String address = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA);
+              String value = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_VALUE_EXTRA);
+              boolean showInfo = intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true);
+              
+              startSynchronizeUp(showInfo, value, address);
+            }
+          }
+          else {
+            stopSelfInternal();
+          }
+        }
+        else {
+          doLog("NO UPDATE DONE, NO INTERNET CONNECTION");
+          stopSelf();
         }
       }
     }.start();
         
-    return Service.START_NOT_STICKY;
+    return Service.START_REDELIVER_INTENT;
   }
   
   private void startSynchronizeRemindersDown(boolean info) {
@@ -257,9 +292,28 @@ public class TvDataUpdateService extends Service {
     stopSelfInternal();
   }
   
-  private void stopSelfInternal() {
+  @Override
+  public void onDestroy() {
+    doLog("onDestroy() called");
+    
+    if(!mThreadPool.isTerminated()) {
+      int notDownloadedSize = mThreadPool.shutdownNow().size();
+      doLog("onDestroy(), notDownloadedSize: " + notDownloadedSize);
+    }
+    if(!mDataUpdatePool.isTerminated()) {
+      int notUpdatedSize = mDataUpdatePool.shutdownNow().size();
+      doLog("onDestroy(), notUpdatedSize: " + notUpdatedSize);
+    }
     ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFY_ID);
-    stopSelf();
+    
+    Logging.closeLogForDataUpdate();
+    super.onDestroy();
+  }
+  
+  private void stopSelfInternal() {
+    Logging.closeLogForDataUpdate();
+    ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFY_ID);
+    stopSelf(mStartId);
   }
   
   private void startSynchronizeUp(boolean info, final String value, final String address) {
@@ -1527,9 +1581,7 @@ public class TvDataUpdateService extends Service {
     });
     
     doLog("Unsuccessful downloads: " + String.valueOf(mUnsuccessfulDownloads));
-    
-    Logging.closeLogForDataUpdate();
-    
+        
     Editor edit = PreferenceManager.getDefaultSharedPreferences(TvDataUpdateService.this).edit();
     edit.putLong(getString(R.string.LAST_DATA_UPDATE), System.currentTimeMillis());
     edit.commit();

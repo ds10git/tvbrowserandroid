@@ -224,7 +224,7 @@ public class TvBrowser extends FragmentActivity implements
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     PrefUtils.initialize(TvBrowser.this);
-    Log.d("info1", getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE).getAbsolutePath());
+    
     if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default)) {
       setTheme(android.R.style.Theme_Holo);
       

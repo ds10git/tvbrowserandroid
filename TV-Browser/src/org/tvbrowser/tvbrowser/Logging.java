@@ -67,7 +67,7 @@ public class Logging {
     }
   }
   
-  public static void openLogForDataUpdate(Context context) {
+  public static synchronized void openLogForDataUpdate(Context context) {
     if(DATA_UPDATE_LOG == null && PrefUtils.getBooleanValue(R.string.WRITE_DATA_UPDATE_LOG, R.bool.write_data_update_log_default)) {
       try {
         File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
@@ -92,7 +92,7 @@ public class Logging {
     }
   }
   
-  public static void closeLogForDataUpdate() {
+  public static synchronized void closeLogForDataUpdate() {
     if(DATA_UPDATE_LOG != null) {
       try {
         DATA_UPDATE_LOG.close();
