@@ -288,7 +288,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
             }
           };
           
-          mUpdateHandler.postDelayed(mUpdateRunnable, 60000);
+          mUpdateHandler.postDelayed(mUpdateRunnable, ((System.currentTimeMillis() / 60000) * 60000 + 62000) - System.currentTimeMillis());
         }
         
         int length = (int)(endTime - startTime) / 60000;

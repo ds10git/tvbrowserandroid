@@ -217,8 +217,6 @@ public class TvDataUpdateService extends Service {
     new Thread() {
       public void run() {
         setPriority(NORM_PRIORITY);
-        PrefUtils.initialize(TvDataUpdateService.this);
-        
         Logging.openLogForDataUpdate(TvDataUpdateService.this);
         
         doLog("Received intent: " + intent);
@@ -272,8 +270,10 @@ public class TvDataUpdateService extends Service {
           }
         }
         else {
-          doLog("NO UPDATE DONE, NO INTERNET CONNECTION");
-          stopSelf();
+          IS_RUNNING = true;
+          startForeground(NOTIFY_ID, mBuilder.build());
+          doLog("NO UPDATE DONE, NO INTERNET CONNECTION, CALCULATE MISSING LENGTHS INSTEAD");
+          calculateMissingEnds((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE), true);
         }
       }
     }.start();
@@ -307,6 +307,9 @@ public class TvDataUpdateService extends Service {
     ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFY_ID);
     
     Logging.closeLogForDataUpdate();
+    
+    IS_RUNNING = false;
+    
     super.onDestroy();
   }
   
@@ -1587,9 +1590,7 @@ public class TvDataUpdateService extends Service {
     edit.commit();
     
     Favorite.handleDataUpdateFinished();
-    
-    IS_RUNNING = false;
-    
+        
     if(mWakeLock != null && mWakeLock.isHeld()) {
       mWakeLock.release();
     }
@@ -1602,6 +1603,8 @@ public class TvDataUpdateService extends Service {
       UiUtils.updateImportantProgramsWidget(getApplicationContext());
       UiUtils.updateRunningProgramsWidget(getApplicationContext());
     }
+    
+    IS_RUNNING = false;
     
     stopSelfInternal();
   }

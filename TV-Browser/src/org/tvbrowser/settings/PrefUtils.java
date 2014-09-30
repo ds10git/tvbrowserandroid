@@ -33,11 +33,11 @@ public class PrefUtils {
   public static void initialize(Context context) {
     if(mContext == null) {
       mContext = context.getApplicationContext();
-      mPref = PreferenceManager.getDefaultSharedPreferences(context);
+      mPref = PreferenceManager.getDefaultSharedPreferences(mContext);
       
-      String installerSouce = context.getPackageManager().getInstallerPackageName(context.getPackageName());
+      String installerSource = context.getPackageManager().getInstallerPackageName(context.getPackageName());
       
-      SettingConstants.GOOGLE_PLAY = installerSouce != null && installerSouce.equals("com.android.vending");
+      SettingConstants.GOOGLE_PLAY = installerSource != null && installerSource.equals("com.android.vending");
       
       Log.d("info", "fromGooglePlay: " + SettingConstants.GOOGLE_PLAY);
     }
