@@ -8,4 +8,6 @@
     android:updatePeriodMillis="8640000"
     android:resizeMode="horizontal|vertical"
     android:previewImage="@drawable/img_running_widget"
+    android:minResizeWidth="160dp"
+    android:minResizeHeight="100dp"
     />

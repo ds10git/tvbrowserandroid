@@ -296,11 +296,11 @@ public class TvDataUpdateService extends Service {
   public void onDestroy() {
     doLog("onDestroy() called");
     
-    if(!mThreadPool.isTerminated()) {
+    if(mThreadPool != null && !mThreadPool.isTerminated()) {
       int notDownloadedSize = mThreadPool.shutdownNow().size();
       doLog("onDestroy(), notDownloadedSize: " + notDownloadedSize);
     }
-    if(!mDataUpdatePool.isTerminated()) {
+    if(mDataUpdatePool != null && !mDataUpdatePool.isTerminated()) {
       int notUpdatedSize = mDataUpdatePool.shutdownNow().size();
       doLog("onDestroy(), notUpdatedSize: " + notUpdatedSize);
     }

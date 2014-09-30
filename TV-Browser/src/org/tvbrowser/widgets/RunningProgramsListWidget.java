@@ -30,9 +30,7 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
       views.setEmptyView(R.id.running_widget_list_view, R.id.running_widget_empty_text);
       
       Intent tvb = new Intent(context, TvBrowser.class);
-      
-      views.setTextViewText(R.id.running_widget_header, context.getString(R.string.widget_running_title));
-      
+            
       PendingIntent tvbstart = PendingIntent.getActivity(context, 0, tvb, PendingIntent.FLAG_UPDATE_CURRENT);
       views.setOnClickPendingIntent(R.id.running_widget_header, tvbstart);
             
