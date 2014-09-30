@@ -34,7 +34,6 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.util.SparseArray;
 
 public class SettingConstants {
@@ -65,6 +64,7 @@ public class SettingConstants {
   public static final String START_TIME_EXTRA = "START_TIME_EXTRA";
   public static final String SCROLL_POSITION_EXTRA = "SCROLL_POSITION_EXTRA";
   public static final String TIME_DATA_UPDATE_EXTRA = "TIME_DATA_UPDATE_EXTRA";
+  public static final String INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA = "INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA";
   
   public static final String SYNCHRONIZE_SHOW_INFO_EXTRA = "SYNCHRONIZE_SHOW_INFO_EXTRA";
   public static final String SYNCHRONIZE_UP_URL_EXTRA = "SYNCHRONIZE_UP_URL_EXTRA";

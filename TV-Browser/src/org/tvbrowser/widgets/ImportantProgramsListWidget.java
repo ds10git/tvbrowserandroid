@@ -25,6 +25,7 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.widget.RemoteViews;
@@ -37,7 +38,8 @@ import android.widget.RemoteViews;
 public class ImportantProgramsListWidget extends AppWidgetProvider {
   @Override
   public void onReceive(Context context, Intent intent) {
-    if(intent.getExtras() != null && intent.getExtras().containsKey(AppWidgetManager.EXTRA_APPWIDGET_ID) && intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID) != AppWidgetManager.INVALID_APPWIDGET_ID) {
+    if((AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction()) || SettingConstants.UPDATE_IMPORTANT_APP_WIDGET.equals(intent.getAction())) && intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID) && 
+        intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID) != AppWidgetManager.INVALID_APPWIDGET_ID) {
       AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
       
       int appWidgetId = intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID);
@@ -87,5 +89,32 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
       
       appWidgetManager.updateAppWidget(appWidgetId, views);
     }
+  }
+  
+  @Override
+  public void onDisabled(Context context) {
+    super.onDisabled(context);
+  }
+  
+  @Override
+  public void onDeleted(Context context, int[] appWidgetIds) {
+    if(appWidgetIds != null && appWidgetIds.length > 0) {
+      Editor edit = PreferenceManager.getDefaultSharedPreferences(context.getApplicationContext()).edit();
+      
+      for(int appWidgetId : appWidgetIds) {
+        edit.remove(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_IMPORTANT_NAME));
+        edit.remove(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT));
+        edit.remove(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT));
+        edit.remove(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_CALENDER));
+        edit.remove(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_FAVORITE));
+        edit.remove(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_MARKED));
+        edit.remove(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_REMINDER));
+        edit.remove(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_SYNCHRONIZED));
+      }
+      
+      edit.commit();
+    }
+    
+    super.onDeleted(context, appWidgetIds);
   }
 }

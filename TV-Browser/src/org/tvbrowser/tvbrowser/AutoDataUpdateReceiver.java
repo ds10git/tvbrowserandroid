@@ -38,7 +38,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
   
   @Override
   public void onReceive(final Context context, Intent intent) {
-    PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+    PowerManager pm = (PowerManager)context.getApplicationContext().getSystemService(Context.POWER_SERVICE);
     final WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBAUTOUPDATE_LOCK");
     wakeLock.setReferenceCounted(false);
     wakeLock.acquire(60000);
@@ -90,7 +90,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
         NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         
-        boolean onlyWifi = PrefUtils.getBooleanValue(R.string.PREF_AUTO_UPDATE_ONLY_WIFI, R.bool.pref_auto_update_only_wifi_default);
+        final boolean onlyWifi = PrefUtils.getBooleanValue(R.string.PREF_AUTO_UPDATE_ONLY_WIFI, R.bool.pref_auto_update_only_wifi_default);
         
         boolean isConnected = wifi != null && wifi.isConnectedOrConnecting();
         
@@ -103,6 +103,8 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
         Logging.closeLogForDataUpdate();
         
         if (isConnected && (UPDATE_THREAD == null || !UPDATE_THREAD.isAlive())) {
+          IOUtils.handleDataUpdatePreferences(context);
+          
           UPDATE_THREAD = new Thread() {
             @Override
             public void run() {
@@ -122,6 +124,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
                 Intent startDownload = new Intent(context, TvDataUpdateService.class);
                 startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
                 startDownload.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                startDownload.putExtra(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA, onlyWifi);
                 
                 int daysToDownload = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_RANGE, R.string.pref_auto_update_range_default));
                 
@@ -138,22 +141,9 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
             }
           };
           UPDATE_THREAD.start();
-          
-          /*Editor edit = pref.edit();
-          edit.putLong(context.getString(R.string.LAST_DATA_UPDATE), System.currentTimeMillis());
-          edit.commit();*/
         }
         else if(!isConnected && timeUpdateType) {
-          IOUtils.removeDataUpdateTime(context, pref);
-          
-          long current = System.currentTimeMillis() + (30 * 60000);
-          
-          Editor currentTime = PreferenceManager.getDefaultSharedPreferences(context).edit();
-          currentTime.putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), current);
-          currentTime.commit();
-          
-          IOUtils.setDataUpdateTime(context, current, pref);
-          
+          reschedule(context,pref);
           releaseLock(wakeLock);
         }
       }
@@ -161,13 +151,23 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
         releaseLock(wakeLock);
         Logging.closeLogForDataUpdate();
       }
-      
-      IOUtils.handleDataUpdatePreferences(context);
     }
     else {
       releaseLock(wakeLock);      
       Logging.closeLogForDataUpdate();
     }
+  }
+  
+  private void reschedule(Context context, SharedPreferences pref) {
+    IOUtils.removeDataUpdateTime(context, pref);
+    
+    long current = System.currentTimeMillis() + (30 * 60000);
+    
+    Editor currentTime = PreferenceManager.getDefaultSharedPreferences(context).edit();
+    currentTime.putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), current);
+    currentTime.commit();
+    
+    IOUtils.setDataUpdateTime(context, current, pref);
   }
   
   private void releaseLock(WakeLock wakeLock) {
