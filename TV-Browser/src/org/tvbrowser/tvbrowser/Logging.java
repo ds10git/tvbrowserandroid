@@ -25,7 +25,6 @@ import java.util.Date;
 import org.tvbrowser.settings.PrefUtils;
 
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Environment;
 import android.preference.PreferenceManager;
@@ -39,6 +38,7 @@ public class Logging {
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
   
   public synchronized static void log(String tag, String message, int type, Context context) {
+    PrefUtils.initialize(context);
     RandomAccessFile log = getLogFileForType(type, context);
     
     if(log != null) {
@@ -68,6 +68,8 @@ public class Logging {
   }
   
   public static synchronized void openLogForDataUpdate(Context context) {
+    PrefUtils.initialize(context);
+    
     if(DATA_UPDATE_LOG == null && PrefUtils.getBooleanValue(R.string.WRITE_DATA_UPDATE_LOG, R.bool.write_data_update_log_default)) {
       try {
         File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
@@ -108,8 +110,6 @@ public class Logging {
       log = DATA_UPDATE_LOG;
     }
     else if(type == REMINDER_TYPE) {
-      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-      
       if(PrefUtils.getBooleanValue(R.string.WRITE_REMINDER_LOG, R.bool.write_reminder_log_default)) {
         try {
           File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
