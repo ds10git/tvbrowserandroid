@@ -17,6 +17,7 @@
 package org.tvbrowser.widgets;
 
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.CompatUtils;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.TvBrowser;
 
@@ -63,8 +64,8 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
       intent.setData(Uri.parse("org.tvbrowser://importantWidget/" + appWidgetId));
       intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
       
-      RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.important_programs_widget);      
-      views.setRemoteAdapter(appWidgetId, R.id.important_widget_list_view, intent);
+      RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.important_programs_widget);
+      CompatUtils.setRemoteViewsAdapter(views, appWidgetId, R.id.important_widget_list_view, intent);
       views.setEmptyView(R.id.important_widget_list_view, R.id.important_widget_empty_text);
       
       Intent tvb = new Intent(context, TvBrowser.class);
