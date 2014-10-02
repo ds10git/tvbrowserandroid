@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -210,7 +211,7 @@ public class TvDataUpdateService extends Service {
   
   @Override
   public int onStartCommand(final Intent intent, int flags, int startId) {
-    new Thread() {
+    new Thread("DATA UPDATE ON START COMMOAND THREAD") {
       public void run() {
         setPriority(NORM_PRIORITY);
         Logging.openLogForDataUpdate(TvDataUpdateService.this);
@@ -403,6 +404,13 @@ public class TvDataUpdateService extends Service {
         }
         
         if(!updateMap.isEmpty()) {
+          final UncaughtExceptionHandler handleExc = new UncaughtExceptionHandler() {
+            @Override
+            public void uncaughtException(Thread thread, Throwable ex) {
+              doLog("UNCAUGHT EXCEPTION Thread: " + thread.getName() + " Throwable " + ex.toString());
+            }
+          };
+          
           readCurrentVersionIDs();
           
           Set<String> exclusions = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
@@ -434,7 +442,7 @@ public class TvDataUpdateService extends Service {
           notification.notify(NOTIFY_ID, mBuilder.build());
           
           for(String key : updateMap.keySet()) {
-            updateMap.get(key).startUpdate(notification, updateMap.size());;
+            updateMap.get(key).startUpdate(notification, updateMap.size(), handleExc);
           }
           
           mDataUpdatePool.shutdown();
@@ -515,6 +523,8 @@ public class TvDataUpdateService extends Service {
       int notUpdatedSize = mDataUpdatePool.shutdownNow().size();
       doLog("onDestroy(), notUpdatedSize: " + notUpdatedSize);
     }
+    
+    stopForeground(true);
     ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFY_ID);
     
     Favorite.handleDataUpdateFinished();
@@ -1009,7 +1019,7 @@ public class TvDataUpdateService extends Service {
         } catch (IOException e) {}
       }
       
-      new Thread() {
+      new Thread("DATA UPDATE GROUP UPDATE THREAD") {
         public void run() {
           File groups = new File(path,GROUP_FILE);
           
@@ -1172,7 +1182,7 @@ public class TvDataUpdateService extends Service {
         mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
                 
         for(final GroupInfo info : channelMirrors) {
-          mThreadPool.execute(new Thread() {
+          mThreadPool.execute(new Thread("DATA UPDATE GROUP DOWNLOAD THREAD") {
             public void run() {
               File group = new File(path,info.getFileName());
               
@@ -1840,7 +1850,7 @@ public class TvDataUpdateService extends Service {
     for(String favorite : favoritesSet) {
       final Favorite fav = new Favorite(favorite);
       
-      updateFavorites.execute(new Thread() {
+      updateFavorites.execute(new Thread("DATA UPDATE FAVORITE UPDATE THREAD") {
         @Override
         public void run() {
           Favorite.updateFavoriteMarking(TvDataUpdateService.this, getContentResolver(), fav);
@@ -1921,6 +1931,13 @@ public class TvDataUpdateService extends Service {
   private void updateTvData() {
     doLog("Running state: " + IS_RUNNING);
     if(!IS_RUNNING) {
+      final UncaughtExceptionHandler handleExc = new UncaughtExceptionHandler() {
+        @Override
+        public void uncaughtException(Thread thread, Throwable ex) {
+          doLog("UNCAUGHT EXCEPTION Thread: " + thread.getName() + " Throwable " + ex.toString());
+        }
+      };
+      
       PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
       mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBUPDATE_LOCK");
       mWakeLock.setReferenceCounted(false);
@@ -2209,8 +2226,10 @@ public class TvDataUpdateService extends Service {
       for(final String mirror : downloadMirrorList) {
         final File mirrorFile = new File(path,mirror.substring(mirror.lastIndexOf("/")+1));
         
-        mThreadPool.execute(new Thread() {
+        mThreadPool.execute(new Thread("DATA UPDATE MIRROR UPDATE THREAD") {
           public void run() {
+            setUncaughtExceptionHandler(handleExc);
+            
             try {
               IOUtils.saveUrl(mirrorFile.getAbsolutePath(), mirror);
               updateMirror(mirrorFile);
@@ -2239,8 +2258,9 @@ public class TvDataUpdateService extends Service {
         readCurrentData();
                 
         for(final ChannelUpdate update : updateList) {
-          mThreadPool.execute(new Thread() {
+          mThreadPool.execute(new Thread("DATA UPDATE DATA DOWNLOAD THEAD") {
             public void run() {
+              setUncaughtExceptionHandler(handleExc);
               update.download(path, notification, downloadCount);
             }
           });
@@ -2748,10 +2768,12 @@ public class TvDataUpdateService extends Service {
       mDownloadList.add(new UrlFileHolder(file, null));
     }
     
-    public void startUpdate(final NotificationManager notification, final int downloadCount) {
+    public void startUpdate(final NotificationManager notification, final int downloadCount, final UncaughtExceptionHandler handleExc) {
       mDataUpdatePool.execute(new Thread("CHANNEL UPDATE HANDLE START UPDATE") {
         @Override
         public void run() {
+          setUncaughtExceptionHandler(handleExc);
+          
           for(UrlFileHolder updateFile : mDownloadList) {
             handleDownload(updateFile);
           }
