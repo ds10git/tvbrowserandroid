@@ -101,15 +101,16 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         final byte logoIndex = (byte)mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
         final byte episodeIndex = (byte)mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
         
-        mColumnIndicies = 0;
-        mColumnIndicies = idIndex & 0xF;
-        mColumnIndicies = (mColumnIndicies << 4) | (startTimeIndex & 0xF);
-        mColumnIndicies = (mColumnIndicies << 4) | (endTimeIndex & 0xF);
-        mColumnIndicies = (mColumnIndicies << 4) | (titleIndex & 0xF);
-        mColumnIndicies = (mColumnIndicies << 4) | (channelNameIndex & 0xF);
-        mColumnIndicies = (mColumnIndicies << 4) | (orderNumberIndex & 0xF);
-        mColumnIndicies = (mColumnIndicies << 4) | (logoIndex & 0xF);
-        mColumnIndicies = (mColumnIndicies << 4) | (episodeIndex & 0xF);
+        if(mColumnIndicies == 0) {
+          mColumnIndicies = idIndex & 0xF;
+          mColumnIndicies = (mColumnIndicies << 4) | (startTimeIndex & 0xF);
+          mColumnIndicies = (mColumnIndicies << 4) | (endTimeIndex & 0xF);
+          mColumnIndicies = (mColumnIndicies << 4) | (titleIndex & 0xF);
+          mColumnIndicies = (mColumnIndicies << 4) | (channelNameIndex & 0xF);
+          mColumnIndicies = (mColumnIndicies << 4) | (orderNumberIndex & 0xF);
+          mColumnIndicies = (mColumnIndicies << 4) | (logoIndex & 0xF);
+          mColumnIndicies = (mColumnIndicies << 4) | (episodeIndex & 0xF);
+        }
         
         final String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_RUNNING, R.string.channel_logo_name_running_default);
         
@@ -143,6 +144,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
     @Override
     public void onCreate() {
       mUpdateHandler = new Handler();
+      mColumnIndicies = 0;
       mUpdateRunnable = new Runnable() {
         @Override
         public void run() {
@@ -167,6 +169,10 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
 
     @Override
     public void onDestroy() {
+      if(mUpdateHandler != null && mUpdateRunnable != null) {
+        mUpdateHandler.removeCallbacks(mUpdateRunnable);
+      }
+      
       if(mCursor != null && !mCursor.isClosed()) {
         mCursor.close();
       }

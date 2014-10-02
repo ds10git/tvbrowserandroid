@@ -11,7 +11,7 @@
 		android:title="@string/show_logo_title"
 		android:defaultValue="@string/channel_logo_name_running_default"
 		android:entries="@array/show_logo_long"
-		android:entryValues="@array/logo_name_values_long"
+		android:entryValues="@array/pref_simple_string_value_array4"
 		android:summary="%s"/>
     <org.tvbrowser.settings.ColorPreference
         android:key="@string/PREF_RUNNING_TIME_SELECTION"

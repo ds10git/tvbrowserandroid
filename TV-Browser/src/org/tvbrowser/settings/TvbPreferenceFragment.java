@@ -34,7 +34,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
-import android.util.Log;
 
 public class TvbPreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
   @Override
@@ -42,9 +41,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     super.onCreate(savedInstanceState);
     
     String category = getArguments().getString(getString(R.string.pref_category_key));
-    
-    Log.d("info", "" + category + " " + getArguments());
-    
+        
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
     if(getString(R.string.category_download).equals(category)) {
@@ -61,6 +58,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       addPreferencesFromResource(R.xml.preferences_layout);
       
       onSharedPreferenceChanged(pref, getString(R.string.PREF_SHOW_PROGRESS));
+      onSharedPreferenceChanged(pref, getString(R.string.PREF_COLOR_STYLE));
     }
     else if(getString(R.string.category_reminder).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_reminder);
@@ -237,6 +235,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE))
           || key.equals(getResources().getString(R.string.SHOW_DATE_FOR_PROGRAMS_LIST))
           || key.equals(getResources().getString(R.string.SHOW_CHANNEL_FOR_PROGRAMS_LIST))
+          || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS))
+          || key.equals(getResources().getString(R.string.PREF_COLOR_STYLE))
           ) {
         ListPreference lp = (ListPreference) findPreference(key);
         
@@ -251,8 +251,77 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           
           lp.setSummary(value);
         }
-  
-        if(key.equals(getString(R.string.PREF_REMINDER_TIME)) || key.equals(getString(R.string.PREF_REMINDER_TIME_SECOND))) {
+        
+        if(key.equals(getResources().getString(R.string.PREF_COLOR_STYLE))) {
+          ListPreference currentStyle = (ListPreference)findPreference(key);
+          CheckBoxPreference showProgress = (CheckBoxPreference) findPreference(getString(R.string.PREF_SHOW_PROGRESS));
+          
+          ColorPreference onAirBackground = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND));
+          ColorPreference onAirProgress = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_ON_AIR_PROGRESS));
+          ColorPreference marked = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_MARKED));
+          ColorPreference markedFavorite = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_FAVORITE));
+          ColorPreference markedReminder = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_REMINDER));
+          ColorPreference markedSync = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_SYNC));
+          
+          if(onAirBackground != null && onAirProgress != null && marked != null && markedFavorite != null && markedReminder != null && markedSync != null && showProgress != null) {
+            int currentStyleValue = 0;
+            
+            if(currentStyle != null && currentStyle.getValue() != null) {
+              currentStyleValue = Integer.parseInt(currentStyle.getValue());
+            }
+            
+            if(currentStyleValue == 1) {
+              int color = getResources().getColor(R.color.pref_color_on_air_background_tvb_style_default);
+              onAirBackground.setColors(color, color);
+              color = getResources().getColor(R.color.pref_color_on_air_progress_tvb_style_default);
+              onAirProgress.setColors(color, color);
+              color = getResources().getColor(R.color.pref_color_mark_tvb_style_default);
+              marked.setColors(color, color);
+              color = getResources().getColor(R.color.pref_color_mark_favorite_tvb_style_default);
+              markedFavorite.setColors(color, color);
+              color = getResources().getColor(R.color.pref_color_mark_reminder_tvb_style_default);
+              markedReminder.setColors(color, color);
+              color = getResources().getColor(R.color.pref_color_mark_sync_tvb_style_favorite_default);
+              markedSync.setColors(color, color);
+            }
+            else if(currentStyleValue == 2) {
+              int color = getResources().getColor(R.color.pref_color_on_air_background_glow_style_default);
+              onAirBackground.setColors(color, color);
+              color = getResources().getColor(R.color.pref_color_on_air_progress_glow_style_default);
+              onAirProgress.setColors(color, color);
+              color = getResources().getColor(R.color.pref_color_mark_glow_style_default);
+              marked.setColors(color, color);
+              color = getResources().getColor(R.color.pref_color_mark_favorite_glow_style_default);
+              markedFavorite.setColors(color, color);
+              color = getResources().getColor(R.color.pref_color_mark_reminder_glow_style_default);
+              markedReminder.setColors(color, color);
+              color = getResources().getColor(R.color.pref_color_mark_sync_glow_style_favorite_default);
+              markedSync.setColors(color, color);
+            }
+            else if(currentStyleValue == 0) {
+              int color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND_USER_DEFINED), getResources().getColor(R.color.pref_color_on_air_background_tvb_style_default));
+              onAirBackground.setColors(color, color);
+              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_ON_AIR_PROGRESS_USER_DEFINED), getResources().getColor(R.color.pref_color_on_air_progress_tvb_style_default));
+              onAirProgress.setColors(color, color);
+              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_MARKED_USER_DEFINED), getResources().getColor(R.color.pref_color_mark_tvb_style_default));
+              marked.setColors(color, color);
+              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_FAVORITE_USER_DEFINED), getResources().getColor(R.color.pref_color_mark_favorite_tvb_style_default));
+              markedFavorite.setColors(color, color);
+              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_REMINDER_USER_DEFINED), getResources().getColor(R.color.pref_color_mark_reminder_tvb_style_default));
+              markedReminder.setColors(color, color);
+              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_SYNC_USER_DEFINED), getResources().getColor(R.color.pref_color_mark_sync_tvb_style_favorite_default));
+              markedSync.setColors(color, color);
+            }
+            
+            onAirBackground.setEnabled(currentStyle.getValue().equals("0") && showProgress.isChecked());
+            onAirProgress.setEnabled(onAirBackground.isEnabled());
+            marked.setEnabled(currentStyle.getValue().equals("0"));
+            markedFavorite.setEnabled(marked.isEnabled());
+            markedReminder.setEnabled(marked.isEnabled());
+            markedSync.setEnabled(marked.isEnabled());
+          }
+        }
+        else if(key.equals(getString(R.string.PREF_REMINDER_TIME)) || key.equals(getString(R.string.PREF_REMINDER_TIME_SECOND))) {
           ListPreference reminderTime = (ListPreference) findPreference(getString(R.string.PREF_REMINDER_TIME));
           ListPreference reminderTimeSecond = (ListPreference) findPreference(getString(R.string.PREF_REMINDER_TIME_SECOND));
 
@@ -283,9 +352,27 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           ListPreference dontWantToSeeType = (ListPreference)findPreference(key);
           
           if(dontWantToSeeType != null) {            
-            findPreference(getResources().getString(R.string.PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR)).setEnabled(dontWantToSeeType.getValue().equals(getResources().getStringArray(R.array.pref_i_dont_want_to_see_filter_type_values)[1]));
+            findPreference(getResources().getString(R.string.PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR)).setEnabled(dontWantToSeeType.getValue().equals(getResources().getStringArray(R.array.pref_simple_string_value_array2)[1]));
           }
         }
+      }
+      else if(key.equals(getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND))) {
+        setUserColorValue(sharedPreferences,key,R.string.PREF_COLOR_ON_AIR_BACKGROUND_USER_DEFINED);
+      }
+      else if(key.equals(getString(R.string.PREF_COLOR_ON_AIR_PROGRESS))) {
+        setUserColorValue(sharedPreferences,key,R.string.PREF_COLOR_ON_AIR_PROGRESS_USER_DEFINED);
+      }
+      else if(key.equals(getString(R.string.PREF_COLOR_MARKED))) {
+        setUserColorValue(sharedPreferences,key,R.string.PREF_COLOR_MARKED_USER_DEFINED);
+      }
+      else if(key.equals(getString(R.string.PREF_COLOR_FAVORITE))) {
+        setUserColorValue(sharedPreferences,key,R.string.PREF_COLOR_FAVORITE);
+      }
+      else if(key.equals(getString(R.string.PREF_COLOR_REMINDER))) {
+        setUserColorValue(sharedPreferences,key,R.string.PREF_COLOR_REMINDER_USER_DEFINED);
+      }
+      else if(key.equals(getString(R.string.PREF_COLOR_SYNC))) {
+        setUserColorValue(sharedPreferences,key,R.string.PREF_COLOR_SYNC_USER_DEFINED);
       }
       else if(key.equals(getResources().getString(R.string.PROG_TABLE_ACTIVATED))) {
         CheckBoxPreference progTable = (CheckBoxPreference) findPreference(key);
@@ -442,15 +529,17 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       }
       else if(key.equals(getResources().getString(R.string.PREF_SHOW_PROGRESS))) {
         CheckBoxPreference showProgress = (CheckBoxPreference) findPreference(key);
+        ListPreference currentStyle = (ListPreference)findPreference(getString(R.string.PREF_COLOR_STYLE));
+        
         ColorPreference onAirBackground = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND));
         ColorPreference onAirProgress = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_ON_AIR_PROGRESS));
         
         if(showProgress != null) {
           if(onAirBackground != null) {
-            onAirBackground.setEnabled(showProgress.isChecked());
+            onAirBackground.setEnabled(showProgress.isChecked() && currentStyle.getValue().equals("0"));
           }
           if(onAirProgress != null) {
-            onAirProgress.setEnabled(showProgress.isChecked());
+            onAirProgress.setEnabled(showProgress.isChecked() && currentStyle.getValue().equals("0"));
           }
         }
       }
@@ -531,6 +620,17 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           end.setEnabled(activated.isChecked());
         }
       }
+    }
+  }
+  
+  private void setUserColorValue(SharedPreferences pref, String key, int valueKey) {
+    ListPreference currentStyle = (ListPreference)findPreference(getString(R.string.PREF_COLOR_STYLE));
+    ColorPreference color = (ColorPreference)findPreference(key);
+    
+    if(currentStyle.getValue().equals("0")) {
+      Editor edit = pref.edit();
+      edit.putInt(getString(valueKey), color.getColor());
+      edit.commit();
     }
   }
 }

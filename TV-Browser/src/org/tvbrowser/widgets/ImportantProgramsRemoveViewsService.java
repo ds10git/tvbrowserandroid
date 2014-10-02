@@ -153,15 +153,16 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
           final byte logoIndex = (byte)mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
           final byte episodeIndex = (byte)mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
           
-          mColumnIndicies = 0;
-          mColumnIndicies = idIndex & 0xF;
-          mColumnIndicies = (mColumnIndicies << 4) | (startTimeIndex & 0xF);
-          mColumnIndicies = (mColumnIndicies << 4) | (endTimeIndex & 0xF);
-          mColumnIndicies = (mColumnIndicies << 4) | (titleIndex & 0xF);
-          mColumnIndicies = (mColumnIndicies << 4) | (channelNameIndex & 0xF);
-          mColumnIndicies = (mColumnIndicies << 4) | (orderNumberIndex & 0xF);
-          mColumnIndicies = (mColumnIndicies << 4) | (logoIndex & 0xF);
-          mColumnIndicies = (mColumnIndicies << 4) | (episodeIndex & 0xF);
+          if(mColumnIndicies == 0) {
+            mColumnIndicies = idIndex & 0xF;
+            mColumnIndicies = (mColumnIndicies << 4) | (startTimeIndex & 0xF);
+            mColumnIndicies = (mColumnIndicies << 4) | (endTimeIndex & 0xF);
+            mColumnIndicies = (mColumnIndicies << 4) | (titleIndex & 0xF);
+            mColumnIndicies = (mColumnIndicies << 4) | (channelNameIndex & 0xF);
+            mColumnIndicies = (mColumnIndicies << 4) | (orderNumberIndex & 0xF);
+            mColumnIndicies = (mColumnIndicies << 4) | (logoIndex & 0xF);
+            mColumnIndicies = (mColumnIndicies << 4) | (episodeIndex & 0xF);
+          }
           
           final String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS, R.string.channel_logo_name_program_lists_default);
           
@@ -204,6 +205,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     public ImportantProgramsRemoteViewsFactory(Context context, Bundle extras) {
       PrefUtils.initialize(context);
       mContext = context;
+      mColumnIndicies = 0;
       SettingConstants.initializeLogoMap(context, false);
       
       if(extras != null && extras.containsKey(AppWidgetManager.EXTRA_APPWIDGET_ID)) {

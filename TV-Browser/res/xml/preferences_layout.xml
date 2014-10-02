@@ -9,35 +9,47 @@
 	        android:title="@string/pref_show_progress_title"
 	        android:summary="@string/pref_show_progress_summary"
 	        android:defaultValue="@bool/pref_show_progress_default"/>
+	    <ListPreference android:key="@string/PREF_COLOR_STYLE"
+			android:title="@string/pref_color_style_selection_title"
+			android:defaultValue="@string/pref_color_style_default"
+			android:entries="@array/pref_color_style_selection_entries"
+			android:entryValues="@array/pref_simple_string_value_array3"
+			android:summary="%s"/>
 	    <org.tvbrowser.settings.ColorPreference
 	        android:key="@string/PREF_COLOR_ON_AIR_BACKGROUND"
+	        android:enabled="false"
 	        android:title="@string/pref_color_running_background"
 	        android:summary="@string/pref_color_running_background_summary"
-	        android:defaultValue="@color/on_air_background"/>
+	        android:defaultValue="@color/pref_color_on_air_background_tvb_style_default"/>
 	    <org.tvbrowser.settings.ColorPreference
 	        android:key="@string/PREF_COLOR_ON_AIR_PROGRESS"
+	        android:enabled="false"
 	        android:title="@string/pref_color_running_progress"
 	        android:summary="@string/pref_color_running_progress_summary"
-	        android:defaultValue="@color/on_air_progress"/>
+	        android:defaultValue="@color/pref_color_on_air_progress_tvb_style_default"/>
 	    <org.tvbrowser.settings.ColorPreference
 	        android:key="@string/PREF_COLOR_MARKED"
+	        android:enabled="false"
 	        android:title="@string/marking_value_marked"
 	        android:summary="@string/pref_marking_color_marked_summary"
-	        android:defaultValue="@color/mark_color"/>
+	        android:defaultValue="@color/pref_color_mark_tvb_style_default"/>
 	    <org.tvbrowser.settings.ColorPreference
 	        android:key="@string/PREF_COLOR_FAVORITE"
+	        android:enabled="false"
 	        android:title="@string/title_favorites"
 	        android:summary="@string/pref_marking_color_favorite_summary"
-	        android:defaultValue="@color/mark_color_favorite"/>
+	        android:defaultValue="@color/pref_color_mark_favorite_tvb_style_default"/>
 	    <org.tvbrowser.settings.ColorPreference
 	        android:key="@string/PREF_COLOR_REMINDER"
+	        android:enabled="false"
 	        android:title="@string/pref_marking_color_reminder_title"
 	        android:summary="@string/pref_marking_color_reminder_summary"
-	        android:defaultValue="@color/mark_color_calendar"/>
+	        android:defaultValue="@color/pref_color_mark_reminder_tvb_style_default"/>
 	    <org.tvbrowser.settings.ColorPreference
 	        android:key="@string/PREF_COLOR_SYNC"
+	        android:enabled="false"
 	        android:title="@string/pref_marking_color_sync_title"
 	        android:summary="@string/pref_marking_color_sync_summary"
-	        android:defaultValue="@color/mark_color_sync_favorite"/>
+	        android:defaultValue="@color/pref_color_mark_sync_tvb_style_favorite_default"/>
 	</PreferenceCategory>
 </PreferenceScreen>

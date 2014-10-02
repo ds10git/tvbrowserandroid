@@ -73,8 +73,8 @@ import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
-import android.os.RemoteException;
 import android.os.PowerManager.WakeLock;
+import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -208,12 +208,8 @@ public class TvDataUpdateService extends Service {
     return null;
   }
   
-  private int mStartId;
-  
   @Override
   public int onStartCommand(final Intent intent, int flags, int startId) {
-    mStartId = startId;
-    
     new Thread() {
       public void run() {
         setPriority(NORM_PRIORITY);
@@ -228,7 +224,7 @@ public class TvDataUpdateService extends Service {
         boolean isConnected = false;
         boolean onlyWifi = false;
         
-        if(intent.hasExtra(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA)) {
+        if(intent != null && intent.hasExtra(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA)) {
           onlyWifi = intent.getExtras().getBoolean(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA);
         }
         
@@ -245,7 +241,7 @@ public class TvDataUpdateService extends Service {
           isConnected = true;
         }
         
-        if(isConnected) {
+        if(isConnected && intent != null) {
           if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
             mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(getResources().getString(R.string.days_to_download_default)));
             updateTvData();
@@ -270,15 +266,230 @@ public class TvDataUpdateService extends Service {
           }
         }
         else {
-          IS_RUNNING = true;
-          startForeground(NOTIFY_ID, mBuilder.build());
-          doLog("NO UPDATE DONE, NO INTERNET CONNECTION, CALCULATE MISSING LENGTHS INSTEAD");
-          calculateMissingEnds((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE), true);
+          if(!IS_RUNNING) {
+            IS_RUNNING = true;
+            mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
+            startForeground(NOTIFY_ID, mBuilder.build());
+            doLog("NO UPDATE DONE, NO INTERNET CONNECTION OR NO INTENT, PROCESS EXISTING DATA");
+            handleStoredDataFromKilledUpdate();
+          }
+          else {
+            stopSelfInternal();
+          }
         }
       }
     }.start();
+    
+    return Service.START_STICKY;
+  }
+  
+  private void handleStoredDataFromKilledUpdate() {
+    PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+    mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBUPDATE_LOCK");
+    mWakeLock.setReferenceCounted(false);
+    mWakeLock.acquire(120*60000L);
+    
+    final NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+    
+    mShowNotification = true;
+    mUnsuccessfulDownloads = 0;
+    IS_RUNNING = true;
+    
+    doLog("Favorite.handleDataUpdateStarted()");
+    Favorite.handleDataUpdateStarted();
+    
+    File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+    
+    if(!parent.isDirectory()) {
+      parent = getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
+    }
+    
+    final File path = new File(parent,"tvbrowserdata");
+    
+    if(path.isDirectory()) {
+      File[] oldDataFiles = path.listFiles(new FileFilter() {
+        @Override
+        public boolean accept(File pathname) {
+          return pathname.getName().toLowerCase().endsWith(".prog.gz");
+        }
+      });
+      
+      if(oldDataFiles != null && oldDataFiles.length > 0) {
+        mBuilder.setContentText(getString(R.string.update_data_notification_reload_file));
+        mBuilder.setProgress(oldDataFiles.length, 0, false);
+        notification.notify(NOTIFY_ID, mBuilder.build());
         
-    return Service.START_REDELIVER_INTENT;
+        final HashMap<String, ChannelUpdate> updateMap = new HashMap<String, TvDataUpdateService.ChannelUpdate>();
+        
+        final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE};
+        
+        for(int i = 0; i < oldDataFiles.length; i++) {
+          mBuilder.setProgress(oldDataFiles.length, i+1, false);
+          notification.notify(NOTIFY_ID, mBuilder.build());
+
+          File file = oldDataFiles[i];
+          
+          String[] fileParts = file.getName().split("_");
+          
+          String key = "";
+          
+          for(String filePart : fileParts) {
+            if(filePart.equals("base") || filePart.contains("16-00") || filePart.contains("00-16")) {
+              break;
+            }
+            
+            key += filePart + "_";
+          }
+          
+          if(key.trim().length() > 0) {
+            key = key.substring(0,key.length()-1);
+            
+            ChannelUpdate update = updateMap.get(key);
+            
+            if(update == null) {
+              final int firstUnderline = key.indexOf("_");
+              final int secondUnderline = key.indexOf("_",firstUnderline+1);
+              
+              final String country = key.substring(firstUnderline + 1, secondUnderline);
+              final String channelId = key.substring(secondUnderline+1);
+              
+              final String where = TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY + "=\"" + country +"\" AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\"" + channelId +"\" AND " + TvBrowserContentProvider.CHANNEL_KEY_SELECTION;
+              
+              final Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where, null, null);
+              
+              try {
+                if(channel != null && channel.moveToFirst()) {
+                  try {
+                    final int firstMinus = key.indexOf("-");
+                    final int secondMinus = key.indexOf("-",firstMinus+1);
+                    
+                    String year = key.substring(0,firstMinus);
+                    String month = key.substring(firstMinus+1,secondMinus);
+                    String day = key.substring(secondMinus+1,firstUnderline);
+                        
+                    final int channelIntId = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                    final String timezone = channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE));
+                    
+                    Calendar date = Calendar.getInstance(TimeZone.getTimeZone(timezone));
+                    date.set(Integer.parseInt(year), Integer.parseInt(month)-1, Integer.parseInt(day));
+                    
+                    update = new ChannelUpdate(channelIntId, timezone, date.getTimeInMillis());
+                    
+                    updateMap.put(key, update);
+                  } catch (Exception e) {
+                    deleteFile(file);
+                  }
+                }
+                else {
+                  deleteFile(file);
+                }
+              }finally {
+                if(channel != null) {
+                  channel.close();
+                }
+              }
+            }
+            
+            if(update != null) {
+              update.addDownloadedFile(file);
+            }
+            else {
+              deleteFile(file);
+            }
+          }
+          else {
+            deleteFile(file);
+          }
+        }
+        
+        if(!updateMap.isEmpty()) {
+          readCurrentVersionIDs();
+          
+          Set<String> exclusions = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
+          
+          if(exclusions != null) {
+            mDontWantToSeeValues = new DontWantToSeeExclusion[exclusions.size()];
+            
+            int i = 0;
+            
+            for(String exclusion : exclusions) {
+              mDontWantToSeeValues[i++] = new DontWantToSeeExclusion(exclusion);
+            }
+          }
+          
+          readCurrentData();
+          
+          mDataUpdatePool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
+          
+          mDataInsertList = new ArrayList<ContentValues>();
+          mDataUpdateList = new ArrayList<ContentProviderOperation>();
+          
+          mVersionInsertList = new ArrayList<ContentValues>();
+          mVersionUpdateList = new ArrayList<ContentProviderOperation>();
+          
+          mCurrentDownloadCount = 0;
+          
+          mBuilder.setContentText(getString(R.string.update_notification_text));
+          mBuilder.setProgress(updateMap.size(), 0, false);
+          notification.notify(NOTIFY_ID, mBuilder.build());
+          
+          for(String key : updateMap.keySet()) {
+            updateMap.get(key).startUpdate(notification, updateMap.size());;
+          }
+          
+          mDataUpdatePool.shutdown();
+          
+          doLog("WAIT FOR DATA UPDATE FOR: " + updateMap.size() + " MINUTES");
+          
+          try {
+            mDataUpdatePool.awaitTermination(updateMap.size(), TimeUnit.MINUTES);
+          } catch (InterruptedException e) {
+            doLog("UPDATE DATE INTERRUPTED " + e.getLocalizedMessage());
+          }
+          
+          if(!mDataUpdatePool.isTerminated()) {
+            doLog("NOT HANDLED UPDATES " + mDataUpdatePool.shutdownNow().size());
+          }
+          
+          doLog("WAIT FOR DATA UPDATE FOR DONE, DATA: " + mDataUpdatePool.isTerminated());
+          
+          mShowNotification = false;
+          
+          insert(mDataInsertList);
+          insertVersion(mVersionInsertList);
+          
+          update(mDataUpdateList);      
+          update(mVersionUpdateList);
+          
+          mDataInsertList = null;
+          mDataUpdateList = null;
+          
+          mVersionInsertList = null;      
+          mVersionUpdateList = null;
+
+          mBuilder.setProgress(100, 0, true);
+          notification.notify(NOTIFY_ID, mBuilder.build());
+          
+          mCurrentVersionIDs.clear();
+          mCurrentVersionIDs = null;
+          
+          if(mCurrentData != null) {
+            mCurrentData.clear();
+            mCurrentData = null;
+          }
+          
+          updateMap.clear();
+        }
+      }
+    }
+    
+    calculateMissingEnds(notification, true);
+  }
+  
+  private void deleteFile(File file) {
+    if(file != null && !file.delete()) {
+      file.deleteOnExit();
+    }
   }
   
   private void startSynchronizeRemindersDown(boolean info) {
@@ -306,6 +517,12 @@ public class TvDataUpdateService extends Service {
     }
     ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFY_ID);
     
+    Favorite.handleDataUpdateFinished();
+    
+    if(mWakeLock != null && mWakeLock.isHeld()) {
+      mWakeLock.release();
+    }
+    
     Logging.closeLogForDataUpdate();
     
     IS_RUNNING = false;
@@ -316,7 +533,7 @@ public class TvDataUpdateService extends Service {
   private void stopSelfInternal() {
     Logging.closeLogForDataUpdate();
     ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFY_ID);
-    stopSelf(mStartId);
+    stopSelf();
   }
   
   private void startSynchronizeUp(boolean info, final String value, final String address) {
@@ -996,9 +1213,7 @@ public class TvDataUpdateService extends Service {
         success.setBoolean(false);
       }
       
-      if(!groups.delete()) {
-        groups.deleteOnExit();
-      }
+      deleteFile(groups);
     }
     else {
       success.setBoolean(false);
@@ -1193,9 +1408,7 @@ public class TvDataUpdateService extends Service {
         e.printStackTrace();
       }
       
-      if(!group.delete()) {
-        group.deleteOnExit();
-      }
+      deleteFile(group);
     }
     
     return returnValue;
@@ -1697,9 +1910,7 @@ public class TvDataUpdateService extends Service {
         e.printStackTrace();
       }
       
-      if(!groups.delete()) {
-        groups.deleteOnExit();
-      }
+      deleteFile(groups);
     }
     
     return mirrorLine;
@@ -1750,9 +1961,7 @@ public class TvDataUpdateService extends Service {
       });
       
       for(File oldFile : oldDataFiles) {
-        if(!oldFile.delete()) {
-          oldFile.deleteOnExit();
-        }
+        deleteFile(oldFile);
       }
       
       int[] levels = null;
@@ -2094,6 +2303,9 @@ public class TvDataUpdateService extends Service {
         finishUpdate(notification,false);
       }
     }
+    else {
+      stopSelfInternal();
+    }
   }
   
   private static final class CurrentDataHolder {
@@ -2240,9 +2452,7 @@ public class TvDataUpdateService extends Service {
         e.printStackTrace();
       }
       
-      if(!mirrorFile.delete()) {
-        mirrorFile.deleteOnExit();
-      }
+      deleteFile(mirrorFile);
     }
   }
   
@@ -2299,9 +2509,7 @@ public class TvDataUpdateService extends Service {
           summary.addChannelFrame(frame);
         }
         
-        if(!path.delete()) {
-          path.deleteOnExit();
-        }
+        deleteFile(path);
       }
     } catch (Exception e) {}
     
@@ -2434,7 +2642,7 @@ public class TvDataUpdateService extends Service {
     }
     
     public short getFrameCount(short currentCount) {
-      if(currentCount == 254) {
+      if(currentCount == 254 && mDownloadURL != null) {
         final String url = mDownloadURL.substring(0, mDownloadURL.indexOf(".prog.gz")) +  "_additional.prog.gz";
         final String fileName = mDownloadFile.getAbsolutePath().substring(0, mDownloadFile.getAbsolutePath().indexOf(".prog.gz"))  +  "_additional.prog.gz";
         
@@ -2458,9 +2666,7 @@ public class TvDataUpdateService extends Service {
         
         File additional = new File(fileName);
         
-        if(additional.isFile() && !additional.delete()) {
-          additional.deleteOnExit();
-        }
+        deleteFile(additional);
       }
       
       return currentCount;
@@ -2532,6 +2738,35 @@ public class TvDataUpdateService extends Service {
       return mUrlList.size();
     }
     
+    private ArrayList<UrlFileHolder> mDownloadList;
+    
+    public void addDownloadedFile(File file) {
+      if(mDownloadList == null) {
+        mDownloadList = new ArrayList<UrlFileHolder>();
+      }
+      
+      mDownloadList.add(new UrlFileHolder(file, null));
+    }
+    
+    public void startUpdate(final NotificationManager notification, final int downloadCount) {
+      mDataUpdatePool.execute(new Thread("CHANNEL UPDATE HANDLE START UPDATE") {
+        @Override
+        public void run() {
+          for(UrlFileHolder updateFile : mDownloadList) {
+            handleDownload(updateFile);
+          }
+          
+          handleData();
+          
+          if(mShowNotification) {
+            mCurrentDownloadCount++;
+            mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+            notification.notify(NOTIFY_ID, mBuilder.build());
+          }
+        }
+      });
+    }
+    
     public void download(File path, final NotificationManager notification, final int downloadCount) {
       final ArrayList<UrlFileHolder> downloadList = new ArrayList<UrlFileHolder>();
       
@@ -2546,7 +2781,7 @@ public class TvDataUpdateService extends Service {
         }
       }
       
-      mDataUpdatePool.execute(new Thread() {
+      mDataUpdatePool.execute(new Thread("CHANNEL UPDATE HANDLE DOWNLOAD") {
         @Override
         public void run() {
           for(UrlFileHolder updateFile : downloadList) {
@@ -2630,7 +2865,7 @@ public class TvDataUpdateService extends Service {
        }
        
        updateVersionTableInternal();
-       
+         
        clear();
     }
         
@@ -2682,6 +2917,11 @@ public class TvDataUpdateService extends Service {
       mVersionMap.clear();
       mUpdateValueMap.clear();
       mInsertValuesList.clear();
+      
+      if(mDownloadList != null) {
+        mDownloadList.clear();
+        mDownloadList = null;
+      }
       
       mContentValueList = null;
       mVersionMap = null;
@@ -2866,9 +3106,7 @@ public class TvDataUpdateService extends Service {
           Log.d("info5", "error data update", e);
         }
         
-        if(!dataFile.delete()) {
-          dataFile.deleteOnExit();
-        }
+        deleteFile(dataFile);
         
         doLog("Read data DONE from file: " +dataFile.getAbsolutePath());
       }
@@ -3057,6 +3295,11 @@ public class TvDataUpdateService extends Service {
       }
       
       return new Object[] {id,isNew};
+    }
+    
+    @Override
+    public String toString() {
+      return "ChannelID: " + mChannelID + " " + new Date(mDate) + " TimeZone: " + mTimeZone;
     }
   }
   

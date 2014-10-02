@@ -13,7 +13,7 @@
 		android:title="@string/running_layout_title"
 		android:defaultValue="@string/prog_table_layout_default"
 		android:entries="@array/prog_table_layout_values"
-		android:entryValues="@array/running_layout_prefs"
+		android:entryValues="@array/pref_simple_string_value_array2"
 		android:summary="%s"/>
 	<ListPreference
 		android:key="@string/PROG_PANEL_TIME_BLOCK_SIZE"
@@ -33,7 +33,7 @@
 		android:title="@string/show_logo_title"
 		android:defaultValue="@string/channel_logo_name_program_table_default"
 		android:entries="@array/show_logo"
-		android:entryValues="@array/logo_name_values"
+		android:entryValues="@array/pref_simple_string_value_array3"
 		android:summary="%s"/>
 	<ListPreference android:key="@string/PROG_TABLE_TEXT_SCALE"
 		android:title="@string/pref_detail_text_scale"

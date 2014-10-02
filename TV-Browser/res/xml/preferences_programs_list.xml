@@ -4,7 +4,7 @@
 		android:title="@string/show_logo_title"
 		android:defaultValue="@string/channel_logo_name_programs_list_default"
 		android:entries="@array/show_logo"
-		android:entryValues="@array/logo_name_values"
+		android:entryValues="@array/pref_simple_string_value_array3"
 		android:summary="%s"/>
 	<CheckBoxPreference android:key="@string/SHOW_SORT_NUMBER_IN_PROGRAMS_LIST" 
 		android:title="@string/show_sort_number"
@@ -13,12 +13,12 @@
 		android:title="@string/pref_programs_list_show_date"
 		android:defaultValue="@string/show_date_for_programs_list_default"
 		android:entries="@array/pref_programs_list_show_date_entries"
-		android:entryValues="@array/pref_programs_list_show_date_values"
+		android:entryValues="@array/pref_simple_string_value_array3"
 		android:summary="%s"/>
 	<ListPreference android:key="@string/SHOW_CHANNEL_FOR_PROGRAMS_LIST"
 		android:title="@string/pref_programs_list_show_channel"
 		android:defaultValue="@string/show_channel_for_programs_list_default"
 		android:entries="@array/pref_programs_list_show_channel_entries"
-		android:entryValues="@array/pref_programs_list_show_channel_values"
+		android:entryValues="@array/pref_simple_string_value_array2"
 		android:summary="%s"/>
 </PreferenceScreen>

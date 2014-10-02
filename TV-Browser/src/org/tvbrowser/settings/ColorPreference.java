@@ -183,4 +183,15 @@ public class ColorPreference extends DialogPreference {
       mColor = (Integer)defaultValue;
     }
   }
+  
+  public void setColors(int color, int defaultColor) {
+    mColor = color;
+    persistInt(mColor);
+    
+    mDefaultColor = defaultColor;
+  }
+  
+  public int getColor() {
+    return mColor;
+  }
 }

@@ -1282,7 +1282,7 @@ Log.d("info", "" + new Date(mCurrentTime));
   public synchronized void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, final Cursor c) {
     SparseArray<ChannelProgramBlock> channelProgramMap = new SparseArray<ChannelProgramBlock>();
     SparseArray<ChannelProgramBlock> currentProgramMap = new SparseArray<ChannelProgramBlock>();
-    boolean showDontWantToSee = PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(getResources().getStringArray(R.array.pref_i_dont_want_to_see_filter_type_values)[1]);
+    boolean showDontWantToSee = PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(getResources().getStringArray(R.array.pref_simple_string_value_array2)[1]);
     
     mProgramBlockList.clear();
     mCurrentViewList.clear();

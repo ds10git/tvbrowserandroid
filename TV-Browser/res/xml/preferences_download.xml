@@ -21,7 +21,7 @@
 	            android:title="@string/pref_auto_update_type"
 	            android:defaultValue="@string/pref_auto_update_type_default"
 	            android:entries="@array/pref_auto_update_type_names"
-	            android:entryValues="@array/pref_auto_update_type_values"
+	            android:entryValues="@array/pref_simple_string_value_array3"
 	            android:summary="%s"/>
 	        <ListPreference 
 	            android:key="@string/PREF_AUTO_UPDATE_RANGE"

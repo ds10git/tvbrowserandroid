@@ -47,6 +47,16 @@
 	    <string name="PREF_COLOR_REMINDER">PREF_COLOR_REMINDER</string>
 	    <string name="PREF_COLOR_SYNC">PREF_COLOR_SYNC</string>
 	    
+	    <string name="PREF_COLOR_STYLE">PREF_COLOR_STYLE</string>
+	    <item name="pref_color_style_default" type="string" format="string">1</item>
+	    
+	    <string name="PREF_COLOR_ON_AIR_BACKGROUND_USER_DEFINED">PREF_COLOR_ON_AIR_BACKGROUND_USER_DEFINED</string>
+	    <string name="PREF_COLOR_ON_AIR_PROGRESS_USER_DEFINED">PREF_COLOR_ON_AIR_PROGRESS_USER_DEFINED</string>
+	    <string name="PREF_COLOR_MARKED_USER_DEFINED">PREF_COLOR_MARKED_USER_DEFINED</string>
+	    <string name="PREF_COLOR_FAVORITE_USER_DEFINED">PREF_COLOR_FAVORITE_USER_DEFINED</string>
+	    <string name="PREF_COLOR_REMINDER_USER_DEFINED">PREF_COLOR_REMINDER_USER_DEFINED</string>
+	    <string name="PREF_COLOR_SYNC_USER_DEFINED">PREF_COLOR_SYNC_USER_DEFINED</string>
+	    
 	<!-- Reminder settings -->
 	    
 	    <string name="PREF_REMINDER_TIME">PREF_REMINDER_TIME</string>
