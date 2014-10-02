@@ -585,9 +585,9 @@ public class UiUtils {
           
           String type = PreferenceManager.getDefaultSharedPreferences(activity).getString(activity.getString(R.string.PREF_EMAIL_DESCRIPTION_TYPE), activity.getString(R.string.pref_export_description_type_default));
           
-          Log.d("info15", " TYPE " + type + " " + type.equals(activity.getResources().getStringArray(R.array.pref_export_description_type_values)[1]));
+          Log.d("info15", " TYPE " + type + " " + type.equals(activity.getResources().getStringArray(R.array.pref_simple_string_value_array2)[1]));
           
-          if(type.equals(activity.getResources().getStringArray(R.array.pref_export_description_type_values)[1])) {
+          if(type.equals(activity.getResources().getStringArray(R.array.pref_simple_string_value_array2)[1])) {
             if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION))) {
               desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
               
@@ -695,9 +695,9 @@ public class UiUtils {
           
           String type = PreferenceManager.getDefaultSharedPreferences(activity).getString(activity.getString(R.string.PREF_CALENDAR_EXPORT_DESCRIPTION_TYPE), activity.getString(R.string.pref_export_description_type_default));
           
-          Log.d("info15", " TYPE " + type + " " + type.equals(activity.getResources().getStringArray(R.array.pref_export_description_type_values)[1]));
+          Log.d("info15", " TYPE " + type + " " + type.equals(activity.getResources().getStringArray(R.array.pref_simple_string_value_array2)[1]));
           
-          if(type.equals(activity.getResources().getStringArray(R.array.pref_export_description_type_values)[1])) {
+          if(type.equals(activity.getResources().getStringArray(R.array.pref_simple_string_value_array2)[1])) {
             if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION))) {
               desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
               
@@ -1292,7 +1292,7 @@ public class UiUtils {
         for(int i = 0; i < markedColumns.length; i++) {Log.d("info4"," i " + i + " " + markedColumns[i]);
           Integer color = SettingConstants.MARK_COLOR_KEY_MAP.get(markedColumns[i]);
           
-          if(markedColumns[i].equals(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE) && PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(context.getResources().getStringArray(R.array.pref_i_dont_want_to_see_filter_type_values)[0])) {
+          if(markedColumns[i].equals(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE) && PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(context.getResources().getStringArray(R.array.pref_simple_string_value_array2)[0])) {
             color = null;
           }
           
@@ -1309,7 +1309,7 @@ public class UiUtils {
       else {
         Integer color = SettingConstants.MARK_COLOR_KEY_MAP.get(markedColumns[0]);
         
-        if(markedColumns[0].equals(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE) && PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(context.getResources().getStringArray(R.array.pref_i_dont_want_to_see_filter_type_values)[0])) {
+        if(markedColumns[0].equals(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE) && PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(context.getResources().getStringArray(R.array.pref_simple_string_value_array2)[0])) {
           color = null;
         }
         
@@ -1619,12 +1619,12 @@ public class UiUtils {
             color = SettingConstants.EXPIRED_LIGHT_COLOR;
           }
           break;
-      case MARKED_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_MARKED), context.getResources().getColor(R.color.mark_color));break;
-      case MARKED_FAVORITE_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_FAVORITE), context.getResources().getColor(R.color.mark_color_favorite));break;
-      case MARKED_REMINDER_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_REMINDER), context.getResources().getColor(R.color.mark_color_calendar));break;
-      case MARKED_SYNC_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_SYNC), context.getResources().getColor(R.color.mark_color_sync_favorite));break;
-      case ON_AIR_BACKGROUND_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND), context.getResources().getColor(R.color.on_air_background));break;
-      case ON_AIR_PROGRESS_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_PROGRESS), context.getResources().getColor(R.color.on_air_progress));break;
+      case MARKED_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_MARKED), context.getResources().getColor(R.color.pref_color_mark_tvb_style_default));break;
+      case MARKED_FAVORITE_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_FAVORITE), context.getResources().getColor(R.color.pref_color_mark_favorite_tvb_style_default));break;
+      case MARKED_REMINDER_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_REMINDER), context.getResources().getColor(R.color.pref_color_mark_reminder_tvb_style_default));break;
+      case MARKED_SYNC_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_SYNC), context.getResources().getColor(R.color.pref_color_mark_sync_tvb_style_favorite_default));break;
+      case ON_AIR_BACKGROUND_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND), context.getResources().getColor(R.color.pref_color_on_air_background_tvb_style_default));break;
+      case ON_AIR_PROGRESS_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_PROGRESS), context.getResources().getColor(R.color.pref_color_on_air_progress_tvb_style_default));break;
       case RUNNING_TIME_SELECTION_KEY: color = pref.getInt(context.getString(R.string.PREF_RUNNING_TIME_SELECTION), context.getResources().getColor(R.color.filter_selection));break;
       case I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR), context.getResources().getColor(R.color.i_dont_want_to_see_highlight));break;
     }
@@ -1721,7 +1721,7 @@ public class UiUtils {
   
   public static String getDontWantToSeeFilterString(Context context) {
     String returnValue = "";
-    if(PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(context.getResources().getStringArray(R.array.pref_i_dont_want_to_see_filter_type_values)[0])) {
+    if(PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(context.getResources().getStringArray(R.array.pref_simple_string_value_array2)[0])) {
       returnValue = " AND ( NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";
     }
     

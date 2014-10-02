@@ -626,8 +626,10 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   }
   
   public static void handleDataUpdateFinished() {
-    DATA_REFRESH_TABLE.clear();
-    DATA_REFRESH_TABLE = null;
+    if(DATA_REFRESH_TABLE != null) {
+      DATA_REFRESH_TABLE.clear();
+      DATA_REFRESH_TABLE = null;
+    }
   }
   
   public static void updateFavoriteMarking(Context context, ContentResolver resolver, Favorite favorite) {

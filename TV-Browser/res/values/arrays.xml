@@ -9,16 +9,6 @@
         <item>14</item>
         <item>21</item>
     </string-array>
-    <string-array name="logo_name_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
-    <string-array name="pref_auto_update_type_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-    </string-array>
     <string-array name="pref_auto_update_frequency_values">
         <item>0</item>
         <item>1</item>
@@ -30,12 +20,6 @@
 	    <item>@string/show_logo_only</item>
 	    <item>@string/show_name_only</item>
 	</string-array>
-    <string-array name="logo_name_values_long">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
 	<string-array name="show_logo_long">
 	    <item>@string/show_logo_and_name</item>
 	    <item>@string/show_logo_only</item>
@@ -90,12 +74,6 @@
         <item>1.8</item>
         <item>2.0</item>
     </string-array>
-    <string-array name="start_tab_values">
-        <item>0</item>
-        <item>1</item>
-        <item>2</item>
-        <item>3</item>
-    </string-array>
     <integer-array name="time_button_defaults">
         <item>1215</item>
         <item>360</item>
@@ -117,10 +95,6 @@
         <item>@string/tv</item>
         <item>@string/radio</item>
         <item>@string/cinema</item>
-    </string-array>
-    <string-array name="running_layout_prefs">
-        <item>0</item>
-        <item>1</item>
     </string-array>
     <string-array name="divider_values">
         <item>1</item>
@@ -158,21 +132,19 @@
 	    <item>720</item>
 	    <item>1440</item>
 	</string-array>
-	<string-array name="pref_export_description_type_values">
+	<string-array name="pref_simple_string_value_array2">
 	    <item>0</item>
 	    <item>1</item>
 	</string-array>
-	<string-array name="pref_i_dont_want_to_see_filter_type_values">
-	    <item>0</item>
-	    <item>1</item>
-	</string-array>
-	<string-array name="pref_programs_list_show_date_values">
+	<string-array name="pref_simple_string_value_array3">
 	    <item>0</item>
 	    <item>1</item>
 	    <item>2</item>
 	</string-array>
-	<string-array name="pref_programs_list_show_channel_values">
-	    <item>0</item>
-	    <item>1</item>
-	</string-array>
+    <string-array name="pref_simple_string_value_array4">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+    </string-array>
 </resources>

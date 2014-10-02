@@ -98,6 +98,7 @@
     <string name="favorite_remind">Remind on found programs</string>
     <string name="favorite_exclusion">Exclusions:</string>
     <string name="favorite_exclusion_hint">Comma separated list (optional)</string>
+    <string name="update_data_notification_reload_file">Reload downloaded files</string>
     <string name="update_data_notification_favorites">Update Favorites</string>
     <string name="update_data_notification_synchronize">Synchronize programs&#8230;</string>
     <string name="update_data_notification_synchronize_remiders">Synchronize Reminders&#8230;</string>
@@ -431,6 +432,14 @@
     <string name="pref_color_running_background_summary">Background color of on air programs.</string>
     <string name="pref_color_running_progress">Progress</string>
     <string name="pref_color_running_progress_summary">Progress color of on air programs</string>
+    
+    <string name="pref_color_style_selection_title">Color style:</string>
+    <string-array name="pref_color_style_selection_entries">
+        <item>User defined</item>
+	    <item>TV-Browser default</item>
+	    <item>Glow light (designed by Halle Andert)</item>
+    </string-array>
+    
 	<string name="pref_marking_color_marked_summary">Color for manually marked programs.</string>
     <string name="pref_marking_color_favorite_summary">Color for Favorite programs.</string>
     <string name="pref_marking_color_reminder_title">Reminder/Calendar</string>

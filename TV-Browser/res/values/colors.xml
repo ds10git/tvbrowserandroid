@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="mark_color">#6000FF00</color>
-    <color name="mark_color_calendar">#60FFFF00</color>
-    <color name="mark_color_favorite">#40FF0000</color>
-    <color name="mark_color_sync_favorite">#6000FFC0</color>
-    <color name="on_air_background">#150000FF</color>
-    <color name="on_air_progress">#400000FF</color>
+    <color name="pref_color_mark_tvb_style_default">#6000FF00</color>
+    <color name="pref_color_mark_reminder_tvb_style_default">#60FFFF00</color>
+    <color name="pref_color_mark_favorite_tvb_style_default">#40FF0000</color>
+    <color name="pref_color_mark_sync_tvb_style_favorite_default">#6000FFC0</color>
+    <color name="pref_color_on_air_background_tvb_style_default">#150000FF</color>
+    <color name="pref_color_on_air_progress_tvb_style_default">#400000FF</color>
+    
+    <color name="pref_color_mark_glow_style_default">#FFFF7C00</color>
+    <color name="pref_color_mark_reminder_glow_style_default">#FFFFDC00</color>
+    <color name="pref_color_mark_favorite_glow_style_default">#FFB4DC00</color>
+    <color name="pref_color_mark_sync_glow_style_favorite_default">#C4FF0092</color>
+    <color name="pref_color_on_air_background_glow_style_default">#280080FF</color>
+    <color name="pref_color_on_air_progress_glow_style_default">#780080FF</color>
+    
     <color name="filter_selection">#480000FF</color>
-    <color name="running_color">#000077</color>
     <color name="dark_gray">#222222</color>
     <color name="light_gray">#AAAAAA</color>
     <color name="lighter_gray">#DDDDDD</color>

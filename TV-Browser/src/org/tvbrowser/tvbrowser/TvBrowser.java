@@ -129,7 +129,7 @@ import com.example.android.listviewdragginganimation.StableArrayAdapter;
 
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
-  private static final boolean TEST_VERSION = false;
+  private static final boolean TEST_VERSION = true;
   
   private static final int SHOW_PREFERENCES = 1;
   
@@ -221,6 +221,15 @@ public class TvBrowser extends FragmentActivity implements
     super.onSaveInstanceState(outState);
   }
   
+  private final boolean addUserColor(SharedPreferences pref, Editor edit, int defaultColorKey, int colorKey, int userColorKey) {
+    int defaultColor = getResources().getColor(defaultColorKey);
+    int color = pref.getInt(getString(colorKey), defaultColor);
+    
+    edit.putInt(getString(userColorKey), color);
+    
+    return defaultColor != color;
+  }
+  
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     PrefUtils.initialize(TvBrowser.this);
@@ -276,6 +285,23 @@ public class TvBrowser extends FragmentActivity implements
           Intent updateAlarmValues = new Intent(UpdateAlarmValue.class.getCanonicalName());
           sendBroadcast(updateAlarmValues);
         }
+      }
+      if(oldVersion < 218) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
+        Editor edit = pref.edit();
+        
+        boolean userDefined = addUserColor(pref,edit,R.color.pref_color_on_air_background_tvb_style_default,R.string.PREF_COLOR_ON_AIR_BACKGROUND,R.string.PREF_COLOR_ON_AIR_BACKGROUND_USER_DEFINED);
+        userDefined = addUserColor(pref,edit,R.color.pref_color_on_air_progress_tvb_style_default,R.string.PREF_COLOR_ON_AIR_PROGRESS,R.string.PREF_COLOR_ON_AIR_PROGRESS_USER_DEFINED) || userDefined;
+        userDefined = addUserColor(pref,edit,R.color.pref_color_mark_tvb_style_default,R.string.PREF_COLOR_MARKED,R.string.PREF_COLOR_MARKED_USER_DEFINED) || userDefined;
+        userDefined = addUserColor(pref,edit,R.color.pref_color_mark_favorite_tvb_style_default,R.string.PREF_COLOR_FAVORITE,R.string.PREF_COLOR_FAVORITE) || userDefined;
+        userDefined = addUserColor(pref,edit,R.color.pref_color_mark_reminder_tvb_style_default,R.string.PREF_COLOR_REMINDER,R.string.PREF_COLOR_REMINDER_USER_DEFINED) || userDefined;
+        userDefined = addUserColor(pref,edit,R.color.pref_color_mark_sync_tvb_style_favorite_default,R.string.PREF_COLOR_SYNC,R.string.PREF_COLOR_SYNC_USER_DEFINED) || userDefined;
+        
+        if(userDefined) {
+          edit.putString(getString(R.string.PREF_COLOR_STYLE), "0");
+        }
+        
+        edit.commit();
       }
       if(oldVersion !=  pInfo.versionCode) {
         Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
@@ -489,14 +515,14 @@ public class TvBrowser extends FragmentActivity implements
       mUpdateItem.setActionView(null);
     }
     
-    if(TEST_VERSION) {
+   /* if(TEST_VERSION) {
       Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
       edit.putLong(getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), System.currentTimeMillis() + 60000);
       edit.commit();
       
       IOUtils.handleDataUpdatePreferences(TvBrowser.this);
       //R.string.AUTO_UPDATE_CURRENT_START_TIME
-    }
+    }*/
     
     SettingConstants.ORIENTATION = getResources().getConfiguration().orientation;
     
