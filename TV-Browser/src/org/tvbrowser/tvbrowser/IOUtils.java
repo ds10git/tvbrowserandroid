@@ -22,16 +22,17 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
-import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
@@ -43,7 +44,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.preference.PreferenceManager;
-import android.provider.Contacts.SettingsColumns;
 import android.util.Log;
 
 /**
@@ -153,21 +153,73 @@ public class IOUtils {
 
   }
   
-  public static void saveUrl(String filename, String urlString) throws MalformedURLException, IOException {
-    FileOutputStream fout = null;
+  /**
+   * Save given URL to filename with a default timeout of 30 seconds.
+   * <p>
+   * @param filename The file to save to.
+   * @param urlString The URL to load from.
+   * <p> 
+   * @return <code>true</code> if the file was downloaded successfully, <code>false</code> otherwise.
+   */
+  public static boolean saveUrl(final String filename, final String urlString) {
+    return saveUrl(filename, urlString, 30000);
+  }
+  
+  /**
+   * Save given URL to filename.
+   * <p>
+   * @param filename The file to save to.
+   * @param urlString The URL to load from.
+   * @param timeout The timeout of the download in milliseconds.
+   * <p> 
+   * @return <code>true</code> if the file was downloaded successfully, <code>false</code> otherwise.
+   */
+  public static boolean saveUrl(final String filename, final String urlString, final int timeout) {
+    final AtomicBoolean wasSaved = new AtomicBoolean(false);
     
+    new Thread("SAVE URL THREAD") {
+      public void run() {
+        FileOutputStream fout = null;
+        
+        try {
+          byte[] byteArr = loadUrl(urlString);
+          
+          fout = new FileOutputStream(filename);
+          fout.getChannel().truncate(0);
+          fout.write(byteArr, 0, byteArr.length);
+          
+          wasSaved.set(true);
+        }
+        catch(IOException e) {
+        }
+        finally {
+          if (fout != null) {
+            try {
+              fout.close();
+            } catch (IOException e) {}
+          }
+        }
+      };
+    }.start();
+    
+    Thread wait = new Thread("SAVE URL WAITING THREAD") {
+      public void run() {
+        int count = 0;
+        
+        while(!wasSaved.get() && count++ < (timeout / 100)) {
+          try {
+            sleep(100);
+          } catch (InterruptedException e) {}
+        }
+      };
+    };
+    wait.start();
+        
     try {
-      byte[] byteArr = loadUrl(urlString);
-      
-      fout = new FileOutputStream(filename);
-      fout.getChannel().truncate(0);
-      fout.write(byteArr, 0, byteArr.length);
-    }
-    finally {
-      if (fout != null) {
-        fout.close();
-      }
-    }
+      wait.join();
+    } catch (InterruptedException e) {}
+    
+    return wasSaved.get();
   }
   
   /*
@@ -309,5 +361,50 @@ public class IOUtils {
     }
     
     return null;
+  }
+  
+  public static boolean isConnectedToServer(final String url, final int timeout) {
+    final AtomicBoolean isConnected = new AtomicBoolean(false);
+    
+    new Thread("NETWORK CONNECTION CHECK THREAD") {
+      public void run() {
+        try {
+          URL myUrl = new URL(url);
+          
+          URLConnection connection;
+          connection = myUrl.openConnection();
+          connection.setConnectTimeout(timeout);
+          
+          HttpURLConnection httpConnection = (HttpURLConnection)connection;
+          
+          if(httpConnection != null) {
+            int responseCode = httpConnection.getResponseCode();
+          
+            isConnected.set(responseCode == HttpURLConnection.HTTP_OK);
+          }
+        } catch (IOException e) {
+          e.printStackTrace();
+        }
+      };
+    }.start();
+    
+    Thread check = new Thread("WAITING FOR NETWORK CONNECTION THREAD") {
+      @Override
+      public void run() {
+        int count = 0;
+        while(!isConnected.get() && count++ <= (timeout / 100)) {
+          try {
+            sleep(100);
+          } catch (InterruptedException e) {}
+        }
+      }
+    };
+    check.start();
+        
+    try {
+      check.join();
+    } catch (InterruptedException e) {}
+    
+    return isConnected.get();
   }
 }

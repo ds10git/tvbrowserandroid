@@ -63,7 +63,7 @@ public class Logging {
     }
     
     if(tag != null) {
-      Log.d(tag, message);
+      Log.d(tag, DATE_FORMAT.format(new Date(System.currentTimeMillis())) + ": " + message);
     }
   }
   
