@@ -629,7 +629,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     ListPreference currentStyle = (ListPreference)findPreference(getString(R.string.PREF_COLOR_STYLE));
     ColorPreference color = (ColorPreference)findPreference(key);
     
-    if(currentStyle.getValue().equals("0")) {
+    if(currentStyle != null && currentStyle.getValue() != null && currentStyle.getValue().equals("0")) {
       Editor edit = pref.edit();
       edit.putInt(getString(valueKey), color.getColor());
       edit.commit();
