@@ -311,6 +311,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       case DATA: return bulkInsertData(uri, values);
       case DATA_UPDATE: return bulkInsertData(uri, values);
       case DATA_VERSION: return bulkInsertVersion(uri, values);
+      case CHANNELS: return bulkInsertChannels(uri, values);
     }
   
     throw new SQLException("Failed to insert row into " + uri);
@@ -334,6 +335,8 @@ public class TvBrowserContentProvider extends ContentProvider {
       switch(uriMatcher.match(uri)) {
         case DATA_VERSION: table = TvBrowserDataBaseHelper.VERSION_TABLE;break;
         case DATA_VERSION_ID: table = TvBrowserDataBaseHelper.VERSION_TABLE;break;
+        case CHANNELS: table = CHANNEL_TABLE;break;
+        case CHANNEL_ID: table = CHANNEL_TABLE;break;
       }
       
       ContentValues values = op.resolveValueBackReferences(null, 0);
@@ -381,6 +384,37 @@ public class TvBrowserContentProvider extends ContentProvider {
       
       if(rowID != -1) {
         Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA, rowID);
+        
+        if(INFORM_FOR_CHANGES) {
+          getContext().getContentResolver().notifyChange(newUri, null);
+        }
+      
+        count++;
+      }
+    }
+    
+    database.setTransactionSuccessful();
+    database.endTransaction();
+    
+    // Return a URI to the newly inserted row on success.
+    if(count >= 0) {
+      return count;
+    }
+    
+    throw new SQLException("Failed to insert row into " + uri + " " + count);
+  }
+  
+  private int bulkInsertChannels(Uri uri, ContentValues[] values) {
+    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+    database.beginTransaction();
+    
+    int count = 0;
+    
+    for(ContentValues value : values) {
+      long rowID = database.insert(CHANNEL_TABLE, "channel", value);
+      
+      if(rowID != -1) {
+        Uri newUri = ContentUris.withAppendedId(CONTENT_URI_CHANNELS, rowID);
         
         if(INFORM_FOR_CHANGES) {
           getContext().getContentResolver().notifyChange(newUri, null);

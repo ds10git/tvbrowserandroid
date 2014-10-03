@@ -324,8 +324,10 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         else if(key.equals(getString(R.string.PREF_REMINDER_TIME)) || key.equals(getString(R.string.PREF_REMINDER_TIME_SECOND))) {
           ListPreference reminderTime = (ListPreference) findPreference(getString(R.string.PREF_REMINDER_TIME));
           ListPreference reminderTimeSecond = (ListPreference) findPreference(getString(R.string.PREF_REMINDER_TIME_SECOND));
-
-          if(reminderTime.getValue().equals(reminderTimeSecond.getValue())) {
+          
+          if(reminderTime != null && reminderTimeSecond != null 
+              && reminderTime.getValue() != null && reminderTimeSecond.getValue() != null 
+              && reminderTime.getValue().equals(reminderTimeSecond.getValue())) {
             reminderTimeSecond.setValue(getString(R.string.pref_reminder_time_second_default));
           }
         }

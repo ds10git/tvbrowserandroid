@@ -29,7 +29,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.lang.Thread.UncaughtExceptionHandler;
-import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
@@ -993,12 +992,11 @@ public class TvDataUpdateService extends Service {
   private void updateChannels() {
     if(!IS_RUNNING) {
       IS_RUNNING = true;
-    
-      NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+      
       mBuilder.setProgress(100, 0, true);
       mBuilder.setContentTitle(getResources().getText(R.string.channel_notification_title));
       mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
-      notification.notify(NOTIFY_ID, mBuilder.build());
+      startForeground(NOTIFY_ID, mBuilder.build());
       
       File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
       
@@ -1018,29 +1016,25 @@ public class TvDataUpdateService extends Service {
           nomedia.createNewFile();
         } catch (IOException e) {}
       }
+
+      File groups = new File(path,GROUP_FILE);
       
-      new Thread("DATA UPDATE GROUP UPDATE THREAD") {
-        public void run() {
-          File groups = new File(path,GROUP_FILE);
+      String mirror = getGroupFileMirror();
+      doLog("LOAD GROUPS FROM '" + mirror + "' to '" + groups + "'");
+      if(mirror != null) {
+        try {
+          IOUtils.saveUrl(groups.getAbsolutePath(), mirror);
+          doLog("START GROUP UPDATE");
+          updateGroups(groups, path);
+        } catch (Exception e) {
+          Intent updateDone = new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
+          updateDone.putExtra(SettingConstants.CHANNEL_DOWNLOAD_SUCCESSFULLY, false);
           
-          String mirror = getGroupFileMirror();
-          doLog("LOAD GROUPS FROM '" + mirror + "' to '" + groups + "'");
-          if(mirror != null) {
-            try {
-              IOUtils.saveUrl(groups.getAbsolutePath(), mirror);
-              doLog("START GROUP UPDATE");
-              updateGroups(groups, path);
-            } catch (Exception e) {
-              Intent updateDone = new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
-              updateDone.putExtra(SettingConstants.CHANNEL_DOWNLOAD_SUCCESSFULLY, false);
-              
-              LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
-              
-              stopSelfInternal();
-            }
-          }
+          LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
+          
+          stopSelfInternal();
         }
-      }.start();
+      }
     }
   }
   
@@ -1060,7 +1054,7 @@ public class TvDataUpdateService extends Service {
       
       String test = groupUrlList.get(index);
       
-      if(isConnectedToServer(test, 5000)) {
+      if(IOUtils.isConnectedToServer(test, 5000)) {
         choosenMirror = test;
       }
       else {
@@ -1095,6 +1089,7 @@ public class TvDataUpdateService extends Service {
     final ChangeableFinalBoolean success = new ChangeableFinalBoolean(true);
     
     if(groups.isFile()) {
+      final NotificationManager notification = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
       final ArrayList<GroupInfo> channelMirrors = new ArrayList<GroupInfo>();
       
       try {
@@ -1115,64 +1110,79 @@ public class TvDataUpdateService extends Service {
           // If the group is new, insert it into the provider.
           Cursor query = cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, w, null, null);
           
-          ContentValues values = new ContentValues();
-          
-          values.put(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID, SettingConstants.EPG_FREE_KEY);
-          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_ID, parts[0]);
-          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME, parts[1]);
-          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER, parts[2]);
-          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION, parts[3]);
-          
-          StringBuilder builder = new StringBuilder(parts[4]);
-          
-          for(int i = 5; i < parts.length; i++) {
-            builder.append(";");
-            builder.append(parts[i]);
-          }
-          doLog("Mirrors for group '" + parts[0] + "': " + builder.toString());
-          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, builder.toString());
-          
-          if(query == null || query.getCount() == 0) {
-            doLog("Insert group '" + parts[0] + "' into database.");
-            // The group is not already known, so insert it
-            Uri insert = cr.insert(TvBrowserContentProvider.CONTENT_URI_GROUPS, values);
+          try {
+            ContentValues values = new ContentValues();
             
-            Cursor groupTest = cr.query(insert, null, null, null, null);
+            values.put(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID, SettingConstants.EPG_FREE_KEY);
+            values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_ID, parts[0]);
+            values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME, parts[1]);
+            values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER, parts[2]);
+            values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION, parts[3]);
             
-            GroupInfo test = loadChannelForGroup(groupTest);
+            StringBuilder builder = new StringBuilder(parts[4]);
             
-            if(!groupTest.isClosed()) {
-              groupTest.close();
+            for(int i = 5; i < parts.length; i++) {
+              builder.append(";");
+              builder.append(parts[i]);
             }
+            doLog("Mirrors for group '" + parts[0] + "': " + builder.toString());
+            values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, builder.toString());
             
-            if(test != null) {
-              doLog("Load channels for group '" + parts[0] + "' to " + test.getFileName());
-              channelMirrors.add(test);
-            }
-            else {
-              success.andUpdateBoolean(false);
-            }
-          }
-          else {
-            doLog("Update group '" + parts[0] + "' in database.");
-            cr.update(TvBrowserContentProvider.CONTENT_URI_GROUPS, values, w, null);
-            
-            Cursor groupTest = cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, w, null, null);
-            
-            GroupInfo test = loadChannelForGroup(groupTest);
-            
-            if(test != null) {
-              doLog("Load channels for group '" + parts[0] + "' to " + test.getFileName());
-              channelMirrors.add(test);
+            if(query == null || query.getCount() == 0) {
+              doLog("Insert group '" + parts[0] + "' into database.");
+              // The group is not already known, so insert it
+              Uri insert = cr.insert(TvBrowserContentProvider.CONTENT_URI_GROUPS, values);
+              
+              Cursor groupTest = cr.query(insert, null, null, null, null);
+              
+              GroupInfo test = loadGroupInfoForGroup(groupTest);
+              
+              if(!groupTest.isClosed()) {
+                groupTest.close();
+              }
+              
+              if(test != null) {
+                doLog("Load channels for group '" + parts[0] + "' to " + test.getFileName());
+                channelMirrors.add(test);
+              }
+              else {
+                success.andUpdateBoolean(false);
+              }
             }
             else {
-              success.andUpdateBoolean(false);
+              if(query.moveToFirst()) {
+                doLog("Update group '" + parts[0] + "' in database.");
+                final int id = query.getInt(query.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                Uri uri = ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS,id);
+                
+                cr.update(uri, values, null, null);
+                doLog("Update group '" + parts[0] + "' query group.");
+                Cursor groupTest = cr.query(uri, null, null, null, null);
+                
+                try {
+                  doLog("Update group '" + parts[0] + "' loadGroupInfoForGroup().");
+                  GroupInfo test = loadGroupInfoForGroup(groupTest);
+                  
+                  if(test != null) {
+                    doLog("Load channels for group '" + parts[0] + "' to " + test.getFileName());
+                    channelMirrors.add(test);
+                  }
+                  else {
+                    doLog("Update group '" + parts[0] + "' NO SUCCESS");
+                    success.andUpdateBoolean(false);
+                  }
+                }finally {
+                  groupTest.close();
+                }
+              }
+              else {
+                doLog("Update group '" + parts[0] + "' NO SUCCESS");
+                success.andUpdateBoolean(false);
+              }
             }
-            
-            groupTest.close();
+          }finally {
+            query.close();
           }
-          
-          query.close();
         }
         
         in.close();
@@ -1180,9 +1190,12 @@ public class TvDataUpdateService extends Service {
       
       if(!channelMirrors.isEmpty()) {
         mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
-                
+        mCurrentDownloadCount = 0;
+        mBuilder.setProgress(channelMirrors.size(), 0, false);
+        notification.notify(NOTIFY_ID, mBuilder.build());
+        
         for(final GroupInfo info : channelMirrors) {
-          mThreadPool.execute(new Thread("DATA UPDATE GROUP DOWNLOAD THREAD") {
+          mThreadPool.execute(new Thread("DATA UPDATE GROUP CHANNEL ADDING THREAD") {
             public void run() {
               File group = new File(path,info.getFileName());
               
@@ -1190,15 +1203,22 @@ public class TvDataUpdateService extends Service {
               
               for(String url : info.getUrls()) {
                 try {
-                  IOUtils.saveUrl(group.getAbsolutePath(), url + info.getFileName());
-                  groupSucces = addChannels(group,info);
-                  
-                  if(groupSucces) {
-                    doLog("Load channels for group '" + info.getUniqueGroupID() + "' successfull from: " + url);
-                    break;
+                  if(IOUtils.saveUrl(group.getAbsolutePath(), url + info.getFileName(), 10000)) {
+                    groupSucces = addChannels(group,info);
+                    
+                    mBuilder.setProgress(channelMirrors.size(), mCurrentDownloadCount++, false);
+                    notification.notify(NOTIFY_ID, mBuilder.build());
+                    
+                    if(groupSucces) {
+                      doLog("Load channels for group '" + info.getFileName() + "' successfull from: " + url);
+                      break;
+                    }
+                    else {
+                      doLog("Not successfull load channels for group '" + info.getFileName() + "' from: " + url);
+                    }
                   }
                   else {
-                    doLog("Not successfull load channels for group '" + info.getUniqueGroupID() + "' from: " + url);
+                    doLog("Not successfull load channels for group '" + info.getFileName() + "' from: " + url);
                   }
                 } catch (Exception e) {
                   groupSucces = false;
@@ -1216,8 +1236,10 @@ public class TvDataUpdateService extends Service {
           mThreadPool.awaitTermination(10, TimeUnit.MINUTES);
         } catch (InterruptedException e) {}
         
-        NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-        notification.cancel(NOTIFY_ID);
+        if(!mThreadPool.isTerminated()) {
+          mThreadPool.shutdownNow();
+          success.setBoolean(false);
+        }
       }
       else {
         success.setBoolean(false);
@@ -1235,10 +1257,11 @@ public class TvDataUpdateService extends Service {
     LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
     
     IS_RUNNING = false;
+    stopForeground(true);
     stopSelfInternal();
   }
   
-  private synchronized GroupInfo loadChannelForGroup(final Cursor cursor) { 
+  private synchronized GroupInfo loadGroupInfoForGroup(final Cursor cursor) { 
     int index = cursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS);
     
     if(index >= 0) {
@@ -1264,7 +1287,7 @@ public class TvDataUpdateService extends Service {
         ArrayList<String> mirrorList = new ArrayList<String>();
         
         for(String mirror : mirrors) {
-          if(isConnectedToServer(mirror,5000)) {
+          if(IOUtils.isConnectedToServer(mirror,5000)) {
             if(!mirror.endsWith("/")) {
               mirror += "/";
             }
@@ -1320,6 +1343,11 @@ public class TvDataUpdateService extends Service {
         
         boolean returnValueOnceSet = false;
         
+        final ArrayList<ContentValues> insertValuesList = new ArrayList<ContentValues>();
+        final ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+        
+        final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID};
+        
         while((line = read.readLine()) != null) {
           String[] parts = line.split(";");
           
@@ -1369,7 +1397,7 @@ public class TvDataUpdateService extends Service {
           
           ContentResolver cr = getContentResolver();
           
-          Cursor query = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
+          Cursor query = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where, null, null);
           
           ContentValues values = new ContentValues();
           
@@ -1395,21 +1423,40 @@ public class TvDataUpdateService extends Service {
           }
           
           if(query == null || query.getCount() == 0) {
-            // add channel
-            if(cr.insert(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values) == null) {
-              returnValue = false;
-            }
+            insertValuesList.add(values);
           }
           else {
             // update channel
-            if(cr.update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, where, null) < 1) {
+            if(query.moveToFirst()) {
+              int channelKey = query.getInt(query.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+              
+              ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelKey));
+              opBuilder.withValues(values);
+              
+              updateValuesList.add(opBuilder.build());
+            }
+            else {
               returnValue = false;
             }
           }
           
           query.close();
         }
+        
         read.close();
+        
+        if(!insertValuesList.isEmpty()) {
+          if(insertValuesList.size() > getContentResolver().bulkInsert(TvBrowserContentProvider.CONTENT_URI_CHANNELS, insertValuesList.toArray(new ContentValues[insertValuesList.size()]))) {
+            returnValue = false;
+          }
+        }
+        if(!updateValuesList.isEmpty()) {
+          try {
+            getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+          } catch (Exception e) {
+            returnValue = false;
+          }
+        }
       } catch (FileNotFoundException e) {
         returnValue = false;
         e.printStackTrace();
@@ -1422,28 +1469,6 @@ public class TvDataUpdateService extends Service {
     }
     
     return returnValue;
-  }
-
-  private boolean isConnectedToServer(String url, int timeout) {
-    try {
-      URL myUrl = new URL(url);
-      
-      URLConnection connection;
-      connection = myUrl.openConnection();
-      connection.setConnectTimeout(timeout);
-      
-      HttpURLConnection httpConnection = (HttpURLConnection)connection;
-      
-      if(httpConnection != null) {
-        int responseCode = httpConnection.getResponseCode();
-      
-        return responseCode == HttpURLConnection.HTTP_OK;
-      }
-    } catch (IOException e) {
-      e.printStackTrace();
-    }
-    
-    return false;
   }
   
   private byte[] getXmlBytes(boolean syncFav, boolean syncMarkings, boolean syncCalendar) {
@@ -1872,7 +1897,7 @@ public class TvDataUpdateService extends Service {
   }
   
   public void doLog(String value) {
-    Logging.log(null, value, Logging.DATA_UPDATE_TYPE, TvDataUpdateService.this);
+    Logging.log("info55", value, Logging.DATA_UPDATE_TYPE, TvDataUpdateService.this);
   }
   
   private void doLogData(String msg) {
