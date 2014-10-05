@@ -1625,7 +1625,7 @@ public class UiUtils {
       case MARKED_SYNC_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_SYNC), context.getResources().getColor(R.color.pref_color_mark_sync_tvb_style_favorite_default));break;
       case ON_AIR_BACKGROUND_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND), context.getResources().getColor(R.color.pref_color_on_air_background_tvb_style_default));break;
       case ON_AIR_PROGRESS_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_PROGRESS), context.getResources().getColor(R.color.pref_color_on_air_progress_tvb_style_default));break;
-      case RUNNING_TIME_SELECTION_KEY: color = pref.getInt(context.getString(R.string.PREF_RUNNING_TIME_SELECTION), context.getResources().getColor(R.color.filter_selection));break;
+      case RUNNING_TIME_SELECTION_KEY: color = pref.getInt(context.getString(R.string.PREF_RUNNING_TIME_SELECTION), context.getResources().getColor(R.color.pref_color_running_time_selection_background_tvb_style_default));break;
       case I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR), context.getResources().getColor(R.color.i_dont_want_to_see_highlight));break;
     }
     

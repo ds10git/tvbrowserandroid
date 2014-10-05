@@ -437,7 +437,7 @@
     <string-array name="pref_color_style_selection_entries">
         <item>User defined</item>
 	    <item>TV-Browser default</item>
-	    <item>Glow light (designed by Halle Andert)</item>
+	    <item>Glow light (designed by HalleAndert)</item>
     </string-array>
     
 	<string name="pref_marking_color_marked_summary">Color for manually marked programs.</string>
