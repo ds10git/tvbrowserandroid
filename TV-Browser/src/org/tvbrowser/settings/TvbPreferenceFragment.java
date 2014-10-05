@@ -263,7 +263,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           ColorPreference markedReminder = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_REMINDER));
           ColorPreference markedSync = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_SYNC));
           
-          if(onAirBackground != null && onAirProgress != null && marked != null && markedFavorite != null && markedReminder != null && markedSync != null && showProgress != null) {
+          if(onAirBackground != null && onAirProgress != null && marked != null && markedFavorite != null
+              && markedReminder != null && markedSync != null && showProgress != null) {
             int currentStyleValue = 0;
             
             if(currentStyle != null && currentStyle.getValue() != null) {
@@ -283,6 +284,13 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
               markedReminder.setColors(color, color);
               color = getResources().getColor(R.color.pref_color_mark_sync_tvb_style_favorite_default);
               markedSync.setColors(color, color);
+              
+              
+              if(sharedPreferences.getInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), getResources().getColor(R.color.pref_color_running_time_selection_background_glow_style_default)) == getResources().getColor(R.color.pref_color_running_time_selection_background_glow_style_default)) {
+                Editor edit = (Editor)sharedPreferences.edit();
+                edit.putInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), getResources().getColor(R.color.pref_color_running_time_selection_background_tvb_style_default));
+                edit.commit();
+              }
             }
             else if(currentStyleValue == 2) {
               int color = getResources().getColor(R.color.pref_color_on_air_background_glow_style_default);
@@ -297,6 +305,12 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
               markedReminder.setColors(color, color);
               color = getResources().getColor(R.color.pref_color_mark_sync_glow_style_favorite_default);
               markedSync.setColors(color, color);
+              
+              if(sharedPreferences.getInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), getResources().getColor(R.color.pref_color_running_time_selection_background_tvb_style_default)) == getResources().getColor(R.color.pref_color_running_time_selection_background_tvb_style_default)) {
+                Editor edit = (Editor)sharedPreferences.edit();
+                edit.putInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), getResources().getColor(R.color.pref_color_running_time_selection_background_glow_style_default));
+                edit.commit();
+              }
             }
             else if(currentStyleValue == 0) {
               int color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND_USER_DEFINED), getResources().getColor(R.color.pref_color_on_air_background_tvb_style_default));
@@ -368,7 +382,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         setUserColorValue(sharedPreferences,key,R.string.PREF_COLOR_MARKED_USER_DEFINED);
       }
       else if(key.equals(getString(R.string.PREF_COLOR_FAVORITE))) {
-        setUserColorValue(sharedPreferences,key,R.string.PREF_COLOR_FAVORITE);
+        setUserColorValue(sharedPreferences,key,R.string.PREF_COLOR_FAVORITE_USER_DEFINED);
       }
       else if(key.equals(getString(R.string.PREF_COLOR_REMINDER))) {
         setUserColorValue(sharedPreferences,key,R.string.PREF_COLOR_REMINDER_USER_DEFINED);

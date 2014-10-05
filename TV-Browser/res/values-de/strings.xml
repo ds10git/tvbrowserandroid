@@ -425,7 +425,7 @@
     <string-array name="pref_color_style_selection_entries">
         <item>Benutzerdefiniert</item>
 	    <item>TV-Browser Standard</item>
-	    <item>Leuchtend hell (designed by Halle Andert)</item>
+	    <item>Leuchtend hell (designed by HalleAndert)</item>
     </string-array>
     
     <string name="pref_marking_color_marked_summary">Farbe für manuell markierte Sendungen.</string>

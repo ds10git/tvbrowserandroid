@@ -14,7 +14,9 @@
     <color name="pref_color_on_air_background_glow_style_default">#280080FF</color>
     <color name="pref_color_on_air_progress_glow_style_default">#780080FF</color>
     
-    <color name="filter_selection">#480000FF</color>
+    <color name="pref_color_running_time_selection_background_tvb_style_default">#480000FF</color>
+    <color name="pref_color_running_time_selection_background_glow_style_default">#780080FF</color>
+    
     <color name="dark_gray">#222222</color>
     <color name="light_gray">#AAAAAA</color>
     <color name="lighter_gray">#DDDDDD</color>

@@ -17,7 +17,7 @@
         android:key="@string/PREF_RUNNING_TIME_SELECTION"
         android:title="@string/pref_running_time_selection"
         android:summary="@string/pref_running_time_selection_summary"
-        android:defaultValue="@color/filter_selection"/>
+        android:defaultValue="@color/pref_color_running_time_selection_background_tvb_style_default"/>
     <CheckBoxPreference android:key="@string/RUNNING_PROGRAMS_NEXT_DAY"
         android:defaultValue="@bool/running_programs_next_day_default"
         android:title="@string/pref_running_next_day"

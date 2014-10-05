@@ -357,81 +357,10 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
         else {
           startUpdateThread();
         }
-        
-        /*
-        if(mDataUpdateReceiver != null) {
-          LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
-        }
-        */
-        
       }
-     /* else {
-        setTimeRangeID(AT_TIME_ID);
-      }*/
     }
   }
-  
- /* public void setTimeRangeID(int id) {
-    Button test = (Button)((View)getView().getParent()).findViewById(mTimeRangeID);
     
-    if(test != null) {
-      test.setBackgroundResource(android.R.drawable.list_selector_background);
-      test.setPadding(15, 0, 15, 0);
-    }
-    
-    mTimeRangeID = id;
-    
-    test = (Button)((View)getView().getParent()).findViewById(mTimeRangeID);
-    
-    if(test != null) {
-      test.setBackgroundResource(R.color.filter_selection);
-      test.setPadding(15, 0, 15, 0);
-    }
-    
-    test = (Button)((View)getView().getParent()).findViewWithTag(mWhereClauseTime);
-    
-    mCurrentViewList.clear();
-    
-    switch(mTimeRangeID) {
-      case AT_TIME_ID:
-        if(test != null) {
-          test.setBackgroundResource(R.color.filter_selection);
-        }
-        
-        for(ChannelProgramBlock block : mProgramBlockList) {
-          if(block.mNowStart > 0) {
-            mCurrentViewList.add(block);
-          }
-        }
-        break;
-      case R.id.button_before1: 
-        if(test != null) {
-          test.setBackgroundDrawable(BEFORE_GRADIENT);
-        }
-        
-        for(ChannelProgramBlock block : mProgramBlockList) {
-          if(block.mPreviousStart > 0) {
-            mCurrentViewList.add(block);
-          }
-        }
-        
-        break;
-      case R.id.button_after1:
-        if(test != null) {
-          test.setBackgroundDrawable(AFTER_GRADIENT);
-        }
-        
-        for(ChannelProgramBlock block : mProgramBlockList) {
-          if(block.mNextStart > 0) {
-            mCurrentViewList.add(block);
-          }
-        }
-        break;
-    }
-    
-    mRunningProgramListAdapter.notifyDataSetChanged();
-  }*/
-  
   @Override
   public void onSaveInstanceState(Bundle outState) {
     outState.putInt(WHERE_CLAUSE_KEY, mWhereClauseTime);
