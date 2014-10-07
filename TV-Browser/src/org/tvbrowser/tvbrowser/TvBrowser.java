@@ -820,6 +820,12 @@ public class TvBrowser extends FragmentActivity implements
                       
                       ContentValues values = new ContentValues();
                       
+                      if(parts.length > 3) {
+                        try {
+                          sort = Integer.parseInt(parts[3]);
+                        }catch(NumberFormatException e) {}
+                      }
+                      
                       values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
                       values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, sort);
                       
