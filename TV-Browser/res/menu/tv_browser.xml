@@ -102,6 +102,16 @@
 		        android:orderInCategory="100"
 		        android:showAsAction="never"
 		        android:title="@string/action_synchronize_dont_want_to_see"/>
+		    <item 
+		        android:id="@+id/action_backup_preferences_save"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_backup_preferences_save"/>
+		    <item 
+		        android:id="@+id/action_backup_preferences_restore"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_backup_preferences_restore"/>
         </menu>
     </item>
     <item 

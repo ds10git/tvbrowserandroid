@@ -96,6 +96,7 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
     edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_FAVORITE), mFavorite.isChecked());
     edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_REMINDER), mReminder.isChecked());
     edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_CALENDER), mCalendar.isChecked());
+    edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_SYNCHRONIZED), mSync.isChecked());
     edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT), mLimit.isChecked());
     
     if(mLimitNumber.getText().toString().trim().length() > 0) {
