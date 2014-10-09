@@ -16,12 +16,24 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.appwidget.AppWidgetManager;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.text.format.DateFormat;
 import android.util.Log;
 
 public class InfoActivity extends Activity {
@@ -41,10 +53,108 @@ public class InfoActivity extends Activity {
     Intent intent = getIntent();
     
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
-    Log.d("info8", "" + programID + " " + intent + " " + intent.getExtras());
+    
     if(programID >= 0) {
       Log.d("info8", "HIER2");
       UiUtils.showProgramInfo(this, programID, this);
+    }
+    else if(intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
+      final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(InfoActivity.this);
+      final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
+      
+      final ArrayList<Integer> values = new ArrayList<Integer>();
+      
+      int[] defaultValues = getResources().getIntArray(R.array.time_button_defaults);
+      
+      int timeButtonCount = pref.getInt(getString(R.string.TIME_BUTTON_COUNT),getResources().getInteger(R.integer.time_button_count_default));
+      
+      int currentValue = pref.getInt(appWidgetId + "_" + getString(R.string.WIDGET_CONFIG_RUNNING_TIME), getResources().getInteger(R.integer.widget_congig_running_time_default));
+      
+      for(int i = 1; i <= Math.min(timeButtonCount, getResources().getInteger(R.integer.time_button_count_default)); i++) {
+        try {
+          Class<?> string = R.string.class;
+          
+          Field setting = string.getDeclaredField("TIME_BUTTON_" + i);
+          
+          Integer value = Integer.valueOf(pref.getInt(getResources().getString((Integer)setting.get(string)), defaultValues[i-1]));
+          
+          if(value >= -1 && !values.contains(value)) {
+            values.add(value);
+          }
+        } catch (Exception e) {}
+      }
+      
+      for(int i = 7; i <= timeButtonCount; i++) {
+          Integer value = Integer.valueOf(pref.getInt("TIME_BUTTON_" + i, 0));
+          
+          if(value >= -1 && !values.contains(value)) {
+            values.add(value);
+          }
+      }
+      
+      if(PrefUtils.getBooleanValue(R.string.SORT_RUNNING_TIMES, R.bool.sort_running_times_default)) {
+        Collections.sort(values);
+      }
+      
+      int selection = 0;
+      
+      for(int i = 0; i < values.size(); i++) {
+        if(values.get(i) == currentValue) {
+          selection = i+1;
+          break;
+        }
+      }
+      
+      ArrayList<String> formatedTimes = new ArrayList<String>();
+      formatedTimes.add(getString(R.string.button_now));
+      
+      for(int i = 0; i < values.size(); i++) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, values.get(i) / 60);
+        cal.set(Calendar.MINUTE, values.get(i) % 60);
+        
+        formatedTimes.add(DateFormat.getTimeFormat(InfoActivity.this).format(cal.getTime()));
+      }
+      
+      AlertDialog.Builder builder = new AlertDialog.Builder(InfoActivity.this);
+      
+      builder.setTitle(R.string.widget_running_select_time_title);
+      
+      builder.setSingleChoiceItems(formatedTimes.toArray(new String[formatedTimes.size()]), selection, new DialogInterface.OnClickListener() {        
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          int value = -1;
+          
+          if(which > 0) {
+            value = values.get(which-1);
+          }
+          
+          Editor edit = pref.edit();
+          edit.putInt(appWidgetId + "_" + getString(R.string.WIDGET_CONFIG_RUNNING_TIME), value);
+          edit.commit();
+          
+          Intent update = new Intent(SettingConstants.UPDATE_RUNNING_APP_WIDGET);
+          update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+          
+          sendBroadcast(update);
+          
+          dialog.dismiss();
+          finish();
+        }
+      });
+      builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+        @Override
+        public void onCancel(DialogInterface dialog) {
+          finish();
+        }
+      });
+      
+      if(appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
+        builder.show();
+      }
+      else {
+        finish();
+      }
     }
     else {
       finish();

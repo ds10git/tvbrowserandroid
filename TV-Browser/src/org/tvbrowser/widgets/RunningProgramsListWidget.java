@@ -16,8 +16,12 @@
  */
 package org.tvbrowser.widgets;
 
+import java.util.Calendar;
+
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.CompatUtils;
+import org.tvbrowser.tvbrowser.InfoActivity;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.TvBrowser;
 
@@ -26,6 +30,10 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
+import android.preference.PreferenceManager;
+import android.text.format.DateFormat;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 /**
@@ -34,6 +42,21 @@ import android.widget.RemoteViews;
  * @author René Mach
  */
 public class RunningProgramsListWidget extends AppWidgetProvider {
+  @Override
+  public void onReceive(Context context, Intent intent) {
+    if((AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction()) || SettingConstants.UPDATE_RUNNING_APP_WIDGET.equals(intent.getAction())) && intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID) && 
+        intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID) != AppWidgetManager.INVALID_APPWIDGET_ID) {
+      AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
+      
+      int appWidgetId = intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID);
+      onUpdate(context, appWidgetManager, new int[] {appWidgetId});
+      appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.running_widget_list_view);
+    }
+    else {
+      super.onReceive(context, intent);
+    }
+  }
+  
   @Override
   public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
     final int n = appWidgetIds.length;
@@ -52,7 +75,28 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
             
       PendingIntent tvbstart = PendingIntent.getActivity(context, 0, tvb, PendingIntent.FLAG_UPDATE_CURRENT);
       views.setOnClickPendingIntent(R.id.running_widget_header, tvbstart);
-            
+      
+      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+          
+      int currentValue = pref.getInt(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_RUNNING_TIME), context.getResources().getInteger(R.integer.widget_congig_running_time_default));
+
+      if(currentValue >= 0) {
+        Calendar cal = Calendar.getInstance();
+        cal.set(Calendar.HOUR_OF_DAY, currentValue / 60);
+        cal.set(Calendar.MINUTE, currentValue % 60);
+        
+        views.setTextViewText(R.id.running_widget_header, DateFormat.getTimeFormat(context).format(cal.getTime()));
+      }
+      else {
+        views.setTextViewText(R.id.running_widget_header, context.getString(R.string.widget_running_title));
+      }
+      
+      Intent config = new Intent(context, InfoActivity.class);
+      config.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+      
+      PendingIntent timeSelection = PendingIntent.getActivity(context, appWidgetId, config, PendingIntent.FLAG_UPDATE_CURRENT);
+      views.setOnClickPendingIntent(R.id.running_widget_time, timeSelection);
+      
       Intent templateIntent = new Intent(SettingConstants.HANDLE_APP_WIDGET_CLICK);
       templateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
       
