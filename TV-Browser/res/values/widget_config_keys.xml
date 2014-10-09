@@ -8,4 +8,7 @@
     <string name="WIDGET_CONFIG_IMPORTANT_SHOWN_SYNCHRONIZED">WIDGET_CONFIG_IMPORTANT_SHOWN_SYNCHRONIZED</string>
     <string name="WIDGET_CONFIG_IMPORTANT_LIMIT">WIDGET_CONFIG_IMPORTANT_LIMIT</string>
     <string name="WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT">WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT</string>
+    
+    <string name="WIDGET_CONFIG_RUNNING_TIME">WIDGET_CONFIG_RUNNING_TIME</string>
+    <item name="widget_congig_running_time_default" type="integer" format="integer">-1</item>
 </resources>

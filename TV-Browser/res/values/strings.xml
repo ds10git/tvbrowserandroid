@@ -541,6 +541,8 @@
     
     <string name="widget_running_title">Now running</string>
     
+    <string name="widget_running_select_time_title">Select shown time</string>
+    
     <string name="backup_preferences_success">Backup successfully stored on TV-Browser server</string>
     <string name="backup_preferences_restore_success">Backup successfully restored from TV-Browser server</string>
     <string name="backup_preferences_restore_failure">Backup could not be restored, maybe it was never uploaded.</string>

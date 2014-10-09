@@ -8,6 +8,15 @@
          android:layout_width="match_parent"
          android:layout_height="wrap_content"
          android:background="@drawable/rounded_corners_shape_light">
+         <ImageButton android:id="@+id/running_widget_time"
+	         android:layout_width="wrap_content"
+	         android:layout_height="wrap_content"
+	         android:contentDescription="button"
+	         android:layout_centerVertical="true"
+	         android:src="@android:drawable/ic_menu_recent_history"
+	         android:layout_alignParentEnd="true"
+	         android:layout_alignParentRight="true"
+	         android:background="@drawable/rounded_corners_shape_light_light_border"/>
 	     <TextView android:id="@+id/running_widget_header"
 	         android:layout_width="match_parent"
 	         android:layout_height="wrap_content"
@@ -17,7 +26,8 @@
 	         android:textSize="@dimen/title_font_size"
 	         android:drawableLeft="@drawable/ic_widget"
 	         android:layout_alignParentLeft="true"
-	         android:layout_alignParentStart="true"/>
+	         android:layout_alignParentStart="true"
+	         android:layout_toLeftOf="@id/running_widget_time"/>
      </RelativeLayout>
     <ListView
         android:background="@drawable/rounded_corners_shape_dark"

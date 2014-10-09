@@ -16,6 +16,7 @@
  */
 package org.tvbrowser.widgets;
 
+import java.util.Calendar;
 import java.util.Date;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -33,10 +34,13 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
+import android.widget.Spinner;
 
 /**
  * Service for showing currently running programs as widget.
@@ -85,8 +89,33 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID
       };
       
-      final String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " +
-      TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + System.currentTimeMillis() + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
+      long time = System.currentTimeMillis();
+      
+      
+      
+      int currentTime = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(mAppWidgetId + "_" + getString(R.string.WIDGET_CONFIG_RUNNING_TIME), getResources().getInteger(R.integer.widget_congig_running_time_default));
+      
+      if(currentTime != -1) {
+        Calendar now = Calendar.getInstance();
+        
+        if(PrefUtils.getBooleanValue(R.string.RUNNING_PROGRAMS_NEXT_DAY, R.bool.running_programs_next_day_default)) {
+          int test1 = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+        
+          if((test1 - currentTime) > 180) {
+            now.add(Calendar.DAY_OF_YEAR, 1);
+          }
+        }
+        
+        now.set(Calendar.HOUR_OF_DAY, currentTime / 60);
+        now.set(Calendar.MINUTE, currentTime % 60);
+        now.set(Calendar.SECOND, 0);
+        now.set(Calendar.MILLISECOND, 0);
+        
+        time = now.getTimeInMillis();
+      }
+      
+      final String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + time + " AND " +
+      TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
             
       final long token = Binder.clearCallingIdentity();
       try {
@@ -242,6 +271,10 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         final int length = (int)(endTime - startTime) / 60000;
         final int progress = (int)(System.currentTimeMillis() - startTime) / 60000;
         rv.setProgressBar(R.id.running_programs_widget_row_progress, length, progress, false);
+        rv.setViewVisibility(R.id.running_programs_widget_row_progress, View.VISIBLE);
+      }
+      else {
+        rv.setViewVisibility(R.id.running_programs_widget_row_progress, View.GONE);
       }
       
       rv.setTextViewText(R.id.running_programs_widget_row_start_time, time);
