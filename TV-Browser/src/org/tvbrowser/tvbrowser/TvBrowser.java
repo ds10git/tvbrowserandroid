@@ -18,6 +18,7 @@ package org.tvbrowser.tvbrowser;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
@@ -31,6 +32,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
+import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
 import java.util.Timer;
@@ -303,6 +305,16 @@ public class TvBrowser extends FragmentActivity implements
         
         edit.commit();
       }
+      if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < 225) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+        
+        builder.setTitle(R.string.info_version);
+        builder.setMessage(R.string.info_version_0_4_1);
+        builder.setPositiveButton(android.R.string.ok, null);
+        
+        builder.show();
+      }
+      
       if(oldVersion !=  pInfo.versionCode) {
         Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
         edit.putInt(getString(R.string.OLD_VERSION), pInfo.versionCode);
@@ -681,6 +693,7 @@ public class TvBrowser extends FragmentActivity implements
     
     builder.setTitle(R.string.synchronize_title);
     builder.setMessage(R.string.synchronize_text);
+    builder.setCancelable(false);
     
     builder.setPositiveButton(R.string.synchronize_ok, new OnClickListener() {
       @Override
@@ -1019,7 +1032,7 @@ public class TvBrowser extends FragmentActivity implements
                 }
                 
                 if(!replace && exclusionBuilder.length() > 0) {
-                  startSynchronizeUp(false, exclusionBuilder.toString(), "http://android.tvbrowser.org/data/scripts/syncUp.php?type=dontWantToSee", null);
+                  startSynchronizeUp(false, exclusionBuilder.toString(), "http://android.tvbrowser.org/data/scripts/syncUp.php?type=dontWantToSee", null, null);
                 }
               }
               else {
@@ -1028,7 +1041,7 @@ public class TvBrowser extends FragmentActivity implements
                     exclusionBuilder.append(old).append("\n");
                   }
                   
-                  startSynchronizeUp(false, exclusionBuilder.toString(), "http://android.tvbrowser.org/data/scripts/syncUp.php?type=dontWantToSee", null);
+                  startSynchronizeUp(false, exclusionBuilder.toString(), "http://android.tvbrowser.org/data/scripts/syncUp.php?type=dontWantToSee", null, null);
                 }
                 
                 handler.post(new Runnable() {
@@ -1058,7 +1071,201 @@ public class TvBrowser extends FragmentActivity implements
     }.start();
   }
   
-  private void startSynchronizeUp(boolean info, String value, String address, String receiveDone) {
+  private void backupPreferences() {
+    if(isOnline()) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+      
+      builder.setTitle(R.string.action_backup_preferences_save);
+      builder.setMessage(R.string.backup_preferences_save_text);
+      
+      builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+          Map<String,?> preferences = pref.getAll();
+          
+          StringBuilder backup = new StringBuilder();
+          
+          Set<String> keys = preferences.keySet();
+          
+          for(String key : keys) {
+            Object value = preferences.get(key);
+            
+            if(value instanceof Boolean) {
+              backup.append("boolean:").append(key).append("=").append(value).append("\n");
+            }
+            else if(value instanceof Integer) {
+              backup.append("int:").append(key).append("=").append(value).append("\n");
+            }
+            else if(value instanceof Float) {
+              backup.append("float:").append(key).append("=").append(value).append("\n");
+            }
+            else if(value instanceof Long) {
+              backup.append("long:").append(key).append("=").append(value).append("\n");
+            }
+            else if(value instanceof String) {
+              backup.append("string:").append(key).append("=").append(value).append("\n");
+            }
+            else if(value instanceof Set<?>){
+              if(!key.equals(SettingConstants.SELECTED_TV_CHANNELS_LIST) && !key.equals(SettingConstants.SELECTED_RADIO_CHANNELS_LIST) &&
+                  !key.equals(SettingConstants.SELECTED_CINEMA_CHANNELS_LIST) && !key.equals(getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES))) {
+                Set<String> valueSet = (Set<String>)value;
+                
+                backup.append("set:").append(key).append("=");
+                
+                backup.append(TextUtils.join("#,#", valueSet));
+                
+                backup.append("\n");
+              }
+            }
+          }
+          
+          startSynchronizeUp(true, backup.toString(), "http://android.tvbrowser.org/data/scripts/syncUp.php?type=preferencesBackup", SettingConstants.SYNCHRONIZE_UP_DONE, getString(R.string.backup_preferences_success));
+        }
+      });
+      
+      builder.setNegativeButton(android.R.string.cancel,null);
+      
+      builder.show();
+    }
+    else {
+      showNoInternetConnection(null);
+    }
+  }
+  
+  private void restorePreferencesInternal() {
+    new Thread("RESTORE PREFERENCES") {
+      @Override
+      public void run() {
+        updateProgressIcon(true);
+        
+        URL documentUrl;
+        
+        BufferedReader read = null;
+        boolean restored = false;
+        
+        try {
+          documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=preferencesBackup");
+          URLConnection connection = documentUrl.openConnection();
+          
+          SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+          
+          String car = pref.getString(SettingConstants.USER_NAME, null);
+          String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+          Log.d("info", car + " "+ bicycle);
+          if(car != null && bicycle != null) {
+            String userpass = car + ":" + bicycle;
+            String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
+            
+            connection.setRequestProperty ("Authorization", basicAuth);
+            
+            read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+            
+            String line = null;
+            Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+            
+            while((line = read.readLine()) != null) {
+              int index = line.indexOf(":");
+              
+              if(index > 0) {
+                restored = true;
+                String type = line.substring(0,index);
+                String[] parts = line.substring(index+1).split("=");
+                
+                if(type.equals("boolean")) {
+                  edit.putBoolean(parts[0], Boolean.valueOf(parts[1].trim()));
+                  Log.d("pref", parts[0] + " " + parts[1].trim());
+                }
+                else if(type.equals("int")) {
+                  edit.putInt(parts[0], Integer.valueOf(parts[1].trim()));
+                  Log.d("pref", parts[0] + " " + parts[1].trim());
+                }
+                else if(type.equals("float")) {
+                  edit.putFloat(parts[0], Float.valueOf(parts[1].trim()));
+                  Log.d("pref", parts[0] + " " + parts[1].trim());
+                }
+                else if(type.equals("long")) {
+                  edit.putLong(parts[0], Long.valueOf(parts[1].trim()));
+                  Log.d("pref", parts[0] + " " + parts[1].trim());
+                }
+                else if(type.equals("string")) {
+                  edit.putString(parts[0], parts[1].trim());
+                  Log.d("pref", parts[0] + " " + parts[1].trim());
+                }
+                else if(type.equals("set")) {
+                  HashSet<String> set = new HashSet<String>();
+                  String[] setParts = parts[1].split("#,#");
+                  Log.d("pref", parts[0]);
+                  for(String setPart : setParts) {
+                    set.add(setPart);
+                    Log.d("pref", " " + setPart);
+                  }
+                }
+              }
+            }
+            
+            if(restored) {
+              edit.commit();
+              IOUtils.handleDataUpdatePreferences(getApplicationContext());
+            }
+          }
+        }catch(Exception e) {
+          restored = false;
+        }
+        finally {
+          if(read != null) {
+            try {
+              read.close();
+            } catch (IOException e) {}
+          }
+        }
+        
+        if(restored) {
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              Toast.makeText(TvBrowser.this, getString(R.string.backup_preferences_restore_success), Toast.LENGTH_LONG).show();
+            }
+          });
+        }
+        else {
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              Toast.makeText(TvBrowser.this, getString(R.string.backup_preferences_restore_failure), Toast.LENGTH_LONG).show();
+            }
+          });
+        }
+        
+        updateProgressIcon(false);
+      }
+    }.start();
+  }
+  
+  private void restorePreferences() {
+    if(isOnline()) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+      
+      builder.setTitle(R.string.action_backup_preferences_restore);
+      builder.setMessage(R.string.backup_preferences_restore_text);
+      
+      builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          restorePreferencesInternal();
+        }
+      });
+      
+      builder.setNegativeButton(android.R.string.cancel,null);
+      
+      builder.show();
+    }
+    else {
+      showNoInternetConnection(null);
+    }
+  }
+  
+  private void startSynchronizeUp(boolean info, String value, String address, String receiveDone, final String userInfo) {
     Intent synchronizeUp = new Intent(TvBrowser.this, TvDataUpdateService.class);
     synchronizeUp.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.SYNCHRONIZE_UP_TYPE);
     synchronizeUp.putExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, info);
@@ -1077,6 +1284,15 @@ public class TvBrowser extends FragmentActivity implements
         public void onReceive(Context context, Intent intent) {
           updateProgressIcon(false);
           LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(this);
+          
+          if(userInfo != null) {
+            handler.post(new Runnable() {
+              @Override
+              public void run() {
+                Toast.makeText(TvBrowser.this, userInfo, Toast.LENGTH_LONG).show();
+              }
+            });
+          }
         }
       };
       
@@ -2155,6 +2371,7 @@ public class TvBrowser extends FragmentActivity implements
   
   private void showUserSetting(final String initiateUserName, final String initiatePassword, final boolean syncChannels) {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+    builder.setCancelable(false);
     
     RelativeLayout username_password_setup = (RelativeLayout)getLayoutInflater().inflate(R.layout.username_password_setup, null);
             
@@ -2789,7 +3006,7 @@ public class TvBrowser extends FragmentActivity implements
         break;
       case R.id.action_synchronize_reminders_up:
         if(isOnline()) {
-          startSynchronizeUp(true, null, "http://android.tvbrowser.org/data/scripts/syncUp.php?type=reminderFromApp", SettingConstants.SYNCHRONIZE_UP_DONE);
+          startSynchronizeUp(true, null, "http://android.tvbrowser.org/data/scripts/syncUp.php?type=reminderFromApp", SettingConstants.SYNCHRONIZE_UP_DONE, null);
         }
         else {
           showNoInternetConnection(null);
@@ -2846,6 +3063,8 @@ public class TvBrowser extends FragmentActivity implements
         
         break;
       }
+      case R.id.action_backup_preferences_save: backupPreferences();break;
+      case R.id.action_backup_preferences_restore: restorePreferences();break;
     }
     
     for(int i = 0; i < SCROLL_IDS.length; i++) {

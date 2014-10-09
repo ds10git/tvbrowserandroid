@@ -540,4 +540,17 @@
     <string name="widget_running_widget_title">TV-Browser: Now running</string>
     
     <string name="widget_running_title">Now running</string>
+    
+    <string name="backup_preferences_success">Backup successfully stored on TV-Browser server</string>
+    <string name="backup_preferences_restore_success">Backup successfully restored from TV-Browser server</string>
+    <string name="backup_preferences_restore_failure">Backup could not be restored, maybe it was never uploaded.</string>
+    
+    <string name="action_backup_preferences_save">Save preferences/favorites</string>
+    <string name="action_backup_preferences_restore">Restore preferences/favorites</string>
+    
+    <string name="backup_preferences_save_text">You can upload the preferences and favorite definitions to the TV-Browser server. The selected channels and the "I don\'t want to see!" list are not saved.\n\nDo you want\'t to upload the preferences and favorite definitions now?</string>
+    <string name="backup_preferences_restore_text">If you previously had uploaded the preferences and favorite definitions to the TV-Browser server, you can restore it from there. The current preferences and favorite defintions will be overridden!\n\nDo you want\'t to restore the preferences and favorite definitions (if channels are selected please check them) now?</string>
+    
+    <string name="info_version">Information for update</string>
+    <string name="info_version_0_4_1">Since version 0.4 TV-Browser supports Widgets. To use the widgets TV-Browser has to be on the internal drive, if you previously had moved TV-Browser to the SD card you won\'t be able to use the widgets.\n\nWith version 0.4.1 you are now able to backup your settings and favorite definitions to the TV-Browser server (to use it you need to be registerd for synchronization).</string>
 </resources>

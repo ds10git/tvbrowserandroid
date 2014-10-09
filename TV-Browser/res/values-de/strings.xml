@@ -527,4 +527,17 @@
     <string name="widget_running_widget_title">TV-Browser: Jetzt läuft</string>
     
     <string name="widget_running_title">Jetzt läuft</string>
+    
+    <string name="backup_preferences_success">Backup erfolgreich auf den TV-Browser-Server hochgeladen</string>
+    <string name="backup_preferences_restore_success">Backup erfolgreich vom TV-Browser wiederhergestellt</string>
+    <string name="backup_preferences_restore_failure">Backup konnte nicht wiederhergestellt werden, möglicherweise wurde es niemals hochgeladen.</string>
+    
+    <string name="action_backup_preferences_save">Einst./Lieblingss. sichern</string>
+    <string name="action_backup_preferences_restore">Einst./Lieblingss. wiederherstellen</string>
+    
+    <string name="backup_preferences_save_text">Die Einstellungen und die Definitionen der Lieblingssendungen können auf dem TV-Browser-Server gesichert werden.\n\nSollen die Einstellungen und die Definitionen der Lieblingssendungen jetzt hochgeladen werden?</string>
+    <string name="backup_preferences_restore_text">Wenn die Einstellungen und die Definitionen Lieblingssendungen zuvor gesichert wurden, können sie hier wiederhergestellt werden. Die vorhandenen Einstellungen und Definitionen der Lieblingssendungen werden dabei überschrieben!\n\nSollen die Einstellungen und die Definitionen der Lieblingssendungen (sollten dort Sender ausgewählt sein, diese bitte kontrollieren) jetzt wiederhergestellt werden?</string>
+   
+    <string name="info_version">Informationen zum Update</string>
+    <string name="info_version_0_4_1">Seit der Version 0.4 von TV-Browser werden Widgets angeboten. Um diese nutzen zu können, muss sich TV-Browser auf dem Telefonspeicher befinden, sollte TV-Browser zuvor auf die SD-Karte verschoben worden sein, sind die Widgets nicht verfügbar.\n\nNeu in Version 0.4.1 ist die Möglichkeit die Einstellungen und die Definitionen der Lieblingssendungen auf dem TV-Browser-Server zu sichern (dazu muss man für die Synchronisation registriert sein).</string>
 </resources>
