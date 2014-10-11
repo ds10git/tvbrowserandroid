@@ -7,7 +7,7 @@
 	    <item name="days_to_download_default" type="string" format="string">2</item>
 	    
 	    <string name="LOAD_FULL_DATA">LOAD_FULL_DATA</string>
-	    <item name="load_full_data_default" type="bool" format="boolean">false</item>
+	    <item name="load_full_data_default" type="bool" format="boolean">true</item>
 	    
 	    <string name="LOAD_PICTURE_DATA">LOAD_PICTURE_DATA</string>
 	    <item name="load_picture_data_default" type="bool" format="boolean">false</item>

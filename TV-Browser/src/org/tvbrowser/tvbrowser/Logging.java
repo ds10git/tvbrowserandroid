@@ -68,9 +68,15 @@ public class Logging {
   }
   
   public static synchronized void openLogForDataUpdate(Context context) {
+    boolean writeLog = false;
+    
     PrefUtils.initialize(context);
     
-    if(DATA_UPDATE_LOG == null && PrefUtils.getBooleanValue(R.string.WRITE_DATA_UPDATE_LOG, R.bool.write_data_update_log_default)) {
+    try {
+      writeLog = PrefUtils.getBooleanValue(R.string.WRITE_DATA_UPDATE_LOG, R.bool.write_data_update_log_default);
+    }catch(Exception e) {}
+    
+    if(DATA_UPDATE_LOG == null && writeLog) {
       try {
         File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
         

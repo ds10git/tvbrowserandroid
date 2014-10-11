@@ -37,10 +37,8 @@ import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
-import android.widget.Spinner;
 
 /**
  * Service for showing currently running programs as widget.
@@ -91,9 +89,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       
       long time = System.currentTimeMillis();
       
-      
-      
-      int currentTime = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(mAppWidgetId + "_" + getString(R.string.WIDGET_CONFIG_RUNNING_TIME), getResources().getInteger(R.integer.widget_congig_running_time_default));
+      int currentTime = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(mAppWidgetId + "_" + mContext.getString(R.string.WIDGET_CONFIG_RUNNING_TIME), getResources().getInteger(R.integer.widget_congig_running_time_default));
       
       if(currentTime != -1) {
         Calendar now = Calendar.getInstance();
@@ -218,103 +214,115 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
 
     @Override
     public RemoteViews getViewAt(int position) {
-      mCursor.moveToPosition(position);
-      
-      final byte idIndex = (byte)((mColumnIndicies >> 28) & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-      final byte startTimeIndex = (byte)((mColumnIndicies >> 24) & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-      final byte endTimeIndex = (byte)((mColumnIndicies >> 20) & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
-      final byte titleIndex = (byte)((mColumnIndicies >> 16) & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-      final byte channelNameIndex = (byte)((mColumnIndicies >> 12) & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-      final byte orderNumberIndex = (byte)((mColumnIndicies >> 8) & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
-      final byte logoIndex = (byte)((mColumnIndicies >> 4) & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-      final byte episodeIndex = (byte)(mColumnIndicies & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
-      
-      final String id = mCursor.getString(idIndex);
-      final long startTime = mCursor.getLong(startTimeIndex);
-      final long endTime = mCursor.getLong(endTimeIndex);
-      final String title = mCursor.getString(titleIndex);
-      
-      String name = mCursor.getString(channelNameIndex);
-      final String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
-      String number = null;
-      final String episodeTitle = mShowEpisode ? mCursor.getString(episodeIndex) : null;
-      
-      if(shortName != null) {
-        name = shortName;
-      }      
-      
-      if(mShowOrderNumber) {
-        number = mCursor.getString(orderNumberIndex);
-        
-        if(number == null) {
-          number = "0";
-        }
-        
-        number += ".";
-        
-        name =  number + " " + name;
-      }
-      
-      Drawable logo = null;
-      
-      int channelKey = mCursor.getInt(logoIndex);
-      
-      if(mShowChannelLogo) {
-        logo = SettingConstants.SMALL_LOGO_MAP.get(channelKey);
-      }
-      
       final RemoteViews rv = new RemoteViews(mContext.getPackageName(), R.layout.running_programs_widget_row);
       
-      final String time = DateFormat.getTimeFormat(mContext).format(new Date(startTime));
-      
-      if(startTime <= System.currentTimeMillis() && endTime > System.currentTimeMillis()) { 
-        final int length = (int)(endTime - startTime) / 60000;
-        final int progress = (int)(System.currentTimeMillis() - startTime) / 60000;
-        rv.setProgressBar(R.id.running_programs_widget_row_progress, length, progress, false);
-        rv.setViewVisibility(R.id.running_programs_widget_row_progress, View.VISIBLE);
-      }
-      else {
-        rv.setViewVisibility(R.id.running_programs_widget_row_progress, View.GONE);
-      }
-      
-      rv.setTextViewText(R.id.running_programs_widget_row_start_time, time);
-      rv.setTextViewText(R.id.running_programs_widget_row_title, title);
-      
-      if(mShowChannelName || logo == null) {
-        rv.setTextViewText(R.id.running_programs_widget_row_channel_name, name);
-        rv.setViewVisibility(R.id.running_programs_widget_row_channel_name, View.VISIBLE);
-      }
-      else {
-        rv.setViewVisibility(R.id.running_programs_widget_row_channel_name, View.GONE);
-      }
-            
-      if(logo != null && ((BitmapDrawable)logo).getBitmap() != null) {
-        rv.setImageViewBitmap(R.id.running_programs_widget_row_channel_logo, ((BitmapDrawable)logo).getBitmap());
-        rv.setViewVisibility(R.id.running_programs_widget_row_channel_logo, View.VISIBLE);
-      }
-      else {
-        rv.setViewVisibility(R.id.running_programs_widget_row_channel_logo, View.GONE);
-      }
-      
-      if(episodeTitle != null) {
-        rv.setTextViewText(R.id.running_programs_widget_row_episode, episodeTitle);
-        rv.setViewVisibility(R.id.running_programs_widget_row_episode, View.VISIBLE);
-      }
-      else {
-        rv.setViewVisibility(R.id.running_programs_widget_row_episode, View.GONE);
-      }
-      
-      final Intent fillInIntent = new Intent();
-      fillInIntent.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, Long.valueOf(id));
-      
-      rv.setOnClickFillInIntent(R.id.running_programs_widget_row_program, fillInIntent);
-      
-      if(mChannelClickToProgramsList) {
-        final Intent startTvbProgramList = new Intent();
-        startTvbProgramList.putExtra(SettingConstants.CHANNEL_ID_EXTRA, channelKey);
-        startTvbProgramList.putExtra(SettingConstants.START_TIME_EXTRA, startTime);
+      if(mCursor.getCount() > position) {
+        mCursor.moveToPosition(position);
         
-        rv.setOnClickFillInIntent(R.id.running_programs_widget_row_channel, startTvbProgramList);
+        final byte idIndex = (byte)((mColumnIndicies >> 28) & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+        final byte startTimeIndex = (byte)((mColumnIndicies >> 24) & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+        final byte endTimeIndex = (byte)((mColumnIndicies >> 20) & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+        final byte titleIndex = (byte)((mColumnIndicies >> 16) & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+        final byte channelNameIndex = (byte)((mColumnIndicies >> 12) & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+        final byte orderNumberIndex = (byte)((mColumnIndicies >> 8) & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+        final byte logoIndex = (byte)((mColumnIndicies >> 4) & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+        final byte episodeIndex = (byte)(mColumnIndicies & 0xF);//mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
+        
+        final String id = mCursor.getString(idIndex);
+        final long startTime = mCursor.getLong(startTimeIndex);
+        final long endTime = mCursor.getLong(endTimeIndex);
+        final String title = mCursor.getString(titleIndex);
+        
+        String name = mCursor.getString(channelNameIndex);
+        final String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
+        String number = null;
+        final String episodeTitle = mShowEpisode ? mCursor.getString(episodeIndex) : null;
+        
+        if(shortName != null) {
+          name = shortName;
+        }      
+        
+        if(mShowOrderNumber) {
+          number = mCursor.getString(orderNumberIndex);
+          
+          if(number == null) {
+            number = "0";
+          }
+          
+          number += ".";
+          
+          name =  number + " " + name;
+        }
+        
+        Drawable logo = null;
+        
+        int channelKey = mCursor.getInt(logoIndex);
+        
+        if(mShowChannelLogo) {
+          logo = SettingConstants.SMALL_LOGO_MAP.get(channelKey);
+        }
+        
+        final String time = DateFormat.getTimeFormat(mContext).format(new Date(startTime));
+        
+        rv.setViewVisibility(R.id.running_programs_widget_row_start_time, View.VISIBLE);
+        rv.setViewVisibility(R.id.running_programs_widget_row_channel, View.VISIBLE);
+        
+        if(startTime <= System.currentTimeMillis() && endTime > System.currentTimeMillis()) { 
+          final int length = (int)(endTime - startTime) / 60000;
+          final int progress = (int)(System.currentTimeMillis() - startTime) / 60000;
+          rv.setProgressBar(R.id.running_programs_widget_row_progress, length, progress, false);
+          rv.setViewVisibility(R.id.running_programs_widget_row_progress, View.VISIBLE);
+        }
+        else {
+          rv.setViewVisibility(R.id.running_programs_widget_row_progress, View.GONE);
+        }
+        
+        rv.setTextViewText(R.id.running_programs_widget_row_start_time, time);
+        rv.setTextViewText(R.id.running_programs_widget_row_title, title);
+        
+        if(mShowChannelName || logo == null) {
+          rv.setTextViewText(R.id.running_programs_widget_row_channel_name, name);
+          rv.setViewVisibility(R.id.running_programs_widget_row_channel_name, View.VISIBLE);
+        }
+        else {
+          rv.setViewVisibility(R.id.running_programs_widget_row_channel_name, View.GONE);
+        }
+              
+        if(logo != null && ((BitmapDrawable)logo).getBitmap() != null) {
+          rv.setImageViewBitmap(R.id.running_programs_widget_row_channel_logo, ((BitmapDrawable)logo).getBitmap());
+          rv.setViewVisibility(R.id.running_programs_widget_row_channel_logo, View.VISIBLE);
+        }
+        else {
+          rv.setViewVisibility(R.id.running_programs_widget_row_channel_logo, View.GONE);
+        }
+        
+        if(episodeTitle != null) {
+          rv.setTextViewText(R.id.running_programs_widget_row_episode, episodeTitle);
+          rv.setViewVisibility(R.id.running_programs_widget_row_episode, View.VISIBLE);
+        }
+        else {
+          rv.setViewVisibility(R.id.running_programs_widget_row_episode, View.GONE);
+        }
+        
+        final Intent fillInIntent = new Intent();
+        fillInIntent.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, Long.valueOf(id));
+        
+        rv.setOnClickFillInIntent(R.id.running_programs_widget_row_program, fillInIntent);
+        
+        if(mChannelClickToProgramsList) {
+          final Intent startTvbProgramList = new Intent();
+          startTvbProgramList.putExtra(SettingConstants.CHANNEL_ID_EXTRA, channelKey);
+          startTvbProgramList.putExtra(SettingConstants.START_TIME_EXTRA, startTime);
+          
+          rv.setOnClickFillInIntent(R.id.running_programs_widget_row_channel, startTvbProgramList);
+        }
+      }
+      else {
+        rv.setTextViewText(R.id.running_programs_widget_row_title, "Unknown");
+        rv.setViewVisibility(R.id.running_programs_widget_row_start_time, View.GONE);
+        rv.setViewVisibility(R.id.running_programs_widget_row_episode, View.GONE);
+        rv.setViewVisibility(R.id.running_programs_widget_row_progress, View.GONE);
+        rv.setViewVisibility(R.id.running_programs_widget_row_channel, View.GONE);
       }
       
       return rv;
