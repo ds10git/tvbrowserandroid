@@ -18,7 +18,6 @@ package org.tvbrowser.widgets;
 
 import java.util.Calendar;
 
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.CompatUtils;
 import org.tvbrowser.tvbrowser.InfoActivity;
@@ -33,7 +32,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 /**

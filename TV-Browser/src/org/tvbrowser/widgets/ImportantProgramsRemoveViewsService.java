@@ -104,24 +104,24 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       
       ArrayList<String> columns = new ArrayList<String>();
       
-      if(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_MARKED), true)) {
+      if(pref.getBoolean(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_MARKED), true)) {
         columns.add(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING);
       }
       
-      if(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_FAVORITE), true)) {
+      if(pref.getBoolean(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_FAVORITE), true)) {
         columns.add(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE);
       }
       
-      if(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_REMINDER), true)) {
+      if(pref.getBoolean(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_REMINDER), true)) {
         columns.add(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
         columns.add(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
       }
       
-      if(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_CALENDER), true)) {
+      if(pref.getBoolean(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_CALENDER), true)) {
         columns.add(TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR);
       }
       
-      if(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_SYNCHRONIZED), true)) {
+      if(pref.getBoolean(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_SYNCHRONIZED), true)) {
         columns.add(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC);
       }
       
@@ -134,8 +134,8 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       
       String limit = "";
       
-      if(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT), false)) {
-        limit = " LIMIT " + String.valueOf(pref.getInt(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT), 15));
+      if(pref.getBoolean(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT), false)) {
+        limit = " LIMIT " + String.valueOf(pref.getInt(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT), 15));
       }
       
       final long token = Binder.clearCallingIdentity();
