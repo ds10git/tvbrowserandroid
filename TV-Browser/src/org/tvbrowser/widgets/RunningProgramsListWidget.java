@@ -30,6 +30,7 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.widget.RemoteViews;
@@ -63,6 +64,7 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
       int appWidgetId = appWidgetIds[i];
       
       Intent intent = new Intent(context, RunningProgramsRemoteViewsService.class);
+      intent.setData(Uri.parse("org.tvbrowser://runningWidget/" + appWidgetId));
       intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
       
       RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.running_programs_widget);
