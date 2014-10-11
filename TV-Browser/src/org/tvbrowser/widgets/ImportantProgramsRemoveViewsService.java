@@ -67,7 +67,14 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     private PendingIntent mPendingUpdate;
     private int mAppWidgetId;
     
-    private int mColumnIndicies;
+    private int mIdIndex;
+    private int mStartTimeIndex;
+    private int mEndTimeIndex;
+    private int mTitleIndex;
+    private int mChannelNameIndex;
+    private int mOrderNumberIndex;
+    private int mLogoIndex;
+    private int mEpisodeIndex;
     
     private boolean mShowChannelName;
     private boolean mShowChannelLogo;
@@ -144,26 +151,15 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
           
           mMarkingColumsIndexMap = new HashMap<String, Integer>();
           
-          final byte idIndex = (byte)mCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-          final byte startTimeIndex = (byte)mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-          final byte endTimeIndex = (byte)mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
-          final byte titleIndex = (byte)mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-          final byte channelNameIndex = (byte)mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-          final byte orderNumberIndex = (byte)mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
-          final byte logoIndex = (byte)mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-          final byte episodeIndex = (byte)mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
-          
-          if(mColumnIndicies == 0) {
-            mColumnIndicies = idIndex & 0xF;
-            mColumnIndicies = (mColumnIndicies << 4) | (startTimeIndex & 0xF);
-            mColumnIndicies = (mColumnIndicies << 4) | (endTimeIndex & 0xF);
-            mColumnIndicies = (mColumnIndicies << 4) | (titleIndex & 0xF);
-            mColumnIndicies = (mColumnIndicies << 4) | (channelNameIndex & 0xF);
-            mColumnIndicies = (mColumnIndicies << 4) | (orderNumberIndex & 0xF);
-            mColumnIndicies = (mColumnIndicies << 4) | (logoIndex & 0xF);
-            mColumnIndicies = (mColumnIndicies << 4) | (episodeIndex & 0xF);
-          }
-          
+          mIdIndex = mCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+          mStartTimeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+          mEndTimeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+          mTitleIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+          mChannelNameIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+          mOrderNumberIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+          mLogoIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+          mEpisodeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
+                    
           final String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS, R.string.channel_logo_name_program_lists_default);
           
           mShowEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_LISTS, R.bool.show_episode_in_lists_default);
@@ -181,7 +177,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
           }
           
           if(mCursor.getCount() > 0 && mCursor.moveToFirst()) {
-            final long startTime = mCursor.getLong(startTimeIndex);
+            final long startTime = mCursor.getLong(mStartTimeIndex);
             
             final AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
             
@@ -205,7 +201,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     public ImportantProgramsRemoteViewsFactory(Context context, Bundle extras) {
       PrefUtils.initialize(context);
       mContext = context;
-      mColumnIndicies = 0;
+      
       SettingConstants.initializeLogoMap(context, false);
       
       if(extras != null && extras.containsKey(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
@@ -247,7 +243,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       if(mCursor != null && !mCursor.isClosed()) {
         mCursor.moveToPosition(position);
         
-        return mCursor.getLong((mColumnIndicies >> 28) & 0xF);
+        return mCursor.getLong(mIdIndex);
       }
       
       return position;
@@ -256,32 +252,23 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     @Override
     public RemoteViews getViewAt(int position) {
       mCursor.moveToPosition(position);
-            
-      final byte idIndex = (byte)((mColumnIndicies >> 28) & 0xF);
-      final byte startTimeIndex = (byte)((mColumnIndicies >> 24) & 0xF);
-      final byte endTimeIndex = (byte)((mColumnIndicies >> 20) & 0xF);
-      final byte titleIndex = (byte)((mColumnIndicies >> 16) & 0xF);
-      final byte channelNameIndex = (byte)((mColumnIndicies >> 12) & 0xF);
-      final byte orderNumberIndex = (byte)((mColumnIndicies >> 8) & 0xF);
-      final byte logoIndex = (byte)((mColumnIndicies >> 4) & 0xF);
-      final byte episodeIndex = (byte)(mColumnIndicies & 0xF);
 
-      final String id = mCursor.getString(idIndex);
-      final long startTime = mCursor.getLong(startTimeIndex);
-      final long endTime = mCursor.getLong(endTimeIndex);
-      final String title = mCursor.getString(titleIndex);
+      final String id = mCursor.getString(mIdIndex);
+      final long startTime = mCursor.getLong(mStartTimeIndex);
+      final long endTime = mCursor.getLong(mEndTimeIndex);
+      final String title = mCursor.getString(mTitleIndex);
       
-      String name = mCursor.getString(channelNameIndex);
+      String name = mCursor.getString(mChannelNameIndex);
       final String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
       String number = null;
-      final String episodeTitle = mShowEpisode ? mCursor.getString(episodeIndex) : null;
+      final String episodeTitle = mShowEpisode ? mCursor.getString(mEpisodeIndex) : null;
       
       if(shortName != null) {
         name = shortName;
       }
             
       if(mShowOrderNumber) {
-        number = mCursor.getString(orderNumberIndex);
+        number = mCursor.getString(mOrderNumberIndex);
         
         if(number == null) {
           number = "0";
@@ -294,7 +281,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       
       Drawable logo = null;
       
-      int channelKey = mCursor.getInt(logoIndex);
+      int channelKey = mCursor.getInt(mLogoIndex);
       
       if(mShowChannelLogo) {
         logo = SettingConstants.SMALL_LOGO_MAP.get(channelKey);
