@@ -340,7 +340,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
 
     @Override
     public long getItemId(int position) {
-      if(mCursor != null && !mCursor.isClosed()) {
+      if(mCursor != null && !mCursor.isClosed() && mCursor.getCount() > position) {
         mCursor.moveToPosition(position);
         
         return mCursor.getLong((mColumnIndicies >> 28) & 0xF);
