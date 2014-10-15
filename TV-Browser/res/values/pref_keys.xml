@@ -424,4 +424,21 @@
 	    
 	    <string name="AUTO_UPDATE_CURRENT_START_TIME">AUTO_UPDATE_CURRENT_START_TIME</string>
 	    <item name="auto_update_current_start_time_default" type="integer" format="integer">0</item>
+	    
+	<!-- Widgets layout settings -->
+	    
+	    <string name="PREF_WIDGET_CHANNEL_LOGO_NAME">PREF_WIDGET_CHANNEL_LOGO_NAME</string>
+	    <item name="pref_widget_channel_logo_name_default" type="string" format="string">0</item>
+	    
+	    <string name="PREF_WIDGET_SHOW_SORT_NUMBER">PREF_WIDGET_SHOW_SORT_NUMBER</string>
+	    <item name="pref_widget_show_sort_number_default" type="bool" format="boolean">true</item>
+	    
+	    <string name="PREF_WIDGET_SHOW_EPISODE">PREF_WIDGET_SHOW_EPISODE</string>
+	    <item name="pref_widget_show_episode_default" type="bool" format="boolean">true</item>
+	    
+	    <string name="PREF_WIDGET_TEXT_SCALE">PREF_WIDGET_TEXT_SCALE</string>
+	    <item name="pref_widget_text_scale_default" type="string" format="string">1.0</item>
+	    
+	    <string name="PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST">PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST</string>
+    	<item name="pref_widget_click_to_channel_to_list_default" type="bool" format="boolean">true</item>
 </resources>

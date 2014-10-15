@@ -140,7 +140,9 @@ public class IOUtils {
       int count;
       
       while ((count = in.read(temp, 0, 1024)) != -1) {
-        out.write(temp, 0, count);
+        if(temp != null && count > 0) {
+          out.write(temp, 0, count);
+        }
       }
     } 
     finally {

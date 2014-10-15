@@ -62,9 +62,8 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     private Context mContext;
     private Cursor mCursor;
     private HashMap<String, Integer> mMarkingColumsIndexMap;
-    private Handler mUpdateHandler;
-    private Runnable mUpdateRunnable;
     private PendingIntent mPendingUpdate;
+    private PendingIntent mPendingRunning;
     private int mAppWidgetId;
     
     private int mIdIndex;
@@ -81,11 +80,14 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     private boolean mShowEpisode;
     private boolean mShowOrderNumber;
     private boolean mChannelClickToProgramsList;
+    private float mTextScale;
     
     private void executeQuery() {
       if(mCursor != null && !mCursor.isClosed()) {
         mCursor.close();
       }
+      
+      cancelAlarms();
       
       final String[] projection = new String[] {
         TvBrowserContentProvider.KEY_ID,
@@ -160,13 +162,14 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
           mLogoIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
           mEpisodeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
                     
-          final String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS, R.string.channel_logo_name_program_lists_default);
+          final String logoNamePref = PrefUtils.getStringValue(R.string.PREF_WIDGET_CHANNEL_LOGO_NAME, R.string.pref_widget_channel_logo_name_default);
           
-          mShowEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_LISTS, R.bool.show_episode_in_lists_default);
+          mShowEpisode = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_EPISODE, R.bool.pref_widget_show_episode_default);
           mShowChannelName = (logoNamePref.equals("0") || logoNamePref.equals("2"));
           mShowChannelLogo = (logoNamePref.equals("0") || logoNamePref.equals("1"));
-          mShowOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_LISTS, R.bool.show_sort_number_in_lists_default);
-          mChannelClickToProgramsList = PrefUtils.getBooleanValue(R.string.PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_program_lists_click_to_channel_to_list_default);
+          mShowOrderNumber = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_SORT_NUMBER, R.bool.pref_widget_show_sort_number_default);
+          mChannelClickToProgramsList = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_widget_click_to_channel_to_list_default);
+          mTextScale = Float.valueOf(PrefUtils.getStringValue(R.string.PREF_WIDGET_TEXT_SCALE, R.string.pref_widget_text_scale_default));
           
           for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
             final int index = mCursor.getColumnIndex(column);
@@ -180,11 +183,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
             final long startTime = mCursor.getLong(mStartTimeIndex);
             
             final AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
-            
-            if(mPendingUpdate != null) {
-              alarm.cancel(mPendingUpdate);
-            }
-            
+                        
             if(startTime > System.currentTimeMillis()) {
               final Intent update = new Intent(mContext,ProgramsWidgetsUpdateReceiver.class);
               
@@ -214,18 +213,13 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     
     @Override
     public void onCreate() {
-      mUpdateHandler = new Handler();
+      mTextScale = 1.0f;
       
       executeQuery();
     }
 
     @Override
     public void onDataSetChanged() {
-      if(mUpdateRunnable != null) {
-        mUpdateHandler.removeCallbacks(mUpdateRunnable);
-        mUpdateRunnable = null;
-      }
-      
       executeQuery();
     }
     
@@ -293,21 +287,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       final String time = DateFormat.getTimeFormat(mContext).format(new Date(startTime));
       
       if(startTime <= System.currentTimeMillis() && endTime > System.currentTimeMillis()) {
-        if(mUpdateRunnable == null) {
-          mUpdateRunnable = new Runnable() {
-            @Override
-            public void run() {
-              final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-              
-              if(pm.isScreenOn()) {
-                final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext.getApplicationContext());
-                appWidgetManager.notifyAppWidgetViewDataChanged(mAppWidgetId, R.id.important_widget_list_view);
-              }
-            }
-          };
-          
-          mUpdateHandler.postDelayed(mUpdateRunnable, ((System.currentTimeMillis() / 60000) * 60000 + 62000) - System.currentTimeMillis());
-        }
+        startRunningAlarm();
         
         final int length = (int)(endTime - startTime) / 60000;
         final int progress = (int)(System.currentTimeMillis() - startTime) / 60000;
@@ -371,6 +351,14 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
         rv.setOnClickFillInIntent(R.id.important_programs_widget_row_channel, startTvbProgramList);
       }
       
+      float titleFontSize = mTextScale * UiUtils.convertPixelsToSp(mContext.getResources().getDimension(R.dimen.title_font_size),mContext);
+      
+      rv.setFloat(R.id.important_programs_widget_row_channel_name1, "setTextSize", titleFontSize);
+      rv.setFloat(R.id.important_programs_widget_row_start_date1, "setTextSize", titleFontSize);
+      rv.setFloat(R.id.important_programs_widget_row_title1, "setTextSize", titleFontSize);
+      rv.setFloat(R.id.important_programs_widget_row_start_time1, "setTextSize", titleFontSize);
+      rv.setFloat(R.id.important_programs_widget_row_episode, "setTextSize", mTextScale * UiUtils.convertPixelsToSp(mContext.getResources().getDimension(R.dimen.episode_font_size),mContext));
+      
       return rv;
     }
     
@@ -394,7 +382,32 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       if(mCursor != null && !mCursor.isClosed()) {
         mCursor.close();
       }
+      
+      cancelAlarms();
     }
     
+    private void cancelAlarms() {
+      if(mPendingUpdate != null) {
+        ((AlarmManager)getSystemService(ALARM_SERVICE)).cancel(mPendingUpdate);
+        mPendingUpdate = null;
+      }
+      if(mPendingRunning != null) {
+        ((AlarmManager)getSystemService(ALARM_SERVICE)).cancel(mPendingRunning);
+        mPendingRunning = null;
+      }
+    }
+    
+    private void startRunningAlarm() {
+      if(mPendingRunning == null) {
+        final Intent update = new Intent(SettingConstants.UPDATE_IMPORTANT_APP_WIDGET);
+        update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+        
+        mPendingRunning = PendingIntent.getBroadcast(mContext, (int)mAppWidgetId, update, PendingIntent.FLAG_UPDATE_CURRENT);
+        
+        AlarmManager alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
+        
+        alarm.setRepeating(AlarmManager.RTC, ((System.currentTimeMillis()/60000) * 60000) + 62000, 60000, mPendingRunning);
+      }
+    }
   }
 }
