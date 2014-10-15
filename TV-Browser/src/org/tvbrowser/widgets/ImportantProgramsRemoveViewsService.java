@@ -181,15 +181,19 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
           
           if(mCursor.getCount() > 0 && mCursor.moveToFirst()) {
             final long startTime = mCursor.getLong(mStartTimeIndex);
-            
-            final AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
                         
             if(startTime > System.currentTimeMillis()) {
-              final Intent update = new Intent(mContext,ProgramsWidgetsUpdateReceiver.class);
+              final AlarmManager alarm = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+              
+              final Intent update = new Intent(SettingConstants.UPDATE_IMPORTANT_APP_WIDGET);
+              update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
               
               final PendingIntent pending = PendingIntent.getBroadcast(mContext, (int)(startTime/60000), update, PendingIntent.FLAG_UPDATE_CURRENT);
               
-              alarm.set(AlarmManager.RTC, startTime + 2000, pending);
+              alarm.set(AlarmManager.RTC, startTime + 100, pending);
+            }
+            else {
+              startRunningAlarm();
             }
           }
       } finally {
@@ -287,8 +291,6 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       final String time = DateFormat.getTimeFormat(mContext).format(new Date(startTime));
       
       if(startTime <= System.currentTimeMillis() && endTime > System.currentTimeMillis()) {
-        startRunningAlarm();
-        
         final int length = (int)(endTime - startTime) / 60000;
         final int progress = (int)(System.currentTimeMillis() - startTime) / 60000;
         rv.setProgressBar(R.id.important_programs_widget_row_progress, length, progress, false);
@@ -306,6 +308,10 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       
       if(mShowChannelName || logo == null) {
         rv.setTextViewText(R.id.important_programs_widget_row_channel_name1, name);
+        rv.setViewVisibility(R.id.important_programs_widget_row_channel_name1, View.VISIBLE);
+      }
+      else if(number != null) {
+        rv.setTextViewText(R.id.important_programs_widget_row_channel_name1, number);
         rv.setViewVisibility(R.id.important_programs_widget_row_channel_name1, View.VISIBLE);
       }
       else {
@@ -406,7 +412,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
         
         AlarmManager alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
         
-        alarm.setRepeating(AlarmManager.RTC, ((System.currentTimeMillis()/60000) * 60000) + 62000, 60000, mPendingRunning);
+        alarm.setRepeating(AlarmManager.RTC, ((System.currentTimeMillis()/60000) * 60000) + 60100, 60000, mPendingRunning);
       }
     }
   }

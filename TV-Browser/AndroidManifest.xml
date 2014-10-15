@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.tvbrowser.tvbrowser"
-	android:versionCode="230"
-	android:versionName="0.4.3 Beta1"
+	android:versionCode="231"
+	android:versionName="0.4.3 Beta2"
 	android:installLocation="auto">
 
 	<uses-sdk
@@ -92,6 +92,7 @@
 		    <intent-filter>
 		        <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
 		        <action android:name="org.tvbrowser.UPDATE_IMPORTANT_APP_WIDGET"/>
+		        <action android:name="android.intent.action.USER_PRESENT" />
 		    </intent-filter>
 		    <meta-data
 		        android:name="android.appwidget.provider"
@@ -102,15 +103,11 @@
 		    <intent-filter>
 		        <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
 		        <action android:name="org.tvbrowser.UPDATE_RUNNING_APP_WIDGET"/>
+		        <action android:name="android.intent.action.USER_PRESENT" />
 		    </intent-filter>
 		    <meta-data
 		        android:name="android.appwidget.provider"
 		        android:resource="@xml/running_programs_widget_info"/>
-		</receiver>
-		<receiver android:name="org.tvbrowser.widgets.ProgramsWidgetsUpdateReceiver" android:enabled="true">  
-			<intent-filter>
-				<action android:name="android.intent.action.USER_PRESENT" />
-			</intent-filter>  
 		</receiver>
 		<receiver android:name="org.tvbrowser.widgets.WidgetOnClickReceiver" android:enabled="true" android:exported="false">  
 			<intent-filter>
