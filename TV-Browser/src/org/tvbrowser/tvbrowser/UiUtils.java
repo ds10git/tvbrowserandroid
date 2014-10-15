@@ -1552,6 +1552,11 @@ public class UiUtils {
     return (int) (dp * scale + 0.5f);
   }
   
+  public static float convertPixelsToSp(float px, Context context) {
+    float scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
+    return px/scaledDensity;
+  }
+  
   public static boolean filter(String title, DontWantToSeeExclusion exclusion) {
     return exclusion.matches(title);
   }

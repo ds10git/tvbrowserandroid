@@ -66,6 +66,7 @@
     <string name="pref_email_title">To email address</string>
     <string name="pref_email_summary">Email address for sending program information.</string>
     <string name="pref_category_email">Email</string>
+    <string name="pref_category_widgets">Widgets</string>
     <string name="pref_category_additonal_infos">Additional information</string>
     <string name="pref_category_additonal_infos_head">Shown information</string>
     <string name="search">Search</string>
@@ -363,6 +364,7 @@
     <string name="action_scroll_time">Scroll to time</string>
     <string name="divider_size">Divider size:</string>
 	<string-array name="divider_value_names">
+	    <item>Tiny</item>
 	    <item>Small</item>
 	    <item>Middle</item>
 	    <item>Big</item>

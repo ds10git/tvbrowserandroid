@@ -101,6 +101,9 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       
       onSharedPreferenceChanged(pref,getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS));
     }
+    else if(getString(R.string.category_widgets).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_widgets);
+    }
     else if(getString(R.string.category_sync).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_sync);
     }
@@ -237,6 +240,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.SHOW_CHANNEL_FOR_PROGRAMS_LIST))
           || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS))
           || key.equals(getResources().getString(R.string.PREF_COLOR_STYLE))
+          || key.equals(getResources().getString(R.string.PREF_WIDGET_TEXT_SCALE))
+          || key.equals(getResources().getString(R.string.PREF_WIDGET_CHANNEL_LOGO_NAME))
           ) {
         ListPreference lp = (ListPreference) findPreference(key);
         

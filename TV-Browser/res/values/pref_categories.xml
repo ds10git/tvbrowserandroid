@@ -11,6 +11,7 @@
     <string name="category_program_table">PROGRAMS_TABLE</string>
     <string name="category_list">PROGRAM_LISTS</string>
     <string name="category_details">DETAILS</string>
+    <string name="category_widgets">WIDGETS</string>
     <string name="category_sync">SYNC</string>
     <string name="category_calendar_export">CALENDAR_EXPORT</string>
     <string name="category_email">EMAIL</string>

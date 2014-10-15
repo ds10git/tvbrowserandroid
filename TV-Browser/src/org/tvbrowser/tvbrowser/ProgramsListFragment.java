@@ -808,7 +808,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
     mProgramListAdapter.swapCursor(null);
   }
   
-  private void setDividerSize(String size) {    
+  private void setDividerSize(String size) {
     mListView.setDividerHeight(UiUtils.convertDpToPixel(Integer.parseInt(size), getResources()));
   }
 

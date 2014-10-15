@@ -30,7 +30,8 @@
         android:background="@drawable/rounded_corners_shape_dark"
         android:id="@+id/important_widget_list_view"
         android:layout_width="match_parent"
-        android:dividerHeight="3dp"
+        android:dividerHeight="5dp"
+        android:divider="@drawable/list_widgets_divider"
         android:layout_height="match_parent"
         android:layout_below="@id/important_widget_header_wrapper"/>
 	<TextView

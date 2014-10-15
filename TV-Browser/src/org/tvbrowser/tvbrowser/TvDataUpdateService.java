@@ -2758,6 +2758,9 @@ public class TvDataUpdateService extends Service {
       if(timezone.startsWith("GMT+01:00")) {
         mTimeZone = "CET";
       }
+      else if(timezone.equals("GMT")) {
+        mTimeZone = "WET";
+      }
       else {
         mTimeZone = timezone;
       }

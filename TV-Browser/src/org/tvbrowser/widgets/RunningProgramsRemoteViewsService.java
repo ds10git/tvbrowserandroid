@@ -23,7 +23,10 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.tvbrowser.UiUtils;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
@@ -32,8 +35,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.view.View;
@@ -55,8 +56,6 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
   class RunningProgramsRemoteViewsFactory implements RemoteViewsFactory {
     private Context mContext;
     private Cursor mCursor;
-    private Handler mUpdateHandler;
-    private Runnable mUpdateRunnable;
     
     private int mAppWidgetId;
     
@@ -74,13 +73,14 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
     private boolean mShowEpisode;
     private boolean mShowOrderNumber;
     private boolean mChannelClickToProgramsList;
+    private float mTextScale;
     
     private void executeQuery() {
       if(mCursor != null && !mCursor.isClosed()) {
         mCursor.close();
       }
       
-      mUpdateHandler.removeCallbacks(mUpdateRunnable);
+      removeAlarm();
       
       final String[] projection = new String[] {
         TvBrowserContentProvider.KEY_ID,
@@ -133,19 +133,44 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         mLogoIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
         mEpisodeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
                 
-        final String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_RUNNING, R.string.channel_logo_name_running_default);
+        final String logoNamePref = PrefUtils.getStringValue(R.string.PREF_WIDGET_CHANNEL_LOGO_NAME, R.string.pref_widget_channel_logo_name_default);
         
-        mShowEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_RUNNING_LIST, R.bool.show_episode_in_running_list_default);
+        mShowEpisode = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_EPISODE, R.bool.pref_widget_show_episode_default);
         mShowChannelName = (logoNamePref.equals("0") || logoNamePref.equals("2"));
         mShowChannelLogo = (logoNamePref.equals("0") || logoNamePref.equals("1") || logoNamePref.equals("3"));
-        mShowOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_RUNNING_LIST, R.bool.show_sort_number_in_running_list_default);
-        mChannelClickToProgramsList = PrefUtils.getBooleanValue(R.string.PREF_RUNNING_LIST_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_running_list_click_to_channel_to_list_default);
+        mShowOrderNumber = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_SORT_NUMBER, R.bool.pref_widget_show_sort_number_default);
+        mChannelClickToProgramsList = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_widget_click_to_channel_to_list_default);
+        mTextScale = Float.valueOf(PrefUtils.getStringValue(R.string.PREF_WIDGET_TEXT_SCALE, R.string.pref_widget_text_scale_default));
         
         if(mCursor.getCount() > 0) {
-          mUpdateHandler.postDelayed(mUpdateRunnable, ((System.currentTimeMillis() / 60000) * 60000 + 62000) - System.currentTimeMillis());
+          startAlarm();
         }
       } finally {
           Binder.restoreCallingIdentity(token);
+      }
+    }
+    
+    private void startAlarm() {
+      final Intent update = new Intent(SettingConstants.UPDATE_RUNNING_APP_WIDGET);
+      update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+      
+      final PendingIntent pending = PendingIntent.getBroadcast(mContext, (int)mAppWidgetId, update, PendingIntent.FLAG_UPDATE_CURRENT);
+      
+      AlarmManager alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
+      
+      alarm.setRepeating(AlarmManager.RTC, ((System.currentTimeMillis()/60000) * 60000) + 62000, 60000, pending);
+    }
+    
+    private void removeAlarm() {
+      AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
+      
+      final Intent update = new Intent(SettingConstants.UPDATE_RUNNING_APP_WIDGET);
+      update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
+      
+      PendingIntent pending = PendingIntent.getBroadcast(mContext, (int)mAppWidgetId, update, PendingIntent.FLAG_NO_CREATE);
+      
+      if(pending != null) {
+        alarmManager.cancel(pending);
       }
     }
     
@@ -164,22 +189,8 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         
     @Override
     public void onCreate() {
-      mUpdateHandler = new Handler();
-      
-      mUpdateRunnable = new Runnable() {
-        @Override
-        public void run() {
-          final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-          
-          if(pm.isScreenOn()) {
-            final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(mContext);
-            appWidgetManager.notifyAppWidgetViewDataChanged(mAppWidgetId, R.id.running_widget_list_view);
-              
-            mUpdateHandler.postDelayed(mUpdateRunnable, 60000);
-          }
-        }
-      };
-      
+      mTextScale = 1.0f;
+            
       executeQuery();
     }
 
@@ -190,13 +201,11 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
 
     @Override
     public void onDestroy() {
-      if(mUpdateHandler != null && mUpdateRunnable != null) {
-        mUpdateHandler.removeCallbacks(mUpdateRunnable);
-      }
-      
       if(mCursor != null && !mCursor.isClosed()) {
         mCursor.close();
       }
+      
+      removeAlarm();
     }
 
     @Override
@@ -312,6 +321,13 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         rv.setViewVisibility(R.id.running_programs_widget_row_channel, View.GONE);
       }
       
+      float titleFontSize = mTextScale * UiUtils.convertPixelsToSp(mContext.getResources().getDimension(R.dimen.title_font_size),mContext);
+      
+      rv.setFloat(R.id.running_programs_widget_row_channel_name, "setTextSize", titleFontSize);
+      rv.setFloat(R.id.running_programs_widget_row_title, "setTextSize", titleFontSize);
+      rv.setFloat(R.id.running_programs_widget_row_start_time, "setTextSize", titleFontSize);
+      rv.setFloat(R.id.running_programs_widget_row_episode, "setTextSize", mTextScale * UiUtils.convertPixelsToSp(mContext.getResources().getDimension(R.dimen.episode_font_size),mContext));
+      
       return rv;
     }
 
@@ -340,7 +356,5 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
     public boolean hasStableIds() {
       return true;
     }
-    
   }
-
 }
