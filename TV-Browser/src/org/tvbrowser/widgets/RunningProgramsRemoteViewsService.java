@@ -158,7 +158,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       
       AlarmManager alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
       
-      alarm.setRepeating(AlarmManager.RTC, ((System.currentTimeMillis()/60000) * 60000) + 62000, 60000, pending);
+      alarm.setRepeating(AlarmManager.RTC, ((System.currentTimeMillis()/60000) * 60000) + 60100, 60000, pending);
     }
     
     private void removeAlarm() {
@@ -278,6 +278,10 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         
         if(mShowChannelName || logo == null) {
           rv.setTextViewText(R.id.running_programs_widget_row_channel_name, name);
+          rv.setViewVisibility(R.id.running_programs_widget_row_channel_name, View.VISIBLE);
+        }
+        else if(number != null) {
+          rv.setTextViewText(R.id.running_programs_widget_row_channel_name, number);
           rv.setViewVisibility(R.id.running_programs_widget_row_channel_name, View.VISIBLE);
         }
         else {

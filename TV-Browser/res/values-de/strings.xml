@@ -352,7 +352,8 @@
 	<string name="action_scroll_time">Zu Zeit scrollen</string>
 	<string name="divider_size">Trennergröße:</string>
 	<string-array name="divider_value_names">
-	    <item>Schmal</item>
+	    <item>Winzig</item>
+	    <item>Klein</item>
 	    <item>Mittel</item>
 	    <item>Groß</item>
 	</string-array>

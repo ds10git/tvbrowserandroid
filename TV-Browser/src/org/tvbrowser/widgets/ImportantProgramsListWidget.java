@@ -20,6 +20,7 @@ import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.CompatUtils;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.TvBrowser;
+import org.tvbrowser.tvbrowser.UiUtils;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
@@ -28,6 +29,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.widget.RemoteViews;
 
@@ -39,16 +41,25 @@ import android.widget.RemoteViews;
 public class ImportantProgramsListWidget extends AppWidgetProvider {
   @Override
   public void onReceive(Context context, Intent intent) {
-    if((AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction()) || SettingConstants.UPDATE_IMPORTANT_APP_WIDGET.equals(intent.getAction())) && intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID) && 
-        intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID) != AppWidgetManager.INVALID_APPWIDGET_ID) {
-      AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
-      
-      int appWidgetId = intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID);
-      onUpdate(context, appWidgetManager, new int[] {appWidgetId});
-      appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.important_widget_list_view);
+    if(intent != null && Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
+      UiUtils.updateImportantProgramsWidget(context);
     }
     else {
-      super.onReceive(context, intent);
+      final PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
+      
+      if(pm.isScreenOn()) {
+        if((AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction()) || SettingConstants.UPDATE_IMPORTANT_APP_WIDGET.equals(intent.getAction())) && intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID) && 
+            intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID) != AppWidgetManager.INVALID_APPWIDGET_ID) {
+          AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
+          
+          int appWidgetId = intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID);
+          onUpdate(context, appWidgetManager, new int[] {appWidgetId});
+          appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.important_widget_list_view);
+        }
+        else {
+          super.onReceive(context, intent);
+        }
+      }
     }
   }
   
