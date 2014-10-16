@@ -37,8 +37,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Binder;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
@@ -77,6 +75,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     
     private boolean mShowChannelName;
     private boolean mShowChannelLogo;
+    private boolean mShowBigChannelLogo;
     private boolean mShowEpisode;
     private boolean mShowOrderNumber;
     private boolean mChannelClickToProgramsList;
@@ -166,7 +165,8 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
           
           mShowEpisode = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_EPISODE, R.bool.pref_widget_show_episode_default);
           mShowChannelName = (logoNamePref.equals("0") || logoNamePref.equals("2"));
-          mShowChannelLogo = (logoNamePref.equals("0") || logoNamePref.equals("1"));
+          mShowChannelLogo = (logoNamePref.equals("0") || logoNamePref.equals("1") || logoNamePref.equals("3"));
+          mShowBigChannelLogo = logoNamePref.equals("3");
           mShowOrderNumber = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_SORT_NUMBER, R.bool.pref_widget_show_sort_number_default);
           mChannelClickToProgramsList = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_widget_click_to_channel_to_list_default);
           mTextScale = Float.valueOf(PrefUtils.getStringValue(R.string.PREF_WIDGET_TEXT_SCALE, R.string.pref_widget_text_scale_default));
@@ -282,7 +282,12 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       int channelKey = mCursor.getInt(mLogoIndex);
       
       if(mShowChannelLogo) {
-        logo = SettingConstants.SMALL_LOGO_MAP.get(channelKey);
+        if(mShowBigChannelLogo) {
+          logo = SettingConstants.MEDIUM_LOGO_MAP.get(channelKey);
+        }
+        else {
+          logo = SettingConstants.SMALL_LOGO_MAP.get(channelKey);
+        }
       }
       
       final RemoteViews rv = new RemoteViews(mContext.getPackageName(), R.layout.important_programs_widget_row);

@@ -75,6 +75,7 @@
     <string name="today">heute</string>
     <string name="tomorrow">morgen</string>
     <string name="add">Hinzufügen</string>
+    <string name="favorite_fragment_help">Die ausgewählte Lieblingssendung hat keine gefundenen Sendungen.\n\nUm eine Lieblingssendung zu bearbeiten oder zu löschen, wählen Sie diese aus und klicken Sie dann lang auf die ausgewählte Lieblingssendung.\n\nKlicken Sie auf Hinzufügen um eine neue Lieblingssendung anzulegen.</string>
     <string name="favorite_name">Name:</string>
     <string name="favorite_name_hint">Namen eingeben (optional)</string>
     <string name="favorite_search">Suchen:</string>
