@@ -70,6 +70,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
     
     private boolean mShowChannelName;
     private boolean mShowChannelLogo;
+    private boolean mShowBigChannelLogo;
     private boolean mShowEpisode;
     private boolean mShowOrderNumber;
     private boolean mChannelClickToProgramsList;
@@ -138,6 +139,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         mShowEpisode = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_EPISODE, R.bool.pref_widget_show_episode_default);
         mShowChannelName = (logoNamePref.equals("0") || logoNamePref.equals("2"));
         mShowChannelLogo = (logoNamePref.equals("0") || logoNamePref.equals("1") || logoNamePref.equals("3"));
+        mShowBigChannelLogo = logoNamePref.equals("3");
         mShowOrderNumber = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_SORT_NUMBER, R.bool.pref_widget_show_sort_number_default);
         mChannelClickToProgramsList = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_widget_click_to_channel_to_list_default);
         mTextScale = Float.valueOf(PrefUtils.getStringValue(R.string.PREF_WIDGET_TEXT_SCALE, R.string.pref_widget_text_scale_default));
@@ -255,7 +257,12 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         int channelKey = mCursor.getInt(mLogoIndex);
         
         if(mShowChannelLogo) {
-          logo = SettingConstants.SMALL_LOGO_MAP.get(channelKey);
+          if(mShowBigChannelLogo) {
+            logo = SettingConstants.MEDIUM_LOGO_MAP.get(channelKey);
+          }
+          else {
+            logo = SettingConstants.SMALL_LOGO_MAP.get(channelKey);
+          }
         }
         
         final String time = DateFormat.getTimeFormat(mContext).format(new Date(startTime));

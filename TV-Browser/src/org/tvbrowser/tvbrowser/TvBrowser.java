@@ -1200,6 +1200,8 @@ public class TvBrowser extends FragmentActivity implements
                     set.add(setPart);
                     Log.d("pref", " " + setPart);
                   }
+                  
+                  edit.putStringSet(parts[0], set);
                 }
               }
             }
@@ -1207,6 +1209,9 @@ public class TvBrowser extends FragmentActivity implements
             if(restored) {
               edit.commit();
               IOUtils.handleDataUpdatePreferences(getApplicationContext());
+              
+              Intent updateFavorites = new Intent(SettingConstants.FAVORITES_CHANGED);
+              LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcast(updateFavorites);
             }
           }
         }catch(Exception e) {

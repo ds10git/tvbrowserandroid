@@ -3,8 +3,8 @@
 	<ListPreference android:key="@string/CHANNEL_LOGO_NAME_PROGRAM_LISTS"
 		android:title="@string/show_logo_title"
 		android:defaultValue="@string/channel_logo_name_program_lists_default"
-		android:entries="@array/show_logo"
-		android:entryValues="@array/pref_simple_string_value_array3"
+		android:entries="@array/show_logo_long"
+		android:entryValues="@array/pref_simple_string_value_array4"
 		android:summary="%s"/>
 	<ListPreference android:key="@string/PREF_PROGRAM_LISTS_TEXT_SCALE"
 		android:title="@string/pref_detail_text_scale"

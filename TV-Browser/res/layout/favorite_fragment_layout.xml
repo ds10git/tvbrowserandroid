@@ -1,35 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="horizontal"
     android:baselineAligned="false" >
-    <LinearLayout android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_weight="@dimen/favorite_list_weight"
-        android:orientation="vertical">
-        <Button android:id="@+id/add_favorite"
+    <RelativeLayout
+        android:id="@+id/favorite_fragment_selection_bar"
+        android:layout_alignParentTop="true"
+        android:layout_alignParentLeft="true"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/running_bar_height"
+        style="?android:attr/buttonBarStyle">
+        <Button
+            android:id="@+id/add_favorite"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true"
+            android:layout_alignBaseline="@+id/favorite_fragment_selection"
+            android:text="@string/add"
+            style="?android:attr/buttonBarButtonStyle"/>
+        <org.tvbrowser.view.NDSpinner
+            android:id="@+id/favorite_fragment_selection"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:drawableLeft="@android:drawable/btn_plus"
-            style="@style/favorite_add_button_style"
-            />
-	    <ListView android:id="@+id/favorite_list"
-	        android:layout_width="match_parent"
-	        android:layout_height="0dip"
-	        android:layout_weight="1"
-	        />
-	    <View style="@style/Divider"
-	        android:layout_marginTop="1dp"/>
-	    <ListView android:id="@+id/select_marking_list"
-	        android:layout_width="match_parent"
-	        android:layout_height="wrap_content"
-	        />
-    </LinearLayout>
-    <ListView android:id="@+id/favorite_program_list"
+            android:layout_alignParentTop="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_toLeftOf="@id/add_favorite"/>
+        
+    </RelativeLayout>
+    <TextView
+        android:id="@+id/favorite_fragment_help"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_weight="@dimen/favorite_program_weight"
-        
-        />
-</LinearLayout>
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:gravity="center"
+        android:textSize="18sp"
+        android:padding="20dp"
+        android:text="@string/favorite_fragment_help"
+        android:layout_below="@id/favorite_fragment_selection_bar"/>
+    <ListView
+        android:id="@+id/favorite_program_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_below="@id/favorite_fragment_selection_bar"/>
+</RelativeLayout>

@@ -3,8 +3,8 @@
 	<ListPreference android:key="@string/PREF_WIDGET_CHANNEL_LOGO_NAME"
 		android:title="@string/show_logo_title"
 		android:defaultValue="@string/pref_widget_channel_logo_name_default"
-		android:entries="@array/show_logo"
-		android:entryValues="@array/pref_simple_string_value_array3"
+		android:entries="@array/show_logo_long"
+		android:entryValues="@array/pref_simple_string_value_array4"
 		android:summary="%s"/>
 	<CheckBoxPreference android:key="@string/PREF_WIDGET_SHOW_SORT_NUMBER" 
 		android:title="@string/show_sort_number"

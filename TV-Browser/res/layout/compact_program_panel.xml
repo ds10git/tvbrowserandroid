@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
     <LinearLayout android:id="@+id/running_list_channel_info"
-     android:layout_width="100dp"
+     android:layout_width="92dp"
      android:layout_height="match_parent"
      android:orientation="vertical"
      android:layout_alignParentLeft="true"
@@ -12,13 +12,13 @@
      android:layout_marginBottom="2dp">
      <ImageView 
      	android:id="@+id/running_list_channel_logo"
-    	android:layout_width="100dp"
+    	android:layout_width="92dp"
     	android:scaleType="center"
     	android:layout_height="wrap_content"
      	/>
      <TextView
 	        android:id="@+id/running_compact_channel_label"
-	        android:layout_width="100dp"
+	        android:layout_width="92dp"
 	        android:layout_height="wrap_content"
 	        android:textSize="@dimen/title_font_size"
 	        android:gravity="center_horizontal"

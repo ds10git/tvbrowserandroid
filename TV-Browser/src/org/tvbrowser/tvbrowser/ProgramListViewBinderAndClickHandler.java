@@ -67,6 +67,7 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
     
     boolean showChannelName = logoNamePref.equals("0") || logoNamePref.equals("2");
     boolean showChannelLogo = logoNamePref.equals("0") || logoNamePref.equals("1");
+    boolean showBigChannelLogo = logoNamePref.equals("3");
     
     long endTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
     
@@ -177,10 +178,10 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
         
         Drawable logo = null;
         
-        if(showChannelLogo && logoIndex >= 0) {
+        if((showBigChannelLogo || showChannelLogo) && logoIndex >= 0) {
           int key = cursor.getInt(logoIndex);
           
-          if(showChannelName || showOrderNumber || mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && (mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE) {
+          if(!showBigChannelLogo && (showChannelName || showOrderNumber || mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && (mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE)) {
             logo = SettingConstants.SMALL_LOGO_MAP.get(key);
           }
           else {

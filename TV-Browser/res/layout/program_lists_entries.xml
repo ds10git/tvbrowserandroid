@@ -5,37 +5,34 @@
     android:layout_marginLeft="5dp"
     android:layout_marginRight="5dp">
     <LinearLayout android:id="@+id/program_list_channel_info"
-     android:layout_width="match_parent"
-     android:layout_height="wrap_content"
-     android:orientation="horizontal"
+     android:layout_width="92dp"
+     android:layout_height="match_parent"
+     android:orientation="vertical"
+     android:layout_centerVertical="true"
      android:layout_alignParentLeft="true"
-     android:layout_alignParentTop="true">
+	 android:layout_marginTop="2dp"
+	 android:layout_marginBottom="2dp">
      <ImageView 
      	android:id="@+id/program_list_channel_logo"
-    	android:layout_width="wrap_content"
+    	android:layout_width="92dp"
     	android:scaleType="center"
-    	android:layout_height="match_parent"
-    	android:layout_marginTop="2dp"
-    	android:layout_marginRight="3dp"
-    	android:layout_marginLeft="3dp"
-    	android:layout_marginBottom="2dp"
+    	android:layout_height="wrap_content"
      	/>
      <TextView
 	        android:id="@+id/channelLabelPL"
-	        android:layout_width="match_parent"
-	        android:layout_height="match_parent"
+	        android:layout_width="92dp"
+	        android:layout_height="wrap_content"
 	        android:textSize="@dimen/title_font_size"
-	        android:gravity="center_vertical"
-	        android:layout_marginTop="2dp"
-		    android:layout_marginBottom="2dp"
+	        android:gravity="center_horizontal"
 	        />
  	</LinearLayout>
 <RelativeLayout
     android:id="@+id/programs_list_row" 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:layout_below="@id/program_list_channel_info"
-    android:layout_alignParentLeft="true"
+    android:layout_alignParentTop="true"
+    android:layout_toRightOf="@id/program_list_channel_info"
+    android:layout_toEndOf="@id/program_list_channel_info"
     >
    
     <TextView android:id="@+id/startDayLabelPL"

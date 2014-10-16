@@ -511,64 +511,67 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     
     Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
-    if(cursor.moveToFirst()) {
-      ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
-      ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
-      
-      int reminderColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
-      
-      do {
-        long id = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+    try {
+      if(cursor.moveToFirst()) {
+        ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+        ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
         
-        boolean[] test = favoritesMatchesProgram(id, context, resolver, favorite);
-        Log.d("test", "" + test[0] + " " + test[1]);
-        if(!test[0]) {
-          ContentValues values = new ContentValues();
+        int reminderColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
+        
+        do {
+          long id = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
           
-          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE, false);
-          
-          if(favorite.mRemind && !test[1]) {
-            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, false);
+          boolean[] test = favoritesMatchesProgram(id, context, resolver, favorite);
+          Log.d("test", "" + test[0] + " " + test[1]);
+          if(!test[0]) {
+            ContentValues values = new ContentValues();
             
-            if(cursor.getInt(reminderColumnIndex) == 0) {
-              UiUtils.removeReminder(context, id);
+            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE, false);
+            
+            if(favorite.mRemind && !test[1]) {
+              values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, false);
+              
+              if(cursor.getInt(reminderColumnIndex) == 0) {
+                UiUtils.removeReminder(context, id);
+              }
             }
+            
+            ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
+            opBuilder.withValues(values);
+            
+            updateValuesList.add(opBuilder.build());
+            
+            Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
+            intent.putExtra(SettingConstants.MARKINGS_ID, id);
+            
+            markingIntentList.add(intent);
           }
-          
-          ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
-          opBuilder.withValues(values);
-          
-          updateValuesList.add(opBuilder.build());
-          
-          Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-          intent.putExtra(SettingConstants.MARKINGS_ID, id);
-          
-          markingIntentList.add(intent);
-        }
-      }while(cursor.moveToNext());
-      
-      if(!updateValuesList.isEmpty()) {
-        try {
-          resolver.applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
-          
-          LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(context);
-          
-          for(Intent markUpdate : markingIntentList) {
-            localBroadcast.sendBroadcast(markUpdate);
-          }
-        } catch (RemoteException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        } catch (OperationApplicationException e) {
-          // TODO Auto-generated catch block
-          e.printStackTrace();
-        }
+        }while(cursor.moveToNext());
         
-        UiUtils.updateImportantProgramsWidget(context.getApplicationContext());
+        if(!updateValuesList.isEmpty()) {
+          try {
+            resolver.applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+            
+            LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(context);
+            
+            for(Intent markUpdate : markingIntentList) {
+              localBroadcast.sendBroadcast(markUpdate);
+            }
+          } catch (RemoteException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          } catch (OperationApplicationException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }
+          
+          UiUtils.updateImportantProgramsWidget(context.getApplicationContext());
+        }
       }
     }
-    
-    cursor.close();
+    finally {
+      cursor.close();
+    }
   }
   
   public static boolean[] favoritesMatchesProgram(long programID, Context context, ContentResolver resolver, Favorite exclude) {
@@ -599,15 +602,17 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           
           Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, PROJECTION, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
           
-          if(cursor.getCount() > 0) {
-            matches = true;
-            
-            cursor.moveToFirst();
-            
-            remindFor = remindFor || cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) == 1;
+          try {
+            if(cursor.getCount() > 0) {
+              matches = true;
+              
+              cursor.moveToFirst();
+              
+              remindFor = remindFor || cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) == 1;
+            }
+          }finally {
+            cursor.close();
           }
-          
-          cursor.close();
         }
       }
       

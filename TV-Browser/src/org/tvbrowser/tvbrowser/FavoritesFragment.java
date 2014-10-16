@@ -35,6 +35,9 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
+import android.database.DataSetObserver;
+import android.graphics.drawable.ColorDrawable;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -54,14 +57,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class FavoritesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface {
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   private SimpleCursorAdapter mProgramListAdapter;
-  private ArrayAdapter<Favorite> mFavoriteAdapter;
-  private ArrayAdapter<String> mMarkingsAdapter;
-  private ArrayList<Favorite> mFavoriteList;
+  private ArrayAdapter<FavoriteSpinnerEntry> mFavoriteAdapter;
+  private ArrayList<FavoriteSpinnerEntry> mFavoriteList;
   
   private ListView mFavoriteProgramList;
   
@@ -87,22 +90,8 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   }
   
   public void updateSynchroButton(View view) {
-    if(view == null) {
-      view = getView();
-    }
-    
-    if(mMarkingsAdapter != null) {
-      if(PrefUtils.getBooleanValue(R.string.PREF_SYNC_FAV_FROM_DESKTOP, R.bool.pref_sync_fav_from_desktop_default) && getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
-        if(mMarkingsAdapter.getCount() < 3) {
-          mMarkingsAdapter.add(getResources().getString(R.string.marking_value_sync));
-        }
-      }
-      else {
-        mMarkingsAdapter.remove(getResources().getString(R.string.marking_value_sync));
-      }
-      
-      mMarkingsAdapter.notifyDataSetChanged();
-    }
+    removeMarkingSelections();
+    addMarkingSelections();
   }
   
   @Override
@@ -118,6 +107,9 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       }
     });
   }
+  private Spinner mFavoriteSelection;
+  
+  private TextView mHelp;
   
   @Override
   public void onActivityCreated(Bundle savedInstanceState) {
@@ -127,30 +119,80 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     
     mWhereClause = null;
     
-    mFavoriteList = new ArrayList<Favorite>();
+    mFavoriteList = new ArrayList<FavoriteSpinnerEntry>();
     
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
     Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
-        
+    
     for(String favorite : favoritesSet) {
-      mFavoriteList.add(new Favorite(favorite));
+      mFavoriteList.add(new FavoriteSpinnerEntry(new Favorite(favorite)));
     }
+    
+    removeMarkingSelections();
     
     Collections.sort(mFavoriteList);
     
-    mFavoriteAdapter = new ArrayAdapter<Favorite>(getActivity(), android.R.layout.simple_list_item_activated_1,mFavoriteList);
+    addMarkingSelections();
     
-    final ListView markings = (ListView)getView().findViewById(R.id.select_marking_list);
-    final ListView favorites = (ListView)getView().findViewById(R.id.favorite_list);
-    favorites.setAdapter(mFavoriteAdapter);
-    favorites.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-    favorites.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+    mFavoriteAdapter = new ArrayAdapter<FavoriteSpinnerEntry>(getActivity(), android.R.layout.simple_list_item_1,mFavoriteList){
       @Override
-      public void onItemClick(AdapterView<?> adapterView, View v, int position,
-          long id) {
-        markings.setItemChecked(-1, true);
-        Favorite fav = mFavoriteList.get(position);
+      public View getView(int position, View convertView, ViewGroup parent) {
+        if(convertView == null) {
+          convertView = getActivity().getLayoutInflater().inflate(android.R.layout.simple_list_item_1, parent, false);
+        }
+        
+        String name = getItem(position).toString();
+        
+        Drawable draw = getResources().getDrawable(android.R.drawable.list_selector_background);
+        
+        if(!getItem(position).containsFavorite()) {
+          if(name.equals(getString(R.string.marking_value_marked))) {
+            draw = new ColorDrawable(UiUtils.getColor(UiUtils.MARKED_COLOR_KEY, getContext()));
+          }
+          else if(name.equals(getString(R.string.marking_value_sync))) {
+            draw = new ColorDrawable(UiUtils.getColor(UiUtils.MARKED_SYNC_COLOR_KEY, getContext()));
+          }
+          else {
+            draw = new ColorDrawable(UiUtils.getColor(UiUtils.MARKED_REMINDER_COLOR_KEY, getContext()));
+          }
+        }
+        
+        convertView.setBackgroundDrawable(draw);
+        convertView.setPadding(UiUtils.convertDpToPixel(5f, getResources()), 0, 0, 0);
+        
+        ((TextView)convertView).setText(name);
+        
+        return convertView;
+      }
+      
+      @Override
+      public View getDropDownView(int position, View convertView, ViewGroup parent) {
+        return getView(position, convertView, parent);
+      }
+    };
+
+    mFavoriteSelection = (Spinner)getView().findViewById(R.id.favorite_fragment_selection);
+    mHelp = (TextView)getView().findViewById(R.id.favorite_fragment_help);
+    
+    mFavoriteSelection.setAdapter(mFavoriteAdapter);
+    mFavoriteSelection.getAdapter().registerDataSetObserver(new DataSetObserver() {
+      @Override
+      public void onChanged() {
+        if(mFavoriteAdapter.getCount() > 0) {
+          mFavoriteSelection.setSelection(0);
+          mFavoriteSelection.getOnItemSelectedListener().onItemSelected(mFavoriteSelection, mFavoriteSelection.getSelectedView(), mFavoriteSelection.getSelectedItemPosition(), mFavoriteSelection.getSelectedItemId());
+        }
+        else {
+          mFavoriteSelection.getOnItemSelectedListener().onNothingSelected(mFavoriteSelection);
+        }
+      }
+    });
+    
+    mFavoriteSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        FavoriteSpinnerEntry fav = mFavoriteList.get(position);
         mWhereClause = fav.getWhereClause();
         
         handler.post(new Runnable() {
@@ -162,19 +204,18 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
           }
         });
       }
+      
+      @Override
+      public void onNothingSelected(AdapterView<?> parent) {
+        mWhereClause = null;
+        
+        if(!isDetached()) {
+          getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
+        }
+      }
     });
     
-    
-    ArrayList<String> markingList = new ArrayList<String>();
-    
-    markingList.add(getResources().getString(R.string.marking_value_marked));
-    
-    if(Build.VERSION.SDK_INT >= 14) {
-      markingList.add(getResources().getString(R.string.marking_value_reminder) + "/" + getResources().getString(R.string.marking_value_calendar));
-    }
-    else {
-      markingList.add(getResources().getString(R.string.marking_value_reminder));
-    }
+    /*
     
     mMarkingsAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_activated_1, markingList) {
       @Override
@@ -194,9 +235,9 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         return convertView;
       }
     };
-    
+    */
     updateSynchroButton(null);
-    markings.setAdapter(mMarkingsAdapter);
+ /*   markings.setAdapter(mMarkingsAdapter);
     markings.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
     markings.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override
@@ -230,7 +271,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
           }
         });
       }
-    });
+    });*/
     
     mFavoriteProgramList = (ListView)getView().findViewById(R.id.favorite_program_list);
         
@@ -242,7 +283,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       }
     });
     
-    registerForContextMenu(favorites);
+    registerForContextMenu(mFavoriteSelection);
     
     Button add = (Button)getView().findViewById(R.id.add_favorite);
     add.setOnClickListener(new View.OnClickListener() {
@@ -292,30 +333,59 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         if(mUpdateThread == null || !mUpdateThread.isAlive()) {
           mUpdateThread = new Thread() {
             public void run() {
-              String oldName = intent.getStringExtra(Favorite.OLD_NAME_KEY);
-              
-              Favorite fav = null;
-              
-              if(oldName != null) {
-                for(Favorite favorite : mFavoriteList) {
-                  if(favorite.getName().equals(oldName)) {
-                    fav = favorite;
-                    break;
+              if(intent.hasExtra(Favorite.FAVORITE_EXTRA)) {
+                String oldName = intent.getStringExtra(Favorite.OLD_NAME_KEY);
+                
+                FavoriteSpinnerEntry fav = null;
+                
+                if(oldName != null) {
+                  for(FavoriteSpinnerEntry favorite : mFavoriteList) {
+                    if(favorite.containsFavorite() && favorite.getFavorite().getName().equals(oldName)) {
+                      fav = favorite;
+                      break;
+                    }
                   }
+                }
+                
+                if(fav == null) {
+                  fav = new FavoriteSpinnerEntry((Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA));
+                  mFavoriteList.add(fav);
+                }
+                else {
+                  Favorite temp = (Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA);
+                  
+                  fav.getFavorite().setValues(temp.getName(), temp.getSearchValue(), temp.searchOnlyTitle(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs(), temp.getExclusions());
+                }
+              }
+              else {
+                if(!isDetached()) {
+                  for(FavoriteSpinnerEntry fav : mFavoriteList) {
+                    if(fav.containsFavorite()) {
+                      Favorite.removeFavoriteMarking(getActivity(), getActivity().getContentResolver(), fav.getFavorite());
+                    }
+                  }
+                  
+                  mFavoriteList.clear();
+
+                  SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+                  
+                  Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
+                  
+                  for(String favorite : favoritesSet) {
+                    Favorite fav = new Favorite(favorite);
+                    Favorite.updateFavoriteMarking(getActivity(), getActivity().getContentResolver(), fav);
+                    mFavoriteList.add(new FavoriteSpinnerEntry(fav));
+                  }
+                  
+                  mFavoriteAdapter.notifyDataSetChanged();
                 }
               }
               
-              if(fav == null) {
-                fav = (Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA);
-                mFavoriteList.add(fav);
-              }
-              else {
-                Favorite temp = (Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA);
-                
-                fav.setValues(temp.getName(), temp.getSearchValue(), temp.searchOnlyTitle(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs(), temp.getExclusions());
-              }
+              removeMarkingSelections();
               
               Collections.sort(mFavoriteList);
+              
+              addMarkingSelections();
               
               handler.post(new Runnable() {
                 @Override
@@ -380,6 +450,43 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
     
     mIsRunning = true;
+  }
+  
+  private void removeMarkingSelections() {
+    for(int i = mFavoriteList.size()-1; i >= 0; i--) {
+      if(!mFavoriteList.get(i).containsFavorite()) {
+        mFavoriteList.remove(i);
+      }
+    }
+  }
+  
+  private void addMarkingSelections() {
+    FavoriteSpinnerEntry marked = new FavoriteSpinnerEntry(getString(R.string.marking_value_marked), TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " " + TvBrowserContentProvider.DATA_KEY_MARKING_MARKING);
+      
+    String name = getString(R.string.marking_value_reminder);
+    String whereClause = TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " ";
+    
+    if(Build.VERSION.SDK_INT >= 14) {
+      name = getString(R.string.marking_value_reminder) + "/" + getString(R.string.marking_value_calendar);
+      whereClause += " ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER  + " ) ) ";
+    }
+    else {
+      whereClause += " ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER  + " ) ) ";
+    }
+    
+    FavoriteSpinnerEntry reminder = new FavoriteSpinnerEntry(name, whereClause);
+    FavoriteSpinnerEntry sync = null;
+    
+    if(PrefUtils.getBooleanValue(R.string.PREF_SYNC_FAV_FROM_DESKTOP, R.bool.pref_sync_fav_from_desktop_default) && getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
+      sync = new FavoriteSpinnerEntry(getString(R.string.marking_value_sync), TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " " + TvBrowserContentProvider.DATA_KEY_MARKING_SYNC);
+    }
+    
+    mFavoriteList.add(marked);
+    mFavoriteList.add(reminder);
+    
+    if(sync != null) {
+      mFavoriteList.add(sync);
+    }
   }
   
   @Override
@@ -456,8 +563,10 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   private void updateFavorites() {
     HashSet<String> favoriteSet = new HashSet<String>();
     
-    for(Favorite fav : mFavoriteList) {
-      favoriteSet.add(fav.getSaveString());
+    for(FavoriteSpinnerEntry fav : mFavoriteList) {
+      if(fav.containsFavorite()) {
+        favoriteSet.add(fav.getFavorite().getSaveString());
+      }
     }
     
     Editor edit = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
@@ -473,30 +582,35 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     UiUtils.editFavorite(fav, getActivity(), null);    
   }
   
+  private FavoriteSpinnerEntry mCurrentSelection;
+  
   @Override
   public void onCreateContextMenu(ContextMenu menu, View v,
     ContextMenuInfo menuInfo) {
-    getActivity().getMenuInflater().inflate(R.menu.favorite_context, menu);
+    FavoriteSpinnerEntry entry = mFavoriteList.get(mFavoriteSelection.getSelectedItemPosition());
+    
+    if(entry.containsFavorite()) {
+      mCurrentSelection = entry;
+      getActivity().getMenuInflater().inflate(R.menu.favorite_context, menu);
+    }
   }
   
   @Override
   public boolean onContextItemSelected(MenuItem item) {
-    if(item.getMenuInfo() != null) {
-      int pos = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position;
-      
+    if(mCurrentSelection != null) {
       if(item.getItemId() == R.id.delete_favorite) {
-        final Favorite fav = mFavoriteList.remove(pos);
+        mFavoriteList.remove(mCurrentSelection);
         
         new Thread() {
           public void run() {
-            Favorite.removeFavoriteMarking(getActivity().getApplicationContext(), getActivity().getContentResolver(), fav);
+            Favorite.removeFavoriteMarking(getActivity().getApplicationContext(), getActivity().getContentResolver(), mCurrentSelection.getFavorite());
           }
         }.start();
         
         updateFavorites();
       }
       else if(item.getItemId() == R.id.edit_favorite) {
-        editFavorite(mFavoriteList.get(pos));
+        editFavorite(mCurrentSelection.getFavorite());
       }
       
       return true;
@@ -508,12 +622,20 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   @Override
   public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader,
       Cursor c) {
+    if(c != null && c.getCount() > 0) {
+      mHelp.setVisibility(View.GONE);
+    }
+    else {
+      mHelp.setVisibility(View.VISIBLE);
+    }
+    
     mProgramListAdapter.swapCursor(c);
   }
 
   @Override
   public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
     mProgramListAdapter.swapCursor(null);
+    mHelp.setVisibility(View.VISIBLE);
   }
   
 
@@ -535,5 +657,51 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   @Override
   public boolean showDate() {
     return true;
+  }
+  
+  private static final class FavoriteSpinnerEntry implements Comparable<FavoriteSpinnerEntry> {
+    private String mName;
+    private String mEntryWhereClause;
+    private Favorite mFavorite;
+    
+    public FavoriteSpinnerEntry(String name, String whereClause) {
+      mName = name;
+      mEntryWhereClause = whereClause;
+      mFavorite = null;
+    }
+    
+    public FavoriteSpinnerEntry(Favorite fav) {
+      mFavorite = fav;
+    }
+    
+    public boolean containsFavorite() {
+      return mFavorite != null;
+    }
+    
+    public Favorite getFavorite() {
+      return mFavorite;
+    }
+    
+    public String getWhereClause() { 
+      if(containsFavorite()) {
+        return mFavorite.getWhereClause();
+      }
+      
+      return mEntryWhereClause;
+    }
+    
+    @Override
+    public String toString() {
+      if(containsFavorite()) {
+        return mFavorite.toString();
+      }
+      
+      return mName;
+    }
+
+    @Override
+    public int compareTo(FavoriteSpinnerEntry another) {
+      return toString().compareToIgnoreCase(another.toString());
+    }
   }
 }

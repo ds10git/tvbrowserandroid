@@ -81,6 +81,7 @@
     <string name="today">today</string>
     <string name="tomorrow">tomorrow</string>
     <string name="add">Add</string>
+    <string name="favorite_fragment_help">The selected Favorite has no found programs.\n\nTo edit or delete Favorites, please select it and click long on the selected entry.\n\nTo add a new Favorite click on Add.</string>
     <string name="favorite_name">Name:</string>
     <string name="favorite_name_hint">Enter name (optional)</string>
     <string name="favorite_search">Search:</string>
