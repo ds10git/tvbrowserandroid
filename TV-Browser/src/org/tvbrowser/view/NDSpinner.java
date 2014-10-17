@@ -21,7 +21,7 @@ public class NDSpinner extends Spinner {
   { super(context, attrs, defStyle); }
 
   @Override public void
-  setSelection(int position, boolean animate)
+  setSelection(int position)
   {
     boolean sameSelected = position == getSelectedItemPosition();
     super.setSelection(position);

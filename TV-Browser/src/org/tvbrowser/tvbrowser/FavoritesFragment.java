@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
@@ -108,6 +109,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     });
   }
   private Spinner mFavoriteSelection;
+  private FavoriteSpinnerEntry mCurrentFavoriteSelection;
   
   private TextView mHelp;
   
@@ -179,21 +181,38 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     mFavoriteSelection.getAdapter().registerDataSetObserver(new DataSetObserver() {
       @Override
       public void onChanged() {
-        if(mFavoriteAdapter.getCount() > 0) {
-          mFavoriteSelection.setSelection(0);
-          mFavoriteSelection.getOnItemSelectedListener().onItemSelected(mFavoriteSelection, mFavoriteSelection.getSelectedView(), mFavoriteSelection.getSelectedItemPosition(), mFavoriteSelection.getSelectedItemId());
+        final AtomicInteger position = new AtomicInteger(-1);
+        
+        if(mCurrentFavoriteSelection != null) {
+          for(int i = 0; i < mFavoriteList.size(); i++) {
+            FavoriteSpinnerEntry entry = mFavoriteList.get(i);
+            
+            if((mCurrentFavoriteSelection.containsFavorite() && entry.containsFavorite() && entry.getFavorite().equals(mCurrentFavoriteSelection.getFavorite()))
+                || (!mCurrentFavoriteSelection.containsFavorite()) && !entry.containsFavorite() && mCurrentFavoriteSelection.toString().equals(entry.toString())) {
+              position.set(i);
+              break;
+            }
+          }
         }
-        else {
-          mFavoriteSelection.getOnItemSelectedListener().onNothingSelected(mFavoriteSelection);
+        
+        if(position.get() == -1 && mFavoriteAdapter.getCount() > 0) {
+          position.set(0);
         }
+        
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            mFavoriteSelection.setSelection(position.get());
+          }
+        });
       }
     });
     
     mFavoriteSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
       public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        FavoriteSpinnerEntry fav = mFavoriteList.get(position);
-        mWhereClause = fav.getWhereClause();
+        mCurrentFavoriteSelection = mFavoriteList.get(position);
+        mWhereClause = mCurrentFavoriteSelection.getWhereClause();
         
         handler.post(new Runnable() {
           @Override
@@ -349,6 +368,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
                 
                 if(fav == null) {
                   fav = new FavoriteSpinnerEntry((Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA));
+                  mCurrentFavoriteSelection = fav;
                   mFavoriteList.add(fav);
                 }
                 else {
@@ -377,7 +397,12 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
                     mFavoriteList.add(new FavoriteSpinnerEntry(fav));
                   }
                   
-                  mFavoriteAdapter.notifyDataSetChanged();
+                  handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      mFavoriteAdapter.notifyDataSetChanged();
+                    }
+                  });
                 }
               }
               
@@ -418,7 +443,11 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       @Override
       public void onReceive(Context context, Intent intent) {
         if(!isDetached() && !isRemoving()) {
-          mFavoriteAdapter.notifyDataSetChanged();
+          handler.post(new Runnable() {
+            public void run() {
+              mFavoriteAdapter.notifyDataSetChanged();
+            }
+          });
         }
       }
     };
@@ -575,7 +604,12 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     
     edit.commit();
     
-    mFavoriteAdapter.notifyDataSetChanged();
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        mFavoriteAdapter.notifyDataSetChanged();
+      }
+    });
   }
   
   private void editFavorite(final Favorite fav) {
