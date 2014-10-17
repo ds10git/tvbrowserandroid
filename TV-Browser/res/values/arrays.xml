@@ -96,11 +96,15 @@
         <item>@string/radio</item>
         <item>@string/cinema</item>
     </string-array>
+    <string name="divider_tiny">1</string>
+    <string name="divider_small">5</string>
+    <string name="divider_medium">10</string>
+    <string name="divider_big">20</string>
     <string-array name="divider_values">
-        <item>1</item>
-        <item>5</item>
-        <item>10</item>
-        <item>20</item>
+        <item>@string/divider_tiny</item>
+        <item>@string/divider_small</item>
+        <item>@string/divider_medium</item>
+        <item>@string/divider_big</item>
     </string-array>
 	<string-array name="pref_category_reminder_values">
 	    <item>0</item>

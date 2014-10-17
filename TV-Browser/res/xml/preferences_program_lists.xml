@@ -15,7 +15,7 @@
 	<ListPreference
 		android:key="@string/PREF_PROGRAM_LISTS_DIVIDER_SIZE"
 		android:title="@string/divider_size"
-		android:defaultValue="10"
+		android:defaultValue="@string/divider_size_default"
 		android:entries="@array/divider_value_names"
 		android:entryValues="@array/divider_values"
 		android:summary="%s"/>

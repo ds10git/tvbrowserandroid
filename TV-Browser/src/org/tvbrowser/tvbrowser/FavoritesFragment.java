@@ -339,7 +339,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     
     prefs.registerOnSharedPreferenceChangeListener(this);
     
-    setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.devider_size_default));
+    setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.divider_size_default));
   }
   
   @Override
@@ -680,7 +680,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     if(!isDetached() && getActivity() != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
-      setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.devider_size_default));
+      setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.divider_size_default));
     }
   }
   

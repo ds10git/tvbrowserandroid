@@ -533,6 +533,9 @@
     
     <string name="widget_running_select_time_title">Angezeigte Zeit auswählen</string>
     
+    <string name="widget_prefrerences_background_transparency">Hintergrund transparent</string>
+    <string name="widget_prefrerences_simple_icon">Einfarbiges Widget-Symbol</string>
+    
     <string name="backup_preferences_success">Backup erfolgreich auf den TV-Browser-Server hochgeladen</string>
     <string name="backup_preferences_restore_success">Backup erfolgreich vom TV-Browser wiederhergestellt</string>
     <string name="backup_preferences_restore_failure">Backup konnte nicht wiederhergestellt werden, möglicherweise wurde es niemals hochgeladen.</string>

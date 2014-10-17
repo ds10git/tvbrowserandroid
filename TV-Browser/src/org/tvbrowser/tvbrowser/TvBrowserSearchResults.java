@@ -100,7 +100,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     
     getListView().setDivider(drawable);
     
-    setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.devider_size_default));
+    setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.divider_size_default));
   }
   
   @Override
@@ -283,7 +283,7 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     if(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
-      setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.devider_size_default));
+      setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.divider_size_default));
     }
   }
   
