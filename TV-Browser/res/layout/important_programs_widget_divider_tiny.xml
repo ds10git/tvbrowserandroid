@@ -16,21 +16,35 @@
 	         android:src="@android:drawable/ic_menu_preferences"
 	         android:layout_alignParentRight="true"
 	         android:background="@drawable/rounded_corners_shape_light_light_border"/>
-	     <TextView android:id="@+id/important_widget_header"
-	         android:layout_width="match_parent"
-	         android:layout_height="wrap_content"
-	         android:layout_alignParentTop="true"
-	         android:gravity="center_vertical"
-	         android:textSize="@dimen/title_font_size"
-	         android:drawableLeft="@drawable/ic_widget"
-	         android:layout_alignParentLeft="true"
-	         android:layout_toLeftOf="@id/important_widget_config"/>
+         <LinearLayout
+             android:id="@+id/important_widget_header_info_wrapper"
+             android:orientation="horizontal"
+             android:layout_width="match_parent"
+             android:layout_height="wrap_content"
+             android:gravity="center_vertical"
+             android:layout_toStartOf="@id/important_widget_config"
+	         android:layout_toLeftOf="@id/important_widget_config">
+             <ImageView
+	             android:id="@+id/important_widget_header_icon"
+	             android:layout_width="wrap_content"
+	             android:layout_height="wrap_content"
+	             android:contentDescription="TVB"
+	             android:src="@drawable/ic_widget"
+	             android:layout_marginEnd="3dp"
+	             android:layout_marginRight="3dp"/>
+		     <TextView android:id="@+id/important_widget_header"
+		         android:layout_width="match_parent"
+		         android:layout_height="wrap_content"
+		         android:text="@string/widget_running_title"
+		         android:gravity="center_vertical"
+		         android:textSize="@dimen/title_font_size"/>
+         </LinearLayout>
      </RelativeLayout>
     <ListView
         android:background="@drawable/rounded_corners_shape_dark"
         android:id="@+id/important_widget_list_view"
         android:layout_width="match_parent"
-        android:dividerHeight="5dp"
+        android:dividerHeight="1dp"
         android:divider="@drawable/list_widgets_divider"
         android:layout_height="match_parent"
         android:layout_below="@id/important_widget_header_wrapper"/>

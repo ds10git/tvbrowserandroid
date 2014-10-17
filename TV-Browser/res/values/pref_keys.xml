@@ -276,7 +276,7 @@
 	    <item name="pref_program_lists_text_scale_default" type="string" format="string">1.0</item>
 	    
 	    <string name="PREF_PROGRAM_LISTS_DIVIDER_SIZE">PREF_PROGRAM_LISTS_DIVIDER_SIZE</string>
-	    <item name="devider_size_default" type="string" format="string">10</item>
+	    <item name="divider_size_default" type="string" format="string">@string/divider_medium</item>
 
 	    <string name="PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST">PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST</string>
 	    <item name="pref_program_lists_click_to_channel_to_list_default" type="bool" format="boolean">true</item>
@@ -426,6 +426,8 @@
 	    <item name="auto_update_current_start_time_default" type="integer" format="integer">0</item>
 	    
 	<!-- Widgets layout settings -->
+	    <string name="PREF_WIDGET_LISTS_DIVIDER_SIZE">PREF_WIDGET_LISTS_DIVIDER_SIZE</string>
+	    <item name="pref_widget_lists_divider_size_default" type="string" format="string">@string/divider_small</item>
 	    
 	    <string name="PREF_WIDGET_CHANNEL_LOGO_NAME">PREF_WIDGET_CHANNEL_LOGO_NAME</string>
 	    <item name="pref_widget_channel_logo_name_default" type="string" format="string">0</item>
@@ -441,4 +443,10 @@
 	    
 	    <string name="PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST">PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST</string>
     	<item name="pref_widget_click_to_channel_to_list_default" type="bool" format="boolean">true</item>
+    	
+    	<string name="PREF_WIDGET_BACKGROUND_TRANSPARENCY">PREF_WIDGET_BACKGROUND_TRANSPARENCY</string>
+    	<item name="pref_widget_background_transparency_default" type="bool" format="boolean">true</item>
+    	
+    	<string name="PREF_WIDGET_SIMPLE_ICON">PREF_WIDGET_SIMPLE_ICON</string>
+    	<item name="pref_widget_simple_icon_default" type="bool" format="boolean">false</item>
 </resources>

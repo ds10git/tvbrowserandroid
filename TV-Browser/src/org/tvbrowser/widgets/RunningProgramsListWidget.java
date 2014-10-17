@@ -18,6 +18,7 @@ package org.tvbrowser.widgets;
 
 import java.util.Calendar;
 
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.CompatUtils;
 import org.tvbrowser.tvbrowser.InfoActivity;
@@ -78,7 +79,45 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
       intent.setData(Uri.parse("org.tvbrowser://runningWidget/" + appWidgetId));
       intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
       
-      RemoteViews views = new RemoteViews(context.getPackageName(), R.layout.running_programs_widget);
+      RemoteViews views = null;
+      
+      PrefUtils.initialize(context);
+      
+      String divider = PrefUtils.getStringValue(R.string.PREF_WIDGET_LISTS_DIVIDER_SIZE, R.string.pref_widget_lists_divider_size_default);
+      
+      if(divider.equals(context.getString(R.string.divider_tiny))) {
+        views = new RemoteViews(context.getPackageName(), R.layout.running_programs_widget_divider_tiny);
+      }
+      else if(divider.equals(context.getString(R.string.divider_medium))) {
+        views = new RemoteViews(context.getPackageName(), R.layout.running_programs_widget_divider_medium);
+      }
+      else if(divider.equals(context.getString(R.string.divider_big))) {
+        views = new RemoteViews(context.getPackageName(), R.layout.running_programs_widget_divider_big);
+      }
+      else {
+        views = new RemoteViews(context.getPackageName(), R.layout.running_programs_widget_divider_small);
+      }
+      
+      if(PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SIMPLE_ICON, R.bool.pref_widget_simple_icon_default)) {
+        views.setImageViewResource(R.id.running_widget_header_icon, R.drawable.ic_widget_simple);
+      }
+      else {
+        views.setImageViewResource(R.id.running_widget_header_icon, R.drawable.ic_widget);
+      }
+      
+      if(PrefUtils.getBooleanValue(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY, R.bool.pref_widget_background_transparency_default)) {
+        views.setInt(R.id.running_widget_header_wrapper, "setBackgroundResource", R.drawable.rounded_corners_shape_light);
+        views.setInt(R.id.running_widget_list_view, "setBackgroundResource", R.drawable.rounded_corners_shape_dark);
+        views.setInt(R.id.running_widget_time, "setBackgroundResource", R.drawable.rounded_corners_shape_light_light_border);
+        views.setInt(R.id.running_widget_empty_text, "setBackgroundResource", R.drawable.rounded_corners_shape_dark);
+      }
+      else {
+        views.setInt(R.id.running_widget_header_wrapper, "setBackgroundResource", R.drawable.rectangle_shape_black);
+        views.setInt(R.id.running_widget_list_view, "setBackgroundResource", R.drawable.rectangle_shape_black);
+        views.setInt(R.id.running_widget_time, "setBackgroundResource", R.drawable.rectangle_shape_black);
+        views.setInt(R.id.running_widget_empty_text, "setBackgroundResource", R.drawable.rectangle_shape_black);
+      }
+      
       CompatUtils.setRemoteViewsAdapter(views, appWidgetId, R.id.running_widget_list_view, intent);
       views.setEmptyView(R.id.running_widget_list_view, R.id.running_widget_empty_text);
       

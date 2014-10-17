@@ -853,7 +853,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
     
     getListView().setDivider(drawable);
     
-    setDividerSize(PrefUtils.getStringValue(R.string.PREF_RUNNING_DIVIDER_SIZE, R.string.devider_size_default));
+    setDividerSize(PrefUtils.getStringValue(R.string.PREF_RUNNING_DIVIDER_SIZE, R.string.divider_size_default));
     
     getLoaderManager().initLoader(0, null, this);
   }
@@ -1393,7 +1393,7 @@ Log.d("info", "" + new Date(mCurrentTime));
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     if(!isDetached() && getActivity() != null) {
       if(getString(R.string.PREF_RUNNING_DIVIDER_SIZE).equals(key)) {
-        setDividerSize(PrefUtils.getStringValue(R.string.PREF_RUNNING_DIVIDER_SIZE, R.string.devider_size_default));
+        setDividerSize(PrefUtils.getStringValue(R.string.PREF_RUNNING_DIVIDER_SIZE, R.string.divider_size_default));
       }
     }
   }

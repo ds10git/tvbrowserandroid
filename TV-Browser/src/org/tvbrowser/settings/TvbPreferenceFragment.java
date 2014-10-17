@@ -18,9 +18,14 @@ package org.tvbrowser.settings;
 
 import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.widgets.ImportantProgramsListWidget;
+import org.tvbrowser.widgets.RunningProgramsListWidget;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.appwidget.AppWidgetManager;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -182,7 +187,10 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           screen.addPreference(timePref);
         }
       }
-      if(key.equals(getString(R.string.PREF_REMINDER_SOUND_VALUE)) || key.equals(getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE))
+      else if(key.equals(getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY)) || key.equals(getString(R.string.PREF_WIDGET_SIMPLE_ICON))) {
+        updateWidgets();
+      }
+      else if(key.equals(getString(R.string.PREF_REMINDER_SOUND_VALUE)) || key.equals(getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE))
           || key.equals(getString(R.string.PREF_REMINDER_WORK_MODE_SOUND_VALUE))) {
         Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
         
@@ -242,6 +250,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.PREF_COLOR_STYLE))
           || key.equals(getResources().getString(R.string.PREF_WIDGET_TEXT_SCALE))
           || key.equals(getResources().getString(R.string.PREF_WIDGET_CHANNEL_LOGO_NAME))
+          || key.equals(getResources().getString(R.string.PREF_WIDGET_LISTS_DIVIDER_SIZE))
           ) {
         ListPreference lp = (ListPreference) findPreference(key);
         
@@ -257,6 +266,9 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           lp.setSummary(value);
         }
         
+        if(key.equals(getResources().getString(R.string.PREF_WIDGET_LISTS_DIVIDER_SIZE))) {
+          updateWidgets();
+        }
         if(key.equals(getResources().getString(R.string.PREF_COLOR_STYLE))) {
           ListPreference currentStyle = (ListPreference)findPreference(key);
           CheckBoxPreference showProgress = (CheckBoxPreference) findPreference(getString(R.string.PREF_SHOW_PROGRESS));
@@ -641,6 +653,30 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           end.setEnabled(activated.isChecked());
         }
       }
+    }
+  }
+  
+  private void updateWidgets() {
+    AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getActivity().getApplicationContext());
+
+    ComponentName programsWidget = new ComponentName(getActivity().getApplicationContext(), ImportantProgramsListWidget.class);
+    int[] appWidgetIds = appWidgetManager.getAppWidgetIds(programsWidget);
+    
+    for(int appWidgetId : appWidgetIds) {
+      Intent update = new Intent(SettingConstants.UPDATE_IMPORTANT_APP_WIDGET);
+      update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+      
+      getActivity().sendBroadcast(update);
+    }
+    
+    programsWidget = new ComponentName(getActivity().getApplicationContext(), RunningProgramsListWidget.class);
+    appWidgetIds = appWidgetManager.getAppWidgetIds(programsWidget);
+    
+    for(int appWidgetId : appWidgetIds) {
+      Intent update = new Intent(SettingConstants.UPDATE_RUNNING_APP_WIDGET);
+      update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+      
+      getActivity().sendBroadcast(update);
     }
   }
   
