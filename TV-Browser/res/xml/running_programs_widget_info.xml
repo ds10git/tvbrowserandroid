@@ -10,4 +10,5 @@
     android:previewImage="@drawable/img_running_widget"
     android:minResizeWidth="160dp"
     android:minResizeHeight="100dp"
+    android:widgetCategory="keyguard|home_screen"
     />

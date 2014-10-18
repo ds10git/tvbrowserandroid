@@ -36,6 +36,7 @@ import android.net.Uri;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
+import android.view.View;
 import android.widget.RemoteViews;
 
 /**
@@ -74,6 +75,8 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
     
     for(int i = 0; i < n; i++) {
       int appWidgetId = appWidgetIds[i];
+      
+      boolean isKeyguard = CompatUtils.isKeyguardWidget(appWidgetId, context);
       
       Intent intent = new Intent(context, RunningProgramsRemoteViewsService.class);
       intent.setData(Uri.parse("org.tvbrowser://runningWidget/" + appWidgetId));
@@ -118,14 +121,13 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
         views.setInt(R.id.running_widget_empty_text, "setBackgroundResource", R.drawable.rectangle_shape_black);
       }
       
+      if(isKeyguard) {
+        views.setViewVisibility(R.id.running_widget_time, View.GONE);
+      }
+      
       CompatUtils.setRemoteViewsAdapter(views, appWidgetId, R.id.running_widget_list_view, intent);
       views.setEmptyView(R.id.running_widget_list_view, R.id.running_widget_empty_text);
-      
-      Intent tvb = new Intent(context, TvBrowser.class);
             
-      PendingIntent tvbstart = PendingIntent.getActivity(context, 0, tvb, PendingIntent.FLAG_UPDATE_CURRENT);
-      views.setOnClickPendingIntent(R.id.running_widget_header, tvbstart);
-      
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
           
       int currentValue = pref.getInt(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_RUNNING_TIME), context.getResources().getInteger(R.integer.widget_congig_running_time_default));
@@ -140,19 +142,26 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
       else {
         views.setTextViewText(R.id.running_widget_header, context.getString(R.string.widget_running_title));
       }
-      
-      Intent config = new Intent(context, InfoActivity.class);
-      config.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-      
-      PendingIntent timeSelection = PendingIntent.getActivity(context, appWidgetId, config, PendingIntent.FLAG_UPDATE_CURRENT);
-      views.setOnClickPendingIntent(R.id.running_widget_time, timeSelection);
-      
-      Intent templateIntent = new Intent(SettingConstants.HANDLE_APP_WIDGET_CLICK);
-      templateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-      
-      PendingIntent templatePendingIntent = PendingIntent.getBroadcast(context, appWidgetId, templateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-      
-      views.setPendingIntentTemplate(R.id.running_widget_list_view, templatePendingIntent);
+
+      if(!isKeyguard) {
+        Intent tvb = new Intent(context, TvBrowser.class);
+            
+        PendingIntent tvbstart = PendingIntent.getActivity(context, 0, tvb, PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.running_widget_header, tvbstart);
+        
+        Intent config = new Intent(context, InfoActivity.class);
+        config.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        
+        PendingIntent timeSelection = PendingIntent.getActivity(context, appWidgetId, config, PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.running_widget_time, timeSelection);
+        
+        Intent templateIntent = new Intent(SettingConstants.HANDLE_APP_WIDGET_CLICK);
+        templateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        
+        PendingIntent templatePendingIntent = PendingIntent.getBroadcast(context, appWidgetId, templateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        
+        views.setPendingIntentTemplate(R.id.running_widget_list_view, templatePendingIntent);
+      }
       
       appWidgetManager.updateAppWidget(appWidgetId, views);
     }

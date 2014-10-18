@@ -17,6 +17,9 @@
 package org.tvbrowser.tvbrowser;
 
 import android.annotation.SuppressLint;
+import android.appwidget.AppWidgetManager;
+import android.appwidget.AppWidgetProviderInfo;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
 import android.widget.RemoteViews;
@@ -36,5 +39,15 @@ public class CompatUtils {
     else {
       views.setRemoteAdapter(viewId, intent);
     }
+  }
+  
+  public static final boolean isKeyguardWidget(int appWidgetId, Context context) {
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+      AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
+      
+      return appWidgetManager.getAppWidgetOptions(appWidgetId).getInt(AppWidgetManager.OPTION_APPWIDGET_HOST_CATEGORY, -1) == AppWidgetProviderInfo.WIDGET_CATEGORY_KEYGUARD;
+    }
+    
+    return false;
   }
 }

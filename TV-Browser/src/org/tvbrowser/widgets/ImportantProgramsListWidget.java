@@ -72,6 +72,8 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
     for(int i = 0; i < n; i++) {
       int appWidgetId = appWidgetIds[i];
       
+      boolean isKeyguard = CompatUtils.isKeyguardWidget(appWidgetId, context);
+      
       Intent intent = new Intent(context, ImportantProgramsRemoveViewsService.class);
       intent.setData(Uri.parse("org.tvbrowser://importantWidget/" + appWidgetId));
       intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
@@ -118,25 +120,28 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
       CompatUtils.setRemoteViewsAdapter(views, appWidgetId, R.id.important_widget_list_view, intent);
       views.setEmptyView(R.id.important_widget_list_view, R.id.important_widget_empty_text);
       
-      Intent tvb = new Intent(context, TvBrowser.class);
-      
       views.setTextViewText(R.id.important_widget_header, PreferenceManager.getDefaultSharedPreferences(context).getString(appWidgetId+"_"+context.getString(R.string.WIDGET_CONFIG_IMPORTANT_NAME), context.getString(R.string.widget_important_default_title)));
-      
-      PendingIntent tvbstart = PendingIntent.getActivity(context, 0, tvb, PendingIntent.FLAG_UPDATE_CURRENT);
-      views.setOnClickPendingIntent(R.id.important_widget_header, tvbstart);
-      
+            
       Intent config = new Intent(context, ImportantProgramsWidgetConfigurationActivity.class);
       config.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
       
       PendingIntent configStart = PendingIntent.getActivity(context, appWidgetId, config, PendingIntent.FLAG_UPDATE_CURRENT);
       views.setOnClickPendingIntent(R.id.important_widget_config, configStart);
       
-      Intent templateIntent = new Intent(SettingConstants.HANDLE_APP_WIDGET_CLICK);
-      templateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
       
-      PendingIntent templatePendingIntent = PendingIntent.getBroadcast(context, appWidgetId, templateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-      
-      views.setPendingIntentTemplate(R.id.important_widget_list_view, templatePendingIntent);
+      if(!isKeyguard) {
+        Intent tvb = new Intent(context, TvBrowser.class);
+        
+        PendingIntent tvbstart = PendingIntent.getActivity(context, 0, tvb, PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.important_widget_header, tvbstart);
+        
+        Intent templateIntent = new Intent(SettingConstants.HANDLE_APP_WIDGET_CLICK);
+        templateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+        
+        PendingIntent templatePendingIntent = PendingIntent.getBroadcast(context, appWidgetId, templateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+        
+        views.setPendingIntentTemplate(R.id.important_widget_list_view, templatePendingIntent);
+      }
       
       appWidgetManager.updateAppWidget(appWidgetId, views);
     }
