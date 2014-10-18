@@ -551,6 +551,8 @@
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
         <h2>0.4.4</h2>
+            &bull; vertikaler Freiraum um Sender in Listen mit Sendungen und Widgets einstellbar<br>
+			&bull; Information über Änderungen in neuer Version, nach Update<br>
         	&bull; Widgets auch auf Sperrbildschirm möglich<br>
         	&bull; weitere globale Einstellungen für Widgets hinzugefügt<br>
         <br>

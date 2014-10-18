@@ -564,6 +564,8 @@
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
         <h2>0.4.4</h2>
+            &bull; vertical space around programs selectable for program lists and widgets<br>
+			&bull; information about changes in version on version change<br>
         	&bull; widgets also possible on lock screen<br>
         	&bull; added additional global settings for widgets<br>
         <br>
