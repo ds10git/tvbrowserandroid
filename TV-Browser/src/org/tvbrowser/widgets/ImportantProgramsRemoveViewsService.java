@@ -23,6 +23,7 @@ import java.util.HashMap;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.CompatUtils;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.UiUtils;
 
@@ -349,17 +350,19 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
         rv.setViewVisibility(R.id.important_programs_widget_row_episode, View.GONE);
       }
       
-      final Intent fillInIntent = new Intent();
-      fillInIntent.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, Long.valueOf(id));
-      
-      rv.setOnClickFillInIntent(R.id.important_programs_widget_row_program, fillInIntent);
-      
-      if(mChannelClickToProgramsList) {
-        final Intent startTvbProgramList = new Intent();
-        startTvbProgramList.putExtra(SettingConstants.CHANNEL_ID_EXTRA, channelKey);
-        startTvbProgramList.putExtra(SettingConstants.START_TIME_EXTRA, startTime);
+      if(!CompatUtils.isKeyguardWidget(mAppWidgetId, mContext)) {
+        final Intent fillInIntent = new Intent();
+        fillInIntent.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, Long.valueOf(id));
         
-        rv.setOnClickFillInIntent(R.id.important_programs_widget_row_channel, startTvbProgramList);
+        rv.setOnClickFillInIntent(R.id.important_programs_widget_row_program, fillInIntent);
+        
+        if(mChannelClickToProgramsList) {
+          final Intent startTvbProgramList = new Intent();
+          startTvbProgramList.putExtra(SettingConstants.CHANNEL_ID_EXTRA, channelKey);
+          startTvbProgramList.putExtra(SettingConstants.START_TIME_EXTRA, startTime);
+          
+          rv.setOnClickFillInIntent(R.id.important_programs_widget_row_channel, startTvbProgramList);
+        }
       }
       
       float titleFontSize = mTextScale * UiUtils.convertPixelsToSp(mContext.getResources().getDimension(R.dimen.title_font_size),mContext);
