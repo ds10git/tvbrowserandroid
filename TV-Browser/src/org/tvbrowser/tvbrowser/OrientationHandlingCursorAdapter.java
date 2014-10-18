@@ -116,13 +116,22 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
   private static final class ProgTag {
     public int mOrientation;
     public float mTextScale;
+    public int mPadding;
+    public View mPaddingView;
   }
   
   @Override
   public View getView(int position, View convertView, ViewGroup parent) {
     float textScale = Float.valueOf(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_TEXT_SCALE, R.string.pref_program_lists_text_scale_default));
+
+    ProgTag tag = null;
+    int padding = UiUtils.convertDpToPixel((int)(Float.parseFloat(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_VERTICAL_PADDING_SIZE, R.string.pref_program_lists_vertical_padding_size_default))/2),mContext.getResources());
     
-    if(convertView != null && ((((ProgTag)convertView.getTag()).mOrientation != SettingConstants.ORIENTATION) || ((ProgTag)convertView.getTag()).mTextScale != textScale)) {
+    if(convertView != null) {
+      tag = (ProgTag)convertView.getTag();
+    }
+    
+    if(convertView != null && ((tag.mOrientation != SettingConstants.ORIENTATION) || tag.mTextScale != textScale || tag.mPadding != padding)) {
       convertView = null;
     }
     
@@ -133,16 +142,20 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
     if(scale) {
       UiUtils.scaleTextViews(view, textScale);
       
-      ProgTag tag = new ProgTag();
+      tag = new ProgTag();
       
       tag.mOrientation = SettingConstants.ORIENTATION;
       tag.mTextScale = textScale;
+      tag.mPadding = padding;
+      tag.mPaddingView = view.findViewById(R.id.programs_list_row);
       
       view.setTag(tag);
     }
     
+    tag.mPaddingView.setPadding(0, tag.mPadding, 0, tag.mPadding);
+    
     if(mOnClickListener != null) {
-      View listEntry = view.findViewById(R.id.programs_list_row);
+      View listEntry = tag.mPaddingView;
       
       if(listEntry.getTag() == null) {
         listEntry.setOnClickListener(mOnClickListener);

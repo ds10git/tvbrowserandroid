@@ -189,7 +189,6 @@
     	<item name="sort_running_times_default" type="bool" format="boolean">false</item>
 	
 	<!-- Running programs settings -->
-	
 		<string name="PREF_RUNNING_DIVIDER_SIZE">PREF_RUNNING_DIVIDER_SIZE</string>
 
 		<string name="CHANNEL_LOGO_NAME_RUNNING">CHANNEL_LOGO_NAME_RUNNING</string>
@@ -274,6 +273,9 @@
 	
 	    <string name="PREF_PROGRAM_LISTS_TEXT_SCALE">PREF_PROGRAM_LISTS_TEXT_SCALE</string>
 	    <item name="pref_program_lists_text_scale_default" type="string" format="string">1.0</item>
+	    
+	    <string name="PREF_PROGRAM_LISTS_VERTICAL_PADDING_SIZE">PREF_PROGRAM_LISTS_PADDING_SIZE</string>
+	    <item name="pref_program_lists_vertical_padding_size_default" type="string" format="string">@string/divider_tiny</item>
 	    
 	    <string name="PREF_PROGRAM_LISTS_DIVIDER_SIZE">PREF_PROGRAM_LISTS_DIVIDER_SIZE</string>
 	    <item name="divider_size_default" type="string" format="string">@string/divider_medium</item>
@@ -426,6 +428,9 @@
 	    <item name="auto_update_current_start_time_default" type="integer" format="integer">0</item>
 	    
 	<!-- Widgets layout settings -->
+	    <string name="PREF_WIDGET_VERTICAL_PADDING_SIZE">PREF_WIDGET_VERTICAL_PADDING_SIZE</string>
+	    <item name="pref_widget_vertical_padding_size_default" type="string" format="string">@string/divider_tiny</item>
+
 	    <string name="PREF_WIDGET_LISTS_DIVIDER_SIZE">PREF_WIDGET_LISTS_DIVIDER_SIZE</string>
 	    <item name="pref_widget_lists_divider_size_default" type="string" format="string">@string/divider_small</item>
 	    

@@ -69,6 +69,8 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
     private int mLogoIndex;
     private int mEpisodeIndex;
     
+    private int mVerticalPadding;
+    
     private boolean mShowChannelName;
     private boolean mShowChannelLogo;
     private boolean mShowBigChannelLogo;
@@ -144,6 +146,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         mShowOrderNumber = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_SORT_NUMBER, R.bool.pref_widget_show_sort_number_default);
         mChannelClickToProgramsList = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_widget_click_to_channel_to_list_default);
         mTextScale = Float.valueOf(PrefUtils.getStringValue(R.string.PREF_WIDGET_TEXT_SCALE, R.string.pref_widget_text_scale_default));
+        mVerticalPadding = UiUtils.convertDpToPixel((int)(Float.parseFloat(PrefUtils.getStringValue(R.string.PREF_WIDGET_VERTICAL_PADDING_SIZE, R.string.pref_widget_vertical_padding_size_default))/2),mContext.getResources());
         
         if(mCursor.getCount() > 0) {
           startAlarm();
@@ -267,6 +270,8 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         }
         
         final String time = DateFormat.getTimeFormat(mContext).format(new Date(startTime));
+        
+        CompatUtils.setRemoteViewsPadding(rv, R.id.running_programs_widget_row, 0, mVerticalPadding, 0, mVerticalPadding);
         
         rv.setViewVisibility(R.id.running_programs_widget_row_start_time, View.VISIBLE);
         rv.setViewVisibility(R.id.running_programs_widget_row_channel, View.VISIBLE);

@@ -32,6 +32,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
@@ -231,6 +232,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.TAB_TO_SHOW_AT_START))
           || key.equals(getResources().getString(R.string.PROG_PANEL_TIME_BLOCK_SIZE))
           || key.equals(getResources().getString(R.string.PREF_RUNNING_DIVIDER_SIZE))
+          || key.equals(getResources().getString(R.string.PREF_PROGRAM_LISTS_VERTICAL_PADDING_SIZE))
           || key.equals(getResources().getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE))
           || key.equals(getResources().getString(R.string.PREF_REMINDER_TIME))
           || key.equals(getResources().getString(R.string.PREF_REMINDER_TIME_SECOND))
@@ -251,6 +253,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.PREF_WIDGET_TEXT_SCALE))
           || key.equals(getResources().getString(R.string.PREF_WIDGET_CHANNEL_LOGO_NAME))
           || key.equals(getResources().getString(R.string.PREF_WIDGET_LISTS_DIVIDER_SIZE))
+          || key.equals(getResources().getString(R.string.PREF_WIDGET_VERTICAL_PADDING_SIZE))
           ) {
         ListPreference lp = (ListPreference) findPreference(key);
         
@@ -266,7 +269,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           lp.setSummary(value);
         }
         
-        if(key.equals(getResources().getString(R.string.PREF_WIDGET_LISTS_DIVIDER_SIZE))) {
+        if(key.equals(getResources().getString(R.string.PREF_WIDGET_LISTS_DIVIDER_SIZE)) || 
+            key.equals(getResources().getString(R.string.PREF_WIDGET_VERTICAL_PADDING_SIZE))) {
           updateWidgets();
         }
         if(key.equals(getResources().getString(R.string.PREF_COLOR_STYLE))) {
