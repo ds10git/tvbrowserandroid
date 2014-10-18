@@ -13,6 +13,13 @@
 		android:entryValues="@array/program_text_scale_value"
 		android:summary="%s"/>
 	<ListPreference
+		android:key="@string/PREF_PROGRAM_LISTS_VERTICAL_PADDING_SIZE"
+		android:title="@string/pref_vertical_padding_size"
+		android:defaultValue="@string/pref_program_lists_vertical_padding_size_default"
+		android:entries="@array/divider_value_names"
+		android:entryValues="@array/divider_values"
+		android:summary="%s"/>
+	<ListPreference
 		android:key="@string/PREF_PROGRAM_LISTS_DIVIDER_SIZE"
 		android:title="@string/divider_size"
 		android:defaultValue="@string/divider_size_default"

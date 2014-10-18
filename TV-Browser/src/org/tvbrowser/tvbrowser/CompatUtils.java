@@ -22,6 +22,7 @@ import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 /**
@@ -49,5 +50,22 @@ public class CompatUtils {
     }
     
     return false;
+  }
+  
+  /**
+   * Sets the view padding for View with viewId of RemoveViews views.
+   * Will only work from JELLY_BEAN.
+   * <p>
+   * @param views The RemoteViews that contains viewId to set the padding for.
+   * @param viewId The viewId to set the padding for
+   * @param left Left padding in pixels.
+   * @param top Top padding in pixels.
+   * @param right Right padding in pixels.
+   * @param bottom Bottom padding in pixels.
+   */
+  public static final void setRemoteViewsPadding(RemoteViews views, int viewId, int left, int top, int right, int bottom) {
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+      views.setViewPadding(viewId, left, top, right, bottom);
+    }
   }
 }

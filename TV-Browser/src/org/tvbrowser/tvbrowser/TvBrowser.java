@@ -204,7 +204,7 @@ public class TvBrowser extends FragmentActivity implements
   
   private long mResumeTime;
   private IabHelper mHelper;
-  
+    
   static {
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2015);
@@ -305,11 +305,11 @@ public class TvBrowser extends FragmentActivity implements
         
         edit.commit();
       }
-      if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < 225) {
+      if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < pInfo.versionCode) {
         AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
         
         builder.setTitle(R.string.info_version);
-        builder.setMessage(R.string.info_version_0_4_1);
+        builder.setMessage(Html.fromHtml(getString(R.string.info_version_new)));
         builder.setPositiveButton(android.R.string.ok, null);
         
         builder.show();

@@ -559,6 +559,74 @@
     <string name="backup_preferences_save_text">You can upload the preferences and favorite definitions to the TV-Browser server. The selected channels and the "I don\'t want to see!" list are not saved.\n\nDo you want\'t to upload the preferences and favorite definitions now?</string>
     <string name="backup_preferences_restore_text">If you previously had uploaded the preferences and favorite definitions to the TV-Browser server, you can restore it from there. The current preferences and favorite defintions will be overridden!\n\nDo you want\'t to restore the preferences and favorite definitions (if channels are selected please check them) now?</string>
     
-    <string name="info_version">Information for update</string>
-    <string name="info_version_0_4_1">Since version 0.4 TV-Browser supports Widgets. To use the widgets TV-Browser has to be on the internal drive, if you previously had moved TV-Browser to the SD card you won\'t be able to use the widgets.\n\nWith version 0.4.1 you are now able to backup your settings and favorite definitions to the TV-Browser server (to use it you need to be registerd for synchronization).</string>
+    <string name="pref_vertical_padding_size">Free vertical space around programs</string>
+    
+    <string name="info_version">What is new in this version?</string>
+    <string name="info_version_new"><![CDATA[
+        <h2>0.4.4</h2>
+        	&bull; widgets also possible on lock screen<br>
+        	&bull; added additional global settings for widgets<br>
+        <br>
+        <h3>0.4.3</h3>
+        	&bull; fixed missing restoring of Favorites from synchronized settings<br>
+			&bull; new layout for Favorites tab<br>
+			&bull; new layout for program lists on small screens<br>
+			&bull; bigger channel icons selectable for widgets and program lists<br>
+			&bull; safer update of widgets<br>
+			&bull; added global settings for widgets<br>
+			&bull; text size scaling for widgets<br>
+			&bull; new separator for list entries of widgets<br>
+        <br>
+		<h3>0.4.2</h3>
+        	&bull; shown time of widget "Now running" selectable<br>
+			&bull; full data downloaded by default<br>
+        <br>
+        <h3>0.4.1</h3>
+        	&bull; backup of preferences and favorite definitions to TV-Browser server<br>
+			&bull; synchronize sort number of channel from desktop version<br>
+			&bull; fixed bug in saving of preferences of "Important Programs" widget<br>
+        <br>
+        <h3>0.4</h3>
+        	&bull; added widget for running and important programs (to use it TV-Browser has to be stored on internal drive)<br>
+			&bull; reminder up to 24h before program start<br>
+			&bull; added new color style<br>
+			&bull; made auto update more stable<br>
+			&bull; speed up channel download<br>
+			&bull; fixed bug at data update for channels with more than 127 programs per day<br>
+        <br>
+        <h3>0.3.3</h3>
+        	&bull; add ability to deactivate date display in programs list<br>
+			&bull; fixed wrong calculation of auto data update time<br>
+			&bull; fixed missing synchronization of reminders during auto data update<br>
+			&bull; refresh reminders every activation of device in Android<br>
+			&bull; fixed possible crash<br>
+			&bull; time selection for Running Programs also from button in action bar<br>
+        <br>
+        <h3>0.3.2</h3>
+        	&bull; speed up data update<br>
+			&bull; tried to fix possible crash with workaround<br>
+			&bull; sort Favorite list alphabetically in Favorite tab<br>
+			&bull; changed handling of Reminders<br>
+        <br>
+        <h3>0.3.1.1</h3>
+        	&bull; fixed possible update problems of changed programs at data update<br>
+        <br>
+        <h3>0.3.1</h3>
+        	&bull; fixed possible crash at data update<br>
+			&bull; fixed layout problems in favorite activity<br>
+			&bull; added ability to highlight "I don't want to see" programs instead of removing<br>
+        <br>
+        <h3>0.3</h3>
+        	&bull; added filter for favorite search<br>
+			&bull; new favorite edit activity<br>
+			&bull; added filter for channel type<br>
+			&bull; speeded up "I don't want to see" filtering<br>
+			&bull; changed data update<br>
+			&bull; configurable description for email and calendar export<br>
+			&bull; up to 24 time buttons configurable<br>
+			&bull; change update calculation of auto update<br>
+			&bull; added drag and drop support for channel sort<br>
+			&bull; added workaround for channel timezone GMT+01:00 instead of CET<br>
+        <br>
+        ]]></string>
 </resources>
