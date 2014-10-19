@@ -58,6 +58,24 @@
 		        android:hint="@string/favorite_name_hint"
 		        android:layout_marginBottom="5dp"/>
 		    <TextView
+		        android:id="@+id/activity_edit_favorite_label_id_type" 
+		        android:layout_width="wrap_content"
+		        android:layout_height="wrap_content"
+		        android:text="@string/activity_edit_favorite_label_text_type"
+		        android:layout_marginRight="5dp"
+		        android:layout_marginEnd="5dp"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:layout_alignBaseline="@+id/activity_edit_favorite_input_id_type"
+		        android:layout_below="@+id/activity_edit_favorite_input_id_name"/>
+		    <Spinner
+		        android:id="@+id/activity_edit_favorite_input_id_type"
+		        android:layout_width="match_parent"
+		        android:layout_height="wrap_content"
+		        android:layout_toRightOf="@+id/activity_edit_favorite_label_id_channels"
+		        android:layout_toEndOf="@+id/activity_edit_favorite_label_id_channels"
+		        android:layout_below="@id/activity_edit_favorite_input_id_name"
+		        android:entries="@array/activity_edit_favorite_input_text_type"/>
+		    <TextView
 		        android:id="@+id/favorite_search_label" 
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
@@ -66,7 +84,7 @@
 		        android:layout_marginEnd="5dp"
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:layout_alignBaseline="@+id/activity_edit_favorite_input_id_search_value"
-		        android:layout_below="@+id/favorite_name_label"/>
+		        android:layout_below="@+id/activity_edit_favorite_input_id_type"/>
 		    <EditText android:id="@+id/activity_edit_favorite_input_id_search_value"
 		        android:layout_height="wrap_content"
 		        android:layout_width="match_parent"
@@ -75,19 +93,7 @@
 		        android:inputType="textMultiLine"
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:hint="@string/favorite_search_hint"
-		        android:layout_below="@+id/activity_edit_favorite_input_id_name"
-		        />
-		    
-		    <CheckBox android:id="@+id/activity_edit_favorite_input_id_search_title_only"
-		        android:layout_height="wrap_content"
-		        android:layout_width="match_parent"
-		        android:layout_marginBottom="5dp"
-		        android:text="@string/favorite_only_title"
-		        android:textSize="@dimen/edit_favorite_font_size"
-		        android:layout_below="@id/activity_edit_favorite_input_id_search_value"
-		        android:layout_toRightOf="@+id/activity_edit_favorite_label_id_channels"
-		        android:layout_toEndOf="@+id/activity_edit_favorite_label_id_channels"
-		        android:checked="true"/>
+		        android:layout_below="@+id/activity_edit_favorite_input_id_type"/>
 			<TextView
 		        android:id="@+id/activity_edit_favorite_label_id_duration"
 		        android:layout_height="wrap_content"
@@ -95,18 +101,18 @@
 		        android:layout_marginRight="5dp"
 		        android:layout_marginEnd="5dp"
 		        android:textSize="@dimen/edit_favorite_font_size"
-		        android:layout_below="@+id/activity_edit_favorite_input_id_search_title_only"
+		        android:layout_below="@+id/activity_edit_favorite_input_id_search_value"
 		        android:text="@string/activity_edit_favorite_label_text_duration"
 		        android:layout_marginBottom="5dp"/>
 		    <TextView
 		        android:id="@+id/activity_edit_favorite_input_id_restriction_duration"
 		        android:layout_height="wrap_content"
 		        android:layout_width="match_parent"
-		        android:text="@string/activity_edit_favorite_label_text_duration_unrestricted"
+		        android:text="@string/activity_edit_favorite_input_text_duration_unrestricted"
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:layout_toRightOf="@+id/activity_edit_favorite_label_id_channels"
 		        android:layout_toEndOf="@+id/activity_edit_favorite_label_id_channels"
-		        android:layout_below="@+id/activity_edit_favorite_input_id_search_title_only"
+		        android:layout_below="@+id/activity_edit_favorite_input_id_search_value"
 		        android:clickable="true"
 		        android:background="@android:drawable/list_selector_background"
 		        android:onClick="changeDuration"
@@ -176,7 +182,7 @@
 		        android:layout_toRightOf="@+id/activity_edit_favorite_label_id_channels"
 		        android:layout_toEndOf="@+id/activity_edit_favorite_label_id_channels"
 		        android:layout_below="@+id/favorite_day_restriction_label"
-		        android:text="@string/favorite_channels_default"
+		        android:text="@string/activity_edit_favorite_input_text_all_value"
 		        android:layout_marginBottom="5dp"
 		        android:clickable="true"
 		        android:onClick="changeChannels"

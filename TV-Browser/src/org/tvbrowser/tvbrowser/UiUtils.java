@@ -42,6 +42,7 @@ import android.appwidget.AppWidgetManager;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentProviderOperation;
+import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -83,9 +84,13 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
+import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
@@ -1328,7 +1333,7 @@ public class UiUtils {
     Intent startEditFavorite = new Intent(activity, EditFavoriteActivity.class);
     
     if(fav != null) {
-      Log.d("info12", "IN " + fav.getName() + " " + fav.getSearchValue() + " " + fav.searchOnlyTitle() + " " + fav.remind());
+      Log.d("info12", "IN " + fav.getName() + " " + fav.getSearchValue() + " " + fav.getType() + " " + fav.remind());
       startEditFavorite.putExtra(Favorite.FAVORITE_EXTRA, fav);
     }
     else if(searchString != null) {
@@ -1751,5 +1756,230 @@ public class UiUtils {
       int[] appWidgetIds = appWidgetManager.getAppWidgetIds(importantProgramsWidget);
       appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.running_widget_list_view);
     }catch(Throwable t) {}
+  }
+  
+  public static void showChannelFilterSelection(Context context, final ChannelFilter channelFilter, ViewGroup parent) {
+    String[] projection = {
+        TvBrowserContentProvider.KEY_ID,
+        TvBrowserContentProvider.CHANNEL_KEY_NAME,
+        TvBrowserContentProvider.CHANNEL_KEY_SELECTION,
+        TvBrowserContentProvider.CHANNEL_KEY_LOGO,
+        TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER
+        };
+    
+    ContentResolver cr = context.getContentResolver();
+    final Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.CHANNEL_KEY_NAME);
+    
+    final int idColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+    final int logoColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
+    final int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+    final int orderNumberColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+    
+    int[] channelRestriction = channelFilter.getFilteredChannelIds();
+    
+    channels.moveToPosition(-1);
+    
+    final LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+    
+    // inflate channel selection view
+    View channelSelectionView = inflater.inflate(R.layout.channel_selection_list, parent, false);
+    channelSelectionView.findViewById(R.id.channel_country_label).setVisibility(View.GONE);
+    channelSelectionView.findViewById(R.id.channel_country_value).setVisibility(View.GONE);
+    channelSelectionView.findViewById(R.id.channel_category_label).setVisibility(View.GONE);
+    channelSelectionView.findViewById(R.id.channel_category_value).setVisibility(View.GONE);
+    
+    final ListView list = (ListView)channelSelectionView.findViewById(R.id.channel_selection_list);
+    
+    final Bitmap defaultLogo = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher);
+    
+    final ArrayAdapter<AdapterChannel> channelAdapter = new ArrayAdapter<AdapterChannel>(context, android.R.layout.simple_list_item_1) {
+      public View getView(int position, View convertView, ViewGroup parent) {
+        AdapterChannel value = getItem(position);
+        ChannelViewHolder holder = null;
+        
+        if (convertView == null) {
+          holder = new ChannelViewHolder();
+          
+          convertView = inflater.inflate(R.layout.channel_row, parent, false);
+          
+          holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_text);
+          holder.mCheckBox = (CheckBox)convertView.findViewById(R.id.row_of_channel_selection);
+          holder.mLogo = (ImageView)convertView.findViewById(R.id.row_of_channel_icon);
+          
+          convertView.setTag(holder);
+          
+        }
+        else {
+          holder = (ChannelViewHolder)convertView.getTag();
+        }
+        
+        holder.mTextView.setText(value.mName);
+        holder.mCheckBox.setChecked(value.mSelected);
+        list.setItemChecked(position, value.mSelected);
+        
+        Bitmap logo = value.mChannelLogo;
+        
+        if(logo != null) {
+          holder.mLogo.setImageBitmap(logo);
+        }
+        else {
+          holder.mLogo.setImageBitmap(defaultLogo);
+        }
+        
+        return convertView;
+      }
+    };
+    
+    while(channels.moveToNext()) {
+      int channelID = channels.getInt(idColumn);
+      String name = channels.getString(nameColumn);
+      int orderNumber = channels.getInt(orderNumberColumn);
+      byte[] logo = channels.getBlob(logoColumn);
+      
+      if(orderNumber < 1) {
+        name = "-. " + name;
+      }
+      else {
+        name = orderNumber + ". " + name;
+      }
+      
+      Bitmap channelLogo = UiUtils.createBitmapFromByteArray(logo);
+      
+      if(channelLogo != null) {
+        BitmapDrawable l = new BitmapDrawable(context.getResources(), channelLogo);
+        
+        ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+        background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
+        
+        LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+        logoDrawable.setBounds(background.getBounds());
+        
+        l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
+        
+        channelLogo = UiUtils.drawableToBitmap(logoDrawable);
+      }
+      
+      channelAdapter.add(new AdapterChannel(channelID, name, channelLogo, isRestricted(channelRestriction, channelID)));
+    }
+    
+    channels.close();
+    
+    list.setAdapter(channelAdapter);
+    
+    channelSelectionView.findViewById(R.id.channel_selection_select_all).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        for(int i = 0; i < channelAdapter.getCount(); i++) {
+          channelAdapter.getItem(i).mSelected = true;
+        }
+        
+        list.invalidateViews();
+      }
+    });
+    
+    channelSelectionView.findViewById(R.id.channel_selection_remove_selection).setOnClickListener(new View.OnClickListener() {
+      @Override
+      public void onClick(View v) {
+        for(int i = 0; i < channelAdapter.getCount(); i++) {
+          channelAdapter.getItem(i).mSelected = false;
+        }
+        
+        list.invalidateViews();
+      }
+    });
+    
+    list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view, int position,
+          long id) {
+        CheckBox check = (CheckBox)view.findViewById(R.id.row_of_channel_selection);
+        
+        if(check != null) {
+          check.setChecked(!check.isChecked());
+          channelAdapter.getItem(position).mSelected = check.isChecked();
+          list.setItemChecked(position, check.isChecked());
+        }
+      }
+    });
+    
+    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    
+    builder.setView(channelSelectionView);
+    
+    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        ArrayList<Integer> channelIDList = new ArrayList<Integer>();
+        boolean allSelected = true;
+        
+        for(int i = 0; i < channelAdapter.getCount(); i++) {
+          AdapterChannel item = channelAdapter.getItem(i);
+          
+          if(item.mSelected) {
+            channelIDList.add(Integer.valueOf(item.mChannelID));
+          }
+          else {
+            allSelected = false;
+          }
+        }
+        
+        if(allSelected || channelIDList.isEmpty()) {
+          channelFilter.setFilteredChannels(null);
+        }
+        else {
+          int[] ids = new int[channelIDList.size()];
+          
+          for(int i = 0; i < ids.length; i++) {
+            ids[i] = channelIDList.get(i);
+          }
+          
+          channelFilter.setFilteredChannels(ids);
+        }
+      }
+    });
+    
+    builder.setNegativeButton(android.R.string.cancel, null);
+    
+    builder.show();
+  }
+  
+  /**
+   * View holder for custom cursor adapter of channel selection.
+   * 
+   * @author René Mach
+   */
+  private static final class ChannelViewHolder {
+    CheckBox mCheckBox;
+    TextView mTextView;
+    ImageView mLogo;
+  }
+  
+  private static boolean isRestricted(int[] channelIDs, int id) {
+    boolean returnValue = channelIDs == null;
+    
+    if(!returnValue) {
+      for(int channelID : channelIDs) {
+        if(id == channelID) {
+          returnValue = true;
+          break;
+        }
+      }
+    }
+    
+    return returnValue;
+  }
+  
+  private static final class AdapterChannel {
+    int mChannelID;
+    String mName;
+    Bitmap mChannelLogo;
+    boolean mSelected; 
+    
+    public AdapterChannel(int channelID, String name, Bitmap channelLogo, boolean selected) {
+      mChannelID = channelID;
+      mName = name;
+      mChannelLogo = channelLogo;
+      mSelected = selected;
+    }
   }
 }

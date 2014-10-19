@@ -21,8 +21,9 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Build;
-import android.util.Log;
+import android.view.View;
 import android.widget.RemoteViews;
 
 /**
@@ -66,6 +67,16 @@ public class CompatUtils {
   public static final void setRemoteViewsPadding(RemoteViews views, int viewId, int left, int top, int right, int bottom) {
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
       views.setViewPadding(viewId, left, top, right, bottom);
+    }
+  }
+  
+  @SuppressWarnings("deprecation")
+  public static final void setBackground(View view, Drawable draw) {
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+      view.setBackground(draw);
+    }
+    else {
+      view.setBackgroundDrawable(draw);
     }
   }
 }

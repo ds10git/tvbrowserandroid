@@ -38,6 +38,10 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 
 public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
+  public static final int KEYWORD_ONLY_TITLE_TYPE = 0;
+  public static final int KEYWORD_TYPE = 1;
+  public static final int RESTRICTION_RULES_TYPE = 2;
+  
   public static final String FAVORITE_EXTRA = "FAVORITE_EXTRA";
   public static final String SEARCH_EXTRA = "SEARCH_EXTRA";
   
@@ -49,7 +53,6 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   
   private String mName;
   private String mSearch;
-  private boolean mOnlyTitle;
   private boolean mRemind;
   private int mDurationRestrictionMinimum;
   private int mDurationRestrictionMaximum;
@@ -58,6 +61,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   private int[] mDayRestriction;
   private int[] mChannelRestrictionIDs;
   private String[] mExclusions;
+  
+  private int mType;
   
   private final static String[] PROJECTION = {
     TvBrowserContentProvider.KEY_ID,
@@ -80,7 +85,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   private static Hashtable<Long, boolean[]> DATA_REFRESH_TABLE = null;
   
   public Favorite() {
-    this(null, "", true, true, -1, -1, null, null, null, -1, -1);
+    this(null, "", KEYWORD_ONLY_TITLE_TYPE, true, -1, -1, null, null, null, -1, -1);
   }
   
   public Favorite(String saveLine) {
@@ -88,7 +93,19 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     
     mName = values[0];
     mSearch = values[1];
-    mOnlyTitle = Boolean.valueOf(values[2]);
+    
+    try {
+      mType = Integer.parseInt(values[2]);
+    }catch(NumberFormatException e) {
+      boolean onlyTitle = Boolean.valueOf(values[2]);
+      
+      if(onlyTitle) {
+        mType = KEYWORD_ONLY_TITLE_TYPE;
+      }
+      else {
+        mType = KEYWORD_TYPE;
+      }
+    }
     
     if(values.length > 3) {
       mRemind = Boolean.valueOf(values[3]);
@@ -195,16 +212,16 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     this(name, search, onlyTitle, remind, -1, -1, null, null);
   }*/
   
-  public Favorite(String name, String search, boolean onlyTitle, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions, int durationRestrictionMinimum, int durationRestrictionMaximum) {
-    setValues(name, search, onlyTitle, remind, timeRestrictionStart, timeRestrictionEnd, days, channelIDs, exclusions, durationRestrictionMinimum, durationRestrictionMaximum);
+  public Favorite(String name, String search, int type, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions, int durationRestrictionMinimum, int durationRestrictionMaximum) {
+    setValues(name, search, type, remind, timeRestrictionStart, timeRestrictionEnd, days, channelIDs, exclusions, durationRestrictionMinimum, durationRestrictionMaximum);
   }
   
-  public boolean searchOnlyTitle() {
-    return mOnlyTitle;
+  public int getType() {
+    return mType;
   }
   
-  public void setSearchOnlyTitle(boolean value) {
-    mOnlyTitle = value;
+  public void setType(int type) {
+    mType = type;
   }
   
   public boolean remind() {
@@ -271,6 +288,10 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     mTimeRestrictionEnd = minutes;
   }
   
+  public boolean isHavingRestriction() {
+    return isChannelRestricted() || isDayRestricted() || isDurationRestricted() || isHavingExclusions() || isTimeRestricted();
+  }
+  
   public boolean isDayRestricted() {
     return mDayRestriction != null;
   }
@@ -291,10 +312,10 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     mChannelRestrictionIDs = ids;
   }
     
-  public void setValues(String name, String search, boolean onlyTitle, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions, int durationRestrictionMinimum, int durationRestrictionMaximum) {
+  public void setValues(String name, String search, int type, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions, int durationRestrictionMinimum, int durationRestrictionMaximum) {
     mName = name;
     mSearch = search.replace("\"", "");
-    mOnlyTitle = onlyTitle;
+    mType = type;
     mRemind = remind;
     mTimeRestrictionStart = timeRestrictionStart;
     mTimeRestrictionEnd = timeRestrictionEnd;
@@ -330,10 +351,14 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   }
   
   public String getWhereClause() {
-    StringBuilder builder = new StringBuilder(", ");
-    builder.append(TvBrowserContentProvider.DATA_KEY_TITLE);
+    StringBuilder builder = new StringBuilder();
     
-    if(!mOnlyTitle) {
+    if(mType == KEYWORD_ONLY_TITLE_TYPE || mType == KEYWORD_TYPE) {
+      builder.append(", ");
+      builder.append(TvBrowserContentProvider.DATA_KEY_TITLE);
+    }
+    
+    if(mType == KEYWORD_TYPE) {
       builder.append(" || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL);
       builder.append(",\"\") || ifnull(");
@@ -367,9 +392,11 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       builder.append(",\"\")");
     }
     
-    builder.append(" AS ");
-    builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
-    builder.append(" ");
+    if(mType == KEYWORD_ONLY_TITLE_TYPE || mType == KEYWORD_TYPE) {
+      builder.append(" AS ");
+      builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
+      builder.append(" ");
+    }
     
     if(isDurationRestricted()) {
       builder.append(", ( ");
@@ -397,14 +424,25 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     }
     
     builder.append(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER);
-    builder.append(" ( ");
-    builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
-    builder.append(" LIKE \"%");
-    builder.append(mSearch);
-    builder.append("%\")");
+    
+    boolean addAnd = false;
+    
+    if(mType == KEYWORD_ONLY_TITLE_TYPE || mType == KEYWORD_TYPE) {
+      builder.append(" ( ");
+      builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
+      builder.append(" LIKE \"%");
+      builder.append(mSearch);
+      builder.append("%\")");
+      
+      addAnd = true;
+    }
     
     if(isDurationRestricted()) {
-      builder.append(" AND (");
+      if(addAnd) {
+        builder.append(" AND ");
+      }
+      
+      builder.append(" (");
       
       if(mDurationRestrictionMinimum >= 0) {
         builder.append(DURATION_COLUMN);
@@ -423,10 +461,16 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       }
       
       builder.append(" )");
+      
+      addAnd = true;
     }
     
     if(isTimeRestricted()) {
-      builder.append(" AND (");
+      if(addAnd) {
+        builder.append(" AND ");
+      }
+      
+      builder.append(" (");
       builder.append(START_MINUTE_COLUMN);
       builder.append(">=");
       builder.append(mTimeRestrictionStart);
@@ -442,24 +486,41 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       builder.append(mTimeRestrictionEnd);
       
       builder.append(" )");
+      
+      addAnd = true;
     }
     
     if(isDayRestricted()) {
-      builder.append(" AND ( ");
+      if(addAnd) {
+        builder.append(" AND ");
+      }
+      builder.append(" ( ");
       builder.append(START_DAY_COLUMN);
       builder = appendInList(mDayRestriction,builder);
       builder.append(")");
+      
+      addAnd = true;
     }
     
     if(isChannelRestricted()) {
-      builder.append(" AND ( ");
+      if(addAnd) {
+        builder.append(" AND ");
+      }
+      
+      builder.append(" ( ");
       builder.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
       builder = appendInList(mChannelRestrictionIDs,builder);
       builder.append(")");
+      
+      addAnd = true;
     }
     
     if(isHavingExclusions()) {
-      builder.append(" AND NOT ( ");
+      if(addAnd) {
+        builder.append(" AND ");
+      }
+      
+      builder.append(" NOT ( ");
       
       for(int i = 0; i < mExclusions.length - 1; i++) {
         builder.append(" ( ");
@@ -476,6 +537,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       builder.append("%\" ) ");
       
       builder.append(")");
+      
+      addAnd = true;
     }
     
     return builder.toString();
@@ -501,7 +564,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     saveString.append(";;");
     saveString.append(mSearch);
     saveString.append(";;");
-    saveString.append(String.valueOf(mOnlyTitle));
+    saveString.append(String.valueOf(mType));
     saveString.append(";;");
     saveString.append(String.valueOf(mRemind));
     saveString.append(";;");
