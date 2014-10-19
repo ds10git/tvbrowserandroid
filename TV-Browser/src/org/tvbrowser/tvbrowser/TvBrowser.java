@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -118,6 +119,7 @@ import android.widget.ScrollView;
 import android.widget.SearchView;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 import android.widget.Toast;
 import billing.util.IabHelper;
 import billing.util.IabHelper.QueryInventoryFinishedListener;
@@ -524,7 +526,7 @@ public class TvBrowser extends FragmentActivity implements
     showTerms();
     
     if(mUpdateItem != null && !TvDataUpdateService.IS_RUNNING) {
-      mUpdateItem.setActionView(null);
+      updateProgressIcon(false);
     }
     
    /* if(TEST_VERSION) {
@@ -2213,27 +2215,148 @@ public class TvBrowser extends FragmentActivity implements
       if(test.getCount() > 0) {
         AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
         
-        LinearLayout dataDownload = (LinearLayout)getLayoutInflater().inflate(R.layout.download_selection, null);
+        RelativeLayout dataDownload = (RelativeLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection, mViewPager, false);
         
-        final Spinner days = (Spinner)dataDownload.findViewById(R.id.download_days);
-        ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(this,
-            R.array.download_selections, android.R.layout.simple_spinner_item);
-    
-        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-        days.setAdapter(adapter);
+        final Spinner days = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_selection_download_days);
+        final CheckBox pictures = (CheckBox)dataDownload.findViewById(R.id.dialog_data_update_selection_download_picture);
         
-        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        final Spinner autoUpdate = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_type);
+        final Spinner frequency = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_frequency);
+        final CheckBox onlyWiFi = (CheckBox)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_type_connection);
+        final TextView timeLabel = (TextView)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time_label);
+        final TextView time = (TextView)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time);
+        time.setTextColor(onlyWiFi.getTextColors());
         
-        String daysToDownload = PrefUtils.getStringValue(R.string.DAYS_TO_DOWNLOAD, R.string.days_to_download_default);
+        String currentDownloadDays = PrefUtils.getStringValue(R.string.DAYS_TO_DOWNLOAD, R.string.days_to_download_default);
         
-        String[] valueArr = getResources().getStringArray(R.array.download_days);
+        final String[] possibleDownloadDays = getResources().getStringArray(R.array.download_days);
         
-        for(int i = 0; i < valueArr.length; i++) {
-          if(valueArr[i].equals(daysToDownload)) {
+        for(int i = 0; i < possibleDownloadDays.length; i++) {
+          if(currentDownloadDays.equals(possibleDownloadDays[i])) {
             days.setSelection(i);
             break;
           }
         }
+        
+        pictures.setChecked(PrefUtils.getBooleanValue(R.string.LOAD_PICTURE_DATA, R.bool.load_picture_data_default));
+                
+        String currentAutoUpdateValue = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
+        String currentAutoUpdateFrequency = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default);
+        
+        if(currentAutoUpdateValue.equals("0")) {
+          frequency.setEnabled(false);
+          onlyWiFi.setEnabled(false);
+          timeLabel.setEnabled(false);
+          time.setEnabled(false);
+          frequency.setVisibility(View.GONE);
+          onlyWiFi.setVisibility(View.GONE);
+          timeLabel.setVisibility(View.GONE);
+          time.setVisibility(View.GONE);
+        }
+        else if(currentAutoUpdateValue.equals("1")) {
+          autoUpdate.setSelection(1);
+          timeLabel.setEnabled(false);
+          time.setEnabled(false);
+          timeLabel.setVisibility(View.GONE);
+          time.setVisibility(View.GONE);
+        }
+        else if(currentAutoUpdateValue.equals("2")) {
+          autoUpdate.setSelection(2);
+        }
+        
+        final String[] autoFrequencyPossibleValues = getResources().getStringArray(R.array.pref_auto_update_frequency_values);
+        
+        for(int i = 0; i < autoFrequencyPossibleValues.length; i++) {
+          if(autoFrequencyPossibleValues[i].equals(currentAutoUpdateFrequency)) {
+            frequency.setSelection(i);
+            break;
+          }
+        }
+        
+        onlyWiFi.setChecked(PrefUtils.getBooleanValue(R.string.PREF_AUTO_UPDATE_ONLY_WIFI, R.bool.pref_auto_update_only_wifi_default));
+        
+        final AtomicInteger currentAutoUpdateTime = new AtomicInteger(PrefUtils.getIntValue(R.string.PREF_AUTO_UPDATE_START_TIME, R.integer.pref_auto_update_start_time_default));
+        
+        Calendar now = Calendar.getInstance();
+        
+        now.set(Calendar.HOUR_OF_DAY, currentAutoUpdateTime.get()/60);
+        now.set(Calendar.MINUTE, currentAutoUpdateTime.get()%60);
+        now.set(Calendar.SECOND, 0);
+        now.set(Calendar.MILLISECOND, 0);
+        
+        time.setText(DateFormat.getTimeFormat(TvBrowser.this).format(now.getTime()));
+        
+        autoUpdate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+          @Override
+          public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+            frequency.setEnabled(position != 0);
+            onlyWiFi.setEnabled(position != 0);
+            
+            if(position != 0) {
+              frequency.setVisibility(View.VISIBLE);
+              onlyWiFi.setVisibility(View.VISIBLE);
+            }
+            else {
+              frequency.setVisibility(View.GONE);
+              onlyWiFi.setVisibility(View.GONE);
+            }
+            
+            timeLabel.setEnabled(position == 2);
+            time.setEnabled(position == 2);
+            
+            if(position == 2) {
+              timeLabel.setVisibility(View.VISIBLE);
+              time.setVisibility(View.VISIBLE);
+            }
+            else {
+              timeLabel.setVisibility(View.GONE);
+              time.setVisibility(View.GONE);
+            }
+          }
+
+          @Override
+          public void onNothingSelected(AdapterView<?> parent) {
+            
+          }
+        });
+        
+        View.OnClickListener onClickListener = new View.OnClickListener() {
+          @Override
+          public void onClick(View v) {
+            AlertDialog.Builder b2 = new AlertDialog.Builder(TvBrowser.this);
+            
+            LinearLayout timeSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection_auto_update_time, mViewPager, false);
+            
+            final TimePicker timePick = (TimePicker)timeSelection.findViewById(R.id.dialog_data_update_selection_auto_update_selection_time);
+            timePick.setIs24HourView(DateFormat.is24HourFormat(TvBrowser.this));
+            timePick.setCurrentHour(currentAutoUpdateTime.get()/60);
+            timePick.setCurrentMinute(currentAutoUpdateTime.get()%60);
+            
+            b2.setView(timeSelection);
+            
+            b2.setPositiveButton(android.R.string.ok, new OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                currentAutoUpdateTime.set(timePick.getCurrentHour() * 60 + timePick.getCurrentMinute());
+                
+                Calendar now = Calendar.getInstance();
+                
+                now.set(Calendar.HOUR_OF_DAY, currentAutoUpdateTime.get()/60);
+                now.set(Calendar.MINUTE, currentAutoUpdateTime.get()%60);
+                now.set(Calendar.SECOND, 0);
+                now.set(Calendar.MILLISECOND, 0);
+                
+                time.setText(DateFormat.getTimeFormat(TvBrowser.this).format(now.getTime()));
+              }
+            });
+            b2.setNegativeButton(android.R.string.cancel, null);
+            
+            b2.show();
+          }
+        };
+        
+        time.setOnClickListener(onClickListener);
+        timeLabel.setOnClickListener(onClickListener);
         
         builder.setTitle(R.string.download_data);
         builder.setView(dataDownload);
@@ -2241,28 +2364,41 @@ public class TvBrowser extends FragmentActivity implements
         builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
           @Override
           public void onClick(DialogInterface dialog, int which) {
+            String value = possibleDownloadDays[days.getSelectedItemPosition()];
+            
+            Editor settings = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+            
+            if(PrefUtils.getStringValueAsInt(R.string.PREF_AUTO_UPDATE_RANGE, R.string.pref_auto_update_range_default) < Integer.parseInt(value)) {
+              settings.putString(getString(R.string.PREF_AUTO_UPDATE_RANGE), value);
+            }
+            
+            settings.putString(getString(R.string.DAYS_TO_DOWNLOAD), value);
+            settings.putBoolean(getString(R.string.LOAD_PICTURE_DATA), pictures.isChecked());
+            settings.putString(getString(R.string.PREF_AUTO_UPDATE_TYPE), String.valueOf(autoUpdate.getSelectedItemPosition()));
+            
+            if(autoUpdate.getSelectedItemPosition() == 1 || autoUpdate.getSelectedItemPosition() == 2) {
+              settings.putString(getString(R.string.PREF_AUTO_UPDATE_FREQUENCY), autoFrequencyPossibleValues[frequency.getSelectedItemPosition()]);
+              settings.putBoolean(getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI), onlyWiFi.isChecked());
+              
+              if(autoUpdate.getSelectedItemPosition() == 2) {
+                settings.putInt(getString(R.string.PREF_AUTO_UPDATE_START_TIME), currentAutoUpdateTime.get());
+              }
+            }
+            
+            settings.commit();
+            
+            IOUtils.handleDataUpdatePreferences(TvBrowser.this);
+            
             Intent startDownload = new Intent(TvBrowser.this, TvDataUpdateService.class);
             startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
-            
-            String value = getResources().getStringArray(R.array.download_days)[days.getSelectedItemPosition()];
-            
             startDownload.putExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(value));
-            
-            Editor settings = pref.edit();
-            settings.putString(getResources().getString(R.string.DAYS_TO_DOWNLOAD), value);
-            settings.commit();
             
             startService(startDownload);
             
             updateProgressIcon(true);
           }
         });
-        builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            
-          }
-        });
+        builder.setNegativeButton(android.R.string.cancel, null);
         builder.show();
       }
       else {
@@ -2766,8 +2902,6 @@ public class TvBrowser extends FragmentActivity implements
       ((ProgramsListFragment)test1).updateChannels();
     }
     
-    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    
     Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
     
     if(fragment instanceof FavoritesFragment) {
@@ -2814,6 +2948,16 @@ public class TvBrowser extends FragmentActivity implements
     
     LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(SettingConstants.UPDATE_TIME_BUTTONS));
     updateScrollMenu();
+    
+    if(mUpdateItem != null && !TvDataUpdateService.IS_RUNNING) {
+      if(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+        mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+      }
+      else {
+        mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+        invalidateOptionsMenu();
+      }
+    }
     
     new UpdateAlarmValue().onReceive(TvBrowser.this, null);
   }
@@ -3040,11 +3184,11 @@ public class TvBrowser extends FragmentActivity implements
       case R.id.action_delete_reminder_log: deleteLog("reminder-log.txt");break;
       case R.id.action_send_data_update_log:sendLogMail("data-update-log.txt",getString(R.string.log_send_data_update));break;
       case R.id.action_send_reminder_log:sendLogMail("reminder-log.txt",getString(R.string.log_send_reminder));break;
-      case R.id.action_basic_preferences:
+      case R.id.menu_tvbrowser_action_settings_basic:
         Intent startPref = new Intent(this, TvbPreferencesActivity.class);
         startActivityForResult(startPref, SHOW_PREFERENCES);
         break;
-      case R.id.action_update:
+      case R.id.menu_tvbrowser_action_update_data:
         if(isOnline()) {
           checkTermsAccepted();
         }
@@ -3220,7 +3364,12 @@ public class TvBrowser extends FragmentActivity implements
     searchView.setSearchableInfo(
             searchManager.getSearchableInfo(getComponentName()));
     
-    mUpdateItem = menu.findItem(R.id.action_update);
+    mUpdateItem = menu.findItem(R.id.menu_tvbrowser_action_update_data);
+    
+    if(!PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+      mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+    }
+    
     mFilterItem = menu.findItem(R.id.action_filter_channels);
     
     menu.findItem(R.id.action_reset).setVisible(TEST_VERSION);
@@ -3229,7 +3378,7 @@ public class TvBrowser extends FragmentActivity implements
     menu.findItem(R.id.action_synchronize_favorites).setVisible(false);
     
     if(mUpdateItem != null && TvDataUpdateService.IS_RUNNING) {
-      mUpdateItem.setActionView(R.layout.progressbar);
+      updateProgressIcon(true);
     }
     
     mDebugMenuItem = menu.findItem(R.id.action_debug);
@@ -3459,13 +3608,19 @@ public class TvBrowser extends FragmentActivity implements
   public void updateProgressIcon(final boolean progress) {
     handler.post(new Runnable() {
       @Override
-      public void run() {
+      public void run() {        
         if(progress) {
           mUpdateItem.setActionView(R.layout.progressbar);
+          mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
         }
         else {
+          if(!PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+            mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+            invalidateOptionsMenu();
+          }
+          
           mUpdateItem.setActionView(null);
-        }        
+        }
       }
     });
   }
@@ -3491,7 +3646,8 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   private void showInAppDonations(final Inventory inv, boolean showIfAlreadyDonated) {
-    mUpdateItem.setActionView(null);
+    updateProgressIcon(false);
+    
     AlertDialog.Builder alert = new AlertDialog.Builder(TvBrowser.this);
     
     alert.setTitle(R.string.donation);
@@ -3571,12 +3727,12 @@ public class TvBrowser extends FragmentActivity implements
       alert2.setPositiveButton(R.string.donate_again, new OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-          mUpdateItem.setActionView(R.layout.progressbar);
+          updateProgressIcon(true);
           
           mHelper.consumeAsync(toConsume,new IabHelper.OnConsumeFinishedListener() {
             @Override
             public void onConsumeFinished(Purchase purchase, IabResult result) {
-              mUpdateItem.setActionView(null);
+              updateProgressIcon(false);
               
               if(result.isSuccess()) {
                 d.show();
@@ -3615,7 +3771,7 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   private void showInAppError(String error) {
-    mUpdateItem.setActionView(null);
+    updateProgressIcon(false);
     
     AlertDialog.Builder alert = new AlertDialog.Builder(TvBrowser.this);
     
@@ -3657,7 +3813,7 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   private void prepareInAppPayment() {
-    mUpdateItem.setActionView(R.layout.progressbar);
+    updateProgressIcon(true);
     
     if(mHelper == null) {
       String a2b = "2XQh0oOHnnZ2p3Ja8Xj6SlLFmI1Z/QIDAQAB";
