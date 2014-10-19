@@ -427,6 +427,8 @@
 	    <string name="AUTO_UPDATE_CURRENT_START_TIME">AUTO_UPDATE_CURRENT_START_TIME</string>
 	    <item name="auto_update_current_start_time_default" type="integer" format="integer">0</item>
 	    
+	    <string name="CURRENT_FILTER_ID">CURRENT_FILTER_ID</string>
+	    
 	<!-- Widgets layout settings -->
 	    <string name="PREF_WIDGET_VERTICAL_PADDING_SIZE">PREF_WIDGET_VERTICAL_PADDING_SIZE</string>
 	    <item name="pref_widget_vertical_padding_size_default" type="string" format="string">@string/divider_small</item>

@@ -55,11 +55,11 @@ import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
+import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
-import android.graphics.Bitmap.Config;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -73,7 +73,9 @@ import android.provider.CalendarContract;
 import android.provider.CalendarContract.Events;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Editable;
 import android.text.Html;
+import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
@@ -87,6 +89,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -1330,7 +1333,7 @@ public class UiUtils {
   }
   
   public static void editFavorite(final Favorite fav, final Context activity, String searchString) {
-    Intent startEditFavorite = new Intent(activity, EditFavoriteActivity.class);
+    Intent startEditFavorite = new Intent(activity, ActivityFavoriteEdit.class);
     
     if(fav != null) {
       Log.d("info12", "IN " + fav.getName() + " " + fav.getSearchValue() + " " + fav.getType() + " " + fav.remind());
@@ -1782,11 +1785,21 @@ public class UiUtils {
     final LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
     
     // inflate channel selection view
-    View channelSelectionView = inflater.inflate(R.layout.channel_selection_list, parent, false);
+    View channelSelectionView = inflater.inflate(R.layout.dialog_channel_selection_list, parent, false);
     channelSelectionView.findViewById(R.id.channel_country_label).setVisibility(View.GONE);
     channelSelectionView.findViewById(R.id.channel_country_value).setVisibility(View.GONE);
     channelSelectionView.findViewById(R.id.channel_category_label).setVisibility(View.GONE);
     channelSelectionView.findViewById(R.id.channel_category_value).setVisibility(View.GONE);
+    
+    final EditText filterName = (EditText)channelSelectionView.findViewById(R.id.channel_selection_input_id_name);
+    
+    if(channelFilter.getName() == null) {
+      channelSelectionView.findViewById(R.id.channel_selection_label_id_name).setVisibility(View.GONE);
+      filterName.setVisibility(View.GONE);
+    }
+    else {
+      filterName.setText(channelFilter.getName());
+    }
     
     final ListView list = (ListView)channelSelectionView.findViewById(R.id.channel_selection_list);
     
@@ -1924,7 +1937,7 @@ public class UiUtils {
         }
         
         if(allSelected || channelIDList.isEmpty()) {
-          channelFilter.setFilteredChannels(null);
+          channelFilter.setFilterValues(null, null);
         }
         else {
           int[] ids = new int[channelIDList.size()];
@@ -1933,14 +1946,40 @@ public class UiUtils {
             ids[i] = channelIDList.get(i);
           }
           
-          channelFilter.setFilteredChannels(ids);
+          String name = null;
+          
+          if(filterName.getVisibility() == View.VISIBLE) {
+            name = filterName.getText().toString().trim();
+          }
+          
+          channelFilter.setFilterValues(name,ids);
         }
       }
     });
     
     builder.setNegativeButton(android.R.string.cancel, null);
     
-    builder.show();
+    AlertDialog dialog = builder.create();
+    dialog.show();
+    
+    if(filterName.getVisibility() == View.VISIBLE) {
+      final Button ok = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+      ok.setEnabled(filterName.getText().toString().trim().length() > 0);
+      
+      filterName.addTextChangedListener(new TextWatcher() {
+        
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        
+        @Override
+        public void afterTextChanged(Editable s) {
+          ok.setEnabled(filterName.getText().toString().trim().length() > 0);
+        }
+      });
+    }
   }
   
   /**

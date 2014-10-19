@@ -168,6 +168,8 @@
     <string name="channel_selection_help">Kurz auf Sender klicken um Sortierungsnummer auszuwählen oder lang klicken und festhalten um Sender zu verschieben.</string>
     <string name="channel_selection_remove_selection">Auswahl aufheben</string>
     <string name="channel_selection_select_all">Alle auswählen</string>
+	<string name="channel_selection_label_text_name">Name:</string>
+	<string name="channel_selection_input_name_hint">Name des Filters eingeben</string>
 	<string name="synchronize_title">Sender synchronisieren?</string>
 	<string name="synchronize_text">Sie können die Sender aus dem Desktop-TV-Browser synchronisieren.\n\nDazu müssen Sie sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> und die Sender aus dem Desktop-TV-Browser mit dem Android-Sync Plugin exportieren.\n\nMöchten Sie die Sender jetzt synchronisieren oder möchten Sie die Sender manuell auswählen?</string>
 	<string name="synchronize_ok">Sender jetzt synchronisieren</string>
@@ -567,10 +569,17 @@
    
     <string name="pref_vertical_padding_size">Vertikaler Freiraum um Sendungen</string>
     
+    <string name="activity_edit_filter_filter_title">Filter bearbeiten</string>
+    <string name="activity_edit_filter_list_text_add">Filter hinzufügen</string>
+    <string name="activity_edit_filter_list_text_all">Alle Sendungen</string>
+    <string name="activity_edit_filter_edit">Filter bearbeiten</string>
+    <string name="activity_edit_filter_delete">Filter löschen</string>
+    
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
         <h2>0.4.4</h2>
-        	&bull; Neuer Typ Lieblingssendung mit Suche nur nach Ausschlusskriterien hinzugefügt<br>
+        	&bull; benutzerdefinierbare Senderfilter hinzugefügt<br>
+        	&bull; neuer Typ Lieblingssendung mit Suche nur nach Ausschlusskriterien hinzugefügt<br>
         	&bull; Standardwert für Trennergröße in Listen mit Sendungen geändert<br>
         	&bull; Beschränkung der Sendungsdauer zu Lieblingssendungen hinzugefügt<br>
         	&bull; Update-Symbol in der Werkzeugleiste nur sichtbar, wenn automatisches Datenupdate deaktiviert ist<br>

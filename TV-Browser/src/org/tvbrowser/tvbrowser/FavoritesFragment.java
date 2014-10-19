@@ -217,7 +217,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         handler.post(new Runnable() {
           @Override
           public void run() {
-            if(!isDetached()) {
+            if(!isDetached() && getActivity() != null) {
               getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
             }
           }
@@ -228,72 +228,15 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
       public void onNothingSelected(AdapterView<?> parent) {
         mWhereClause = null;
         
-        if(!isDetached()) {
+        if(!isDetached() && getActivity() != null) {
           getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
         }
       }
     });
     
-    /*
-    
-    mMarkingsAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_list_item_activated_1, markingList) {
-      @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
-        if(convertView == null) {
-          convertView = getActivity().getLayoutInflater().inflate(android.R.layout.simple_list_item_activated_1, null);
-        }
-        
-        ((TextView)convertView).setText(getItem(position));
-        
-        switch (position) {
-          case 0: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_COLOR_KEY, getContext()));break;
-          case 1: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_REMINDER_COLOR_KEY, getContext()));break;
-          case 2: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_SYNC_COLOR_KEY, getContext()));break;
-        }
-        
-        return convertView;
-      }
-    };
-    */
     updateSynchroButton(null);
- /*   markings.setAdapter(mMarkingsAdapter);
-    markings.setChoiceMode(ListView.CHOICE_MODE_SINGLE);
-    markings.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-      @Override
-      public void onItemClick(AdapterView<?> adapterView, View v, int position,
-          long id) {
-        favorites.setItemChecked(-1, true);
-        
-        mWhereClause = TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " ";
-        
-        switch (position) {
-          case 0: mWhereClause += TvBrowserContentProvider.DATA_KEY_MARKING_MARKING; break;
-          case 1: 
-            if(Build.VERSION.SDK_INT >= 14) {
-              mWhereClause += " ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER  + " ) ) ";
-            }
-            else {
-              mWhereClause +=  " ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER  + " ) ) ";
-            }
-            break;
-          case 2: mWhereClause += TvBrowserContentProvider.DATA_KEY_MARKING_SYNC; break;
-          
-          default: mWhereClause += TvBrowserContentProvider.DATA_KEY_STARTTIME + "=0 ";
-        }
-        
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            if(!isDetached()) {
-              getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
-            }
-          }
-        });
-      }
-    });*/
-    
+ 
     mFavoriteProgramList = (ListView)getView().findViewById(R.id.favorite_program_list);
-        
     mFavoriteProgramList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> adapterView, View v, int position,

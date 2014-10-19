@@ -54,7 +54,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-public class EditFavoriteActivity extends Activity implements ChannelFilter {
+public class ActivityFavoriteEdit extends Activity implements ChannelFilter {
   private Favorite mFavorite;
   private EditText mSearchValue;
   private EditText mName;
@@ -195,7 +195,7 @@ public class EditFavoriteActivity extends Activity implements ChannelFilter {
   }
   
   public void changeDuration(View view) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(EditFavoriteActivity.this);
+    AlertDialog.Builder builder = new AlertDialog.Builder(ActivityFavoriteEdit.this);
     
     View timeSelection = getLayoutInflater().inflate(R.layout.dialog_favorite_selection_duration, (ViewGroup)mSearchValue.getRootView(), false);
     
@@ -300,15 +300,15 @@ public class EditFavoriteActivity extends Activity implements ChannelFilter {
   }
   
   public void changeTime(View view) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(EditFavoriteActivity.this);
+    AlertDialog.Builder builder = new AlertDialog.Builder(ActivityFavoriteEdit.this);
     
     View timeSelection = getLayoutInflater().inflate(R.layout.favorite_time_selection, (ViewGroup)mSearchValue.getRootView(), false);
     
     final TimePicker from = (TimePicker)timeSelection.findViewById(R.id.favorite_time_selection_from);
     final TimePicker to = (TimePicker)timeSelection.findViewById(R.id.favorite_time_selection_to);
     
-    from.setIs24HourView(DateFormat.is24HourFormat(EditFavoriteActivity.this));
-    to.setIs24HourView(DateFormat.is24HourFormat(EditFavoriteActivity.this));
+    from.setIs24HourView(DateFormat.is24HourFormat(ActivityFavoriteEdit.this));
+    to.setIs24HourView(DateFormat.is24HourFormat(ActivityFavoriteEdit.this));
     
     if(mFavorite.isTimeRestricted()) {
       Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
@@ -377,7 +377,7 @@ public class EditFavoriteActivity extends Activity implements ChannelFilter {
   }
   
   public void changeDays(View view) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(EditFavoriteActivity.this);
+    AlertDialog.Builder builder = new AlertDialog.Builder(ActivityFavoriteEdit.this);
     
     final Calendar dayCal = Calendar.getInstance();
     final Locale locale = Locale.getDefault();
@@ -499,7 +499,7 @@ public class EditFavoriteActivity extends Activity implements ChannelFilter {
   }
   
   private void handleTimeView() {
-    java.text.DateFormat timeFormat = DateFormat.getTimeFormat(EditFavoriteActivity.this);
+    java.text.DateFormat timeFormat = DateFormat.getTimeFormat(ActivityFavoriteEdit.this);
     
     Date fromFormat = null;
     Date toFormat = null;
@@ -613,7 +613,7 @@ public class EditFavoriteActivity extends Activity implements ChannelFilter {
   } 
   
   public void changeChannels(View view) {
-    UiUtils.showChannelFilterSelection(EditFavoriteActivity.this, this, (ViewGroup)mSearchValue.getRootView());
+    UiUtils.showChannelFilterSelection(ActivityFavoriteEdit.this, this, (ViewGroup)mSearchValue.getRootView());
   }
   
   public void cancel(View view) {
@@ -646,8 +646,8 @@ public class EditFavoriteActivity extends Activity implements ChannelFilter {
     if(mFavorite.getName().trim().length() == 0) {
       if(mFavorite.getType() == Favorite.RESTRICTION_RULES_TYPE) {
         mFavorite.setName(getResources().getStringArray(R.array.activity_edit_favorite_input_text_type)[Favorite.RESTRICTION_RULES_TYPE] + " - " +
-                          DateFormat.getMediumDateFormat(EditFavoriteActivity.this).format(new Date(System.currentTimeMillis())) + " " + 
-                          DateFormat.getTimeFormat(EditFavoriteActivity.this).format(new Date(System.currentTimeMillis())));
+                          DateFormat.getMediumDateFormat(ActivityFavoriteEdit.this).format(new Date(System.currentTimeMillis())) + " " + 
+                          DateFormat.getTimeFormat(ActivityFavoriteEdit.this).format(new Date(System.currentTimeMillis())));
       }
       else {
         mFavorite.setName(mFavorite.getSearchValue());
@@ -660,7 +660,7 @@ public class EditFavoriteActivity extends Activity implements ChannelFilter {
       intent.putExtra(Favorite.OLD_NAME_KEY, mOldFavorite.getName());
     }
     
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(EditFavoriteActivity.this);
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ActivityFavoriteEdit.this);
     
     Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
     HashSet<String> newFavoriteList = new HashSet<String>();
@@ -714,7 +714,13 @@ public class EditFavoriteActivity extends Activity implements ChannelFilter {
   }
 
   @Override
-  public void setFilteredChannels(int[] filteredChannelIds) {
+  public String getName() {
+    return null;
+  }
+
+
+  @Override
+  public void setFilterValues(String name, int[] filteredChannelIds) {
     mFavorite.setChannelRestrictionIDs(filteredChannelIds);
     
     updateOkButton();
