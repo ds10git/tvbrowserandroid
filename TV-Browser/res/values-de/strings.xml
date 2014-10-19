@@ -47,7 +47,7 @@
     <string name="filter_channel_all">Alle</string>
     <string name="filter_channel_category">Kategorie:</string>
     <string name="dont_select_channels">Jetzt nicht</string>
-    <string name="update_data">Datenupdate</string>
+    <string name="menu_tvbrowser_title_update_data">Datenupdate</string>
     <string name="versionExpired">Version abgelaufen</string>
     <string name="versionExpiredMsg">Diese Version wird sich in {0} Tagen nicht mehr benutzen lassen.\n\nBitte installieren Sie ein Update.</string>
     <string name="versionExpiredMsgLast">Diese Version wird sich ab morgen nicht mehr benutzen lassen.\n\nBitte installieren Sie ein Update.</string>
@@ -85,7 +85,16 @@
     <string name="favorite_time_from">Von:</string>
     <string name="favorite_days">Tage:</string>
     <string name="favorite_days_default">Mo. Di. Mi. Do. Fr. Sa. So.</string>
-    <string name="favorite_channels">Sender:</string>
+    <string name="activity_edit_favorite_label_text_channels">Sender:</string>
+    <string name="activity_edit_favorite_label_text_duration">Dauer:</string>
+    <string name="activity_edit_favorite_label_text_duration_unrestricted">Beliebig</string>
+    <string name="activity_edit_favorite_label_text_duration_and">und</string>
+    <string name="activity_edit_favorite_label_text_duration_minutes">Minuten</string>
+    <string name="activity_edit_favorite_label_text_duration_minimum">Mindestens</string>
+    <string name="activity_edit_favorite_label_text_duration_maximum">Höchstens</string>
+    <string name="activity_edit_favorite_selection_text_duration_minimum">Dauer von mindestens:</string>
+    <string name="activity_edit_favorite_selection_text_duration_maximum">Dauer von höchstens:</string>
+
     <string name="favorite_channels_default">Alle</string>
     <string name="favorite_search_hint">Suchbegriff eingeben</string>
     <string name="favorite_only_title">Nur im Titel suchen</string>
@@ -107,7 +116,10 @@
     <string name="channel_notification_title">Sender laden</string>
     <string name="channel_notification_text">Lade verfügbare TV-Browser-Sender</string>
     <string name="download_data">TV-Daten laden</string>
+    
     <string name="download_data_for">Daten herunterladen für:</string>
+    <string name="dialog_data_update_preferences_auto_update_selection_time_label">Innerhalb von 6 Stunden ab:</string>
+    
     <string-array name="download_selections">
         <item>Heute</item>
         <item>Heute und morgen</item>
@@ -192,7 +204,8 @@
 	<string name="info_children">Kindersendung</string>
 	<string name="info_other">Andere</string>
 	<string name="info_sign_language">Gebärdensprache</string>
-	<string name="pref_title">Einstellungen</string>
+	<string name="menu_tvbrowser_title_settings">Einstellungen</string>
+	<string name="menu_tvbrowser_title_settings_basic">Allgemeine Einstellungen</string>
 	<string name="pref_summary">Einstellungen für TV-Browser</string>
 	<string name="pref_download_category">Datendownload</string>
 	<string name="pref_programs_list_category">Datendownload</string>
@@ -551,12 +564,16 @@
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
         <h2>0.4.4</h2>
+        	&bull; Standardwert für Trennergröße in Listen mit Sendungen geändert<br>
+        	&bull; Beschränkung der Sendungsdauer zu Lieblingssendungen hinzugefügt<br>
+        	&bull; Update-Symbol in der Werkzeugleiste nur sichtbar, wenn automatisches Datenupdate deaktiviert ist<br>
+        	&bull; aktivieren/deaktivieren des automatischen Datenupdates im Daten-Download Fenster möglich<br>
             &bull; vertikaler Freiraum um Sender in Listen mit Sendungen und Widgets einstellbar<br>
 			&bull; Information über Änderungen in neuer Version, nach Update<br>
         	&bull; Widgets auch auf Sperrbildschirm möglich<br>
         	&bull; weitere globale Einstellungen für Widgets hinzugefügt<br>
         <br>
-        <h2>0.4.3</h2>
+        <h3>0.4.3</h3>
         	&bull; fehlende Wiederherstellung der Lieblingssendungen aus Backup korrigiert<br>
         	&bull; neue Darstellung für den Lieblingssendungstab<br>
         	&bull; neue Darstellung von Listen mit Sendungen auf kleinen Bildschirmen<br>
@@ -566,16 +583,16 @@
         	&bull; Textskalierung für Widgets hinzugefügt<br>
         	&bull; neuer Trenner für Listeneinträge der Widgets<br>
         <br>
-		<h2>0.4.2</h2>
+		<h3>0.4.2</h3>
         	&bull; angezeigte Zeit im Widget "Jetzt läuft" auswählbar<br>
         	&bull; vollständige Daten werden standardmäßig geladen<br>
         <br>
-        <h2>0.4.1</h2>
+        <h3>0.4.1</h3>
         	&bull; Backup der Einstellungen und Definitionen der Lieblingssendungen auf den TV-Browser server<br>
         	&bull; Sortierungsnummer aus der Desktopversion übernehmen<br>
         	&bull; Fehler bei Sicherung der Einstellungen des "Wichtige Sendungen"-Widgets beseitigt<br>
         <br>
-        <h2>0.4</h2>
+        <h3>0.4</h3>
         	&bull; Widget für laufende und wichtige Sendungen hinzugefügt (TV-Browser muss sich auf dem Telefonspeicher befinden, damit diese verfügbar sind)<br>
         	&bull; Erinnerungen bis zu 24h vor einer Sendung<br>
         	&bull; zusätzlicher Farbstil hinzugefügt<br>
@@ -583,7 +600,7 @@
         	&bull; Senderupdate beschleunigt<br>
         	&bull; Fehler beim Datenupdate für Sender mit mehr als 127 Sendungen am Tag beseitigt<br>
         <br>
-        <h2>0.3.3</h2>
+        <h3>0.3.3</h3>
         
         	&bull; Datumsanzeige in Sendungsliste kann deaktiviert werden<br>
         	&bull; fehlerhafte Berechnung des Zeitpunkts eine automatischen Datenupdates korrigiert<br>
@@ -593,7 +610,7 @@
         	&bull; Zeitauswahl für Laufenden Sendungen auch über Symbol in Werkzeugleiste<br>
         
         <br>
-        <h2>0.3.2</h2>
+        <h3>0.3.2</h3>
         
         	&bull; Datenupdate beschleunigt<br>
         	&bull; Workaround für möglichen Absturz hinzugefügt<br>
@@ -601,15 +618,15 @@
         	&bull; Verarbeitung der Erinnerungen überarbeitet<br>
         
         <br>
-        <h2>0.3.1.1</h2>
+        <h3>0.3.1.1</h3>
         	&bull; mögliches Problem fehlender Aktualisierung von Sendungen beim Datenupdate beseitigt<br>
         <br>
-        <h2>0.3.1</h2>
+        <h3>0.3.1</h3>
         	&bull; möglicher Absturz beim Datenupdate beseitigt<br>
         	&bull; Probleme in der Darstellung der Bearbeitung der Lieblingssendungen beseitigt<br>
         	&bull; Möglichkeit hinzugefügt gefilterte Sendungen von "Will ich nicht sehen!" hervorzuheben anstatt sie auszublenden<br>
         <br>
-        <h2>0.3</h2>
+        <h3>0.3</h3>
         	&bull; neue Filtermöglichkeiten für Lieblingssendungen<br>
         	&bull; neue Oberfläche für Lieblingssendungen<br>
         	&bull; Filter für Sendertyp<br>

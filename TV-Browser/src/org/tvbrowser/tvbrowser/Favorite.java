@@ -36,7 +36,6 @@ import android.database.Cursor;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   public static final String FAVORITE_EXTRA = "FAVORITE_EXTRA";
@@ -46,11 +45,14 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   
   private static final String START_MINUTE_COLUMN = "startMinute";
   public static final String START_DAY_COLUMN = "startDayOfWeek";
+  public static final String DURATION_COLUMN = "duration";
   
   private String mName;
   private String mSearch;
   private boolean mOnlyTitle;
   private boolean mRemind;
+  private int mDurationRestrictionMinimum;
+  private int mDurationRestrictionMaximum;
   private int mTimeRestrictionStart;
   private int mTimeRestrictionEnd;
   private int[] mDayRestriction;
@@ -78,7 +80,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   private static Hashtable<Long, boolean[]> DATA_REFRESH_TABLE = null;
   
   public Favorite() {
-    this(null, "", true, true, -1, -1, null, null, null);
+    this(null, "", true, true, -1, -1, null, null, null, -1, -1);
   }
   
   public Favorite(String saveLine) {
@@ -134,6 +136,28 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     else {
       mExclusions = null;
     }
+    
+    if(values.length > 8) {
+      if(values[8].equals("null")) {
+        mDurationRestrictionMinimum = -1;
+        mDurationRestrictionMaximum = -1;
+      }
+      else {
+        String[] parts = values[8].split(",");
+        
+        try {
+          mDurationRestrictionMinimum = Integer.parseInt(parts[0]);
+          mDurationRestrictionMaximum = Integer.parseInt(parts[1]);
+        }catch(NumberFormatException nfe) {
+          mDurationRestrictionMinimum = -1;
+          mDurationRestrictionMaximum = -1;
+        }
+      }
+    }
+    else {
+      mDurationRestrictionMinimum = -1;
+      mDurationRestrictionMaximum = -1;
+    }
   }
   
   private static final int DAY_RESTRICTION_TYPE = 0;
@@ -171,8 +195,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     this(name, search, onlyTitle, remind, -1, -1, null, null);
   }*/
   
-  public Favorite(String name, String search, boolean onlyTitle, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions) {
-    setValues(name, search, onlyTitle, remind, timeRestrictionStart, timeRestrictionEnd, days, channelIDs, exclusions);
+  public Favorite(String name, String search, boolean onlyTitle, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions, int durationRestrictionMinimum, int durationRestrictionMaximum) {
+    setValues(name, search, onlyTitle, remind, timeRestrictionStart, timeRestrictionEnd, days, channelIDs, exclusions, durationRestrictionMinimum, durationRestrictionMaximum);
   }
   
   public boolean searchOnlyTitle() {
@@ -205,6 +229,26 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   
   public String getSearchValue() {
     return mSearch;
+  }
+  
+  public boolean isDurationRestricted() {
+    return mDurationRestrictionMinimum >= 0 || mDurationRestrictionMaximum > 0;
+  }
+  
+  public int getDurationRestrictionMinimum() {
+    return mDurationRestrictionMinimum;
+  }
+  
+  public int getDurationRestrictionMaximum() {
+    return mDurationRestrictionMaximum;
+  }
+  
+  public void setDurationRestrictionMinimum(int minutes) {
+    mDurationRestrictionMinimum = minutes;
+  }
+  
+  public void setDurationRestrictionMaximum(int minutes) {
+    mDurationRestrictionMaximum = minutes;
   }
   
   public boolean isTimeRestricted() {
@@ -247,7 +291,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     mChannelRestrictionIDs = ids;
   }
     
-  public void setValues(String name, String search, boolean onlyTitle, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions) {
+  public void setValues(String name, String search, boolean onlyTitle, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions, int durationRestrictionMinimum, int durationRestrictionMaximum) {
     mName = name;
     mSearch = search.replace("\"", "");
     mOnlyTitle = onlyTitle;
@@ -257,6 +301,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     mDayRestriction = days;
     mChannelRestrictionIDs = channelIDs;
     mExclusions = exclusions;
+    mDurationRestrictionMinimum = durationRestrictionMinimum;
+    mDurationRestrictionMaximum = durationRestrictionMaximum;
   }
   
   public void setDayRestriction(int[] days) {
@@ -325,6 +371,15 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
     builder.append(" ");
     
+    if(isDurationRestricted()) {
+      builder.append(", ( ");
+      builder.append(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+      builder.append(" - ");
+      builder.append(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      builder.append(" )/60000 AS ");
+      builder.append(DURATION_COLUMN);
+    }
+    
     if(isTimeRestricted()) {
       builder.append(", (strftime('%H', ");
       builder.append(TvBrowserContentProvider.DATA_KEY_STARTTIME);
@@ -347,6 +402,28 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     builder.append(" LIKE \"%");
     builder.append(mSearch);
     builder.append("%\")");
+    
+    if(isDurationRestricted()) {
+      builder.append(" AND (");
+      
+      if(mDurationRestrictionMinimum >= 0) {
+        builder.append(DURATION_COLUMN);
+        builder.append(">=");
+        builder.append(mDurationRestrictionMinimum);
+      }
+      
+      if(mDurationRestrictionMaximum > 0) {
+        if(mDurationRestrictionMinimum >= 0) {
+          builder.append(" AND ");
+        }
+        
+        builder.append(DURATION_COLUMN);
+        builder.append("<=");
+        builder.append(mDurationRestrictionMaximum);
+      }
+      
+      builder.append(" )");
+    }
     
     if(isTimeRestricted()) {
       builder.append(" AND (");
@@ -448,6 +525,15 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     
     saveString = appendSaveStringWithObjectArray(mExclusions, saveString);
     
+    saveString.append(";;");
+    
+    if(isDurationRestricted()) {
+      saveString.append(mDurationRestrictionMinimum).append(",").append(mDurationRestrictionMaximum);
+    }
+    else {
+      saveString.append("null");
+    }
+    
     return saveString.toString();
   }
   
@@ -522,7 +608,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           long id = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
           
           boolean[] test = favoritesMatchesProgram(id, context, resolver, favorite);
-          Log.d("test", "" + test[0] + " " + test[1]);
+          
           if(!test[0]) {
             ContentValues values = new ContentValues();
             
