@@ -160,7 +160,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
           }
         }
         
-        convertView.setBackgroundDrawable(draw);
+        CompatUtils.setBackground(convertView, draw);
         convertView.setPadding(UiUtils.convertDpToPixel(5f, getResources()), 0, 0, 0);
         
         ((TextView)convertView).setText(name);
@@ -374,7 +374,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
                 else {
                   Favorite temp = (Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA);
                   
-                  fav.getFavorite().setValues(temp.getName(), temp.getSearchValue(), temp.searchOnlyTitle(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs(), temp.getExclusions(), temp.getDurationRestrictionMinimum(), temp.getDurationRestrictionMaximum());
+                  fav.getFavorite().setValues(temp.getName(), temp.getSearchValue(), temp.getType(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs(), temp.getExclusions(), temp.getDurationRestrictionMinimum(), temp.getDurationRestrictionMaximum());
                 }
               }
               else {

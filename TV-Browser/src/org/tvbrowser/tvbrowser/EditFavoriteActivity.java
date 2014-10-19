@@ -37,12 +37,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
-import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
@@ -50,24 +44,21 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
-import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-public class EditFavoriteActivity extends Activity {
+public class EditFavoriteActivity extends Activity implements ChannelFilter {
   private Favorite mFavorite;
   private EditText mSearchValue;
   private EditText mName;
-  private CheckBox mOnlyTitle;
+  private Spinner mTypeSelection;
   private CheckBox mRemind;
   private TextView mDuration;
   private TextView mTime;
@@ -77,6 +68,7 @@ public class EditFavoriteActivity extends Activity {
   
   private int mCheckedCount;
   private Favorite mOldFavorite;
+  private View mOkButton;
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -90,7 +82,7 @@ public class EditFavoriteActivity extends Activity {
     
     mSearchValue = (EditText)findViewById(R.id.activity_edit_favorite_input_id_search_value);
     mName = (EditText)findViewById(R.id.activity_edit_favorite_input_id_name);
-    mOnlyTitle = (CheckBox)findViewById(R.id.activity_edit_favorite_input_id_search_title_only);
+    mTypeSelection = (Spinner)findViewById(R.id.activity_edit_favorite_input_id_type);
     mRemind = (CheckBox)findViewById(R.id.activity_edit_favorite_input_id_remind);
     mDuration = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_duration);
     mTime = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_time);
@@ -114,10 +106,16 @@ public class EditFavoriteActivity extends Activity {
     mFavorite = (Favorite)getIntent().getSerializableExtra(Favorite.FAVORITE_EXTRA);
     
     if(mFavorite != null) {
+      mSearchValue.setEnabled(mFavorite.getType() != Favorite.RESTRICTION_RULES_TYPE);
+      
+      if(mFavorite.getType() == Favorite.RESTRICTION_RULES_TYPE) {
+        mSearchValue.setText(getString(R.string.activity_edit_favorite_input_text_all_value));
+      }
+      
       mOldFavorite = mFavorite.copy();
       mSearchValue.setText(mFavorite.getSearchValue());
       mName.setText(mFavorite.getName());
-      mOnlyTitle.setChecked(mFavorite.searchOnlyTitle());
+      mTypeSelection.setSelection(mFavorite.getType());
       mRemind.setChecked(mFavorite.remind());
       
       if(mFavorite.isHavingExclusions()) {
@@ -135,9 +133,31 @@ public class EditFavoriteActivity extends Activity {
       }
     }
     
-    final View ok = findViewById(R.id.favorite_ok);
+    mTypeSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        mSearchValue.setEnabled(position != Favorite.RESTRICTION_RULES_TYPE);
+        
+        if(position == Favorite.RESTRICTION_RULES_TYPE) {
+          mSearchValue.setText(getString(R.string.activity_edit_favorite_input_text_all_value));
+        }
+        else {
+          mSearchValue.setText(mFavorite.getSearchValue());
+        }
+      }
+
+      @Override
+      public void onNothingSelected(AdapterView<?> parent) {}
+    });
     
-    ok.setEnabled(mFavorite.getSearchValue() != null && mFavorite.getSearchValue().trim().length() > 0);
+    mOkButton = findViewById(R.id.favorite_ok);
+    
+    if(mTypeSelection.getSelectedItemPosition() != Favorite.RESTRICTION_RULES_TYPE) {
+      mOkButton.setEnabled(mFavorite.getSearchValue() != null && mFavorite.getSearchValue().trim().length() > 0);
+    }
+    else {
+      mOkButton.setEnabled(mFavorite.isHavingRestriction());
+    }
     
     mSearchValue.addTextChangedListener(new TextWatcher() {
       @Override
@@ -147,7 +167,24 @@ public class EditFavoriteActivity extends Activity {
       
       @Override
       public void afterTextChanged(Editable s) {
-        ok.setEnabled(mSearchValue.getText().toString().trim().length() > 0);
+        if(mTypeSelection.getSelectedItemPosition() != Favorite.RESTRICTION_RULES_TYPE) {
+          mOkButton.setEnabled(mSearchValue.getText().toString().trim().length() > 0);
+        }
+        else {
+          mOkButton.setEnabled(mFavorite.isHavingRestriction());
+        }
+      }
+    });
+    
+    mExclusions.addTextChangedListener(new TextWatcher() {
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {}
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+      
+      @Override
+      public void afterTextChanged(Editable s) {
+        updateOkButton();
       }
     });
     
@@ -246,6 +283,7 @@ public class EditFavoriteActivity extends Activity {
         mFavorite.setDurationRestrictionMinimum(minimumValue);
         mFavorite.setDurationRestrictionMaximum(maximumValue);
         
+        updateOkButton();
         handleDurationView();
       }
     });
@@ -253,6 +291,12 @@ public class EditFavoriteActivity extends Activity {
     builder.setNegativeButton(android.R.string.cancel, null);
     
     builder.show();
+  }
+  
+  private void updateOkButton() {
+    if(mTypeSelection.getSelectedItemPosition() == Favorite.RESTRICTION_RULES_TYPE) {
+      mOkButton.setEnabled(mFavorite.isHavingRestriction() || mExclusions.getText().toString().trim().length() > 0);
+    }
   }
   
   public void changeTime(View view) {
@@ -321,6 +365,8 @@ public class EditFavoriteActivity extends Activity {
         
         mFavorite.setTimeRestrictionStart(start);
         mFavorite.setTimeRestrictionEnd(end);
+        
+        updateOkButton();
         handleTimeView();
       }
     });
@@ -403,6 +449,7 @@ public class EditFavoriteActivity extends Activity {
           mFavorite.setDayRestriction(null);
         }
         
+        updateOkButton();
         handleDayView();
       }
     });
@@ -418,13 +465,13 @@ public class EditFavoriteActivity extends Activity {
     if(mFavorite.isDurationRestricted()) {
       int minimum = mFavorite.getDurationRestrictionMinimum();
       int maximum = mFavorite.getDurationRestrictionMaximum();
-      String minutes = getString(R.string.activity_edit_favorite_label_text_duration_minutes);
-      String max = getString(R.string.activity_edit_favorite_label_text_duration_maximum);
+      String minutes = getString(R.string.activity_edit_favorite_input_text_duration_minutes);
+      String max = getString(R.string.activity_edit_favorite_input_text_duration_maximum);
       
       if(minimum != -1) {
         max = max.toLowerCase(Locale.getDefault());
         
-        timeString.append(getString(R.string.activity_edit_favorite_label_text_duration_minimum));
+        timeString.append(getString(R.string.activity_edit_favorite_input_text_duration_minimum));
         timeString.append(" ");
         timeString.append(minimum);
         timeString.append(" ");
@@ -432,7 +479,7 @@ public class EditFavoriteActivity extends Activity {
         
         if(maximum != -1) {
           timeString.append(" ");
-          timeString.append(getString(R.string.activity_edit_favorite_label_text_duration_and));
+          timeString.append(getString(R.string.activity_edit_favorite_input_text_duration_and));
           timeString.append(" ");
         }
       }
@@ -445,7 +492,7 @@ public class EditFavoriteActivity extends Activity {
       }
     }
     else {
-      timeString.append(getString(R.string.activity_edit_favorite_label_text_duration_unrestricted));
+      timeString.append(getString(R.string.activity_edit_favorite_input_text_duration_unrestricted));
     }
     
     mDuration.setText(timeString.toString());
@@ -561,235 +608,12 @@ public class EditFavoriteActivity extends Activity {
       mChannels.setText(TextUtils.join(", ", nameList));
     }
     else {
-      mChannels.setText(R.string.favorite_channels_default);
+      mChannels.setText(R.string.activity_edit_favorite_input_text_all_value);
     }
-  }
-  
-  /**
-   * View holder for custom cursor adapter of channel selection.
-   * 
-   * @author René Mach
-   */
-  private static final class ViewHolder {
-    CheckBox mCheckBox;
-    TextView mTextView;
-    ImageView mLogo;
-  }
-  
-  private static final class AdapterChannel {
-    int mChannelID;
-    String mName;
-    Bitmap mChannelLogo;
-    boolean mSelected; 
-    
-    public AdapterChannel(int channelID, String name, Bitmap channelLogo, boolean selected) {
-      mChannelID = channelID;
-      mName = name;
-      mChannelLogo = channelLogo;
-      mSelected = selected;
-    }
-  }
-  
-  private boolean isRestricted(int[] channelIDs, int id) {
-    boolean returnValue = channelIDs == null;
-    
-    if(!returnValue) {
-      for(int channelID : channelIDs) {
-        if(id == channelID) {
-          returnValue = true;
-          break;
-        }
-      }
-    }
-    
-    return returnValue;
-  }
+  } 
   
   public void changeChannels(View view) {
-    String[] projection = {
-        TvBrowserContentProvider.KEY_ID,
-        TvBrowserContentProvider.CHANNEL_KEY_NAME,
-        TvBrowserContentProvider.CHANNEL_KEY_SELECTION,
-        TvBrowserContentProvider.CHANNEL_KEY_LOGO,
-        TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER
-        };
-    
-    ContentResolver cr = getContentResolver();
-    final Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.CHANNEL_KEY_NAME);
-    
-    final int idColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-    final int logoColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
-    final int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-    final int orderNumberColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
-    
-    int[] channelRestriction = mFavorite.getChannelRestrictionIDs();
-    
-    channels.moveToPosition(-1);
-    
-    // inflate channel selection view
-    View channelSelectionView = getLayoutInflater().inflate(R.layout.channel_selection_list, (ViewGroup)mSearchValue.getRootView(), false);
-    channelSelectionView.findViewById(R.id.channel_country_label).setVisibility(View.GONE);
-    channelSelectionView.findViewById(R.id.channel_country_value).setVisibility(View.GONE);
-    channelSelectionView.findViewById(R.id.channel_category_label).setVisibility(View.GONE);
-    channelSelectionView.findViewById(R.id.channel_category_value).setVisibility(View.GONE);
-    
-    final ListView list = (ListView)channelSelectionView.findViewById(R.id.channel_selection_list);
-    
-    final Bitmap defaultLogo = BitmapFactory.decodeResource( getResources(), R.drawable.ic_launcher);
-    
-    final ArrayAdapter<AdapterChannel> channelAdapter = new ArrayAdapter<EditFavoriteActivity.AdapterChannel>(EditFavoriteActivity.this, android.R.layout.simple_list_item_1) {
-      public View getView(int position, View convertView, ViewGroup parent) {
-        AdapterChannel value = getItem(position);
-        ViewHolder holder = null;
-        
-        if (convertView == null) {
-          LayoutInflater mInflater = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
-          
-          holder = new ViewHolder();
-          
-          convertView = mInflater.inflate(R.layout.channel_row, (ViewGroup)mSearchValue.getRootView(), false);
-          
-          holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_text);
-          holder.mCheckBox = (CheckBox)convertView.findViewById(R.id.row_of_channel_selection);
-          holder.mLogo = (ImageView)convertView.findViewById(R.id.row_of_channel_icon);
-          
-          convertView.setTag(holder);
-          
-        }
-        else {
-          holder = (ViewHolder)convertView.getTag();
-        }
-        
-        holder.mTextView.setText(value.mName);
-        holder.mCheckBox.setChecked(value.mSelected);
-        list.setItemChecked(position, value.mSelected);
-        
-        Bitmap logo = value.mChannelLogo;
-        
-        if(logo != null) {
-          holder.mLogo.setImageBitmap(logo);
-        }
-        else {
-          holder.mLogo.setImageBitmap(defaultLogo);
-        }
-        
-        return convertView;
-      }
-    };
-    
-    while(channels.moveToNext()) {
-      int channelID = channels.getInt(idColumn);
-      String name = channels.getString(nameColumn);
-      int orderNumber = channels.getInt(orderNumberColumn);
-      byte[] logo = channels.getBlob(logoColumn);
-      
-      if(orderNumber < 1) {
-        name = "-. " + name;
-      }
-      else {
-        name = orderNumber + ". " + name;
-      }
-      
-      Bitmap channelLogo = UiUtils.createBitmapFromByteArray(logo);
-      
-      if(channelLogo != null) {
-        BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
-        
-        ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
-        background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
-        
-        LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
-        logoDrawable.setBounds(background.getBounds());
-        
-        l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
-        
-        channelLogo = UiUtils.drawableToBitmap(logoDrawable);
-      }
-      
-      channelAdapter.add(new AdapterChannel(channelID, name, channelLogo, isRestricted(channelRestriction, channelID)));
-    }
-    
-    channels.close();
-    
-    list.setAdapter(channelAdapter);
-    
-    channelSelectionView.findViewById(R.id.channel_selection_select_all).setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        for(int i = 0; i < channelAdapter.getCount(); i++) {
-          channelAdapter.getItem(i).mSelected = true;
-        }
-        
-        list.invalidateViews();
-      }
-    });
-    
-    channelSelectionView.findViewById(R.id.channel_selection_remove_selection).setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        for(int i = 0; i < channelAdapter.getCount(); i++) {
-          channelAdapter.getItem(i).mSelected = false;
-        }
-        
-        list.invalidateViews();
-      }
-    });
-    
-    list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-      @Override
-      public void onItemClick(AdapterView<?> parent, View view, int position,
-          long id) {
-        CheckBox check = (CheckBox)view.findViewById(R.id.row_of_channel_selection);
-        
-        if(check != null) {
-          check.setChecked(!check.isChecked());
-          channelAdapter.getItem(position).mSelected = check.isChecked();
-          list.setItemChecked(position, check.isChecked());
-        }
-      }
-    });
-    
-    AlertDialog.Builder builder = new AlertDialog.Builder(EditFavoriteActivity.this);
-    
-    builder.setView(channelSelectionView);
-    
-    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        ArrayList<Integer> channelIDList = new ArrayList<Integer>();
-        boolean allSelected = true;
-        
-        for(int i = 0; i < channelAdapter.getCount(); i++) {
-          AdapterChannel item = channelAdapter.getItem(i);
-          
-          if(item.mSelected) {
-            channelIDList.add(Integer.valueOf(item.mChannelID));
-          }
-          else {
-            allSelected = false;
-          }
-        }
-        
-        if(allSelected || channelIDList.isEmpty()) {
-          mFavorite.setChannelRestrictionIDs(null);
-        }
-        else {
-          int[] ids = new int[channelIDList.size()];
-          
-          for(int i = 0; i < ids.length; i++) {
-            ids[i] = channelIDList.get(i);
-          }
-          
-          mFavorite.setChannelRestrictionIDs(ids);
-        }
-        
-        handleChannelView();
-      }
-    });
-    
-    builder.setNegativeButton(android.R.string.cancel, null);
-    
-    builder.show();
+    UiUtils.showChannelFilterSelection(EditFavoriteActivity.this, this, (ViewGroup)mSearchValue.getRootView());
   }
   
   public void cancel(View view) {
@@ -802,7 +626,7 @@ public class EditFavoriteActivity extends Activity {
 
     mFavorite.setName(mName.getText().toString());
     mFavorite.setSearchValue(mSearchValue.getText().toString());
-    mFavorite.setSearchOnlyTitle(mOnlyTitle.isChecked());
+    mFavorite.setType(mTypeSelection.getSelectedItemPosition());
     mFavorite.setRemind(mRemind.isChecked());
     
     String exclusions = mExclusions.getText().toString();
@@ -820,7 +644,14 @@ public class EditFavoriteActivity extends Activity {
     }
     
     if(mFavorite.getName().trim().length() == 0) {
-      mFavorite.setName(mFavorite.getSearchValue());
+      if(mFavorite.getType() == Favorite.RESTRICTION_RULES_TYPE) {
+        mFavorite.setName(getResources().getStringArray(R.array.activity_edit_favorite_input_text_type)[Favorite.RESTRICTION_RULES_TYPE] + " - " +
+                          DateFormat.getMediumDateFormat(EditFavoriteActivity.this).format(new Date(System.currentTimeMillis())) + " " + 
+                          DateFormat.getTimeFormat(EditFavoriteActivity.this).format(new Date(System.currentTimeMillis())));
+      }
+      else {
+        mFavorite.setName(mFavorite.getSearchValue());
+      }
     }
     
     final Intent intent = new Intent(SettingConstants.FAVORITES_CHANGED);
@@ -875,5 +706,18 @@ public class EditFavoriteActivity extends Activity {
     }.start();
         
     finish();
+  }
+
+  @Override
+  public int[] getFilteredChannelIds() {
+    return mFavorite.getChannelRestrictionIDs();
+  }
+
+  @Override
+  public void setFilteredChannels(int[] filteredChannelIds) {
+    mFavorite.setChannelRestrictionIDs(filteredChannelIds);
+    
+    updateOkButton();
+    handleChannelView();
   }
 }

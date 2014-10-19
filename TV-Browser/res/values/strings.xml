@@ -91,17 +91,23 @@
     <string name="favorite_time_from">From:</string>
     <string name="favorite_days">Days:</string>
     <string name="favorite_days_default">Mo, Tu, We, Th, Fr, Sa, Su</string>
+    <string name="activity_edit_favorite_label_text_type">Type:</string>
+    <string-array name="activity_edit_favorite_input_text_type">
+        <item>Keyword search only in title</item>
+        <item>Keyword search</item>
+        <item>Only search restriction rules</item>
+    </string-array>
     <string name="activity_edit_favorite_label_text_channels">Channels:</string>
     <string name="activity_edit_favorite_label_text_duration">Duration:</string>
-    <string name="activity_edit_favorite_label_text_duration_unrestricted">Unrestricted</string>
-    <string name="activity_edit_favorite_label_text_duration_and">and</string>
-    <string name="activity_edit_favorite_label_text_duration_minutes">minutes</string>
-    <string name="activity_edit_favorite_label_text_duration_minimum">At least</string>
-    <string name="activity_edit_favorite_label_text_duration_maximum">At most</string>
+    <string name="activity_edit_favorite_input_text_duration_unrestricted">Unrestricted</string>
+    <string name="activity_edit_favorite_input_text_duration_and">and</string>
+    <string name="activity_edit_favorite_input_text_duration_minutes">minutes</string>
+    <string name="activity_edit_favorite_input_text_duration_minimum">At least</string>
+    <string name="activity_edit_favorite_input_text_duration_maximum">At most</string>
     <string name="activity_edit_favorite_selection_text_duration_minimum">Duration of at least:</string>
     <string name="activity_edit_favorite_selection_text_duration_maximum">Duration of at most:</string>
     
-    <string name="favorite_channels_default">All</string>
+    <string name="activity_edit_favorite_input_text_all_value">All</string>
     <string name="favorite_search_hint">Enter text to search for</string>
     <string name="favorite_only_title">Search only in title</string>
     <string name="favorite_edit">Edit Favorite</string>
@@ -577,6 +583,7 @@
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
         <h2>0.4.4</h2>
+        	&bull; new type of Favorite with search only for rules<br>
         	&bull; changed default value for divider size in lists with programs<br>
         	&bull; added duration restriction to Favorites<br>
         	&bull; update icon in ActionBar only visible if auto update is disabled<br>

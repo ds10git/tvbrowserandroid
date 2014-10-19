@@ -85,17 +85,23 @@
     <string name="favorite_time_from">Von:</string>
     <string name="favorite_days">Tage:</string>
     <string name="favorite_days_default">Mo. Di. Mi. Do. Fr. Sa. So.</string>
+    <string name="activity_edit_favorite_label_text_type">Typ:</string>
+    <string-array name="activity_edit_favorite_input_text_type">
+        <item>Suche nach Stichwort nur im Titel</item>
+        <item>Suche nach Stichwort</item>
+        <item>Suche nur nach Ausschlussregeln</item>
+    </string-array>
     <string name="activity_edit_favorite_label_text_channels">Sender:</string>
     <string name="activity_edit_favorite_label_text_duration">Dauer:</string>
-    <string name="activity_edit_favorite_label_text_duration_unrestricted">Beliebig</string>
-    <string name="activity_edit_favorite_label_text_duration_and">und</string>
-    <string name="activity_edit_favorite_label_text_duration_minutes">Minuten</string>
-    <string name="activity_edit_favorite_label_text_duration_minimum">Mindestens</string>
-    <string name="activity_edit_favorite_label_text_duration_maximum">Höchstens</string>
+    <string name="activity_edit_favorite_input_text_duration_unrestricted">Beliebig</string>
+    <string name="activity_edit_favorite_input_text_duration_and">und</string>
+    <string name="activity_edit_favorite_input_text_duration_minutes">Minuten</string>
+    <string name="activity_edit_favorite_input_text_duration_minimum">Mindestens</string>
+    <string name="activity_edit_favorite_input_text_duration_maximum">Höchstens</string>
     <string name="activity_edit_favorite_selection_text_duration_minimum">Dauer von mindestens:</string>
     <string name="activity_edit_favorite_selection_text_duration_maximum">Dauer von höchstens:</string>
 
-    <string name="favorite_channels_default">Alle</string>
+    <string name="activity_edit_favorite_input_text_all_value">Alle</string>
     <string name="favorite_search_hint">Suchbegriff eingeben</string>
     <string name="favorite_only_title">Nur im Titel suchen</string>
     <string name="favorite_edit">Lieblingssendung bearbeiten</string>
@@ -564,6 +570,7 @@
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
         <h2>0.4.4</h2>
+        	&bull; Neuer Typ Lieblingssendung mit Suche nur nach Ausschlusskriterien hinzugefügt<br>
         	&bull; Standardwert für Trennergröße in Listen mit Sendungen geändert<br>
         	&bull; Beschränkung der Sendungsdauer zu Lieblingssendungen hinzugefügt<br>
         	&bull; Update-Symbol in der Werkzeugleiste nur sichtbar, wenn automatisches Datenupdate deaktiviert ist<br>
