@@ -7,7 +7,15 @@
     <item android:id="@+id/action_filter_channels"
           android:title="@string/action_filter_channels"
           android:icon="@drawable/ic_filter_default"
-          android:showAsAction="always" />
+          android:showAsAction="always">
+          <menu>
+          	  <item
+                  android:id="@+id/action_activity_filter_list_edit_open"
+                  android:orderInCategory="2"
+                  android:showAsAction="never"
+                  android:title="@string/activity_edit_filter_filter_title"/>
+          </menu>
+    </item>
     <item 
         android:id="@+id/action_scroll"
         android:orderInCategory="90"

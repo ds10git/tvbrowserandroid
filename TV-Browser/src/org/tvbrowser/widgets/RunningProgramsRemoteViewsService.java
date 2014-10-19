@@ -22,6 +22,7 @@ import java.util.Date;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.ChannelFilterValues;
 import org.tvbrowser.tvbrowser.CompatUtils;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.UiUtils;
@@ -31,6 +32,7 @@ import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -121,9 +123,19 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         time = now.getTimeInMillis();
       }
       
-      final String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + time + " AND " +
+      String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + time + " AND " +
       TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
             
+      String mCurrentChannelFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, SettingConstants.ALL_FILTER_ID);
+      
+      SharedPreferences pref = getSharedPreferences(SettingConstants.FILTER_PREFERENCES, Context.MODE_PRIVATE);
+      
+      String values = pref.getString(mCurrentChannelFilterId, null);
+      
+      if(mCurrentChannelFilterId != null && values != null) {
+        where += new ChannelFilterValues(mCurrentChannelFilterId,values).getWhereClause();
+      }
+      
       final long token = Binder.clearCallingIdentity();
       try {
         mCursor = getApplicationContext().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.DATA_KEY_STARTTIME);

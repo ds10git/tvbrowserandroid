@@ -42,6 +42,9 @@ public class SettingConstants {
   
   private static final String REMINDER_PAUSE_KEY = "REMINDER_PAUSE_KEY";
   
+  public static final String FILTER_PREFERENCES = "filterPreferences";
+  public static final String ALL_FILTER_ID = "filter.allFilter";
+  
   public static final String EPG_FREE_KEY = "EPG_FREE";
   public static final String[] LEVEL_NAMES = {"base","more00-16","more16-00","picture00-16","picture16-00"};
   public static final String CHANNEL_DOWNLOAD_COMPLETE = "org.tvbrowser.CHANNEL_DOWNLOAD_COMPLETE";
@@ -215,10 +218,6 @@ public class SettingConstants {
   public static final String MARKINGS_ID = "MARKINGS_ID";
   public static final String FAVORITE_LIST = "FAVORITE_LIST";
   
-  public static final String SELECTED_RADIO_CHANNELS_LIST = "SELECTED_RADIO_CHANNELS_LIST";
-  public static final String SELECTED_TV_CHANNELS_LIST = "SELECTED_TV_CHANNELS_LIST";
-  public static final String SELECTED_CINEMA_CHANNELS_LIST = "SELECTED_CINEMA_CHANNELS_LIST";
-      
   public static final String USER_NAME = "CAR";
   public static final String USER_PASSWORD = "BICYCLE";
   

@@ -37,12 +37,36 @@
         android:layout_toRightOf="@id/channel_category_label"
         android:layout_below="@id/channel_country_value"
     />
+    <TextView
+        android:id="@+id/channel_selection_label_id_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="10dp"
+        android:layout_marginLeft="10dp"
+        android:textSize="@dimen/edit_favorite_font_size"
+        android:layout_marginEnd="3dp"
+        android:layout_marginRight="3dp"
+        android:text="@string/channel_selection_label_text_name"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_alignBaseline="@+id/channel_selection_input_id_name"
+        android:layout_below="@id/channel_category_value"/>
+    <EditText
+        android:id="@+id/channel_selection_input_id_name"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textSize="@dimen/edit_favorite_font_size"
+        android:hint="@string/channel_selection_input_name_hint"
+        android:layout_toRightOf="@id/channel_selection_label_id_name"
+        android:layout_toEndOf="@id/channel_selection_label_id_name"
+        android:layout_below="@id/channel_category_value"
+        android:inputType="textMultiLine"/>
     <LinearLayout
         android:id="@+id/channel_selection_selection_buttons"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="horizontal"
-        android:layout_below="@id/channel_category_value"
+        android:layout_below="@id/channel_selection_input_id_name"
         style="?android:attr/buttonBarStyle">
         <Button
 	        android:id="@+id/channel_selection_select_all"

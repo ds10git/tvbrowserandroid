@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+	<item
+	    android:id="@+id/activity_edit_filter_list_action_add"
+	  	android:title="@string/activity_edit_filter_list_text_add"
+	  	android:icon="@drawable/ic_filter_add"
+	  	android:onClick="addFilter"
+	  	android:showAsAction="always|withText"/>
+</menu>
