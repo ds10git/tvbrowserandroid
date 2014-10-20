@@ -165,6 +165,7 @@ public class TvBrowser extends FragmentActivity implements
   private Timer mTimer;
   
   private MenuItem mFilterItem;
+  private MenuItem mCreateFavorite;
   
   private MenuItem mUpdateItem;
   private MenuItem mSendDataUpdateLogItem;
@@ -359,6 +360,9 @@ public class TvBrowser extends FragmentActivity implements
             
             if(mFilterItem != null) {
               mFilterItem.setVisible(!(fragment instanceof FavoritesFragment));
+            }
+            if(mCreateFavorite != null) {
+              mCreateFavorite.setVisible(fragment instanceof FavoritesFragment);
             }
             
             mProgramsListWasShow = false;
@@ -3172,6 +3176,7 @@ public class TvBrowser extends FragmentActivity implements
         showUserSetting(false);
     }
       break;
+      case R.id.menu_tvbrowser_action_create_favorite: UiUtils.editFavorite(null, TvBrowser.this, null);break;
       case R.id.action_donation: showDonationInfo(); break;
       case R.id.action_pause_reminder: pauseReminder(); break;
       case R.id.action_continue_reminder: SettingConstants.setReminderPaused(TvBrowser.this, false); mPauseReminder.setVisible(true); mContinueReminder.setVisible(false); break;
@@ -3304,6 +3309,12 @@ public class TvBrowser extends FragmentActivity implements
     }
     
     mFilterItem = menu.findItem(R.id.action_filter_channels);
+    mCreateFavorite = menu.findItem(R.id.menu_tvbrowser_action_create_favorite);
+    
+    Fragment fragment = mSectionsPagerAdapter.getItem(mViewPager.getCurrentItem());
+    
+    mFilterItem.setVisible(!(fragment instanceof FavoritesFragment));
+    mCreateFavorite.setVisible(fragment instanceof FavoritesFragment);
     
     updateFromFilterEdit();
     

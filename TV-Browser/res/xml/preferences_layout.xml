@@ -52,4 +52,12 @@
 	        android:summary="@string/pref_marking_color_sync_summary"
 	        android:defaultValue="@color/pref_color_mark_sync_tvb_style_favorite_default"/>
 	</PreferenceCategory>
+	<PreferenceCategory android:title="@string/pref_favorite_fragment_layout_category">
+		<ListPreference android:key="@string/PREF_FAVORITE_TAB_LAYOUT"
+			android:title="@string/pref_favorite_fragment_layout_text"
+			android:defaultValue="@string/pref_favorite_tab_layout_default"
+			android:entries="@array/pref_favorite_fragment_layout_entries"
+			android:entryValues="@array/pref_simple_string_value_array2"
+			android:summary="%s"/>
+	</PreferenceCategory>
 </PreferenceScreen>

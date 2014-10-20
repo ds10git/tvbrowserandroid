@@ -53,6 +53,7 @@
     <string name="filter_channel_all">All</string>
     <string name="dont_select_channels">Don\'t select channels</string>
     <string name="menu_tvbrowser_title_update_data">Update Data</string>
+    <string name="menu_tvbrowser_title_create_favorite">New Favorite</string>
     <string name="versionExpired">Version expired</string>
     <string name="versionExpiredMsg">This version will stop working in {0} days.\n\nPlease install an update for the app.</string>
     <string name="versionExpiredMsgLast">This version will stop working from tomorrow on.\n\nPlease install an update for the app.</string>
@@ -81,7 +82,13 @@
     <string name="today">today</string>
     <string name="tomorrow">tomorrow</string>
     <string name="add">Add</string>
-    <string name="favorite_fragment_help">The selected Favorite has no found programs.\n\nTo edit or delete Favorites, please select it and click long on the selected entry.\n\nTo add a new Favorite click on Add.</string>
+    <string name="pref_favorite_fragment_layout_category">Favorites</string>
+    <string name="pref_favorite_fragment_layout_text">Favorites tab layout style</string>
+    <string-array name="pref_favorite_fragment_layout_entries">
+        <item>Top drop down menu (Needs restart)</item>
+        <item>Left side list selection (Needs restart)</item>
+    </string-array>
+    <string name="favorite_fragment_help">The selected Favorite has no found programs.\n\nTo edit or delete Favorites, please select it and click long on the selected entry.\n\nTo add a new Favorite click on the heart icon.</string>
     <string name="favorite_name">Name:</string>
     <string name="favorite_name_hint">Enter name (optional)</string>
     <string name="favorite_search">Search:</string>
@@ -591,7 +598,11 @@
     
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
-        <h2>0.4.4</h2>
+		<h2>0.4.5</h2>
+        	&bull; layout style of Favorites tab selectable in layout settings<br>
+        	&bull; icon for new Favorite in ActionBar<br>
+        <br>
+        <h3>0.4.4</h3s>
         	&bull; added user editable channel filters<br>
         	&bull; new type of Favorite with search only for rules<br>
         	&bull; changed default value for divider size in lists with programs<br>

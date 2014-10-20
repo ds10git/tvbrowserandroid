@@ -37,6 +37,13 @@
         android:title="@string/menu_tvbrowser_title_update_data"
         android:icon="@android:drawable/stat_sys_download"
         />
+    <item
+        android:id="@+id/menu_tvbrowser_action_create_favorite"
+        android:orderInCategory="90"
+        android:showAsAction="always"
+        android:title="@string/menu_tvbrowser_title_create_favorite"
+        android:icon="@drawable/ic_favorite_add"
+        />
   	<item
   	    android:id="@+id/action_pause_reminder"
   	    android:orderInCategory="100"
