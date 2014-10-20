@@ -169,6 +169,7 @@ public class ProgramTableFragment extends Fragment {
         where.append("<=");
         where.append(TvBrowserContentProvider.DATA_KEY_ENDTIME);    
         where.append(" )) ");
+        where.append(((TvBrowser)getActivity()).getChannelFilterSelection());
         
         Cursor c = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME}, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
         

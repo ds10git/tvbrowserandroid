@@ -2834,9 +2834,7 @@ public class TvBrowser extends FragmentActivity implements
     if(requestCode == OPEN_FILTER_EDIT) {
       updateFromFilterEdit();
       
-      Intent refresh = new Intent(SettingConstants.DATA_UPDATE_DONE);
-      LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcast(refresh);
-      UiUtils.updateRunningProgramsWidget(TvBrowser.this);
+      sendChannelFilterUpdate();
     }
   }
   
@@ -3083,29 +3081,39 @@ public class TvBrowser extends FragmentActivity implements
     startActivityForResult(startFilterEdit, OPEN_FILTER_EDIT);
   }
   
+  private void sendChannelFilterUpdate() {
+    Intent refresh = new Intent(SettingConstants.DATA_UPDATE_DONE);
+    LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcast(refresh);
+    UiUtils.updateRunningProgramsWidget(TvBrowser.this);
+    
+    updateProgramListChannelBar();
+  }
+  
+  private void updateChannelFilter(ChannelFilterValues filter, int iconRes) {
+    mCurrentChannelFilterId = filter.getId();
+    mCurrentChannelFilter = filter;
+    setCurrentFilterPreference(mCurrentChannelFilterId);
+    mFilterItem.setIcon(iconRes);
+
+    sendChannelFilterUpdate();
+  }
+  
   private void updateFromFilterEdit() {
-    Log.d("info2", "updateFromFilterEdit");
     final SubMenu filters = mFilterItem.getSubMenu();
     
     for(int i = 2; i < filters.size(); i++) {
       filters.removeItem(i);
     }
     
-    SharedPreferences filterPreferences = getSharedPreferences(SettingConstants.FILTER_PREFERENCES, Context.MODE_PRIVATE);
-    
-    Map<String,?> filterValues = filterPreferences.getAll();
-    
-    //Hashtable<String, MenuChannelFilter> channelFilterTable = new Hashtable<String, TvBrowser.MenuChannelFilter>();
     ArrayList<ChannelFilterValues> channelFilterList = new ArrayList<ChannelFilterValues>();
+    SharedPreferences filterPreferences = getSharedPreferences(SettingConstants.FILTER_PREFERENCES, Context.MODE_PRIVATE);
+    Map<String,?> filterValues = filterPreferences.getAll();
     
     for(String key : filterValues.keySet()) {
       Object values = filterValues.get(key);
       
-      if(key.startsWith("filter.") && values instanceof String && values != null) {
-        ChannelFilterValues filter = new ChannelFilterValues(key, (String)values);
-        
-        channelFilterList.add(filter);
-      //  channelFilterTable.put(key, filter);
+      if(key.startsWith("filter.") && values instanceof String && values != null) {        
+        channelFilterList.add(new ChannelFilterValues(key, (String)values));
       }
     }
     
@@ -3119,15 +3127,8 @@ public class TvBrowser extends FragmentActivity implements
     all.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
       @Override
       public boolean onMenuItemClick(MenuItem item) {
-        mCurrentChannelFilterId = allFilter.getId();
-        mCurrentChannelFilter = allFilter;
-        setCurrentFilterPreference(mCurrentChannelFilterId);
-        mFilterItem.setIcon(R.drawable.ic_filter_default);
- //       item.setChecked(true);
-        Log.d("info2", "item " + item);
-        Intent refresh = new Intent(SettingConstants.DATA_UPDATE_DONE);
-        LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcast(refresh);
-        UiUtils.updateRunningProgramsWidget(TvBrowser.this);
+        updateChannelFilter(allFilter,R.drawable.ic_filter_default);
+        
         return true;
       }
     });
@@ -3143,19 +3144,11 @@ public class TvBrowser extends FragmentActivity implements
         mFilterItem.setIcon(R.drawable.ic_filter_on);
         item.setChecked(true);
       }
-      //item.setCheckable(true);
+      
       item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
-          mCurrentChannelFilterId = filter.getId();
-          setCurrentFilterPreference(mCurrentChannelFilterId);
-          mCurrentChannelFilter = filter;
-          mFilterItem.setIcon(R.drawable.ic_filter_on);
-   //       item.setChecked(true);
-          Log.d("info2", "item " + item);
-          Intent refresh = new Intent(SettingConstants.DATA_UPDATE_DONE);
-          LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcast(refresh);
-          UiUtils.updateRunningProgramsWidget(TvBrowser.this);
+          updateChannelFilter(filter,R.drawable.ic_filter_on);
           
           return true;
         }
