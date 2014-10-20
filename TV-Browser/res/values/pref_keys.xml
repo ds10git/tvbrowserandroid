@@ -57,6 +57,8 @@
 	    <string name="PREF_COLOR_REMINDER_USER_DEFINED">PREF_COLOR_REMINDER_USER_DEFINED</string>
 	    <string name="PREF_COLOR_SYNC_USER_DEFINED">PREF_COLOR_SYNC_USER_DEFINED</string>
 	    
+	    <string name="PREF_FAVORITE_TAB_LAYOUT">PREF_FAVORITE_TAB_LAYOUT</string>
+	    
 	<!-- Reminder settings -->
 	    
 	    <string name="PREF_REMINDER_TIME">PREF_REMINDER_TIME</string>

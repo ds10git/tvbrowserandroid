@@ -254,6 +254,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.PREF_WIDGET_CHANNEL_LOGO_NAME))
           || key.equals(getResources().getString(R.string.PREF_WIDGET_LISTS_DIVIDER_SIZE))
           || key.equals(getResources().getString(R.string.PREF_WIDGET_VERTICAL_PADDING_SIZE))
+          || key.equals(getResources().getString(R.string.PREF_FAVORITE_TAB_LAYOUT))
           ) {
         ListPreference lp = (ListPreference) findPreference(key);
         

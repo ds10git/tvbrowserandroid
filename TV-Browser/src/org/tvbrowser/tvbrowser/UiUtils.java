@@ -1336,7 +1336,6 @@ public class UiUtils {
     Intent startEditFavorite = new Intent(activity, ActivityFavoriteEdit.class);
     
     if(fav != null) {
-      Log.d("info12", "IN " + fav.getName() + " " + fav.getSearchValue() + " " + fav.getType() + " " + fav.remind());
       startEditFavorite.putExtra(Favorite.FAVORITE_EXTRA, fav);
     }
     else if(searchString != null) {
@@ -1344,112 +1343,6 @@ public class UiUtils {
     }
     
     activity.startActivity(startEditFavorite);
-    /*
-    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-    
-    final View input = ((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.add_favorite_layout, null);
-    
-    if(fav != null) {
-      ((EditText)input.findViewById(R.id.favorite_name)).setText(fav.getName());
-      ((EditText)input.findViewById(R.id.favorite_search_value)).setText(fav.getSearchValue());
-      ((CheckBox)input.findViewById(R.id.favorite_only_title)).setChecked(fav.searchOnlyTitle());
-      ((CheckBox)input.findViewById(R.id.favorite_remind)).setChecked(fav.remind());
-    }
-    else if(searchString != null) {
-      ((EditText)input.findViewById(R.id.favorite_search_value)).setText(searchString);
-    }
-    
-    final EditText searchValue = (EditText)input.findViewById(R.id.favorite_search_value);
-    
-    builder.setView(input);
-    
-    builder.setPositiveButton(R.string.add, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        new Thread() {
-          public void run() {
-            String name = ((EditText)input.findViewById(R.id.favorite_name)).getText().toString();
-            String search = ((EditText)input.findViewById(R.id.favorite_search_value)).getText().toString();
-            boolean onlyTitle = ((CheckBox)input.findViewById(R.id.favorite_only_title)).isChecked();
-            boolean remind = ((CheckBox)input.findViewById(R.id.favorite_remind)).isChecked();
-            
-            if(name == null || name.trim().length() == 0) {
-              name = search;
-            }
-            
-            if(search != null) {
-              Intent intent = new Intent(SettingConstants.FAVORITES_CHANGED);
-                       
-              if(fav != null) {
-                intent.putExtra(Favorite.OLD_NAME_KEY, fav.getName());
-              }
-              
-              SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(activity);
-              
-              Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
-              HashSet<String> newFavoriteList = new HashSet<String>();
-              
-              Favorite dummy = new Favorite(name, search, onlyTitle, remind);
-              boolean added = false;
-              
-              for(String favorite : favoritesSet) {
-                String[] values = favorite.split(";;");
-                
-                if(fav != null && values[0].equals(fav.getName())) {                
-                  newFavoriteList.add(dummy.getSaveString());
-                  added = true;
-                }
-                else {
-                  newFavoriteList.add(favorite);
-                }
-              }
-                
-              if(!added) {
-                newFavoriteList.add(dummy.getSaveString());
-              }
-              
-              Editor edit = prefs.edit();
-              edit.putStringSet(SettingConstants.FAVORITE_LIST, newFavoriteList);
-              edit.commit();
-              
-              intent.putExtra(Favorite.NAME_KEY, name);
-              intent.putExtra(Favorite.SEARCH_KEY, search);
-              intent.putExtra(Favorite.ONLY_TITLE_KEY, onlyTitle);
-              intent.putExtra(Favorite.REMIND_KEY, remind);
-              
-              Favorite.updateFavoriteMarking(activity.getApplicationContext(), activity.getContentResolver(), dummy);
-              
-              LocalBroadcastManager.getInstance(activity).sendBroadcast(intent);
-            }
-          }
-        }.start();
-      }
-    });
-    
-    builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        
-      }
-    });
-    
-    AlertDialog dialog = builder.create();
-    dialog.show();
-    
-    final Button positive = (Button)dialog.getButton(AlertDialog.BUTTON_POSITIVE);
-    positive.setEnabled(searchValue.getText().toString().trim().length() > 0);
-    
-    searchValue.addTextChangedListener(new TextWatcher() {
-      @Override
-      public void onTextChanged(CharSequence s, int start, int before, int count) {}
-      @Override
-      public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
-      
-      @Override
-      public void afterTextChanged(Editable s) {
-        positive.setEnabled(searchValue.getText().toString().trim().length() > 0);
-      }
-    });**/
   }
   
   public static String formatDate(long date, Context context, boolean onlyDays) {

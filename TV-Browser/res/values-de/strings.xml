@@ -48,6 +48,7 @@
     <string name="filter_channel_category">Kategorie:</string>
     <string name="dont_select_channels">Jetzt nicht</string>
     <string name="menu_tvbrowser_title_update_data">Datenupdate</string>
+    <string name="menu_tvbrowser_title_create_favorite">Neue Lieblingssendung</string>
     <string name="versionExpired">Version abgelaufen</string>
     <string name="versionExpiredMsg">Diese Version wird sich in {0} Tagen nicht mehr benutzen lassen.\n\nBitte installieren Sie ein Update.</string>
     <string name="versionExpiredMsgLast">Diese Version wird sich ab morgen nicht mehr benutzen lassen.\n\nBitte installieren Sie ein Update.</string>
@@ -75,7 +76,13 @@
     <string name="today">heute</string>
     <string name="tomorrow">morgen</string>
     <string name="add">Hinzufügen</string>
-    <string name="favorite_fragment_help">Die ausgewählte Lieblingssendung hat keine gefundenen Sendungen.\n\nUm eine Lieblingssendung zu bearbeiten oder zu löschen, wählen Sie diese aus und klicken Sie dann lang auf die ausgewählte Lieblingssendung.\n\nKlicken Sie auf Hinzufügen um eine neue Lieblingssendung anzulegen.</string>
+    <string name="pref_favorite_fragment_layout_category">Lieblingssendungen</string>
+    <string name="pref_favorite_fragment_layout_text">Stil des Lieblingssendungstabs</string>
+    <string-array name="pref_favorite_fragment_layout_entries">
+        <item>Auswahlbox am oberen Rand (Neustart notwendig)</item>
+        <item>Listenauswahl auf der linken Seite (Neustart notwendig)</item>
+    </string-array>
+    <string name="favorite_fragment_help">Die ausgewählte Lieblingssendung hat keine gefundenen Sendungen.\n\nUm eine Lieblingssendung zu bearbeiten oder zu löschen, wählen Sie diese aus und klicken Sie dann lang auf die ausgewählte Lieblingssendung.\n\nKlicken Sie auf das Herzsymbol um eine neue Lieblingssendung anzulegen.</string>
     <string name="favorite_name">Name:</string>
     <string name="favorite_name_hint">Namen eingeben (optional)</string>
     <string name="favorite_search">Suchen:</string>
@@ -577,7 +584,11 @@
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
-        <h2>0.4.4</h2>
+		<h2>0.4.5</h2>
+        	&bull; Layout-Stil des Lieblingssendungstabs unter Aussehen einstellbar<br>
+        	&bull; Symbol für neue Lieblingssendung in der Werkzeugleiste<br>
+        <br>
+        <h3>0.4.4</h3>
         	&bull; benutzerdefinierbare Senderfilter hinzugefügt<br>
         	&bull; neuer Typ Lieblingssendung mit Suche nur nach Ausschlusskriterien hinzugefügt<br>
         	&bull; Standardwert für Trennergröße in Listen mit Sendungen geändert<br>
