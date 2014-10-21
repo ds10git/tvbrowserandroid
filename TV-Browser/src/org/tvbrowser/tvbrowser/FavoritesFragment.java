@@ -228,16 +228,18 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     mFavoriteAdapter = new ArrayAdapter<FavoriteSpinnerEntry>(getActivity(), rowLayout.get(), mFavoriteList){
       @Override
       public View getView(int position, View convertView, ViewGroup parent) {
+        FavoriteSpinnerEntry entry = getItem(position);
+        
         if(convertView == null) {
           convertView = getActivity().getLayoutInflater().inflate(rowLayout.get(), parent, false);
         }
         
-        String name = getItem(position).toString();
+        String name = entry.toString();
         
         if(!mContainsListViewFavoriteSelection) {
           Drawable draw = getResources().getDrawable(android.R.drawable.list_selector_background);
           
-          if(!getItem(position).containsFavorite()) {
+          if(!entry.containsFavorite()) {
             if(name.equals(getString(R.string.marking_value_marked))) {
               draw = new ColorDrawable(UiUtils.getColor(UiUtils.MARKED_COLOR_KEY, getContext()));
             }
@@ -440,7 +442,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
                 else {
                   Favorite temp = (Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA);
                   
-                  fav.getFavorite().setValues(temp.getName(), temp.getSearchValue(), temp.getType(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs(), temp.getExclusions(), temp.getDurationRestrictionMinimum(), temp.getDurationRestrictionMaximum());
+                  fav.getFavorite().setValues(temp.getName(), temp.getSearchValue(), temp.getType(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs(), temp.getExclusions(), temp.getDurationRestrictionMinimum(), temp.getDurationRestrictionMaximum(), temp.getAttributeRestrictionIndices());
                 }
                 
                 handler.post(new Runnable() {

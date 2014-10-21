@@ -17,8 +17,12 @@
 package org.tvbrowser.content;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Set;
+import java.util.TimeZone;
+
+import org.tvbrowser.tvbrowser.IOUtils;
 
 import android.app.SearchManager;
 import android.content.ContentProvider;
@@ -163,6 +167,64 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_MARKING_REMINDER = "markingReminder";
   public static final String DATA_KEY_MARKING_CALENDAR = "markingCalendar";
   public static final String DATA_KEY_MARKING_SYNC = "markingSync";
+  
+  public static final String DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT = "utcStartMinuteAfterMidnight";
+  public static final String DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT = "utcEndMinuteAfterMidnight";
+  public static final String DATA_KEY_DURATION_IN_MINUTES = "durationInMinutes";
+  
+  public static final String DATA_KEY_INFO_BLACK_AND_WHITE = "infoBlackAndWhite";
+  public static final String DATA_KEY_INFO_4_TO_3 = "infoFourToThree";
+  public static final String DATA_KEY_INFO_16_TO_9 = "infoSixteenToNine";
+  public static final String DATA_KEY_INFO_MONO = "infoMono";
+  public static final String DATA_KEY_INFO_STEREO = "infoStereo";
+  public static final String DATA_KEY_INFO_DOLBY_SOURROUND = "infoDoblySourround";
+  public static final String DATA_KEY_INFO_DOLBY_DIGITAL_5_1 = "infoDigitalFivePointOne";
+  public static final String DATA_KEY_INFO_SECOND_AUDIO_PROGRAM = "infoSecondAudioProgram";
+  public static final String DATA_KEY_INFO_CLOSED_CAPTION = "infoClosedCaption";
+  public static final String DATA_KEY_INFO_LIVE = "infoLive";
+  public static final String DATA_KEY_INFO_OMU = "infoOmU";
+  public static final String DATA_KEY_INFO_FILM = "infoFilm";
+  public static final String DATA_KEY_INFO_SERIES = "infoSeries";
+  public static final String DATA_KEY_INFO_NEW = "infoNew";
+  public static final String DATA_KEY_INFO_AUDIO_DESCRIPTION = "infoAudioDescritption";
+  public static final String DATA_KEY_INFO_NEWS = "infoNews";
+  public static final String DATA_KEY_INFO_SHOW = "infoShow";
+  public static final String DATA_KEY_INFO_MAGAZIN = "infoMagazin";
+  public static final String DATA_KEY_INFO_HD = "infoHD";
+  public static final String DATA_KEY_INFO_DOCUMENTATION = "infoDocumentation";
+  public static final String DATA_KEY_INFO_ART = "infoArt";
+  public static final String DATA_KEY_INFO_SPORT = "infoSport";
+  public static final String DATA_KEY_INFO_CHILDREN = "infoChildren";
+  public static final String DATA_KEY_INFO_OTHER = "infoOther";
+  public static final String DATA_KEY_INFO_SIGN_LANGUAGE = "infoSingLanguage";
+  
+  public static final String[] INFO_CATEGORIES_COLUMNS_ARRAY = {
+    DATA_KEY_INFO_BLACK_AND_WHITE,
+    DATA_KEY_INFO_4_TO_3,
+    DATA_KEY_INFO_16_TO_9,
+    DATA_KEY_INFO_MONO,
+    DATA_KEY_INFO_STEREO,
+    DATA_KEY_INFO_DOLBY_SOURROUND,
+    DATA_KEY_INFO_DOLBY_DIGITAL_5_1,
+    DATA_KEY_INFO_SECOND_AUDIO_PROGRAM,
+    DATA_KEY_INFO_CLOSED_CAPTION,
+    DATA_KEY_INFO_LIVE,
+    DATA_KEY_INFO_OMU,
+    DATA_KEY_INFO_FILM,
+    DATA_KEY_INFO_SERIES,
+    DATA_KEY_INFO_NEW,
+    DATA_KEY_INFO_AUDIO_DESCRIPTION,
+    DATA_KEY_INFO_NEWS,
+    DATA_KEY_INFO_SHOW,
+    DATA_KEY_INFO_MAGAZIN,
+    DATA_KEY_INFO_HD,
+    DATA_KEY_INFO_DOCUMENTATION,
+    DATA_KEY_INFO_ART,
+    DATA_KEY_INFO_SPORT,
+    DATA_KEY_INFO_CHILDREN,
+    DATA_KEY_INFO_OTHER,
+    DATA_KEY_INFO_SIGN_LANGUAGE
+  };
   
   // Column names for data version table
   public static final String VERSION_KEY_DAYS_SINCE_1970 = "daysSince1970";
@@ -869,7 +931,35 @@ public class TvBrowserContentProvider extends ContentProvider {
         + DATA_KEY_MARKING_FAVORITE_REMINDER + " INTEGER DEFAULT 0, "
         + DATA_KEY_MARKING_REMINDER + " INTEGER DEFAULT 0, "
         + DATA_KEY_MARKING_CALENDAR + " INTEGER DEFAULT 0, "
-        + DATA_KEY_MARKING_SYNC + " INTEGER DEFAULT 0"
+        + DATA_KEY_MARKING_SYNC + " INTEGER DEFAULT 0, "
+        + DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0, "
+        + DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0, "
+        + DATA_KEY_DURATION_IN_MINUTES + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_BLACK_AND_WHITE + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_4_TO_3 + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_16_TO_9 + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_MONO + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_STEREO + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_DOLBY_SOURROUND  + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_DOLBY_DIGITAL_5_1 + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_SECOND_AUDIO_PROGRAM + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_CLOSED_CAPTION + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_LIVE + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_OMU + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_FILM + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_SERIES + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_NEW + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_AUDIO_DESCRIPTION + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_NEWS + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_SHOW + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_MAGAZIN + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_HD + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_DOCUMENTATION + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_ART + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_SPORT + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_CHILDREN + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_OTHER + " INTEGER DEFAULT 0, "
+        + DATA_KEY_INFO_SIGN_LANGUAGE + " INTEGER DEFAULT 0 "
         + ");";
     
     private static final String CREATE_VERSION_TABLE = "create table " + VERSION_TABLE + " (" + KEY_ID + " integer primary key autoincrement, "
@@ -894,10 +984,10 @@ public class TvBrowserContentProvider extends ContentProvider {
       db.execSQL(CREATE_VERSION_TABLE);
     }
 
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
     
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(final SQLiteDatabase db, int oldVersion, int newVersion) {
       Log.d("info4", "oldVersion " + oldVersion + " newVersion " + newVersion);
       if(oldVersion == 1 && newVersion > 1) {
         boolean logoFound = false;
@@ -1117,6 +1207,105 @@ public class TvBrowserContentProvider extends ContentProvider {
           Log.d("info4","DROP TABLE " + DATA_TABLE + "_old;");
           db.execSQL("DROP TABLE " + DATA_TABLE + "_old;");
         }
+      }
+      
+      if(oldVersion < 7) {
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_DURATION_IN_MINUTES + " INTEGER DEFAULT 0");
+        
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_BLACK_AND_WHITE + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_4_TO_3 + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_16_TO_9 + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_MONO + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_STEREO + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_DOLBY_SOURROUND  + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_DOLBY_DIGITAL_5_1 + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_SECOND_AUDIO_PROGRAM + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_CLOSED_CAPTION + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_LIVE + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_OMU + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_FILM + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_SERIES + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_NEW + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_AUDIO_DESCRIPTION + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_NEWS + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_SHOW + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_MAGAZIN + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_HD + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_DOCUMENTATION + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_ART + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_SPORT + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_CHILDREN + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_OTHER + " INTEGER DEFAULT 0");
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_SIGN_LANGUAGE + " INTEGER DEFAULT 0");
+        
+        new Thread("DATABASE DATA TABLE UPDATE THREAD") {
+          @Override
+          public void run() {
+            Cursor all = db.query(DATA_TABLE, new String[] {KEY_ID,DATA_KEY_STARTTIME,DATA_KEY_ENDTIME,DATA_KEY_CATEGORIES}, null, null, null, null, KEY_ID);
+            
+            try {
+              if(all.moveToFirst()) {
+                final ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+                
+                final int keyColumn = all.getColumnIndex(KEY_ID);
+                final int startTimeColumn = all.getColumnIndex(DATA_KEY_STARTTIME);
+                final int endTimeColumn = all.getColumnIndex(DATA_KEY_ENDTIME);
+                final int categoryColumn = all.getColumnIndex(DATA_KEY_CATEGORIES);
+                
+                Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+                
+                do {
+                  long id = all.getLong(keyColumn);
+                  long startTime = all.getLong(startTimeColumn);
+                  long endTime = all.getLong(endTimeColumn);
+                  int categories = all.getInt(categoryColumn);
+                  
+                  ContentValues values = new ContentValues();
+                  
+                  utc.setTimeInMillis(startTime);
+                  
+                  values.put(DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT, (utc.get(Calendar.HOUR_OF_DAY) * 60 + utc.get(Calendar.MINUTE)));
+                  
+                  utc.setTimeInMillis(endTime);
+
+                  values.put(DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT, (utc.get(Calendar.HOUR_OF_DAY) * 60 + utc.get(Calendar.MINUTE)));
+                  values.put(DATA_KEY_DURATION_IN_MINUTES, (int)((endTime - startTime) / 60000));
+                  
+                  for(int i = 0; i < IOUtils.INFO_CATEGORIES_ARRAY.length; i++) {
+                    values.put(INFO_CATEGORIES_COLUMNS_ARRAY[i], IOUtils.infoSet(categories, IOUtils.INFO_CATEGORIES_ARRAY[i]));
+                  }
+                  
+                  ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
+                  opBuilder.withValues(values);
+                  
+                  updateValuesList.add(opBuilder.build());
+                }while(all.moveToNext());
+                
+                if(!updateValuesList.isEmpty()) {
+                  db.beginTransaction();
+                  
+                  for(ContentProviderOperation op : updateValuesList) {
+                    Uri uri = op.getUri();
+                    ContentValues values = op.resolveValueBackReferences(null, 0);
+                    
+                    String segment = uri.getPathSegments().get(1);
+                    
+                    db.update(TvBrowserDataBaseHelper.DATA_TABLE, values, KEY_ID + "=" + segment, null);
+                  }
+                  
+                  db.setTransactionSuccessful();
+                  db.endTransaction();
+                }
+              }
+            }finally {
+              if(all != null) {
+                all.close();
+              }
+            }
+          };
+        }.start();
       }
     }
   }

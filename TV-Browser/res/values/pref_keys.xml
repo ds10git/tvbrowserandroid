@@ -452,10 +452,19 @@
 	    
 	    <string name="PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST">PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST</string>
     	<item name="pref_widget_click_to_channel_to_list_default" type="bool" format="boolean">true</item>
-    	
-    	<string name="PREF_WIDGET_BACKGROUND_TRANSPARENCY">PREF_WIDGET_BACKGROUND_TRANSPARENCY</string>
+
+    	<string name="PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS">PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS</string>
+    	<item name="pref_widget_background_rounded_corners_default" type="bool" format="boolean">true</item>
+    		
+    <!-- 	<string name="PREF_WIDGET_BACKGROUND_TRANSPARENCY">PREF_WIDGET_BACKGROUND_TRANSPARENCY</string>
     	<item name="pref_widget_background_transparency_default" type="bool" format="boolean">true</item>
+    	 -->
+    	<string name="PREF_WIDGET_BACKGROUND_TRANSPARENCY_HEADER">PREF_WIDGET_BACKGROUND_TRANSPARENCY_HEADER</string>
+    	<item name="pref_widget_background_transparency_header_default" type="string" format="string">3</item>
     	
+    	<string name="PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST">PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST</string>
+    	<item name="pref_widget_background_transparency_list_default" type="string" format="string">2</item>
+    		
     	<string name="PREF_WIDGET_SIMPLE_ICON">PREF_WIDGET_SIMPLE_ICON</string>
     	<item name="pref_widget_simple_icon_default" type="bool" format="boolean">false</item>
 </resources>
