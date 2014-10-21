@@ -8,8 +8,8 @@
      android:orientation="vertical"
      android:layout_alignParentLeft="true"
      android:layout_centerVertical="true"
-     android:layout_marginTop="2dp"
-     android:layout_marginBottom="2dp">
+     android:paddingTop="2dp"
+     android:paddingBottom="2dp">
      <ImageView 
      	android:id="@+id/running_list_channel_logo"
     	android:layout_width="100dp"

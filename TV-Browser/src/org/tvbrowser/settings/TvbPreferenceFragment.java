@@ -188,7 +188,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           screen.addPreference(timePref);
         }
       }
-      else if(key.equals(getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY)) || key.equals(getString(R.string.PREF_WIDGET_SIMPLE_ICON))) {
+      else if(key.equals(getString(R.string.PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS)) || key.equals(getString(R.string.PREF_WIDGET_SIMPLE_ICON))) {
         updateWidgets();
       }
       else if(key.equals(getString(R.string.PREF_REMINDER_SOUND_VALUE)) || key.equals(getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE))
@@ -255,6 +255,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.PREF_WIDGET_LISTS_DIVIDER_SIZE))
           || key.equals(getResources().getString(R.string.PREF_WIDGET_VERTICAL_PADDING_SIZE))
           || key.equals(getResources().getString(R.string.PREF_FAVORITE_TAB_LAYOUT))
+          || key.equals(getResources().getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_HEADER))
+          || key.equals(getResources().getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST))
           ) {
         ListPreference lp = (ListPreference) findPreference(key);
         
@@ -271,7 +273,9 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         }
         
         if(key.equals(getResources().getString(R.string.PREF_WIDGET_LISTS_DIVIDER_SIZE)) || 
-            key.equals(getResources().getString(R.string.PREF_WIDGET_VERTICAL_PADDING_SIZE))) {
+            key.equals(getResources().getString(R.string.PREF_WIDGET_VERTICAL_PADDING_SIZE)) ||
+            key.equals(getResources().getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_HEADER)) || 
+            key.equals(getResources().getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST))) {
           updateWidgets();
         }
         if(key.equals(getResources().getString(R.string.PREF_COLOR_STYLE))) {

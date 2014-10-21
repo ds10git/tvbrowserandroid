@@ -189,6 +189,30 @@
 		        android:background="@android:drawable/list_selector_background"
 		        />
 		    <TextView
+		        android:id="@+id/activity_edit_favorite_label_id_attributes"
+		        android:layout_height="wrap_content"
+		        android:layout_width="wrap_content"
+		        android:layout_marginRight="5dp"
+		        android:layout_marginEnd="5dp"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:text="@string/favorite_attributes"
+		        android:layout_below="@+id/activity_edit_favorite_input_id_restriction_channel"
+		        android:layout_marginBottom="5dp"/>
+		    <TextView
+		        android:id="@+id/activity_edit_favorite_input_id_restriction_attributes"
+		        android:layout_height="wrap_content"
+		        android:layout_width="match_parent"
+		        android:textSize="@dimen/edit_favorite_font_size"
+		        android:layout_toRightOf="@+id/activity_edit_favorite_label_id_attributes"
+		        android:layout_toEndOf="@+id/activity_edit_favorite_label_id_attributes"
+		        android:layout_below="@+id/activity_edit_favorite_input_id_restriction_channel"
+		        android:text="@string/activity_edit_favorite_input_text_duration_unrestricted"
+		        android:layout_marginBottom="5dp"
+		        android:clickable="true"
+		        android:onClick="changeAttributes"
+		        android:background="@android:drawable/list_selector_background"
+		        />
+		    <TextView
 		        android:id="@+id/favorite_exclusion_label"
 		        android:layout_height="wrap_content"
 		        android:layout_width="wrap_content"
@@ -196,7 +220,7 @@
 		        android:layout_marginEnd="5dp"
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:text="@string/favorite_exclusion"
-		        android:layout_below="@+id/activity_edit_favorite_input_id_restriction_channel"
+		        android:layout_below="@+id/activity_edit_favorite_input_id_restriction_attributes"
 		        android:layout_alignBaseline="@+id/activity_edit_favorite_input_id_restriction_exclusion"
 		        android:layout_marginBottom="5dp"/>
 		    <EditText
@@ -206,7 +230,7 @@
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:layout_toRightOf="@+id/favorite_exclusion_label"
 		        android:layout_toEndOf="@+id/favorite_exclusion_label"
-		        android:layout_below="@+id/activity_edit_favorite_input_id_restriction_channel"
+		        android:layout_below="@+id/activity_edit_favorite_input_id_restriction_attributes"
 		        android:hint="@string/favorite_exclusion_hint"
 		        android:inputType="textMultiLine"
 		        android:layout_marginBottom="5dp"

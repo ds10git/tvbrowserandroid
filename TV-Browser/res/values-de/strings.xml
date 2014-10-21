@@ -91,6 +91,7 @@
     <string name="favorite_time_to_big">Bis:</string>
     <string name="favorite_time_from">Von:</string>
     <string name="favorite_days">Tage:</string>
+    <string name="favorite_attributes">Eigenschaften:</string>
     <string name="favorite_days_default">Mo. Di. Mi. Do. Fr. Sa. So.</string>
     <string name="activity_edit_favorite_label_text_type">Typ:</string>
     <string-array name="activity_edit_favorite_input_text_type">
@@ -561,7 +562,16 @@
     
     <string name="widget_running_select_time_title">Angezeigte Zeit auswählen</string>
     
-    <string name="widget_prefrerences_background_transparency">Hintergrund transparent</string>
+    <string name="widget_preferences_background_rounded_corners">Abgerundete Ecken</string>
+    <string name="widget_preferences_background_transpacency_header">Transparenz des Kopfes</string>
+    <string name="widget_preferences_background_transpacency_list">Transparenz der Liste</string>
+    <string-array name="widget_preferences_background_transpacency">
+        <item>Keine</item>
+        <item>Gering</item>
+        <item>Mittel</item>
+        <item>Hoch</item>
+    </string-array>
+    
     <string name="widget_prefrerences_simple_icon">Einfarbiges Widget-Symbol</string>
     
     <string name="backup_preferences_success">Backup erfolgreich auf den TV-Browser-Server hochgeladen</string>
@@ -585,6 +595,9 @@
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.5</h2>
+			&bull; neues Ausschlusskriterium für die Lieblingsendungen nach Sendungseigenschaften hinzugefügt<br>
+		    &bull; Fehler bei Zeitbeschränkung in Lieblingssendungen beseitigt<br>
+		    &bull; weitere globale Einstellungen für Widgets hinzugefügt<br>
         	&bull; Layout-Stil des Lieblingssendungstabs unter Aussehen einstellbar<br>
         	&bull; Symbol für neue Lieblingssendung in der Werkzeugleiste<br>
         <br>

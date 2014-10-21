@@ -74,6 +74,96 @@ public class IOUtils {
     return result;
   }
   
+  public static int INFO_BLACK_AND_WHITE = 1 << 1;
+  public static int INFO_BLACK_FOUR_TO_THREE = 1 << 2;
+  public static int INFO_BLACK_SIXTEEN_TO_NINE = 1 << 3;
+  public static int INFO_BLACK_MONO = 1 << 4;
+  public static int INFO_BLACK_STEREO = 1 << 5;
+  public static int INFO_BLACK_DOLBY_SOURROUND = 1 << 6;
+  public static int INFO_BLACK_DOLBY_DIGITAL = 1 << 7;
+  public static int INFO_BLACK_SECOND_AUDIO_PROGRAM = 1 << 8;
+  public static int INFO_BLACK_SECOND_CLOSED_CAPTION = 1 << 9;
+  public static int INFO_BLACK_SECOND_LIVE = 1 << 10;
+  public static int INFO_BLACK_SECOND_OMU = 1 << 11;
+  public static int INFO_BLACK_SECOND_FILM = 1 << 12;
+  public static int INFO_BLACK_SECOND_SERIES = 1 << 13;
+  public static int INFO_BLACK_SECOND_NEW = 1 << 14;
+  public static int INFO_BLACK_SECOND_AUDIO_DESCRIPTION = 1 << 15;
+  public static int INFO_BLACK_SECOND_NEWS = 1 << 16;
+  public static int INFO_BLACK_SECOND_SHOW = 1 << 17;
+  public static int INFO_BLACK_SECOND_MAGAZIN = 1 << 18;
+  public static int INFO_BLACK_SECOND_HD = 1 << 19;
+  public static int INFO_BLACK_SECOND_DOCU = 1 << 20;
+  public static int INFO_BLACK_SECOND_ART = 1 << 21;
+  public static int INFO_BLACK_SECOND_SPORT = 1 << 22;
+  public static int INFO_BLACK_SECOND_CHILDREN = 1 << 23;
+  public static int INFO_BLACK_SECOND_OTHER = 1 << 24;
+  public static int INFO_BLACK_SECOND_SIGN_LANGUAGE = 1 << 25;
+  
+  public static final int[] INFO_CATEGORIES_ARRAY = {
+    INFO_BLACK_AND_WHITE,
+    INFO_BLACK_FOUR_TO_THREE,
+    INFO_BLACK_SIXTEEN_TO_NINE,
+    INFO_BLACK_MONO,
+    INFO_BLACK_STEREO,
+    INFO_BLACK_DOLBY_SOURROUND,
+    INFO_BLACK_DOLBY_DIGITAL,
+    INFO_BLACK_SECOND_AUDIO_PROGRAM,
+    INFO_BLACK_SECOND_CLOSED_CAPTION,
+    INFO_BLACK_SECOND_LIVE,
+    INFO_BLACK_SECOND_OMU,
+    INFO_BLACK_SECOND_FILM,
+    INFO_BLACK_SECOND_SERIES,
+    INFO_BLACK_SECOND_NEW,
+    INFO_BLACK_SECOND_AUDIO_DESCRIPTION,
+    INFO_BLACK_SECOND_NEWS,
+    INFO_BLACK_SECOND_SHOW,
+    INFO_BLACK_SECOND_MAGAZIN,
+    INFO_BLACK_SECOND_HD,
+    INFO_BLACK_SECOND_DOCU,
+    INFO_BLACK_SECOND_ART,
+    INFO_BLACK_SECOND_SPORT,
+    INFO_BLACK_SECOND_CHILDREN,
+    INFO_BLACK_SECOND_OTHER,
+    INFO_BLACK_SECOND_SIGN_LANGUAGE,
+  };
+  
+  public static final String[] getInfoStringArrayNames(Resources res) {
+    String[] valueArr = {
+        res.getString(R.string.info_black_and_white),
+        res.getString(R.string.info_four_to_three),
+        res.getString(R.string.info_sixteen_to_nine),
+        res.getString(R.string.info_mono),
+        res.getString(R.string.info_stereo),
+        res.getString(R.string.info_dolby_sourround),
+        res.getString(R.string.info_dolby_digital),
+        res.getString(R.string.info_second_audio_program),
+        res.getString(R.string.info_closed_caption),
+        res.getString(R.string.info_live),
+        res.getString(R.string.info_omu),
+        res.getString(R.string.info_film),
+        res.getString(R.string.info_series),
+        res.getString(R.string.info_new),
+        res.getString(R.string.info_audio_description),
+        res.getString(R.string.info_news),
+        res.getString(R.string.info_show),
+        res.getString(R.string.info_magazin),
+        res.getString(R.string.info_hd),
+        res.getString(R.string.info_docu),
+        res.getString(R.string.info_art),
+        res.getString(R.string.info_sport),
+        res.getString(R.string.info_children),
+        res.getString(R.string.info_other),
+        res.getString(R.string.info_sign_language)
+    };
+    
+    return valueArr;
+  }
+  
+  public static boolean infoSet(int categories, int info) {
+    return ((categories & info) == info);
+  }
+  
   public static String getInfoString(int value, Resources res) {
     StringBuilder infoString = new StringBuilder();
     
@@ -407,5 +497,42 @@ public class IOUtils {
     } catch (InterruptedException e) {}
     
     return isConnected.get();
+  }
+  
+  /**
+   * Normale time of given Calendar to 2014-12-31 with the given time.
+   * <p>
+   * @param cal The Calendar to normalize.
+   * @param minutesAfterMidnight The minutes after midnight to use.
+   * @return The normalized Calendar.
+   */
+  public static Calendar normalizeTime(Calendar cal, int minutesAfterMidnight) {
+    return normalizeTime(cal, minutesAfterMidnight, 0);
+  }
+  
+  /**
+   * Normale time of given Calendar to 2014-12-31 with the given time.
+   * <p>
+   * @param cal The Calendar to normalize.
+   * @param minutesAfterMidnight The minutes after midnight to use.
+   * @param seconds The seconds to use
+   * @return The normalized Calendar.
+   */
+  public static Calendar normalizeTime(Calendar cal, int minutesAfterMidnight, int seconds) {
+    return normalizeTime(cal, minutesAfterMidnight / 60, minutesAfterMidnight % 60, seconds);
+  }
+  
+  /**
+   * Normale time of given Calendar to 2014-12-31 with the hourOfDay and minutes.
+   * <p>
+   * @param cal The Calendar to normalize.
+   * @param hourOfDay The hour of day to use.
+   * @param minutes The minutes to use.
+   * @return The normalized Calendar.
+   */
+  public static Calendar normalizeTime(Calendar cal, int hourOfDay, int minutes, int seconds) {
+    cal.set(2014, Calendar.DECEMBER, 31, hourOfDay, minutes, seconds);
+    
+    return cal;
   }
 }

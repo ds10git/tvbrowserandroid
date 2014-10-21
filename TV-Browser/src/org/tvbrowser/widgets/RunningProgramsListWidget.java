@@ -108,18 +108,93 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
         views.setImageViewResource(R.id.running_widget_header_icon, R.drawable.ic_widget);
       }
       
-      if(PrefUtils.getBooleanValue(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY, R.bool.pref_widget_background_transparency_default)) {
-        views.setInt(R.id.running_widget_header_wrapper, "setBackgroundResource", R.drawable.rounded_corners_shape_light);
-        views.setInt(R.id.running_widget_list_view, "setBackgroundResource", R.drawable.rounded_corners_shape_dark);
-        views.setInt(R.id.running_widget_time, "setBackgroundResource", R.drawable.rounded_corners_shape_light_light_border);
-        views.setInt(R.id.running_widget_empty_text, "setBackgroundResource", R.drawable.rounded_corners_shape_dark);
+      int buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_medium;
+      int headerDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_high;
+      int listDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_medium;
+      
+      boolean roundedCorners = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS, R.bool.pref_widget_background_rounded_corners_default);
+      int headerTransparency = PrefUtils.getStringValueAsInt(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_HEADER, R.string.pref_widget_background_transparency_header_default);
+      int listTransparency = PrefUtils.getStringValueAsInt(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST, R.string.pref_widget_background_transparency_list_default);
+
+      if(roundedCorners) {
+        switch (headerTransparency) {
+          case 1:
+            headerDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_low;
+            buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_low;
+            break;
+          case 2:
+            headerDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_medium;
+            buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_medium;
+            break;
+          case 3:
+            headerDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_high;
+            buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_high;
+            break;
+
+          default:
+            headerDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_none;
+            buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_none;
+            break;
+        }
+        
+        switch(listTransparency) {
+          case 1:
+            listDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_low;
+            break;
+          case 2:
+            listDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_medium;
+            break;
+          case 3:
+            listDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_high;
+            break;
+          
+          default:
+            listDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_none;
+            break;
+        }
       }
       else {
-        views.setInt(R.id.running_widget_header_wrapper, "setBackgroundResource", R.drawable.rectangle_shape_black);
-        views.setInt(R.id.running_widget_list_view, "setBackgroundResource", R.drawable.rectangle_shape_black);
-        views.setInt(R.id.running_widget_time, "setBackgroundResource", R.drawable.rectangle_shape_black);
-        views.setInt(R.id.running_widget_empty_text, "setBackgroundResource", R.drawable.rectangle_shape_black);
+        switch (headerTransparency) {
+          case 1:
+            headerDrawable = R.drawable.shape_widget_background_corners_straight_transparency_low;
+            buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_low;
+            break;
+          case 2:
+            headerDrawable = R.drawable.shape_widget_background_corners_straight_transparency_medium;
+            buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_medium;
+            break;
+          case 3:
+            headerDrawable = R.drawable.shape_widget_background_corners_straight_transparency_high;
+            buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_high;
+            break;
+
+          default:
+            headerDrawable = R.drawable.shape_widget_background_corners_straight_transparency_none;
+            buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_none;
+            break;
+        }
+        
+        switch(listTransparency) {
+          case 1:
+            listDrawable = R.drawable.shape_widget_background_corners_straight_transparency_low;
+            break;
+          case 2:
+            listDrawable = R.drawable.shape_widget_background_corners_straight_transparency_medium;
+            break;
+          case 3:
+            listDrawable = R.drawable.shape_widget_background_corners_straight_transparency_high;
+            break;
+          
+          default:
+            listDrawable = R.drawable.shape_widget_background_corners_straight_transparency_none;
+            break;
+        }
       }
+      
+      views.setInt(R.id.running_widget_header_wrapper, "setBackgroundResource", headerDrawable);
+      views.setInt(R.id.running_widget_list_view, "setBackgroundResource", listDrawable);
+      views.setInt(R.id.running_widget_time, "setBackgroundResource", buttonDrawable);
+      views.setInt(R.id.running_widget_empty_text, "setBackgroundResource", listDrawable);
       
       if(isKeyguard) {
         views.setViewVisibility(R.id.running_widget_time, View.GONE);

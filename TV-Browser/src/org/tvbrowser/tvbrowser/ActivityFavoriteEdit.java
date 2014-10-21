@@ -44,12 +44,14 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -64,6 +66,7 @@ public class ActivityFavoriteEdit extends Activity implements ChannelFilter {
   private TextView mTime;
   private TextView mDays;
   private TextView mChannels;
+  private TextView mAttributes;
   private EditText mExclusions;
   
   private int mCheckedCount;
@@ -88,6 +91,7 @@ public class ActivityFavoriteEdit extends Activity implements ChannelFilter {
     mTime = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_time);
     mDays = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_day);
     mChannels = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_channel);
+    mAttributes = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_attributes);
     mExclusions = (EditText)findViewById(R.id.activity_edit_favorite_input_id_restriction_exclusion);
     
     int color = getResources().getColor(android.R.color.primary_text_light);
@@ -100,6 +104,7 @@ public class ActivityFavoriteEdit extends Activity implements ChannelFilter {
     mTime.setTextColor(color);
     mDays.setTextColor(color);
     mChannels.setTextColor(color);
+    mAttributes.setTextColor(color);
     
     mSearchValue.requestFocusFromTouch();
     
@@ -192,6 +197,7 @@ public class ActivityFavoriteEdit extends Activity implements ChannelFilter {
     handleTimeView();
     handleDayView();
     handleChannelView();
+    handleAttributeView();
   }
   
   public void changeDuration(View view) {
@@ -312,8 +318,7 @@ public class ActivityFavoriteEdit extends Activity implements ChannelFilter {
     
     if(mFavorite.isTimeRestricted()) {
       Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-      utc.set(Calendar.HOUR_OF_DAY, mFavorite.getTimeRestrictionStart() / 60);
-      utc.set(Calendar.MINUTE, mFavorite.getTimeRestrictionStart() % 60);
+      IOUtils.normalizeTime(utc, mFavorite.getTimeRestrictionStart(), 0);
       
       Calendar current = Calendar.getInstance();
       current.setTime(utc.getTime());
@@ -343,8 +348,7 @@ public class ActivityFavoriteEdit extends Activity implements ChannelFilter {
       @Override
       public void onClick(DialogInterface dialog, int which) {
         Calendar current = Calendar.getInstance();
-        current.set(Calendar.HOUR_OF_DAY, from.getCurrentHour());
-        current.set(Calendar.MINUTE, from.getCurrentMinute());
+        IOUtils.normalizeTime(current, from.getCurrentHour(), from.getCurrentMinute(), 0);
         
         Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         utc.setTime(current.getTime());
@@ -506,9 +510,8 @@ public class ActivityFavoriteEdit extends Activity implements ChannelFilter {
     
     if(mFavorite.isTimeRestricted()) {
       Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-      utc.set(Calendar.HOUR_OF_DAY, mFavorite.getTimeRestrictionStart() / 60);
-      utc.set(Calendar.MINUTE, mFavorite.getTimeRestrictionStart() % 60);
-      
+      IOUtils.normalizeTime(utc, mFavorite.getTimeRestrictionStart(), 0);
+            
       fromFormat = utc.getTime();
       
       utc.set(Calendar.HOUR_OF_DAY, mFavorite.getTimeRestrictionEnd() / 60);
@@ -571,7 +574,7 @@ public class ActivityFavoriteEdit extends Activity implements ChannelFilter {
       mDays.setText(TextUtils.join(" ", days));
     }
   }
-  
+    
   private void handleChannelView() {
     if(mFavorite.isChannelRestricted()) {
       String[] projection = {
@@ -614,6 +617,82 @@ public class ActivityFavoriteEdit extends Activity implements ChannelFilter {
   
   public void changeChannels(View view) {
     UiUtils.showChannelFilterSelection(ActivityFavoriteEdit.this, this, (ViewGroup)mSearchValue.getRootView());
+  }
+  
+  private void handleAttributeView() {
+    if(mFavorite.isAttributeRestricted()) {
+      ArrayList<String> selectedAttributes = new ArrayList<String>();
+      
+      int[] restrictionIndices = mFavorite.getAttributeRestrictionIndices();
+      String[] names = IOUtils.getInfoStringArrayNames(getResources());
+      
+      for(int index : restrictionIndices) {
+        selectedAttributes.add(names[index]);
+      }
+      
+      mAttributes.setText(TextUtils.join(", ", selectedAttributes));
+    }
+    else {
+      mAttributes.setText(R.string.activity_edit_favorite_input_text_duration_unrestricted);
+    }
+  }
+  
+  public void changeAttributes(View view) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(ActivityFavoriteEdit.this);
+    
+    String[] names = IOUtils.getInfoStringArrayNames(getResources());
+    final boolean[] selection = new boolean[names.length];
+    
+    Arrays.fill(selection, false);
+    
+    if(mFavorite.isAttributeRestricted()) {
+      int[] restrictionIndices = mFavorite.getAttributeRestrictionIndices();
+      Log.d("info2", " xx " + restrictionIndices);
+      for(int index : restrictionIndices) {
+        Log.d("info2", " yy " + index);
+        selection[index] = true;
+      }
+    }
+    
+    builder.setMultiChoiceItems(names, selection, new DialogInterface.OnMultiChoiceClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which, boolean isChecked) {
+        selection[which] = isChecked;
+      }
+    });
+    
+    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        ArrayList<Integer> selectedAttributes = new ArrayList<Integer>();
+        
+        for(int i = 0; i < selection.length; i++) {
+          if(selection[i]) {
+            selectedAttributes.add(Integer.valueOf(i));
+          }
+        }
+        
+        if(!selectedAttributes.isEmpty()) {
+          int[] restrictedAttributes = new int[selectedAttributes.size()];
+          
+          for(int i = 0; i < restrictedAttributes.length; i++) {
+            restrictedAttributes[i] = selectedAttributes.get(i).intValue();
+          }
+          
+          mFavorite.setAttributeRestrictionIndices(restrictedAttributes);
+        }
+        else {
+          mFavorite.setAttributeRestrictionIndices(null);
+        }
+        
+        updateOkButton();
+        handleAttributeView();
+      }
+    });
+    
+    builder.setNegativeButton(android.R.string.cancel, null);
+    
+    builder.show();
   }
   
   public void cancel(View view) {

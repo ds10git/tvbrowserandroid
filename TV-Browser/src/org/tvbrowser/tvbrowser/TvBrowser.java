@@ -294,6 +294,29 @@ public class TvBrowser extends FragmentActivity implements
         
         edit.commit();
       }
+      if(oldVersion < 242) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
+        Editor edit = pref.edit();
+        
+        if(pref.contains("PREF_WIDGET_BACKGROUND_TRANSPARENCY") && !pref.getBoolean("PREF_WIDGET_BACKGROUND_TRANSPARENCY", true)) {
+          edit.remove("PREF_WIDGET_BACKGROUND_TRANSPARENCY");
+          edit.putString(getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_HEADER), "0");
+          edit.putString(getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST), "0");
+          edit.putBoolean(getString(R.string.PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS), false);
+        }
+        
+        if(pref.contains("SELECTED_TV_CHANNELS_LIST")) {
+          edit.remove("SELECTED_TV_CHANNELS_LIST");
+        }
+        if(pref.contains("SELECTED_RADIO_CHANNELS_LIST")) {
+          edit.remove("SELECTED_RADIO_CHANNELS_LIST");
+        }
+        if(pref.contains("SELECTED_CINEMA_CHANNELS_LIST")) {
+          edit.remove("SELECTED_CINEMA_CHANNELS_LIST");
+        }
+        
+        edit.commit();
+      }
       if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < pInfo.versionCode) {
         AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
         
@@ -1122,36 +1145,38 @@ public class TvBrowser extends FragmentActivity implements
                 String type = line.substring(0,index);
                 String[] parts = line.substring(index+1).split("=");
                 
-                if(type.equals("boolean")) {
-                  edit.putBoolean(parts[0], Boolean.valueOf(parts[1].trim()));
-                  Log.d("pref", parts[0] + " " + parts[1].trim());
-                }
-                else if(type.equals("int")) {
-                  edit.putInt(parts[0], Integer.valueOf(parts[1].trim()));
-                  Log.d("pref", parts[0] + " " + parts[1].trim());
-                }
-                else if(type.equals("float")) {
-                  edit.putFloat(parts[0], Float.valueOf(parts[1].trim()));
-                  Log.d("pref", parts[0] + " " + parts[1].trim());
-                }
-                else if(type.equals("long")) {
-                  edit.putLong(parts[0], Long.valueOf(parts[1].trim()));
-                  Log.d("pref", parts[0] + " " + parts[1].trim());
-                }
-                else if(type.equals("string")) {
-                  edit.putString(parts[0], parts[1].trim());
-                  Log.d("pref", parts[0] + " " + parts[1].trim());
-                }
-                else if(type.equals("set")) {
-                  HashSet<String> set = new HashSet<String>();
-                  String[] setParts = parts[1].split("#,#");
-                  Log.d("pref", parts[0]);
-                  for(String setPart : setParts) {
-                    set.add(setPart);
-                    Log.d("pref", " " + setPart);
+                if(parts != null && parts.length > 0) {
+                  if(type.equals("boolean")) {
+                    edit.putBoolean(parts[0], Boolean.valueOf(parts[1].trim()));
+                    Log.d("pref", parts[0] + " " + parts[1].trim());
                   }
-                  
-                  edit.putStringSet(parts[0], set);
+                  else if(type.equals("int")) {
+                    edit.putInt(parts[0], Integer.valueOf(parts[1].trim()));
+                    Log.d("pref", parts[0] + " " + parts[1].trim());
+                  }
+                  else if(type.equals("float")) {
+                    edit.putFloat(parts[0], Float.valueOf(parts[1].trim()));
+                    Log.d("pref", parts[0] + " " + parts[1].trim());
+                  }
+                  else if(type.equals("long")) {
+                    edit.putLong(parts[0], Long.valueOf(parts[1].trim()));
+                    Log.d("pref", parts[0] + " " + parts[1].trim());
+                  }
+                  else if(type.equals("string")) {
+                    edit.putString(parts[0], parts[1].trim());
+                    Log.d("pref", parts[0] + " " + parts[1].trim());
+                  }
+                  else if(type.equals("set")) {
+                    HashSet<String> set = new HashSet<String>();
+                    String[] setParts = parts[1].split("#,#");
+                    Log.d("pref", parts[0]);
+                    for(String setPart : setParts) {
+                      set.add(setPart);
+                      Log.d("pref", " " + setPart);
+                    }
+                    
+                    edit.putStringSet(parts[0], set);
+                  }
                 }
               }
             }
@@ -1165,6 +1190,7 @@ public class TvBrowser extends FragmentActivity implements
             }
           }
         }catch(Exception e) {
+          Log.d("info2", " tt ", e);
           restored = false;
         }
         finally {

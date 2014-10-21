@@ -97,6 +97,7 @@
     <string name="favorite_time_to_big">To:</string>
     <string name="favorite_time_from">From:</string>
     <string name="favorite_days">Days:</string>
+    <string name="favorite_attributes">Attributes:</string>
     <string name="favorite_days_default">Mo, Tu, We, Th, Fr, Sa, Su</string>
     <string name="activity_edit_favorite_label_text_type">Type:</string>
     <string-array name="activity_edit_favorite_input_text_type">
@@ -574,7 +575,16 @@
     
     <string name="widget_running_select_time_title">Select shown time</string>
     
-    <string name="widget_prefrerences_background_transparency">Background transparent</string>
+    <string name="widget_preferences_background_rounded_corners">Rounded corners</string>
+    <string name="widget_preferences_background_transpacency_header">Header transparency</string>
+    <string name="widget_preferences_background_transpacency_list">List transparency</string>
+    <string-array name="widget_preferences_background_transpacency">
+        <item>None</item>
+        <item>Low</item>
+        <item>Medium</item>
+        <item>High</item>
+    </string-array>
+    
     <string name="widget_prefrerences_simple_icon">Single color widget icon</string>
     
     <string name="backup_preferences_success">Backup successfully stored on TV-Browser server</string>
@@ -599,6 +609,9 @@
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.5</h2>
+			&bull; added new restriction for program attributes in Favorites<br>
+			&bull; fixed bug in Favorite time restriction<br>
+		    &bull; added more global settings for widgets<br>
         	&bull; layout style of Favorites tab selectable in layout settings<br>
         	&bull; icon for new Favorite in ActionBar<br>
         <br>

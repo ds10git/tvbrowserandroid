@@ -94,6 +94,15 @@ public class ActivityFilterListEdit extends Activity implements ChannelFilter {
     return true;
   }
   
+  @Override
+  public boolean onOptionsItemSelected(MenuItem item) {
+    switch(item.getItemId()) {
+      case R.id.activity_edit_filter_list_action_add:addFilter(item);break;
+    }
+    
+    return true;
+  }
+  
   public void ok(View view) {
     finish();
   }
