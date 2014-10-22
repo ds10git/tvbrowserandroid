@@ -107,7 +107,7 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
       }
       
       int buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_medium;
-      int headerDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_high;
+      int headerDrawable = R.drawable.shape_button_background_corners_rounded_transparency_medium;
       int listDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_medium;
       
       boolean roundedCorners = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS, R.bool.pref_widget_background_rounded_corners_default);
@@ -117,21 +117,17 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
       if(roundedCorners) {
         switch (headerTransparency) {
           case 1:
-            headerDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_low;
-            buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_low;
+            headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_low;
             break;
           case 2:
-            headerDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_medium;
-            buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_medium;
+            headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_medium;
             break;
           case 3:
-            headerDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_high;
-            buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_high;
+            headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_high;
             break;
 
           default:
-            headerDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_none;
-            buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_none;
+            headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_none;
             break;
         }
         
@@ -154,21 +150,17 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
       else {
         switch (headerTransparency) {
           case 1:
-            headerDrawable = R.drawable.shape_widget_background_corners_straight_transparency_low;
-            buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_low;
+            headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_low;
             break;
           case 2:
-            headerDrawable = R.drawable.shape_widget_background_corners_straight_transparency_medium;
-            buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_medium;
+            headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_medium;
             break;
           case 3:
-            headerDrawable = R.drawable.shape_widget_background_corners_straight_transparency_high;
-            buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_high;
+            headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_high;
             break;
 
           default:
-            headerDrawable = R.drawable.shape_widget_background_corners_straight_transparency_none;
-            buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_none;
+            headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_none;
             break;
         }
         
