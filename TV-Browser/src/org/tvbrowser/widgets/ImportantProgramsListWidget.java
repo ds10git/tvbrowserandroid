@@ -29,12 +29,10 @@ import android.appwidget.AppWidgetProvider;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
-import android.graphics.Color;
 import android.net.Uri;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.widget.RemoteViews;
-import android.widget.TextView;
 
 /**
  * A widget for important programs.
