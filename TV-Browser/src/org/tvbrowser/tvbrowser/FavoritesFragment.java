@@ -453,7 +453,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
                 });
               }
               else {
-                if(!isDetached()) {
+                if(!isDetached() && getActivity() != null) {
                   for(FavoriteSpinnerEntry fav : mFavoriteList) {
                     if(fav.containsFavorite()) {
                       Favorite.removeFavoriteMarking(getActivity(), getActivity().getContentResolver(), fav.getFavorite());
