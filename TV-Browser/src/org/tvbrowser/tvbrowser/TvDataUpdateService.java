@@ -1939,14 +1939,16 @@ public class TvDataUpdateService extends Service {
     for(String favorite : favoritesSet) {
       final Favorite fav = new Favorite(favorite);
       
-      updateFavorites.execute(new Thread("DATA UPDATE FAVORITE UPDATE THREAD") {
-        @Override
-        public void run() {
-          Favorite.updateFavoriteMarking(TvDataUpdateService.this, getContentResolver(), fav);
-          mBuilder.setProgress(favoritesSet.size(), mFavoriteUpdateCount.getAndIncrement(), false);
-          notification.notify(NOTIFY_ID, mBuilder.build());
-        }
-      });
+      if(!updateFavorites.isShutdown()) {
+        updateFavorites.execute(new Thread("DATA UPDATE FAVORITE UPDATE THREAD") {
+          @Override
+          public void run() {
+            Favorite.updateFavoriteMarking(TvDataUpdateService.this, getContentResolver(), fav);
+            mBuilder.setProgress(favoritesSet.size(), mFavoriteUpdateCount.getAndIncrement(), false);
+            notification.notify(NOTIFY_ID, mBuilder.build());
+          }
+        });
+      }
     }
     
     updateFavorites.shutdown();
@@ -2315,24 +2317,26 @@ public class TvDataUpdateService extends Service {
       for(final String mirror : downloadMirrorList) {
         final File mirrorFile = new File(path,mirror.substring(mirror.lastIndexOf("/")+1));
         
-        mThreadPool.execute(new Thread("DATA UPDATE MIRROR UPDATE THREAD") {
-          public void run() {
-            setUncaughtExceptionHandler(handleExc);
-            
-            try {
-              IOUtils.saveUrl(mirrorFile.getAbsolutePath(), mirror);
-              updateMirror(mirrorFile);
-              mCurrentDownloadCount++;
+        if(!mThreadPool.isShutdown()) {
+          mThreadPool.execute(new Thread("DATA UPDATE MIRROR UPDATE THREAD") {
+            public void run() {
+              setUncaughtExceptionHandler(handleExc);
               
-              if(mShowNotification) {
-                mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-                notification.notify(NOTIFY_ID, mBuilder.build());
+              try {
+                IOUtils.saveUrl(mirrorFile.getAbsolutePath(), mirror);
+                updateMirror(mirrorFile);
+                mCurrentDownloadCount++;
+                
+                if(mShowNotification) {
+                  mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+                  notification.notify(NOTIFY_ID, mBuilder.build());
+                }
+              } catch (Exception e) {
+                mUnsuccessfulDownloads++;
               }
-            } catch (Exception e) {
-              mUnsuccessfulDownloads++;
             }
-          }
-        });
+          });
+        }
       }
       //mDontWantToSeeValues = null;
       Log.d("info5", "updateCount " + downloadCountTemp);
@@ -2347,12 +2351,14 @@ public class TvDataUpdateService extends Service {
         readCurrentData();
                 
         for(final ChannelUpdate update : updateList) {
-          mThreadPool.execute(new Thread("DATA UPDATE DATA DOWNLOAD THEAD") {
-            public void run() {
-              setUncaughtExceptionHandler(handleExc);
-              update.download(path, notification, downloadCount);
-            }
-          });
+          if(!mThreadPool.isShutdown()) {
+            mThreadPool.execute(new Thread("DATA UPDATE DATA DOWNLOAD THEAD") {
+              public void run() {
+                setUncaughtExceptionHandler(handleExc);
+                update.download(path, notification, downloadCount);
+              }
+            });
+          }
         }
       }
       
@@ -2861,24 +2867,26 @@ public class TvDataUpdateService extends Service {
     }
     
     public void startUpdate(final NotificationManager notification, final int downloadCount, final UncaughtExceptionHandler handleExc) {
-      mDataUpdatePool.execute(new Thread("CHANNEL UPDATE HANDLE START UPDATE") {
-        @Override
-        public void run() {
-          setUncaughtExceptionHandler(handleExc);
-          
-          for(UrlFileHolder updateFile : mDownloadList) {
-            handleDownload(updateFile);
+      if(!mDataUpdatePool.isShutdown()) {
+        mDataUpdatePool.execute(new Thread("CHANNEL UPDATE HANDLE START UPDATE") {
+          @Override
+          public void run() {
+            setUncaughtExceptionHandler(handleExc);
+            
+            for(UrlFileHolder updateFile : mDownloadList) {
+              handleDownload(updateFile);
+            }
+            
+            handleData();
+            
+            if(mShowNotification) {
+              mCurrentDownloadCount++;
+              mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+              notification.notify(NOTIFY_ID, mBuilder.build());
+            }
           }
-          
-          handleData();
-          
-          if(mShowNotification) {
-            mCurrentDownloadCount++;
-            mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-            notification.notify(NOTIFY_ID, mBuilder.build());
-          }
-        }
-      });
+        });
+      }
     }
     
     public void download(File path, final NotificationManager notification, final int downloadCount) {
@@ -2895,22 +2903,24 @@ public class TvDataUpdateService extends Service {
         }
       }
       
-      mDataUpdatePool.execute(new Thread("CHANNEL UPDATE HANDLE DOWNLOAD") {
-        @Override
-        public void run() {
-          for(UrlFileHolder updateFile : downloadList) {
-            handleDownload(updateFile);
-            
-            if(mShowNotification) {
-              mCurrentDownloadCount++;
-              mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-              notification.notify(NOTIFY_ID, mBuilder.build());
+      if(!mDataUpdatePool.isShutdown()) {
+        mDataUpdatePool.execute(new Thread("CHANNEL UPDATE HANDLE DOWNLOAD") {
+          @Override
+          public void run() {
+            for(UrlFileHolder updateFile : downloadList) {
+              handleDownload(updateFile);
+              
+              if(mShowNotification) {
+                mCurrentDownloadCount++;
+                mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+                notification.notify(NOTIFY_ID, mBuilder.build());
+              }
             }
+            
+            handleData();
           }
-          
-          handleData();
-        }
-      });
+        });
+      }
     }
     
     private void handleData() {
