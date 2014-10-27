@@ -608,7 +608,11 @@
     
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
-		<h2>0.4.5</h2>
+		<h2>0.4.5.1</h2>
+			&bull; fixed date bug caused by daylight savings time<br>
+			&bull; testet compatibility with Android 5.0<br>
+        <br>
+		<h3>0.4.5</h3>
 			&bull; added new restriction for program attributes in Favorites<br>
 			&bull; fixed bug in Favorite time restriction<br>
 		    &bull; added more global settings for widgets<br>

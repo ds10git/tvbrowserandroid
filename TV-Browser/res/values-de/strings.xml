@@ -594,6 +594,10 @@
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
+		<h2>0.4.5.1</h2>
+			&bull; Fehler beim Datum durch Zeitumstellung beseitigt<br>
+			&bull; Kompatibilität mit Android 5.0 getestet<br>
+        <br>
 		<h2>0.4.5</h2>
 			&bull; neues Ausschlusskriterium für die Lieblingsendungen nach Sendungseigenschaften hinzugefügt<br>
 		    &bull; Fehler bei Zeitbeschränkung in Lieblingssendungen beseitigt<br>

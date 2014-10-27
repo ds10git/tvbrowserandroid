@@ -350,13 +350,13 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
             Calendar lastDay = Calendar.getInstance();
             lastDay.setTimeInMillis(last);
             
-            lastDay.set(Calendar.HOUR_OF_DAY, 0);
+            lastDay.set(Calendar.HOUR_OF_DAY, 4);
             lastDay.set(Calendar.MINUTE, 0);
             lastDay.set(Calendar.SECOND, 0);
             lastDay.set(Calendar.MILLISECOND, 0);
             
             Calendar yesterday = Calendar.getInstance();
-            yesterday.set(Calendar.HOUR_OF_DAY, 0);
+            yesterday.set(Calendar.HOUR_OF_DAY, 4);
             yesterday.set(Calendar.MINUTE, 0);
             yesterday.set(Calendar.SECOND, 0);
             yesterday.set(Calendar.MILLISECOND, 0);
@@ -365,8 +365,13 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
             long yesterdayStart = yesterday.getTimeInMillis();
             long lastStart = lastDay.getTimeInMillis();
             
+            Calendar cal = Calendar.getInstance();
+            
             for(long day = yesterdayStart; day <= lastStart; day += (24 * 60 * 60000)) {
-              dateAdapter.add(new DateSelection(day, getActivity()));
+              cal.setTimeInMillis(day);
+              cal.set(Calendar.HOUR_OF_DAY, 0);
+              
+              dateAdapter.add(new DateSelection(cal.getTimeInMillis(), getActivity()));
             }
           }
           
