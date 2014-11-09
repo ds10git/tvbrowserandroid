@@ -1242,7 +1242,63 @@ public class TvBrowserContentProvider extends ContentProvider {
       }
       
       if(oldVersion < 7) {
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0");
+ArrayList<String> addColumnList = new ArrayList<String>();
+        
+        addColumnList.add(DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT);
+        addColumnList.add(DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT);
+        addColumnList.add(DATA_KEY_DURATION_IN_MINUTES);
+        
+        addColumnList.add(DATA_KEY_INFO_BLACK_AND_WHITE);
+        addColumnList.add(DATA_KEY_INFO_4_TO_3);
+        addColumnList.add(DATA_KEY_INFO_16_TO_9);
+        addColumnList.add(DATA_KEY_INFO_MONO);
+        addColumnList.add(DATA_KEY_INFO_STEREO);
+        addColumnList.add(DATA_KEY_INFO_DOLBY_SOURROUND);
+        addColumnList.add(DATA_KEY_INFO_DOLBY_DIGITAL_5_1);
+        addColumnList.add(DATA_KEY_INFO_SECOND_AUDIO_PROGRAM);
+        addColumnList.add(DATA_KEY_INFO_CLOSED_CAPTION);
+        addColumnList.add(DATA_KEY_INFO_LIVE);
+        addColumnList.add(DATA_KEY_INFO_OMU);
+        addColumnList.add(DATA_KEY_INFO_FILM);
+        addColumnList.add(DATA_KEY_INFO_SERIES);
+        addColumnList.add(DATA_KEY_INFO_NEW);
+        addColumnList.add(DATA_KEY_INFO_AUDIO_DESCRIPTION);
+        addColumnList.add(DATA_KEY_INFO_NEWS);
+        addColumnList.add(DATA_KEY_INFO_SHOW);
+        addColumnList.add(DATA_KEY_INFO_MAGAZIN);
+        addColumnList.add(DATA_KEY_INFO_HD);
+        addColumnList.add(DATA_KEY_INFO_DOCUMENTATION);
+        addColumnList.add(DATA_KEY_INFO_ART);
+        addColumnList.add(DATA_KEY_INFO_SPORT);
+        addColumnList.add(DATA_KEY_INFO_CHILDREN);
+        addColumnList.add(DATA_KEY_INFO_OTHER);
+        addColumnList.add(DATA_KEY_INFO_SIGN_LANGUAGE);
+        
+        Cursor c = db.rawQuery("PRAGMA table_info(" + DATA_TABLE + ")", null);
+        
+        if(c != null) {
+          try {
+            c.moveToPosition(-1);
+            
+            int nameColumn = c.getColumnIndex("name");
+            
+            while(c.moveToNext()) {
+              String name = c.getString(nameColumn);
+              
+              if(addColumnList.contains(name)) {
+                addColumnList.remove(name);
+              }
+            }
+          }finally {
+            c.close();
+          }
+        }
+        
+        for(String column : addColumnList) {
+          db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + column + " INTEGER DEFAULT 0");
+        }
+        
+        /*db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0");
         db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0");
         db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_DURATION_IN_MINUTES + " INTEGER DEFAULT 0");
         
@@ -1271,7 +1327,7 @@ public class TvBrowserContentProvider extends ContentProvider {
         db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_CHILDREN + " INTEGER DEFAULT 0");
         db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_OTHER + " INTEGER DEFAULT 0");
         db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_SIGN_LANGUAGE + " INTEGER DEFAULT 0");
-        
+        */
         new Thread("DATABASE DATA TABLE UPDATE THREAD") {
           @Override
           public void run() {
