@@ -598,7 +598,10 @@
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
-		<h2>0.4.5.2</h2>
+		<h3>0.4.5.3</h3>
+			&bull; möglicher Absturz bei aktivierter Programmtabelle beseitigt<br>
+        <br>
+		<h3>0.4.5.2</h3>
 			&bull; möglicher Fehler bei Update der Datenbank beseitigt<br>
 			&bull; Sender können von der App aus auf dem TV-Browser Server gesichert werden<br>
         <br>
