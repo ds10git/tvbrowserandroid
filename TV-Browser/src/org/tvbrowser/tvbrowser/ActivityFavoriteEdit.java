@@ -145,7 +145,7 @@ public class ActivityFavoriteEdit extends Activity implements ChannelFilter {
         if(position == Favorite.RESTRICTION_RULES_TYPE) {
           mSearchValue.setText(getString(R.string.activity_edit_favorite_input_text_all_value));
         }
-        else {
+        else if(mSearchValue.getText().toString().trim().length() == 0 || mSearchValue.getText().toString().equals(getString(R.string.activity_edit_favorite_input_text_all_value))) {
           mSearchValue.setText(mFavorite.getSearchValue());
         }
       }

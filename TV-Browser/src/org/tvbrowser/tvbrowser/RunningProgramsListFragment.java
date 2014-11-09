@@ -21,7 +21,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -1092,7 +1091,9 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
   
   @Override
   public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    String[] projection = new String[13 + TvBrowserContentProvider.MARKING_COLUMNS.length];
+    int startIndex = 13;
+    
+    String[] projection = new String[startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length];
     
     showEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_RUNNING_LIST, R.bool.show_episode_in_running_list_default);
     showInfo = PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_RUNNING_LIST, R.bool.show_info_in_running_list_default);
@@ -1112,8 +1113,6 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
     projection[11] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
     projection[12] = TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
     
-    int startIndex = 13;
-
     for(int i = startIndex ; i < (startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length); i++) {
       projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
     }
@@ -1146,19 +1145,19 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
     }
     
     mCurrentTime = ((long)cal.getTimeInMillis() / 60000) * 60000;
-Log.d("info", "" + new Date(mCurrentTime));
+    
     String sort = TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC";
     
-    String where = " ( "  + TvBrowserContentProvider.DATA_KEY_ENDTIME + "<=" + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + (mCurrentTime - (60000 * 60 * 12)) + " ) ";
+    String where = " ( ( "  + TvBrowserContentProvider.DATA_KEY_ENDTIME + "<=" + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + (mCurrentTime - (60000 * 60 * 12)) + " ) ";
     
     if(mWhereClauseTime == -1) {
-      where = " ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + (mCurrentTime + (60000 * 60 * 12)) + " ) ";
+      where = " ( ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + (mCurrentTime + (60000 * 60 * 12)) + " ) ";
     }
     else {
       where += " OR ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + mCurrentTime + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + (mCurrentTime + (60000 * 60 * 12)) + " ) ";
     }
     
-    where += UiUtils.getDontWantToSeeFilterString(getActivity());
+    where += ") " + UiUtils.getDontWantToSeeFilterString(getActivity());
     
     where += ((TvBrowser)getActivity()).getChannelFilterSelection();
     

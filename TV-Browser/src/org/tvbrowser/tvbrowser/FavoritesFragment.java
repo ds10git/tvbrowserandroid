@@ -305,7 +305,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
                 handler.post(new Runnable() {
                   @Override
                   public void run() {
-                    if(!isDetached()) {
+                    if(!isDetached() && getActivity() != null) {
                       getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
                     }
                   }
