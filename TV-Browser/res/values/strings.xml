@@ -5,6 +5,7 @@
     <string name="search_activity_name">TV-Browser Search</string>
     <string name="search_no_result_title">No program found</string>
     <string name="search_no_result_text">No program was found for the search.</string>
+    <string name="action_preferences_channels">Channels</string>
     <string name="action_load_channels_again">Load channels again</string>
     <string name="action_select_channels">Select channels</string>
     <string name="action_sort_channels">Sort channels</string>
@@ -372,7 +373,8 @@
     <string name="channel_plus">CH+</string>
     <string name="all_programs">All programs</string>
     <string name="action_synchronize">Synchronization</string>
-    <string name="action_synchronize_channels">Channels</string>
+    <string name="action_synchronize_channels">Download channels</string>
+    <string name="action_synchronize_channels_up">Upload channels</string>
     <string name="action_synchronize_favorites">Favorites</string>
     <string name="action_synchronize_reminders_down">Import Reminders</string>
     <string name="action_synchronize_reminders_up">Export Reminders</string>
@@ -585,6 +587,8 @@
         <item>High</item>
     </string-array>
     
+    <string name="backup_channels_success">Channels successfully stored on TV-Browser server</string>
+    
     <string name="widget_prefrerences_simple_icon">Single color widget icon</string>
     
     <string name="backup_preferences_success">Backup successfully stored on TV-Browser server</string>
@@ -608,7 +612,11 @@
     
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
-		<h2>0.4.5.1</h2>
+		<h2>0.4.5.2</h2>
+			&bull; fixed possible bug at database upgrade<br>
+			&bull; channels can be backuped at the TV-Browser server direct from the app<br>
+        <br>
+		<h3>0.4.5.1</h3>
 			&bull; fixed date bug caused by daylight savings time<br>
 			&bull; testet compatibility with Android 5.0<br>
         <br>
