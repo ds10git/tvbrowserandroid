@@ -618,7 +618,7 @@ public class ProgramTableFragment extends Fragment {
     mShowOrderNumbers = ProgramTableLayoutConstants.getShowOrderNumber();
     
     if(mPictureShown) {
-      projection = new String[11 + TvBrowserContentProvider.MARKING_COLUMNS.length];
+      projection = new String[10 + TvBrowserContentProvider.MARKING_COLUMNS.length];
       
       projection[projection.length-2] = TvBrowserContentProvider.DATA_KEY_PICTURE;
       projection[projection.length-1] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;

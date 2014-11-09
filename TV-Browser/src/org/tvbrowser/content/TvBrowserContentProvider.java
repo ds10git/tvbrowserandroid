@@ -736,7 +736,7 @@ public class TvBrowserContentProvider extends ContentProvider {
                     
                     if(projection != null) {
                       for(int i = 0; i < projection.length; i++) {
-                        if(projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
+                        if(projection[i] != null && projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
                           containsStartDayColumn = true;
                           projection[i] = "(strftime('%w', " + DATA_KEY_STARTTIME +
                               "/1000, 'unixepoch', 'localtime')+1) AS " + DATA_KEY_START_DAY_LOCAL;
@@ -760,7 +760,7 @@ public class TvBrowserContentProvider extends ContentProvider {
                     
                     if(projection != null) {
                       for(int i = 0; i < projection.length; i++) {
-                        if(projection[i].equals(KEY_ID) || projection[i].equals(CHANNEL_KEY_CHANNEL_ID)) {
+                        if(projection[i] != null && (projection[i].equals(KEY_ID) || projection[i].equals(CHANNEL_KEY_CHANNEL_ID))) {
                           projection[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + projection[i]+ " AS " + projection[i];
                         }
                         else if(projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
