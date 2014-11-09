@@ -198,6 +198,9 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_INFO_OTHER = "infoOther";
   public static final String DATA_KEY_INFO_SIGN_LANGUAGE = "infoSingLanguage";
   
+  // Artificial key for creating column at selection
+  public static final String DATA_KEY_START_DAY_LOCAL = "startDayLocal";
+  
   public static final String[] INFO_CATEGORIES_COLUMNS_ARRAY = {
     DATA_KEY_INFO_BLACK_AND_WHITE,
     DATA_KEY_INFO_4_TO_3,
@@ -726,19 +729,43 @@ public class TvBrowserContentProvider extends ContentProvider {
       case DATA_UPDATE: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
                     orderBy = CHANNEL_KEY_CHANNEL_ID;break;
       case DATA_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-      case DATA: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
-                    orderBy = CHANNEL_KEY_CHANNEL_ID;break;
+      case DATA: {qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
+                    orderBy = CHANNEL_KEY_CHANNEL_ID;
+                    
+                    boolean containsStartDayColumn = false;
+                    
+                    if(projection != null) {
+                      for(int i = 0; i < projection.length; i++) {
+                        if(projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
+                          containsStartDayColumn = true;
+                          projection[i] = "(strftime('%w', " + DATA_KEY_STARTTIME +
+                              "/1000, 'unixepoch', 'localtime')+1) AS " + DATA_KEY_START_DAY_LOCAL;
+                        }
+                      }
+                    }
+                    
+                    if(!containsStartDayColumn && selection != null && selection.contains(DATA_KEY_START_DAY_LOCAL)) {
+                      selection = selection.replace(DATA_KEY_START_DAY_LOCAL, "(strftime('%w', " + DATA_KEY_STARTTIME +
+                              "/1000, 'unixepoch', 'localtime')+1)");
+                    }
+                  } break;
       case RAW_DATA_ID: selection += " " + KEY_ID + "=" + uri.getPathSegments().get(1);
       case RAW_DATA: return rawQueryData(CONTENT_URI_DATA, projection, selection, selectionArgs, sortOrder);
       case DATA_CHANNEL_ID: qb.appendWhere(TvBrowserDataBaseHelper.DATA_TABLE + "." + KEY_ID + "=" + uri.getPathSegments().get(1) + " AND ");
-      case DATA_CHANNELS: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + CHANNEL_TABLE);
+      case DATA_CHANNELS: { qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + CHANNEL_TABLE);
                     orderBy = CHANNEL_KEY_ORDER_NUMBER + " , " + CHANNEL_KEY_CHANNEL_ID;
                     qb.appendWhere(CHANNEL_TABLE + "." + KEY_ID + "=" + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID);
 
+                    boolean containsStartDayColumn = false;
+                    
                     if(projection != null) {
                       for(int i = 0; i < projection.length; i++) {
                         if(projection[i].equals(KEY_ID) || projection[i].equals(CHANNEL_KEY_CHANNEL_ID)) {
                           projection[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + projection[i]+ " AS " + projection[i];
+                        }
+                        else if(projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
+                          projection[i] = "(strftime('%w', " + DATA_KEY_STARTTIME +
+                              "/1000, 'unixepoch', 'localtime')+1) AS " + DATA_KEY_START_DAY_LOCAL;
                         }
                       }
                     }
@@ -751,14 +778,19 @@ public class TvBrowserContentProvider extends ContentProvider {
                       }
                     }
                     
-                    if(selection != null && selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
-                      selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+KEY_ID);
+                    if(selection != null) {
+                      if(selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
+                        selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+KEY_ID);
+                      }
+                      if(selection.contains(CHANNEL_KEY_CHANNEL_ID) && !selection.contains("."+CHANNEL_KEY_CHANNEL_ID)) {
+                        selection = selection.replace(CHANNEL_KEY_CHANNEL_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+CHANNEL_KEY_CHANNEL_ID);
+                      }
+                      if(!containsStartDayColumn && selection.contains(DATA_KEY_START_DAY_LOCAL)) {
+                        selection = selection.replace(DATA_KEY_START_DAY_LOCAL, "(strftime('%w', " + DATA_KEY_STARTTIME +
+                            "/1000, 'unixepoch', 'localtime')+1)");
+                      }
                     }
-                    if(selection != null && selection.contains(CHANNEL_KEY_CHANNEL_ID) && !selection.contains("."+CHANNEL_KEY_CHANNEL_ID)) {
-                      selection = selection.replace(CHANNEL_KEY_CHANNEL_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+CHANNEL_KEY_CHANNEL_ID);
-                    }
-                    
-                    break;
+                  }break;
 
       default: break;
     }
