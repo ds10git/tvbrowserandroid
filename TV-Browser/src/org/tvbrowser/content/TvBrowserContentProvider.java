@@ -1242,7 +1242,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       }
       
       if(oldVersion < 7) {
-ArrayList<String> addColumnList = new ArrayList<String>();
+        ArrayList<String> addColumnList = new ArrayList<String>();
         
         addColumnList.add(DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT);
         addColumnList.add(DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT);
