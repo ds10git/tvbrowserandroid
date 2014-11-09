@@ -5,6 +5,7 @@
     <string name="search_activity_name">TV-Browser-Suche</string>
     <string name="search_no_result_title">Keine Sendung gefunden</string>
     <string name="search_no_result_text">Es wurde keine Sendung für die Suche gefunden.</string>
+    <string name="action_preferences_channels">Sender</string>
     <string name="action_load_channels_again">Sender neu laden</string>
     <string name="action_select_channels">Sender auswählen</string>
     <string name="action_sort_channels">Sender sortieren</string>
@@ -360,7 +361,8 @@
     <string name="channel_plus">P+</string>
     <string name="all_programs">Alle Sendungen</string>
     <string name="action_synchronize">Synchronisierung</string>
-    <string name="action_synchronize_channels">Sender</string>
+    <string name="action_synchronize_channels">Sender herunterladen</string>
+    <string name="action_synchronize_channels_up">Sender hochladen</string>
     <string name="action_synchronize_favorites">Lieblingssendungen</string>
     <string name="action_synchronize_reminders_down">Erinnerungen herunterladen</string>
     <string name="action_synchronize_reminders_up">Erinnerungen hochladen</string>
@@ -574,6 +576,8 @@
     
     <string name="widget_prefrerences_simple_icon">Einfarbiges Widget-Symbol</string>
     
+    <string name="backup_channels_success">Sender erfolgreich auf den TV-Browser-Server hochgeladen</string>
+    
     <string name="backup_preferences_success">Backup erfolgreich auf den TV-Browser-Server hochgeladen</string>
     <string name="backup_preferences_restore_success">Backup erfolgreich vom TV-Browser wiederhergestellt</string>
     <string name="backup_preferences_restore_failure">Backup konnte nicht wiederhergestellt werden, möglicherweise wurde es niemals hochgeladen.</string>
@@ -594,11 +598,15 @@
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
-		<h2>0.4.5.1</h2>
+		<h2>0.4.5.2</h2>
+			&bull; möglicher Fehler bei Update der Datenbank beseitigt<br>
+			&bull; Sender können von der App aus auf dem TV-Browser Server gesichert werden<br>
+        <br>
+		<h3>0.4.5.1</h3>
 			&bull; Fehler beim Datum durch Zeitumstellung beseitigt<br>
 			&bull; Kompatibilität mit Android 5.0 getestet<br>
         <br>
-		<h2>0.4.5</h2>
+		<h3>0.4.5</h3>
 			&bull; neues Ausschlusskriterium für die Lieblingsendungen nach Sendungseigenschaften hinzugefügt<br>
 		    &bull; Fehler bei Zeitbeschränkung in Lieblingssendungen beseitigt<br>
 		    &bull; weitere globale Einstellungen für Widgets hinzugefügt<br>

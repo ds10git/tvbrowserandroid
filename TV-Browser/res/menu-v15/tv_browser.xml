@@ -66,6 +66,11 @@
 		        android:showAsAction="never"
 		        android:title="@string/action_username_password"/>
 		    <item 
+		        android:id="@+id/action_synchronize_channels_up"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/action_synchronize_channels_up"/>
+		    <item 
 		        android:id="@+id/action_synchronize_channels"
 		        android:orderInCategory="100"
 		        android:showAsAction="never"
@@ -116,7 +121,7 @@
             <item
 		  	    android:orderInCategory="100"
 		        android:showAsAction="never"
-		  	    android:title="@string/action_synchronize_channels">
+		  	    android:title="@string/action_preferences_channels">
 		        <menu>
 		            <item
 				        android:id="@+id/action_load_channels_again"

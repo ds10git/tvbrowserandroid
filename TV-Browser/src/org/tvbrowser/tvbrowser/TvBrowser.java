@@ -1168,14 +1168,20 @@ public class TvBrowser extends FragmentActivity implements
                   }
                   else if(type.equals("set")) {
                     HashSet<String> set = new HashSet<String>();
-                    String[] setParts = parts[1].split("#,#");
-                    Log.d("pref", parts[0]);
-                    for(String setPart : setParts) {
-                      set.add(setPart);
-                      Log.d("pref", " " + setPart);
-                    }
                     
-                    edit.putStringSet(parts[0], set);
+                    if(parts.length > 1) {
+                      String[] setParts = parts[1].split("#,#");
+                      Log.d("pref", parts[0]);
+                      
+                      if(setParts != null && setParts.length > 0) {
+                        for(String setPart : setParts) {
+                          set.add(setPart);
+                          Log.d("pref", " " + setPart);
+                        }
+                        
+                        edit.putStringSet(parts[0], set);
+                      }
+                    }
                   }
                 }
               }
@@ -1243,6 +1249,73 @@ public class TvBrowser extends FragmentActivity implements
     }
     else {
       showNoInternetConnection(null);
+    }
+  }
+  
+  private void uploadChannels() {
+    String[] projection = {
+        TvBrowserContentProvider.GROUP_KEY_GROUP_ID,
+        TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
+        TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER
+    };
+    
+    Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+    
+    SparseArray<String> groupKeys = new SparseArray<String>();
+    
+    StringBuilder uploadChannels = new StringBuilder();
+    
+    try {
+      channels.moveToPosition(-1);
+      
+      int groupKeyColumn = channels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+      int channelKeyColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+      int channelKeyOrderNumberColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+      
+      while(channels.moveToNext()) {
+        int groupKey = channels.getInt(groupKeyColumn);
+        String channelId = channels.getString(channelKeyColumn);
+        int orderNumber = channels.getInt(channelKeyOrderNumberColumn);
+        
+        String groupId = groupKeys.get(groupKey);
+        
+        if(groupId == null) {
+          String[] groupProjection = {
+              TvBrowserContentProvider.GROUP_KEY_GROUP_ID,
+              TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID
+          };
+          
+          Cursor groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, TvBrowserContentProvider.KEY_ID + "=" + groupKey, null, null);
+          
+          try {
+            if(groups.moveToFirst()) {
+              String dataServiceId = groups.getString(groups.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID));
+              String goupIdValue = groups.getString(groups.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
+              
+              if(dataServiceId.equals(SettingConstants.EPG_FREE_KEY)) {
+                groupId = "1:"+goupIdValue+":";
+                groupKeys.put(groupKey, groupId);
+              }
+            }
+          }finally {
+            groups.close();
+          }
+        }
+        
+        uploadChannels.append(groupId).append(channelId);
+        
+        if(orderNumber > 0) {
+          uploadChannels.append(":").append(orderNumber);
+        }
+        
+        uploadChannels.append("\n");
+      }
+    }finally {
+      channels.close();
+    }
+    
+    if(uploadChannels.toString().trim().length() > 0) {
+      startSynchronizeUp(true, uploadChannels.toString().trim(), "http://android.tvbrowser.org/data/scripts/syncUp.php?type=channelsFromDesktop", SettingConstants.SYNCHRONIZE_UP_DONE, getString(R.string.backup_channels_success));
     }
   }
   
@@ -3236,6 +3309,14 @@ public class TvBrowser extends FragmentActivity implements
       case R.id.action_synchronize_channels:
         if(isOnline()) {
           syncronizeChannels();
+        }
+        else {
+          showNoInternetConnection(null);
+        }
+        break;
+      case R.id.action_synchronize_channels_up:
+        if(isOnline()) {
+          uploadChannels();
         }
         else {
           showNoInternetConnection(null);
