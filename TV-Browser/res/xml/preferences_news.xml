@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <CheckBoxPreference
+        android:key="@string/PREF_NEWS_SHOW"
+        android:title="@string/pref_news_activated"
+        android:defaultValue="@bool/pref_news_show_default"/>
+	<ListPreference
+		android:key="@string/PREF_NEWS_TYPE"
+		android:title="@string/pref_news_type"
+		android:defaultValue="@string/pref_news_type_default"
+		android:entries="@array/news_type_entries"
+		android:entryValues="@array/news_type_value_array"
+		android:summary="%s"/>
+</PreferenceScreen>

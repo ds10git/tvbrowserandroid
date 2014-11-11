@@ -431,6 +431,16 @@
 	    
 	    <string name="CURRENT_FILTER_ID">CURRENT_FILTER_ID</string>
 	    
+	    <string name="NEWS_DATE_LAST_KNOWN">NEWS_DATE_LAST_KNOWN</string>
+	    <string name="NEWS_DATE_LAST_DOWNLOAD">NEWS_DATE_LAST_DOWNLOAD</string>
+	    <string name="NEWS_DATE_LAST_SHOWN">NEWS_DATE_LAST_SHOWN</string>
+	    <string name="NEWS_TEXT">NEWS_TEXT</string>
+	    
+	    <string name="PREF_NEWS_SHOW">PREF_NEWS_SHOW</string>
+	    <item name="pref_news_show_default" type="bool" format="boolean">true</item>
+	    
+	    <string name="PREF_NEWS_TYPE">PREF_NEWS_TYPE</string>
+	    
 	<!-- Widgets layout settings -->
 	    <string name="PREF_WIDGET_VERTICAL_PADDING_SIZE">PREF_WIDGET_VERTICAL_PADDING_SIZE</string>
 	    <item name="pref_widget_vertical_padding_size_default" type="string" format="string">@string/divider_small</item>

@@ -107,6 +107,11 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       
       onSharedPreferenceChanged(pref,getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS));
     }
+    else if(getString(R.string.category_news).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_news);
+      
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_NEWS_SHOW));
+    }
     else if(getString(R.string.category_widgets).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_widgets);
     }
@@ -154,6 +159,14 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         edit.commit();
         
         IOUtils.handleDataUpdatePreferences(getActivity());
+      }
+      else if(key.equals(getString(R.string.PREF_NEWS_SHOW))) {
+        CheckBoxPreference showNews = (CheckBoxPreference)findPreference(key);
+        ListPreference newsType = (ListPreference)findPreference(getString(R.string.PREF_NEWS_TYPE));
+        
+        if(showNews != null && newsType != null) {
+          newsType.setEnabled(showNews.isChecked());
+        }
       }
       else if(key.equals(getString(R.string.TIME_BUTTON_COUNT))) {
         PreferenceScreen screen = (PreferenceScreen)findPreference(getString(R.string.TIME_BUTTON_PREFERENCES_SUB_SCREEN));
@@ -257,6 +270,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.PREF_FAVORITE_TAB_LAYOUT))
           || key.equals(getResources().getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_HEADER))
           || key.equals(getResources().getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST))
+          || key.equals(getResources().getString(R.string.PREF_NEWS_TYPE))
           ) {
         ListPreference lp = (ListPreference) findPreference(key);
         

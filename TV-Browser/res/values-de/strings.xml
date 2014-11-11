@@ -63,6 +63,7 @@
     <string name="pref_email_title">Empfänger E-Mail Adresse</string>
 	<string name="pref_email_summary">E-Mail Adresse für das Versenden von Programminformationen.</string>
     <string name="pref_category_email">E-Mail</string>
+    <string name="pref_category_news">Nachrichten</string>
     <string name="pref_category_widgets">Widgets</string>
     <string name="pref_category_additonal_infos">Zusätzliche Informationen</string>
     <string name="pref_category_additonal_infos_head">Angezeigte Informationen</string>
@@ -118,6 +119,7 @@
 	<string name="favorite_remind">An gefundene Sendungen erinnern</string>
     <string name="favorite_exclusion">Ausschlüsse:</string>
     <string name="favorite_exclusion_hint">Kommagetrennte Liste (optional)</string>
+    <string name="update_data_notification_load_news">Nachrichten herunterladen&#8230;</string>
     <string name="update_data_notification_reload_file">Heruntergeladene Daten neu laden</string>
     <string name="update_data_notification_favorites">Lieblingssendungen aktualisieren</string>
     <string name="update_data_notification_synchronize">Sendungen synchronisieren&#8230;</string>
@@ -596,8 +598,23 @@
     <string name="activity_edit_filter_edit">Filter bearbeiten</string>
     <string name="activity_edit_filter_delete">Filter löschen</string>
     
+    <string name="title_news">Nachrichten</string>
+    <string name="pref_news_activated">Nachrichten anzeigen</string>
+    <string name="pref_news_type">Nachrichtentyp</string>
+    
+    <string-array name="news_type_entries">
+        <item>Alle</item>
+        <item>TV-Browser</item>
+        <item>Nur TV-Browser für Android</item>
+        <item>Nur Desktop-TV-Browser</item>
+        <item>Webseite</item>
+    </string-array>
+    
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
+		<h2>0.4.5.4</h2>
+			&bull; Nachrichtenabruf hinzugefügt<br>
+        <br>
 		<h3>0.4.5.3</h3>
 			&bull; möglicher Absturz bei aktivierter Programmtabelle beseitigt<br>
         <br>
