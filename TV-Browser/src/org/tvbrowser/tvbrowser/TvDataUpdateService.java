@@ -1885,6 +1885,19 @@ public class TvDataUpdateService extends Service {
       synchronizeUp(false, null, "http://android.tvbrowser.org/data/scripts/syncUp.php?type=reminderFromApp", notification);
     }
     
+    if(PrefUtils.getBooleanValue(R.string.PREF_NEWS_SHOW, R.bool.pref_news_show_default)) {
+      long lastNewsUpdate = PrefUtils.getLongValue(R.string.NEWS_DATE_LAST_DOWNLOAD, 0);
+      long daysSinceLastNewsUpdate = (System.currentTimeMillis() - lastNewsUpdate) / (24 * 60 * 60000L);
+      
+      if(daysSinceLastNewsUpdate > 3 && (Math.random() * 7 < daysSinceLastNewsUpdate)) {
+        mBuilder.setProgress(100, 0, true);
+        mBuilder.setContentText(getResources().getText(R.string.update_data_notification_load_news));
+        notification.notify(NOTIFY_ID, mBuilder.build());
+        
+        NewsReader.readNews(TvDataUpdateService.this, mHandler);
+      }
+    }
+    
     Intent inform = new Intent(SettingConstants.DATA_UPDATE_DONE);
     
     LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(inform);

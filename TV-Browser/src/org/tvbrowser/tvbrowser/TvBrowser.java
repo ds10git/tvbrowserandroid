@@ -44,6 +44,7 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.settings.TvbPreferencesActivity;
+import org.xml.sax.XMLReader;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -70,6 +71,9 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.Paint;
+import android.graphics.Paint.FontMetricsInt;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -90,10 +94,16 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.ViewPager;
+import android.text.Editable;
 import android.text.Html;
+import android.text.Html.TagHandler;
+import android.text.Spannable;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
+import android.text.style.BulletSpan;
+import android.text.style.ReplacementSpan;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
@@ -226,6 +236,7 @@ public class TvBrowser extends FragmentActivity implements
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    handler = new Handler();
     PrefUtils.initialize(TvBrowser.this);
     
     if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default)) {
@@ -326,6 +337,9 @@ public class TvBrowser extends FragmentActivity implements
         
         builder.show();
       }
+      else {
+        showNews();
+      }
       
       if(oldVersion !=  pInfo.versionCode) {
         Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
@@ -339,8 +353,6 @@ public class TvBrowser extends FragmentActivity implements
     SettingConstants.initializeLogoMap(TvBrowser.this,false);
     
     setContentView(R.layout.activity_tv_browser);
-    
-    handler = new Handler();
     
     mProgamListStateStack = new Stack<ProgramsListState>();
     
@@ -506,6 +518,7 @@ public class TvBrowser extends FragmentActivity implements
       @Override
       public void onReceive(Context context, Intent intent) {
         updateProgressIcon(false);
+        showNews();
       }
     };
     
@@ -3201,6 +3214,118 @@ public class TvBrowser extends FragmentActivity implements
     sendChannelFilterUpdate();
   }
   
+  private static final class SpecialSpan extends ReplacementSpan {
+    final static int RIGHT_TYPE = 0;
+    final static int LINE_TYPE = 1;
+    
+    private int mWidth;
+    private int mSpanType;
+    
+    public SpecialSpan(int type) {
+      mSpanType = type;
+    }
+    
+    @Override
+    public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
+      if(mSpanType == LINE_TYPE) {
+        canvas.drawLine(canvas.getClipBounds().left, top + (bottom-top)/2, canvas.getClipBounds().right, top + (bottom-top)/2, paint);
+      }
+      else if(mSpanType == RIGHT_TYPE) {
+        canvas.drawText(text.toString().substring(start, end), canvas.getClipBounds().right-mWidth, y, paint);
+      }
+    }
+
+    @Override
+    public int getSize(Paint paint, CharSequence text, int start, int end, FontMetricsInt fm) {
+      mWidth = (int)paint.measureText(text,start,end);
+      return mWidth;
+    }
+  }
+  
+  private static final class NewsTagHandler implements TagHandler {
+    @Override
+    public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
+      if(tag.equals("right")) {
+        doSpecial(opening,output,SpecialSpan.RIGHT_TYPE);
+      }
+      else if(tag.equals("line")) {
+        doSpecial(opening,output,SpecialSpan.LINE_TYPE);
+      }
+    }
+    
+    private void doSpecial(boolean opening, Editable output, int type) {
+      int len = output.length();
+      
+      ReplacementSpan span = new SpecialSpan(type);
+      
+      if(opening) {
+          output.setSpan(span, len, len, Spannable.SPAN_MARK_MARK);
+      } else {
+          Object obj = getLast(output, SpecialSpan.class);
+          int where = output.getSpanStart(obj);
+
+          output.removeSpan(obj);
+
+          if (where != len) {
+              output.setSpan(span, where, len, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+          }
+      }
+    }
+    
+    private Object getLast(Editable text, Class<?> kind) {
+      Object[] objs = text.getSpans(0, text.length(), kind);
+
+      if (objs.length == 0) {
+          return null;
+      } else {
+          for(int i = objs.length;i>0;i--) {
+              if(text.getSpanFlags(objs[i-1]) == Spannable.SPAN_MARK_MARK) {
+                  return objs[i-1];
+              }
+          }
+          return null;
+      }
+    }
+  }
+  
+  private void showNews() {
+    final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
+    
+    if(pref.getBoolean(getString(R.string.PREF_NEWS_SHOW), getResources().getBoolean(R.bool.pref_news_show_default))) {
+      long lastShown = pref.getLong(getString(R.string.NEWS_DATE_LAST_SHOWN), 0);
+      long lastKnown = pref.getLong(getString(R.string.NEWS_DATE_LAST_KNOWN), 0);
+      
+      final String news = pref.getString(getString(R.string.NEWS_TEXT), "");
+      
+      if(lastShown < lastKnown && news.trim().length() > 0) {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+            
+            builder.setTitle(R.string.title_news);
+            builder.setCancelable(false);
+            builder.setMessage(Html.fromHtml(news,null,new NewsTagHandler()));
+            
+            builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                Editor edit = pref.edit();
+                edit.putLong(getString(R.string.NEWS_DATE_LAST_SHOWN), System.currentTimeMillis());
+                edit.commit();
+              }
+            });
+            
+            AlertDialog d = builder.create();
+            d.show();
+            
+            ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+          }
+        });
+      }
+    }
+  }
+  
   private void updateFromFilterEdit() {
     final SubMenu filters = mFilterItem.getSubMenu();
     
@@ -3273,7 +3398,7 @@ public class TvBrowser extends FragmentActivity implements
       case R.id.action_username_password:
       {  
         showUserSetting(false);
-    }
+      }
       break;
       case R.id.menu_tvbrowser_action_create_favorite: UiUtils.editFavorite(null, TvBrowser.this, null);break;
       case R.id.action_donation: showDonationInfo(); break;
