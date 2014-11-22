@@ -626,6 +626,7 @@
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.5.4</h2>
+		    &bull; hide buttons in action bar when search is selected<br>
 			&bull; added news access<br>
         <br>
 		<h3>0.4.5.3</h3>

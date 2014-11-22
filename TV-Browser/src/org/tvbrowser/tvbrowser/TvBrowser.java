@@ -46,6 +46,7 @@ import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.xml.sax.XMLReader;
 
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -164,6 +165,7 @@ public class TvBrowser extends FragmentActivity implements
   private boolean updateRunning;
   private boolean selectingChannels;
   private ActionBar actionBar;
+  private boolean mSearchExpanded;
   
   /**
    * The {@link ViewPager} that will host the section contents.
@@ -394,10 +396,10 @@ public class TvBrowser extends FragmentActivity implements
             }
             
             if(mFilterItem != null) {
-              mFilterItem.setVisible(!(fragment instanceof FavoritesFragment));
+              mFilterItem.setVisible(!(fragment instanceof FavoritesFragment) && !mSearchExpanded);
             }
             if(mCreateFavorite != null) {
-              mCreateFavorite.setVisible(fragment instanceof FavoritesFragment);
+              mCreateFavorite.setVisible(fragment instanceof FavoritesFragment && !mSearchExpanded);
             }
             
             mProgramsListWasShow = false;
@@ -3472,6 +3474,7 @@ public class TvBrowser extends FragmentActivity implements
                                         break;
       case R.id.action_scroll_now:scrollToTime(0);break;
       case R.id.action_activity_filter_list_edit_open:openFilterEdit();break;
+      case R.id.search: Log.d("info2", "searcg");break;
      // case R.id.action_filter_channels:filterChannels();break;
       case R.id.action_reset: {
         Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
@@ -3520,7 +3523,7 @@ public class TvBrowser extends FragmentActivity implements
       }
     }
   }
-    
+  
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
@@ -3547,10 +3550,15 @@ public class TvBrowser extends FragmentActivity implements
     
     mFilterItem.setVisible(!(fragment instanceof FavoritesFragment));
     mCreateFavorite.setVisible(fragment instanceof FavoritesFragment);
+    mScrollTimeItem = menu.findItem(R.id.action_scroll);
     
     updateFromFilterEdit();
     
     menu.findItem(R.id.action_reset).setVisible(TEST_VERSION);
+    
+    mSearchExpanded = false;
+    
+    addOnActionExpandListener(menu.findItem(R.id.search));
     
    // menu.findItem(R.id.action_synchronize_dont_want_to_see).setVisible(false);
     menu.findItem(R.id.action_synchronize_favorites).setVisible(false);
@@ -3564,15 +3572,14 @@ public class TvBrowser extends FragmentActivity implements
     mDeleteDataUpdateLogItem = menu.findItem(R.id.action_delete_data_update_log);
     mSendReminderLogItem = menu.findItem(R.id.action_send_reminder_log);
     mDeleteReminderLogItem = menu.findItem(R.id.action_delete_reminder_log);
-    mScrollTimeItem = menu.findItem(R.id.action_scroll);
-    
+        
     mPauseReminder = menu.findItem(R.id.action_pause_reminder);
     mContinueReminder = menu.findItem(R.id.action_continue_reminder);
     
     mPauseReminder.setVisible(!SettingConstants.isReminderPaused(TvBrowser.this));
     mContinueReminder.setVisible(SettingConstants.isReminderPaused(TvBrowser.this));
     
-    mScrollTimeItem.setVisible(mViewPager.getCurrentItem() != 2);
+    mScrollTimeItem.setVisible(mViewPager.getCurrentItem() != 2 && !mSearchExpanded);
         
     boolean dataUpdateLogEnabled = PrefUtils.getBooleanValue(R.string.WRITE_DATA_UPDATE_LOG, R.bool.write_data_update_log_default);
     boolean reminderLogEnabled = PrefUtils.getBooleanValue(R.string.WRITE_REMINDER_LOG, R.bool.write_reminder_log_default);
@@ -3591,6 +3598,52 @@ public class TvBrowser extends FragmentActivity implements
     updateSynchroMenu();
     
     return true;
+  }
+
+  @SuppressLint("NewApi")
+  private void addOnActionExpandListener(MenuItem search) {
+    if(search != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+      search.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+        @Override
+        public boolean onMenuItemActionExpand(MenuItem item) {
+          mSearchExpanded = true;
+          
+          if(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+            mUpdateItem.setVisible(false);
+          }
+          
+          mScrollTimeItem.setVisible(false);
+          mCreateFavorite.setVisible(false);
+          
+          mFilterItem.setVisible(false);
+          
+          return true;
+        }
+        
+        @Override
+        public boolean onMenuItemActionCollapse(MenuItem item) {
+          mSearchExpanded = false;
+          
+          Fragment fragment = mSectionsPagerAdapter.getItem(mViewPager.getCurrentItem());
+          
+          if(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+            mUpdateItem.setVisible(true);
+          }
+          if(!(fragment instanceof FavoritesFragment)) {
+            mScrollTimeItem.setVisible(true);
+          }
+          if((fragment instanceof FavoritesFragment)) {
+            mCreateFavorite.setVisible(true);
+          }
+          
+          if(!(fragment instanceof FavoritesFragment)) {
+            mFilterItem.setVisible(true);
+          }
+          
+          return true;
+        }
+      });
+    }
   }
   
   private void updateSynchroMenu() {
@@ -3679,7 +3732,7 @@ public class TvBrowser extends FragmentActivity implements
       switch(tab.getPosition()) {
         case 2:mScrollTimeItem.setVisible(false);break;
         
-        default:mScrollTimeItem.setVisible(true);break;
+        default:mScrollTimeItem.setVisible(true && !mSearchExpanded);break;
       }
     }
   }
@@ -4245,6 +4298,8 @@ public class TvBrowser extends FragmentActivity implements
       LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcastSync(showChannel);
     }
     else {
+      PrefUtils.initialize(TvBrowser.this);
+      
       if(isTaskRoot() && !PrefUtils.getBooleanValue(R.string.PREF_RATING_DONATION_INFO_SHOWN, R.bool.pref_rating_donation_info_shown_default) && PrefUtils.getLongValueWithDefaultKey(R.string.PREF_RUNNING_TIME, R.integer.pref_running_time_default) > 2 * 60 * 60000) {
         showRatingAndDonationInfo();
       }

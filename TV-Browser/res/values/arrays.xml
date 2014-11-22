@@ -152,14 +152,15 @@
         <item>2</item>
         <item>3</item>
     </string-array>
-    <string name="pref_news_type_default">All</string>
+    <string name="pref_news_type_none">None</string>
+    <string name="pref_news_type_all">All</string>
     <string name="pref_news_type_tvbrowser">TV-Browser</string>
     <string name="pref_news_type_android">Android</string>
     <string name="pref_news_type_desktop">Desktop</string>
     <string name="pref_news_type_website">Website</string>
     
     <string-array name="news_type_value_array">
-        <item>@string/pref_news_type_default</item>
+        <item>@string/pref_news_type_all</item>
         <item>@string/pref_news_type_tvbrowser</item>
         <item>@string/pref_news_type_android</item>
         <item>@string/pref_news_type_desktop</item>
