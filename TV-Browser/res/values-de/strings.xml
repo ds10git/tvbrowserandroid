@@ -613,6 +613,7 @@
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.5.4</h2>
+		    &bull; Buttons in Werzeugleiste ausblenden, wenn Suche gestartet wird<br>
 			&bull; Nachrichtenabruf hinzugefügt<br>
         <br>
 		<h3>0.4.5.3</h3>

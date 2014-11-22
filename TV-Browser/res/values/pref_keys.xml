@@ -440,6 +440,7 @@
 	    <item name="pref_news_show_default" type="bool" format="boolean">true</item>
 	    
 	    <string name="PREF_NEWS_TYPE">PREF_NEWS_TYPE</string>
+	    <item name="pref_news_type_default" type="string" format="string">@string/pref_news_type_android</item>
 	    
 	<!-- Widgets layout settings -->
 	    <string name="PREF_WIDGET_VERTICAL_PADDING_SIZE">PREF_WIDGET_VERTICAL_PADDING_SIZE</string>

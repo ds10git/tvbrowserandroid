@@ -226,12 +226,12 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
     
       Cursor c = mProgramListAdapter.getCursor();
       
-      if(c.moveToFirst()) {
+      if(c != null && c.moveToFirst()) {
         try {
           int index = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
           int count = 0;
           
-          if(!c.isClosed()) {
+          if(c != null && !c.isClosed()) {
             do {
               long startTime = c.getLong(index);
               

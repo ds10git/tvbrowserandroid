@@ -43,6 +43,8 @@ import android.text.format.DateFormat;
 public class NewsReader {
   private static final String NEWS_URL = "http://www.tvbrowser.org/newsplugin/static-news.xml";
   private static final SimpleDateFormat NEWS_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  
+  // after 90 days a news is outdated and is no longer shown
   private static final int NEWS_DAYOUT = 90;
   
   /**
@@ -119,7 +121,7 @@ public class NewsReader {
       String newsType = PreferenceManager.getDefaultSharedPreferences(context).getString(context.getString(R.string.PREF_NEWS_TYPE), context.getString(R.string.pref_news_type_default));
       
       for(News news : newsList) {
-        if(newsType.equals(context.getString(R.string.pref_news_type_default)) || news.isAcceptedType(context,newsType)) {
+        if(news.isAcceptedType(context,newsType)) {
           if(newsText.length() > 0) {
             newsText.append("<line>LINE</line>");
           }
@@ -163,7 +165,7 @@ public class NewsReader {
     String mEnNewsText;
     
     boolean isAcceptedType(Context context, String type) {
-      boolean accept = mType == null;
+      boolean accept = mType == null || type.equals(context.getString(R.string.pref_news_type_all)) || mType.equals(context.getString(R.string.pref_news_type_none));
       
       if(!accept) {
         String tvbType = context.getString(R.string.pref_news_type_tvbrowser);
@@ -193,7 +195,7 @@ public class NewsReader {
     }
     
     public String getTitle(boolean de) {
-      if(de || mEnNewsTitle == null) {
+      if((de || mEnNewsTitle == null) && mDeNewsTitle != null) {
         return mDeNewsTitle;
       }
       
@@ -201,7 +203,7 @@ public class NewsReader {
     }
     
     public String getText(boolean de) {
-      if(de || mEnNewsText == null) {
+      if((de || mEnNewsText == null) && mDeNewsText != null) {
         return mDeNewsText;
       }
       
