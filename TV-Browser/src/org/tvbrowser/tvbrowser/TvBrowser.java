@@ -3474,7 +3474,6 @@ public class TvBrowser extends FragmentActivity implements
                                         break;
       case R.id.action_scroll_now:scrollToTime(0);break;
       case R.id.action_activity_filter_list_edit_open:openFilterEdit();break;
-      case R.id.search: Log.d("info2", "searcg");break;
      // case R.id.action_filter_channels:filterChannels();break;
       case R.id.action_reset: {
         Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
