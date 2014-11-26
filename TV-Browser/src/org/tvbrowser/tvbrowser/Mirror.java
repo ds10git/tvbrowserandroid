@@ -103,7 +103,7 @@ public class Mirror implements Comparable<Mirror> {
     return 0;
   }
   
-  public static Mirror getMirrorToUseForGroup(Mirror[] mirrors, String group, TvDataUpdateService update) {
+  public static Mirror getMirrorToUseForGroup(Mirror[] mirrors, String group, TvDataUpdateService update, boolean checkOnlyConnection) {
     ArrayList<Mirror> toChooseFrom = new ArrayList<Mirror>(Arrays.asList(mirrors));
     
     Mirror choosen = null;
@@ -120,7 +120,7 @@ public class Mirror implements Comparable<Mirror> {
       for(int i = toChooseFrom.size()-1; i >= 0; i--) {
         if(toChooseFrom.get(i).getWeight() >= limit) {
           update.doLog("Accepted weight for group '" + group + "': " + toChooseFrom.get(i).getWeight() + " URL: " + toChooseFrom.get(i).getUrl());
-          if(useMirror(toChooseFrom.get(i),group,5000,update)) {
+          if((!checkOnlyConnection && useMirror(toChooseFrom.get(i),group,5000,update)) || IOUtils.isConnectedToServer(toChooseFrom.get(i).getUrl(), 5000)) {
             update.doLog("Accepted miror for group '" + group + "': " + toChooseFrom.get(i).getUrl());
             choosen = toChooseFrom.get(i);
             break;

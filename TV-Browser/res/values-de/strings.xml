@@ -612,7 +612,10 @@
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
-		<h2>0.4.5.4</h2>
+		<h2>0.4.6</h2>
+			&bull; Unterstützung für Sender aus EPGdonate-Daten hinzugefügt<br>
+        <br>
+		<h3>0.4.5.4</h3>
 		    &bull; Buttons in Werzeugleiste ausblenden, wenn Suche gestartet wird<br>
 			&bull; Nachrichtenabruf hinzugefügt<br>
         <br>

@@ -46,7 +46,14 @@ public class SettingConstants {
   public static final String ALL_FILTER_ID = "filter.allFilter";
   
   public static final String EPG_FREE_KEY = "EPG_FREE";
-  public static final String[] LEVEL_NAMES = {"base","more00-16","more16-00","picture00-16","picture16-00"};
+  
+  public static final String EPG_DONATE_KEY = "EPG_DONATE_KEY";
+  public static final String EPG_DONATE_GROUP_KEY = "epgdonategroup";
+  public static final String EPG_DONATE_DEFAULT_URL = "http://epgdonatedata.natsu-no-yuki.de/";
+  
+  public static final String[] EPG_FREE_LEVEL_NAMES = {"base","more00-16","more16-00","picture00-16","picture16-00"};
+  public static final String[] EPG_DONATE_LEVEL_NAMES = {"base","more","picture"};
+  
   public static final String CHANNEL_DOWNLOAD_COMPLETE = "org.tvbrowser.CHANNEL_DOWNLOAD_COMPLETE";
   public static final String MARKINGS_CHANGED = "org.tvbrowser.MARKINGS_CHANGED";
   public static final String FAVORITES_CHANGED = "org.tvbrowser.FAVORTES_CHANGED";
@@ -120,7 +127,7 @@ public class SettingConstants {
     R.string.PREF_INFO_SHOW_CHILDREN,
     R.string.PREF_INFO_SHOW_OTHER,
     R.string.PREF_INFO_SHOW_SIGN_LANGUAGE
-};
+  };
   
   public static final String DONT_WANT_TO_SEE_ADDED_EXTRA = "DONT_WANT_TO_SEE_ADDED_EXTRA";
   
@@ -132,6 +139,19 @@ public class SettingConstants {
   
   public static final SparseArray<Drawable> SMALL_LOGO_MAP = new SparseArray<Drawable>();
   public static final SparseArray<Drawable> MEDIUM_LOGO_MAP = new SparseArray<Drawable>();
+  
+  public static String getNumberForDataServiceKey(String key) {
+    String result = null;
+    
+    if(key.equals(EPG_FREE_KEY)) {
+      result = "1";
+    }
+    else if(key.equals(EPG_DONATE_KEY)) {
+      result = "2";
+    }
+    
+    return result;
+  }
   
   public static void setReminderPaused(Context context, boolean reminderPaused) {
     Editor editPref = PreferenceManager.getDefaultSharedPreferences(context).edit();
