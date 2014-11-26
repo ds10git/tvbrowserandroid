@@ -810,23 +810,45 @@ public class TvBrowser extends FragmentActivity implements
                 if(line.contains(":")) {
                   String[] parts = line.split(":");
                   
-                  if(parts[0].equals("1")) {
-                    String dataService = "EPG_FREE";
+                  String dataService = null;
+                  String groupKey = null;
+                  String channelId = null;
+                  String sortNumber = null;
+                  
+                  if(parts[0].equals(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_FREE_KEY))) {
+                    dataService = SettingConstants.EPG_FREE_KEY;
+                    groupKey = parts[1];
+                    channelId = parts[2];
                     
-                    String where = " ( " + TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = '" + dataService + "' ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "='" + parts[1] + "' ) ";
+                    if(parts.length > 3) {
+                      sortNumber = parts[3];
+                    }
+                  }
+                  else if(parts[0].equals(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_DONATE_KEY))) {
+                    dataService = SettingConstants.EPG_DONATE_KEY;
+                    groupKey = SettingConstants.EPG_DONATE_GROUP_KEY;
+                    channelId = parts[1];
+                    
+                    if(parts.length > 2) {
+                      sortNumber = parts[2];
+                    }
+                  }
+                    
+                  if(dataService != null) {  
+                    String where = " ( " + TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = '" + dataService + "' ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "='" + groupKey + "' ) ";
                     
                     Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
                     
                     if(group.moveToFirst()) {
                       int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                       
-                      where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=" + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "='" + parts[2] + "' ) ";
+                      where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=" + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "='" + channelId + "' ) ";
                       
                       ContentValues values = new ContentValues();
                       
-                      if(parts.length > 3) {
+                      if(sortNumber != null) {
                         try {
-                          sort = Integer.parseInt(parts[3]);
+                          sort = Integer.parseInt(sortNumber);
                         }catch(NumberFormatException e) {}
                       }
                       
@@ -1307,8 +1329,15 @@ public class TvBrowser extends FragmentActivity implements
               String dataServiceId = groups.getString(groups.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID));
               String goupIdValue = groups.getString(groups.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
               
-              if(dataServiceId.equals(SettingConstants.EPG_FREE_KEY)) {
-                groupId = "1:"+goupIdValue+":";
+              String dataServiceIdNumber = SettingConstants.getNumberForDataServiceKey(dataServiceId);
+              
+              if(dataServiceIdNumber != null) {
+                if(dataServiceId.equals(SettingConstants.EPG_FREE_KEY)) {
+                  groupId = dataServiceIdNumber + ":"+goupIdValue+":";
+                }
+                else if(dataServiceId.equals(SettingConstants.EPG_DONATE_KEY)) {
+                  groupId = dataServiceIdNumber + ":";
+                }
                 groupKeys.put(groupKey, groupId);
               }
             }

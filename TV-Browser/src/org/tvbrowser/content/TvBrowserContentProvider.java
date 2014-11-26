@@ -159,6 +159,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_SERIES = "series";
   public static final String DATA_KEY_UNIX_DATE = "unixDate";
   public static final String DATA_KEY_DATE_PROG_ID = "dateProgID";
+  public static final String DATA_KEY_DATE_PROG_STRING_ID = "dateProgStringID";
   public static final String DATA_KEY_DONT_WANT_TO_SEE = "dontWantToSee";
   public static final String DATA_KEY_REMOVED_REMINDER = "removedReminder";
   public static final String DATA_KEY_MARKING_MARKING = "markingMarking";
@@ -956,6 +957,7 @@ public class TvBrowserContentProvider extends ContentProvider {
         + DATA_KEY_SERIES + " TEXT, "
         + DATA_KEY_UNIX_DATE + " INTEGER, "
         + DATA_KEY_DATE_PROG_ID + " INTEGER, "
+        + DATA_KEY_DATE_PROG_STRING_ID + " TEXT, "
         + DATA_KEY_DONT_WANT_TO_SEE + " INTEGER DEFAULT 0, "
         + DATA_KEY_REMOVED_REMINDER	+ " INTEGER DEFAULT 0, "
         + DATA_KEY_MARKING_MARKING + " INTEGER DEFAULT 0, "
@@ -1016,7 +1018,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       db.execSQL(CREATE_VERSION_TABLE);
     }
 
-    private static final int DATABASE_VERSION = 7;
+    private static final int DATABASE_VERSION = 8;
     
     @Override
     public void onUpgrade(final SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -1274,6 +1276,8 @@ public class TvBrowserContentProvider extends ContentProvider {
         addColumnList.add(DATA_KEY_INFO_OTHER);
         addColumnList.add(DATA_KEY_INFO_SIGN_LANGUAGE);
         
+        addColumnList.add(DATA_KEY_DATE_PROG_STRING_ID);
+        
         Cursor c = db.rawQuery("PRAGMA table_info(" + DATA_TABLE + ")", null);
         
         if(c != null) {
@@ -1295,7 +1299,12 @@ public class TvBrowserContentProvider extends ContentProvider {
         }
         
         for(String column : addColumnList) {
-          db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + column + " INTEGER DEFAULT 0");
+          if(column.equals(DATA_KEY_DATE_PROG_STRING_ID)) {
+            db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + column + " TEXT");
+          }
+          else {
+            db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + column + " INTEGER DEFAULT 0");
+          }
         }
         
         /*db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0");
@@ -1394,6 +1403,10 @@ public class TvBrowserContentProvider extends ContentProvider {
             }
           };
         }.start();
+      }
+      
+      if(oldVersion >= 7 && oldVersion < 8) {
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_DATE_PROG_STRING_ID + " TEXT");
       }
     }
   }

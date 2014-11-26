@@ -625,7 +625,10 @@
     
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
-		<h2>0.4.5.4</h2>
+		<h2>0.4.6</h2>
+			&bull; added support for EPGdonate data channels<br>
+        <br>
+		<h3>0.4.5.4</h3>
 		    &bull; hide buttons in action bar when search is selected<br>
 			&bull; added news access<br>
         <br>
