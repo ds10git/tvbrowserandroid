@@ -818,7 +818,13 @@ public class TvDataUpdateService extends Service {
           
           SimpleGroupInfo info = groupInfo.get(groupID);
           
-          dat.append(startTime).append(";").append(info.mDataServiceID).append(":").append(info.mGroupID).append(":").append(baseCountry).append(":").append(channelID).append("\n");
+          String groupId = ":" + info.mGroupID;
+          
+          if(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_DONATE_KEY).equals(info.mDataServiceID)) {
+            groupId = "";
+          }
+          
+          dat.append(startTime).append(";").append(info.mDataServiceID).append(groupId).append(":").append(baseCountry).append(":").append(channelID).append("\n");
         }
       }
     }
@@ -867,17 +873,30 @@ public class TvDataUpdateService extends Service {
               long time = Long.parseLong(parts[0]) * 60000;
               String[] idParts = parts[1].split(":");
             
-              if(idParts[0].equals("1")) {
-                String dataService = "EPG_FREE";
+              String dataService = null;
+              String groupKeyId = null;
+              String channelIdKey = null;
+              
+              if(idParts[0].equals(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_FREE_KEY))) {
+                dataService = SettingConstants.EPG_FREE_KEY;
+                groupKeyId = idParts[1];
+                channelIdKey = idParts[2];
+              }
+              else if(idParts[0].equals(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_DONATE_KEY))) {
+                dataService = SettingConstants.EPG_DONATE_KEY;
+                groupKeyId = SettingConstants.EPG_DONATE_GROUP_KEY;
+                channelIdKey = idParts[1];
+              }
                 
-                String where = " ( " +TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = \"" + dataService + "\" ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + idParts[1] + "\" ) ";
+              if(dataService != null) {
+                String where = " ( " +TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = \"" + dataService + "\" ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + groupKeyId + "\" ) ";
                 
                 Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
                 
                 if(group.moveToFirst()) {
                   int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                   
-                  where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + idParts[2] + "\' ) ";
+                  where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + channelIdKey + "\' ) ";
                   
                   Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
                   
@@ -987,18 +1006,31 @@ public class TvDataUpdateService extends Service {
           
           long time = Long.parseLong(parts[0]) * 60000;
           String[] idParts = parts[1].split(":");
-        
-          if(idParts[0].equals("1")) {
-            String dataService = "EPG_FREE";
+          
+          String dataService = null;
+          String groupKeyId = null;
+          String channelIdKey = null;
+          
+          if(idParts[0].equals(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_FREE_KEY))) {
+            dataService = SettingConstants.EPG_FREE_KEY;
+            groupKeyId = idParts[1];
+            channelIdKey = idParts[2];
+          }
+          else if(idParts[0].equals(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_DONATE_KEY))) {
+            dataService = SettingConstants.EPG_DONATE_KEY;
+            groupKeyId = SettingConstants.EPG_DONATE_GROUP_KEY;
+            channelIdKey = idParts[1];
+          }
             
-            String where = " ( " +TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = \"" + dataService + "\" ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + idParts[1] + "\" ) ";
+          if(dataService != null) {
+            String where = " ( " +TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = \"" + dataService + "\" ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + groupKeyId + "\" ) ";
             
             Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
             
             if(group.moveToFirst()) {
               int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
               
-              where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + idParts[2] + "\' ) ";
+              where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + channelIdKey + "\' ) ";
               
               Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
               
@@ -1728,7 +1760,13 @@ public class TvDataUpdateService extends Service {
           
           SimpleGroupInfo info = groupInfo.get(groupID);
           
-          dat.append(startTime).append(";").append(info.mDataServiceID).append(":").append(info.mGroupID).append(":").append(baseCountry).append(":").append(channelID).append("\n");
+          String groupId = ":" + info.mGroupID;
+          
+          if(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_DONATE_KEY).equals(info.mDataServiceID)) {
+            groupId = "";
+          }
+          
+          dat.append(startTime).append(";").append(info.mDataServiceID).append(groupId).append(":").append(baseCountry).append(":").append(channelID).append("\n");
         }
       }
     }
