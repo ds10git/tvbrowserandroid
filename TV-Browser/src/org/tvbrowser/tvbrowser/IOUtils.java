@@ -21,6 +21,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.PushbackInputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -43,6 +44,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
+import android.database.Cursor;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -534,5 +536,47 @@ public class IOUtils {
     cal.set(2014, Calendar.DECEMBER, 31, hourOfDay, minutes, seconds);
     
     return cal;
+  }
+  
+  /**
+   * Closes the given cursor.
+   * Checks for <code>null</code> and already closed before closing.
+   * 
+   * @param cursor The cursor to close.
+   */
+  public static void closeCursor(Cursor cursor) {
+    if(cursor != null && !cursor.isClosed()) {
+      cursor.close();
+    }
+  }
+  
+  /**
+   * Closes the given input stream, checks for <code>null</code> prehand.
+   * <p>
+   * @param in The stream to close
+   */
+  public static void closeInputStream(InputStream in) {
+    if(in != null) {
+      try {
+        in.close();
+      } catch (IOException e) {
+        // Igonore, nothing to do here
+      }
+    }
+  }
+  
+  /**
+   * Closes the given output stream, checks for <code>null</code> prehand.
+   * <p>
+   * @param out The stream to close
+   */
+  public static void closeOutpuStream(OutputStream out) {
+    if(out != null) {
+      try {
+        out.close();
+      } catch (IOException e) {
+        // Igonore, nothing to do here
+      }
+    }
   }
 }

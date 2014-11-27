@@ -25,4 +25,5 @@
     <dimen name="edit_favorite_font_size">20sp</dimen>
     <dimen name="widget_config_devider_font_size">18sp</dimen>
     <dimen name="widget_config_font_size">18sp</dimen>
+    <dimen name="epg_donate_info_font_size">17sp</dimen>
 </resources>

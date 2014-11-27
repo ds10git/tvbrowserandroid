@@ -609,7 +609,21 @@
         <item>Nur Desktop-TV-Browser</item>
         <item>Webseite</item>
     </string-array>
-    
+     
+    <string name="epg_donate_name">In Ihrer Senderliste befinden sich Sender aus EPGdonate-Daten</string>
+    <string name="epg_donate_info"><![CDATA[
+        <p>Die Daten, die mit EPGdonate-Daten verfügbar gemacht werden sind grundsätzlich frei verfügbar. Damit dieser Service auch weiterhin angeboten werden kann sollte jeder, der es sich wirtschaftlich leisten kann einen jährlichen Betrag zu spenden (und wenigstens volljährig ist), diesen auch spenden.</p>
+        <p>Wie hoch dieser jährliche Betrag ausfällt hängt zum einen von der Anzahl der Nutzer und zum anderen von der Anzahl der Spender für EPGdonate-Daten ab. Je mehr Nutzer bzw. Spender, desto geringer kann dieser ausfallen.</p>
+        <p>Sie werden von Zeit zu Zeit über den vorgeschlagenen Spendenbetrag informiert, sollten Sie die vorgeschlagene Summe nicht aufbringen können, können Sie auch weniger spenden. Sollten Sie sich außer Stande sehen, überhaupt etwas zu spenden, können die EPGdonate-Daten auch kostenlos verwendet werden. Natürlich steht es jedem frei auch mehr als den vorgeschlagenen Betrag zu spenden, um die Daten für jemanden, der es sich nicht leisten kann zu spenden, zu sponsern.</p>
+        <p>Welche Möglichkeiten zur Spende bestehen, wird auf der Internetseite von EPGdonate-Daten, aufgeführt: <a href="http://epgdonate.natsu-no-yuki.de">http://epgdonate.natsu-no-yuki.de</a></p>{0}]]></string>
+	<string name="epg_donate_amount">Der vorgeschlagene Spendenbetrag für {0} beträgt: {1}</string>
+	<string name="epg_donate_percent_info"><![CDATA[<h3>Aktueller Spendenstand dieses Jahr</h3>schlecht <right>gut</right>]]></string>
+    <string name="epg_donate_dont_show_again">Diese Nachricht dieses Jahr nicht mehr anzeigen:</string>
+    <string name="epg_donate_dont_show_again_reason_cannot">Ich kann dieses Jahr nicht spenden</string>
+    <string name="epg_donate_dont_show_again_reason_donated">Ich habe dieses Jahr bereits gespendet</string>
+    <string name="epg_donate_dont_show_again_reason_want_not">Ich will alles kostenlos haben</string>
+    <string name="epg_donate_dont_show_again_reason_will_donate">Ich werde für dieses Jahr noch spenden</string>
+	
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.6</h2>

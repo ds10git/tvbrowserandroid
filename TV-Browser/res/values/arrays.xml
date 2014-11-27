@@ -166,4 +166,11 @@
         <item>@string/pref_news_type_desktop</item>
         <item>@string/pref_news_type_website</item>
     </string-array>
+    
+    <string-array name="epg_donate_reasons">
+        <item>@string/epg_donate_dont_show_again_reason_cannot</item>
+        <item>@string/epg_donate_dont_show_again_reason_donated</item>
+        <item>@string/epg_donate_dont_show_again_reason_will_donate</item>
+        <item>@string/epg_donate_dont_show_again_reason_want_not</item>
+    </string-array>
 </resources>

@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+	<LinearLayout
+	    android:layout_width="match_parent"
+	    android:layout_height="wrap_content"
+	    android:orientation="vertical"
+	    android:padding="15dp">
+	    <TextView
+	        android:id="@+id/dialog_epg_donate_message"
+	        android:textSize="@dimen/epg_donate_info_font_size"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"/>
+	    <TextView
+	        android:id="@+id/dialog_epg_donate_percent_info"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"/>
+	    <SeekBar
+	        android:id="@+id/dialog_epg_donate_percent"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_marginBottom="10dp"
+	        android:max="100"/>
+	    <CheckBox
+	        android:id="@+id/dialog_epg_donate_dont_show_again"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:text="@string/epg_donate_dont_show_again"/>
+		<Spinner
+		    android:id="@+id/dialog_epg_donate_reason_selection"
+		    android:layout_width="match_parent"
+		    android:layout_height="wrap_content"
+		    android:layout_marginLeft="25dp"
+		    android:layout_marginStart="25dp"
+		    android:entries="@array/epg_donate_reasons"/>
+	</LinearLayout>
+</ScrollView>
