@@ -51,6 +51,9 @@ public class SettingConstants {
   public static final String EPG_DONATE_GROUP_KEY = "epgdonategroup";
   public static final String EPG_DONATE_DEFAULT_URL = "http://epgdonatedata.natsu-no-yuki.de/";
   
+  public static final String EPG_DONATE_DONATION_INFO_PERCENT_KEY = "CURRENT_DONATION_PERCENT";
+  public static final String EPG_DONATE_DONATION_INFO_AMOUNT_KEY_PREFIX = "CURRENT_DONATION_AMOUNT_";
+  
   public static final String[] EPG_FREE_LEVEL_NAMES = {"base","more00-16","more16-00","picture00-16","picture16-00"};
   public static final String[] EPG_DONATE_LEVEL_NAMES = {"base","more","picture"};
   

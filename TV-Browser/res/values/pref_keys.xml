@@ -478,4 +478,16 @@
     		
     	<string name="PREF_WIDGET_SIMPLE_ICON">PREF_WIDGET_SIMPLE_ICON</string>
     	<item name="pref_widget_simple_icon_default" type="bool" format="boolean">false</item>
+    	
+    	<!-- EPGdonate keys -->
+    	<string name="EPG_DONATE_CURRENT_DONATION_PERCENT">EPG_DONATE_CURRENT_DONATION_PERCENT</string>
+    	<item name="epg_donate_current_donation_percent_default" type="string" format="string">-1</item>
+    	
+    	<string name="EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX">EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX</string>
+    	<item name="epg_donate_current_donation_amount_default" type="string" format="string">3\u20AC</item>
+    	
+    	<string name="EPG_DONATE_LAST_DONATION_INFO_SHOWN">EPG_DONATE_LAST_DONATION_INFO_SHOWN</string>
+    	<string name="EPG_DONATE_DONT_SHOW_AGAIN_YEAR">EPG_DONATE_DONT_SHOW_AGAIN_YEAR</string>
+    	<string name="EPG_DONATE_FIRST_DATA_DOWNLOAD">EPG_DONATE_FIRST_DATA_DOWNLOAD</string>
+    	<string name="EPG_DONATE_LAST_DATA_DOWNLOAD">EPG_DONATE_LAST_DATA_DOWNLOAD</string>
 </resources>

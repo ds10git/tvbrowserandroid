@@ -118,6 +118,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -126,6 +127,7 @@ import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SearchView;
+import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -551,6 +553,140 @@ public class TvBrowser extends FragmentActivity implements
     /*if(getIntent().hasExtra(SettingConstants.CHANNEL_ID_EXTRA) && getIntent().hasExtra(SettingConstants.START_TIME_EXTRA)) {
       
     }*/
+    
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        showEpgDonateInfo();
+      }
+    });
+  }
+  
+  private static boolean SHOWING_DONATION_INFO = false;
+  
+  private void showEpgDonateInfo() {
+    if(!SHOWING_DONATION_INFO && hasEpgDonateChannelsSubscribed()) {
+      final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
+      
+      final String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
+      int month = Calendar.getInstance().get(Calendar.MONTH);
+      
+      final long now = System.currentTimeMillis();
+      long firstDownload = pref.getLong(getString(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD), now);
+      long lastDownload = pref.getLong(getString(R.string.EPG_DONATE_LAST_DATA_DOWNLOAD), now);
+      long lastShown = pref.getLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), (now - (60 * 24 * 60 * 60000L)));
+      
+      Calendar monthTest = Calendar.getInstance();
+      monthTest.setTimeInMillis(lastShown);
+      int shownMonth = monthTest.get(Calendar.MONTH);
+      
+      boolean firstTimeoutReached = (firstDownload + (14 * 24 * 60 * 60000L)) < now;
+      boolean lastTimoutReached = lastDownload > (now - ((42 * 24 * 60 * 60000L)));
+      boolean alreadyShowTimeoutReached = (lastShown + (14 * 24 * 60 * 60000L) < now);
+      boolean alreadyShownThisMonth = shownMonth == month;
+      boolean dontShowAgainThisYear = year.equals(pref.getString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), "0"));
+      boolean radomShow = Math.random() > 0.33;
+      
+      boolean show = firstTimeoutReached && lastTimoutReached && alreadyShowTimeoutReached && !alreadyShownThisMonth && !dontShowAgainThisYear && radomShow;
+      
+      Log.d("info21", "firstTimeoutReached: " + firstTimeoutReached + " lastTimoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " radomShow: " + radomShow + " SHOW: " + show);
+      
+      if(show) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+        
+        String info = getString(R.string.epg_donate_info);
+        String amount = getString(R.string.epg_donate_amount);
+        String percentInfo = getString(R.string.epg_donate_percent_info);
+        
+        String amountValue = pref.getString(getString(R.string.EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX)+"_"+year, getString(R.string.epg_donate_current_donation_amount_default));
+        int percentValue = Integer.parseInt(pref.getString(getString(R.string.EPG_DONATE_CURRENT_DONATION_PERCENT), "-1"));
+        
+        amount = amount.replace("{0}", year).replace("{1}", amountValue);
+        
+        info = info.replace("{0}", "<h2>"+amount+"</h2>");
+        
+        builder.setTitle(R.string.epg_donate_name);
+        builder.setCancelable(false);
+        
+        View view = getLayoutInflater().inflate(R.layout.dialog_epg_donate_info, null);
+        
+        TextView message = (TextView)view.findViewById(R.id.dialog_epg_donate_message);
+        message.setText(Html.fromHtml(info));
+        message.setMovementMethod(LinkMovementMethod.getInstance());
+        
+        TextView percentInfoView = (TextView)view.findViewById(R.id.dialog_epg_donate_percent_info);
+        percentInfoView.setText(Html.fromHtml(percentInfo, null, new NewsTagHandler()));
+        
+        SeekBar percent = (SeekBar)view.findViewById(R.id.dialog_epg_donate_percent);
+        percent.setEnabled(false);
+        
+        if(percentValue >= 0) {
+          percent.setProgress(percentValue);
+        }
+        else {
+          percentInfoView.setVisibility(View.GONE);
+          percent.setVisibility(View.GONE);
+        }
+        
+        final Spinner reason = (Spinner)view.findViewById(R.id.dialog_epg_donate_reason_selection);
+        reason.setEnabled(false);
+        
+        final CheckBox dontShowAgain = (CheckBox)view.findViewById(R.id.dialog_epg_donate_dont_show_again);
+        dontShowAgain.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+          @Override
+          public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+            reason.setEnabled(isChecked);
+          }
+        });
+        
+        builder.setView(view);
+        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+          @Override
+          public void onClick(DialogInterface dialog, int which) {
+            SHOWING_DONATION_INFO = false;
+            Editor edit = pref.edit();
+            edit.putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now);
+            
+            if(dontShowAgain.isChecked()) {
+              edit.putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), year);
+            }
+            
+            edit.commit();
+          }
+        });
+        
+        builder.show();
+        SHOWING_DONATION_INFO = true;
+      }
+    }
+  }
+  
+  private boolean hasEpgDonateChannelsSubscribed() {
+    final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID};
+    boolean result = false;
+    int epgDonateKey = -1;
+        
+    Cursor groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, projection, TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + "=\"" + SettingConstants.EPG_DONATE_KEY +"\"", null, null);
+    
+    try {
+      if(groups.moveToFirst()) {
+        epgDonateKey = groups.getInt(groups.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+      }
+    } finally {
+      IOUtils.closeCursor(groups);
+    }
+    
+    if(epgDonateKey != -1) {
+      Cursor epgDonateSubscribedChannels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=" + epgDonateKey + " ) AND " + TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, null);
+      
+      try {
+        result = epgDonateSubscribedChannels.getCount() > 0;
+      } finally {
+        IOUtils.closeCursor(epgDonateSubscribedChannels);
+      }
+    }
+    
+    return result;
   }
   
   private void handleResume() {

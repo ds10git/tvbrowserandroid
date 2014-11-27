@@ -2342,6 +2342,8 @@ public class TvDataUpdateService extends Service {
       
       Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
       doLog("channelCursor: " + channelCursor);
+      boolean donationInfoLoaded = false;
+      
       if(channelCursor.moveToFirst()) {
         int lastGroup = -1;
         Mirror mirror = null;
@@ -2401,6 +2403,51 @@ public class TvDataUpdateService extends Service {
                   String summaryFileName = groupId + "_summary.gz";
                   
                   if(checkOnlyConnection) {
+                    if(!donationInfoLoaded) {
+                      Editor edit = PreferenceManager.getDefaultSharedPreferences(TvDataUpdateService.this).edit();
+                      edit.putLong(getString(R.string.EPG_DONATE_LAST_DATA_DOWNLOAD), System.currentTimeMillis());
+                      Log.d("info22", "EPG DONATE FIRST DOWNLOAD " + PrefUtils.getLongValue(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD, -1));
+                      if(PrefUtils.getLongValue(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD, -1) == -1) {
+                        edit.putLong(getString(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD), System.currentTimeMillis());
+                      }
+                      
+                      File donationInfo = new File(path,groupId+"_donationinfo.gz");
+                      
+                      IOUtils.saveUrl(donationInfo.getAbsolutePath(), mirror.getUrl() + "donationinfo.gz");
+                      
+                      if(donationInfo.isFile()) {
+                        Properties donationProp = new Properties();
+                        
+                        GZIPInputStream in = null;
+                        try {
+                          in = new GZIPInputStream(new FileInputStream(donationInfo));
+                          
+                          donationProp.load(in);
+                        } catch(IOException e) {
+                          // ignore just load the info next time
+                        } finally {
+                          IOUtils.closeInputStream(in);
+                        }
+                        
+                        edit.putString(getString(R.string.EPG_DONATE_CURRENT_DONATION_PERCENT), donationProp.getProperty(SettingConstants.EPG_DONATE_DONATION_INFO_PERCENT_KEY,"-1"));
+                        
+                        String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
+                        
+                        String donationAmount = donationProp.getProperty(SettingConstants.EPG_DONATE_DONATION_INFO_AMOUNT_KEY_PREFIX+year, null);
+                        
+                        if(donationAmount != null) {
+                          edit.putString(getString(R.string.EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX)+"_"+year, donationAmount);
+                        }
+                        
+                        if(!donationInfo.delete()) {
+                          donationInfo.deleteOnExit();
+                        }
+                      }
+                      
+                      edit.commit();
+                      donationInfoLoaded = true;
+                    }
+                    
                     url = mirror.getUrl() + "mirrors.gz";
                     fileName = groupId + "_mirrors.gz";
                     
@@ -2751,8 +2798,6 @@ public class TvDataUpdateService extends Service {
         versionInfo[5] = ids.getInt(picture1600Column);
         
         String id = ids.getInt(channelIDColumn) + "_" + ids.getInt(daysSince1970Column);
-        
-        Log.d("info21", "CURRENT VERSION IDs " + id + " " + versionInfo[0] + " " + versionInfo[2] + " " + versionInfo[4]);
         
         mCurrentVersionIDs.put(id, versionInfo);
       }
