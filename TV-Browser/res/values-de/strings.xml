@@ -225,6 +225,7 @@
 	<string name="info_sign_language">Gebärdensprache</string>
 	<string name="menu_tvbrowser_title_settings">Einstellungen</string>
 	<string name="menu_tvbrowser_title_settings_basic">Allgemeine Einstellungen</string>
+	<string name="menu_tvbrowser_title_settings_plugins">Plugin-Einstellungen</string>
 	<string name="pref_summary">Einstellungen für TV-Browser</string>
 	<string name="pref_download_category">Datendownload</string>
 	<string name="pref_programs_list_category">Datendownload</string>
@@ -239,6 +240,7 @@
 	<string name="show_logo_only">Nur Senderlogo anzeigen</string>
 	<string name="show_name_only">Nur Sendername anzeigen</string>
 	<string name="pref_activated">Aktiviert</string>
+	<string name="pref_open">Einstellungen öffnen</string>
 	<string name="pref_detail_category">Detail-Fenster</string>
 	<string name="pref_detail_category_summary">Welche Informationen sollen im Detail-Fenster angezeigt werden?</string>
 	<string name="pref_detail_picture_zoom">Bild skalieren</string>
@@ -624,9 +626,13 @@
     <string name="epg_donate_dont_show_again_reason_want_not">Ich will alles kostenlos haben</string>
     <string name="epg_donate_dont_show_again_reason_will_donate">Ich werde für dieses Jahr noch spenden</string>
 	
+    <string name="pref_plugins_author">Autor:</string>
+    <string name="pref_plugins_license">Lizenz:</string>
+    
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.6</h2>
+			&bull; erste Version der Plugin-Schnittstelle hinzugefügt<br>
 			&bull; Unterstützung für Sender aus EPGdonate-Daten hinzugefügt<br>
         <br>
 		<h3>0.4.5.4</h3>

@@ -31,6 +31,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -41,6 +42,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.devplugin.PluginHandler;
+import org.tvbrowser.devplugin.PluginServiceConnection;
+import org.tvbrowser.settings.PluginPreferencesActivity;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.settings.TvbPreferencesActivity;
@@ -66,8 +70,12 @@ import android.content.IntentFilter;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
+import android.content.pm.ResolveInfo;
+import android.content.pm.ServiceInfo;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -426,7 +434,9 @@ public class TvBrowser extends FragmentActivity implements
       mViewPager.setCurrentItem(startTab);      
     }
     
-    IOUtils.handleDataUpdatePreferences(TvBrowser.this);    
+    PluginHandler.loadPlugins(getApplicationContext());
+    
+    IOUtils.handleDataUpdatePreferences(TvBrowser.this);
   }
   
   @Override
@@ -550,9 +560,6 @@ public class TvBrowser extends FragmentActivity implements
       mCurrentChannelFilter = new ChannelFilterValues(SettingConstants.ALL_FILTER_ID, getString(R.string.activity_edit_filter_list_text_all), "");
     }
     Log.d("info2", "id2 " + mCurrentChannelFilterId +" " + mCurrentChannelFilter);
-    /*if(getIntent().hasExtra(SettingConstants.CHANNEL_ID_EXTRA) && getIntent().hasExtra(SettingConstants.START_TIME_EXTRA)) {
-      
-    }*/
     
     handler.post(new Runnable() {
       @Override
@@ -3620,6 +3627,10 @@ public class TvBrowser extends FragmentActivity implements
         Intent startPref = new Intent(this, TvbPreferencesActivity.class);
         startActivityForResult(startPref, SHOW_PREFERENCES);
         break;
+      case R.id.menu_tvbrowser_action_settings_plugins:
+        Intent startPluginPref = new Intent(this, PluginPreferencesActivity.class);
+        startActivity(startPluginPref);
+        break;
       case R.id.menu_tvbrowser_action_update_data:
         if(isOnline()) {
           checkTermsAccepted();
@@ -3715,6 +3726,8 @@ public class TvBrowser extends FragmentActivity implements
     mScrollTimeItem = menu.findItem(R.id.action_scroll);
     
     updateFromFilterEdit();
+    
+    menu.findItem(R.id.menu_tvbrowser_action_settings_plugins).setEnabled(PluginHandler.pluginsAvailable());
     
     menu.findItem(R.id.action_reset).setVisible(TEST_VERSION);
     
@@ -4145,6 +4158,8 @@ public class TvBrowser extends FragmentActivity implements
   @Override
   public void onDestroy() {
      super.onDestroy();
+     
+     PluginHandler.shutdownPlugins(getApplicationContext());
      
      if (mHelper != null) {
        mHelper.dispose();

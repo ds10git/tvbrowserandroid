@@ -118,6 +118,11 @@
 		        android:orderInCategory="100"
 		        android:showAsAction="never"
 		        android:title="@string/menu_tvbrowser_title_settings_basic"/>
+			<item 
+		        android:id="@+id/menu_tvbrowser_action_settings_plugins"
+		        android:orderInCategory="100"
+		        android:showAsAction="never"
+		        android:title="@string/menu_tvbrowser_title_settings_plugins"/>
             <item
 		  	    android:orderInCategory="100"
 		        android:showAsAction="never"

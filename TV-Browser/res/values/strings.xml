@@ -232,6 +232,7 @@
 	<string name="info_sign_language">Sign Language</string>
 	<string name="menu_tvbrowser_title_settings">Settings</string>
 	<string name="menu_tvbrowser_title_settings_basic">Basic settings</string>
+	<string name="menu_tvbrowser_title_settings_plugins">Plugin settings</string>
 	<string name="pref_summary">Settings for TV-Browser</string>
 	<string name="pref_download_category">Data Download</string>
 	<string name="pref_summary_data_download">Settings for data download</string>
@@ -245,6 +246,7 @@
 	<string name="show_logo_only">Show only channel icon</string>
 	<string name="show_name_only">Show channel icon and name</string>
 	<string name="pref_activated">Activated</string>
+	<string name="pref_open">Open preferences</string>
 	<string name="pref_detail_category">Detail window</string>
 	<string name="pref_detail_category_summary">Which information should be shown in the details window?</string>
 	<string name="pref_detail_picture_zoom">Zoom value for picture</string>
@@ -637,9 +639,13 @@
     <string name="epg_donate_dont_show_again_reason_want_not">I want everything for free</string>
     <string name="epg_donate_dont_show_again_reason_will_donate">I will donate for this year</string>
     
+    <string name="pref_plugins_author">Author:</string>
+    <string name="pref_plugins_license">License:</string>
+    
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.6</h2>
+		    &bull; added first version of the Plugin interface<br>
 			&bull; added support for EPGdonate data channels<br>
         <br>
 		<h3>0.4.5.4</h3>
