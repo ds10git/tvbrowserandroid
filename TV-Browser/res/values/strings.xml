@@ -476,6 +476,7 @@
         <item>User defined</item>
 	    <item>TV-Browser default</item>
 	    <item>Glow light (designed by HalleAndert)</item>
+	    <item>Decent dark (designed by HalleAndert)</item>
     </string-array>
     
 	<string name="pref_marking_color_marked_summary">Color for manually marked programs.</string>
@@ -646,6 +647,7 @@
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.6</h2>
 		    &bull; added first version of the Plugin interface<br>
+		    &bull; added new color style for dark theme<br>
 			&bull; added support for EPGdonate data channels<br>
         <br>
 		<h3>0.4.5.4</h3>
