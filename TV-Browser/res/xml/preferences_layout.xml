@@ -13,7 +13,7 @@
 			android:title="@string/pref_color_style_selection_title"
 			android:defaultValue="@string/pref_color_style_default"
 			android:entries="@array/pref_color_style_selection_entries"
-			android:entryValues="@array/pref_simple_string_value_array3"
+			android:entryValues="@array/pref_simple_string_value_array4"
 			android:summary="%s"/>
 	    <org.tvbrowser.settings.ColorPreference
 	        android:key="@string/PREF_COLOR_ON_AIR_BACKGROUND"

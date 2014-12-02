@@ -464,6 +464,7 @@
         <item>Benutzerdefiniert</item>
 	    <item>TV-Browser Standard</item>
 	    <item>Leuchtend hell (designed by HalleAndert)</item>
+	    <item>Dezent dunkel (designed by HalleAndert)</item>
     </string-array>
     
     <string name="pref_marking_color_marked_summary">Farbe für manuell markierte Sendungen.</string>
@@ -633,6 +634,7 @@
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.6</h2>
 			&bull; erste Version der Plugin-Schnittstelle hinzugefügt<br>
+			&bull; neuen Farbstil für das dunkle Thema hinzugefügt<br>
 			&bull; Unterstützung für Sender aus EPGdonate-Daten hinzugefügt<br>
         <br>
 		<h3>0.4.5.4</h3>
