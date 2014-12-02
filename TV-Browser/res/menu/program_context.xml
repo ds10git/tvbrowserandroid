@@ -13,8 +13,8 @@
            android:title="@string/program_popup_reminder"/>
        <item android:id="@+id/prog_remove_reminder"
            android:title="@string/program_popup_reminder_remove"/>
-       <item android:id="@+id/prog_send_email"
-           android:title="@string/program_popup_send_mail"/>
+<!--        <item android:id="@+id/prog_send_email"
+           android:title="@string/program_popup_send_mail"/> -->
        <item android:id="@+id/program_popup_search_repetition"
            android:title="@string/program_popup_search_repetition"/>
        <item android:id="@+id/program_popup_dont_want_to_see"

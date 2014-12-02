@@ -26,6 +26,11 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.devplugin.Channel;
+import org.tvbrowser.devplugin.Plugin;
+import org.tvbrowser.devplugin.PluginHandler;
+import org.tvbrowser.devplugin.PluginServiceConnection;
+import org.tvbrowser.devplugin.Program;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.widgets.ImportantProgramsListWidget;
@@ -416,12 +421,12 @@ public class UiUtils {
     }
   }
   
-  public static void createContextMenu(Context context, ContextMenu menu, long id) {
+  public static void createContextMenu(Context context, ContextMenu menu, final long id) {
     new MenuInflater(context).inflate(R.menu.program_context, menu);
     
     String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE);
     
-    Cursor cursor = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), projection, null, null, null);
+    Cursor cursor = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, id), null, null, null, null);
     
     if(Build.VERSION.SDK_INT < 14) {
       menu.findItem(R.id.prog_create_calendar_entry).setVisible(false);
@@ -430,6 +435,21 @@ public class UiUtils {
     if(cursor.getCount() > 0) {
       cursor.moveToFirst();
       
+      final int channelId = cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+      final String channelName = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+      final byte[] logo = cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
+      
+      final Channel channel = new Channel(channelId, channelName, logo);
+      
+      final long startTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+      final long endTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+      final String title = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
+      final String shortDescription = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
+      final String description = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
+      final String episodeTitle = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
+      
+      final Program pluginProgram = new Program(id, startTime, endTime, title, shortDescription, description, episodeTitle, channel);
+            
       boolean showMark = true;
       boolean showUnMark = false;
       boolean showReminder = true;
@@ -464,7 +484,7 @@ public class UiUtils {
             
       boolean showDontWantToSee = cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE)) == 0;
       
-      long startTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+   //   long startTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
       
       boolean isFutureReminder = startTime > System.currentTimeMillis() - 5 * 60000;
       boolean isFutureCalendar = startTime > System.currentTimeMillis();
@@ -485,6 +505,38 @@ public class UiUtils {
       
       menu.findItem(R.id.program_popup_dont_want_to_see).setVisible(showDontWantToSee && !SettingConstants.UPDATING_FILTER);
       menu.findItem(R.id.program_popup_want_to_see).setVisible(!showDontWantToSee && !SettingConstants.UPDATING_FILTER);
+      
+      if(pluginProgram != null && PluginHandler.PLUGIN_LIST != null) {
+        for(PluginServiceConnection pluginService : PluginHandler.PLUGIN_LIST) {
+          final Plugin plugin = pluginService.getPlugin();
+          
+          if(plugin != null && pluginService.isActivated()) {
+            try {
+              String[] actions = plugin.getContextMenuActionForProgram(pluginProgram);
+              
+              for(String action : actions) {
+                MenuItem item = menu.add(action);
+                item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                  @Override
+                  public boolean onMenuItemClick(MenuItem item) {
+                    Log.d("info23", "onMenuItemClick " + item.getTitle() + " " + plugin.toString());
+                    try {
+                      //plugin.openPreferences(null);
+                      return plugin.onProgramContextMenuSelected(pluginProgram, item.getTitle().toString());
+                    } catch (RemoteException e) {
+                      Log.d("info23", "", e);
+                    }
+                    
+                    return true;
+                  }
+                });
+              } 
+            } catch (RemoteException e) {
+              Log.d("info23", "", e);
+            }
+          }
+        }
+      }
     }
     
     if(context != null && context instanceof TvBrowserSearchResults) {
@@ -574,7 +626,7 @@ public class UiUtils {
       UiUtils.editFavorite(null, activity, title);
       return true;
     }
-    else if(item.getItemId() == R.id.prog_send_email) {
+   /* else if(item.getItemId() == R.id.prog_send_email) {
       info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
       
       if(info.getCount() > 0) {
@@ -649,7 +701,7 @@ public class UiUtils {
       info.close();
       
       return true;
-    }
+    }*/
     else if(item.getItemId() == R.id.program_popup_search_repetition) {
       searchForRepetition(activity,title,episode);
     }

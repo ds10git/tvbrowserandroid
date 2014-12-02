@@ -32,7 +32,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
