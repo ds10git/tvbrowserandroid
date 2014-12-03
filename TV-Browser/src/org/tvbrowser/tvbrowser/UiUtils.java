@@ -19,6 +19,7 @@ package org.tvbrowser.tvbrowser;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -430,9 +431,9 @@ public class UiUtils {
     
     Cursor cursor = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, id), null, null, null, null);
     
-    if(Build.VERSION.SDK_INT < 14) {
+   /* if(Build.VERSION.SDK_INT < 14) {
       menu.findItem(R.id.prog_create_calendar_entry).setVisible(false);
-    }
+    }*/
     
     if(cursor.getCount() > 0) {
       cursor.moveToFirst();
@@ -489,20 +490,12 @@ public class UiUtils {
    //   long startTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
       
       boolean isFutureReminder = startTime > System.currentTimeMillis() - 5 * 60000;
-      boolean isFutureCalendar = startTime > System.currentTimeMillis();
-      
-      boolean showCalender = false;
-      
-      try {
-        Class.forName("android.provider.CalendarContract$Events");
-        showCalender = true;
-      } catch (ClassNotFoundException e) {}
       
       menu.findItem(R.id.prog_mark_item).setVisible(showMark);
       menu.findItem(R.id.prog_unmark_item).setVisible(showUnMark);
       menu.findItem(R.id.prog_add_reminder).setVisible(showReminder && isFutureReminder);
       menu.findItem(R.id.prog_remove_reminder).setVisible(!showReminder);
-      menu.findItem(R.id.prog_create_calendar_entry).setVisible(isFutureCalendar && showCalender);
+   //   menu.findItem(R.id.prog_create_calendar_entry).setVisible(isFutureCalendar && showCalender);
       menu.findItem(R.id.create_favorite_item).setVisible(createFavorite);
       
       menu.findItem(R.id.program_popup_dont_want_to_see).setVisible(showDontWantToSee && !SettingConstants.UPDATING_FILTER);
@@ -516,24 +509,26 @@ public class UiUtils {
             try {
               PluginMenu[] actions = plugin.getContextMenuActionsForProgram(pluginProgram);
               
-              for(final PluginMenu pluginMenu : actions) {
-                MenuItem item = menu.add(-1,Menu.NONE,Menu.NONE,pluginMenu.getTitle());
-                
-                item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-                  @Override
-                  public boolean onMenuItemClick(MenuItem item) {
-                    Log.d("info23", "onMenuItemClick " + item.getTitle() + " " + plugin.toString());
-                    try {
-                      //plugin.openPreferences(null);
-                      return plugin.onProgramContextMenuSelected(pluginProgram, pluginMenu);
-                    } catch (RemoteException e) {
-                      Log.d("info23", "", e);
+              if(actions != null) {
+                for(final PluginMenu pluginMenu : actions) {
+                  MenuItem item = menu.add(-1,Menu.NONE,Menu.NONE,pluginMenu.getTitle());
+                  
+                  item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+                    @Override
+                    public boolean onMenuItemClick(MenuItem item) {
+                      Log.d("info23", "onMenuItemClick " + item.getTitle() + " " + plugin.toString());
+                      try {
+                        //plugin.openPreferences(null);
+                        return plugin.onProgramContextMenuSelected(pluginProgram, pluginMenu);
+                      } catch (RemoteException e) {
+                        Log.d("info23", "", e);
+                      }
+                      
+                      return true;
                     }
-                    
-                    return true;
-                  }
-                });
-              } 
+                  });
+                }
+              }
             } catch (RemoteException e) {
               Log.d("info23", "", e);
             }
@@ -738,7 +733,7 @@ public class UiUtils {
         }
       }
     }
-    else if(item.getItemId() == R.id.prog_create_calendar_entry) {
+  /*  else if(item.getItemId() == R.id.prog_create_calendar_entry) {
       info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
       
       if(info.getCount() > 0) {
@@ -834,7 +829,7 @@ public class UiUtils {
       }
       
       info.close();
-    }
+    }*/
     else if(item.getItemId() == R.id.prog_add_reminder) {
       if(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) || markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) {
         return true;

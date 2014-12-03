@@ -574,13 +574,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     String name = getString(R.string.marking_value_reminder);
     String whereClause = TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " ";
     
-    if(Build.VERSION.SDK_INT >= 14) {
-      name = getString(R.string.marking_value_reminder) + "/" + getString(R.string.marking_value_calendar);
-      whereClause += " ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER  + " ) ) ";
-    }
-    else {
-      whereClause += " ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER  + " ) ) ";
-    }
+    whereClause += " ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER  + " ) ) ";
     
     final FavoriteSpinnerEntry reminder = new FavoriteSpinnerEntry(name, whereClause);
     FavoriteSpinnerEntry syncTemp = null;

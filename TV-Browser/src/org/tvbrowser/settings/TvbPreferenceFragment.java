@@ -117,12 +117,6 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     else if(getString(R.string.category_sync).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_sync);
     }
-    else if(getString(R.string.category_calendar_export).equals(category)) {
-      addPreferencesFromResource(R.xml.preferences_calendar_export);
-    }
-    else if(getString(R.string.category_email).equals(category)) {
-      addPreferencesFromResource(R.xml.preferences_email);
-    }
     else if(getString(R.string.category_additional_infos).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_additonal_infos);
     }
@@ -255,8 +249,6 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.PREF_AUTO_UPDATE_RANGE))
           || key.equals(getResources().getString(R.string.PREF_AUTO_UPDATE_FREQUENCY))
           || key.equals(getResources().getString(R.string.CHANNEL_LOGO_NAME_RUNNING))
-          || key.equals(getResources().getString(R.string.PREF_CALENDAR_EXPORT_DESCRIPTION_TYPE))
-          || key.equals(getResources().getString(R.string.PREF_EMAIL_DESCRIPTION_TYPE))
           || key.equals(getResources().getString(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE))
           || key.equals(getResources().getString(R.string.SHOW_DATE_FOR_PROGRAMS_LIST))
           || key.equals(getResources().getString(R.string.SHOW_CHANNEL_FOR_PROGRAMS_LIST))

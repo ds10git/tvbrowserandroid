@@ -1682,7 +1682,7 @@ public class TvDataUpdateService extends Service {
     return returnValue;
   }
   
-  private byte[] getXmlBytes(boolean syncFav, boolean syncMarkings, boolean syncCalendar) {
+  private byte[] getXmlBytes(boolean syncFav, boolean syncMarkings) {
     StringBuilder where = new StringBuilder();
     
     if(syncFav) {
@@ -1695,14 +1695,7 @@ public class TvDataUpdateService extends Service {
       
       where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING).append(" ) ");
     }
-    if(syncCalendar) {
-      if(where.length() > 0) {
-        where.append(" OR ");
-      }
-      
-      where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR).append(" ) ");
-    }
-    
+        
     String[] projection = {
         TvBrowserContentProvider.DATA_KEY_STARTTIME,
         TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
@@ -1790,9 +1783,8 @@ public class TvDataUpdateService extends Service {
     
     boolean syncFav = PrefUtils.getBooleanValue(R.string.PREF_SYNC_FAV_TO_DESKTOP, R.bool.pref_sync_fav_to_desktop_default);
     boolean syncMarkings = PrefUtils.getBooleanValue(R.string.PREF_SYNC_MARKED_TO_DESKTOP, R.bool.pref_sync_marked_to_desktop_default);
-    boolean syncCalendar = PrefUtils.getBooleanValue(R.string.PREF_SYNC_CALENDAR_TO_DESKTOP, R.bool.pref_sync_calendar_to_desktop_default);
     
-    if((syncFav || syncMarkings || syncCalendar) && car != null && bicycle != null && car.trim().length() > 0 && bicycle.trim().length() > 0) {
+    if((syncFav || syncMarkings) && car != null && bicycle != null && car.trim().length() > 0 && bicycle.trim().length() > 0) {
       String userpass = car.trim() + ":" + bicycle.trim();
       String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
       
@@ -1809,7 +1801,7 @@ public class TvDataUpdateService extends Service {
           
           conn.setDoOutput(true);
           
-          byte[] xmlData = getXmlBytes(syncFav, syncMarkings, syncCalendar);
+          byte[] xmlData = getXmlBytes(syncFav, syncMarkings);
           
           String message1 = "";
           message1 += "-----------------------------4664151417711" + CrLf;

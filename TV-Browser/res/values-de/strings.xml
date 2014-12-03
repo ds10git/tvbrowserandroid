@@ -71,7 +71,6 @@
     <string name="title_hint">Titel für Suche eingeben</string>
     <string name="episode">Folge:</string>
     <string name="episode_hint">Folge für Suche eingeben (optional)</string>
-    <string name="program_add_calendar">Sendung in Kalender eintragen</string>
     <string name="search_description">Suche in Sendungstitel und Episodentitel</string>
     <string name="search_title">TV-Browser Suche</string>
     <string name="yesterday">gestern</string>
@@ -338,11 +337,10 @@
 	<string name="pref_sync_fav_to_desktop_summary">Sendungen die als Lieblingssendungen markiert sind, werden nach einem Datenupdate an den Desktop-TV-Browser exportiert.</string>
 	<string name="pref_sync_marked_to_desktop">Manuell markierte</string>
 	<string name="pref_sync_marked_to_desktop_summary">Sendungen die manuell markiert wurden, werden nach einem Datenupdate an den Desktop-TV-Browser exportiert.</string>
-	<string name="pref_sync_calendar_to_desktop">Dem Kalender hinzugefügte</string>
-	<string name="pref_sync_calendar_to_desktop_summary">Sendungen die dem Android-Kalender hinzugefügt wurden, werden nach einem Datenupdate an den Desktop-TV-Browser exportiert.</string>
+<!-- 	<string name="pref_sync_calendar_to_desktop">Dem Kalender hinzugefügte</string>
+	<string name="pref_sync_calendar_to_desktop_summary">Sendungen die dem Android-Kalender hinzugefügt wurden, werden nach einem Datenupdate an den Desktop-TV-Browser exportiert.</string>-->
 	<string name="synchronize_user_info">Sie müssen sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> um die Synchronisation mit dem Desktop-TV-Browser nutzen zu können.</string>
 	<string name="marking_value_marked">Markiert</string>
-	<string name="marking_value_calendar">Kalender</string>
     <string name="marking_value_sync">Sync</string>
     <string name="marking_value_reminder">Erinnerungen</string>
     <string name="show_sort_number">Sortierungsnummer anzeigen</string>
@@ -469,8 +467,8 @@
     
     <string name="pref_marking_color_marked_summary">Farbe für manuell markierte Sendungen.</string>
     <string name="pref_marking_color_favorite_summary">Farbe für Lieblingssendungen.</string>
-    <string name="pref_marking_color_reminder_title">Erinnerungen/Kalender</string>
-    <string name="pref_marking_color_reminder_summary">Farbe für erinnerte/in Kalender eingetragene Sendungen.</string>
+    <string name="pref_marking_color_reminder_title">Erinnerungen</string>
+    <string name="pref_marking_color_reminder_summary">Farbe für erinnerte Sendungen.</string>
     <string name="pref_marking_color_sync_title">Synchronisation</string>
     <string name="pref_marking_color_sync_summary">Farbe für synchronisierte Sendungen.</string>
     <string name="pref_marking_color_red">Rot</string>
@@ -523,7 +521,6 @@
     <string name="pref_running_time_selection_summary">Hintergrundfarbe der ausgewählten Zeit.</string>
     <string name="pref_prog_table_delayed">Laden verzögern</string>
     <string name="pref_prog_table_delayed_summary">Das Laden der Programmtabelle wird verzögert, bis zum ersten Öffnen dieser. (Beschleunigt den App-Start, wenn nicht der Tab der Programmtabelle zum Start ausgewählt.)</string>
-    <string name="pref_category_calendar_export">Kalenderexport</string>
     <string name="synchronize_reminder_down_done">Erinnerungen erfolgreich empfangen</string>
     <string name="synchronize_reminder_down_nothing">Es gab keine Erinnerungen zur Aktualisierung</string>
     <string name="pref_export_category_info">Zu übertragende Informationen</string>
@@ -532,8 +529,6 @@
         <item>Kurzbeschreibung</item>
         <item>Vollständige Beschreibung (wenn vorhanden)</item>
     </string-array>
-    <string name="error_no_calendar_app_title">Keine Kalender-App gefunden</string>
-    <string name="error_no_calendar_app_message">Auf Ihrem Gerät konnte keine Kalender-App gefunden werden.</string>
     <string name="pref_programs_list_show_date">Datum für Sendungen anzeigen</string>
     <string-array name="pref_programs_list_show_date_entries">
         <item>Immer für alle Sendungen</item>
@@ -558,7 +553,6 @@
     <string name="widget_important_config_show_marked">Manuell markierte Sendungen</string>
     <string name="widget_important_config_show_favorite">Lieblingssendungen</string>
     <string name="widget_important_config_show_reminder">Erinnerungen</string>
-    <string name="widget_important_config_show_calendar">In Kalender eingetragene Sendungen</string>
     <string name="widget_important_config_show_sync">Synchonisierte Sendungen</string>
     <string name="widget_important_config_limit_selection">Anzahl beschränken</string>
     <string name="widget_important_config_limit_selection_button">Anzahl festlegen</string>
@@ -629,11 +623,13 @@
 	
     <string name="pref_plugins_author">Autor:</string>
     <string name="pref_plugins_license">Lizenz:</string>
+    <string name="pref_plugins_description">Beschreibung:</string>
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.6</h2>
 			&bull; erste Version der Plugin-Schnittstelle hinzugefügt<br>
+			&bull; Kalender- und E-Mail-Export entfernt (können mit Plugins nachgerüstet werden)<br>
 			&bull; neuen Farbstil für das dunkle Thema hinzugefügt<br>
 			&bull; Unterstützung für Sender aus EPGdonate-Daten hinzugefügt<br>
         <br>

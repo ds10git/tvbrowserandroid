@@ -17,6 +17,7 @@
 package org.tvbrowser.devplugin;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
@@ -26,6 +27,7 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.os.Handler;
 import android.util.Log;
 
 /**
@@ -41,7 +43,7 @@ public final class PluginHandler {
     return PLUGIN_LIST != null && !PLUGIN_LIST.isEmpty();
   }
   
-  public static final void loadPlugins(Context context) {
+  public static final void loadPlugins(Context context, Handler handler) {
     if(PLUGIN_LIST == null) {
       PLUGIN_LIST = new ArrayList<PluginServiceConnection>();
       
@@ -93,6 +95,13 @@ public final class PluginHandler {
           }
         }
       }
+      
+      handler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+          Collections.sort(PLUGIN_LIST);
+        }
+      }, 5000);
     }
   }
   

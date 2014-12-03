@@ -23,7 +23,6 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
   private CheckBox mMarked;
   private CheckBox mFavorite;
   private CheckBox mReminder;
-  private CheckBox mCalendar;
   private CheckBox mSync;
   private CheckBox mLimit;
   
@@ -45,7 +44,6 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
     mMarked = (CheckBox)findViewById(R.id.important_programs_widget_config_show_marked);
     mFavorite = (CheckBox)findViewById(R.id.important_programs_widget_config_show_favorite);
     mReminder = (CheckBox)findViewById(R.id.important_programs_widget_config_show_reminder);
-    mCalendar = (CheckBox)findViewById(R.id.important_programs_widget_config_show_calendar);
     mSync = (CheckBox)findViewById(R.id.important_programs_widget_config_show_synchronized);
     mLimit = (CheckBox)findViewById(R.id.important_programs_widget_config_limit_selection);
     mLimitNumber = (EditText)findViewById(R.id.important_programs_widget_config_limit_selection_edit);
@@ -73,7 +71,6 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
         mMarked.setChecked(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_MARKED), true));
         mFavorite.setChecked(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_FAVORITE), true));
         mReminder.setChecked(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_REMINDER), true));
-        mCalendar.setChecked(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_CALENDER), true));
         mSync.setChecked(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_SYNCHRONIZED), true));
         mLimit.setChecked(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT), false));
         mLimitNumber.setText(String.valueOf(pref.getInt(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT), 15)));
@@ -95,7 +92,6 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
     edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_MARKED), mMarked.isChecked());
     edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_FAVORITE), mFavorite.isChecked());
     edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_REMINDER), mReminder.isChecked());
-    edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_CALENDER), mCalendar.isChecked());
     edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_SYNCHRONIZED), mSync.isChecked());
     edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT), mLimit.isChecked());
     

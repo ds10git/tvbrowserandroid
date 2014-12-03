@@ -16,6 +16,7 @@
  */
 package org.tvbrowser.settings;
 
+import java.util.Collections;
 import java.util.List;
 
 import org.tvbrowser.devplugin.Plugin;
@@ -27,6 +28,7 @@ import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.PreferenceActivity;
 import android.util.Log;
+import android.view.Menu;
 
 /**
  * The preferences activity for the plugins.
@@ -46,6 +48,8 @@ public class PluginPreferencesActivity extends PreferenceActivity {
   @Override
   public void onBuildHeaders(List<Header> target) {
     Log.d("info23","hier " + PluginHandler.PLUGIN_LIST);
+    
+    
     if(PluginHandler.PLUGIN_LIST != null) {
       Log.d("info23","hier1");  
       for(int i = 0; i < PluginHandler.PLUGIN_LIST.size(); i++) {
@@ -80,10 +84,18 @@ public class PluginPreferencesActivity extends PreferenceActivity {
       }
     }
   }
-  
   @Override
-  public void onHeaderClick(Header header, int position) {    
-      this.startPreferencePanel(header.fragment, header.fragmentArguments, header.titleRes, header.title, null, 0);
+  public void onPanelClosed(int featureId, Menu menu) {
+    // TODO Auto-generated method stub
+    super.onPanelClosed(featureId, menu);
+    Log.d("info24", "hier");
+  }  
+  @Override
+  public void onHeaderClick(Header header, int position) {
+    switchToHeader(header);
+    //finishPreferencePanel(getf, resultCode, resultData)
+      //this.startPreferencePanel(header.fragment, header.fragmentArguments, header.titleRes, header.title, null, 0);
   }
+  
   
 }

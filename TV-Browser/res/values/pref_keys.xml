@@ -349,20 +349,6 @@
 	    
 	    <string name="PREF_SYNC_MARKED_TO_DESKTOP">PREF_SYNC_MARKED_TO_DESKTOP</string>
 	    <item name="pref_sync_marked_to_desktop_default" type="bool" format="boolean">true</item>
-	    
-	    <string name="PREF_SYNC_CALENDAR_TO_DESKTOP">PREF_SYNC_CALENDAR_TO_DESKTOP</string>
-	    <item name="pref_sync_calendar_to_desktop_default" type="bool" format="boolean">true</item>
-	    
-	<!-- Calendar export settings -->
-	
-		<string name="PREF_CALENDAR_EXPORT_DESCRIPTION_TYPE">PREF_CALENDAR_EXPORT_DESCRIPTION_TYPE</string>
-		
-		<item name="pref_export_description_type_default" type="string" format="string">0</item>
-		
-	<!-- Email settings -->
-	
-		<string name="PREF_EMAIL_TARGET_ADDRESS">PREF_EMAIL_TARGET_ADDRESS</string>
-		<string name="PREF_EMAIL_DESCRIPTION_TYPE">PREF_EMAIL_DESCRIPTION_TYPE</string>
 		
 	<!-- Additional information settings -->
 	
