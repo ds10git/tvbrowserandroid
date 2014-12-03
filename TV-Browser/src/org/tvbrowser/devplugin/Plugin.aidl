@@ -95,6 +95,14 @@ interface Plugin {
 	long[] getMarkedPrograms();
 	
 	/**
+	 * Gets if the Program with the given id is marked by this plugin.
+	 * @param programId The id of the program to check.
+	 * @return <code>true</code> if the program with the given id is marked by
+	 *         this plugin, <code>false</code> if not.
+	 */
+	boolean isMarked(in long programId);
+	
+	/**
 	 * Called at activation of this Plugin to inform about the first currently known
 	 * id of the programs. All programs with ids that are smaller than this one don't
 	 * exist anymore. 

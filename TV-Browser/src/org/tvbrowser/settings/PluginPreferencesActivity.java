@@ -84,18 +84,14 @@ public class PluginPreferencesActivity extends PreferenceActivity {
       }
     }
   }
-  @Override
-  public void onPanelClosed(int featureId, Menu menu) {
-    // TODO Auto-generated method stub
-    super.onPanelClosed(featureId, menu);
-    Log.d("info24", "hier");
-  }  
+  
   @Override
   public void onHeaderClick(Header header, int position) {
-    switchToHeader(header);
-    //finishPreferencePanel(getf, resultCode, resultData)
-      //this.startPreferencePanel(header.fragment, header.fragmentArguments, header.titleRes, header.title, null, 0);
+    if(isMultiPane()) {
+      switchToHeader(header);
+    }
+    else {
+      startPreferencePanel(header.fragment, header.fragmentArguments, header.titleRes, header.title, null, 0);
+    }
   }
-  
-  
 }
