@@ -127,11 +127,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
         columns.add(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
         columns.add(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
       }
-      
-      if(pref.getBoolean(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_CALENDER), true)) {
-        columns.add(TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR);
-      }
-      
+            
       if(pref.getBoolean(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_SYNCHRONIZED), true)) {
         columns.add(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC);
       }

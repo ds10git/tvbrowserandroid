@@ -434,7 +434,7 @@ public class TvBrowser extends FragmentActivity implements
       mViewPager.setCurrentItem(startTab);      
     }
     
-    PluginHandler.loadPlugins(getApplicationContext());
+    PluginHandler.loadPlugins(getApplicationContext(),handler);
     
     IOUtils.handleDataUpdatePreferences(TvBrowser.this);
   }

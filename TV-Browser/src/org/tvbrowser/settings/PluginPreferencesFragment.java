@@ -48,6 +48,13 @@ public class PluginPreferencesFragment extends PreferenceFragment {
   private int mIndex;
   
   @Override
+  public void onDetach() {
+    // TODO Auto-generated method stub
+    super.onDetach();
+    Log.d("info24", "cccc");
+  }
+  
+  @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
@@ -61,18 +68,19 @@ public class PluginPreferencesFragment extends PreferenceFragment {
         mPluginId = savedInstanceState.getString("pluginId");
     }
     
-
+    
     // Load the preferences from an XML resource
     PreferenceScreen preferenceScreen = getPreferenceManager().createPreferenceScreen(getActivity());
     // add prefrences using preferenceScreen.addPreference()
     this.setPreferenceScreen(preferenceScreen);
+    preferenceScreen.setTitle("ccccc");
     
     final PluginServiceConnection pluginConnection = PluginHandler.PLUGIN_LIST.get(mIndex);
     
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
     if(pluginConnection.isConnected()) {
-      Log.d("info23", ""+pluginConnection.getId());
+      Log.d("info24", ""+pluginConnection.getId());
       final CheckBoxPreference activated =  new CheckBoxPreference(getActivity());
       activated.setTitle(R.string.pref_activated);
       activated.setKey(mPluginId+"_ACTIVATED");
@@ -81,13 +89,29 @@ public class PluginPreferencesFragment extends PreferenceFragment {
       preferenceScreen.addPreference(activated);
       
       try {
+        String description = pluginConnection.getPlugin().getDescription();
+        
+        if(description != null) {
+          InfoPreference descriptionPref = new InfoPreference(getActivity());
+          descriptionPref.setTitle(R.string.pref_plugins_description);
+          descriptionPref.setSummary(description);
+          preferenceScreen.addPreference(descriptionPref);
+        }
+        
         final AtomicReference<Preference> startSetupRef = new AtomicReference<Preference>(null);
         if(pluginConnection.getPlugin().hasPreferences()) {
           final Preference startSetup = new Preference(getActivity());
           startSetup.setTitle(R.string.pref_open);
+          startSetup.setKey(mPluginId);
           startSetup.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
             @Override
             public boolean onPreferenceClick(Preference preference) {
+              StackTraceElement[] els = Thread.currentThread().getStackTrace();
+              
+              for(StackTraceElement el : els) {
+                Log.d("info24", el.toString());
+              }
+              
               ArrayList<Channel> channelList = new ArrayList<Channel>();
               
               Cursor channels = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.CHANNEL_KEY_NAME, TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.KEY_ID);
@@ -153,4 +177,6 @@ public class PluginPreferencesFragment extends PreferenceFragment {
       }
     }
   }
+  
+  
 }

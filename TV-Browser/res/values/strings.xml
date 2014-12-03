@@ -77,7 +77,6 @@
     <string name="title_hint">Enter title to search</string>
     <string name="episode">Episode:</string>
     <string name="episode_hint">Enter episode to search (optional)</string>
-    <string name="program_add_calendar">Add program to calendar</string>
     <string name="search_description">Search program titles and episode titles</string>
     <string name="search_title">TV-Browser search</string>
     <string name="yesterday">yesterday</string>
@@ -350,11 +349,10 @@
 	<string name="pref_sync_reminder_to_desktop_summary">Programs that are marked as Reminders are exported to desktop TV-Browser.</string>
 	<string name="pref_sync_marked_to_desktop">Manually marked</string>
 	<string name="pref_sync_marked_to_desktop_summary">Programs that were marked manually are exported to desktop TV-Browser.</string>
-	<string name="pref_sync_calendar_to_desktop">Added to calendar</string>
-	<string name="pref_sync_calendar_to_desktop_summary">Programs that were added to the Android calendar are exported to desktop TV-Browser.</string>
+<!-- 	<string name="pref_sync_calendar_to_desktop">Added to calendar</string>
+	<string name="pref_sync_calendar_to_desktop_summary">Programs that were added to the Android calendar are exported to desktop TV-Browser.</string>-->
 	<string name="synchronize_user_info">You will have to <a href="http://android.tvbrowser.org/index.php?id=createaccount">register a user first</a> to use the synchronization with the desktop TV-Browser.</string>
 	<string name="marking_value_marked">Marked</string>
-	<string name="marking_value_calendar">Calendar</string>
     <string name="marking_value_sync">Sync</string>
     <string name="marking_value_reminder">Reminder</string>
     <string name="show_sort_number">Show sort number</string>
@@ -481,8 +479,8 @@
     
 	<string name="pref_marking_color_marked_summary">Color for manually marked programs.</string>
     <string name="pref_marking_color_favorite_summary">Color for Favorite programs.</string>
-    <string name="pref_marking_color_reminder_title">Reminder/Calendar</string>
-    <string name="pref_marking_color_reminder_summary">Color for reminded/in calendar entered programs.</string>
+    <string name="pref_marking_color_reminder_title">Reminder</string>
+    <string name="pref_marking_color_reminder_summary">Color for reminded programs.</string>
     <string name="pref_marking_color_sync_title">Synchronization</string>
     <string name="pref_marking_color_sync_summary">Color for synchronized programs.</string>
     <string name="pref_marking_color_red">Red</string>
@@ -535,7 +533,7 @@
     <string name="pref_running_time_selection_summary">Background color of the selected time.</string>
     <string name="pref_prog_table_delayed">Delay loading until opening</string>
     <string name="pref_prog_table_delayed_summary">Loading of program table is delayed until it is opened for the first time. (Speeds up startup if not started on program table tab.)</string>
-    <string name="pref_category_calendar_export">Calendar export</string>
+    
     <string name="synchronize_reminder_down_done">Successful received Reminders</string>
     <string name="synchronize_reminder_down_nothing">No Reminders to update where received</string>
     <string name="pref_export_description_type_title">Description type</string>
@@ -544,8 +542,6 @@
         <item>Short description</item>
         <item>Full description (if available)</item>
     </string-array>
-    <string name="error_no_calendar_app_title">No calendar app found</string>
-    <string name="error_no_calendar_app_message">No calendar app was found on your device.</string>
     <string name="pref_programs_list_show_date">Show date for programs</string>
     <string-array name="pref_programs_list_show_date_entries">
         <item>Always for all programs</item>
@@ -571,7 +567,6 @@
     <string name="widget_important_config_show_marked">Manually marked programs</string>
     <string name="widget_important_config_show_favorite">Favorite programs</string>
     <string name="widget_important_config_show_reminder">Reminder programs</string>
-    <string name="widget_important_config_show_calendar">Calendar programs</string>
     <string name="widget_important_config_show_sync">Synchronized programs</string>
     <string name="widget_important_config_limit_selection">Limit shown programs</string>
     <string name="widget_important_config_limit_selection_button">Select number</string>
@@ -642,11 +637,13 @@
     
     <string name="pref_plugins_author">Author:</string>
     <string name="pref_plugins_license">License:</string>
+    <string name="pref_plugins_description">Description:</string>
     
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.6</h2>
 		    &bull; added first version of the Plugin interface<br>
+		    &bull; removed calendar export and mail functionality (can be integrated with Plugins)<br>
 		    &bull; added new color style for dark theme<br>
 			&bull; added support for EPGdonate data channels<br>
         <br>

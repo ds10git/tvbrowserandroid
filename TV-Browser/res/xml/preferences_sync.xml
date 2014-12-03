@@ -20,8 +20,4 @@
 		android:title="@string/pref_sync_marked_to_desktop"
 		android:summary="@string/pref_sync_marked_to_desktop_summary"
 		android:defaultValue="@bool/pref_sync_marked_to_desktop_default"/>
-	<CheckBoxPreference android:key="@string/PREF_SYNC_CALENDAR_TO_DESKTOP"
-		android:title="@string/pref_sync_calendar_to_desktop"
-		android:summary="@string/pref_sync_calendar_to_desktop_summary"
-		android:defaultValue="@bool/pref_sync_calendar_to_desktop_default"/>
 </PreferenceScreen>

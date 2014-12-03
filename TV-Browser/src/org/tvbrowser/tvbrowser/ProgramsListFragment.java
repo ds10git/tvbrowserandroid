@@ -544,13 +544,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
     filterAdapter.add(" "  + getActivity().getString(R.string.all_programs));
     filterAdapter.add(getResources().getString(R.string.title_favorites));
     filterAdapter.add(getResources().getString(R.string.marking_value_marked));
-    
-    if(Build.VERSION.SDK_INT >= 14) {
-      filterAdapter.add(getResources().getString(R.string.marking_value_reminder) + "/" + getResources().getString(R.string.marking_value_calendar));
-    }
-    else {
-      filterAdapter.add(getResources().getString(R.string.marking_value_reminder));
-    }
+    filterAdapter.add(getResources().getString(R.string.marking_value_reminder));
     
     filterAdapter.add(getResources().getString(R.string.marking_value_sync));
     filterAdapter.add(" "  + getResources().getString(R.string.action_dont_want_to_see));
