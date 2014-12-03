@@ -1,3 +1,19 @@
+/*
+ * TV-Browser for Android
+ * Copyright (C) 2014 René Mach (rene@tvbrowser.org)
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+ * and associated documentation files (the "Software"), to use, copy, modify or merge the Software,
+ * furthermore to publish and distribute the Software free of charge without modifications and to
+ * permit persons to whom the Software is furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
+ * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
 package org.tvbrowser.settings;
 
 import java.util.ArrayList;
@@ -8,6 +24,7 @@ import org.tvbrowser.devplugin.Channel;
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.view.InfoPreference;
 
 import android.content.SharedPreferences;
 import android.database.Cursor;
@@ -18,11 +35,16 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
+import android.text.Html;
 import android.util.Log;
 
+/**
+ * The preferences fragment for the plugins.
+ * 
+ * @author René Mach
+ */
 public class PluginPreferencesFragment extends PreferenceFragment {
   private String mPluginId;
-  private String mCategory;
   private int mIndex;
   
   @Override
@@ -30,13 +52,11 @@ public class PluginPreferencesFragment extends PreferenceFragment {
     super.onCreate(savedInstanceState);
     
     if (savedInstanceState == null) {
-      mCategory = getArguments().getString("category");
       mIndex = getArguments().getInt("PluginIndex");
       mPluginId = getArguments().getString("pluginId");
     }
     else {
         // Orientation Change
-        mCategory = savedInstanceState.getString("category");
         mIndex = savedInstanceState.getInt("PluginIndex");
         mPluginId = savedInstanceState.getString("pluginId");
     }
@@ -121,9 +141,9 @@ public class PluginPreferencesFragment extends PreferenceFragment {
         String license = pluginConnection.getPlugin().getLicense();
         
         if(license != null) {
-          Preference licensePref = new Preference(getActivity());
+          InfoPreference licensePref = new InfoPreference(getActivity());
           licensePref.setTitle(R.string.pref_plugins_license);
-          licensePref.setSummary(license);
+          licensePref.setSummary(Html.fromHtml(license));
           
           preferenceScreen.addPreference(licensePref);
         }

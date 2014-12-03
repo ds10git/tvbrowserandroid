@@ -77,6 +77,13 @@ public final class PluginHandler {
               
               Intent intent = new Intent( PluginHandler.PLUGIN_ACTION );
               intent.addCategory( categories.toString() );
+              
+              int res = context.checkCallingPermission("org.tvbrowser.permission.PLUGIN");
+              int res2 = context.checkCallingPermission("android.permission.WAKE_LOCK");
+              int res3 = context.checkCallingPermission("android.permission.INTERNET");
+              
+              Log.d("info23", "res " + res + " " + res2 + " " + PackageManager.PERMISSION_GRANTED);
+              
               context.bindService( intent, plugin, Context.BIND_AUTO_CREATE);
               
               PLUGIN_LIST.add(plugin);
