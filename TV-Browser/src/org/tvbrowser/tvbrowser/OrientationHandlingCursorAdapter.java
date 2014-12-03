@@ -101,7 +101,9 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
           UiUtils.createContextMenu(context, menu, id);
           
           for(int i = 0; i < menu.size(); i++) {
-            menu.getItem(i).setOnMenuItemClickListener(menuClick);
+            if(menu.getItem(i).getGroupId() >= 0) {
+              menu.getItem(i).setOnMenuItemClickListener(menuClick);
+            }
           }
         }
       };

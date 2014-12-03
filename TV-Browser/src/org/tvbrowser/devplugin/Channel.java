@@ -18,7 +18,6 @@ package org.tvbrowser.devplugin;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 /**
  * A parcelable class with informations about a TV-Browser channel.
@@ -44,29 +43,61 @@ public final class Channel implements Parcelable {
     }
   };
   
+  /**
+   * Creates an instance of this class from the given Parcel.
+   * <p>
+   * @param source The Parcel to read the values of this Channel.
+   */
   public Channel(Parcel source) {
     readFromParcel(source);
   }
   
+  /**
+   * Creates an instance of this class.
+   * <p>
+   * @param id The unique id of the the TV-Browser channel.
+   * @param channelName The name of the TV-Browser channel.
+   * @param channelIcon The data of the icon of the TV-Browser channel.
+   */
   public Channel(int id, String channelName, byte[] channelIcon) {
     mId = id;
     mChannelName = channelName;
     mChannelIcon = channelIcon;
   }
   
+  /**
+   * Gets the unique id of this Channel.
+   * <p>
+   * @return The unique id of this Channel.
+   */
   public int getChannelId() {
     return mId;
   }
   
+  /**
+   * Gets the name of this Channel.
+   * <p>
+   * @return The name of this Channel.
+   */
   public String getChannelName() {
     return mChannelName;
   }
   
+  /**
+   * Gets the data of the icon of this Channel.
+   * <p>
+   * @return A byte array with the data of the icon of this channel or <code>null</code>.
+   */
   public byte[] getIcon() {
     return mChannelIcon;
   }
   
-  public int getVersion() {
+  /**
+   * Gets the interface version of this Channel.
+   * <o>
+   * @return The interface version of this Channel.
+   */
+  public int getInterfaceVersion() {
     return VERSION;
   }
 
@@ -75,13 +106,13 @@ public final class Channel implements Parcelable {
     return 0;
   }
 
-  public void readFromParcel(Parcel source) {
+  private void readFromParcel(Parcel source) {
     source.readInt(); // read version
     mId = source.readInt();
     mChannelName = source.readString();
     
     int iconSize = source.readInt();
-    Log.d("info23"," ICON SIZE " + iconSize);
+    
     if(iconSize > 0) {
       mChannelIcon = new byte[iconSize];
       source.readByteArray(mChannelIcon);

@@ -16,10 +16,11 @@
  */
 package org.tvbrowser.devplugin;
 
-import org.tvbrowser.devplugin.Channel;
-import org.tvbrowser.devplugin.Program;
-
 import java.util.List;
+
+import org.tvbrowser.devplugin.Channel;
+import org.tvbrowser.devplugin.PluginMenu;
+import org.tvbrowser.devplugin.Program;
 
 /**
  * Interface for Plugins of the TV-Browser app.
@@ -44,18 +45,25 @@ interface Plugin {
 	 * Get the author of this Plugin.
 	 */
 	String getAuthor();
-
+		
     /**
      * Get the license of this Plugin.
      */
     String getLicense();
+    
     /**
-     * Get the names for the context menu actions for the given program 
+     * Gets the data of the mark icon of this Plugin
+     * ATTENTION: Currently not used, included only for future use.
+     */
+    byte[] getMarkIcon();
+    
+    /**
+     * Get the available PluginMenu actions for the context menu of the given program 
      * @param program The program to get the context menus for.
-     * @return A String array with the context menu actions for the given program 
+     * @return A PluginMenu array with the context menu actions for the given program 
      *         or <code>null</code> if there is no context menu action for the given program.
      */
-	String[] getContextMenuActionForProgram(in Program program);
+	PluginMenu[] getContextMenuActionsForProgram(in Program program);
 	
 	/** 
 	 * Called when user selected a context menu of this Plugin
@@ -63,7 +71,7 @@ interface Plugin {
 	 * @param contextMenuAction The context menu entry name the menu was selected for
 	 * @return <code>true</code> if the program should be marked. <code>false</code> otherwise.
 	 */
-	boolean onProgramContextMenuSelected(in Program program, in String contextMenuAction);
+	boolean onProgramContextMenuSelected(in Program program, in PluginMenu pluginMenu);
 	
 	/**
 	 * Gets if this Plugin has preferences.

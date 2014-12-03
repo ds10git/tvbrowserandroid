@@ -37,7 +37,6 @@ public final class Program implements Parcelable {
   private Channel mChannel;
   
   public static final Parcelable.Creator<Program> CREATOR = new Parcelable.Creator<Program>() {
-
     @Override
     public Program createFromParcel(Parcel source) {
       return new Program(source);
@@ -48,10 +47,28 @@ public final class Program implements Parcelable {
       return new Program[size];
     }
   };
+  
+  /**
+   * Creates an instance of this class from the given Parcel.
+   * <p>
+   * @param source The Parcel to read the values of this Program.
+   */
   public Program(Parcel source) {
     readFromParcel(source);
   }
   
+  /**
+   * Creates an instance of this class.
+   * <p>
+   * @param id The unique id of this TV-Browser program.
+   * @param startTime The start time of this TV-Browser Program in milliseconds since 1970 in UTC timezone.
+   * @param endTime The end time of this TV-Browser Program in milliseconds since 1970 in UTC timezone.
+   * @param title The title of this TV-Browser Program.
+   * @param shortDescription The short description of this TV-Browser Program.
+   * @param description The full description of this TV-Browser Program.
+   * @param episodeTitle The episode title of this TV-Browser Program.
+   * @param channel The {@link Channel} of this TV-Browser Program.
+   */
   public Program(long id, long startTime, long endTime, String title, String shortDescription, String description, String episodeTitle, Channel channel) {
     mId = id;
     mStartTime = startTime;
@@ -63,40 +80,85 @@ public final class Program implements Parcelable {
     mChannel = channel;
   }
   
+  /**
+   * Gets the unique id of this Program.
+   * <p>
+   * @return The unique id of this Program.
+   */
   public long getId() {
     return mId;
   }
   
+  /**
+   * Gets the start time of this Program in milliseconds since 1970 in UTC timezone.
+   * <p>
+   * @return The start time of this Program in milliseconds since 1970 in UTC timezone.
+   */
   public long getStartTimeInUTC() {
     return mStartTime;
   }
   
+  /**
+   * Gets the end time of this Program in milliseconds since 1970 in UTC timezone.
+   * <p>
+   * @return The end time of this Program in milliseconds since 1970 in UTC timezone.
+   */
   public long getEndTimeInUTC() {
     return mEndTime;
   }
   
+  /**
+   * Gets the short description for this program.
+   * <p>
+   * @return The short description for this program or <code>null</code> if it has no short description.
+   */
   public String getShortDescription() {
     return mShortDescription;
   }
   
+  /**
+   * Gets the full description for this program.
+   * <p>
+   * @return The full description for this program or <code>null</code> if it has no full description.
+   */
   public String getDescription() {
     return mDescription;
   }
   
+  /**
+   * Gets the title for this Program.
+   * <p>
+   * @return The title for this Program. 
+   */
   public String getTitle() {
     return mTitle;
   }
   
+  /**
+   * Gets the episode title for this Program.
+   * <p>
+   * @return The episode title for this Program or <code>null</code> if it has no episode title.
+   */
   public String getEpisodeTitle() {
     return mEpisodeTitle;
   }
   
-  public int getVersion() {
-    return VERSION;
-  }
-  
+  /**
+   * Gets the Channel for this program.
+   * <p>
+   * @return The {@link Channel} of this program.
+   */
   public Channel getChannel() {
     return mChannel;
+  }
+  
+  /**
+   * Gets the interface version of this Program.
+   * <o>
+   * @return The interface version of this Program.
+   */
+  public int getInterfaceVersion() {
+    return VERSION;
   }
 
   @Override
@@ -104,7 +166,7 @@ public final class Program implements Parcelable {
     return 0;
   }
 
-  public void readFromParcel(Parcel source) {
+  private void readFromParcel(Parcel source) {
     source.readInt(); // read version
     mId = source.readLong();
     mStartTime = source.readLong();

@@ -29,6 +29,7 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.Channel;
 import org.tvbrowser.devplugin.Plugin;
 import org.tvbrowser.devplugin.PluginHandler;
+import org.tvbrowser.devplugin.PluginMenu;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.devplugin.Program;
 import org.tvbrowser.settings.PrefUtils;
@@ -87,6 +88,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -423,7 +425,7 @@ public class UiUtils {
   
   public static void createContextMenu(Context context, ContextMenu menu, final long id) {
     new MenuInflater(context).inflate(R.menu.program_context, menu);
-    
+    Log.d("info23","ID " + id);
     String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE);
     
     Cursor cursor = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, id), null, null, null, null);
@@ -512,17 +514,18 @@ public class UiUtils {
           
           if(plugin != null && pluginService.isActivated()) {
             try {
-              String[] actions = plugin.getContextMenuActionForProgram(pluginProgram);
+              PluginMenu[] actions = plugin.getContextMenuActionsForProgram(pluginProgram);
               
-              for(String action : actions) {
-                MenuItem item = menu.add(action);
+              for(final PluginMenu pluginMenu : actions) {
+                MenuItem item = menu.add(-1,Menu.NONE,Menu.NONE,pluginMenu.getTitle());
+                
                 item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                   @Override
                   public boolean onMenuItemClick(MenuItem item) {
                     Log.d("info23", "onMenuItemClick " + item.getTitle() + " " + plugin.toString());
                     try {
                       //plugin.openPreferences(null);
-                      return plugin.onProgramContextMenuSelected(pluginProgram, item.getTitle().toString());
+                      return plugin.onProgramContextMenuSelected(pluginProgram, pluginMenu);
                     } catch (RemoteException e) {
                       Log.d("info23", "", e);
                     }
