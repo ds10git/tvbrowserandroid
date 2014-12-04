@@ -16,18 +16,14 @@
  */
 package org.tvbrowser.settings;
 
-import java.util.ArrayList;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.devplugin.Channel;
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.view.InfoPreference;
 
 import android.content.SharedPreferences;
-import android.database.Cursor;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.CheckBoxPreference;
@@ -112,23 +108,8 @@ public class PluginPreferencesFragment extends PreferenceFragment {
                 Log.d("info24", el.toString());
               }
               
-              ArrayList<Channel> channelList = new ArrayList<Channel>();
-              
-              Cursor channels = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.CHANNEL_KEY_NAME, TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.KEY_ID);
-              
-              if(channels != null) {
-                channels.moveToPosition(-1);
-                
-                int keyColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-                int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-                int iconColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
-                
-                while(channels.moveToNext()) {
-                  channelList.add(new Channel(channels.getInt(keyColumn), channels.getString(nameColumn), channels.getBlob(iconColumn)));
-                }
-              }
               try {
-                pluginConnection.getPlugin().openPreferences(channelList);
+                pluginConnection.getPlugin().openPreferences(PluginHandler.getPluginManager().getSubscribedChannels());
               } catch (RemoteException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();

@@ -21,13 +21,24 @@ import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
+import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.IOUtils;
+import org.tvbrowser.tvbrowser.ProgramUtils;
+
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
+import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
+import android.database.Cursor;
+import android.os.Binder;
 import android.os.Handler;
+import android.os.RemoteException;
 import android.util.Log;
 
 /**
@@ -39,11 +50,106 @@ public final class PluginHandler {
   public static final String PLUGIN_ACTION = "org.tvbrowser.intent.action.PLUGIN";
   public static ArrayList<PluginServiceConnection> PLUGIN_LIST;
   
+  private static PluginManager PLUGIN_MANAGER;
+  
   public static final boolean pluginsAvailable() {
     return PLUGIN_LIST != null && !PLUGIN_LIST.isEmpty();
   }
   
+  private static void createPluginManager(final Context context) {
+    PLUGIN_MANAGER = new PluginManager.Stub() {
+      @Override
+      public List<Channel> getSubscribedChannels() throws RemoteException {
+        ArrayList<Channel> channelList = new ArrayList<Channel>();
+        
+        final long token = Binder.clearCallingIdentity();
+        Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.CHANNEL_KEY_NAME, TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.KEY_ID);
+        
+        try {
+          if(channels != null) {
+            channels.moveToPosition(-1);
+            
+            int keyColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+            int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+            int iconColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
+            
+            while(channels.moveToNext()) {
+              channelList.add(new Channel(channels.getInt(keyColumn), channels.getString(nameColumn), channels.getBlob(iconColumn)));
+            }
+          }
+        }finally {
+          IOUtils.closeCursor(channels);
+          Binder.restoreCallingIdentity(token);
+        }
+        
+        return channelList;
+      }
+      
+      @Override
+      public Program getProgramWithId(long programId) throws RemoteException {
+        Program result = null;
+        Log.d("info44", "TRY TO LOAD " + programId);
+        final long token = Binder.clearCallingIdentity();
+        Cursor programs = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL,programId), ProgramUtils.DATA_CHANNEL_PROJECTION, null, null, null);
+        Log.d("info44", "CURSOR " + programs.getCount());
+        try {
+          result = ProgramUtils.createProgramFromDataCursor(context, programs);
+        }finally {
+          IOUtils.closeCursor(programs);
+          Binder.restoreCallingIdentity(token);
+        }
+        
+        return result;
+      }
+      
+      @Override
+      public Program getProgramForChannelAndTime(int channelId, long startTimeInUTC) throws RemoteException {
+        Program result = null;
+        
+        String where = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + channelId + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "=" + startTimeInUTC;
+        
+        final long token = Binder.clearCallingIdentity();
+        Cursor programs = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, ProgramUtils.DATA_CHANNEL_PROJECTION, where, null, null);
+        Log.d("info44", "CURSOR " + programs.getCount());
+        try {
+          result = ProgramUtils.createProgramFromDataCursor(context, programs);
+        }finally {
+          IOUtils.closeCursor(programs);
+          Binder.restoreCallingIdentity(token);
+        }
+        
+        return result;
+      }
+
+      @Override
+      public TvBrowserSettings getTvBrowserSettings() throws RemoteException {
+        String version = "Unknown";
+
+        try {
+          PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
+          version = pInfo.versionName;
+        } catch (NameNotFoundException e) {}
+        
+        return new TvBrowserSettings(SettingConstants.IS_DARK_THEME, version);
+      }
+
+      @Override
+      public boolean markProgram(Program program) throws RemoteException {
+        Log.d("info44", "MARK " + program);
+        return program != null ? ProgramUtils.markProgram(context, program) : false;
+      }
+
+      @Override
+      public boolean unmarkProgram(Program program) throws RemoteException {
+        Log.d("info44", "PLUGIN_HANDLER_UNMARK " + program);
+        return program != null ? ProgramUtils.unmarkProgram(context, program) : false;
+      }
+    };
+  }
+  
   public static final void loadPlugins(Context context, Handler handler) {
+    createPluginManager(context.getApplicationContext());
+    
     if(PLUGIN_LIST == null) {
       PLUGIN_LIST = new ArrayList<PluginServiceConnection>();
       
@@ -57,7 +163,7 @@ public final class PluginHandler {
         ServiceInfo sinfo = info.serviceInfo;
         IntentFilter filter1 = info.filter;
 
-        Log.d( "info23", "fillPluginList: i: "+i+"; sinfo: "+sinfo+";filter: "+filter1 + " " );
+        Log.d( "info23", "fillPluginList: i: "+i+"; sinfo: "+sinfo+";filter: "+filter1 + " " + sinfo.name);
         if(sinfo != null) {
           Log.d( "info23", "hier " + filter1.countCategories() + " " + filter1.getAction(0));
           if( filter1 != null ) {
@@ -79,13 +185,7 @@ public final class PluginHandler {
               
               Intent intent = new Intent( PluginHandler.PLUGIN_ACTION );
               intent.addCategory( categories.toString() );
-              
-              int res = context.checkCallingPermission("org.tvbrowser.permission.PLUGIN");
-              int res2 = context.checkCallingPermission("android.permission.WAKE_LOCK");
-              int res3 = context.checkCallingPermission("android.permission.INTERNET");
-              
-              Log.d("info23", "res " + res + " " + res2 + " " + PackageManager.PERMISSION_GRANTED);
-              
+                            
               context.bindService( intent, plugin, Context.BIND_AUTO_CREATE);
               
               PLUGIN_LIST.add(plugin);
@@ -119,6 +219,31 @@ public final class PluginHandler {
       PLUGIN_LIST = null;
     }
     
+    PLUGIN_MANAGER = null;
+    
     PluginHandler.PLUGIN_LIST = null;
+  }
+  
+  public static PluginManager getPluginManager() {
+    return PLUGIN_MANAGER;
+  }
+  
+  public static boolean isMarkedByPlugins(long programId) {
+    boolean result = false;
+    
+    if(PLUGIN_LIST != null) {
+      for(PluginServiceConnection connection : PLUGIN_LIST) {
+        Log.d("info45", connection.getId());
+        try {
+          Log.d("info45", "" + connection.getPlugin().isMarked(programId));
+          if(connection.isActivated() && connection.getPlugin().isMarked(programId)) {
+            result = true;
+            break;
+          }
+        } catch (RemoteException e) {}
+      }
+    }
+    
+    return result;
   }
 }

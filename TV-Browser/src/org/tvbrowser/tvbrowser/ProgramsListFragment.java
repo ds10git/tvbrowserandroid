@@ -180,14 +180,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
       case 0: mFilterClause = "";;break;
       case 1: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE + " ) ";break;
       case 2: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_MARKING + " ) ";break;
-      case 3: 
-        if(Build.VERSION.SDK_INT >= 14) {
-          mFilterClause = " AND ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER + " ) ) ";
-        }
-        else {
-          mFilterClause = " AND ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER + " ) ) ";
-        }
-        break;
+      case 3: mFilterClause = " AND ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER + " ) ) ";break;
       case 4: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_SYNC + " ) ";break;
       case 5: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";break;
     }

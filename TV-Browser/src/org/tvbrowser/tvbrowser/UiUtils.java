@@ -424,12 +424,12 @@ public class UiUtils {
     }
   }
   
-  public static void createContextMenu(Context context, ContextMenu menu, final long id) {
+  public static void createContextMenu(final Context context, ContextMenu menu, final long id) {
     new MenuInflater(context).inflate(R.menu.program_context, menu);
     Log.d("info23","ID " + id);
-    String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE);
+    String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(ProgramUtils.DATA_CHANNEL_PROJECTION);
     
-    Cursor cursor = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, id), null, null, null, null);
+    Cursor cursor = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, id), projection, null, null, null);
     
    /* if(Build.VERSION.SDK_INT < 14) {
       menu.findItem(R.id.prog_create_calendar_entry).setVisible(false);
@@ -437,7 +437,7 @@ public class UiUtils {
     
     if(cursor.getCount() > 0) {
       cursor.moveToFirst();
-      
+      /*
       final int channelId = cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
       final String channelName = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
       final byte[] logo = cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
@@ -450,11 +450,11 @@ public class UiUtils {
       final String shortDescription = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
       final String description = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
       final String episodeTitle = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
-      
-      final Program pluginProgram = new Program(id, startTime, endTime, title, shortDescription, description, episodeTitle, channel);
-            
-      boolean showMark = true;
-      boolean showUnMark = false;
+      */
+      final Program pluginProgram = ProgramUtils.createProgramFromDataCursor(context, cursor);/*new Program(id, startTime, endTime, title, shortDescription, description, episodeTitle, channel);*/
+      Log.d("info44", "ID FOR " + pluginProgram.getTitle() + " " + pluginProgram.getId() + " " + id +  " " + pluginProgram.getChannel().getChannelId() + " " + pluginProgram.getChannel().getChannelName() + " " + pluginProgram.getStartTimeInUTC());
+   //   boolean showMark = true;
+    //  boolean showUnMark = false;
       boolean showReminder = true;
       boolean isFavoriteReminder = false;
       boolean createFavorite = true;
@@ -469,16 +469,16 @@ public class UiUtils {
           else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) {
             isFavoriteReminder = column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER) && cursor.getInt(index) == 1;
           }
-          else {
+         /* else {
             showUnMark = showUnMark || cursor.getInt(index) == 1;
-          }
+          }*/
           
           if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE)) {
             createFavorite = column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE) && cursor.getInt(index) == 0;
           }
-          else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) {
+         /* else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) {
             showMark = column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && cursor.getInt(index) == 0;
-          }
+          }*/
           
         }
       }
@@ -489,10 +489,10 @@ public class UiUtils {
       
    //   long startTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
       
-      boolean isFutureReminder = startTime > System.currentTimeMillis() - 5 * 60000;
+      boolean isFutureReminder = pluginProgram.getStartTimeInUTC() > System.currentTimeMillis() - 5 * 60000;
       
-      menu.findItem(R.id.prog_mark_item).setVisible(showMark);
-      menu.findItem(R.id.prog_unmark_item).setVisible(showUnMark);
+      /*menu.findItem(R.id.prog_mark_item).setVisible(showMark);
+      menu.findItem(R.id.prog_unmark_item).setVisible(showUnMark);*/
       menu.findItem(R.id.prog_add_reminder).setVisible(showReminder && isFutureReminder);
       menu.findItem(R.id.prog_remove_reminder).setVisible(!showReminder);
    //   menu.findItem(R.id.prog_create_calendar_entry).setVisible(isFutureCalendar && showCalender);
@@ -519,7 +519,9 @@ public class UiUtils {
                       Log.d("info23", "onMenuItemClick " + item.getTitle() + " " + plugin.toString());
                       try {
                         //plugin.openPreferences(null);
-                        return plugin.onProgramContextMenuSelected(pluginProgram, pluginMenu);
+                        if(plugin.onProgramContextMenuSelected(pluginProgram, pluginMenu)) {
+                          ProgramUtils.markProgram(context, pluginProgram);
+                        }
                       } catch (RemoteException e) {
                         Log.d("info23", "", e);
                       }
@@ -703,7 +705,7 @@ public class UiUtils {
     else if(item.getItemId() == R.id.program_popup_search_repetition) {
       searchForRepetition(activity,title,episode);
     }
-    else if(item.getItemId() == R.id.prog_mark_item) {
+   /* else if(item.getItemId() == R.id.prog_mark_item) {
       if(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) {
         return true;
       }
@@ -732,7 +734,7 @@ public class UiUtils {
           handleMarkings(activity, null, menuView, IOUtils.getStringArrayFromList(markedColumns));
         }
       }
-    }
+    }*/
   /*  else if(item.getItemId() == R.id.prog_create_calendar_entry) {
       info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
       
@@ -1137,7 +1139,7 @@ public class UiUtils {
     updateRunningProgramsWidget(context);
   }
   
-  private static void sendMarkingChangedBroadcast(Context context, long programID) {
+  public static void sendMarkingChangedBroadcast(Context context, long programID) {
     Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
     intent.putExtra(SettingConstants.MARKINGS_ID, programID);
     

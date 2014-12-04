@@ -347,8 +347,8 @@
 	<string name="pref_sync_reminder_from_desktop_summary">Reminders that are exported by the AndroidSync plugin from the desktop version are imported.</string>
 	<string name="pref_sync_reminder_to_desktop">Export Reminders</string>
 	<string name="pref_sync_reminder_to_desktop_summary">Programs that are marked as Reminders are exported to desktop TV-Browser.</string>
-	<string name="pref_sync_marked_to_desktop">Manually marked</string>
-	<string name="pref_sync_marked_to_desktop_summary">Programs that were marked manually are exported to desktop TV-Browser.</string>
+	<string name="pref_sync_marked_to_desktop">Marked by Plugins</string>
+	<string name="pref_sync_marked_to_desktop_summary">Programs that were marked by Plugins are exported to desktop TV-Browser.</string>
 <!-- 	<string name="pref_sync_calendar_to_desktop">Added to calendar</string>
 	<string name="pref_sync_calendar_to_desktop_summary">Programs that were added to the Android calendar are exported to desktop TV-Browser.</string>-->
 	<string name="synchronize_user_info">You will have to <a href="http://android.tvbrowser.org/index.php?id=createaccount">register a user first</a> to use the synchronization with the desktop TV-Browser.</string>
@@ -477,7 +477,7 @@
 	    <item>Decent dark (designed by HalleAndert)</item>
     </string-array>
     
-	<string name="pref_marking_color_marked_summary">Color for manually marked programs.</string>
+	<string name="pref_marking_color_marked_summary">Color for by Plugins marked programs.</string>
     <string name="pref_marking_color_favorite_summary">Color for Favorite programs.</string>
     <string name="pref_marking_color_reminder_title">Reminder</string>
     <string name="pref_marking_color_reminder_summary">Color for reminded programs.</string>
@@ -564,7 +564,7 @@
     <string name="widget_important_config_name_label">Widget title:</string>
     <string name="widget_important_config_name_value_hint">Enter title of widget</string>
     <string name="widget_important_config_shown_selection_label">SELECT SHOWN PROGRAMS</string>
-    <string name="widget_important_config_show_marked">Manually marked programs</string>
+    <string name="widget_important_config_show_marked">By Plugins marked programs</string>
     <string name="widget_important_config_show_favorite">Favorite programs</string>
     <string name="widget_important_config_show_reminder">Reminder programs</string>
     <string name="widget_important_config_show_sync">Synchronized programs</string>

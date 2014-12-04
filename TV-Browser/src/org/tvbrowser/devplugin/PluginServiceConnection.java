@@ -54,7 +54,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     Log.d("info23", "callOnActivation " + isActivated());
     if(isConnected()) {
       try {
-        mPlugin.onActivation();
+        mPlugin.onActivation(PluginHandler.getPluginManager());
       } catch (RemoteException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -66,7 +66,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     Log.d("info23", "callOnActivation " + isActivated());
     if(isConnected()) {
       try {
-        mPlugin.onActivation();
+        mPlugin.onActivation(PluginHandler.getPluginManager());
       } catch (RemoteException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();

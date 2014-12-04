@@ -335,8 +335,8 @@
 	<string name="pref_sync_fav_from_desktop_summary">Sendungen die vom AndroidSync-Plugin aus der Desktop-Version exportiert werden.</string>
 	<string name="pref_sync_fav_to_desktop">Lieblingssendungen</string>
 	<string name="pref_sync_fav_to_desktop_summary">Sendungen die als Lieblingssendungen markiert sind, werden nach einem Datenupdate an den Desktop-TV-Browser exportiert.</string>
-	<string name="pref_sync_marked_to_desktop">Manuell markierte</string>
-	<string name="pref_sync_marked_to_desktop_summary">Sendungen die manuell markiert wurden, werden nach einem Datenupdate an den Desktop-TV-Browser exportiert.</string>
+	<string name="pref_sync_marked_to_desktop">Von Plugins markierte</string>
+	<string name="pref_sync_marked_to_desktop_summary">Sendungen die von Plugins markiert wurden, werden nach einem Datenupdate an den Desktop-TV-Browser exportiert.</string>
 <!-- 	<string name="pref_sync_calendar_to_desktop">Dem Kalender hinzugefügte</string>
 	<string name="pref_sync_calendar_to_desktop_summary">Sendungen die dem Android-Kalender hinzugefügt wurden, werden nach einem Datenupdate an den Desktop-TV-Browser exportiert.</string>-->
 	<string name="synchronize_user_info">Sie müssen sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> um die Synchronisation mit dem Desktop-TV-Browser nutzen zu können.</string>
@@ -465,7 +465,7 @@
 	    <item>Dezent dunkel (designed by HalleAndert)</item>
     </string-array>
     
-    <string name="pref_marking_color_marked_summary">Farbe für manuell markierte Sendungen.</string>
+    <string name="pref_marking_color_marked_summary">Farbe für durch Plugins markierte Sendungen.</string>
     <string name="pref_marking_color_favorite_summary">Farbe für Lieblingssendungen.</string>
     <string name="pref_marking_color_reminder_title">Erinnerungen</string>
     <string name="pref_marking_color_reminder_summary">Farbe für erinnerte Sendungen.</string>
@@ -550,7 +550,7 @@
     <string name="widget_important_config_name_label">Widget-Titel:</string>
     <string name="widget_important_config_name_value_hint">Titel des Widgets eingeben</string>
     <string name="widget_important_config_shown_selection_label">ANGEZEIGTE SENDUNGEN AUSWÄHLEN</string>
-    <string name="widget_important_config_show_marked">Manuell markierte Sendungen</string>
+    <string name="widget_important_config_show_marked">Durch Plugins markierte Sendungen</string>
     <string name="widget_important_config_show_favorite">Lieblingssendungen</string>
     <string name="widget_important_config_show_reminder">Erinnerungen</string>
     <string name="widget_important_config_show_sync">Synchonisierte Sendungen</string>
