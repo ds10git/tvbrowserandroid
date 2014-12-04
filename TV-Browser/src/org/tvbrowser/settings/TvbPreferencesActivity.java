@@ -44,7 +44,7 @@ public class TvbPreferencesActivity extends PreferenceActivity {
 	@Override
 	@TargetApi(Build.VERSION_CODES.KITKAT)
 	protected boolean isValidFragment(final String fragmentName) {
-	  return "org.tvbrowser.settings.TvbPreferenceFragment".equals(fragmentName) ||
+	  return TvbPreferenceFragment.class.getCanonicalName().equals(fragmentName) ||
 	    super.isValidFragment(fragmentName);
 	}
 

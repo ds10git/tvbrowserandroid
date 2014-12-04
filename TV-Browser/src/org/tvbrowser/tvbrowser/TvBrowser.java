@@ -42,8 +42,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.devplugin.Channel;
 import org.tvbrowser.devplugin.PluginHandler;
+import org.tvbrowser.devplugin.PluginManager;
 import org.tvbrowser.devplugin.PluginServiceConnection;
+import org.tvbrowser.devplugin.Program;
 import org.tvbrowser.settings.PluginPreferencesActivity;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
@@ -90,6 +93,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -339,16 +343,27 @@ public class TvBrowser extends FragmentActivity implements
         edit.commit();
       }
       if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < pInfo.versionCode) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+        handler.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+            
+            builder.setTitle(R.string.info_version);
+            builder.setMessage(Html.fromHtml(getString(R.string.info_version_new)));
+            builder.setPositiveButton(android.R.string.ok, null);
+            
+            builder.show();
+          }
+        }, 5000);
         
-        builder.setTitle(R.string.info_version);
-        builder.setMessage(Html.fromHtml(getString(R.string.info_version_new)));
-        builder.setPositiveButton(android.R.string.ok, null);
-        
-        builder.show();
       }
-      else {
-        showNews();
+      else {      
+        handler.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            showNews();
+          }
+        }, 5000);
       }
       
       if(oldVersion !=  pInfo.versionCode) {
@@ -561,12 +576,12 @@ public class TvBrowser extends FragmentActivity implements
     }
     Log.d("info2", "id2 " + mCurrentChannelFilterId +" " + mCurrentChannelFilter);
     
-    handler.post(new Runnable() {
+    handler.postDelayed(new Runnable() {
       @Override
       public void run() {
         showEpgDonateInfo();
       }
-    });
+    }, 7000);
   }
   
   private static boolean SHOWING_DONATION_INFO = false;

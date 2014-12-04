@@ -24,6 +24,8 @@ import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.tvbrowser.R;
 
+import android.annotation.TargetApi;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.preference.PreferenceActivity;
@@ -93,5 +95,11 @@ public class PluginPreferencesActivity extends PreferenceActivity {
     else {
       startPreferencePanel(header.fragment, header.fragmentArguments, header.titleRes, header.title, null, 0);
     }
+  }
+  
+  @TargetApi(Build.VERSION_CODES.KITKAT)
+  @Override
+  protected boolean isValidFragment(String fragmentName) {
+    return fragmentName.equals(PluginPreferencesFragment.class.getCanonicalName()) || super.isValidFragment(fragmentName);
   }
 }

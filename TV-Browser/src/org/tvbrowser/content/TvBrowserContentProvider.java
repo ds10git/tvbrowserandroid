@@ -166,7 +166,6 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_MARKING_FAVORITE = "markingFavorite";
   public static final String DATA_KEY_MARKING_FAVORITE_REMINDER = "markingFavoriteReminder";
   public static final String DATA_KEY_MARKING_REMINDER = "markingReminder";
-  public static final String DATA_KEY_MARKING_CALENDAR = "markingCalendar";
   public static final String DATA_KEY_MARKING_SYNC = "markingSync";
   
   public static final String DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT = "utcStartMinuteAfterMidnight";
@@ -243,7 +242,6 @@ public class TvBrowserContentProvider extends ContentProvider {
     DATA_KEY_MARKING_FAVORITE,
     DATA_KEY_MARKING_FAVORITE_REMINDER,
     DATA_KEY_MARKING_REMINDER,
-    DATA_KEY_MARKING_CALENDAR,
     DATA_KEY_MARKING_SYNC,
     DATA_KEY_DONT_WANT_TO_SEE
   };
@@ -761,12 +759,17 @@ public class TvBrowserContentProvider extends ContentProvider {
                     
                     if(projection != null) {
                       for(int i = 0; i < projection.length; i++) {
-                        if(projection[i] != null && (projection[i].equals(KEY_ID) || projection[i].equals(CHANNEL_KEY_CHANNEL_ID))) {
-                          projection[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + projection[i]+ " AS " + projection[i];
-                        }
-                        else if(projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
-                          projection[i] = "(strftime('%w', " + DATA_KEY_STARTTIME +
-                              "/1000, 'unixepoch', 'localtime')+1) AS " + DATA_KEY_START_DAY_LOCAL;
+                        if(projection[i] != null) {
+                            if(projection[i].equals(KEY_ID)) {
+                              projection[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + KEY_ID + " AS " + KEY_ID;
+                            }
+                            else if(projection[i].equals(CHANNEL_KEY_CHANNEL_ID)) {
+                              projection[i] = CHANNEL_TABLE + "." + KEY_ID + " AS " + CHANNEL_KEY_CHANNEL_ID;
+                            }
+                            else if(projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
+                              projection[i] = "(strftime('%w', " + DATA_KEY_STARTTIME +
+                                  "/1000, 'unixepoch', 'localtime')+1) AS " + DATA_KEY_START_DAY_LOCAL;
+                            }
                         }
                       }
                     }
@@ -784,7 +787,7 @@ public class TvBrowserContentProvider extends ContentProvider {
                         selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+KEY_ID);
                       }
                       if(selection.contains(CHANNEL_KEY_CHANNEL_ID) && !selection.contains("."+CHANNEL_KEY_CHANNEL_ID)) {
-                        selection = selection.replace(CHANNEL_KEY_CHANNEL_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+CHANNEL_KEY_CHANNEL_ID);
+                        selection = selection.replace(CHANNEL_KEY_CHANNEL_ID, CHANNEL_TABLE + "."+CHANNEL_KEY_CHANNEL_ID);
                       }
                       if(!containsStartDayColumn && selection.contains(DATA_KEY_START_DAY_LOCAL)) {
                         selection = selection.replace(DATA_KEY_START_DAY_LOCAL, "(strftime('%w', " + DATA_KEY_STARTTIME +
@@ -964,7 +967,6 @@ public class TvBrowserContentProvider extends ContentProvider {
         + DATA_KEY_MARKING_FAVORITE + " INTEGER DEFAULT 0, "
         + DATA_KEY_MARKING_FAVORITE_REMINDER + " INTEGER DEFAULT 0, "
         + DATA_KEY_MARKING_REMINDER + " INTEGER DEFAULT 0, "
-        + DATA_KEY_MARKING_CALENDAR + " INTEGER DEFAULT 0, "
         + DATA_KEY_MARKING_SYNC + " INTEGER DEFAULT 0, "
         + DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0, "
         + DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0, "
@@ -1105,7 +1107,6 @@ public class TvBrowserContentProvider extends ContentProvider {
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_FAVORITE + " INTEGER DEFAULT 0");
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_FAVORITE_REMINDER + " INTEGER DEFAULT 0");
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_REMINDER + " INTEGER DEFAULT 0");
-          db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_CALENDAR + " INTEGER DEFAULT 0");
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_SYNC + " INTEGER DEFAULT 0");
           
           Cursor markings = db.query(DATA_TABLE, new String[] {KEY_ID,DATA_KEY_MARKING_VALUES}, "ifnull("+DATA_KEY_MARKING_VALUES+", '') != ''", null, null, null, KEY_ID);
@@ -1138,9 +1139,6 @@ public class TvBrowserContentProvider extends ContentProvider {
                 else {
                   values.put(DATA_KEY_MARKING_REMINDER, true);
                 }
-              }
-              if(markingValue.contains(MARK_VALUE_CALENDAR)) {
-                values.put(DATA_KEY_MARKING_CALENDAR, true);
               }
               if(markingValue.contains(MARK_VALUE_SYNC_FAVORITE)) {
                 values.put(DATA_KEY_MARKING_SYNC, true);
@@ -1226,7 +1224,6 @@ public class TvBrowserContentProvider extends ContentProvider {
           columnsSeparated.append(DATA_KEY_MARKING_FAVORITE).append(",");
           columnsSeparated.append(DATA_KEY_MARKING_FAVORITE_REMINDER).append(",");
           columnsSeparated.append(DATA_KEY_MARKING_REMINDER).append(",");
-          columnsSeparated.append(DATA_KEY_MARKING_CALENDAR).append(",");
           columnsSeparated.append(DATA_KEY_MARKING_SYNC);
           
           db.beginTransaction();

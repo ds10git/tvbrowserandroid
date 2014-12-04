@@ -100,7 +100,6 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
         TvBrowserContentProvider.DATA_KEY_MARKING_MARKING,
         TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE,
         TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER,
-        TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR,
         TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER,
         TvBrowserContentProvider.DATA_KEY_MARKING_SYNC,
         TvBrowserContentProvider.CHANNEL_KEY_NAME,

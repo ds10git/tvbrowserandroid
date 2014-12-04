@@ -22,6 +22,7 @@ package org.tvbrowser.devplugin;
 import java.util.List;
 
 import org.tvbrowser.devplugin.Channel;
+import org.tvbrowser.devplugin.PluginManager;
 import org.tvbrowser.devplugin.PluginMenu;
 import org.tvbrowser.devplugin.Program;
 
@@ -111,8 +112,10 @@ interface Plugin {
 	
 	/**
 	 * Called at any activation of this Plugin
+	 * @param pluginManager The plugin manager of TV-Browser, can be used to get Programs
+	 *                      and other values.
 	 */
-	void onActivation();
+	void onActivation(PluginManager pluginManager);
 	
 	/**
 	 * Caleld at any deactivation of this Plugin
