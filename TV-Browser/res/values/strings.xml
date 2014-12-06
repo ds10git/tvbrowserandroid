@@ -131,7 +131,15 @@
     <string name="update_data_notification_synchronize_remiders">Synchronize Reminders&#8230;</string>
     <string name="update_data_notification_synchronize_favorites">Synchronize Favorites&#8230;</string>
     <string name="no_network">No network connection</string>
-    <string name="no_network_info">Your network connection is disabled. Enable it before starting data download.</string>
+    <string name="no_network_info">Your network connection is disabled. Enable it before starting {0}.</string>
+    <string name="no_network_info_data_update">data download</string>
+    <string name="no_network_info_data_pref_backup">the backup of the preferences</string>
+    <string name="no_network_info_data_pref_restore">the restore of the preferences</string>
+    <string name="no_network_info_data_channel_download">the channel download</string>
+    <string name="no_network_info_data_search_plugins">the search for Plugins</string>
+    <string name="no_network_info_data_sync_reminder">the synchronization of the Reminders</string>
+    <string name="no_network_info_data_sync_dont_want_to_see">the synchronization of I don\'t want to see!</string>
+    <string name="no_network_info_data_sync_channels">the synchronization of the channels</string>
     <string name="update_notification_title">TV data update</string>
     <string name="update_notification_text">A TV-Browser data update is running</string>
     <string name="update_notification_calculate">Calculate TV data&#8230;</string>
@@ -152,6 +160,7 @@
         <item>The next three weeks</item>
     </string-array>
     <string name="version">Version:</string>
+    <string name="author">Author:</string>
     <string name="android">Android:</string>
     <string name="last_data_update">Last data update:</string>
     <string name="next_data_update">Next data update:</string>
@@ -175,6 +184,7 @@
     <string name="terms">The usage time of TV-Browser for Android can be limited. You can see the limit on the about page. It is guaranteed that an update is available free of charge after the limit is reached, as long as the developers of TV-Browser for Android are able and willing to release updates.</string>
     <string name="name_for_android">TV-Browser for Android</string>
     <string name="action_about">About TV-Browser</string>
+    <string name="action_search_plugins">Search for Plugins</string>
     <string name="create_favorite_item">Create Favorite</string>
     <string name="show_sync">Show synced</string>
     <string name="terms_of_use">Terms of Use</string>
@@ -639,10 +649,20 @@
     <string name="pref_plugins_license">License:</string>
     <string name="pref_plugins_description">Description:</string>
     
+    <string name="plugin_available_title">Available Plugins</string>
+    <string name="plugin_open_google_play">Show it in Google Play\u2122</string>
+    <string name="plugin_download_manually">Download manually</string>
+    
+    <string name="plugin_info_title">More functions with Plugins</string>
+    <string name="plugin_info_message">TV-Browser can be extended with new function with Plugins.\n\nIf you miss a function you may find it in a Plugin.\n\nDo you want to open the list with the available Plugins now (you later can search for Plugins from the menu of TV-Browser)?</string>
+    <string name="plugin_info_load">Open list with available Plugins now</string>
+    
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.6</h2>
 		    &bull; added first version of the Plugin interface<br>
+		    &bull; added search for Plugins<br>
+		    &bull; removed manually markings function (can be integrated with Plugins)<br>
 		    &bull; removed calendar export and mail functionality (can be integrated with Plugins)<br>
 		    &bull; added new color style for dark theme<br>
 			&bull; added support for EPGdonate data channels<br>

@@ -32,26 +32,31 @@ import org.tvbrowser.devplugin.Program;
 interface Plugin {
     /**
      * Get the version of this Plugin.
+     * NOTE: May be called without prior call to onActivation(PluginManager pluginManager);
      */
 	String getVersion();
 	
 	/**
 	 * Gets the name of this Plugin,
+	 * NOTE: May be called without prior call to onActivation(PluginManager pluginManager);
 	 */
 	String getName();
 
 	/**
 	 * Get the description of this Plugin.
+	 * NOTE: May be called without prior call to onActivation(PluginManager pluginManager);
 	 */
 	String getDescription();
 	
 	/**
 	 * Get the author of this Plugin.
+	 * NOTE: May be called without prior call to onActivation(PluginManager pluginManager);
 	 */
 	String getAuthor();
 		
     /**
      * Get the license of this Plugin.
+     * NOTE: May be called without prior call to onActivation(PluginManager pluginManager);
      */
     String getLicense();
     
@@ -106,7 +111,10 @@ interface Plugin {
 	/**
 	 * Called at activation of this Plugin to inform about the first currently known
 	 * id of the programs. All programs with ids that are smaller than this one don't
-	 * exist anymore. 
+	 * exist anymore.
+	 * NOTE: A <code>programId</code> of <code>-1</code> means that no programs are
+	 *       available in TV-Browser, so if this Plugin has any ids stored it should
+	 *       dismiss them all.
 	 */
 	void handleFirstKnownProgramId(in long programId);
 	

@@ -31,7 +31,6 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -42,11 +41,9 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.devplugin.Channel;
+import org.tvbrowser.devplugin.PluginDefinition;
 import org.tvbrowser.devplugin.PluginHandler;
-import org.tvbrowser.devplugin.PluginManager;
 import org.tvbrowser.devplugin.PluginServiceConnection;
-import org.tvbrowser.devplugin.Program;
 import org.tvbrowser.settings.PluginPreferencesActivity;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
@@ -73,12 +70,8 @@ import android.content.IntentFilter;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageInfo;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
-import android.content.pm.ResolveInfo;
-import android.content.pm.ServiceInfo;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -93,7 +86,6 @@ import android.graphics.drawable.LayerDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Binder;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -730,7 +722,7 @@ public class TvBrowser extends FragmentActivity implements
     }.start();
     
     // Don't allow use of version after date
-    if(mRundate.getTimeInMillis() < System.currentTimeMillis()) {    
+    if(mRundate.getTimeInMillis() < System.currentTimeMillis()) {
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
       builder.setTitle(R.string.versionExpired);
       
@@ -777,70 +769,77 @@ public class TvBrowser extends FragmentActivity implements
       AlertDialog dialog = builder.create();
       dialog.show();
     }
-    
-    Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, null);
-    
-    if(!selectingChannels && (channels == null || channels.getCount() == 0)) {
-      selectingChannels = true;
-      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-      builder.setMessage(R.string.no_channels);
-      builder.setPositiveButton(R.string.select_channels, new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          selectChannels(false);
-        }
-      });
+    else {
+      Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, null);
       
-      builder.setNegativeButton(R.string.dont_select_channels, new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          
-        }
-      });
-      
-      AlertDialog dialog = builder.create();
-      dialog.show();
-    }
-    
-    if(channels != null && !channels.isClosed()) {
-      channels.close();
-    }
-    
-    Calendar now = Calendar.getInstance();
-    
-    now.add(Calendar.MINUTE, 1);
-    now.set(Calendar.SECOND, 5);
-    
-    mTimer = new Timer();
-    mTimer.schedule(new TimerTask() {
-      private int mCurrentDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
-      @Override
-      public void run() {
-        int day = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
-        
-        if(mCurrentDay != day) {
-          new Thread() {
-            public void run() {
-              try {
-                sleep(60000);
-              } catch (InterruptedException e1) {}
-              
-              Calendar cal2 = Calendar.getInstance();
-              cal2.add(Calendar.DAY_OF_YEAR, -2);
-              
-              try {
-                getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + cal2.getTimeInMillis(), null);
-                LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.DATA_UPDATE_DONE));
-              }catch(IllegalArgumentException e) {}
+      try {
+        if(!selectingChannels && (channels == null || channels.getCount() == 0)) {
+          selectingChannels = true;
+          AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+          builder.setMessage(R.string.no_channels);
+          builder.setPositiveButton(R.string.select_channels, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              selectChannels(false);
             }
-          }.start();
+          });
           
-          mCurrentDay = day;
+          builder.setNegativeButton(R.string.dont_select_channels, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              
+            }
+          });
+          
+          AlertDialog dialog = builder.create();
+          dialog.show();
         }
-        
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
+        else if(PluginHandler.getFirstProgramId() == -1) {
+          if(isOnline()) {
+            checkTermsAccepted();
+          }
+        }
       }
-    }, now.getTime(), 60000);
+      finally {
+        IOUtils.closeCursor(channels);
+      }
+      
+      Calendar now = Calendar.getInstance();
+      
+      now.add(Calendar.MINUTE, 1);
+      now.set(Calendar.SECOND, 5);
+      
+      mTimer = new Timer();
+      mTimer.schedule(new TimerTask() {
+        private int mCurrentDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
+        @Override
+        public void run() {
+          int day = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
+          
+          if(mCurrentDay != day) {
+            new Thread() {
+              public void run() {
+                try {
+                  sleep(60000);
+                } catch (InterruptedException e1) {}
+                
+                Calendar cal2 = Calendar.getInstance();
+                cal2.add(Calendar.DAY_OF_YEAR, -2);
+                
+                try {
+                  getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + cal2.getTimeInMillis(), null);
+                  LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.DATA_UPDATE_DONE));
+                }catch(IllegalArgumentException e) {}
+              }
+            }.start();
+            
+            mCurrentDay = day;
+          }
+          
+          LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
+        }
+      }, now.getTime(), 60000);
+    }
   }
   
   private void showChannelSelection() {
@@ -1270,7 +1269,7 @@ public class TvBrowser extends FragmentActivity implements
             else if(value instanceof Long) {
               backup.append("long:").append(key).append("=").append(value).append("\n");
             }
-            else if(value instanceof String) {
+            else if(value instanceof String && value != null && ((String)value).trim().length() > 0) {
               backup.append("string:").append(key).append("=").append(value).append("\n");
             }
             else if(value instanceof Set<?>){
@@ -1295,7 +1294,7 @@ public class TvBrowser extends FragmentActivity implements
       builder.show();
     }
     else {
-      showNoInternetConnection(null);
+      showNoInternetConnection(getString(R.string.no_network_info_data_pref_backup), null);
     }
   }
   
@@ -1338,7 +1337,7 @@ public class TvBrowser extends FragmentActivity implements
                 String type = line.substring(0,index);
                 String[] parts = line.substring(index+1).split("=");
                 
-                if(parts != null && parts.length > 0) {
+                if(parts != null && parts.length > 1) {
                   if(type.equals("boolean")) {
                     edit.putBoolean(parts[0], Boolean.valueOf(parts[1].trim()));
                     Log.d("pref", parts[0] + " " + parts[1].trim());
@@ -1362,18 +1361,16 @@ public class TvBrowser extends FragmentActivity implements
                   else if(type.equals("set")) {
                     HashSet<String> set = new HashSet<String>();
                     
-                    if(parts.length > 1) {
-                      String[] setParts = parts[1].split("#,#");
-                      Log.d("pref", parts[0]);
-                      
-                      if(setParts != null && setParts.length > 0) {
-                        for(String setPart : setParts) {
-                          set.add(setPart);
-                          Log.d("pref", " " + setPart);
-                        }
-                        
-                        edit.putStringSet(parts[0], set);
+                    String[] setParts = parts[1].split("#,#");
+                    Log.d("pref", parts[0]);
+                    
+                    if(setParts != null && setParts.length > 0) {
+                      for(String setPart : setParts) {
+                        set.add(setPart);
+                        Log.d("pref", " " + setPart);
                       }
+                      
+                      edit.putStringSet(parts[0], set);
                     }
                   }
                 }
@@ -1382,6 +1379,13 @@ public class TvBrowser extends FragmentActivity implements
             
             if(restored) {
               edit.commit();
+              handler.post(new Runnable() {
+                @Override
+                public void run() {
+                  updateFromPreferences();
+                }
+              });
+              
               IOUtils.handleDataUpdatePreferences(getApplicationContext());
               
               Intent updateFavorites = new Intent(SettingConstants.FAVORITES_CHANGED);
@@ -1441,7 +1445,7 @@ public class TvBrowser extends FragmentActivity implements
       builder.show();
     }
     else {
-      showNoInternetConnection(null);
+      showNoInternetConnection(getString(R.string.no_network_info_data_pref_restore), null);
     }
   }
   
@@ -2142,7 +2146,7 @@ public class TvBrowser extends FragmentActivity implements
         runChannelDownload();
       }
       else {
-        showNoInternetConnection(new Runnable() {
+        showNoInternetConnection(getString(R.string.no_network_info_data_channel_download), new Runnable() {
           @Override
           public void run() {
             checkTermsAccepted();
@@ -2795,11 +2799,11 @@ public class TvBrowser extends FragmentActivity implements
     ((TextView)d.findViewById(R.id.user_pw_sync_info)).setMovementMethod(LinkMovementMethod.getInstance());
   }
   
-  private void showNoInternetConnection(final Runnable callback) {
+  private void showNoInternetConnection(String type, final Runnable callback) {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     
     builder.setTitle(R.string.no_network);
-    builder.setMessage(R.string.no_network_info);
+    builder.setMessage(getString(R.string.no_network_info).replace("{0}", type));
     
     builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
       @Override
@@ -3499,7 +3503,10 @@ public class TvBrowser extends FragmentActivity implements
               public void onClick(DialogInterface dialog, int which) {
                 Editor edit = pref.edit();
                 edit.putLong(getString(R.string.NEWS_DATE_LAST_SHOWN), System.currentTimeMillis());
+                edit.putBoolean(getString(R.string.PREF_NEWS_SHOW), false);
                 edit.commit();
+                
+                showPluginInfo();
               }
             });
             
@@ -3510,7 +3517,57 @@ public class TvBrowser extends FragmentActivity implements
           }
         });
       }
+      else {
+        showPluginInfo();
+      }
     }
+    else {
+      showPluginInfo();
+    }
+  }
+  
+  private void showPluginInfo() {
+    if(!PrefUtils.getBooleanValue(R.string.PLUGIN_INFO_SHOWN, false)) {
+      final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+      
+      builder.setTitle(R.string.plugin_info_title);
+      builder.setCancelable(false);
+      builder.setMessage(R.string.plugin_info_message);
+      
+      builder.setPositiveButton(R.string.plugin_info_load, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          savePluginInfoShown();
+          
+          if(isOnline()) {
+            searchPlugins();
+          }
+          else {
+            showNoInternetConnection(getString(R.string.no_network_info_data_search_plugins),new Runnable() {
+              @Override
+              public void run() {
+                searchPlugins();
+              }
+            });
+          }
+        }
+      });
+      
+      builder.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          savePluginInfoShown();
+        }
+      });
+      
+      builder.show();
+    }
+  }
+  
+  private void savePluginInfoShown() {
+    Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+    edit.putBoolean(getString(R.string.PLUGIN_INFO_SHOWN), true);
+    edit.commit();
   }
   
   private void updateFromFilterEdit() {
@@ -3579,6 +3636,141 @@ public class TvBrowser extends FragmentActivity implements
     edit.commit();
   }
   
+  private void searchPlugins() {
+    if(isOnline()) {
+      new Thread("SEARCH FOR PLUGINS THREAD") {
+        @Override
+        public void run() {
+          updateProgressIcon(true);
+          PluginDefinition[] availablePlugins = PluginDefinition.loadAvailablePluginDefinitions();
+          
+          ArrayList<PluginDefinition> newPlugins = new ArrayList<PluginDefinition>();
+          
+          for(PluginDefinition def : availablePlugins) {
+            String packageName = def.getPackageName();
+            String[] services = def.getServices();
+            
+            for(String service : services) {
+              if(service.startsWith(".")) {
+                service = packageName + service;
+              }
+              
+              String[] parts = service.split(":");
+              
+              boolean wasAdded = false;
+              boolean wasFound = false;
+              
+              for(PluginServiceConnection connection : PluginHandler.PLUGIN_LIST) {
+                if(connection.getId().equals(parts[0])) {
+                  wasFound = true;
+                  
+                  try {
+                    String currentVersion = connection.getPlugin().getVersion();
+                    
+                    if(!currentVersion.equals(parts[1])) {
+                      newPlugins.add(def);
+                      def.setIsUpdate();
+                      wasAdded = true;
+                      break;
+                    }
+                  } catch (RemoteException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                  }
+                }
+              }
+              
+              if(wasAdded) {
+                break;
+              }
+              else if(!wasFound) {
+                newPlugins.add(def);
+              }
+            }
+          }
+          
+          StringBuilder newsText = new StringBuilder();
+          
+          Collections.sort(newPlugins);
+          
+          for(PluginDefinition news : newPlugins) {
+            if(newsText.length() > 0) {
+              newsText.append("<line>LINE</line>");
+            }
+            
+  /*          newsText.append("<p>");
+            newsText.append("<i><u>");
+            newsText.append(DateFormat.getLongDateFormat(context).format(news.mDate)).append(":");
+            newsText.append("</u></i>");
+            newsText.append("</p>");*/
+            
+            newsText.append("<h3>");
+            newsText.append(news.getName());
+            
+            if(news.isUpdate()) {
+              newsText.append(" <i>(Update)</i>");
+            }
+            
+            newsText.append("</h3>");
+            
+            newsText.append(news.getDescription());
+            
+            newsText.append("<p><i>");
+            newsText.append(getString(R.string.author)).append(" ");
+            newsText.append(news.getAuthor());
+            newsText.append(" <right>").append(getString(R.string.version)).append(" ");
+            newsText.append(news.getVersion());
+            newsText.append("</i></right></p>");
+            
+            if(news.isOnGooglePlay()) {
+              newsText.append("<p><a href=\"http://play.google.com/store/apps/details?id=");
+              newsText.append(news.getPackageName());
+              newsText.append("\">").append(getString(R.string.plugin_open_google_play)).append("</a></p>");
+            }
+            
+            if(news.getDownloadLink() != null && news.getDownloadLink().trim().length() > 0) {
+              newsText.append("<p><a href=\"");
+              newsText.append(news.getDownloadLink());
+              newsText.append("\">").append(getString(R.string.plugin_download_manually)).append("</a></p>");
+            }
+          }
+          
+          final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+          
+          builder.setTitle(getString(R.string.plugin_available_title));
+          builder.setCancelable(false);
+          builder.setMessage(Html.fromHtml(newsText.toString(),null,new NewsTagHandler()));
+          
+          builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              PluginHandler.shutdownPlugins(getApplicationContext());
+              
+              handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                  PluginHandler.loadPlugins(TvBrowser.this, handler);
+                }
+              }, 2000);
+            }
+          });
+          
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              AlertDialog d = builder.create();
+              d.show();
+              
+              ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+            }
+          });
+          
+          updateProgressIcon(false);
+        }
+      }.start();
+    }
+  }
+  
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
@@ -3589,6 +3781,19 @@ public class TvBrowser extends FragmentActivity implements
       break;
       case R.id.menu_tvbrowser_action_create_favorite: UiUtils.editFavorite(null, TvBrowser.this, null);break;
       case R.id.action_donation: showDonationInfo(); break;
+      case R.id.action_search_plugins: 
+        if(isOnline()) {
+          searchPlugins();
+        }
+        else {
+          showNoInternetConnection(getString(R.string.no_network_info_data_search_plugins),new Runnable() {
+            @Override
+            public void run() {
+              searchPlugins();
+            }
+          });
+        }
+        break;
       case R.id.action_pause_reminder: pauseReminder(); break;
       case R.id.action_continue_reminder: SettingConstants.setReminderPaused(TvBrowser.this, false); mPauseReminder.setVisible(true); mContinueReminder.setVisible(false); break;
       case R.id.action_synchronize_reminders_down:
@@ -3596,7 +3801,7 @@ public class TvBrowser extends FragmentActivity implements
           startSynchronizeRemindersDown();
         }
         else {
-          showNoInternetConnection(null);
+          showNoInternetConnection(getString(R.string.no_network_info_data_sync_reminder), null);
         }
         break;
       case R.id.action_synchronize_reminders_up:
@@ -3604,7 +3809,7 @@ public class TvBrowser extends FragmentActivity implements
           startSynchronizeUp(true, null, "http://android.tvbrowser.org/data/scripts/syncUp.php?type=reminderFromApp", SettingConstants.SYNCHRONIZE_UP_DONE, null);
         }
         else {
-          showNoInternetConnection(null);
+          showNoInternetConnection(getString(R.string.no_network_info_data_sync_reminder),null);
         }
         break;
       case R.id.action_dont_want_to_see_edit:
@@ -3615,7 +3820,7 @@ public class TvBrowser extends FragmentActivity implements
           synchronizeDontWantToSee();
         }
         else {
-          showNoInternetConnection(null);
+          showNoInternetConnection(getString(R.string.no_network_info_data_sync_dont_want_to_see), null);
         }
         break;
       case R.id.action_synchronize_channels:
@@ -3623,7 +3828,7 @@ public class TvBrowser extends FragmentActivity implements
           syncronizeChannels();
         }
         else {
-          showNoInternetConnection(null);
+          showNoInternetConnection(getString(R.string.no_network_info_data_sync_channels),null);
         }
         break;
       case R.id.action_synchronize_channels_up:
@@ -3631,7 +3836,7 @@ public class TvBrowser extends FragmentActivity implements
           uploadChannels();
         }
         else {
-          showNoInternetConnection(null);
+          showNoInternetConnection(getString(R.string.no_network_info_data_sync_channels),null);
         }
         break;
       case R.id.action_delete_data_update_log: deleteLog("data-update-log.txt");break;
@@ -3651,7 +3856,7 @@ public class TvBrowser extends FragmentActivity implements
           checkTermsAccepted();
         }
         else {
-          showNoInternetConnection(null);
+          showNoInternetConnection(getString(R.string.no_network_info_data_update), null);
         }
         break;
       case R.id.action_about: showAbout();break;
@@ -3846,10 +4051,13 @@ public class TvBrowser extends FragmentActivity implements
     
     if(mOptionsMenu != null) {
       mOptionsMenu.findItem(R.id.action_synchronize_channels).setEnabled(isAccount);
+      mOptionsMenu.findItem(R.id.action_synchronize_channels_up).setEnabled(isAccount);
       mOptionsMenu.findItem(R.id.action_synchronize_dont_want_to_see).setEnabled(isAccount);
       mOptionsMenu.findItem(R.id.action_synchronize_favorites).setEnabled(isAccount);
       mOptionsMenu.findItem(R.id.action_synchronize_reminders_up).setEnabled(isAccount);
       mOptionsMenu.findItem(R.id.action_synchronize_reminders_down).setEnabled(isAccount);
+      mOptionsMenu.findItem(R.id.action_backup_preferences_save).setEnabled(isAccount);
+      mOptionsMenu.findItem(R.id.action_backup_preferences_restore).setEnabled(isAccount);
     }
   }
   

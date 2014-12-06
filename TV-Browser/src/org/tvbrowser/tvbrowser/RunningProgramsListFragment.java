@@ -1160,7 +1160,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
     where += ") " + UiUtils.getDontWantToSeeFilterString(getActivity());
     
     where += ((TvBrowser)getActivity()).getChannelFilterSelection();
-    
+    Log.d("info46", "WHERE " + where);
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " COLLATE NOCASE, " + sort);
     
     return loader;
@@ -1216,7 +1216,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
     SparseArray<ChannelProgramBlock> channelProgramMap = new SparseArray<ChannelProgramBlock>();
     SparseArray<ChannelProgramBlock> currentProgramMap = new SparseArray<ChannelProgramBlock>();
     boolean showDontWantToSee = PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(getResources().getStringArray(R.array.pref_simple_string_value_array2)[1]);
-    
+    Log.d("info46", "COUNT " + c.getCount());
     mProgramBlockList.clear();
     mCurrentViewList.clear();
     mMarkingsMap.clear();

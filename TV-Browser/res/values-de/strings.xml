@@ -125,7 +125,15 @@
     <string name="update_data_notification_synchronize_remiders">Erinnerungen synchronisieren&#8230;</string>
     <string name="update_data_notification_synchronize_favorites">Lieblingssendungen synchronisieren&#8230;</string>
     <string name="no_network">Keine Internet-Verbindung</string>
-    <string name="no_network_info">Ihre Internet-Verbindung ist abgeschaltet. Bitte aktivieren Sie diese bevor Sie das Datenupdate starten.</string>
+    <string name="no_network_info">Ihre Internet-Verbindung ist abgeschaltet. Bitte aktivieren Sie diese bevor Sie {0} starten.</string>
+    <string name="no_network_info_data_update">das Datenupdate</string>
+    <string name="no_network_info_data_pref_backup">das Backup der Einstellungen</string>
+    <string name="no_network_info_data_pref_restore">das Wiederherstellen der Einstellungen</string>
+    <string name="no_network_info_data_channel_download">den Senderdownload</string>
+    <string name="no_network_info_data_search_plugins">die Suche nach Plugins</string>
+    <string name="no_network_info_data_sync_reminder">die Synchronisierung der Erinnerungen</string>
+    <string name="no_network_info_data_sync_dont_want_to_see">die Synchronisierung von Will ich nicht sehen!</string>
+    <string name="no_network_info_data_sync_channels">die Synchronisierung der Sender</string>
     <string name="update_notification_title">TV-Daten Update</string>
     <string name="update_notification_text">Ein TV-Browser Datenupdate läuft</string>
     <string name="update_notification_calculate">TV-Daten verarbeiten&#8230;</string>
@@ -146,6 +154,7 @@
         <item>Die nächsten drei Wochen</item>
     </string-array>
     <string name="version">Version:</string>
+    <string name="author">Autor:</string>
     <string name="android">Android:</string>
     <string name="copyright">Copyright &#169; 2013, René Mach.</string>
     <string name="last_data_update">Letztes Datenupdate:</string>
@@ -169,6 +178,7 @@
     <string name="terms">Der Benutzungszeitraum von TV-Browser für Android kann begrenzt sein. Die Begrenzung ist auf der Über-Seite ersichtlich. Es wird garantiert, dass nach Ablauf des Benutzungszeitraums ein kostenloses Update zur Verfügung steht, so lange die Entwickler von TV-Browser für Android in der Lage und gewillt sind Updates herauszugeben.</string>
     <string name="name_for_android">TV-Browser für Android</string>
     <string name="action_about">Über TV-Browser</string>
+    <string name="action_search_plugins">Nach Plugins suchen</string>
     <string name="create_favorite_item">Lieblingssendung erstellen</string>
     <string name="show_sync">Synchronisierte</string>
     <string name="terms_of_use">Nutzungsbestimmungen</string>
@@ -625,10 +635,20 @@
     <string name="pref_plugins_license">Lizenz:</string>
     <string name="pref_plugins_description">Beschreibung:</string>
     
+    <string name="plugin_available_title">Verfügbare Plugins</string>
+    <string name="plugin_open_google_play">In Google Play\u2122 anzeigen</string>
+    <string name="plugin_download_manually">Manuell herunterladen</string>
+    
+    <string name="plugin_info_title">Weitere Funktionen mit Plugins</string>
+    <string name="plugin_info_message">TV-Browser kann mit Plugins um weitere Funktionen erweitert werden.\n\nSollten Sie eine Funktion vermissen, gibt es möglicherweise ein Plugin, was diese anbietet.\n\nMöchten Sie die Liste der verfügbaren Plugins jetzt öffnen (Sie können später auch über das Menü von TV-Browser nach Plugins suchen)?</string>
+    <string name="plugin_info_load">Liste mit den Plugins jetzt öffnen</string>
+    
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.6</h2>
 			&bull; erste Version der Plugin-Schnittstelle hinzugefügt<br>
+			&bull; Suche nach Plugins hinzugefügt<br>
+			&bull; manuelle Markierungsfunktion entfernt (kann mit Plugin nachgerüstet werden)<br>
 			&bull; Kalender- und E-Mail-Export entfernt (können mit Plugins nachgerüstet werden)<br>
 			&bull; neuen Farbstil für das dunkle Thema hinzugefügt<br>
 			&bull; Unterstützung für Sender aus EPGdonate-Daten hinzugefügt<br>
