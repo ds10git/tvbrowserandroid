@@ -739,7 +739,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
             
             markingIntentList.add(intent);
           }
-        }while(cursor.moveToNext());
+        }while(!cursor.isClosed() && cursor.moveToNext());
         
         if(!updateValuesList.isEmpty()) {
           try {

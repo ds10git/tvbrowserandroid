@@ -84,6 +84,10 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   public void onServiceDisconnected(ComponentName name) {
     mPlugin = null;
     
+    if(PluginHandler.PLUGIN_LIST != null) {
+      PluginHandler.PLUGIN_LIST.remove(this);
+    }
+    
     Log.d("info23","onServiceDisconnected " + name );
   }
   

@@ -251,7 +251,11 @@ public final class PluginHandler {
           plugin.callOnDeactivation();
         }
         
-        context.unbindService(plugin);
+        try {
+          if(plugin.isConnected()) {
+            context.unbindService(plugin);
+          }
+        }catch(RuntimeException e) {}
       }
     
       PLUGIN_LIST.clear();
