@@ -782,7 +782,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
   @Override
   public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
     mProgramListAdapter.swapCursor(c);
-        
+    
     if(mScrollPos == -1) {
       scrollToTime();
     }

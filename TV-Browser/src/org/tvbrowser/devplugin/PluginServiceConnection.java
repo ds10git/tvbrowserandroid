@@ -55,7 +55,13 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     if(isConnected()) {
       try {
         mPlugin.onActivation(PluginHandler.getPluginManager());
-      } catch (RemoteException e) {
+        
+        long firstProgramId = PluginHandler.getFirstProgramId();
+        
+        if(firstProgramId != PluginHandler.FIRST_PROGRAM_ALREADY_HANDLED_ID) {
+          mPlugin.handleFirstKnownProgramId(firstProgramId);
+        }
+      } catch (Throwable e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
@@ -66,7 +72,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     Log.d("info23", "callOnActivation " + isActivated());
     if(isConnected()) {
       try {
-        mPlugin.onActivation(PluginHandler.getPluginManager());
+        mPlugin.onDeactivation();
       } catch (RemoteException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();

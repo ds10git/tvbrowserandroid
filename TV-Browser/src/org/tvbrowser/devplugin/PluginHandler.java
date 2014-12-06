@@ -17,19 +17,23 @@
 package org.tvbrowser.devplugin;
 
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.ProgramUtils;
+import org.tvbrowser.tvbrowser.R;
 
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -39,6 +43,7 @@ import android.database.Cursor;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.RemoteException;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 /**
@@ -51,6 +56,9 @@ public final class PluginHandler {
   public static ArrayList<PluginServiceConnection> PLUGIN_LIST;
   
   private static PluginManager PLUGIN_MANAGER;
+  
+  public static final long FIRST_PROGRAM_ALREADY_HANDLED_ID = -2;
+  private static long FIRST_PROGRAM_ID = FIRST_PROGRAM_ALREADY_HANDLED_ID;
   
   public static final boolean pluginsAvailable() {
     return PLUGIN_LIST != null && !PLUGIN_LIST.isEmpty();
@@ -151,6 +159,37 @@ public final class PluginHandler {
     createPluginManager(context.getApplicationContext());
     
     if(PLUGIN_LIST == null) {
+      PrefUtils.initialize(context);
+      long lastInfo = PrefUtils.getLongValue(org.tvbrowser.tvbrowser.R.string.PLUGIN_LAST_ID_INFO_DATE, 0);
+      
+      Calendar test = Calendar.getInstance();
+      test.add(Calendar.DAY_OF_YEAR, -1);
+      test.set(Calendar.HOUR_OF_DAY, 0);
+      test.set(Calendar.MINUTE, 0);
+      test.set(Calendar.SECOND, 0);
+      test.set(Calendar.MILLISECOND, 0);
+      
+      FIRST_PROGRAM_ID = FIRST_PROGRAM_ALREADY_HANDLED_ID;
+      
+      if(lastInfo != test.getTimeInMillis()) {
+        Cursor firstProgram = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.DATA_KEY_STARTTIME +">="+test.getTimeInMillis(), null, TvBrowserContentProvider.KEY_ID + " LIMIT 1");
+        
+        try {
+          if(firstProgram.moveToFirst()) {
+            FIRST_PROGRAM_ID = firstProgram.getLong(firstProgram.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+          }
+          else {
+            FIRST_PROGRAM_ID = -1;
+          }
+        }finally {
+          IOUtils.closeCursor(firstProgram);
+        }
+        
+        Editor edit = PreferenceManager.getDefaultSharedPreferences(context).edit();
+        edit.putLong(context.getString(R.string.PLUGIN_LAST_ID_INFO_DATE), test.getTimeInMillis());
+        edit.commit();
+      }
+      
       PLUGIN_LIST = new ArrayList<PluginServiceConnection>();
       
       PackageManager packageManager = context.getPackageManager();
@@ -245,5 +284,9 @@ public final class PluginHandler {
     }
     
     return result;
+  }
+  
+  public static long getFirstProgramId() {
+    return FIRST_PROGRAM_ID;
   }
 }

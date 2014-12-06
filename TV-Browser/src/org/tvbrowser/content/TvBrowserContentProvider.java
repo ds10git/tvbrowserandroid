@@ -760,16 +760,13 @@ public class TvBrowserContentProvider extends ContentProvider {
                     if(projection != null) {
                       for(int i = 0; i < projection.length; i++) {
                         if(projection[i] != null) {
-                            if(projection[i].equals(KEY_ID)) {
-                              projection[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + KEY_ID + " AS " + KEY_ID;
-                            }
-                            else if(projection[i].equals(CHANNEL_KEY_CHANNEL_ID)) {
-                              projection[i] = CHANNEL_TABLE + "." + KEY_ID + " AS " + CHANNEL_KEY_CHANNEL_ID;
-                            }
-                            else if(projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
-                              projection[i] = "(strftime('%w', " + DATA_KEY_STARTTIME +
-                                  "/1000, 'unixepoch', 'localtime')+1) AS " + DATA_KEY_START_DAY_LOCAL;
-                            }
+                          if((projection[i].equals(KEY_ID) || projection[i].equals(CHANNEL_KEY_CHANNEL_ID))) {
+                            projection[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + projection[i]+ " AS " + projection[i];
+                          }
+                          else if(projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
+                            projection[i] = "(strftime('%w', " + DATA_KEY_STARTTIME +
+                                "/1000, 'unixepoch', 'localtime')+1) AS " + DATA_KEY_START_DAY_LOCAL;
+                          }
                         }
                       }
                     }
@@ -787,7 +784,7 @@ public class TvBrowserContentProvider extends ContentProvider {
                         selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+KEY_ID);
                       }
                       if(selection.contains(CHANNEL_KEY_CHANNEL_ID) && !selection.contains("."+CHANNEL_KEY_CHANNEL_ID)) {
-                        selection = selection.replace(CHANNEL_KEY_CHANNEL_ID, CHANNEL_TABLE + "."+CHANNEL_KEY_CHANNEL_ID);
+                        selection = selection.replace(CHANNEL_KEY_CHANNEL_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+CHANNEL_KEY_CHANNEL_ID);
                       }
                       if(!containsStartDayColumn && selection.contains(DATA_KEY_START_DAY_LOCAL)) {
                         selection = selection.replace(DATA_KEY_START_DAY_LOCAL, "(strftime('%w', " + DATA_KEY_STARTTIME +

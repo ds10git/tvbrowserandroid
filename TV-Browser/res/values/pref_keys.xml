@@ -476,4 +476,8 @@
     	<string name="EPG_DONATE_DONT_SHOW_AGAIN_YEAR">EPG_DONATE_DONT_SHOW_AGAIN_YEAR</string>
     	<string name="EPG_DONATE_FIRST_DATA_DOWNLOAD">EPG_DONATE_FIRST_DATA_DOWNLOAD</string>
     	<string name="EPG_DONATE_LAST_DATA_DOWNLOAD">EPG_DONATE_LAST_DATA_DOWNLOAD</string>
+    	
+    	<!-- Plugin keys -->
+    	<string name="PLUGIN_LAST_ID_INFO_DATE">PLUGIN_LAST_ID_INFO_DATE</string>
+    	<string name="PLUGIN_INFO_SHOWN">PLUGIN_INFO_SHOWN</string>
 </resources>
