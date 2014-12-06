@@ -637,11 +637,15 @@
     
     <string name="plugin_available_title">Verfügbare Plugins</string>
     <string name="plugin_open_google_play">In Google Play\u2122 anzeigen</string>
-    <string name="plugin_download_manually">Manuell herunterladen</string>
+    <string name="plugin_download_manually">Manuell herunterladen und installieren</string>
+    
+    <string name="plugin_available_not_title">Keine Plugins verfügbar</string>
+    <string name="plugin_available_not_message">Ein gibt keine Plugins, die installiert werden können.</string>
     
     <string name="plugin_info_title">Weitere Funktionen mit Plugins</string>
     <string name="plugin_info_message">TV-Browser kann mit Plugins um weitere Funktionen erweitert werden.\n\nSollten Sie eine Funktion vermissen, gibt es möglicherweise ein Plugin, was diese anbietet.\n\nMöchten Sie die Liste der verfügbaren Plugins jetzt öffnen (Sie können später auch über das Menü von TV-Browser nach Plugins suchen)?</string>
     <string name="plugin_info_load">Liste mit den Plugins jetzt öffnen</string>
+    <string name="plugin_info_donwload">Lade \'{0}\' herunter</string>
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
@@ -652,6 +656,7 @@
 			&bull; Kalender- und E-Mail-Export entfernt (können mit Plugins nachgerüstet werden)<br>
 			&bull; neuen Farbstil für das dunkle Thema hinzugefügt<br>
 			&bull; Unterstützung für Sender aus EPGdonate-Daten hinzugefügt<br>
+			&bull; Fehler im Einstellungs-Backup beseitigt<br>
         <br>
 		<h3>0.4.5.4</h3>
 		    &bull; Buttons in Werzeugleiste ausblenden, wenn Suche gestartet wird<br>

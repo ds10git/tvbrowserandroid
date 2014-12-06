@@ -23,6 +23,7 @@ import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.concurrent.TimeoutException;
 
 import org.tvbrowser.tvbrowser.IOUtils;
 import org.xmlpull.v1.XmlPullParser;
@@ -139,7 +140,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
         
     try {
       XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-      in = new InputStreamReader(IOUtils.decompressStream(new ByteArrayInputStream(IOUtils.loadUrl(PLUGIN_INFO_URL))),"UTF-8");
+      in = new InputStreamReader(IOUtils.decompressStream(new ByteArrayInputStream(IOUtils.loadUrl(PLUGIN_INFO_URL, 5000))),"UTF-8");
       
       XmlPullParser parser = factory.newPullParser();
       parser.setInput(in);
@@ -222,6 +223,9 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (XmlPullParserException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    } catch (TimeoutException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }

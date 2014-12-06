@@ -238,7 +238,9 @@ public final class PluginHandler {
       handler.postDelayed(new Runnable() {
         @Override
         public void run() {
-          Collections.sort(PLUGIN_LIST);
+          if(PLUGIN_LIST != null) {
+            Collections.sort(PLUGIN_LIST);
+          }
         }
       }, 5000);
     }
