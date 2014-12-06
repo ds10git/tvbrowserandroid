@@ -30,7 +30,10 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
@@ -212,7 +215,58 @@ public class IOUtils {
     return infoString.toString().trim();
   }
   
-  public static byte[] loadUrl(String urlString) throws MalformedURLException, IOException {
+  public static byte[] loadUrl(String urlString) throws MalformedURLException, IOException, TimeoutException {
+    return loadUrl(urlString, 30000);
+  }
+  
+  public static byte[] loadUrl(final String urlString, final int timeout) throws MalformedURLException, IOException, TimeoutException {
+    final AtomicInteger count = new AtomicInteger(0);
+    final AtomicReference<byte[]> loadData = new AtomicReference<byte[]>(null);
+    
+    new Thread("LOAD URL THREAD") {
+      public void run() {
+        FileOutputStream fout = null;
+        
+        try {
+          byte[] byteArr = loadUrl(urlString, count);
+          
+          loadData.set(byteArr);
+        }
+        catch(IOException e) {
+        }
+        finally {
+          if (fout != null) {
+            try {
+              fout.close();
+            } catch (IOException e) {}
+          }
+        }
+      };
+    }.start();
+    
+    Thread wait = new Thread("SAVE URL WAITING THREAD") {
+      public void run() {
+        while(loadData.get() == null && count.getAndIncrement() < (timeout / 100)) {
+          try {
+            sleep(100);
+          } catch (InterruptedException e) {}
+        }
+      };
+    };
+    wait.start();
+    
+    try {
+      wait.join();
+    } catch (InterruptedException e) {}
+    
+    if(loadData.get() == null) {
+      throw new TimeoutException("URL '"+urlString+"' could not be saved.");
+    }
+    
+    return loadData.get();
+  }
+  
+  private static byte[] loadUrl(String urlString, AtomicInteger timeoutCount) throws MalformedURLException, IOException {
     BufferedInputStream in = null;
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     
@@ -234,6 +288,10 @@ public class IOUtils {
       while ((count = in.read(temp, 0, 1024)) != -1) {
         if(temp != null && count > 0) {
           out.write(temp, 0, count);
+          
+          if(timeoutCount != null) {
+            timeoutCount.set(0);
+          }
         }
       }
     } 
@@ -269,13 +327,14 @@ public class IOUtils {
    */
   public static boolean saveUrl(final String filename, final String urlString, final int timeout) {
     final AtomicBoolean wasSaved = new AtomicBoolean(false);
+    final AtomicInteger count = new AtomicInteger(0);
     
     new Thread("SAVE URL THREAD") {
       public void run() {
         FileOutputStream fout = null;
         
         try {
-          byte[] byteArr = loadUrl(urlString);
+          byte[] byteArr = loadUrl(urlString, count);
           
           fout = new FileOutputStream(filename);
           fout.getChannel().truncate(0);
@@ -297,9 +356,7 @@ public class IOUtils {
     
     Thread wait = new Thread("SAVE URL WAITING THREAD") {
       public void run() {
-        int count = 0;
-        
-        while(!wasSaved.get() && count++ < (timeout / 100)) {
+        while(!wasSaved.get() && count.getAndIncrement() < (timeout / 100)) {
           try {
             sleep(100);
           } catch (InterruptedException e) {}

@@ -37,6 +37,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
@@ -56,6 +57,7 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.FragmentTransaction;
 import android.app.NotificationManager;
+import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.content.BroadcastReceiver;
 import android.content.ContentProviderOperation;
@@ -86,6 +88,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -103,10 +106,13 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.Html.TagHandler;
 import android.text.Spannable;
+import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ClickableSpan;
 import android.text.style.ReplacementSpan;
+import android.text.style.URLSpan;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
@@ -3646,12 +3652,12 @@ public class TvBrowser extends FragmentActivity implements
           updateProgressIcon(true);
           PluginDefinition[] availablePlugins = PluginDefinition.loadAvailablePluginDefinitions();
           
-          ArrayList<PluginDefinition> newPlugins = new ArrayList<PluginDefinition>();
+          final ArrayList<PluginDefinition> newPlugins = new ArrayList<PluginDefinition>();
           
           for(PluginDefinition def : availablePlugins) {
             String packageName = def.getPackageName();
             String[] services = def.getServices();
-            
+            Log.d("info50", def.toString());
             for(String service : services) {
               if(service.startsWith(".")) {
                 service = packageName + service;
@@ -3691,69 +3697,74 @@ public class TvBrowser extends FragmentActivity implements
             }
           }
           
-          StringBuilder newsText = new StringBuilder();
+          StringBuilder pluginsText = new StringBuilder();
           
           Collections.sort(newPlugins);
+          Log.d("info50", "size " + newPlugins.size());
           
           for(PluginDefinition news : newPlugins) {
-            if(newsText.length() > 0) {
-              newsText.append("<line>LINE</line>");
+            if(pluginsText.length() > 0) {
+              pluginsText.append("<line>LINE</line>");
             }
             
-  /*          newsText.append("<p>");
-            newsText.append("<i><u>");
-            newsText.append(DateFormat.getLongDateFormat(context).format(news.mDate)).append(":");
-            newsText.append("</u></i>");
-            newsText.append("</p>");*/
-            
-            newsText.append("<h3>");
-            newsText.append(news.getName());
+            pluginsText.append("<h3>");
+            pluginsText.append(news.getName());
             
             if(news.isUpdate()) {
-              newsText.append(" <i>(Update)</i>");
+              pluginsText.append(" <i>(Update)</i>");
             }
             
-            newsText.append("</h3>");
+            pluginsText.append("</h3>");
             
-            newsText.append(news.getDescription());
+            pluginsText.append(news.getDescription());
             
-            newsText.append("<p><i>");
-            newsText.append(getString(R.string.author)).append(" ");
-            newsText.append(news.getAuthor());
-            newsText.append(" <right>").append(getString(R.string.version)).append(" ");
-            newsText.append(news.getVersion());
-            newsText.append("</i></right></p>");
+            pluginsText.append("<p><i>");
+            pluginsText.append(getString(R.string.author)).append(" ");
+            pluginsText.append(news.getAuthor());
+            pluginsText.append(" <right>").append(getString(R.string.version)).append(" ");
+            pluginsText.append(news.getVersion());
+            pluginsText.append("</i></right></p>");
             
             if(news.isOnGooglePlay()) {
-              newsText.append("<p><a href=\"http://play.google.com/store/apps/details?id=");
-              newsText.append(news.getPackageName());
-              newsText.append("\">").append(getString(R.string.plugin_open_google_play)).append("</a></p>");
+              pluginsText.append("<p><a href=\"http://play.google.com/store/apps/details?id=");
+              pluginsText.append(news.getPackageName());
+              pluginsText.append("\">").append(getString(R.string.plugin_open_google_play)).append("</a></p>");
             }
             
             if(news.getDownloadLink() != null && news.getDownloadLink().trim().length() > 0) {
-              newsText.append("<p><a href=\"");
-              newsText.append(news.getDownloadLink());
-              newsText.append("\">").append(getString(R.string.plugin_download_manually)).append("</a></p>");
+              pluginsText.append("<p><a href=\"");
+              pluginsText.append(news.getDownloadLink().replace("http://", "plugin://").replace("https://", "plugins://"));
+              pluginsText.append("\">").append(getString(R.string.plugin_download_manually)).append("</a></p>");
             }
+          }
+          
+          String title = getString(R.string.plugin_available_title);
+          
+          if(newPlugins.isEmpty()) {
+            title = getString(R.string.plugin_available_not_title);
+            pluginsText.append(getString(R.string.plugin_available_not_message));
           }
           
           final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
           
-          builder.setTitle(getString(R.string.plugin_available_title));
+          builder.setTitle(title);
           builder.setCancelable(false);
-          builder.setMessage(Html.fromHtml(newsText.toString(),null,new NewsTagHandler()));
+          
+          builder.setMessage(getClickableText(Html.fromHtml(pluginsText.toString(),null,new NewsTagHandler())));
           
           builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-              PluginHandler.shutdownPlugins(getApplicationContext());
-              
-              handler.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                  PluginHandler.loadPlugins(TvBrowser.this, handler);
-                }
-              }, 2000);
+              if(!newPlugins.isEmpty()) {
+                PluginHandler.shutdownPlugins(getApplicationContext());
+                
+                handler.postDelayed(new Runnable() {
+                  @Override
+                  public void run() {
+                    PluginHandler.loadPlugins(TvBrowser.this, handler);
+                  }
+                }, 2000);
+              }
             }
           });
           
@@ -3771,6 +3782,116 @@ public class TvBrowser extends FragmentActivity implements
         }
       }.start();
     }
+  }
+  
+  boolean loadingPlugin = false;
+  
+  private void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span)
+  {
+    Log.d("info50", "" + span);
+    
+      int start = strBuilder.getSpanStart(span);
+      int end = strBuilder.getSpanEnd(span);
+      int flags = strBuilder.getSpanFlags(span);
+      ClickableSpan clickable = new ClickableSpan() {
+            public void onClick(View view) {
+              if(!loadingPlugin) {
+                loadingPlugin = true;
+                String url = span.getURL();
+                
+                if(url.startsWith("http://play.google.com/store/apps/details?id=")) {
+                  try {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url.replace("http://play.google.com/store/apps", "market:/"))));
+                  } catch (android.content.ActivityNotFoundException anfe) {
+                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
+                  }
+                  
+                  loadingPlugin = false;
+                }
+                else if(url.startsWith("plugin://") || url.startsWith("plugins://")) {
+                  File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
+                  
+                  if(!parent.isDirectory()) {
+                    parent = getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
+                  }
+                  
+                  final File path = new File(parent,"tvbrowserdata");
+                  
+                  if(!path.isDirectory()) {
+                    path.mkdirs();
+                  }
+                  
+                  if(url.startsWith("plugin://")) {
+                    url = url.replace("plugin://", "http://");
+                  }
+                  else if(url.startsWith("plugins://")) {
+                    url = url.replace("plugins://", "https://");
+                  }
+                  
+                  String name = url.substring(url.lastIndexOf("/")+1);
+                  
+                  final File pluginFile = new File(path, name);
+                  
+                  if(pluginFile.isFile()) {
+                    pluginFile.delete();
+                  }
+                  
+                  Log.d("info50", "DOWNLOAD " + url);
+                  
+                  final String downloadUrl = url;
+                  
+                  handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      AsyncTask<String, Void, Boolean> async = new AsyncTask<String, Void, Boolean>() {
+                        private ProgressDialog mProgress = new ProgressDialog(TvBrowser.this);
+                        
+                        protected void onPreExecute() {
+                          mProgress.setMessage(getString(R.string.plugin_info_donwload).replace("{0}", pluginFile.getName()));
+                          mProgress.show();
+                        };
+                        
+                        @Override
+                        protected Boolean doInBackground(String... params) {
+                          return IOUtils.saveUrl(params[0], params[1], 5000);
+                        }
+                        
+                        protected void onPostExecute(Boolean result) {
+                          mProgress.hide();
+                          Log.d("info50", "ISFILE " + pluginFile.getAbsolutePath() + " " + pluginFile.isFile());
+  
+                          if(result) {
+                            Intent intent = new Intent(Intent.ACTION_VIEW);
+                            intent.setDataAndType(Uri.fromFile(pluginFile),"application/vnd.android.package-archive");
+                            TvBrowser.this.startActivity(intent);
+                          }
+                          
+                          loadingPlugin = false;
+                        };
+                      };
+                      
+                      async.execute(pluginFile.toString(), downloadUrl);
+                    }
+                  });
+                }
+                else {
+                  loadingPlugin = false;
+                }
+              }
+            }
+      };
+      strBuilder.setSpan(clickable, start, end, flags);
+      strBuilder.removeSpan(span);
+  }
+
+  private SpannableStringBuilder getClickableText(CharSequence sequence)
+  {
+          SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
+          URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);   
+          for(URLSpan span : urls) {
+              makeLinkClickable(strBuilder, span);
+          }
+      return strBuilder;    
   }
   
   @Override
