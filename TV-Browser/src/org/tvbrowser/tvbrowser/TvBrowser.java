@@ -3480,49 +3480,51 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   private void showNews() {
-    final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
-    
-    if(pref.getBoolean(getString(R.string.PREF_NEWS_SHOW), getResources().getBoolean(R.bool.pref_news_show_default))) {
-      long lastShown = pref.getLong(getString(R.string.NEWS_DATE_LAST_SHOWN), 0);
-      long lastKnown = pref.getLong(getString(R.string.NEWS_DATE_LAST_KNOWN), 0);
+    if(!selectingChannels) {
+      final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
       
-      final String news = pref.getString(getString(R.string.NEWS_TEXT), "");
-      
-      if(lastShown < lastKnown && news.trim().length() > 0) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-            
-            builder.setTitle(R.string.title_news);
-            builder.setCancelable(false);
-            builder.setMessage(Html.fromHtml(news,null,new NewsTagHandler()));
-            
-            builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                Editor edit = pref.edit();
-                edit.putLong(getString(R.string.NEWS_DATE_LAST_SHOWN), System.currentTimeMillis());
-                edit.putBoolean(getString(R.string.PREF_NEWS_SHOW), false);
-                edit.commit();
-                
-                showPluginInfo();
-              }
-            });
-            
-            AlertDialog d = builder.create();
-            d.show();
-            
-            ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
-          }
-        });
+      if(pref.getBoolean(getString(R.string.PREF_NEWS_SHOW), getResources().getBoolean(R.bool.pref_news_show_default))) {
+        long lastShown = pref.getLong(getString(R.string.NEWS_DATE_LAST_SHOWN), 0);
+        long lastKnown = pref.getLong(getString(R.string.NEWS_DATE_LAST_KNOWN), 0);
+        
+        final String news = pref.getString(getString(R.string.NEWS_TEXT), "");
+        
+        if(lastShown < lastKnown && news.trim().length() > 0) {
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+              
+              builder.setTitle(R.string.title_news);
+              builder.setCancelable(false);
+              builder.setMessage(Html.fromHtml(news,null,new NewsTagHandler()));
+              
+              builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                  Editor edit = pref.edit();
+                  edit.putLong(getString(R.string.NEWS_DATE_LAST_SHOWN), System.currentTimeMillis());
+                  edit.putBoolean(getString(R.string.PREF_NEWS_SHOW), false);
+                  edit.commit();
+                  
+                  showPluginInfo();
+                }
+              });
+              
+              AlertDialog d = builder.create();
+              d.show();
+              
+              ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+            }
+          });
+        }
+        else {
+          showPluginInfo();
+        }
       }
       else {
         showPluginInfo();
       }
-    }
-    else {
-      showPluginInfo();
     }
   }
   
@@ -3953,7 +3955,9 @@ public class TvBrowser extends FragmentActivity implements
     
     mSearchExpanded = false;
     
-    addOnActionExpandListener(menu.findItem(R.id.search));
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+      addOnActionExpandListener(menu.findItem(R.id.search));
+    }
     
    // menu.findItem(R.id.action_synchronize_dont_want_to_see).setVisible(false);
     menu.findItem(R.id.action_synchronize_favorites).setVisible(false);
@@ -3997,7 +4001,7 @@ public class TvBrowser extends FragmentActivity implements
 
   @SuppressLint("NewApi")
   private void addOnActionExpandListener(MenuItem search) {
-    if(search != null && Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+    if(search != null) {
       search.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
         @Override
         public boolean onMenuItemActionExpand(MenuItem item) {
