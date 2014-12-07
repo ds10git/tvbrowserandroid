@@ -25,6 +25,7 @@ import org.tvbrowser.devplugin.Channel;
 import org.tvbrowser.devplugin.PluginManager;
 import org.tvbrowser.devplugin.PluginMenu;
 import org.tvbrowser.devplugin.Program;
+import org.tvbrowser.devplugin.ReceiveTarget;
 
 /**
  * Interface for Plugins of the TV-Browser app.
@@ -117,6 +118,23 @@ interface Plugin {
 	 *       dismiss them all.
 	 */
 	void handleFirstKnownProgramId(in long programId);
+	
+	
+	/**
+	 * Gets the available ReceiveTargets for this Plugin.
+	 * ATTENTION: Currently not used, included only for future use.
+	 * @return The ReceiveTargets for this Plugin or <code>null</code>
+	 *         if the Plugin cannot receive programs.
+	 */
+	ReceiveTarget[] getAvailableProgramReceiveTargets();
+	
+	/**
+	 * Receive programs with a target to handle them according to target.
+	 * ATTENTION: Currently not used, included only for future use.
+	 * @param programs The programs that are send with the target.
+	 * @param target The target for handling of the programs.
+	 */
+	void receivePrograms(in Program[] programs, in ReceiveTarget target);
 	
 	/**
 	 * Called at any activation of this Plugin

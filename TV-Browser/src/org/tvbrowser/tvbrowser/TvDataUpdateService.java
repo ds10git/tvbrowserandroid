@@ -3484,30 +3484,36 @@ public class TvDataUpdateService extends Service {
         values.put(TvBrowserContentProvider.DATA_KEY_UNIX_DATE, update.getDate());
         values.put(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, update.getChannelID());
       }
-                  
+      
+      int startMinutes = 0;
+      
       for(byte field = 0; field < count; field++) {
         byte fieldType = (byte)in.read();
         String columnName = null;
         
         switch(fieldType) {
           case 1: {
-                    int startMinutes = in.readShort();                          
-                    long time = update.getDate() + (startMinutes * 60000L);
+                    startMinutes = in.readShort();                          
+                    long startTime = update.getDate() + (startMinutes * 60000L);
                     
-                    values.put(columnName = TvBrowserContentProvider.DATA_KEY_STARTTIME, time);
+                    values.put(columnName = TvBrowserContentProvider.DATA_KEY_STARTTIME, startTime);
                     values.put(TvBrowserContentProvider.DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT, startMinutes);
                           
                     columnList.remove(TvBrowserContentProvider.DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT);
                   }break;
           case 2: {
                     int endMinutes = in.readShort();
-                    long time = update.getDate() + (endMinutes * 60000L);
-                                
-                    values.put(columnName = TvBrowserContentProvider.DATA_KEY_ENDTIME, time);
+                    long endTime = update.getDate() + (endMinutes * 60000L);
                     
-                    if(endMinutes > 1440) {
+                    if(endMinutes <= startMinutes) {
+                      endTime += (1440 * 60000L);
+                    }
+                    
+                    if(endMinutes >= 1440) {
                       endMinutes -= 1440;
                     }
+                    
+                    values.put(columnName = TvBrowserContentProvider.DATA_KEY_ENDTIME, endTime);
                     
                     values.put(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT, endMinutes);
                     columnList.remove(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT);
