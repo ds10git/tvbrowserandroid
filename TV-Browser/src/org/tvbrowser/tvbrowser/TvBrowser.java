@@ -155,10 +155,11 @@ import com.example.android.listviewdragginganimation.StableArrayAdapter;
 
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
-  private static final boolean TEST_VERSION = true;
+  private static final boolean TEST_VERSION = false;
   
   private static final int SHOW_PREFERENCES = 1;
   private static final int OPEN_FILTER_EDIT = 2;
+  private static final int INSTALL_PLUGIN = 3;
   
   private ChannelFilterValues mCurrentChannelFilter;
   private String mCurrentChannelFilterId;
@@ -3146,11 +3147,15 @@ public class TvBrowser extends FragmentActivity implements
     if(requestCode == SHOW_PREFERENCES) {
       updateFromPreferences();
     }
-    
-    if(requestCode == OPEN_FILTER_EDIT) {
+    else if(requestCode == OPEN_FILTER_EDIT) {
       updateFromFilterEdit();
       
       sendChannelFilterUpdate();
+    }
+    else if(requestCode == INSTALL_PLUGIN && mCurrentDownloadPlugin != null && mCurrentDownloadPlugin.isFile()) {
+      if(!mCurrentDownloadPlugin.delete()) {
+        mCurrentDownloadPlugin.deleteOnExit();
+      }
     }
   }
   
@@ -3789,7 +3794,8 @@ public class TvBrowser extends FragmentActivity implements
     }
   }
   
-  boolean loadingPlugin = false;
+  private boolean mLoadingPlugin = false;
+  private File mCurrentDownloadPlugin;
   
   private void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span)
   {
@@ -3800,8 +3806,8 @@ public class TvBrowser extends FragmentActivity implements
       int flags = strBuilder.getSpanFlags(span);
       ClickableSpan clickable = new ClickableSpan() {
             public void onClick(View view) {
-              if(!loadingPlugin) {
-                loadingPlugin = true;
+              if(!mLoadingPlugin) {
+                mLoadingPlugin = true;
                 String url = span.getURL();
                 
                 if(url.startsWith("http://play.google.com/store/apps/details?id=")) {
@@ -3811,7 +3817,7 @@ public class TvBrowser extends FragmentActivity implements
                     startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
                   }
                   
-                  loadingPlugin = false;
+                  mLoadingPlugin = false;
                 }
                 else if(url.startsWith("plugin://") || url.startsWith("plugins://")) {
                   File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
@@ -3835,10 +3841,10 @@ public class TvBrowser extends FragmentActivity implements
                   
                   String name = url.substring(url.lastIndexOf("/")+1);
                   
-                  final File pluginFile = new File(path, name);
+                  mCurrentDownloadPlugin = new File(path, name);
                   
-                  if(pluginFile.isFile()) {
-                    pluginFile.delete();
+                  if(mCurrentDownloadPlugin.isFile()) {
+                    mCurrentDownloadPlugin.delete();
                   }
                   
                   Log.d("info50", "DOWNLOAD " + url);
@@ -3849,38 +3855,41 @@ public class TvBrowser extends FragmentActivity implements
                     @Override
                     public void run() {
                       AsyncTask<String, Void, Boolean> async = new AsyncTask<String, Void, Boolean>() {
-                        private ProgressDialog mProgress = new ProgressDialog(TvBrowser.this);
+                        private ProgressDialog mProgress;
+                        private File mPluginFile;
                         
                         protected void onPreExecute() {
-                          mProgress.setMessage(getString(R.string.plugin_info_donwload).replace("{0}", pluginFile.getName()));
+                          mProgress = new ProgressDialog(TvBrowser.this);
+                          mProgress.setMessage(getString(R.string.plugin_info_donwload).replace("{0}", mCurrentDownloadPlugin.getName()));
                           mProgress.show();
                         };
                         
                         @Override
                         protected Boolean doInBackground(String... params) {
+                          mPluginFile = new File(params[0]);
                           return IOUtils.saveUrl(params[0], params[1], 15000);
                         }
                         
                         protected void onPostExecute(Boolean result) {
                           mProgress.hide();
-                          Log.d("info50", "ISFILE " + pluginFile.getAbsolutePath() + " " + pluginFile.isFile());
+                          Log.d("info50", "ISFILE " + mPluginFile.getAbsolutePath() + " " + mPluginFile.isFile());
   
                           if(result) {
                             Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.fromFile(pluginFile),"application/vnd.android.package-archive");
-                            TvBrowser.this.startActivity(intent);
+                            intent.setDataAndType(Uri.fromFile(mPluginFile),"application/vnd.android.package-archive");
+                            TvBrowser.this.startActivityForResult(intent, INSTALL_PLUGIN);
                           }
                           
-                          loadingPlugin = false;
+                          mLoadingPlugin = false;
                         };
                       };
                       
-                      async.execute(pluginFile.toString(), downloadUrl);
+                      async.execute(mCurrentDownloadPlugin.toString(), downloadUrl);
                     }
                   });
                 }
                 else {
-                  loadingPlugin = false;
+                  mLoadingPlugin = false;
                 }
               }
             }
