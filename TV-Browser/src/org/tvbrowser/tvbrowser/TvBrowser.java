@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -37,7 +38,7 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
@@ -154,7 +155,7 @@ import com.example.android.listviewdragginganimation.StableArrayAdapter;
 
 public class TvBrowser extends FragmentActivity implements
     ActionBar.TabListener {
-  private static final boolean TEST_VERSION = false;
+  private static final boolean TEST_VERSION = true;
   
   private static final int SHOW_PREFERENCES = 1;
   private static final int OPEN_FILTER_EDIT = 2;
@@ -542,6 +543,8 @@ public class TvBrowser extends FragmentActivity implements
     mUpdateDoneBroadcastReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
+        PluginHandler.loadFirstProgramId(TvBrowser.this.getApplicationContext());
+        
         updateProgressIcon(false);
         showNews();
       }
@@ -3655,44 +3658,46 @@ public class TvBrowser extends FragmentActivity implements
           final ArrayList<PluginDefinition> newPlugins = new ArrayList<PluginDefinition>();
           
           for(PluginDefinition def : availablePlugins) {
-            String packageName = def.getPackageName();
-            String[] services = def.getServices();
-            Log.d("info50", def.toString());
-            for(String service : services) {
-              if(service.startsWith(".")) {
-                service = packageName + service;
-              }
-              
-              String[] parts = service.split(":");
-              
-              boolean wasAdded = false;
-              boolean wasFound = false;
-              
-              for(PluginServiceConnection connection : PluginHandler.PLUGIN_LIST) {
-                if(connection.getId().equals(parts[0])) {
-                  wasFound = true;
-                  
-                  try {
-                    String currentVersion = connection.getPlugin().getVersion();
+            if(Build.VERSION.SDK_INT >= def.getMinApiVersion()) {
+              String packageName = def.getPackageName();
+              String[] services = def.getServices();
+              Log.d("info50", def.toString());
+              for(String service : services) {
+                if(service.startsWith(".")) {
+                  service = packageName + service;
+                }
+                
+                String[] parts = service.split(":");
+                
+                boolean wasAdded = false;
+                boolean wasFound = false;
+                
+                for(PluginServiceConnection connection : PluginHandler.PLUGIN_LIST) {
+                  if(connection.getId().equals(parts[0])) {
+                    wasFound = true;
                     
-                    if(!currentVersion.equals(parts[1])) {
-                      newPlugins.add(def);
-                      def.setIsUpdate();
-                      wasAdded = true;
-                      break;
+                    try {
+                      String currentVersion = connection.getPlugin().getVersion();
+                      
+                      if(!currentVersion.equals(parts[1])) {
+                        newPlugins.add(def);
+                        def.setIsUpdate();
+                        wasAdded = true;
+                        break;
+                      }
+                    } catch (RemoteException e) {
+                      // TODO Auto-generated catch block
+                      e.printStackTrace();
                     }
-                  } catch (RemoteException e) {
-                    // TODO Auto-generated catch block
-                    e.printStackTrace();
                   }
                 }
-              }
-              
-              if(wasAdded) {
-                break;
-              }
-              else if(!wasFound) {
-                newPlugins.add(def);
+                
+                if(wasAdded) {
+                  break;
+                }
+                else if(!wasFound) {
+                  newPlugins.add(def);
+                }
               }
             }
           }
@@ -3853,7 +3858,7 @@ public class TvBrowser extends FragmentActivity implements
                         
                         @Override
                         protected Boolean doInBackground(String... params) {
-                          return IOUtils.saveUrl(params[0], params[1], 5000);
+                          return IOUtils.saveUrl(params[0], params[1], 15000);
                         }
                         
                         protected void onPostExecute(Boolean result) {
@@ -3902,6 +3907,27 @@ public class TvBrowser extends FragmentActivity implements
         showUserSetting(false);
       }
       break;
+      case R.id.action_test_download: 
+        new Thread() {
+          public void run() {
+            try {
+              Log.d("info51", "TESTDOWNLOAD");
+                byte[] load = IOUtils.loadUrl("http://www.tvbrowser.org/downloads/tvbrowser_3.3.1_mac.dmg");
+                
+                Log.d("info51", "loaded " + load.length);
+              } catch (MalformedURLException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              } catch (IOException e) {
+                // TODO Auto-generated catch block
+                e.printStackTrace();
+              } catch (TimeoutException e) {
+                Log.d("info51", "timeout", e);
+              }
+            
+          };
+        }.start();
+        break;
       case R.id.menu_tvbrowser_action_create_favorite: UiUtils.editFavorite(null, TvBrowser.this, null);break;
       case R.id.action_donation: showDonationInfo(); break;
       case R.id.action_search_plugins: 
@@ -4073,6 +4099,7 @@ public class TvBrowser extends FragmentActivity implements
     menu.findItem(R.id.menu_tvbrowser_action_settings_plugins).setEnabled(PluginHandler.pluginsAvailable());
     
     menu.findItem(R.id.action_reset).setVisible(TEST_VERSION);
+    menu.findItem(R.id.action_test_download).setVisible(TEST_VERSION);
     
     mSearchExpanded = false;
     

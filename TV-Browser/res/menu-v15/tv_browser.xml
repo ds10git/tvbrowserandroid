@@ -196,4 +196,8 @@
 	    android:orderInCategory="100"
 	    android:showAsAction="never"
 	    android:title="Reset data update date"/>
+    <item android:id="@+id/action_test_download"
+	    android:orderInCategory="100"
+	    android:showAsAction="never"
+	    android:title="TEST DOWNLOAD"/>
 </menu>
