@@ -247,6 +247,7 @@ public class IOUtils {
     Thread wait = new Thread("SAVE URL WAITING THREAD") {
       public void run() {
         while(loadData.get() == null && count.getAndIncrement() < (timeout / 100)) {
+          Log.d("info51","timecount " + count.get());
           try {
             sleep(100);
           } catch (InterruptedException e) {}
@@ -274,7 +275,7 @@ public class IOUtils {
       URLConnection connection;
       
       connection = new URL(urlString).openConnection();
-      connection.setConnectTimeout(10000);
+      connection.setConnectTimeout(15000);
       
       if(urlString.toLowerCase().endsWith(".gz")) {
         connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
@@ -286,6 +287,7 @@ public class IOUtils {
       int count;
       
       while ((count = in.read(temp, 0, 1024)) != -1) {
+        Log.d("info51","READ COUNT " + count);
         if(temp != null && count > 0) {
           out.write(temp, 0, count);
           
@@ -339,6 +341,8 @@ public class IOUtils {
           fout = new FileOutputStream(filename);
           fout.getChannel().truncate(0);
           fout.write(byteArr, 0, byteArr.length);
+          fout.flush();
+          fout.close();
           
           wasSaved.set(true);
         }
@@ -357,6 +361,7 @@ public class IOUtils {
     Thread wait = new Thread("SAVE URL WAITING THREAD") {
       public void run() {
         while(!wasSaved.get() && count.getAndIncrement() < (timeout / 100)) {
+          Log.d("info51","timecount " + count.get() + " " + (timeout / 100));
           try {
             sleep(100);
           } catch (InterruptedException e) {}
@@ -367,7 +372,9 @@ public class IOUtils {
         
     try {
       wait.join();
-    } catch (InterruptedException e) {}
+    } catch (InterruptedException e) {
+      Log.d("info51", "INTERRUPTED", e);
+    }
     
     return wasSaved.get();
   }

@@ -40,6 +40,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   
   private static final String XML_ELEMENT_ROOT = "plugin";
   private static final String XML_ATTRIBUTE_PACKAGE = "package";
+  private static final String XML_ATTRIBUTE_MIN_API = "minApi";
   private static final String XML_ATTRIBUTE_VERSION = "version";
   private static final String XML_ATTRIBUTE_AUTHOR = "author";
   private static final String XML_ATTRIBUTE_ON_GOOGLE_PLAY = "isOnGooglePlay";
@@ -67,17 +68,20 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   
   private String mDownloadLink;
   
+  private int mMinApiVersion;
+  
   private boolean mIsOnGooglePlay;
   private boolean mIsUpdate;
   
   private String[] mServices;
   
-  public PluginDefinition(String packageName, String version, String author, boolean isOnGooglePlay) {
-    this(packageName, version, author, isOnGooglePlay, null, null, null, null, null, null);
+  public PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay) {
+    this(packageName, minApiVersion, version, author, isOnGooglePlay, null, null, null, null, null, null);
   }
   
-  public PluginDefinition(String packageName, String version, String author, boolean isOnGooglePlay, String nameDe, String nameEn, String descriptionDe, String descriptionEn, String downloadLink, String[] services) {
+  public PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay, String nameDe, String nameEn, String descriptionDe, String descriptionEn, String downloadLink, String[] services) {
     mPackageName = packageName;
+    mMinApiVersion = minApiVersion;
     mVersion = version;
     mAuthor = author;
     mIsOnGooglePlay = isOnGooglePlay;
@@ -95,6 +99,10 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   
   public String getPackageName() {
     return getValue(mPackageName);
+  }
+  
+  public int getMinApiVersion() {
+    return mMinApiVersion;
   }
   
   public String getVersion() {
@@ -140,7 +148,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
         
     try {
       XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-      in = new InputStreamReader(IOUtils.decompressStream(new ByteArrayInputStream(IOUtils.loadUrl(PLUGIN_INFO_URL, 5000))),"UTF-8");
+      in = new InputStreamReader(IOUtils.decompressStream(new ByteArrayInputStream(IOUtils.loadUrl(PLUGIN_INFO_URL, 15000))),"UTF-8");
       
       XmlPullParser parser = factory.newPullParser();
       parser.setInput(in);
@@ -172,7 +180,15 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
                 author = "Unknown";
               }
               
-              current = new PluginDefinition(parser.getAttributeValue(null, XML_ATTRIBUTE_PACKAGE), parser.getAttributeValue(null, XML_ATTRIBUTE_VERSION), author, isOnGooglePlay.equals("true"));
+              int minApi = 11;
+              
+              String readApi = parser.getAttributeValue(null, XML_ATTRIBUTE_MIN_API);
+              
+              if(readApi != null) {
+                minApi = Integer.parseInt(readApi);
+              }
+              
+              current = new PluginDefinition(parser.getAttributeValue(null, XML_ATTRIBUTE_PACKAGE), minApi, parser.getAttributeValue(null, XML_ATTRIBUTE_VERSION), author, isOnGooglePlay.equals("true"));
             }             
             else if(tagName.equals(XML_ELEMENT_SERVICES)) {
               serviceList.clear();

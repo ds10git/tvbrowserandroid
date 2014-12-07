@@ -1632,7 +1632,7 @@ public class TvDataUpdateService extends Service {
             
             if(logoUrl != null && logoUrl.length() > 0) {
               try {
-                byte[] blob = IOUtils.loadUrl(logoUrl, 5000);
+                byte[] blob = IOUtils.loadUrl(logoUrl, 10000);
                 
                 values.put(TvBrowserContentProvider.CHANNEL_KEY_LOGO, blob);
               }catch(Exception e1) {}

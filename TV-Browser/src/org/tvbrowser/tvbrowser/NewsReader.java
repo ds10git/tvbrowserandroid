@@ -56,7 +56,7 @@ public class NewsReader {
     try {
       XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
       XmlPullParser myParser = xmlPullParserFactory.newPullParser();
-      myParser.setInput(new InputStreamReader(new ByteArrayInputStream(IOUtils.loadUrl(NEWS_URL, 5000)),"ISO-8859-15"));
+      myParser.setInput(new InputStreamReader(new ByteArrayInputStream(IOUtils.loadUrl(NEWS_URL, 10000)),"ISO-8859-15"));
       
       ArrayList<News> newsList = new ArrayList<News>();
       
