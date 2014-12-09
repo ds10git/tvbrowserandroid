@@ -299,17 +299,19 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
                 Method setItemChecked = mFavoriteSelection.getClass().getMethod("setItemChecked", new Class<?>[]{int.class,boolean.class});
                 setItemChecked.invoke(mFavoriteSelection, new Object[]{position.get(),true});
                 
-                mCurrentFavoriteSelection = mFavoriteList.get(position.get());
-                mWhereClause = mCurrentFavoriteSelection.getWhereClause();
-                
-                handler.post(new Runnable() {
-                  @Override
-                  public void run() {
-                    if(!isDetached() && getActivity() != null) {
-                      getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
+                if(position.get() < mFavoriteList.size()) {
+                  mCurrentFavoriteSelection = mFavoriteList.get(position.get());
+                  mWhereClause = mCurrentFavoriteSelection.getWhereClause();
+                  
+                  handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      if(!isDetached() && getActivity() != null) {
+                        getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
+                      }
                     }
-                  }
-                });
+                  });
+                }
               } catch (Exception e) {
                 Log.d("info2", " tt ", e);
               }
