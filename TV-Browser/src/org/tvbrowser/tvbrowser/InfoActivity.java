@@ -98,15 +98,20 @@ public class InfoActivity extends Activity {
       
       int selection = 0;
       
+      if(currentValue == -2) {
+        selection = 1;
+      }
+      
       for(int i = 0; i < values.size(); i++) {
         if(values.get(i) == currentValue) {
-          selection = i+1;
+          selection = i+2;
           break;
         }
       }
       
       ArrayList<String> formatedTimes = new ArrayList<String>();
       formatedTimes.add(getString(R.string.button_now));
+      formatedTimes.add(getString(R.string.button_after));
       
       for(int i = 0; i < values.size(); i++) {
         Calendar cal = Calendar.getInstance();
@@ -125,8 +130,11 @@ public class InfoActivity extends Activity {
         public void onClick(DialogInterface dialog, int which) {
           int value = -1;
           
-          if(which > 0) {
-            value = values.get(which-1);
+          if(which == 1) {
+            value = -2;
+          }
+          else if(which > 1) {
+            value = values.get(which-2);
           }
           
           Editor edit = pref.edit();

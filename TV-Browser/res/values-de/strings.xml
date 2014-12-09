@@ -36,7 +36,7 @@
     <string name="title_favorites">Lieblingssendungen</string>
     <string name="button_now">Jetzt</string>
     <string name="button_all_channels">Alle</string>
-    <string name="button_after">Danach</string>
+    <string name="button_after">Als Nächstes</string>
     <string name="button_before">Davor</string>
     <string name="button_at">Genaue Zeit</string>
     <string name="no_channels">Keine Sender vorhanden.</string>
@@ -651,6 +651,7 @@
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.6</h2>
 			&bull; erste Version der Plugin-Schnittstelle hinzugefügt<br>
+			&bull; "Als Nächstes" zum "Jetzt läuft"-Widget hinzugefügt<br>
 			&bull; Suche nach Plugins hinzugefügt<br>
 			&bull; manuelle Markierungsfunktion entfernt (kann mit Plugin nachgerüstet werden)<br>
 			&bull; Kalender- und E-Mail-Export entfernt (können mit Plugins nachgerüstet werden)<br>
