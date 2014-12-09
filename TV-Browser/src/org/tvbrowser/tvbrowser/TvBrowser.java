@@ -613,7 +613,7 @@ public class TvBrowser extends FragmentActivity implements
       
       boolean show = firstTimeoutReached && lastTimoutReached && alreadyShowTimeoutReached && !alreadyShownThisMonth && !dontShowAgainThisYear && radomShow;
       
-      Log.d("info21", "firstTimeoutReached: " + firstTimeoutReached + " lastTimoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " radomShow: " + radomShow + " SHOW: " + show);
+      Log.d("info21", "firstTimeoutReached (" + ((now - firstDownload)/(24 * 60 * 60000L)) + "): " + firstTimeoutReached + " lastTimoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " randomShow: " + radomShow + " SHOW: " + show);
       
       if(show) {
         AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
