@@ -657,7 +657,7 @@
     <string name="plugin_available_not_message">No Plugins were found that can be installed.</string>
     
     <string name="plugin_info_title">More functions with Plugins</string>
-    <string name="plugin_info_message">TV-Browser can be extended with new function with Plugins.\n\nIf you miss a function you may find it in a Plugin.\n\nDo you want to open the list with the available Plugins now (you later can search for Plugins from the menu of TV-Browser)?</string>
+    <string name="plugin_info_message">TV-Browser can be extended with new functions by Plugins.\n\nIf you miss a function you may find it in a Plugin.\n\nDo you want to open the list with the available Plugins now (you later can search for Plugins from the menu of TV-Browser)?</string>
     <string name="plugin_info_load">Open list with available Plugins now</string>
     <string name="plugin_info_donwload">Downloading \'{0}\'</string>
     

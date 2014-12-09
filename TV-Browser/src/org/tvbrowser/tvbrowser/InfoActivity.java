@@ -31,6 +31,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
@@ -96,22 +97,28 @@ public class InfoActivity extends Activity {
         Collections.sort(values);
       }
       
+      final boolean hasNext = Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN;
+      final int indexOffset = hasNext ? 1 : 0;
+      
       int selection = 0;
       
-      if(currentValue == -2) {
+      if(currentValue == -2 && hasNext) {
         selection = 1;
       }
       
       for(int i = 0; i < values.size(); i++) {
         if(values.get(i) == currentValue) {
-          selection = i+2;
+          selection = i+1+indexOffset;
           break;
         }
       }
       
       ArrayList<String> formatedTimes = new ArrayList<String>();
       formatedTimes.add(getString(R.string.button_now));
-      formatedTimes.add(getString(R.string.button_after));
+      
+      if(hasNext) {
+        formatedTimes.add(getString(R.string.button_after));
+      }
       
       for(int i = 0; i < values.size(); i++) {
         Calendar cal = Calendar.getInstance();
@@ -130,11 +137,11 @@ public class InfoActivity extends Activity {
         public void onClick(DialogInterface dialog, int which) {
           int value = -1;
           
-          if(which == 1) {
+          if(which == 1 && hasNext) {
             value = -2;
           }
-          else if(which > 1) {
-            value = values.get(which-2);
+          else if(which > 1 || (!hasNext && which > 0)) {
+            value = values.get(which-1-indexOffset);
           }
           
           Editor edit = pref.edit();

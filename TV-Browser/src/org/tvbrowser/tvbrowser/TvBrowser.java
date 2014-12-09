@@ -3916,27 +3916,6 @@ public class TvBrowser extends FragmentActivity implements
         showUserSetting(false);
       }
       break;
-      case R.id.action_test_download: 
-        new Thread() {
-          public void run() {
-            try {
-              Log.d("info51", "TESTDOWNLOAD");
-                byte[] load = IOUtils.loadUrl("http://www.tvbrowser.org/downloads/tvbrowser_3.3.1_mac.dmg");
-                
-                Log.d("info51", "loaded " + load.length);
-              } catch (MalformedURLException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-              } catch (IOException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-              } catch (TimeoutException e) {
-                Log.d("info51", "timeout", e);
-              }
-            
-          };
-        }.start();
-        break;
       case R.id.menu_tvbrowser_action_create_favorite: UiUtils.editFavorite(null, TvBrowser.this, null);break;
       case R.id.action_donation: showDonationInfo(); break;
       case R.id.action_search_plugins: 
@@ -4108,7 +4087,6 @@ public class TvBrowser extends FragmentActivity implements
     menu.findItem(R.id.menu_tvbrowser_action_settings_plugins).setEnabled(PluginHandler.pluginsAvailable());
     
     menu.findItem(R.id.action_reset).setVisible(TEST_VERSION);
-    menu.findItem(R.id.action_test_download).setVisible(TEST_VERSION);
     
     mSearchExpanded = false;
     
