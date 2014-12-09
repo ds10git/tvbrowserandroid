@@ -42,7 +42,7 @@
     <string name="button_2015">20:15</string>
     <string name="button_23">23:00</string>
     <string name="button_before">Before</string>
-    <string name="button_after">After</string>
+    <string name="button_after">Next</string>
     <string name="button_at">At time</string>
     <string name="no_channels">No channels selected</string>
     <string name="select_channels">Select channels now</string>
@@ -665,6 +665,7 @@
     <string name="info_version_new"><![CDATA[
 		<h2>0.4.6</h2>
 		    &bull; added first version of the Plugin interface<br>
+		    &bull; added "Next" to running widget<br>
 		    &bull; added search for Plugins<br>
 		    &bull; removed manually markings function (can be integrated with Plugins)<br>
 		    &bull; removed calendar export and mail functionality (can be integrated with Plugins)<br>

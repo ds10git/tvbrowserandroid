@@ -40,6 +40,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -88,9 +89,17 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       
       removeAlarm();
       
+      int currentTime = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(mAppWidgetId + "_" + mContext.getString(R.string.WIDGET_CONFIG_RUNNING_TIME), getResources().getInteger(R.integer.widget_congig_running_time_default));
+      
+      String startTimeColumn = TvBrowserContentProvider.DATA_KEY_STARTTIME;
+      
+      if(currentTime == -2) {
+        startTimeColumn = "min("+TvBrowserContentProvider.DATA_KEY_STARTTIME+") AS " +TvBrowserContentProvider.DATA_KEY_STARTTIME;
+      }
+      
       final String[] projection = new String[] {
         TvBrowserContentProvider.KEY_ID,
-        TvBrowserContentProvider.DATA_KEY_STARTTIME,
+        startTimeColumn,
         TvBrowserContentProvider.DATA_KEY_ENDTIME,
         TvBrowserContentProvider.DATA_KEY_TITLE,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
@@ -99,12 +108,10 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
         TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID
       };
-      
+            
       long time = System.currentTimeMillis();
       
-      int currentTime = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(mAppWidgetId + "_" + mContext.getString(R.string.WIDGET_CONFIG_RUNNING_TIME), getResources().getInteger(R.integer.widget_congig_running_time_default));
-      
-      if(currentTime != -1) {
+      if(currentTime > -1) {
         Calendar now = Calendar.getInstance();
         
         if(PrefUtils.getBooleanValue(R.string.RUNNING_PROGRAMS_NEXT_DAY, R.bool.running_programs_next_day_default)) {
@@ -125,7 +132,11 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       
       String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + time + " AND " +
       TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
-            
+      
+      if(currentTime == -2) {
+        where = " ( " +TvBrowserContentProvider.DATA_KEY_STARTTIME+ ">=" + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) GROUP BY ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID;
+      }
+      
       String mCurrentChannelFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, SettingConstants.ALL_FILTER_ID);
       
       SharedPreferences pref = getSharedPreferences(SettingConstants.FILTER_PREFERENCES, Context.MODE_PRIVATE);
