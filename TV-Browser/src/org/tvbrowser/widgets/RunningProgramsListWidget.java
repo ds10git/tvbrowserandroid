@@ -206,6 +206,9 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
         
         views.setTextViewText(R.id.running_widget_header, DateFormat.getTimeFormat(context).format(cal.getTime()));
       }
+      else if(currentValue == -2) {
+        views.setTextViewText(R.id.running_widget_header, context.getString(R.string.button_after));
+      }
       else {
         views.setTextViewText(R.id.running_widget_header, context.getString(R.string.widget_running_title));
       }

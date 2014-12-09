@@ -40,7 +40,6 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 import android.widget.RemoteViewsService;
@@ -94,7 +93,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       String startTimeColumn = TvBrowserContentProvider.DATA_KEY_STARTTIME;
       
       if(currentTime == -2) {
-        startTimeColumn = "min("+TvBrowserContentProvider.DATA_KEY_STARTTIME+") AS " +TvBrowserContentProvider.DATA_KEY_STARTTIME;
+        startTimeColumn = "MIN( "+TvBrowserContentProvider.DATA_KEY_STARTTIME+" ) AS " +TvBrowserContentProvider.DATA_KEY_STARTTIME;        
       }
       
       final String[] projection = new String[] {
@@ -131,10 +130,10 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       }
       
       String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + time + " AND " +
-      TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
+      TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " {0} ";
       
       if(currentTime == -2) {
-        where = " ( " +TvBrowserContentProvider.DATA_KEY_STARTTIME+ ">=" + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) GROUP BY ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID;
+        where = " ( " +TvBrowserContentProvider.DATA_KEY_STARTTIME+ ">=" + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " {0} ) GROUP BY ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " ";
       }
       
       String mCurrentChannelFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, SettingConstants.ALL_FILTER_ID);
@@ -144,7 +143,10 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       String values = pref.getString(mCurrentChannelFilterId, null);
       
       if(mCurrentChannelFilterId != null && values != null) {
-        where += new ChannelFilterValues(mCurrentChannelFilterId,values).getWhereClause();
+        where = where.replace("{0}", new ChannelFilterValues(mCurrentChannelFilterId,values).getWhereClause());
+      }
+      else {
+        where = where.replace("{0}", "");
       }
       
       final long token = Binder.clearCallingIdentity();

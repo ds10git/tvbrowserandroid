@@ -800,7 +800,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       orderBy = sortOrder;
     }
     
-    if(orderBy != null && !orderBy.contains("NOCASE") && !orderBy.contains("COLLATE") && !orderBy.contains("DESC")) {
+    if(orderBy != null && !orderBy.contains("NOCASE") && !orderBy.contains("COLLATE") && !orderBy.contains("DESC") && !orderBy.contains("ASC")) {
       orderBy += " COLLATE NOCASE";
     }
     
