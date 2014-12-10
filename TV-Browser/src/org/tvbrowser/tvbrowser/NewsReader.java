@@ -145,8 +145,6 @@ public class NewsReader {
       }
       
       Editor edit = PreferenceManager.getDefaultSharedPreferences(context).edit();
-      
-      edit.putLong(context.getString(R.string.NEWS_DATE_LAST_SHOWN), 0);
       edit.putString(context.getString(R.string.NEWS_TEXT), newsText.toString());
       edit.putLong(context.getString(R.string.NEWS_DATE_LAST_KNOWN), newestNewsDate);
       edit.putLong(context.getString(R.string.NEWS_DATE_LAST_DOWNLOAD), System.currentTimeMillis());

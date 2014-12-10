@@ -3500,7 +3500,7 @@ public class TvBrowser extends FragmentActivity implements
       if(pref.getBoolean(getString(R.string.PREF_NEWS_SHOW), getResources().getBoolean(R.bool.pref_news_show_default))) {
         long lastShown = pref.getLong(getString(R.string.NEWS_DATE_LAST_SHOWN), 0);
         long lastKnown = pref.getLong(getString(R.string.NEWS_DATE_LAST_KNOWN), 0);
-        
+Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(lastKnown));        
         final String news = pref.getString(getString(R.string.NEWS_TEXT), "");
         
         if(lastShown < lastKnown && news.trim().length() > 0) {
@@ -3518,7 +3518,6 @@ public class TvBrowser extends FragmentActivity implements
                 public void onClick(DialogInterface dialog, int which) {
                   Editor edit = pref.edit();
                   edit.putLong(getString(R.string.NEWS_DATE_LAST_SHOWN), System.currentTimeMillis());
-                  edit.putBoolean(getString(R.string.PREF_NEWS_SHOW), false);
                   edit.commit();
                   
                   showPluginInfo();
