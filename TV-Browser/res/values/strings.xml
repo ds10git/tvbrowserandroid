@@ -663,7 +663,10 @@
     
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
-		<h2>0.4.6</h2>
+        <h2>0.5</h2>
+			&bull; fixed crash under Android 5.0 with installed Plugins<br>
+		<br>
+		<h3>0.5</h3>
 		    &bull; added first version of the Plugin interface<br>
 		    &bull; added "Next" to running widget<br>
 		    &bull; added search for Plugins<br>
