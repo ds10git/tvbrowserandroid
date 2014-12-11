@@ -357,7 +357,7 @@ public class TvBrowser extends FragmentActivity implements
         }, 5000);
         
       }
-      else {      
+      else if(oldVersion != getResources().getInteger(R.integer.old_version_default)) {      
         handler.postDelayed(new Runnable() {
           @Override
           public void run() {

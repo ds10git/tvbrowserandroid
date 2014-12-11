@@ -649,7 +649,10 @@
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
-		<h2>0.4.6</h2>
+        <h3>0.5</h3>
+			&bull; Absturzursache unter Android 5.0 bei installierten Plugins beseitigt<br>
+		<br>
+		<h3>0.5</h3>
 			&bull; erste Version der Plugin-Schnittstelle hinzugefügt<br>
 			&bull; "Als Nächstes" zum "Jetzt läuft"-Widget hinzugefügt<br>
 			&bull; Suche nach Plugins hinzugefügt<br>

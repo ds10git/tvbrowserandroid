@@ -29,6 +29,7 @@ import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.ProgramUtils;
 import org.tvbrowser.tvbrowser.R;
 
+import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -189,64 +190,70 @@ public final class PluginHandler {
   }
   
   public static final void loadPlugins(Context context, Handler handler) {
-    createPluginManager(context.getApplicationContext());
-    
-    if(PLUGIN_LIST == null) {
-      loadFirstProgramId(context);
+    try {
+      createPluginManager(context.getApplicationContext());
       
-      PLUGIN_LIST = new ArrayList<PluginServiceConnection>();
-      
-      PackageManager packageManager = context.getPackageManager();
-      Intent baseIntent = new Intent( PluginHandler.PLUGIN_ACTION );
-      baseIntent.setFlags( Intent.FLAG_DEBUG_LOG_RESOLUTION );
-      List<ResolveInfo> list = packageManager.queryIntentServices(baseIntent, PackageManager.GET_RESOLVED_FILTER );
-      
-      for( int i = 0 ; i < list.size() ; ++i ) {
-        ResolveInfo info = list.get( i );
-        ServiceInfo sinfo = info.serviceInfo;
-        IntentFilter filter1 = info.filter;
-
-        Log.d( "info23", "fillPluginList: i: "+i+"; sinfo: "+sinfo+";filter: "+filter1 + " " + sinfo.name);
-        if(sinfo != null) {
-          Log.d( "info23", "hier " + filter1.countCategories() + " " + filter1.getAction(0));
-          if( filter1 != null ) {
-            StringBuilder categories = new StringBuilder();
-            String firstCategory = null;
-            
-            for( Iterator<String> categoryIterator = filter1.categoriesIterator() ;
-                categoryIterator.hasNext() ; ) {
-              String category = categoryIterator.next();
-              if( firstCategory == null )
-                firstCategory = category;
-              if( categories.length() > 0 )
-                categories.append( "," );
-              categories.append( category );
-            }
-            
-            if(firstCategory != null) {
-              PluginServiceConnection plugin = new PluginServiceConnection(sinfo.name, context);
+      if(PLUGIN_LIST == null) {
+        loadFirstProgramId(context);
+        
+        PLUGIN_LIST = new ArrayList<PluginServiceConnection>();
+        
+        PackageManager packageManager = context.getPackageManager();
+        Intent baseIntent = new Intent( PluginHandler.PLUGIN_ACTION );
+        baseIntent.setFlags( Intent.FLAG_DEBUG_LOG_RESOLUTION );
+        List<ResolveInfo> list = packageManager.queryIntentServices(baseIntent, PackageManager.GET_RESOLVED_FILTER );
+        
+        for( int i = 0 ; i < list.size() ; ++i ) {
+          ResolveInfo info = list.get( i );
+          ServiceInfo sinfo = info.serviceInfo;
+          IntentFilter filter1 = info.filter;
+  
+          Log.d( "info23", "fillPluginList: i: "+i+"; sinfo: "+sinfo+";filter: "+filter1 + " " + sinfo.name);
+          if(sinfo != null) {
+            Log.d( "info23", "hier " + filter1.countCategories() + " " + filter1.getAction(0));
+            if( filter1 != null ) {
+              StringBuilder categories = new StringBuilder();
+              String firstCategory = null;
               
-              Intent intent = new Intent( PluginHandler.PLUGIN_ACTION );
-              intent.addCategory( categories.toString() );
-                            
-              context.bindService( intent, plugin, Context.BIND_AUTO_CREATE);
+              for( Iterator<String> categoryIterator = filter1.categoriesIterator() ;
+                  categoryIterator.hasNext() ; ) {
+                String category = categoryIterator.next();
+                if( firstCategory == null )
+                  firstCategory = category;
+                if( categories.length() > 0 )
+                  categories.append( "," );
+                categories.append( category );
+              }
               
-              PLUGIN_LIST.add(plugin);
+              if(firstCategory != null) {
+                PluginServiceConnection plugin = new PluginServiceConnection(sinfo.name, context);
+                ComponentName component = new ComponentName(sinfo.packageName, sinfo.name);
+                
+                Intent intent = new Intent( /*PluginHandler.PLUGIN_ACTION*/ );
+                intent.setComponent(component);
+                //intent.addCategory( categories.toString() );
+                
+                context.bindService( intent, plugin, Context.BIND_AUTO_CREATE);
+                
+                PLUGIN_LIST.add(plugin);
+              }
+              
+              Log.d( "info23", "categories: " + categories.toString());
             }
-            
-            Log.d( "info23", "categories: " + categories.toString());
           }
         }
+        
+        handler.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            if(PLUGIN_LIST != null) {
+              Collections.sort(PLUGIN_LIST);
+            }
+          }
+        }, 5000);
       }
+    }catch(Throwable t) {
       
-      handler.postDelayed(new Runnable() {
-        @Override
-        public void run() {
-          if(PLUGIN_LIST != null) {
-            Collections.sort(PLUGIN_LIST);
-          }
-        }
-      }, 5000);
     }
   }
   
