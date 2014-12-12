@@ -156,6 +156,19 @@ public class SettingConstants {
     return result;
   }
   
+  public static String getDataServiceKeyForNumber(String number) {
+    String result = null;
+    
+    if(number.equals("1")) {
+      result = EPG_FREE_KEY;
+    }
+    else if(number.equals("2")) {
+      result = EPG_DONATE_KEY;
+    }
+    
+    return result;
+  }
+  
   public static void setReminderPaused(Context context, boolean reminderPaused) {
     Editor editPref = PreferenceManager.getDefaultSharedPreferences(context).edit();
     editPref.putBoolean(REMINDER_PAUSE_KEY, reminderPaused);

@@ -47,6 +47,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String AUTHORITY = "org.tvbrowser.tvbrowsercontentprovider";
   public static final Uri CONTENT_URI_GROUPS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/groups");
   public static final Uri CONTENT_URI_CHANNELS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/channels");
+  public static final Uri CONTENT_URI_CHANNELS_WITH_GROUP = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/channelgroups");
   public static final Uri CONTENT_URI_DATA = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/data");
   public static final Uri RAW_QUERY_CONTENT_URI_DATA = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/rawdata");
   public static final Uri CONTENT_URI_DATA_UPDATE = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/dataupdate");
@@ -64,7 +65,10 @@ public class TvBrowserContentProvider extends ContentProvider {
   
   private static final int CHANNELS = 10;
   private static final int CHANNEL_ID = 11;
-
+  
+  private static final int CHANNELGROUPS = 12;
+  private static final int CHANNELGROUPS_ID = 13;
+  
   private static final int DATA = 20;
   private static final int DATA_ID = 21;
   
@@ -264,6 +268,8 @@ public class TvBrowserContentProvider extends ContentProvider {
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "groups/#", GROUP_ID);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "channels", CHANNELS);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "channels/#", CHANNEL_ID);
+    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "channelgroups", CHANNELGROUPS);
+    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "channelgroups/#", CHANNELGROUPS_ID);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "data", DATA);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "data/#", DATA_ID);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "rawdata", RAW_DATA);
@@ -721,6 +727,41 @@ public class TvBrowserContentProvider extends ContentProvider {
       case CHANNEL_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
       case CHANNELS: qb.setTables(CHANNEL_TABLE);
                     orderBy = CHANNEL_KEY_NAME;break;
+      case CHANNELGROUPS_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+      case CHANNELGROUPS: 
+        {
+          qb.setTables(TvBrowserDataBaseHelper.GROUPS_TABLE + ", " + CHANNEL_TABLE);
+          orderBy = CHANNEL_KEY_ORDER_NUMBER + ", " + CHANNEL_KEY_NAME;
+          
+          qb.appendWhere(TvBrowserDataBaseHelper.GROUPS_TABLE + "." + KEY_ID + "=" + CHANNEL_TABLE + "." + GROUP_KEY_GROUP_ID);
+          
+          if(projection != null) {
+            for(int i = 0; i < projection.length; i++) {
+              if(projection[i] != null) {
+                if((projection[i].equals(KEY_ID) || projection[i].equals(GROUP_KEY_GROUP_ID))) {
+                  projection[i] = TvBrowserDataBaseHelper.GROUPS_TABLE + "." + projection[i]+ " AS " + projection[i];
+                }
+              }
+            }
+          }
+          
+          if(selectionArgs != null) {
+            for(int i = 0; i < selectionArgs.length; i++) {
+              if(selectionArgs[i].equals(KEY_ID)) {
+                selectionArgs[i] = TvBrowserDataBaseHelper.GROUPS_TABLE + "." + selectionArgs[i];
+              }
+            }
+          }
+          
+          if(selection != null) {
+            if(selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
+              selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.GROUPS_TABLE + "."+KEY_ID);
+            }
+            if(selection.contains(GROUP_KEY_GROUP_ID) && !selection.contains("."+GROUP_KEY_GROUP_ID)) {
+              selection = selection.replace(GROUP_KEY_GROUP_ID, TvBrowserDataBaseHelper.GROUPS_TABLE + "."+GROUP_KEY_GROUP_ID);
+            }
+          }
+        }break;
       case DATA_VERSION_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
       case DATA_VERSION: qb.setTables(TvBrowserDataBaseHelper.VERSION_TABLE);
                     orderBy = VERSION_KEY_DAYS_SINCE_1970;break;

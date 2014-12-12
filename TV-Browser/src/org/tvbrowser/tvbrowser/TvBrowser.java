@@ -22,7 +22,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -38,7 +37,6 @@ import java.util.Set;
 import java.util.Stack;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
@@ -1286,6 +1284,18 @@ public class TvBrowser extends FragmentActivity implements
               if(!key.equals(getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES))) {
                 Set<String> valueSet = (Set<String>)value;
                 
+                if(key.equals(SettingConstants.FAVORITE_LIST)) {
+                  HashSet<String> favoriteList = new HashSet<String>();
+                  
+                  for(String setValue : valueSet) {
+                    Favorite temp = new Favorite(setValue);
+                    temp.loadChannelRestrictionIdsFromUniqueChannelRestriction(getApplicationContext());
+                    favoriteList.add(temp.getSaveString(getApplicationContext()));
+                  }
+                  
+                  valueSet = favoriteList;
+                }
+                
                 backup.append("set:").append(key).append("=");
                 
                 backup.append(TextUtils.join("#,#", valueSet));
@@ -1376,7 +1386,14 @@ public class TvBrowser extends FragmentActivity implements
                     
                     if(setParts != null && setParts.length > 0) {
                       for(String setPart : setParts) {
-                        set.add(setPart);
+                        if(parts[0].equals(SettingConstants.FAVORITE_LIST)) {
+                          Favorite temp = new Favorite(setPart);
+                          temp.loadChannelRestrictionIdsFromUniqueChannelRestriction(getApplicationContext());
+                          set.add(temp.getSaveString());
+                        }
+                        else {
+                          set.add(setPart);
+                        }
                         Log.d("pref", " " + setPart);
                       }
                       
@@ -1393,13 +1410,11 @@ public class TvBrowser extends FragmentActivity implements
                 @Override
                 public void run() {
                   updateFromPreferences();
+                  TvBrowser.this.finish();
                 }
               });
               
               IOUtils.handleDataUpdatePreferences(getApplicationContext());
-              
-              Intent updateFavorites = new Intent(SettingConstants.FAVORITES_CHANGED);
-              LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcast(updateFavorites);
             }
           }
         }catch(Exception e) {

@@ -588,14 +588,14 @@
     <string name="backup_channels_success">Sender erfolgreich auf den TV-Browser-Server hochgeladen</string>
     
     <string name="backup_preferences_success">Backup erfolgreich auf den TV-Browser-Server hochgeladen</string>
-    <string name="backup_preferences_restore_success">Backup erfolgreich vom TV-Browser wiederhergestellt</string>
+    <string name="backup_preferences_restore_success">Backup erfolgreich vom TV-Browser-Server wiederhergestellt</string>
     <string name="backup_preferences_restore_failure">Backup konnte nicht wiederhergestellt werden, möglicherweise wurde es niemals hochgeladen.</string>
     
     <string name="action_backup_preferences_save">Einst./Lieblingss. sichern</string>
     <string name="action_backup_preferences_restore">Einst./Lieblingss. wiederherstellen</string>
     
     <string name="backup_preferences_save_text">Die Einstellungen und die Definitionen der Lieblingssendungen können auf dem TV-Browser-Server gesichert werden.\n\nSollen die Einstellungen und die Definitionen der Lieblingssendungen jetzt hochgeladen werden?</string>
-    <string name="backup_preferences_restore_text">Wenn die Einstellungen und die Definitionen Lieblingssendungen zuvor gesichert wurden, können sie hier wiederhergestellt werden. Die vorhandenen Einstellungen und Definitionen der Lieblingssendungen werden dabei überschrieben!\n\nSollen die Einstellungen und die Definitionen der Lieblingssendungen (sollten dort Sender ausgewählt sein, diese bitte kontrollieren) jetzt wiederhergestellt werden?</string>
+    <string name="backup_preferences_restore_text">Wenn die Einstellungen und die Definitionen Lieblingssendungen zuvor gesichert wurden, können sie hier wiederhergestellt werden. Die vorhandenen Einstellungen und Definitionen der Lieblingssendungen werden dabei überschrieben!\n\nSollen die Einstellungen und die Definitionen der Lieblingssendungen jetzt wiederhergestellt werden?\n\n(TV-Browser wird automatisch beendet, nachdem die Einstellungen wiederhergestellt wurden.)</string>
    
     <string name="pref_vertical_padding_size">Vertikaler Freiraum um Sendungen</string>
     
@@ -649,7 +649,10 @@
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
-        <h3>0.5</h3>
+        <h2>0.5.0.2</h2>
+			&bull; Probleme mit Senderbeschränkung beim Backup von Lieblingssendungen beseitigt (Backup muss neu hochgeladen werden)<br>
+		<br>
+        <h3>0.5.0.1</h3>
 			&bull; Absturzursache unter Android 5.0 bei installierten Plugins beseitigt<br>
 		<br>
 		<h3>0.5</h3>

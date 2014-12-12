@@ -172,7 +172,7 @@
 		        android:layout_marginEnd="5dp"
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:text="@string/activity_edit_favorite_label_text_channels"
-		        android:layout_below="@+id/favorite_day_restriction_label"
+		        android:layout_below="@+id/activity_edit_favorite_input_id_restriction_day"
 		        android:layout_marginBottom="5dp"/>
 		    <TextView
 		        android:id="@+id/activity_edit_favorite_input_id_restriction_channel"
