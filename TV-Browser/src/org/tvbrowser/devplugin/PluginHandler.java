@@ -210,36 +210,15 @@ public final class PluginHandler {
   
           Log.d( "info23", "fillPluginList: i: "+i+"; sinfo: "+sinfo+";filter: "+filter1 + " " + sinfo.name);
           if(sinfo != null) {
-            Log.d( "info23", "hier " + filter1.countCategories() + " " + filter1.getAction(0));
-            if( filter1 != null ) {
-              StringBuilder categories = new StringBuilder();
-              String firstCategory = null;
-              
-              for( Iterator<String> categoryIterator = filter1.categoriesIterator() ;
-                  categoryIterator.hasNext() ; ) {
-                String category = categoryIterator.next();
-                if( firstCategory == null )
-                  firstCategory = category;
-                if( categories.length() > 0 )
-                  categories.append( "," );
-                categories.append( category );
-              }
-              
-              if(firstCategory != null) {
-                PluginServiceConnection plugin = new PluginServiceConnection(sinfo.name, context);
-                ComponentName component = new ComponentName(sinfo.packageName, sinfo.name);
-                
-                Intent intent = new Intent( /*PluginHandler.PLUGIN_ACTION*/ );
-                intent.setComponent(component);
-                //intent.addCategory( categories.toString() );
-                
-                context.bindService( intent, plugin, Context.BIND_AUTO_CREATE);
-                
-                PLUGIN_LIST.add(plugin);
-              }
-              
-              Log.d( "info23", "categories: " + categories.toString());
-            }
+            PluginServiceConnection plugin = new PluginServiceConnection(sinfo.name, context);
+            ComponentName component = new ComponentName(sinfo.packageName, sinfo.name);
+            
+            Intent intent = new Intent();
+            intent.setComponent(component);
+            
+            context.bindService( intent, plugin, Context.BIND_AUTO_CREATE);
+            
+            PLUGIN_LIST.add(plugin);
           }
         }
         

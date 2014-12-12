@@ -36,6 +36,7 @@ import android.database.Cursor;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 
 public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   public static final int KEYWORD_ONLY_TITLE_TYPE = 0;
@@ -183,6 +184,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     }
   }
   
+  private String mUniqueChannelIds;
+  
   private static final int DAY_RESTRICTION_TYPE = 0;
   private static final int CHANNEL_RESTRICTION_TYPE = 1;
   private static final int ATTRIBUTE_RESTRICTION_TYPE = 2;
@@ -194,7 +197,10 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       array = null;
     }
     else {
-      if(value.contains(",")) {
+      if(type == CHANNEL_RESTRICTION_TYPE && value.contains("#_#")) {
+        mUniqueChannelIds = value;
+      }
+      else {
         String[] parts = value.split(",");
         
         array = new int[parts.length];
@@ -203,16 +209,68 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           array[i] = Integer.parseInt(parts[i]);
         }
       }
-      else {
-        array = new int[1];
-        array[0] = Integer.parseInt(value);
-      }      
     }
     
     switch (type) {
       case DAY_RESTRICTION_TYPE: mDayRestriction = array; break;
       case CHANNEL_RESTRICTION_TYPE: mChannelRestrictionIDs = array; break;
       case ATTRIBUTE_RESTRICTION_TYPE: mAttributeRestrictionIndices = array; break;
+    }
+  }
+  
+  private boolean isUniqueChannelRestricted() {
+    return mUniqueChannelIds != null && mUniqueChannelIds.trim().length() > 0;
+  }
+  
+  public void loadChannelRestrictionIdsFromUniqueChannelRestriction(Context context) {
+    if(isUniqueChannelRestricted()) { 
+      String[] parts = mUniqueChannelIds.split(",");
+      
+      ArrayList<Integer> parsed = new ArrayList<Integer>();
+      
+      String[] projection = {
+          TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.KEY_ID
+      };
+      
+      for(int i = 0; i < parts.length; i++) {
+        String[] channelIdParts = parts[i].split("#_#");
+        
+        if(channelIdParts.length == 3) {
+          StringBuilder where = new StringBuilder();
+          
+          where.append(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID);
+          where.append(" IS \"");
+          where.append(SettingConstants.getDataServiceKeyForNumber(channelIdParts[0]));
+          where.append("\" AND ");
+          where.append(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+          where.append(" IS \"");
+          where.append(channelIdParts[1]);
+          where.append("\" AND ");
+          where.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+          where.append(" IS \"");
+          where.append(channelIdParts[2]);
+          where.append("\" AND ");
+          where.append(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
+          
+          Cursor channel = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, where.toString(), null, null);
+          
+          try {
+            if(channel.moveToFirst()) {
+              parsed.add(Integer.valueOf(channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID))));
+            }
+          }finally {
+            IOUtils.closeCursor(channel);
+          }
+        }
+      }
+      
+      if(!parsed.isEmpty()) {
+        mChannelRestrictionIDs = new int[parsed.size()];
+        
+        for(int i = 0; i < mChannelRestrictionIDs.length; i++) {
+          mChannelRestrictionIDs[i] = parsed.get(i).intValue();
+        }
+      }
     }
   }
   
@@ -598,6 +656,10 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   }
   
   public String getSaveString() {
+    return getSaveString(null);
+  }
+  
+  public String getSaveString(Context context) {
     StringBuilder saveString = new StringBuilder();
     
     saveString.append(mName);
@@ -622,7 +684,12 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     
     saveString.append(";;");
     
-    saveString = appendSaveStringWithArray(mChannelRestrictionIDs, saveString);
+    if(context == null) {
+      saveString = appendSaveStringWithArray(mChannelRestrictionIDs, saveString);
+    }
+    else {
+      saveString.append(getUniqueChannelRestrictionIds(context));
+    }
     
     saveString.append(";;");
     
@@ -642,6 +709,61 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     saveString = appendSaveStringWithArray(mAttributeRestrictionIndices, saveString);
     
     return saveString.toString();
+  }
+  
+  final static String[] UNIQUE_CHANNEL_RESTRICTION_PROJECTION = {
+      TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID,
+      TvBrowserContentProvider.GROUP_KEY_GROUP_ID,
+      TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID
+  };
+  
+  private String getUniqueChannelRestrictionIds(Context context) {
+    String result = null;
+        
+    if(mChannelRestrictionIDs != null && mChannelRestrictionIDs.length > 0) {
+      StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_TABLE);
+      where.append(".");
+      where.append(TvBrowserContentProvider.KEY_ID);
+      where.append(" IN ( ");
+      
+      for(int i = 0; i < mChannelRestrictionIDs.length-1; i++) {
+        where.append(mChannelRestrictionIDs[i]).append(", ");
+      }
+      
+      where.append(mChannelRestrictionIDs[mChannelRestrictionIDs.length-1]);
+      where.append(" ) ");
+      
+      Cursor uniqueChannelIds = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, UNIQUE_CHANNEL_RESTRICTION_PROJECTION, where.toString(), null, null);
+      StringBuilder idBuilder = new StringBuilder();
+      
+      try {
+        uniqueChannelIds.moveToPosition(-1);
+        
+        int dataServiceIdColumn = uniqueChannelIds.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID);
+        int groupIdColumn = uniqueChannelIds.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+        int channelIdColumn = uniqueChannelIds.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+        
+        while(uniqueChannelIds.moveToNext()) {
+          String dataServiceId = uniqueChannelIds.getString(dataServiceIdColumn);
+          String groupId = uniqueChannelIds.getString(groupIdColumn);
+          String channelId = uniqueChannelIds.getString(channelIdColumn);
+          
+          if(idBuilder.length() > 0) {
+            idBuilder.append(",");
+          }
+          
+          idBuilder.append(SettingConstants.getNumberForDataServiceKey(dataServiceId)).append("#_#").append(groupId).append("#_#").append(channelId);
+        }
+      }finally {
+        IOUtils.closeCursor(uniqueChannelIds);
+      }
+      
+      if(idBuilder.length() > 0) {
+        result = idBuilder.toString();
+      }
+    }
+    
+    return result;
   }
   
   private StringBuilder appendSaveStringWithArray(int[] array, StringBuilder saveString) {

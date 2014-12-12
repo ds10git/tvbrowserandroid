@@ -609,7 +609,7 @@
     <string name="action_backup_preferences_restore">Restore preferences/favorites</string>
     
     <string name="backup_preferences_save_text">You can upload the preferences and favorite definitions to the TV-Browser server. The selected channels and the "I don\'t want to see!" list are not saved.\n\nDo you want\'t to upload the preferences and favorite definitions now?</string>
-    <string name="backup_preferences_restore_text">If you previously had uploaded the preferences and favorite definitions to the TV-Browser server, you can restore it from there. The current preferences and favorite defintions will be overridden!\n\nDo you want\'t to restore the preferences and favorite definitions (if channels are selected please check them) now?</string>
+    <string name="backup_preferences_restore_text">If you previously had uploaded the preferences and favorite definitions to the TV-Browser server, you can restore it from there. The current preferences and favorite defintions will be overridden!\n\nDo you want\'t to restore the preferences and favorite definitions now?\n\n(TV-Browser will quit after restoring of the preferences and favorites)</string>
     
     <string name="pref_vertical_padding_size">Free vertical space around programs</string>
     
@@ -663,7 +663,10 @@
     
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5</h2>
+        <h2>0.5.0.2</h2>
+			&bull; fixed channel restriction for Favorite backup (backup needs to be upload again)<br>
+		<br>
+        <h3>0.5.0.1</h3>
 			&bull; fixed crash under Android 5.0 with installed Plugins<br>
 		<br>
 		<h3>0.5</h3>

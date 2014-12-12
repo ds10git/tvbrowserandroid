@@ -54,6 +54,11 @@ public class UpdateAlarmValue extends BroadcastReceiver {
         }
         
         alarms.close();
+        
+        if(firstStart.get()) {
+          UiUtils.updateImportantProgramsWidget(context.getApplicationContext());
+          UiUtils.updateRunningProgramsWidget(context.getApplicationContext());
+        }
       }
     }.start();
   }
