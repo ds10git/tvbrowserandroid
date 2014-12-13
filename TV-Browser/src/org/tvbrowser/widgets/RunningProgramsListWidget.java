@@ -197,7 +197,7 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
             
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
           
-      int currentValue = pref.getInt(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_RUNNING_TIME), context.getResources().getInteger(R.integer.widget_congig_running_time_default));
+      int currentValue = pref.getInt(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_RUNNING_TIME), context.getResources().getInteger(R.integer.widget_config_running_time_default));
 
       if(currentValue >= 0) {
         Calendar cal = Calendar.getInstance();

@@ -83,6 +83,8 @@ public class SettingConstants {
   public static final String SYNCHRONIZE_UP_URL_EXTRA = "SYNCHRONIZE_UP_URL_EXTRA";
   public static final String SYNCHRONIZE_UP_VALUE_EXTRA = "SYNCHRONIZE_UP_STRING_EXTRA";
   
+  public static final String WIDGET_CHANNEL_SELECTION_EXTRA = "WIDGET_CHANNEL_SELECTION_EXTRA";
+  
   public static final String HANDLE_APP_WIDGET_CLICK = "org.tvbrowser.HANDLE_APP_WIDGET_CLICK";
   public static final String UPDATE_RUNNING_APP_WIDGET = "org.tvbrowser.UPDATE_RUNNING_APP_WIDGET";
   public static final String UPDATE_IMPORTANT_APP_WIDGET = "org.tvbrowser.UPDATE_IMPORTANT_APP_WIDGET";

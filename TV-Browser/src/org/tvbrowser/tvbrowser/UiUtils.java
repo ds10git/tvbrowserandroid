@@ -19,7 +19,6 @@ package org.tvbrowser.tvbrowser;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,7 +26,6 @@ import java.util.Locale;
 import java.util.Set;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.devplugin.Channel;
 import org.tvbrowser.devplugin.Plugin;
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginMenu;
@@ -46,7 +44,6 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.SearchManager;
 import android.appwidget.AppWidgetManager;
-import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
@@ -72,12 +69,9 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
-import android.os.Build;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.provider.CalendarContract;
-import android.provider.CalendarContract.Events;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
@@ -501,8 +495,12 @@ public class UiUtils {
       menu.findItem(R.id.program_popup_dont_want_to_see).setVisible(showDontWantToSee && !SettingConstants.UPDATING_FILTER);
       menu.findItem(R.id.program_popup_want_to_see).setVisible(!showDontWantToSee && !SettingConstants.UPDATING_FILTER);
       
-      if(pluginProgram != null && PluginHandler.PLUGIN_LIST != null) {
-        for(PluginServiceConnection pluginService : PluginHandler.PLUGIN_LIST) {
+      
+      
+      if(PluginHandler.hasPlugins()) {
+        PluginServiceConnection[] connections = PluginHandler.getAvailablePlugins();
+        
+        for(PluginServiceConnection pluginService : connections) {
           final Plugin plugin = pluginService.getPlugin();
           
           if(plugin != null && pluginService.isActivated()) {
@@ -1707,6 +1705,10 @@ public class UiUtils {
   }
   
   public static void showChannelFilterSelection(Context context, final ChannelFilter channelFilter, ViewGroup parent) {
+    showChannelFilterSelection(context, channelFilter, parent, null);
+  }
+  
+  public static void showChannelFilterSelection(Context context, final ChannelFilter channelFilter, ViewGroup parent, final Runnable cancelCallBack) {
     String[] projection = {
         TvBrowserContentProvider.KEY_ID,
         TvBrowserContentProvider.CHANNEL_KEY_NAME,
@@ -1863,6 +1865,7 @@ public class UiUtils {
     AlertDialog.Builder builder = new AlertDialog.Builder(context);
     
     builder.setView(channelSelectionView);
+    builder.setCancelable(false);
     
     builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
       @Override
@@ -1902,7 +1905,17 @@ public class UiUtils {
       }
     });
     
-    builder.setNegativeButton(android.R.string.cancel, null);
+    if(cancelCallBack != null) {
+      builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          cancelCallBack.run();
+        }
+      });
+    }
+    else {
+      builder.setNegativeButton(android.R.string.cancel, null);
+    }
     
     AlertDialog dialog = builder.create();
     dialog.show();

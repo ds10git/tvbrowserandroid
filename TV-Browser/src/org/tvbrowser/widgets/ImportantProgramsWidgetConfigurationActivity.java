@@ -12,13 +12,16 @@ import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 public class ImportantProgramsWidgetConfigurationActivity extends Activity {
   private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
   
+  private Spinner mTypeSelection;
   private EditText mName;
   private CheckBox mMarked;
   private CheckBox mFavorite;
@@ -39,7 +42,12 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
     }
     
     setContentView(R.layout.important_programs_widget_configuration);
+        
+    final View titleLabel = findViewById(R.id.important_programs_widget_config_name_label);
+    final View dividerLabel = findViewById(R.id.important_programs_widget_config_shown_selection_label);
+    final View divider = findViewById(R.id.important_programs_widget_config_shown_selection_label_devider);
     
+    mTypeSelection = (Spinner)findViewById(R.id.important_programs_widget_config_selection_type);
     mName = (EditText)findViewById(R.id.important_programs_widget_config_name_value);
     mMarked = (CheckBox)findViewById(R.id.important_programs_widget_config_show_marked);
     mFavorite = (CheckBox)findViewById(R.id.important_programs_widget_config_show_favorite);
@@ -56,7 +64,36 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
       }
     });
     
-    mMarked.requestFocusFromTouch();
+    mTypeSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+      @Override
+      public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+        int visibility = View.VISIBLE;
+        
+        if(position == 1) {
+          setTitle(R.string.title_programs_list);
+          visibility = View.GONE;
+        }
+        else {
+          setTitle(R.string.widget_important_default_title);
+        }
+        
+        titleLabel.setVisibility(visibility);
+        dividerLabel.setVisibility(visibility);
+        divider.setVisibility(visibility);
+        mName.setVisibility(visibility);
+        mMarked.setVisibility(visibility);
+        mFavorite.setVisibility(visibility);
+        mReminder.setVisibility(visibility);
+        mSync.setVisibility(visibility);
+        mLimit.setVisibility(visibility);
+        mLimitNumber.setVisibility(visibility);
+      }
+
+      @Override
+      public void onNothingSelected(AdapterView<?> parent) {}
+    });
+    
+    //mMarked.requestFocusFromTouch();
     
     Intent intent = getIntent();
     Bundle extras = intent.getExtras();
@@ -67,6 +104,10 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
       if(mAppWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ImportantProgramsWidgetConfigurationActivity.this);
       
+        int typeIndex = pref.getInt(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_TYPE), getResources().getInteger(R.integer.widget_config_important_type_index_default));
+        
+        mTypeSelection.setSelection(typeIndex);
+        
         mName.setText(pref.getString(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_NAME), getString(R.string.widget_important_default_title)));
         mMarked.setChecked(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_MARKED), true));
         mFavorite.setChecked(pref.getBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_FAVORITE), true));
@@ -88,18 +129,33 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
   public void completeConfiguration(View view) {
     Editor edit = PreferenceManager.getDefaultSharedPreferences(ImportantProgramsWidgetConfigurationActivity.this).edit();
     
-    edit.putString(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_NAME), mName.getText().toString());
-    edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_MARKED), mMarked.isChecked());
-    edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_FAVORITE), mFavorite.isChecked());
-    edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_REMINDER), mReminder.isChecked());
-    edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_SYNCHRONIZED), mSync.isChecked());
-    edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT), mLimit.isChecked());
+    int type = mTypeSelection.getSelectedItemPosition();
     
-    if(mLimitNumber.getText().toString().trim().length() > 0) {
-      try {
-        int value = Integer.parseInt(mLimitNumber.getText().toString());
-        edit.putInt(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT), value);  
-      }catch(NumberFormatException e) {}
+    edit.putInt(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_TYPE), type);
+    
+    if(type == 0) {
+      edit.putString(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_NAME), mName.getText().toString());
+      edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_MARKED), mMarked.isChecked());
+      edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_FAVORITE), mFavorite.isChecked());
+      edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_REMINDER), mReminder.isChecked());
+      edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_SYNCHRONIZED), mSync.isChecked());
+      edit.putBoolean(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT), mLimit.isChecked());
+      
+      if(mLimitNumber.getText().toString().trim().length() > 0) {
+        try {
+          int value = Integer.parseInt(mLimitNumber.getText().toString());
+          edit.putInt(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT), value);  
+        }catch(NumberFormatException e) {}
+      }
+    }
+    else {
+      edit.remove(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_NAME));
+      edit.remove(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_MARKED));
+      edit.remove(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_FAVORITE));
+      edit.remove(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_REMINDER));
+      edit.remove(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_SYNCHRONIZED));
+      edit.remove(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT));
+      edit.remove(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT));
     }
     
     edit.commit();

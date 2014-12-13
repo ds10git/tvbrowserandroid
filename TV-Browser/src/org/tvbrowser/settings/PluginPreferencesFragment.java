@@ -41,7 +41,6 @@ import android.util.Log;
  */
 public class PluginPreferencesFragment extends PreferenceFragment {
   private String mPluginId;
-  private int mIndex;
   
   @Override
   public void onDetach() {
@@ -55,15 +54,12 @@ public class PluginPreferencesFragment extends PreferenceFragment {
     super.onCreate(savedInstanceState);
     
     if (savedInstanceState == null) {
-      mIndex = getArguments().getInt("PluginIndex");
       mPluginId = getArguments().getString("pluginId");
     }
     else {
         // Orientation Change
-        mIndex = savedInstanceState.getInt("PluginIndex");
         mPluginId = savedInstanceState.getString("pluginId");
     }
-    
     
     // Load the preferences from an XML resource
     PreferenceScreen preferenceScreen = getPreferenceManager().createPreferenceScreen(getActivity());
@@ -71,11 +67,11 @@ public class PluginPreferencesFragment extends PreferenceFragment {
     this.setPreferenceScreen(preferenceScreen);
     preferenceScreen.setTitle("ccccc");
     
-    final PluginServiceConnection pluginConnection = PluginHandler.PLUGIN_LIST.get(mIndex);
+    final PluginServiceConnection pluginConnection = PluginHandler.getConnectionForId(mPluginId);
     
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
-    if(pluginConnection.isConnected()) {
+    if(pluginConnection != null && pluginConnection.isConnected()) {
       Log.d("info24", ""+pluginConnection.getId());
       final CheckBoxPreference activated =  new CheckBoxPreference(getActivity());
       activated.setTitle(R.string.pref_activated);
@@ -85,7 +81,7 @@ public class PluginPreferencesFragment extends PreferenceFragment {
       preferenceScreen.addPreference(activated);
       
       try {
-        String description = pluginConnection.getPlugin().getDescription();
+        String description = pluginConnection.getPluginDescription();
         
         if(description != null) {
           InfoPreference descriptionPref = new InfoPreference(getActivity());
@@ -95,7 +91,7 @@ public class PluginPreferencesFragment extends PreferenceFragment {
         }
         
         final AtomicReference<Preference> startSetupRef = new AtomicReference<Preference>(null);
-        if(pluginConnection.getPlugin().hasPreferences()) {
+        if(pluginConnection != null && pluginConnection.isConnected() && pluginConnection.getPlugin().hasPreferences()) {
           final Preference startSetup = new Preference(getActivity());
           startSetup.setTitle(R.string.pref_open);
           startSetup.setKey(mPluginId);
@@ -109,7 +105,9 @@ public class PluginPreferencesFragment extends PreferenceFragment {
               }
               
               try {
-                pluginConnection.getPlugin().openPreferences(PluginHandler.getPluginManager().getSubscribedChannels());
+                if(pluginConnection != null && pluginConnection.isConnected()) {
+                  pluginConnection.getPlugin().openPreferences(PluginHandler.getPluginManager().getSubscribedChannels());
+                }
               } catch (RemoteException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -128,22 +126,24 @@ public class PluginPreferencesFragment extends PreferenceFragment {
         activated.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
           @Override
           public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if(startSetupRef.get() != null) {
-              startSetupRef.get().setEnabled((Boolean)newValue);
-            }
-            
-            if((Boolean)newValue) {
-              pluginConnection.callOnActivation();
-            }
-            else {
-              pluginConnection.callOnDeactivation();
+            if(pluginConnection != null && pluginConnection.isConnected()) {
+              if(startSetupRef.get() != null) {
+                startSetupRef.get().setEnabled((Boolean)newValue);
+              }
+              
+              if((Boolean)newValue) {
+                pluginConnection.callOnActivation();
+              }
+              else {
+                pluginConnection.callOnDeactivation();
+              }
             }
             
             return true;
           }
         });
         
-        String license = pluginConnection.getPlugin().getLicense();
+        String license = pluginConnection.getPluginLicense();
         
         if(license != null) {
           InfoPreference licensePref = new InfoPreference(getActivity());

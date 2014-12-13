@@ -27,6 +27,7 @@ import org.tvbrowser.settings.SettingConstants;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.appwidget.AppWidgetManager;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -35,7 +36,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
+import android.util.AttributeSet;
 import android.util.Log;
+import android.view.View;
+import android.view.ViewGroup;
 
 public class InfoActivity extends Activity {
   @Override
@@ -43,6 +47,14 @@ public class InfoActivity extends Activity {
     super.onCreate(savedInstanceState);
     
     PrefUtils.initialize(InfoActivity.this);
+  }
+  
+  private ViewGroup mViewParent;
+  
+  @Override
+  public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+    mViewParent = (ViewGroup)parent;
+    return super.onCreateView(parent, name, context, attrs);
   }
   
   @Override
@@ -69,7 +81,7 @@ public class InfoActivity extends Activity {
       
       int timeButtonCount = pref.getInt(getString(R.string.TIME_BUTTON_COUNT),getResources().getInteger(R.integer.time_button_count_default));
       
-      int currentValue = pref.getInt(appWidgetId + "_" + getString(R.string.WIDGET_CONFIG_RUNNING_TIME), getResources().getInteger(R.integer.widget_congig_running_time_default));
+      int currentValue = pref.getInt(appWidgetId + "_" + getString(R.string.WIDGET_CONFIG_RUNNING_TIME), getResources().getInteger(R.integer.widget_config_running_time_default));
       
       for(int i = 1; i <= Math.min(timeButtonCount, getResources().getInteger(R.integer.time_button_count_default)); i++) {
         try {
@@ -170,6 +182,68 @@ public class InfoActivity extends Activity {
       else {
         finish();
       }
+    }
+    else if(intent.hasExtra(SettingConstants.WIDGET_CHANNEL_SELECTION_EXTRA)) {
+      final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(InfoActivity.this);
+      final int appWidgetId = intent.getIntExtra(SettingConstants.WIDGET_CHANNEL_SELECTION_EXTRA, AppWidgetManager.INVALID_APPWIDGET_ID);
+      
+      if(SettingConstants.IS_DARK_THEME) {
+        setTheme(android.R.style.Theme_Holo);
+      }
+      else {
+        setTheme(R.style.AppTheme);
+      }
+      
+      UiUtils.showChannelFilterSelection(InfoActivity.this, new ChannelFilter() {
+        @Override
+        public void setFilterValues(String name, int[] filteredChannelIds) {
+          String value = "";
+          
+          if(filteredChannelIds != null) {
+            for(int i = 0; i < filteredChannelIds.length-1; i++) {
+              value += filteredChannelIds[i] + ",";
+            }
+            
+            if(filteredChannelIds.length > 0) {
+              value += String.valueOf(filteredChannelIds[filteredChannelIds.length-1]);
+            }
+          }
+          
+          Editor edit = pref.edit();
+          edit.putString(appWidgetId+"_"+getString(R.string.WIDGET_CONFIG_PROGRAM_LIST_CHANNELS), value);
+          edit.commit();
+          
+          AppWidgetManager.getInstance(getApplicationContext()).notifyAppWidgetViewDataChanged(appWidgetId, R.id.important_widget_list_view);
+          
+          finish();
+        }
+        
+        @Override
+        public String getName() {
+          return null;
+        }
+        
+        @Override
+        public int[] getFilteredChannelIds() {
+          String values = pref.getString(appWidgetId+"_"+getString(R.string.WIDGET_CONFIG_PROGRAM_LIST_CHANNELS), "");
+          
+          String[] parts = values.split(",");
+          
+          
+          int[] result = new int[values.trim().length() > 0 ? parts.length : 0];
+          
+          for(int i = 0; i < result.length; i++) {
+            result[i] = Integer.parseInt(parts[i]);
+          }
+          
+          return result;
+        }
+      }, mViewParent, new Runnable() {
+        @Override
+        public void run() {
+          finish();
+        }
+      });
     }
     else {
       finish();
