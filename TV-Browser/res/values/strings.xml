@@ -567,10 +567,15 @@
     
     <!-- WIDGETS -->
     
-    <string name="widget_important_widget_title">TV-Browser: Important programs</string>
+    <string name="widget_important_widget_title">TV-Browser: Important programs/Program list</string>
     
     <string name="widget_important_default_title">Important programs</string>
     <string name="widget_important_empty">No programs available</string>
+    <string name="widget_important_config_type_label">Widget type:</string>
+    <string-array name="widget_important_config_selection_type_entries">
+        <item>Important programs</item>
+        <item>Program list</item>
+    </string-array>
     <string name="widget_important_config_name_label">Widget title:</string>
     <string name="widget_important_config_name_value_hint">Enter title of widget</string>
     <string name="widget_important_config_shown_selection_label">SELECT SHOWN PROGRAMS</string>
@@ -663,7 +668,11 @@
     
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.0.2</h2>
+        <h2>0.5.1</h2>
+        	&bull; added type selection to important widget (can be used as program list)<br>
+			&bull; fixed possible crash caused by Plugins<br>
+		<br>
+        <h3>0.5.0.2</h3>
 			&bull; fixed channel restriction for Favorite backup (backup needs to be upload again)<br>
 		<br>
         <h3>0.5.0.1</h3>

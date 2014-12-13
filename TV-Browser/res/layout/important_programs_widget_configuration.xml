@@ -39,26 +39,49 @@
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:layout_margin="5dp" >
+		    <TextView
+		        android:id="@+id/important_programs_widget_config_selection_label"
+		        android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_marginRight="3dp"
+			    android:layout_marginEnd="3dp"
+			    android:textSize="@dimen/widget_config_font_size"
+			    android:layout_alignParentStart="true"
+			    android:text="@string/widget_important_config_type_label"
+			    android:layout_alignParentLeft="true"
+			    android:layout_alignBaseline="@+id/important_programs_widget_config_selection_type"/>
+		    <Spinner
+		        android:id="@+id/important_programs_widget_config_selection_type"
+		        android:layout_width="wrap_content"
+			    android:layout_height="wrap_content"
+			    android:layout_marginRight="3dp"
+			    android:layout_marginEnd="3dp"
+			    android:layout_alignParentTop="true"
+			    android:layout_toEndOf="@id/important_programs_widget_config_selection_label"
+			    android:layout_toRightOf="@id/important_programs_widget_config_selection_label"
+			    android:entries="@array/widget_important_config_selection_type_entries"
+		        />
 			<TextView
 			    android:id="@+id/important_programs_widget_config_name_label"
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
 			    android:layout_marginRight="3dp"
+			    android:layout_marginEnd="3dp"
 			    android:textSize="@dimen/widget_config_font_size"
-			    android:layout_alignParentTop="true"
 			    android:layout_alignParentStart="true"
 			    android:text="@string/widget_important_config_name_label"
 			    android:layout_alignParentLeft="true"
+			    android:layout_below="@id/important_programs_widget_config_selection_type"
 			    android:layout_alignBaseline="@+id/important_programs_widget_config_name_value"/>
 			<EditText
 			    android:id="@+id/important_programs_widget_config_name_value"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
-			    android:layout_alignParentTop="true"
 			    android:textSize="@dimen/widget_config_font_size"
 			    android:inputType="text"
 			    android:text="@string/widget_important_default_title"
 			    android:hint="@string/widget_important_config_name_value_hint"
+			    android:layout_below="@id/important_programs_widget_config_selection_type"
 			    android:layout_toRightOf="@id/important_programs_widget_config_name_label"
 			    android:layout_toEndOf="@id/important_programs_widget_config_name_label"
 			    />

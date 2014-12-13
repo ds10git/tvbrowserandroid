@@ -54,7 +54,7 @@ import android.util.Log;
  */
 public final class PluginHandler {
   public static final String PLUGIN_ACTION = "org.tvbrowser.intent.action.PLUGIN";
-  public static ArrayList<PluginServiceConnection> PLUGIN_LIST;
+  private static ArrayList<PluginServiceConnection> PLUGIN_LIST;
   
   private static PluginManager PLUGIN_MANAGER;
   
@@ -211,10 +211,9 @@ public final class PluginHandler {
           Log.d( "info23", "fillPluginList: i: "+i+"; sinfo: "+sinfo+";filter: "+filter1 + " " + sinfo.name);
           if(sinfo != null) {
             PluginServiceConnection plugin = new PluginServiceConnection(sinfo.name, context);
-            ComponentName component = new ComponentName(sinfo.packageName, sinfo.name);
             
             Intent intent = new Intent();
-            intent.setComponent(component);
+            intent.setClassName(sinfo.processName, sinfo.name);
             
             context.bindService( intent, plugin, Context.BIND_AUTO_CREATE);
             
@@ -284,5 +283,40 @@ public final class PluginHandler {
   
   public static long getFirstProgramId() {
     return FIRST_PROGRAM_ID;
+  }
+  
+  public static PluginServiceConnection getConnectionForId(String id) {
+    PluginServiceConnection result = null;
+    
+    if(PLUGIN_LIST != null) {
+      for(PluginServiceConnection connection : PLUGIN_LIST) {
+        if(connection.getId().equals(id)) {
+          result = connection;
+          break;
+        }
+      }
+    }
+    
+    return result;
+  }
+  
+  public static boolean hasPlugins() {
+    return PLUGIN_LIST != null && !PLUGIN_LIST.isEmpty();
+  }
+  
+  public static PluginServiceConnection[] getAvailablePlugins() {
+    PluginServiceConnection[] result = null;
+    
+    if(hasPlugins()) {
+      result = PLUGIN_LIST.toArray(new PluginServiceConnection[PLUGIN_LIST.size()]);
+    }
+    
+    return result;
+  }
+  
+  static void removePluginServiceConnection(PluginServiceConnection connection) {
+    if(PluginHandler.PLUGIN_LIST != null) {
+      PluginHandler.PLUGIN_LIST.remove(connection);
+    }
   }
 }

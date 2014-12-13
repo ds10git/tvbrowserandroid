@@ -88,7 +88,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       
       removeAlarm();
       
-      int currentTime = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(mAppWidgetId + "_" + mContext.getString(R.string.WIDGET_CONFIG_RUNNING_TIME), getResources().getInteger(R.integer.widget_congig_running_time_default));
+      int currentTime = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(mAppWidgetId + "_" + mContext.getString(R.string.WIDGET_CONFIG_RUNNING_TIME), getResources().getInteger(R.integer.widget_config_running_time_default));
       
       String startTimeColumn = TvBrowserContentProvider.DATA_KEY_STARTTIME;
       

@@ -3675,6 +3675,7 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
           PluginDefinition[] availablePlugins = PluginDefinition.loadAvailablePluginDefinitions();
           
           final ArrayList<PluginDefinition> newPlugins = new ArrayList<PluginDefinition>();
+          final PluginServiceConnection[] connections = PluginHandler.getAvailablePlugins();
           
           for(PluginDefinition def : availablePlugins) {
             if(Build.VERSION.SDK_INT >= def.getMinApiVersion()) {
@@ -3690,32 +3691,29 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
                 
                 boolean wasAdded = false;
                 boolean wasFound = false;
-                
-                for(PluginServiceConnection connection : PluginHandler.PLUGIN_LIST) {
-                  if(connection.getId().equals(parts[0])) {
-                    wasFound = true;
-                    
-                    try {
-                      String currentVersion = connection.getPlugin().getVersion();
+                                
+                if(connections != null && connections.length > 0) {
+                  for(PluginServiceConnection connection : connections) {
+                    if(connection.getId().equals(parts[0])) {
+                      wasFound = true;
                       
-                      if(!currentVersion.equals(parts[1])) {
+                      String currentVersion = connection.getPluginVersion();
+                      
+                      if(currentVersion != null && !currentVersion.equals(parts[1])) {
                         newPlugins.add(def);
                         def.setIsUpdate();
                         wasAdded = true;
                         break;
                       }
-                    } catch (RemoteException e) {
-                      // TODO Auto-generated catch block
-                      e.printStackTrace();
                     }
                   }
-                }
-                
-                if(wasAdded) {
-                  break;
-                }
-                else if(!wasFound) {
-                  newPlugins.add(def);
+                  
+                  if(wasAdded) {
+                    break;
+                  }
+                  else if(!wasFound) {
+                    newPlugins.add(def);
+                  }
                 }
               }
             }

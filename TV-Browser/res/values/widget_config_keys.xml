@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="WIDGET_CONFIG_IMPORTANT_TYPE">WIDGET_CONFIG_IMPORTANT_TYPE</string>
+    <item name="widget_config_important_type_index_default" type="integer" format="integer">0</item>
+    
+    <string name="WIDGET_CONFIG_PROGRAM_LIST_CHANNELS">WIDGET_CONFIG_PROGRAM_LIST_CHANNELS</string>
+    
     <string name="WIDGET_CONFIG_IMPORTANT_NAME">WIDGET_CONFIG_IMPORTANT_NAME</string>    
     <string name="WIDGET_CONFIG_IMPORTANT_SHOWN_MARKED">WIDGET_CONFIG_IMPORTANT_SHOWN_MARKED</string>
     <string name="WIDGET_CONFIG_IMPORTANT_SHOWN_FAVORITE">WIDGET_CONFIG_IMPORTANT_SHOWN_FAVORITE</string>
@@ -9,5 +14,5 @@
     <string name="WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT">WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT</string>
     
     <string name="WIDGET_CONFIG_RUNNING_TIME">WIDGET_CONFIG_RUNNING_TIME</string>
-    <item name="widget_congig_running_time_default" type="integer" format="integer">-1</item>
+    <item name="widget_config_running_time_default" type="integer" format="integer">-1</item>
 </resources>

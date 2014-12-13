@@ -34,9 +34,35 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   private String mId;
   private Context mContext;
   
+  private String mPluginName;
+  private String mPluginVersion;
+  private String mPluginDescription;
+  private String mPluginAuthor;
+  private String mPluginLicense;
+  
   public PluginServiceConnection(String id, Context context) {
     mId = id;
     mContext = context;
+  }
+  
+  public String getPluginName() {
+    return mPluginName;
+  }
+
+  public String getPluginVersion() {
+    return mPluginVersion;
+  }
+  
+  public String getPluginDescription() {
+    return mPluginDescription;
+  }
+  
+  public String getPluginAuthor() {
+    return mPluginAuthor;
+  }
+  
+  public String getPluginLicense() {
+    return mPluginLicense;
   }
   
   @Override
@@ -46,6 +72,8 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     if(isActivated()) {
       callOnActivation();
     }
+    
+    readPluginMetaData();
 
     Log.d("info23","onServiceConnected " + name );
   }
@@ -68,6 +96,21 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     }
   }
   
+  private void readPluginMetaData() {
+    if(isConnected()) {
+      try {
+        mPluginName = mPlugin.getName();
+        mPluginVersion = mPlugin.getVersion();
+        mPluginDescription = mPlugin.getDescription();
+        mPluginAuthor = mPlugin.getAuthor();
+        mPluginLicense = mPlugin.getLicense();
+      } catch (RemoteException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+  }
+  
   public void callOnDeactivation() {
     Log.d("info23", "callOnActivation " + isActivated());
     if(isConnected()) {
@@ -84,9 +127,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   public void onServiceDisconnected(ComponentName name) {
     mPlugin = null;
     
-    if(PluginHandler.PLUGIN_LIST != null) {
-      PluginHandler.PLUGIN_LIST.remove(this);
-    }
+    PluginHandler.removePluginServiceConnection(this);
     
     Log.d("info23","onServiceDisconnected " + name );
   }
@@ -109,13 +150,8 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
 
   @Override
   public int compareTo(PluginServiceConnection another) {
-    if(isConnected() && another.isConnected()) {
-      try {
-        return getPlugin().getName().compareToIgnoreCase(another.getPlugin().getName());
-      } catch (RemoteException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
+    if(mPluginName != null && another.mPluginName != null) {
+      return mPluginName.compareToIgnoreCase(another.mPluginName);
     }
     
     return isConnected() ? -1 : 1;

@@ -114,6 +114,9 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       
       ArrayList<String> columns = new ArrayList<String>();
       
+      String channels = pref.getString(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_PROGRAM_LIST_CHANNELS), "");
+      int type = pref.getInt(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_TYPE), 0);
+      
       if(pref.getBoolean(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_SHOWN_MARKED), true)) {
         columns.add(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING);
       }
@@ -142,6 +145,14 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       
       if(pref.getBoolean(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT), false)) {
         limit = " LIMIT " + String.valueOf(pref.getInt(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT), 15));
+      }
+      
+      if(type == 1) {
+        where = TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
+        
+        if(channels.trim().length() > 0) {
+          where += " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IN ( " + channels + " ) ";
+        }
       }
       
       final long token = Binder.clearCallingIdentity();

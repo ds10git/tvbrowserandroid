@@ -19,6 +19,7 @@ package org.tvbrowser.widgets;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.CompatUtils;
+import org.tvbrowser.tvbrowser.InfoActivity;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.TvBrowser;
 import org.tvbrowser.tvbrowser.UiUtils;
@@ -73,6 +74,7 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
       int appWidgetId = appWidgetIds[i];
       
       boolean isKeyguard = CompatUtils.isKeyguardWidget(appWidgetId, context);
+      int type = PreferenceManager.getDefaultSharedPreferences(context).getInt(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_IMPORTANT_TYPE), context.getResources().getInteger(R.integer.widget_config_important_type_index_default));
       
       Intent intent = new Intent(context, ImportantProgramsRemoveViewsService.class);
       intent.setData(Uri.parse("org.tvbrowser://importantWidget/" + appWidgetId));
@@ -187,14 +189,24 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
       CompatUtils.setRemoteViewsAdapter(views, appWidgetId, R.id.important_widget_list_view, intent);
       views.setEmptyView(R.id.important_widget_list_view, R.id.important_widget_empty_text);
       
-      views.setTextViewText(R.id.important_widget_header, PreferenceManager.getDefaultSharedPreferences(context).getString(appWidgetId+"_"+context.getString(R.string.WIDGET_CONFIG_IMPORTANT_NAME), context.getString(R.string.widget_important_default_title)));
-            
+      if(type == 0) {
+        views.setTextViewText(R.id.important_widget_header, PreferenceManager.getDefaultSharedPreferences(context).getString(appWidgetId+"_"+context.getString(R.string.WIDGET_CONFIG_IMPORTANT_NAME), context.getString(R.string.widget_important_default_title)));
+      }
+      else {
+        views.setTextViewText(R.id.important_widget_header, context.getString(R.string.title_programs_list));
+        views.setInt(R.id.important_widget_config, "setImageResource", android.R.drawable.btn_star);
+      }
+      
       Intent config = new Intent(context, ImportantProgramsWidgetConfigurationActivity.class);
       config.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
       
+      if(type == 1) {
+        config = new Intent(context, InfoActivity.class);
+        config.putExtra(SettingConstants.WIDGET_CHANNEL_SELECTION_EXTRA, appWidgetId);
+      }
+      
       PendingIntent configStart = PendingIntent.getActivity(context, appWidgetId, config, PendingIntent.FLAG_UPDATE_CURRENT);
       views.setOnClickPendingIntent(R.id.important_widget_config, configStart);
-      
       
       if(!isKeyguard) {
         Intent tvb = new Intent(context, TvBrowser.class);

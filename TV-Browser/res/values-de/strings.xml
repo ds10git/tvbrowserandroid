@@ -553,11 +553,16 @@
     
     <!-- WIDGETS -->
     
-    <string name="widget_important_widget_title">TV-Browser: Wichtige Sendungen</string>
+    <string name="widget_important_widget_title">TV-Browser: Wichtige Sendungen/Sendungsliste</string>
     
     <string name="widget_important_default_title">Wichtige Sendungen</string>
     <string name="widget_important_empty">Keine Sendungen vorhanden</string>
     <string name="widget_important_config_name_label">Widget-Titel:</string>
+	<string name="widget_important_config_type_label">Widget-Typ:</string>
+    <string-array name="widget_important_config_selection_type_entries">
+        <item>Wichtige Sendungen</item>
+        <item>Sendungsliste</item>
+    </string-array>
     <string name="widget_important_config_name_value_hint">Titel des Widgets eingeben</string>
     <string name="widget_important_config_shown_selection_label">ANGEZEIGTE SENDUNGEN AUSWÄHLEN</string>
     <string name="widget_important_config_show_marked">Durch Plugins markierte Sendungen</string>
@@ -649,7 +654,11 @@
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.0.2</h2>
+        <h2>0.5.1</h2>
+        	&bull; Typauswahl für das Wichtige-Sendungen-Widget hinzugefügt (kann als Sendungsliste verwendet werden)<br>
+			&bull; möglichen Absturz in Verbindung mit Plugins beseitigt<br>
+		<br>
+        <h3>0.5.0.2</h3>
 			&bull; Probleme mit Senderbeschränkung beim Backup von Lieblingssendungen beseitigt (Backup muss neu hochgeladen werden)<br>
 		<br>
         <h3>0.5.0.1</h3>
