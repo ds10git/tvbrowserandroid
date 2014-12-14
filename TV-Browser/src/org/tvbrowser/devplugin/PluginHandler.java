@@ -69,29 +69,7 @@ public final class PluginHandler {
     PLUGIN_MANAGER = new PluginManager.Stub() {
       @Override
       public List<Channel> getSubscribedChannels() throws RemoteException {
-        ArrayList<Channel> channelList = new ArrayList<Channel>();
-        
-        final long token = Binder.clearCallingIdentity();
-        Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.CHANNEL_KEY_NAME, TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.KEY_ID);
-        
-        try {
-          if(channels != null) {
-            channels.moveToPosition(-1);
-            
-            int keyColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-            int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-            int iconColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
-            
-            while(channels.moveToNext()) {
-              channelList.add(new Channel(channels.getInt(keyColumn), channels.getString(nameColumn), channels.getBlob(iconColumn)));
-            }
-          }
-        }finally {
-          IOUtils.closeCursor(channels);
-          Binder.restoreCallingIdentity(token);
-        }
-        
-        return channelList;
+        return IOUtils.getChannelList(context);
       }
       
       @Override
@@ -210,12 +188,8 @@ public final class PluginHandler {
   
           Log.d( "info23", "fillPluginList: i: "+i+"; sinfo: "+sinfo+";filter: "+filter1 + " " + sinfo.name);
           if(sinfo != null) {
-            PluginServiceConnection plugin = new PluginServiceConnection(sinfo.name, context);
-            
-            Intent intent = new Intent();
-            intent.setClassName(sinfo.processName, sinfo.name);
-            
-            context.bindService( intent, plugin, Context.BIND_AUTO_CREATE);
+            PluginServiceConnection plugin = new PluginServiceConnection(sinfo.packageName, sinfo.name, context);
+            plugin.bindPlugin(context, null);
             
             PLUGIN_LIST.add(plugin);
           }

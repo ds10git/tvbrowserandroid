@@ -248,6 +248,7 @@ public class TvBrowser extends FragmentActivity implements
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    Log.d("info33", "onCreate");
     handler = new Handler();
     PrefUtils.initialize(TvBrowser.this);
     
@@ -683,6 +684,18 @@ public class TvBrowser extends FragmentActivity implements
     }
   }
   
+  private boolean hasChannels() {
+    boolean result = false;
+    
+    Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID}, null, null, null);
+    
+    result = c != null && c.getCount() > 0;
+    
+    IOUtils.closeCursor(c);
+    
+    return result;
+  }
+  
   private boolean hasEpgDonateChannelsSubscribed() {
     final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID};
     boolean result = false;
@@ -782,25 +795,7 @@ public class TvBrowser extends FragmentActivity implements
       
       try {
         if(!selectingChannels && (channels == null || channels.getCount() == 0)) {
-          selectingChannels = true;
-          AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-          builder.setMessage(R.string.no_channels);
-          builder.setPositiveButton(R.string.select_channels, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-              selectChannels(false);
-            }
-          });
-          
-          builder.setNegativeButton(R.string.dont_select_channels, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-              
-            }
-          });
-          
-          AlertDialog dialog = builder.create();
-          dialog.show();
+          askChannelDownload(R.string.select_channels);
         }
         else if(PluginHandler.getFirstProgramId() == -1) {
           if(isOnline()) {
@@ -848,6 +843,28 @@ public class TvBrowser extends FragmentActivity implements
         }
       }, now.getTime(), 60000);
     }
+  }
+  
+  private void askChannelDownload(int positiveButton) {
+    selectingChannels = true;
+    AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+    builder.setMessage(R.string.no_channels);
+    builder.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        selectChannels(false);
+      }
+    });
+    
+    builder.setNegativeButton(R.string.dont_select_channels, new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        
+      }
+    });
+    
+    AlertDialog dialog = builder.create();
+    dialog.show();
   }
   
   private void showChannelSelection() {
@@ -2166,24 +2183,26 @@ public class TvBrowser extends FragmentActivity implements
   private void selectChannels(boolean loadAgain) {
     Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null);
     
-    if(loadAgain || channels.getCount() < 1) {
-      if(isOnline()) {
-        runChannelDownload();
+    try {
+      if(loadAgain || channels.getCount() < 1) {
+        if(isOnline()) {
+          runChannelDownload();
+        }
+        else {
+          showNoInternetConnection(getString(R.string.no_network_info_data_channel_download), new Runnable() {
+            @Override
+            public void run() {
+              checkTermsAccepted();
+            }
+          });
+        }
       }
       else {
-        showNoInternetConnection(getString(R.string.no_network_info_data_channel_download), new Runnable() {
-          @Override
-          public void run() {
-            checkTermsAccepted();
-          }
-        });
+        showChannelSelection();
       }
+    }finally {
+      IOUtils.closeCursor(channels);
     }
-    else {
-      showChannelSelection();
-    }
-    
-    channels.close();
   }
   
   private void sortChannels() {
@@ -3678,6 +3697,8 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
           final PluginServiceConnection[] connections = PluginHandler.getAvailablePlugins();
           
           for(PluginDefinition def : availablePlugins) {
+            Log.d("info50", "" + Build.VERSION.SDK_INT + " " + def.getMinApiVersion());
+            
             if(Build.VERSION.SDK_INT >= def.getMinApiVersion()) {
               String packageName = def.getPackageName();
               String[] services = def.getServices();
@@ -3707,13 +3728,13 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
                       }
                     }
                   }
-                  
-                  if(wasAdded) {
-                    break;
-                  }
-                  else if(!wasFound) {
-                    newPlugins.add(def);
-                  }
+                }
+                
+                if(wasAdded) {
+                  break;
+                }
+                else if(!wasFound) {
+                  newPlugins.add(def);
                 }
               }
             }
@@ -3974,7 +3995,12 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
         break;
       case R.id.action_synchronize_channels:
         if(isOnline()) {
-          syncronizeChannels();
+          if(!hasChannels()) {
+            askChannelDownload(R.string.channel_notification_title);
+          }
+          else {
+            syncronizeChannels();
+          }
         }
         else {
           showNoInternetConnection(getString(R.string.no_network_info_data_sync_channels),null);

@@ -18,8 +18,10 @@ package org.tvbrowser.settings;
 
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.tvbrowser.devplugin.Plugin;
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
+import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.view.InfoPreference;
 
@@ -105,8 +107,25 @@ public class PluginPreferencesFragment extends PreferenceFragment {
               }
               
               try {
-                if(pluginConnection != null && pluginConnection.isConnected()) {
-                  pluginConnection.getPlugin().openPreferences(PluginHandler.getPluginManager().getSubscribedChannels());
+                if(pluginConnection != null ) {
+                  Plugin plugin = pluginConnection.getPlugin();
+                  
+                  if(plugin != null) {
+                    plugin.openPreferences(IOUtils.getChannelList(getActivity()));
+                  }
+                  else {
+                    pluginConnection.bindPlugin(getActivity(), new Runnable() {
+                      @Override
+                      public void run() {
+                        try {
+                          pluginConnection.getPlugin().openPreferences(IOUtils.getChannelList(getActivity()));
+                        } catch (RemoteException e) {
+                          // TODO Auto-generated catch block
+                          e.printStackTrace();
+                        }
+                      }
+                    });
+                  }
                 }
               } catch (RemoteException e) {
                 // TODO Auto-generated catch block
@@ -125,17 +144,31 @@ public class PluginPreferencesFragment extends PreferenceFragment {
         
         activated.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
           @Override
-          public boolean onPreferenceChange(Preference preference, Object newValue) {
-            if(pluginConnection != null && pluginConnection.isConnected()) {
-              if(startSetupRef.get() != null) {
-                startSetupRef.get().setEnabled((Boolean)newValue);
-              }
+          public boolean onPreferenceChange(Preference preference, final Object newValue) {
+            if(pluginConnection != null) {
+              Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                  if(startSetupRef.get() != null) {
+                    startSetupRef.get().setEnabled((Boolean)newValue);
+                  }
+                  
+                  if((Boolean)newValue) {
+                    pluginConnection.callOnActivation();
+                  }
+                  else {
+                    pluginConnection.callOnDeactivation();
+                  }
+                }
+              };
               
-              if((Boolean)newValue) {
-                pluginConnection.callOnActivation();
+              Plugin plugin = pluginConnection.getPlugin();
+              
+              if(plugin == null) {
+                pluginConnection.bindPlugin(getActivity(), runnable);
               }
               else {
-                pluginConnection.callOnDeactivation();
+                runnable.run();
               }
             }
             
