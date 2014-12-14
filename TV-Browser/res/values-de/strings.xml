@@ -654,7 +654,12 @@
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.1</h2>
+        <h2>0.5.2</h2>
+			&bull; stellt sicher, dass die Plugin-Einstellungen keinen Absturz verursachen<br>
+			&bull; Probleme bei der Suche nach Plugins beseitigt<br>
+			&bull; bessere Informationen bei der Sendersynchronisierung<br>
+		<br>
+		<h3>0.5.1</h3>
         	&bull; Typauswahl für das Wichtige-Sendungen-Widget hinzugefügt (kann als Sendungsliste verwendet werden)<br>
 			&bull; möglichen Absturz in Verbindung mit Plugins beseitigt<br>
 		<br>

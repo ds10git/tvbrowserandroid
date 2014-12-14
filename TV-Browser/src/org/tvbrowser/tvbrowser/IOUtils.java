@@ -30,6 +30,7 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.List;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -37,6 +38,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.devplugin.Channel;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
@@ -48,6 +51,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.os.Binder;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -642,5 +646,31 @@ public class IOUtils {
         // Igonore, nothing to do here
       }
     }
+  }
+  
+  public static List<Channel> getChannelList(Context context) {
+    ArrayList<Channel> channelList = new ArrayList<Channel>();
+    
+    final long token = Binder.clearCallingIdentity();
+    Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.CHANNEL_KEY_NAME, TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.KEY_ID);
+    
+    try {
+      if(channels != null) {
+        channels.moveToPosition(-1);
+        
+        int keyColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+        int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+        int iconColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
+        
+        while(channels.moveToNext()) {
+          channelList.add(new Channel(channels.getInt(keyColumn), channels.getString(nameColumn), channels.getBlob(iconColumn)));
+        }
+      }
+    }finally {
+      IOUtils.closeCursor(channels);
+      Binder.restoreCallingIdentity(token);
+    }
+    
+    return channelList;
   }
 }

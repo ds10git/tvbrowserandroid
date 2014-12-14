@@ -18,6 +18,7 @@ package org.tvbrowser.devplugin;
 
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -31,7 +32,8 @@ import android.util.Log;
  */
 public class PluginServiceConnection implements ServiceConnection, Comparable<PluginServiceConnection> {
   private Plugin mPlugin;
-  private String mId;
+  private String mPackageId;
+  private String mPluginId;
   private Context mContext;
   
   private String mPluginName;
@@ -40,9 +42,22 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   private String mPluginAuthor;
   private String mPluginLicense;
   
-  public PluginServiceConnection(String id, Context context) {
-    mId = id;
+  public PluginServiceConnection(String packageId, String id, Context context) {
+    mPackageId = packageId;
+    mPluginId = id;
     mContext = context;
+  }
+  
+  private Runnable mBindCallback;
+  
+  public void bindPlugin(Context context, Runnable bindCallback) {
+    mBindCallback = bindCallback;
+    
+    Intent intent = new Intent();
+    intent.setClassName(mPackageId, mPluginId);
+    Log.d("info23", mPackageId + " " + mPluginId);try {
+    context.bindService( intent, this, Context.BIND_AUTO_CREATE);
+    }catch(Throwable t) {Log.d("info23", "" , t);}
   }
   
   public String getPluginName() {
@@ -88,6 +103,11 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
         
         if(firstProgramId != PluginHandler.FIRST_PROGRAM_ALREADY_HANDLED_ID) {
           mPlugin.handleFirstKnownProgramId(firstProgramId);
+        }
+        
+        if(mBindCallback != null) {
+          mBindCallback.run();
+          mBindCallback = null;
         }
       } catch (Throwable e) {
         // TODO Auto-generated catch block
@@ -137,7 +157,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   }
   
   public boolean isActivated() {
-    return isConnected() && PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(mId+"_ACTIVATED", true);
+    return isConnected() && PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(mPluginId+"_ACTIVATED", true);
   }
   
   public Plugin getPlugin() {
@@ -145,7 +165,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   }
   
   public String getId() {
-    return mId;
+    return mPluginId;
   }
 
   @Override
