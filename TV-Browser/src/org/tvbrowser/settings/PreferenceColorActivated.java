@@ -9,7 +9,6 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -61,8 +60,6 @@ public class PreferenceColorActivated extends DialogPreference {
     
     setDialogLayoutResource(org.tvbrowser.tvbrowser.R.layout.color_preference_dialog);
     setWidgetLayoutResource(org.tvbrowser.tvbrowser.R.layout.widget_color_activated);
-    
-    Log.d("info88", "init " + getKey() + " " + mActivated + " " + mColor);
   }
   
   
@@ -77,8 +74,6 @@ public class PreferenceColorActivated extends DialogPreference {
     mColorView.setColor(mColor);
     
     handleVisiblity();
-    
-    Log.d("info88", "onBindView " + getKey() + " " + mActivated + " " + mColor);
   }
   
   private void handleVisiblity() {
@@ -101,7 +96,7 @@ public class PreferenceColorActivated extends DialogPreference {
       mColorView.setColor(mColor);
       mActivated = mDialogActivatedSelection.isChecked();
       mActivatedSelection.setChecked(mActivated);
-      Log.d("info88", ""+mColor);
+      
       handleVisiblity();
       
       String value = String.valueOf(mActivated) + ";" + String.valueOf(mColor);
@@ -228,7 +223,5 @@ public class PreferenceColorActivated extends DialogPreference {
       mActivated = values[0] == 1;
       mColor = values[1];
     }
-    
-    Log.d("info88", "onSetInitialValue " + getKey() + " " + mActivated + " " + mColor);
   }
 }

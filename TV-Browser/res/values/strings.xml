@@ -670,7 +670,7 @@
     
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.2.1</h2>
+        <h2>0.5.3</h2>
             &bull; added user defined program category color (not for program table)<br>
         	&bull; added category display for widgets<br>
         	&bull; fixed not working download LAN connections<br>

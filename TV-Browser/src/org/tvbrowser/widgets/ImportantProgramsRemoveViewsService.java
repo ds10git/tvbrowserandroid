@@ -277,7 +277,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       final String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
       String number = null;
       final String episodeTitle = mShowEpisode ? mCursor.getString(mEpisodeIndex) : null;
-      Spannable categorySpan = IOUtils.getInfoString(mCursor.getInt(mCategoryIndex), getResources());
+      Spannable categorySpan = mShowCategories ? IOUtils.getInfoString(mCursor.getInt(mCategoryIndex), getResources()) : null;
       
       if(shortName != null) {
         name = shortName;
@@ -331,7 +331,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       rv.setTextViewText(R.id.important_programs_widget_row_start_time1, time);
       rv.setTextViewText(R.id.important_programs_widget_row_title1, title);
       
-      if(mShowCategories && categorySpan.toString().trim().length() > 0) {
+      if(categorySpan != null && categorySpan.toString().trim().length() > 0) {
         rv.setViewVisibility(R.id.important_programs_widget_row_categories, View.VISIBLE);
         rv.setTextViewText(R.id.important_programs_widget_row_categories, categorySpan);
       }
