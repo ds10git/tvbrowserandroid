@@ -35,7 +35,9 @@
 	    android:layout_height="match_parent"
 	    android:layout_toEndOf="@id/running_programs_widget_row_channel"
 	    android:layout_toRightOf="@id/running_programs_widget_row_channel"
+	    android:layout_marginStart="2dp"
 	    android:layout_marginLeft="2dp"
+	    android:layout_marginEnd="3dp"
 	    android:layout_marginRight="3dp"
 	    >
 	    <ProgressBar 
@@ -68,6 +70,14 @@
 	        android:layout_toRightOf="@id/running_programs_widget_row_start_time"
 	        android:layout_below="@id/running_programs_widget_row_progress"
 	        />
+	    <TextView android:id="@+id/running_programs_widget_row_categories"
+	        android:textSize="@dimen/prog_list_categories_font_size"
+	        android:layout_width="match_parent"
+	        android:layout_height="wrap_content"
+	        android:layout_toEndOf="@id/running_programs_widget_row_start_time"
+	        android:layout_toRightOf="@id/running_programs_widget_row_start_time"
+	        android:layout_below="@id/running_programs_widget_row_title"
+	        />
 	    <TextView android:id="@+id/running_programs_widget_row_episode"
 	        android:textSize="@dimen/episode_font_size"
 	        android:textStyle="italic"
@@ -75,7 +85,7 @@
 	        android:layout_height="wrap_content"
 	        android:layout_toEndOf="@id/running_programs_widget_row_start_time"
 	        android:layout_toRightOf="@id/running_programs_widget_row_start_time"
-	        android:layout_below="@id/running_programs_widget_row_title"
+	        android:layout_below="@id/running_programs_widget_row_categories"
 	        />
 	</RelativeLayout>
 </RelativeLayout>

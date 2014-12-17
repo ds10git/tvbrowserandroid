@@ -28,6 +28,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
+import android.text.Spannable;
 import android.text.TextPaint;
 import android.util.Log;
 import android.view.View;
@@ -79,9 +80,9 @@ public class ProgramPanel extends View {
     ProgramTableLayoutConstants.NOT_EXPIRED_TITLE_PAINT.getTextBounds(mStartTimeString, 0, mStartTimeString.length(), mStartTimeBounds);
   }
   
-  public void setInfoString(String value) {
-    if(value != null && value.trim().length() > 0) {
-      Object[] result = getBreakerText(value, getTextWidth() - mStartTimeBounds.width() - ProgramTableLayoutConstants.TIME_TITLE_GAP, ProgramTableLayoutConstants.NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT);
+  public void setInfoString(Spannable value) {
+    if(value != null && value.toString().trim().length() > 0) {
+      Object[] result = getBreakerText(value.toString(), getTextWidth() - mStartTimeBounds.width() - ProgramTableLayoutConstants.TIME_TITLE_GAP, ProgramTableLayoutConstants.NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT);
       
       mInfoString = result[0].toString();
       mSuperSmallCount += (Integer)result[1];

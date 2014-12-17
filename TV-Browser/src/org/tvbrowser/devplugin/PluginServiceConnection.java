@@ -16,6 +16,8 @@
  */
 package org.tvbrowser.devplugin;
 
+import java.util.ArrayList;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -41,23 +43,52 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   private String mPluginDescription;
   private String mPluginAuthor;
   private String mPluginLicense;
+  private boolean mHasPreferences;
+  
+  private Runnable mBindCallback;
+  
+  private ArrayList<Context> mBindContextList;
   
   public PluginServiceConnection(String packageId, String id, Context context) {
     mPackageId = packageId;
     mPluginId = id;
     mContext = context;
+    mHasPreferences = false;
+    
+    mBindContextList = new ArrayList<Context>();
   }
   
-  private Runnable mBindCallback;
   
-  public void bindPlugin(Context context, Runnable bindCallback) {
+  public boolean bindPlugin(Context context, Runnable bindCallback) {
+    boolean bound = false;
     mBindCallback = bindCallback;
     
-    Intent intent = new Intent();
-    intent.setClassName(mPackageId, mPluginId);
-    Log.d("info23", mPackageId + " " + mPluginId);try {
-    context.bindService( intent, this, Context.BIND_AUTO_CREATE);
-    }catch(Throwable t) {Log.d("info23", "" , t);}
+    if(!mBindContextList.contains(context)) {
+      Intent intent = new Intent();
+      intent.setClassName(mPackageId, mPluginId);
+      Log.d("info23", mPackageId + " " + mPluginId);try {
+      bound = context.bindService( intent, this, Context.BIND_AUTO_CREATE);
+      Log.d("info23", "BOUND23 " + bound);
+      if(bound) {
+        mBindContextList.add(context);
+      }
+      
+      }catch(Throwable t) {Log.d("info23", "" , t);}
+    }
+    
+    return bound;
+  }
+  
+  public void unbindPlugin(Context context) {
+    if(mBindContextList.contains(context)) {
+      mBindContextList.remove(context);
+      
+      context.unbindService(this);
+    }
+  }
+  
+  public boolean isBound(Context context) {
+    return mBindContextList.contains(context);
   }
   
   public String getPluginName() {
@@ -80,8 +111,14 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     return mPluginLicense;
   }
   
+  public boolean hasPreferences() {
+    return mHasPreferences;
+  }
+  
   @Override
   public void onServiceConnected(ComponentName name, IBinder service) {
+    Log.d("info23","onServiceConnected " + name );
+    
     mPlugin = Plugin.Stub.asInterface(service);
     
     if(isActivated()) {
@@ -89,20 +126,20 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     }
     
     readPluginMetaData();
-
-    Log.d("info23","onServiceConnected " + name );
   }
   
   public void callOnActivation() {
     Log.d("info23", "callOnActivation " + isActivated());
     if(isConnected()) {
       try {
-        mPlugin.onActivation(PluginHandler.getPluginManager());
-        
-        long firstProgramId = PluginHandler.getFirstProgramId();
-        
-        if(firstProgramId != PluginHandler.FIRST_PROGRAM_ALREADY_HANDLED_ID) {
-          mPlugin.handleFirstKnownProgramId(firstProgramId);
+        if(PluginHandler.getPluginManager() != null) {
+          mPlugin.onActivation(PluginHandler.getPluginManager());
+          
+          long firstProgramId = PluginHandler.getFirstProgramId();
+          
+          if(firstProgramId != PluginHandler.FIRST_PROGRAM_ALREADY_HANDLED_ID) {
+            mPlugin.handleFirstKnownProgramId(firstProgramId);
+          }
         }
         
         if(mBindCallback != null) {
@@ -116,7 +153,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     }
   }
   
-  private void readPluginMetaData() {
+  public void readPluginMetaData() {
     if(isConnected()) {
       try {
         mPluginName = mPlugin.getName();
@@ -124,11 +161,16 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
         mPluginDescription = mPlugin.getDescription();
         mPluginAuthor = mPlugin.getAuthor();
         mPluginLicense = mPlugin.getLicense();
+        mHasPreferences = mPlugin.hasPreferences();
       } catch (RemoteException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }
+  }
+  
+  private boolean isConnected() {
+    return mPlugin != null && !mBindContextList.isEmpty();
   }
   
   public void callOnDeactivation() {
@@ -142,26 +184,36 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
       }
     }
   }
-
+  
   @Override
   public void onServiceDisconnected(ComponentName name) {
     mPlugin = null;
     
+    for(Context context : mBindContextList) {
+      context.unbindService(this);
+    }
+    
+    mBindContextList.clear();
+    
     PluginHandler.removePluginServiceConnection(this);
     
-    Log.d("info23","onServiceDisconnected " + name );
+    Log.d("info23","onServiceDisconnected " + name + " " + mPlugin);
   }
   
-  public boolean isConnected() {
+ /* public boolean isConnected() {
     return mPlugin != null;
-  }
+  }*/
   
   public boolean isActivated() {
-    return isConnected() && PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(mPluginId+"_ACTIVATED", true);
+    return mPlugin != null && PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(mPluginId+"_ACTIVATED", true);
   }
   
   public Plugin getPlugin() {
     return mPlugin;
+  }
+  
+  public String getPackageId() {
+    return mPackageId;
   }
   
   public String getId() {

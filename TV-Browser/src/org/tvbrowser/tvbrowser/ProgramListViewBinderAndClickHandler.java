@@ -30,6 +30,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.text.Spannable;
 import android.text.format.DateFormat;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -254,9 +255,9 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
         int info = cursor.getInt(columnIndex);
         
         if(info != 0) {
-          String text = IOUtils.getInfoString(info,view.getResources());
+          Spannable text = IOUtils.getInfoString(info,view.getResources());
           
-          if(text.trim().length() > 0) {
+          if(text.toString().trim().length() > 0) {
             view.setVisibility(View.VISIBLE);
             ((TextView)view).setText(text);
           }

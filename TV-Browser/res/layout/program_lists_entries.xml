@@ -111,7 +111,7 @@
     	android:layout_below="@id/picture_pl"
     	android:gravity="bottom" />
     <TextView android:id="@+id/info_label_pl"
-        android:textSize="12sp"
+        android:textSize="@dimen/prog_list_categories_font_size"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/startTimeLabelPL"

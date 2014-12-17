@@ -260,10 +260,11 @@ public class TvDataUpdateService extends Service {
         
         ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
         
+        NetworkInfo lan = CompatUtils.getLanNetworkIfPossible(connMgr);
         NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
         
-        if(wifi != null && wifi.isConnected()) {
+        if((wifi != null && wifi.isConnected()) || (lan != null && lan.isConnected())) {
           isConnected = true;
         }
         
@@ -327,14 +328,8 @@ public class TvDataUpdateService extends Service {
     
     doLog("Favorite.handleDataUpdateStarted()");
     Favorite.handleDataUpdateStarted();
-    
-    File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-    
-    if(!parent.isDirectory()) {
-      parent = getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
-    }
-    
-    final File path = new File(parent,"tvbrowserdata");
+        
+    final File path = IOUtils.getDownloadDirectory(TvDataUpdateService.this.getApplicationContext());
     
     if(path.isDirectory()) {
       File[] oldDataFiles = path.listFiles(new FileFilter() {
@@ -1136,24 +1131,7 @@ public class TvDataUpdateService extends Service {
         }
       }
       
-      File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-      
-      if(!parent.isDirectory()) {
-        parent = getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
-      }
-      
-      final File path = new File(parent,"tvbrowserdata");
-      File nomedia = new File(path,".nomedia");
-      
-      if(!path.isDirectory()) {
-        path.mkdirs();
-      }
-      
-      if(!nomedia.isFile()) {
-        try {
-          nomedia.createNewFile();
-        } catch (IOException e) {}
-      }
+      final File path = IOUtils.getDownloadDirectory(TvDataUpdateService.this.getApplicationContext());
 
       File groups = new File(path,GROUP_FILE);
       
@@ -2235,25 +2213,7 @@ public class TvDataUpdateService extends Service {
       doLog("Favorite.handleDataUpdateStarted()");
       Favorite.handleDataUpdateStarted();
       
-      File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-      
-      if(!parent.isDirectory()) {
-        parent = getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
-      }
-      
-      final File path = new File(parent,"tvbrowserdata");
-      
-      File nomedia = new File(path,".nomedia");
-      
-      if(!path.isDirectory()) {
-        path.mkdirs();
-      }
-      
-      if(!nomedia.isFile()) {
-        try {
-          nomedia.createNewFile();
-        } catch (IOException e) {}
-      }
+      final File path = IOUtils.getDownloadDirectory(TvDataUpdateService.this.getApplicationContext());
       
       File[] oldDataFiles = path.listFiles(new FileFilter() {
         @Override

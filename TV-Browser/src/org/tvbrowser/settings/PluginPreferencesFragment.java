@@ -16,8 +16,11 @@
  */
 package org.tvbrowser.settings;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+import org.tvbrowser.devplugin.Channel;
 import org.tvbrowser.devplugin.Plugin;
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
@@ -25,8 +28,11 @@ import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.view.InfoPreference;
 
+import android.app.AlertDialog;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -34,7 +40,9 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.text.Html;
+import android.transition.ArcMotion;
 import android.util.Log;
+import android.widget.TextView;
 
 /**
  * The preferences fragment for the plugins.
@@ -69,11 +77,13 @@ public class PluginPreferencesFragment extends PreferenceFragment {
     this.setPreferenceScreen(preferenceScreen);
     preferenceScreen.setTitle("ccccc");
     
-    final PluginServiceConnection pluginConnection = PluginHandler.getConnectionForId(mPluginId);
+    final PluginServiceConnection pluginConnection = ((PluginPreferencesActivity)getActivity()).getServiceConnectionWithId(mPluginId);
+    
+  //  pluginConnection.unbindPlugin(getActivity().getApplicationContext());
     
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
-    if(pluginConnection != null && pluginConnection.isConnected()) {
+    if(pluginConnection != null) {
       Log.d("info24", ""+pluginConnection.getId());
       final CheckBoxPreference activated =  new CheckBoxPreference(getActivity());
       activated.setTitle(R.string.pref_activated);
@@ -82,112 +92,147 @@ public class PluginPreferencesFragment extends PreferenceFragment {
       
       preferenceScreen.addPreference(activated);
       
-      try {
-        String description = pluginConnection.getPluginDescription();
-        
-        if(description != null) {
-          InfoPreference descriptionPref = new InfoPreference(getActivity());
-          descriptionPref.setTitle(R.string.pref_plugins_description);
-          descriptionPref.setSummary(description);
-          preferenceScreen.addPreference(descriptionPref);
-        }
-        
-        final AtomicReference<Preference> startSetupRef = new AtomicReference<Preference>(null);
-        if(pluginConnection != null && pluginConnection.isConnected() && pluginConnection.getPlugin().hasPreferences()) {
-          final Preference startSetup = new Preference(getActivity());
-          startSetup.setTitle(R.string.pref_open);
-          startSetup.setKey(mPluginId);
-          startSetup.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-              StackTraceElement[] els = Thread.currentThread().getStackTrace();
-              
-              for(StackTraceElement el : els) {
-                Log.d("info24", el.toString());
-              }
-              
-              try {
-                if(pluginConnection != null ) {
-                  Plugin plugin = pluginConnection.getPlugin();
-                  
-                  if(plugin != null) {
-                    plugin.openPreferences(IOUtils.getChannelList(getActivity()));
-                  }
-                  else {
-                    pluginConnection.bindPlugin(getActivity(), new Runnable() {
-                      @Override
-                      public void run() {
-                        try {
-                          pluginConnection.getPlugin().openPreferences(IOUtils.getChannelList(getActivity()));
-                        } catch (RemoteException e) {
-                          // TODO Auto-generated catch block
-                          e.printStackTrace();
-                        }
-                      }
-                    });
-                  }
-                }
-              } catch (RemoteException e) {
-                // TODO Auto-generated catch block
-                e.printStackTrace();
-              }
-              
-              return true;
-            }
-          });
-          
-          preferenceScreen.addPreference(startSetup);
-          
-          startSetup.setEnabled(activated.isChecked());
-          startSetupRef.set(startSetup);
-        }
-        
-        activated.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+      String description = pluginConnection.getPluginDescription();
+      
+      if(description != null) {
+        InfoPreference descriptionPref = new InfoPreference(getActivity());
+        descriptionPref.setTitle(R.string.pref_plugins_description);
+        descriptionPref.setSummary(description);
+        preferenceScreen.addPreference(descriptionPref);
+      }
+      
+      final Handler handler = new Handler();
+      final Context context = getActivity();
+      
+      final AtomicReference<Preference> startSetupRef = new AtomicReference<Preference>(null);
+      if(pluginConnection != null && pluginConnection.hasPreferences()) {
+        final Preference startSetup = new Preference(getActivity());
+        startSetup.setTitle(R.string.pref_open);
+        startSetup.setKey(mPluginId);
+        startSetup.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
           @Override
-          public boolean onPreferenceChange(Preference preference, final Object newValue) {
-            if(pluginConnection != null) {
-              Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                  if(startSetupRef.get() != null) {
-                    startSetupRef.get().setEnabled((Boolean)newValue);
-                  }
-                  
-                  if((Boolean)newValue) {
-                    pluginConnection.callOnActivation();
+          public boolean onPreferenceClick(Preference preference) {
+            String logtext = "onPreferenceClick: pluginConntection: " + (pluginConnection != null) +" ";
+            
+            try {
+              
+              
+              if(pluginConnection != null ) {
+                Plugin plugin = pluginConnection.getPlugin();
+                
+                logtext += "PLUGIN " + plugin + " isBound " + pluginConnection.isBound(getActivity().getApplicationContext());
+                //Log.d("info24", );
+                if(plugin != null && pluginConnection.isBound(getActivity().getApplicationContext())) {
+                  logtext += " openPreferences " + IOUtils.getChannelList(getActivity());
+                  plugin.openPreferences(IOUtils.getChannelList(getActivity()));
+                }
+                else {
+                  final Context bindContext = getActivity(); 
+                  logtext += " bindPlugin ";
+                  if(pluginConnection.bindPlugin(bindContext, null)) {
+                    logtext += " BOUND PLUGIN ";
+                    Log.d("info23", logtext);
+                    pluginConnection.getPlugin().onActivation(((PluginPreferencesActivity)getActivity()).getPluginManager());
+                    pluginConnection.getPlugin().openPreferences(IOUtils.getChannelList(bindContext));
+                    pluginConnection.callOnDeactivation();
+                    logtext += " UNBIND PLUGIN ";
+                    pluginConnection.unbindPlugin(bindContext);
                   }
                   else {
-                    pluginConnection.callOnDeactivation();
+                    logtext += " COULD NOT BIND TO PLUGIN ";
                   }
                 }
-              };
-              
-              Plugin plugin = pluginConnection.getPlugin();
-              
-              if(plugin == null) {
-                pluginConnection.bindPlugin(getActivity(), runnable);
+                
+                
               }
-              else {
-                runnable.run();
-              }
+            } catch (Throwable e) {
+              // TODO Auto-generated catch block
+              Log.d("info24","",e);
+              
+              logtext += e.getMessage();
             }
+            /*
+            final String message = logtext;
+            
+            handler.post(new Runnable() {
+              @Override
+              public void run() {
+                TextView view = new TextView(getActivity());
+                view.setText(message);
+                view.setTextIsSelectable(true);
+                view.setTextSize(18f);
+                
+                new AlertDialog.Builder(context).setView(view).setPositiveButton(android.R.string.ok, null).show();
+              }
+            });*/
             
             return true;
           }
         });
         
-        String license = pluginConnection.getPluginLicense();
+        preferenceScreen.addPreference(startSetup);
         
-        if(license != null) {
-          InfoPreference licensePref = new InfoPreference(getActivity());
-          licensePref.setTitle(R.string.pref_plugins_license);
-          licensePref.setSummary(Html.fromHtml(license));
+        startSetup.setEnabled(activated.isChecked());
+        startSetupRef.set(startSetup);
+      }
+      
+      activated.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+        @Override
+        public boolean onPreferenceChange(Preference preference, final Object newValue) {
+          if(pluginConnection != null) {
+            final AtomicReference<Context> mBindContextRef = new AtomicReference<Context>(null); 
+            
+            Runnable runnable = new Runnable() {
+              @Override
+              public void run() {
+                if(startSetupRef.get() != null) {
+                  startSetupRef.get().setEnabled((Boolean)newValue);
+                }
+                
+                if((Boolean)newValue) {
+                  try {
+                    pluginConnection.getPlugin().onActivation(((PluginPreferencesActivity)getActivity()).getPluginManager());
+                  } catch (RemoteException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
+                  }
+                }
+                else {
+                  pluginConnection.callOnDeactivation();
+                }
+                
+                if(mBindContextRef.get() != null) {
+                  pluginConnection.callOnDeactivation();
+                  pluginConnection.unbindPlugin(mBindContextRef.get() );
+                }
+              }
+            };
+            
+            Plugin plugin = pluginConnection.getPlugin();
+            
+            if(plugin == null) {
+              mBindContextRef.set(getActivity());
+              if(pluginConnection.bindPlugin(mBindContextRef.get(), null)) {
+                runnable.run();
+              }
+            }
+            else {
+              runnable.run();
+            }
+          }
           
-          preferenceScreen.addPreference(licensePref);
+          return true;
         }
-      } catch (RemoteException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
+      });
+      
+      String license = pluginConnection.getPluginLicense();
+      
+      if(license != null) {
+        InfoPreference licensePref = new InfoPreference(getActivity());
+        licensePref.setTitle(R.string.pref_plugins_license);
+        licensePref.setSummary(Html.fromHtml(license));
+        
+        preferenceScreen.addPreference(licensePref);
       }
     }
   }

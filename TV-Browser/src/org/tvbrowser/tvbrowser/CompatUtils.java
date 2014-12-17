@@ -22,6 +22,8 @@ import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Build;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -78,5 +80,15 @@ public class CompatUtils {
     else {
       view.setBackgroundDrawable(draw);
     }
+  }
+  
+  public static NetworkInfo getLanNetworkIfPossible(ConnectivityManager connMgr) {
+    NetworkInfo result = null;
+    
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+      result = connMgr.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
+    }
+    
+    return result;
   }
 }

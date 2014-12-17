@@ -3,13 +3,24 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:layout_margin="5dp" >
+    <CheckBox
+        android:id="@+id/color_pref_color_activated"
+        android:text="@string/pref_activated"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignParentLeft="true"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentTop="true"
+        android:visibility="gone"
+        android:layout_margin="5dp"/>
     <org.tvbrowser.view.ColorView
     	android:id="@+id/color_pref_color_view"
     	android:layout_width="130dp"
     	android:layout_height="wrap_content"
+    	android:layout_alignParentStart="true"
     	android:layout_alignParentLeft="true"
-    	android:layout_alignParentTop="true"
     	android:layout_margin="5dp"
+    	android:layout_below="@id/color_pref_color_activated"
     	android:layout_alignBottom="@+id/color_pref_blue1"/>
     <Button 
         android:id="@+id/color_pref_reset"
@@ -21,30 +32,37 @@
         android:id="@+id/color_pref_red_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/color_pref_color_view"
         android:layout_toRightOf="@+id/color_pref_color_view"
         android:layout_alignBottom="@+id/color_pref_red1"
         android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
         android:text="@string/pref_marking_color_red"/>
     <TextView
         android:id="@+id/color_pref_green_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/color_pref_color_view"
         android:layout_toRightOf="@+id/color_pref_color_view"
         android:layout_alignBottom="@+id/color_pref_green1"
         android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
         android:text="@string/pref_marking_color_green"/>
     <TextView
         android:id="@+id/color_pref_blue_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/color_pref_color_view"
         android:layout_toRightOf="@+id/color_pref_color_view"
         android:layout_alignBottom="@+id/color_pref_blue1"
         android:layout_marginLeft="10dp"
+        android:layout_marginStart="10dp"
         android:text="@string/pref_marking_color_blue"/>
     <TextView
         android:id="@+id/color_pref_alpha_label"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_toEndOf="@+id/color_pref_color_view"
         android:layout_toRightOf="@+id/color_pref_color_view"
         android:layout_alignBottom="@+id/color_pref_alpha1"
         android:layout_marginLeft="10dp"
@@ -54,7 +72,8 @@
         android:id="@+id/color_pref_red1"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
+        android:layout_below="@id/color_pref_color_activated"
+        android:layout_toEndOf="@id/color_pref_alpha_label"
         android:layout_toRightOf="@id/color_pref_alpha_label"
         android:max="255"/>
     <SeekBar
@@ -62,6 +81,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/color_pref_red1"
+        android:layout_toEndOf="@id/color_pref_alpha_label"
         android:layout_toRightOf="@id/color_pref_alpha_label"
         android:max="255"/>
     <SeekBar
@@ -69,6 +89,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/color_pref_green1"
+        android:layout_toEndOf="@id/color_pref_alpha_label"
         android:layout_toRightOf="@id/color_pref_alpha_label"
         android:max="255"/>
     <SeekBar
@@ -76,6 +97,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@id/color_pref_blue1"
+        android:layout_toEndOf="@id/color_pref_alpha_label"
         android:layout_toRightOf="@id/color_pref_alpha_label"
         android:max="255"/>
 </RelativeLayout>

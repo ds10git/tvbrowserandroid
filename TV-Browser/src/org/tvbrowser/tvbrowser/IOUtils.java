@@ -18,6 +18,7 @@ package org.tvbrowser.tvbrowser;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +31,9 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -52,7 +55,11 @@ import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Binder;
+import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 
 /**
@@ -173,7 +180,7 @@ public class IOUtils {
     return ((categories & info) == info);
   }
   
-  public static String getInfoString(int value, Resources res) {
+  public static Spannable getInfoString(int value, Resources res) {
     StringBuilder infoString = new StringBuilder();
     
     String[] valueArr = {"",
@@ -204,19 +211,69 @@ public class IOUtils {
         res.getString(R.string.info_sign_language)
         };
     
-    int[] prefKeyArr = SettingConstants.INFO_PREF_KEY_ARR;
+    int filmKeyIndex = 11;
+    int seriesKeyIndex = 12;
+    int newKeyIndex = 13;
+    int docuKeyIndex = 19;
+    int childrenKeyIndex = 22;
+    
+    int[] prefKeyArr = SettingConstants.CATEGORY_PREF_KEY_ARR;
+    int[] colorPrefKeyArr = SettingConstants.CATEGORY_COLOR_PREF_KEY_ARR;
+    
+    HashMap<String, Integer> colorMap = new HashMap<String, Integer>();
     
     for(int i = 1; i <= 25; i++) {
       if((value & (1 << i)) == (1 << i) && PrefUtils.getBooleanValue(prefKeyArr[i-1], R.bool.pref_info_show_default)) {
         if(infoString.length() > 0) {
           infoString.append(", ");
         }
-        
         infoString.append(valueArr[i]);
+        
+        int defaultColorCategoryKey = R.string.pref_color_categories_default;
+        
+        if(i-1 == filmKeyIndex) {
+          defaultColorCategoryKey = R.string.pref_color_category_film_default;
+        }
+        else if(i-1 == seriesKeyIndex) {
+          defaultColorCategoryKey = R.string.pref_color_category_series_default;
+        }
+        else if(i-1 == newKeyIndex) {
+          defaultColorCategoryKey = R.string.pref_color_category_new_default;
+        }
+        else if(i-1 == docuKeyIndex) {
+          defaultColorCategoryKey = R.string.pref_color_category_docu_default;
+        }
+        else if(i-1 == childrenKeyIndex) {
+          defaultColorCategoryKey = R.string.pref_color_category_children_default;
+        }
+        
+        int[] colorCategory = getColorForCategory(PrefUtils.getStringValue(colorPrefKeyArr[i-1], defaultColorCategoryKey));
+        
+        if(colorCategory[0] == 1) {
+          colorMap.put(valueArr[i], Integer.valueOf(colorCategory[1]));
+        }
       }
     }
     
-    return infoString.toString().trim();
+    SpannableString categories = new SpannableString(infoString.toString().trim());
+    
+    Set<String> colorKeys = colorMap.keySet();
+    
+    for(String colorKey : colorKeys) {
+      categories = setColor(categories, colorKey, colorMap.get(colorKey).intValue());
+    }
+    
+    return categories;
+  }
+  
+  private static SpannableString setColor(SpannableString categories, String value, int color) {
+    int index = categories.toString().indexOf(value);
+    
+    if(index != -1) {
+      categories.setSpan(new ForegroundColorSpan(color), index, index+value.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    
+    return categories;
   }
   
   public static byte[] loadUrl(String urlString) throws MalformedURLException, IOException, TimeoutException {
@@ -613,7 +670,7 @@ public class IOUtils {
    * @param cursor The cursor to close.
    */
   public static void closeCursor(Cursor cursor) {
-    if(cursor != null && !cursor.isClosed()) {
+    if(cursor != null) {
       cursor.close();
     }
   }
@@ -672,5 +729,62 @@ public class IOUtils {
     }
     
     return channelList;
+  }
+  
+  public static File getDownloadDirectory(Context context) {
+    File parent = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
+    boolean external = true;
+    Log.d("info77", "PARENT " + parent);
+    if(parent == null || !parent.isDirectory()) {
+      external = false;
+      parent = context.getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
+    }
+    
+    File path = new File(parent,"tvbrowserdata");
+    File nomedia = new File(path,".nomedia");
+    
+    if(!path.isDirectory()) {
+      if(!path.mkdirs() && external) {
+        parent = context.getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
+        
+        path = new File(parent,"tvbrowserdata");
+        nomedia = new File(path,".nomedia");
+        
+        if(!path.isDirectory()) {
+          path.mkdirs();
+        }
+      }
+    }
+    
+    if(!nomedia.isFile()) {
+      try {
+        nomedia.createNewFile();
+      } catch (IOException e) {}
+    }
+    
+    Log.d("info77", path.getAbsolutePath());
+    
+    return path;
+  }
+  
+  /**
+   * Gets the color for the given encoded category as array with index 0
+   * containing the activated state of the color category 0 means disabled,
+   * 1 means activated. The value with index 1 contains the color.
+   * <p>
+   * @param encodedColorCategory The color categroy preference value.
+   * @return An int array with the result.
+   */
+  public static int[] getColorForCategory(String encodedColorCategory) {
+    int[] result = new int[] {0,0};
+    
+    if(encodedColorCategory != null) {
+      String[] parts = encodedColorCategory.split(";");
+      
+      result[0] = Boolean.parseBoolean(parts[0]) ? 1 : 0;
+      result[1] = Integer.parseInt(parts[1]);
+    }
+    
+    return result;
   }
 }

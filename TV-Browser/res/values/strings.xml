@@ -70,7 +70,7 @@
     <string name="pref_category_email">Email</string>
     <string name="pref_category_news">News</string>
     <string name="pref_category_widgets">Widgets</string>
-    <string name="pref_category_additonal_infos">Additional information</string>
+    <string name="pref_category_additonal_infos">Program categories</string>
     <string name="pref_category_additonal_infos_head">Shown information</string>
     <string name="search">Search</string>
     <string name="title">Title:</string>
@@ -265,9 +265,9 @@
 	<string name="pref_show_pictures">Show pictures</string>
 	<string name="pref_show_genre">Show genre</string>
 	<string name="pref_show_episode">Show episode title</string>
-	<string name="pref_show_info">Show additional information</string>
-	<string name="pref_title_other">Select other information</string>
-	<string name="pref_title_other_summary">Which other information should be shown if available?</string>
+	<string name="pref_show_program_categories">Show program categories</string>
+	<string name="pref_title_program_categories_selection">Select program categories</string>
+	<string name="pref_summary_program_categories_selection">Which program categories should be shown if available?</string>
 	<string name="pref_start_category">Startup</string>
 	<string name="pref_start_tab">With following tab:</string>
 	<string-array name="start_labels">
@@ -278,6 +278,8 @@
 	</string-array>
 	<string name="pref_show_link">Show website link:</string>
 	<string name="pref_prog_table_grow">Spread programs over block size</string>
+	<string name="pref_layout_colors_categories">Program category colors</string>
+	<string name="pref_layout_colors_categories_summary">Color program categories with user defined colors</string>
 	<string name="customInfo">Custom Information:\n</string>
 	<string name="actors">Cast:\n</string>
 	<string name="regie">Director:</string>
@@ -298,7 +300,7 @@
 	<string name="productionFirm">Production Firm:</string>
 	<string name="ageLimitString">Age Limit:</string>
 	<string name="lastProductionYear">Last Production:</string>
-	<string name="additionalInfo">Additional information:\n</string>
+	<string name="programCategories">Program categories:\n</string>
 	<string name="series">Series:</string>
 	<string name="rundate">Usable until:</string>
 	<string name="pref_prog_table_summary">The program table needs a lot of memory. The more channels and details you\'ve selected the more memory wil be consumed. That can lead to a crash of the TV-Browser app. So make sure not to select to many channels and details or disable the program table.</string>
@@ -506,7 +508,7 @@
     <string name="pref_auto_update_category">Automatically data update</string>
     <string name="pref_auto_update_type">Type</string>
     <string name="pref_auto_update_frequency">Frequency</string>
-    <string name="pref_auto_update_only_wifi">Only WiFi connection</string>
+    <string name="pref_auto_update_only_wifi">Only WiFi/LAN connection</string>
     <string name="pref_auto_update_time_range_summary">Within 6 hours from this time</string>
     <string-array name="pref_auto_update_type_names">
         <item>No auto update</item>
@@ -668,12 +670,21 @@
     
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.2</h2>
+        <h2>0.5.2.1</h2>
+            &bull; added user defined program category color (not for program table)<br>
+        	&bull; added category display for widgets<br>
+        	&bull; fixed not working download LAN connections<br>
+        	&bull; made drive access for data download more safe<br>
+            &bull; added workaround for not working Plugin settings on problematic Android devices<br>
+			&bull; fix error in Channel handling for Plugins<br>
+			&bull; use "I don't want to see!" exclusions for program list widget<br>
+		<br>
+        <h3>0.5.2</h3>
 			&bull; make sure Plugin settings don\'t causes crash<br>
 			&bull; fixed problems with Plugin search<br>
 			&bull; better information for channel synchronisation<br>
 		<br>
-        <h2>0.5.1</h2>
+        <h3>0.5.1</h3>
         	&bull; added type selection to important widget (can be used as program list)<br>
 			&bull; fixed possible crash caused by Plugins<br>
 		<br>

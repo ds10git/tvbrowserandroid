@@ -41,6 +41,9 @@
 	<CheckBoxPreference android:key="@string/PREF_WIDGET_SHOW_EPISODE" 
 		android:title="@string/pref_show_episode"
 		android:defaultValue="@bool/pref_widget_show_episode_default"/>
+	<CheckBoxPreference android:key="@string/PREF_WIDGET_SHOW_CATEGORIES" 
+		android:title="@string/pref_show_program_categories"
+		android:defaultValue="@bool/pref_widget_show_categories_default"/>
 	<ListPreference android:key="@string/PREF_WIDGET_TEXT_SCALE"
 		android:title="@string/pref_detail_text_scale"
 		android:defaultValue="@string/pref_widget_text_scale_default"

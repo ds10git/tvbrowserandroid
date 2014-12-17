@@ -78,13 +78,7 @@ public class Logging {
     
     if(DATA_UPDATE_LOG == null && writeLog) {
       try {
-        File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-        
-        if(!parent.isDirectory()) {
-          parent = context.getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
-        }
-        
-        final File path = new File(parent,"tvbrowserdata");
+        final File path = IOUtils.getDownloadDirectory(context);
         
         File logFile = new File(path,"data-update-log.txt");
         
@@ -118,13 +112,7 @@ public class Logging {
     else if(type == REMINDER_TYPE) {
       if(PrefUtils.getBooleanValue(R.string.WRITE_REMINDER_LOG, R.bool.write_reminder_log_default)) {
         try {
-          File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-          
-          if(!parent.isDirectory()) {
-            parent = context.getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
-          }
-          
-          final File path = new File(parent,"tvbrowserdata");
+          final File path = IOUtils.getDownloadDirectory(context);
           
           File logFile = new File(path,"reminder-log.txt");
           boolean logFileExists = logFile.isFile();

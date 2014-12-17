@@ -51,7 +51,7 @@
 		android:title="@string/pref_show_episode"
 		android:defaultValue="@bool/prog_table_show_episode_default"/>
 	<CheckBoxPreference android:key="@string/SHOW_INFO_IN_PROGRAM_TABLE" 
-		android:title="@string/pref_show_info"
+		android:title="@string/pref_show_program_categories"
 		android:defaultValue="@bool/prog_table_show_infos_default"/>
 	<CheckBoxPreference android:key="@string/SHOW_SORT_NUMBER_IN_PROGRAM_TABLE" 
 		android:title="@string/show_sort_number"

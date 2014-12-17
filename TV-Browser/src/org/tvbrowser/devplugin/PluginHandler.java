@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
@@ -61,12 +62,14 @@ public final class PluginHandler {
   public static final long FIRST_PROGRAM_ALREADY_HANDLED_ID = -2;
   private static long FIRST_PROGRAM_ID = FIRST_PROGRAM_ALREADY_HANDLED_ID;
   
+  private static final AtomicInteger BLOG_COUNT = new AtomicInteger(0);
+  
   public static final boolean pluginsAvailable() {
     return PLUGIN_LIST != null && !PLUGIN_LIST.isEmpty();
   }
   
-  private static void createPluginManager(final Context context) {
-    PLUGIN_MANAGER = new PluginManager.Stub() {
+  private static PluginManager createPluginManager(final Context context) {
+    return new PluginManager.Stub() {
       @Override
       public List<Channel> getSubscribedChannels() throws RemoteException {
         return IOUtils.getChannelList(context);
@@ -134,6 +137,14 @@ public final class PluginHandler {
     };
   }
   
+  public static PluginManager getPluginManagerCreateIfNecessary(Context context) {
+    if(PLUGIN_MANAGER == null) {
+      return createPluginManager(context);
+    }
+    
+    return PLUGIN_MANAGER;
+  }
+  
   public static final void loadFirstProgramId(Context context) {
     PrefUtils.initialize(context);
     long lastInfo = PrefUtils.getLongValue(org.tvbrowser.tvbrowser.R.string.PLUGIN_LAST_ID_INFO_DATE, 0);
@@ -169,7 +180,9 @@ public final class PluginHandler {
   
   public static final void loadPlugins(Context context, Handler handler) {
     try {
-      createPluginManager(context.getApplicationContext());
+      context = context.getApplicationContext();
+      
+      PLUGIN_MANAGER = createPluginManager(context);
       
       if(PLUGIN_LIST == null) {
         loadFirstProgramId(context);
@@ -189,9 +202,10 @@ public final class PluginHandler {
           Log.d( "info23", "fillPluginList: i: "+i+"; sinfo: "+sinfo+";filter: "+filter1 + " " + sinfo.name);
           if(sinfo != null) {
             PluginServiceConnection plugin = new PluginServiceConnection(sinfo.packageName, sinfo.name, context);
-            plugin.bindPlugin(context, null);
             
-            PLUGIN_LIST.add(plugin);
+            if(plugin.bindPlugin(context, null)) {
+              PLUGIN_LIST.add(plugin);
+            }
           }
         }
         
@@ -200,36 +214,77 @@ public final class PluginHandler {
           public void run() {
             if(PLUGIN_LIST != null) {
               Collections.sort(PLUGIN_LIST);
-            }
+            }        
           }
-        }, 5000);
+        }, 2000);
       }
+      
+      incrementBlogCount();
     }catch(Throwable t) {
       
     }
   }
   
-  public static final void shutdownPlugins(Context context) {
-    if(PLUGIN_LIST != null) {
-      for(PluginServiceConnection plugin : PLUGIN_LIST) {
-        if(plugin.isActivated()) {
-          plugin.callOnDeactivation();
-        }
-        
-        try {
-          if(plugin.isConnected()) {
-            context.unbindService(plugin);
-          }
-        }catch(RuntimeException e) {}
-      }
+  public static PluginServiceConnection[] onlyLoadAndGetPlugins(Context context, Handler handler) {
+    final ArrayList<PluginServiceConnection> pluginList = new ArrayList<PluginServiceConnection>();
     
-      PLUGIN_LIST.clear();
-      PLUGIN_LIST = null;
+    PackageManager packageManager = context.getPackageManager();
+    Intent baseIntent = new Intent( PluginHandler.PLUGIN_ACTION );
+    baseIntent.setFlags( Intent.FLAG_DEBUG_LOG_RESOLUTION );
+    List<ResolveInfo> list = packageManager.queryIntentServices(baseIntent, PackageManager.GET_RESOLVED_FILTER );
+    
+    for( int i = 0 ; i < list.size() ; ++i ) {
+      ResolveInfo info = list.get( i );
+      ServiceInfo sinfo = info.serviceInfo;
+      IntentFilter filter1 = info.filter;
+
+      Log.d( "info23", "fillPluginList: i: "+i+"; sinfo: "+sinfo+";filter: "+filter1 + " " + sinfo.name);
+      if(sinfo != null) {
+        PluginServiceConnection plugin = new PluginServiceConnection(sinfo.packageName, sinfo.name, context);
+        
+        if(plugin.bindPlugin(context, null)) {
+          pluginList.add(plugin);
+        }
+      }
     }
     
-    PLUGIN_MANAGER = null;
+    handler.postDelayed(new Runnable() {
+      
+      @Override
+      public void run() {
+        if(pluginList != null) {
+          Collections.sort(pluginList);
+        }        
+      }
+    }, 2000);
     
-    PluginHandler.PLUGIN_LIST = null;
+    return pluginList.toArray(new PluginServiceConnection[pluginList.size()]);
+  }
+  
+  public static final void shutdownPlugins(Context context) {
+    Log.d("info87", "BLOG_COUNT " + BLOG_COUNT.get());
+    if(BLOG_COUNT.get() == 1) {
+      if(PLUGIN_LIST != null) {
+        context = context.getApplicationContext();
+        
+        for(PluginServiceConnection plugin : PLUGIN_LIST) {
+          if(plugin.isActivated()) {
+            plugin.callOnDeactivation();
+          }
+          
+          plugin.unbindPlugin(context);
+        }
+      
+        PLUGIN_LIST.clear();
+        PLUGIN_LIST = null;
+      }
+      
+      PLUGIN_MANAGER = null;
+      
+      PluginHandler.PLUGIN_LIST = null;
+      
+      decrementBlogCount();
+    }
   }
   
   public static PluginManager getPluginManager() {
@@ -292,5 +347,13 @@ public final class PluginHandler {
     if(PluginHandler.PLUGIN_LIST != null) {
       PluginHandler.PLUGIN_LIST.remove(connection);
     }
+  }
+  
+  public static void incrementBlogCount() {
+    BLOG_COUNT.incrementAndGet();
+  }
+  
+  public static void decrementBlogCount() {
+    BLOG_COUNT.decrementAndGet();
   }
 }
