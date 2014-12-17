@@ -19,13 +19,17 @@ package org.tvbrowser.settings;
 import java.util.List;
 
 import org.tvbrowser.devplugin.PluginHandler;
+import org.tvbrowser.devplugin.PluginManager;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.tvbrowser.R;
 
 import android.annotation.TargetApi;
+import android.app.AlertDialog;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceActivity;
+import android.util.Log;
 
 /**
  * The preferences activity for the plugins.
@@ -33,6 +37,13 @@ import android.preference.PreferenceActivity;
  * @author René Mach
  */
 public class PluginPreferencesActivity extends PreferenceActivity {
+  private static final String HEADER_SELECTION_EXTRA = "HEADER_SELECTION";
+  
+  private static PluginServiceConnection[] PLUGIN_SERVICE_CONNECTIONS;
+  private static PluginManager PLUGIN_MANAGER;
+  
+  private static int LAST_POS = 0;
+  
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     if(SettingConstants.IS_DARK_THEME) {
@@ -41,14 +52,47 @@ public class PluginPreferencesActivity extends PreferenceActivity {
     
     super.onCreate(savedInstanceState);
   }
+    
+  @Override
+  protected void onResume() {
+    super.onResume();
+    
+    new Handler().postDelayed(new Runnable() {
+      @Override
+      public void run() {        
+        if(getListAdapter() != null && LAST_POS < getListAdapter().getCount()) {
+          Object header = getListAdapter().getItem(LAST_POS);
+          
+          if(header != null) {
+            if(isMultiPane()) {
+              switchToHeader(((Header)header).fragment, ((Header)header).fragmentArguments);
+              onHeaderClick((Header)header, LAST_POS);
+            }
+          }
+        }
+      }
+    }, 500);
+  }
+    
+  public static void clearPlugins() {
+    LAST_POS = 0;
+    PLUGIN_SERVICE_CONNECTIONS = null;
+    PLUGIN_MANAGER = null;
+  }
   
   @Override
   public void onBuildHeaders(List<Header> target) {
-    if(PluginHandler.hasPlugins()) {      
-      PluginServiceConnection[] connectins = PluginHandler.getAvailablePlugins();
-      
-      for(PluginServiceConnection pluginConnection : connectins) {
-        if(pluginConnection.isConnected()) {
+    if(PluginHandler.hasPlugins()) {
+      PLUGIN_MANAGER = PluginHandler.getPluginManager();
+      PLUGIN_SERVICE_CONNECTIONS = PluginHandler.getAvailablePlugins();
+    }
+    
+    Log.d("info23", "onBuildHeaders");
+    if(PLUGIN_SERVICE_CONNECTIONS != null) {
+      for(PluginServiceConnection pluginConnection : PLUGIN_SERVICE_CONNECTIONS) {
+        int id = 1;
+        
+        if(pluginConnection != null) {
           Header header = new Header();
           
           header.title = pluginConnection.getPluginName() + " " + pluginConnection.getPluginVersion();
@@ -58,6 +102,7 @@ public class PluginPreferencesActivity extends PreferenceActivity {
           }
           
           header.fragment = PluginPreferencesFragment.class.getName();
+          header.id = id++;
           
           Bundle b = new Bundle();
           b.putString("category", header.title.toString());
@@ -70,8 +115,28 @@ public class PluginPreferencesActivity extends PreferenceActivity {
     }
   }
   
+  PluginManager getPluginManager() {
+    return PLUGIN_MANAGER;
+  }
+  
+  PluginServiceConnection getServiceConnectionWithId(String id) {
+    PluginServiceConnection result = null;
+    
+    if(PLUGIN_SERVICE_CONNECTIONS != null) {
+      for(PluginServiceConnection connection : PLUGIN_SERVICE_CONNECTIONS) {
+        if(connection.getId().equals(id)) {
+          result = connection;
+        }
+      }
+    }
+    
+    return result;
+  }
+    
   @Override
   public void onHeaderClick(Header header, int position) {
+    LAST_POS = position;
+    
     if(isMultiPane()) {
       switchToHeader(header);
     }

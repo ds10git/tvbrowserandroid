@@ -76,6 +76,7 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.Html;
+import android.text.Spannable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
@@ -279,9 +280,9 @@ public class UiUtils {
         genre.setVisibility(View.GONE);
       }
       
-      String infoValue = IOUtils.getInfoString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)), context.getResources());
+      Spannable infoValue = IOUtils.getInfoString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)), context.getResources());
       
-      if(PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_DETAILS, R.bool.show_info_in_details_default) && infoValue.trim().length() > 0) {
+      if(PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_DETAILS, R.bool.show_info_in_details_default) && infoValue.toString().trim().length() > 0) {
         info.setText(infoValue);
       }
       else {

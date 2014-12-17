@@ -52,6 +52,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
+import android.text.Spannable;
 import android.text.format.DateFormat;
 import android.util.Log;
 import android.util.SparseArray;
@@ -485,7 +486,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
     long programID = -1;
     String title = null;
     String episode = null;
-    String infos = null;
+    Spannable infos = null;
     
     switch(type) {
       case CompactLayoutViewHolder.PREVIOUS:
@@ -561,7 +562,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
         episodeView.setVisibility(View.VISIBLE);
       }
       
-      if(!showInfo || infos == null || infos.trim().length() == 0) {
+      if(!showInfo || infos == null || infos.toString().trim().length() == 0) {
         infoView.setVisibility(View.GONE);
       }
       else {
@@ -1178,7 +1179,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
     public String mPreviousTitle;
     public String mPreviousEpisode;
     public String mPreviousGenre;
-    public String mPreviousCategory;
+    public Spannable mPreviousCategory;
     public String mPreviousPictureCopyright;
     public byte[] mPreviousPicture;
 
@@ -1189,7 +1190,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
     public String mNowTitle;
     public String mNowEpisode;
     public String mNowGenre;
-    public String mNowCategory;
+    public Spannable mNowCategory;
     public String mNowPictureCopyright;
     public byte[] mNowPicture;
     
@@ -1200,7 +1201,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
     public String mNextTitle;
     public String mNextEpisode;
     public String mNextGenre;
-    public String mNextCategory;
+    public Spannable mNextCategory;
     public String mNextPictureCopyright;
     public byte[] mNextPicture;
 
@@ -1281,7 +1282,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
             int channelOrderNumber = c.getInt(channelOrderColumn);
     
             String genre = null;
-            String category = null;
+            Spannable category = null;
             String pictureCopyright = null;
             byte[] picture = null;
             

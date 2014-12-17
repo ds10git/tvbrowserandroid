@@ -24,6 +24,7 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.CompatUtils;
+import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.UiUtils;
 
@@ -39,6 +40,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Binder;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.view.View;
@@ -73,6 +75,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     private int mOrderNumberIndex;
     private int mLogoIndex;
     private int mEpisodeIndex;
+    private int mCategoryIndex;
     
     private int mVerticalPadding;
     
@@ -80,14 +83,13 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     private boolean mShowChannelLogo;
     private boolean mShowBigChannelLogo;
     private boolean mShowEpisode;
+    private boolean mShowCategories;
     private boolean mShowOrderNumber;
     private boolean mChannelClickToProgramsList;
     private float mTextScale;
     
     private void executeQuery() {
-      if(mCursor != null && !mCursor.isClosed()) {
-        mCursor.close();
-      }
+      IOUtils.closeCursor(mCursor);
       
       cancelAlarms();
       
@@ -102,6 +104,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
         TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER,
         TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER,
         TvBrowserContentProvider.DATA_KEY_MARKING_SYNC,
+        TvBrowserContentProvider.DATA_KEY_CATEGORIES,
         TvBrowserContentProvider.CHANNEL_KEY_NAME,
         TvBrowserContentProvider.CHANNEL_KEY_LOGO,
         TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
@@ -153,6 +156,8 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
         if(channels.trim().length() > 0) {
           where += " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IN ( " + channels + " ) ";
         }
+        
+        where += " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
       }
       
       final long token = Binder.clearCallingIdentity();
@@ -169,10 +174,12 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
           mOrderNumberIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
           mLogoIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
           mEpisodeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
+          mCategoryIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
                     
           final String logoNamePref = PrefUtils.getStringValue(R.string.PREF_WIDGET_CHANNEL_LOGO_NAME, R.string.pref_widget_channel_logo_name_default);
           
           mShowEpisode = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_EPISODE, R.bool.pref_widget_show_episode_default);
+          mShowCategories = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_CATEGORIES, R.bool.pref_widget_show_categories_default);
           mShowChannelName = (logoNamePref.equals("0") || logoNamePref.equals("2"));
           mShowChannelLogo = (logoNamePref.equals("0") || logoNamePref.equals("1") || logoNamePref.equals("3"));
           mShowBigChannelLogo = logoNamePref.equals("3");
@@ -270,6 +277,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       final String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
       String number = null;
       final String episodeTitle = mShowEpisode ? mCursor.getString(mEpisodeIndex) : null;
+      Spannable categorySpan = IOUtils.getInfoString(mCursor.getInt(mCategoryIndex), getResources());
       
       if(shortName != null) {
         name = shortName;
@@ -314,7 +322,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
         rv.setViewVisibility(R.id.important_programs_widget_row_progress, View.VISIBLE);
         rv.setViewVisibility(R.id.important_programs_widget_row_start_date1, View.GONE);
       }
-      else {        
+      else {
         rv.setTextViewText(R.id.important_programs_widget_row_start_date1, date);
         rv.setViewVisibility(R.id.important_programs_widget_row_progress, View.GONE);
         rv.setViewVisibility(R.id.important_programs_widget_row_start_date1, View.VISIBLE);
@@ -322,6 +330,14 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
       
       rv.setTextViewText(R.id.important_programs_widget_row_start_time1, time);
       rv.setTextViewText(R.id.important_programs_widget_row_title1, title);
+      
+      if(mShowCategories && categorySpan.toString().trim().length() > 0) {
+        rv.setViewVisibility(R.id.important_programs_widget_row_categories, View.VISIBLE);
+        rv.setTextViewText(R.id.important_programs_widget_row_categories, categorySpan);
+      }
+      else {
+        rv.setViewVisibility(R.id.important_programs_widget_row_categories, View.GONE);
+      }
       
       if(mShowChannelName || logo == null) {
         rv.setTextViewText(R.id.important_programs_widget_row_channel_name1, name);
@@ -404,9 +420,7 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
 
     @Override
     public void onDestroy() {
-      if(mCursor != null && !mCursor.isClosed()) {
-        mCursor.close();
-      }
+      IOUtils.closeCursor(mCursor);
       
       cancelAlarms();
     }

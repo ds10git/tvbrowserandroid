@@ -25,10 +25,10 @@
 		android:title="@string/pref_show_episode"
 		android:defaultValue="@bool/show_episode_in_details_default"/>
 	<CheckBoxPreference android:key="@string/SHOW_INFO_IN_DETAILS" 
-		android:title="@string/pref_show_info"
+		android:title="@string/pref_show_program_categories"
 		android:defaultValue="@bool/show_info_in_details_default"/>
-	<PreferenceScreen android:title="@string/pref_title_other"
-		android:summary="@string/pref_title_other_summary">
+	<PreferenceScreen android:title="@string/pref_title_program_categories_selection"
+		android:summary="@string/pref_summary_program_categories_selection">
 		<CheckBoxPreference android:key="@string/SHOW_LINK_IN_DETAILS"
 			android:title="@string/pref_show_link"
 			android:defaultValue="@bool/show_link_in_details_default"/>
@@ -90,7 +90,7 @@
 			android:title="@string/lastProductionYear"
 			android:defaultValue="true"/>
 		<CheckBoxPreference android:key="details_additionalInfo"
-			android:title="@string/additionalInfo"
+			android:title="@string/programCategories"
 			android:defaultValue="true"/>
 		<CheckBoxPreference android:key="details_series"
 			android:title="@string/series"

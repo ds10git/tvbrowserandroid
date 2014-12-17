@@ -17,6 +17,7 @@
 package org.tvbrowser.tvbrowser;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.view.SeparatorDrawable;
@@ -109,6 +110,20 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     long programID = ((AdapterView.AdapterContextMenuInfo)menuInfo).id;
     
     UiUtils.createContextMenu(TvBrowserSearchResults.this, menu, programID);
+  }
+  
+  @Override
+  protected void onResume() {
+    PluginHandler.incrementBlogCount();
+    
+    super.onResume();
+  }
+  
+  @Override
+  protected void onPause() {
+    PluginHandler.decrementBlogCount();
+    
+    super.onPause();
   }
   
   @Override

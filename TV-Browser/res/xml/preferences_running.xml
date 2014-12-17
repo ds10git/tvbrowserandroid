@@ -30,7 +30,7 @@
 		android:title="@string/pref_show_episode"
 		android:defaultValue="@bool/show_episode_in_running_list_default"/>
 	<CheckBoxPreference android:key="@string/SHOW_INFO_IN_RUNNING_LIST" 
-		android:title="@string/pref_show_info"
+		android:title="@string/pref_show_program_categories"
 		android:defaultValue="@bool/show_info_in_running_list_default"/>
 	<CheckBoxPreference android:key="@string/SHOW_SORT_NUMBER_IN_RUNNING_LIST" 
 		android:title="@string/show_sort_number"

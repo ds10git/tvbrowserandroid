@@ -158,6 +158,7 @@ public class TvBrowser extends FragmentActivity implements
   private static final int SHOW_PREFERENCES = 1;
   private static final int OPEN_FILTER_EDIT = 2;
   private static final int INSTALL_PLUGIN = 3;
+  private static final int SHOW_PLUGIN_PREFERENCES = 4;
   
   private ChannelFilterValues mCurrentChannelFilter;
   private String mCurrentChannelFilterId;
@@ -195,6 +196,7 @@ public class TvBrowser extends FragmentActivity implements
   private MenuItem mSendReminderLogItem;
   private MenuItem mDeleteReminderLogItem;
   private MenuItem mScrollTimeItem;
+  private MenuItem mPluginPreferencesMenuItem;
   
   private MenuItem mDebugMenuItem;
   
@@ -251,7 +253,7 @@ public class TvBrowser extends FragmentActivity implements
     Log.d("info33", "onCreate");
     handler = new Handler();
     PrefUtils.initialize(TvBrowser.this);
-    
+        
     if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default)) {
       setTheme(android.R.style.Theme_Holo);
       
@@ -3191,6 +3193,9 @@ public class TvBrowser extends FragmentActivity implements
         mCurrentDownloadPlugin.deleteOnExit();
       }
     }
+    else if(requestCode == SHOW_PLUGIN_PREFERENCES) {
+      PluginPreferencesActivity.clearPlugins();
+    }
   }
   
   private void updateFromPreferences() {
@@ -3355,13 +3360,7 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   private void sendLogMail(String file, String type) {
-    File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-    
-    if(!parent.isDirectory()) {
-      parent = getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
-    }
-    
-    final File path = new File(parent,"tvbrowserdata");
+    final File path = IOUtils.getDownloadDirectory(getApplicationContext());
     
     File logFile = new File(path,file);
     
@@ -3395,13 +3394,7 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   private void deleteLog(String type) {
-    File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-    
-    if(!parent.isDirectory()) {
-      parent = getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
-    }
-    
-    final File path = new File(parent,"tvbrowserdata");
+    final File path = IOUtils.getDownloadDirectory(getApplicationContext());
     
     File logFile = new File(path,type);
              
@@ -3799,12 +3792,16 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
             @Override
             public void onClick(DialogInterface dialog, int which) {
               if(!newPlugins.isEmpty()) {
-                PluginHandler.shutdownPlugins(getApplicationContext());
+                PluginHandler.shutdownPlugins(TvBrowser.this);
                 
                 handler.postDelayed(new Runnable() {
                   @Override
                   public void run() {
                     PluginHandler.loadPlugins(TvBrowser.this, handler);
+                    
+                    if(mPluginPreferencesMenuItem != null) {
+                      mPluginPreferencesMenuItem.setEnabled(PluginHandler.hasPlugins());
+                    }
                   }
                 }, 2000);
               }
@@ -3853,13 +3850,7 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
                   mLoadingPlugin = false;
                 }
                 else if(url.startsWith("plugin://") || url.startsWith("plugins://")) {
-                  File parent = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                  
-                  if(!parent.isDirectory()) {
-                    parent = getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
-                  }
-                  
-                  final File path = new File(parent,"tvbrowserdata");
+                  final File path = IOUtils.getDownloadDirectory(getApplicationContext());
                   
                   if(!path.isDirectory()) {
                     path.mkdirs();
@@ -3880,7 +3871,7 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
                     mCurrentDownloadPlugin.delete();
                   }
                   
-                  Log.d("info50", "DOWNLOAD " + url);
+                  Log.d("info50", "DOWNLOAD " + url + " FILE " + mCurrentDownloadPlugin.getAbsolutePath());
                   
                   final String downloadUrl = url;
                   
@@ -4024,7 +4015,7 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
         break;
       case R.id.menu_tvbrowser_action_settings_plugins:
         Intent startPluginPref = new Intent(this, PluginPreferencesActivity.class);
-        startActivity(startPluginPref);
+        startActivityForResult(startPluginPref, SHOW_PLUGIN_PREFERENCES);
         break;
       case R.id.menu_tvbrowser_action_update_data:
         if(isOnline()) {
@@ -4122,7 +4113,9 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
     
     updateFromFilterEdit();
     
-    menu.findItem(R.id.menu_tvbrowser_action_settings_plugins).setEnabled(PluginHandler.pluginsAvailable());
+    mPluginPreferencesMenuItem = menu.findItem(R.id.menu_tvbrowser_action_settings_plugins);
+    
+    mPluginPreferencesMenuItem.setEnabled(PluginHandler.pluginsAvailable());
     
     menu.findItem(R.id.action_reset).setVisible(TEST_VERSION);
     
@@ -4493,7 +4486,7 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
         String title = details.getTitle().substring(0,details.getTitle().indexOf("(")-1);
         
         Button donation = new Button(this);
-        donation.setTextSize(UiUtils.convertDpToPixel(12, getResources()));
+        donation.setTextSize(UiUtils.convertDpToPixel(16, getResources()));
         donation.setText(title + ": " + details.getPrice());
         donation.setTag(details);
         donation.setOnClickListener(onDonationClick);

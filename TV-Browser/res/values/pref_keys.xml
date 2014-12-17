@@ -59,6 +59,71 @@
 	    
 	    <string name="PREF_FAVORITE_TAB_LAYOUT">PREF_FAVORITE_TAB_LAYOUT</string>
 	    
+	    <!-- Category colors -->
+	    
+	    <!-- 
+	        R.string.PREF_INFO_SHOW_BLACK_AND_WHITE,
+    R.string.PREF_INFO_SHOW_FOUR_TO_THREE,
+    R.string.PREF_INFO_SHOW_SIXTEEN_TO_NINE,
+    R.string.PREF_INFO_SHOW_MONO,
+    R.string.PREF_INFO_SHOW_STEREO,
+    R.string.PREF_INFO_SHOW_DOLBY_SOURROUND,
+    R.string.PREF_INFO_SHOW_DOLBY_DIGITAL,
+    R.string.PREF_INFO_SHOW_SECOND_ADUIO_PROGRAM,
+    R.string.PREF_INFO_SHOW_CLOSED_CAPTION,
+    R.string.PREF_INFO_SHOW_LIVE,
+    R.string.PREF_INFO_SHOW_OMU,
+    R.string.PREF_INFO_SHOW_FILM,
+    R.string.PREF_INFO_SHOW_SERIES,
+    R.string.PREF_INFO_SHOW_NEW,
+    R.string.PREF_INFO_SHOW_AUDIO_DESCRIPTION,
+    R.string.PREF_INFO_SHOW_NEWS,
+    R.string.PREF_INFO_SHOW_SHOW,
+    R.string.PREF_INFO_SHOW_MAGAZIN,
+    R.string.PREF_INFO_SHOW_HD,
+    R.string.PREF_INFO_SHOW_DOCU,
+    R.string.PREF_INFO_SHOW_ART,
+    R.string.PREF_INFO_SHOW_SPORT,
+    R.string.PREF_INFO_SHOW_CHILDREN,
+    R.string.PREF_INFO_SHOW_OTHER,
+    R.string.PREF_INFO_SHOW_SIGN_LANGUAGE
+	    
+	    
+	     -->
+	    
+	    <item name="pref_color_categories_default" type="string" format="string">false;-16777216</item>
+	    
+	    <string name="PREF_COLOR_CATEGORY_BLACK_AND_WHITE">PREF_COLOR_CATEGORY_BLACK_AND_WHITE</string>
+	    <string name="PREF_COLOR_CATEGORY_FOUR_TO_THREE">PREF_COLOR_CATEGORY_FOUR_TO_THREE</string>
+	    <string name="PREF_COLOR_CATEGORY_SIXTEEN_TO_NINE">PREF_COLOR_CATEGORY_SIXTEEN_TO_NINE</string>
+	    <string name="PREF_COLOR_CATEGORY_MONO">PREF_COLOR_CATEGORY_MONO</string>
+	    <string name="PREF_COLOR_CATEGORY_STEREO">PREF_COLOR_CATEGORY_STEREO</string>
+	    <string name="PREF_COLOR_CATEGORY_DOLBY_SOURROUND">PREF_COLOR_CATEGORY_DOLBY_SOURROUND</string>
+	    <string name="PREF_COLOR_CATEGORY_DOLBY_DIGITAL">PREF_COLOR_CATEGORY_DOLBY_DIGITAL</string>
+	    <string name="PREF_COLOR_CATEGORY_SECOND_ADUIO_PROGRAM">PREF_COLOR_CATEGORY_SECOND_ADUIO_PROGRAM</string>
+	    <string name="PREF_COLOR_CATEGORY_CLOSED_CAPTION">PREF_COLOR_CATEGORY_CLOSED_CAPTION</string>
+	    <string name="PREF_COLOR_CATEGORY_LIVE">PREF_COLOR_CATEGORY_LIVE</string>
+	    <string name="PREF_COLOR_CATEGORY_OMU">PREF_COLOR_CATEGORY_OMU</string>
+	    <string name="PREF_COLOR_CATEGORY_FILM">PREF_COLOR_CATEGORY_FILM</string>
+	    <item name="pref_color_category_film_default" type="string" format="string">true;-50887</item>
+	    <string name="PREF_COLOR_CATEGORY_SERIES">PREF_COLOR_CATEGORY_SERIES</string>
+	    <item name="pref_color_category_series_default" type="string" format="string">true;-16754689</item>
+	    <string name="PREF_COLOR_CATEGORY_NEW">PREF_COLOR_CATEGORY_NEW</string>
+	    <item name="pref_color_category_new_default" type="string" format="string">true;-29696</item>
+	    <string name="PREF_COLOR_CATEGORY_AUDIO_DESCRIPTION">PREF_COLOR_CATEGORY_AUDIO_DESCRIPTION</string>
+	    <string name="PREF_COLOR_CATEGORY_NEWS">PREF_COLOR_CATEGORY_NEWS</string>
+	    <string name="PREF_COLOR_CATEGORY_SHOW">PREF_COLOR_CATEGORY_SHOW</string>
+	    <string name="PREF_COLOR_CATEGORY_MAGAZIN">PREF_COLOR_CATEGORY_MAGAZIN</string>
+	    <string name="PREF_COLOR_CATEGORY_HD">PREF_COLOR_CATEGORY_HD</string>
+	    <string name="PREF_COLOR_CATEGORY_DOCU">PREF_COLOR_CATEGORY_DOCU</string>
+	    <item name="pref_color_category_docu_default" type="string" format="string">true;-16732672</item>
+	    <string name="PREF_COLOR_CATEGORY_ART">PREF_COLOR_CATEGORY_ART</string>
+	    <string name="PREF_COLOR_CATEGORY_SPORT">PREF_COLOR_CATEGORY_SPORT</string>
+	    <string name="PREF_COLOR_CATEGORY_CHILDREN">PREF_COLOR_CATEGORY_CHILDREN</string>
+	    <item name="pref_color_category_children_default" type="string" format="string">true;-4128575</item>
+	    <string name="PREF_COLOR_CATEGORY_OTHER">PREF_COLOR_CATEGORY_OTHER</string>
+	    <string name="PREF_COLOR_CATEGORY_SIGN_LANGUAGE">PREF_COLOR_CATEGORY_SIGN_LANGUAGE</string>
+	    
 	<!-- Reminder settings -->
 	    
 	    <string name="PREF_REMINDER_TIME">PREF_REMINDER_TIME</string>
@@ -443,7 +508,10 @@
 	    
 	    <string name="PREF_WIDGET_SHOW_EPISODE">PREF_WIDGET_SHOW_EPISODE</string>
 	    <item name="pref_widget_show_episode_default" type="bool" format="boolean">true</item>
-	    
+
+	    <string name="PREF_WIDGET_SHOW_CATEGORIES">PREF_WIDGET_SHOW_CATEGORIES</string>
+	    <item name="pref_widget_show_categories_default" type="bool" format="boolean">true</item>
+	    	    
 	    <string name="PREF_WIDGET_TEXT_SCALE">PREF_WIDGET_TEXT_SCALE</string>
 	    <item name="pref_widget_text_scale_default" type="string" format="string">1.0</item>
 	    
@@ -480,4 +548,6 @@
     	<!-- Plugin keys -->
     	<string name="PLUGIN_LAST_ID_INFO_DATE">PLUGIN_LAST_ID_INFO_DATE</string>
     	<string name="PLUGIN_INFO_SHOWN">PLUGIN_INFO_SHOWN</string>
+    	
+    	
 </resources>

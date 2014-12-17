@@ -53,6 +53,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.view.ContextMenu;
@@ -555,7 +556,7 @@ public class ProgramTableFragment extends Fragment {
     
     View programTable = inflater.inflate(R.layout.program_table, container);
     
-    int[] infoPrefKeyArr = SettingConstants.INFO_PREF_KEY_ARR;
+    int[] infoPrefKeyArr = SettingConstants.CATEGORY_PREF_KEY_ARR;
     
     for(int infoKey : infoPrefKeyArr) {
       if(PrefUtils.getBooleanValue(infoKey, R.bool.pref_info_show_default)) {
@@ -918,7 +919,7 @@ public class ProgramTableFragment extends Fragment {
     if(updateInfoValues) {
       updateInfoValues = false;
       
-      int[] infoPrefKeyArr = SettingConstants.INFO_PREF_KEY_ARR;
+      int[] infoPrefKeyArr = SettingConstants.CATEGORY_PREF_KEY_ARR;
       
       for(int infoKey : infoPrefKeyArr) {
         boolean isShownSetting = PrefUtils.getBooleanValue(infoKey, R.bool.pref_info_show_default);
@@ -978,7 +979,7 @@ public class ProgramTableFragment extends Fragment {
     final long endTime = cursor.getLong(mEndTimeIndex);
     String title = cursor.getString(mTitleIndex);
     int channelID = cursor.getInt(mChannelIndex);
-    String categories = IOUtils.getInfoString(cursor.getInt(mCategoryIndex),getResources());
+    Spannable categories = IOUtils.getInfoString(cursor.getInt(mCategoryIndex),getResources());
     
     final ProgramPanel panel = new ProgramPanel(getActivity(),startTime,endTime,title,channelID);
     

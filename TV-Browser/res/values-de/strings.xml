@@ -65,7 +65,7 @@
     <string name="pref_category_email">E-Mail</string>
     <string name="pref_category_news">Nachrichten</string>
     <string name="pref_category_widgets">Widgets</string>
-    <string name="pref_category_additonal_infos">Zusätzliche Informationen</string>
+    <string name="pref_category_additonal_infos">Sendungskategorien</string>
     <string name="pref_category_additonal_infos_head">Angezeigte Informationen</string>
     <string name="title">Titel:</string>
     <string name="title_hint">Titel für Suche eingeben</string>
@@ -215,7 +215,7 @@
 	<string name="info_dolby_sourround">Dolby Surround</string>
 	<string name="info_dolby_digital">Dolby Digital 5.1</string>
 	<string name="info_second_audio_program">Zweikanalton</string>
-	<string name="info_closed_caption">Untertitel für Hörgeschädigte</string>
+	<string name="info_closed_caption">Untertitel</string>
 	<string name="info_film">Film</string>
 	<string name="info_series">Serie</string>
 	<string name="info_new">Neu</string>
@@ -259,13 +259,15 @@
 	<string name="pref_show_pictures">Bilder anzeigen</string>
 	<string name="pref_show_genre">Genre anzeigen</string>
 	<string name="pref_show_episode">Episodentitel anzeigen</string>
-	<string name="pref_show_info">Zusätzliche Informationen anzeigen</string>
-	<string name="pref_title_other">Weitere Informationen auswählen</string>
-	<string name="pref_title_other_summary">Welche weiteren Informationen sollen angezeigt werden, wenn sie vorhanden sind?</string>
+	<string name="pref_show_program_categories">Sendungskategorien anzeigen</string>
+	<string name="pref_title_program_categories_selection">Sendungskategorien auswählen</string>
+	<string name="pref_summary_program_categories_selection">Welche Sendungskategorien sollen angezeigt werden, wenn sie vorhanden sind?</string>
 	<string name="pref_start_category">Starten</string>
 	<string name="pref_start_tab">Mit folgenden Tab:</string>
 	<string name="pref_show_link">Link zur Webseite:</string>
 	<string name="pref_prog_table_grow">Sendungen über den Block verteilen</string>
+	<string name="pref_layout_colors_categories">Sendungskategorie-Farben</string>
+	<string name="pref_layout_colors_categories_summary">Sendungskategorien mit benutzerdefinierten Farben hervorheben</string>
 	<string name="customInfo">Beliebige Informationen:\n</string>
 	<string name="actors">Schauspieler:\n</string>
 	<string name="regie">Regie:</string>
@@ -286,7 +288,7 @@
 	<string name="productionFirm">Produktionsfirma:</string>
 	<string name="ageLimitString">Alterbeschränkung:</string>
 	<string name="lastProductionYear">Letztes Produktionsjahr:</string>
-	<string name="additionalInfo">Zusätzliche Informationen:\n</string>
+	<string name="programCategories">Sendungskategorien:\n</string>
 	<string name="series">Serie:</string>
 	<string name="rundate">Lauffähig bis:</string>
 	<string name="pref_prog_table_summary">Die Programmtabelle benötigt sehr viel Speicher. Sind zu viele Sender und Details ausgewählt, kann das zum Absturz der TV-Browser App führen. Achten Sie daher auf die Anzahl der ausgewählten Sender oder deaktivieren Sie die Programmtabelle.</string>
@@ -494,7 +496,7 @@
     <string name="pref_auto_update_category">Automatisches Datenupdate</string>
     <string name="pref_auto_update_type">Typ</string>
     <string name="pref_auto_update_frequency">Häufigkeit</string>
-    <string name="pref_auto_update_only_wifi">Nur WLAN-Verbindung</string>
+    <string name="pref_auto_update_only_wifi">Nur WLAN/LAN-Verbindung</string>
     <string name="pref_auto_update_time_range_summary">Innerhalb von 6 Stunden ab dieser Zeit</string>
     <string-array name="pref_auto_update_type_names">
         <item>Kein Auto-Update</item>
@@ -654,7 +656,16 @@
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.2</h2>
+        <h2>0.5.2.1</h2>
+        	&bull; benutzerdefinierbare Farben für Anzeige der Sendungskategorien hinzugefügt (nicht für die Programmtabelle)<br>
+        	&bull; Kategorieanzeige für Widgets hinzugefügt<br>
+        	&bull; nicht funktionierender Download über LAN-Verbindungen behoben<br>
+        	&bull; sicherer Zugriff auf die Laufwerke für den Datendownload<br>
+            &bull; Workaround für nicht funktionierende Plugin-Einstellungen auf problematisch Android-Geräten hinzugefügt<br>
+			&bull; Fehler bei der Übertragung von Sender an Plugins beseitigt<br>
+			&bull; "Will ich nicht sehen!"-Ausschlüsse werden auf Widget Sendungsliste angewendet<br>
+		<br>
+        <h3>0.5.2</h3>
 			&bull; stellt sicher, dass die Plugin-Einstellungen keinen Absturz verursachen<br>
 			&bull; Probleme bei der Suche nach Plugins beseitigt<br>
 			&bull; bessere Informationen bei der Sendersynchronisierung<br>
