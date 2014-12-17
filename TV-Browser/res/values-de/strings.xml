@@ -656,7 +656,7 @@
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.2.1</h2>
+        <h2>0.5.3</h2>
         	&bull; benutzerdefinierbare Farben für Anzeige der Sendungskategorien hinzugefügt (nicht für die Programmtabelle)<br>
         	&bull; Kategorieanzeige für Widgets hinzugefügt<br>
         	&bull; nicht funktionierender Download über LAN-Verbindungen behoben<br>
