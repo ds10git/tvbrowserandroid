@@ -41,6 +41,7 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
+import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -74,6 +75,12 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
     private int mEpisodeIndex;
     private int mCategoryIndex;
     
+    private int mMarkingPluginsIndex;
+    private int mMarkingFavoriteIndex;
+    private int mMarkingReminderIndex;
+    private int mMarkingFavoriteReminderIndex;
+    private int mMarkingSyncIndex;
+    
     private int mVerticalPadding;
     
     private boolean mShowChannelName;
@@ -81,6 +88,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
     private boolean mShowBigChannelLogo;
     private boolean mShowEpisode;
     private boolean mShowCategories;
+    private boolean mShowMarkings;
     private boolean mShowOrderNumber;
     private boolean mChannelClickToProgramsList;
     private float mTextScale;
@@ -105,6 +113,11 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         TvBrowserContentProvider.DATA_KEY_TITLE,
         TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
         TvBrowserContentProvider.DATA_KEY_CATEGORIES,
+        TvBrowserContentProvider.DATA_KEY_MARKING_MARKING,
+        TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE,
+        TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER,
+        TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER,
+        TvBrowserContentProvider.DATA_KEY_MARKING_SYNC,
         TvBrowserContentProvider.CHANNEL_KEY_NAME,
         TvBrowserContentProvider.CHANNEL_KEY_LOGO,
         TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
@@ -165,11 +178,18 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         mLogoIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
         mEpisodeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
         mCategoryIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
-                
+        
+        mMarkingPluginsIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING);
+        mMarkingFavoriteIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE);
+        mMarkingReminderIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
+        mMarkingFavoriteReminderIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
+        mMarkingSyncIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC);
+        
         final String logoNamePref = PrefUtils.getStringValue(R.string.PREF_WIDGET_CHANNEL_LOGO_NAME, R.string.pref_widget_channel_logo_name_default);
         
         mShowEpisode = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_EPISODE, R.bool.pref_widget_show_episode_default);
         mShowCategories = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_CATEGORIES, R.bool.pref_widget_show_categories_default);
+        mShowMarkings = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_MARKINGS, R.bool.pref_widget_show_markings_default);
         mShowChannelName = (logoNamePref.equals("0") || logoNamePref.equals("2"));
         mShowChannelLogo = (logoNamePref.equals("0") || logoNamePref.equals("1") || logoNamePref.equals("3"));
         mShowBigChannelLogo = logoNamePref.equals("3");
@@ -268,6 +288,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         String number = null;
         final String episodeTitle = mShowEpisode ? mCursor.getString(mEpisodeIndex) : null;
         Spannable categorySpan = mShowCategories ? IOUtils.getInfoString(mCursor.getInt(mCategoryIndex), getResources()) : null;
+        Spannable marking = WidgetUtils.getMarkings(mContext, mCursor, mShowMarkings, mMarkingPluginsIndex, mMarkingFavoriteIndex, mMarkingReminderIndex, mMarkingFavoriteReminderIndex, mMarkingSyncIndex);
         
         if(shortName != null) {
           name = shortName;
@@ -316,7 +337,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         }
         
         rv.setTextViewText(R.id.running_programs_widget_row_start_time, time);
-        rv.setTextViewText(R.id.running_programs_widget_row_title, title);
+        rv.setTextViewText(R.id.running_programs_widget_row_title, marking != null ? TextUtils.concat(title,marking) : title);
         
         if(categorySpan != null && categorySpan.toString().trim().length() > 0) {
           rv.setViewVisibility(R.id.running_programs_widget_row_categories, View.VISIBLE);

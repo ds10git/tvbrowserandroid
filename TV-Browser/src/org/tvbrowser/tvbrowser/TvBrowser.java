@@ -250,7 +250,6 @@ public class TvBrowser extends FragmentActivity implements
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    Log.d("info33", "onCreate");
     handler = new Handler();
     PrefUtils.initialize(TvBrowser.this);
         
@@ -556,15 +555,13 @@ public class TvBrowser extends FragmentActivity implements
     
     LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mUpdateDoneBroadcastReceiver, filter);
     
-    Log.d("info7", "INTENT " + getIntent() + " " + getIntent().hasExtra(SettingConstants.CHANNEL_ID_EXTRA));
-    
     mCurrentChannelFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, SettingConstants.ALL_FILTER_ID);
     
     if(!mCurrentChannelFilterId.equals(SettingConstants.ALL_FILTER_ID)) {
       SharedPreferences pref = getSharedPreferences(SettingConstants.FILTER_PREFERENCES, Context.MODE_PRIVATE);
       
       String values = pref.getString(mCurrentChannelFilterId, null);
-      Log.d("info2", "id " + mCurrentChannelFilterId +  " " + values + " " + pref.contains(mCurrentChannelFilterId));
+      
       if(mCurrentChannelFilterId != null && values != null) {
         mCurrentChannelFilter = new ChannelFilterValues(mCurrentChannelFilterId,values);
       }
@@ -577,7 +574,6 @@ public class TvBrowser extends FragmentActivity implements
     if(mCurrentChannelFilterId.equals(SettingConstants.ALL_FILTER_ID)) {
       mCurrentChannelFilter = new ChannelFilterValues(SettingConstants.ALL_FILTER_ID, getString(R.string.activity_edit_filter_list_text_all), "");
     }
-    Log.d("info2", "id2 " + mCurrentChannelFilterId +" " + mCurrentChannelFilter);
     
     handler.postDelayed(new Runnable() {
       @Override
@@ -614,7 +610,7 @@ public class TvBrowser extends FragmentActivity implements
       
       boolean show = firstTimeoutReached && lastTimoutReached && alreadyShowTimeoutReached && !alreadyShownThisMonth && !dontShowAgainThisYear && radomShow;
       
-      Log.d("info21", "firstTimeoutReached (" + ((now - firstDownload)/(24 * 60 * 60000L)) + "): " + firstTimeoutReached + " lastTimoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " randomShow: " + radomShow + " SHOW: " + show);
+      //Log.d("info21", "firstTimeoutReached (" + ((now - firstDownload)/(24 * 60 * 60000L)) + "): " + firstTimeoutReached + " lastTimoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " randomShow: " + radomShow + " SHOW: " + show);
       
       if(show) {
         AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -1088,7 +1084,6 @@ public class TvBrowser extends FragmentActivity implements
               showChannelSelectionInternal();
             }
           });
-          Log.d("dateinfo", "",e);
         }
         
         selectingChannels = false;
@@ -1130,7 +1125,7 @@ public class TvBrowser extends FragmentActivity implements
             
             String car = pref.getString(SettingConstants.USER_NAME, null);
             String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
-            Log.d("info", car + " "+ bicycle);
+            
             if(car != null && bicycle != null) {
               String userpass = car + ":" + bicycle;
               String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
@@ -1246,7 +1241,6 @@ public class TvBrowser extends FragmentActivity implements
               }
             }
           }catch(Throwable t) {
-            Log.d("info1", "" , t);
             handler.post(new Runnable() {
               @Override
               public void run() {
@@ -1356,7 +1350,7 @@ public class TvBrowser extends FragmentActivity implements
           
           String car = pref.getString(SettingConstants.USER_NAME, null);
           String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
-          Log.d("info", car + " "+ bicycle);
+          
           if(car != null && bicycle != null) {
             String userpass = car + ":" + bicycle;
             String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
@@ -1379,29 +1373,23 @@ public class TvBrowser extends FragmentActivity implements
                 if(parts != null && parts.length > 1) {
                   if(type.equals("boolean")) {
                     edit.putBoolean(parts[0], Boolean.valueOf(parts[1].trim()));
-                    Log.d("pref", parts[0] + " " + parts[1].trim());
                   }
                   else if(type.equals("int")) {
                     edit.putInt(parts[0], Integer.valueOf(parts[1].trim()));
-                    Log.d("pref", parts[0] + " " + parts[1].trim());
                   }
                   else if(type.equals("float")) {
                     edit.putFloat(parts[0], Float.valueOf(parts[1].trim()));
-                    Log.d("pref", parts[0] + " " + parts[1].trim());
                   }
                   else if(type.equals("long")) {
                     edit.putLong(parts[0], Long.valueOf(parts[1].trim()));
-                    Log.d("pref", parts[0] + " " + parts[1].trim());
                   }
                   else if(type.equals("string")) {
                     edit.putString(parts[0], parts[1].trim());
-                    Log.d("pref", parts[0] + " " + parts[1].trim());
                   }
                   else if(type.equals("set")) {
                     HashSet<String> set = new HashSet<String>();
                     
                     String[] setParts = parts[1].split("#,#");
-                    Log.d("pref", parts[0]);
                     
                     if(setParts != null && setParts.length > 0) {
                       for(String setPart : setParts) {
@@ -1413,7 +1401,6 @@ public class TvBrowser extends FragmentActivity implements
                         else {
                           set.add(setPart);
                         }
-                        Log.d("pref", " " + setPart);
                       }
                       
                       edit.putStringSet(parts[0], set);
@@ -1437,7 +1424,6 @@ public class TvBrowser extends FragmentActivity implements
             }
           }
         }catch(Exception e) {
-          Log.d("info2", " tt ", e);
           restored = false;
         }
         finally {
@@ -3364,8 +3350,6 @@ public class TvBrowser extends FragmentActivity implements
     
     File logFile = new File(path,file);
     
-    Log.d("Reminder", "" + logFile.getAbsolutePath() + " " + logFile.isFile());
-
     if(logFile.isFile()) {
       Intent sendMail = new Intent(Intent.ACTION_SEND);
       
@@ -3527,7 +3511,7 @@ public class TvBrowser extends FragmentActivity implements
       if(pref.getBoolean(getString(R.string.PREF_NEWS_SHOW), getResources().getBoolean(R.bool.pref_news_show_default))) {
         long lastShown = pref.getLong(getString(R.string.NEWS_DATE_LAST_SHOWN), 0);
         long lastKnown = pref.getLong(getString(R.string.NEWS_DATE_LAST_KNOWN), 0);
-Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(lastKnown));        
+        
         final String news = pref.getString(getString(R.string.NEWS_TEXT), "");
         
         if(lastShown < lastKnown && news.trim().length() > 0) {
@@ -3690,12 +3674,10 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
           final PluginServiceConnection[] connections = PluginHandler.getAvailablePlugins();
           
           for(PluginDefinition def : availablePlugins) {
-            Log.d("info50", "" + Build.VERSION.SDK_INT + " " + def.getMinApiVersion());
-            
             if(Build.VERSION.SDK_INT >= def.getMinApiVersion()) {
               String packageName = def.getPackageName();
               String[] services = def.getServices();
-              Log.d("info50", def.toString());
+              
               for(String service : services) {
                 if(service.startsWith(".")) {
                   service = packageName + service;
@@ -3736,7 +3718,6 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
           StringBuilder pluginsText = new StringBuilder();
           
           Collections.sort(newPlugins);
-          Log.d("info50", "size " + newPlugins.size());
           
           for(PluginDefinition news : newPlugins) {
             if(pluginsText.length() > 0) {
@@ -3828,9 +3809,7 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
   private File mCurrentDownloadPlugin;
   
   private void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span)
-  {
-    Log.d("info50", "" + span);
-    
+  {    
       int start = strBuilder.getSpanStart(span);
       int end = strBuilder.getSpanEnd(span);
       int flags = strBuilder.getSpanFlags(span);
@@ -3871,8 +3850,6 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
                     mCurrentDownloadPlugin.delete();
                   }
                   
-                  Log.d("info50", "DOWNLOAD " + url + " FILE " + mCurrentDownloadPlugin.getAbsolutePath());
-                  
                   final String downloadUrl = url;
                   
                   handler.post(new Runnable() {
@@ -3896,8 +3873,7 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
                         
                         protected void onPostExecute(Boolean result) {
                           mProgress.hide();
-                          Log.d("info50", "ISFILE " + mPluginFile.getAbsolutePath() + " " + mPluginFile.isFile());
-  
+                          
                           if(result) {
                             Intent intent = new Intent(Intent.ACTION_VIEW);
                             intent.setDataAndType(Uri.fromFile(mPluginFile),"application/vnd.android.package-archive");
@@ -4044,8 +4020,6 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
       }
       case R.id.action_backup_preferences_save: backupPreferences();break;
       case R.id.action_backup_preferences_restore: restorePreferences();break;
-      case Menu.NONE: Log.d("info2", "ccc " + item);break;
-      default: Log.d("info2", "ccc " + item);break;
     }
     
     for(int i = 0; i < SCROLL_IDS.length; i++) {
@@ -4477,7 +4451,7 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
     for(String sku : SettingConstants.SKU_LIST) {
       SkuDetails details = inv.getSkuDetails(sku);
       Purchase donatedTest = inv.getPurchase(sku);
-      Log.d("info"," donated " + donated);
+      
       if(donatedTest != null && details != null) {
         donated = donatedTest;
         donatedDetails = details;
@@ -4669,7 +4643,6 @@ Log.d("info21", "lastShown " + new Date(lastShown) + " lastKnown " + new Date(la
               mHelper.launchPurchaseFlow(TvBrowser.this, skuDetails.getSku(), 500012, new IabHelper.OnIabPurchaseFinishedListener() {           
                 @Override
                 public void onIabPurchaseFinished(IabResult result, Purchase info) {
-                  Log.d("info1","" +result + " " + info);
                   if(result.isSuccess()) {
                     AlertDialog.Builder alert2 = new AlertDialog.Builder(TvBrowser.this);
                     

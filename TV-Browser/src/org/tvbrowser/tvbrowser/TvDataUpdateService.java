@@ -4004,16 +4004,16 @@ public class TvDataUpdateService extends Service {
           mVersionMap.put(dataFile.getName(), Byte.valueOf(dataInfo.getDataVersion()));
           
           if(level == BASE_LEVEL && missingFrameIDs != null && !missingFrameIDs.isEmpty()) {
-            StringBuilder where = new StringBuilder(" ( ");
+            StringBuilder where = new StringBuilder(" ( ( ");
             
             where.append(TvBrowserContentProvider.DATA_KEY_DATE_PROG_ID);
             where.append(" IN ( ");
             where.append(TextUtils.join(", ", missingFrameIDs));
-            where.append(" ) OR ( ");
+            where.append(" ) ) OR ( ");
             where.append(TvBrowserContentProvider.DATA_KEY_DATE_PROG_STRING_ID);
-            where.append(" IN ( ");
-            where.append(TextUtils.join(", ", missingFrameIDs));            
-            where.append(" ) ) ");
+            where.append(" IN ( '");
+            where.append(TextUtils.join("', '", missingFrameIDs));            
+            where.append("' ) ) ) ");
             where.append(" AND ");
             where.append(" ( ");
             where.append(TvBrowserContentProvider.DATA_KEY_UNIX_DATE);
@@ -4024,6 +4024,7 @@ public class TvDataUpdateService extends Service {
             where.append(" = ");
             where.append(getChannelID());
             where.append(" ) ");
+            doLog(" DELETE WHERE " + where);
             Log.d("info66", " DELETE WHERE " + where);
             
             getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, where.toString(), null);

@@ -30,10 +30,8 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -58,7 +56,7 @@ import android.os.Binder;
 import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
-import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 
@@ -181,8 +179,52 @@ public class IOUtils {
   }
   
   public static Spannable getInfoString(int value, Resources res) {
-    StringBuilder infoString = new StringBuilder();
+    return getInfoString(value, res, true);
+  }
+  
+  private static int getDefaultCategoryColorKeyForColorKey(int colorKey) {
+    int defaultColorCategoryKey = R.string.pref_color_categories_default;
     
+    if(colorKey == R.string.PREF_COLOR_CATEGORY_FILM) {
+      defaultColorCategoryKey = R.string.pref_color_category_film_default;
+    }
+    else if(colorKey == R.string.PREF_COLOR_CATEGORY_SERIES) {
+      defaultColorCategoryKey = R.string.pref_color_category_series_default;
+    }
+    else if(colorKey == R.string.PREF_COLOR_CATEGORY_NEW) {
+      defaultColorCategoryKey = R.string.pref_color_category_new_default;
+    }
+    else if(colorKey == R.string.PREF_COLOR_CATEGORY_DOCU || colorKey == R.string.PREF_COLOR_CATEGORY_MAGAZIN) {
+      defaultColorCategoryKey = R.string.pref_color_category_docu_default;
+    }
+    else if(colorKey == R.string.PREF_COLOR_CATEGORY_CHILDREN) {
+      defaultColorCategoryKey = R.string.pref_color_category_children_default;
+    }
+    else if(colorKey == R.string.PREF_COLOR_CATEGORY_SHOW) {
+      defaultColorCategoryKey = R.string.pref_color_category_show_default;
+    }
+    
+    return defaultColorCategoryKey;
+  }
+  
+  public static HashMap<String,Integer> loadCategoryColorMap(Context context) {
+    HashMap<String, Integer> categoryColorMap = new HashMap<String, Integer>();
+    String[] names = getInfoStringArrayNames(context.getResources());
+    
+    for(int i = 0; i < SettingConstants.CATEGORY_COLOR_PREF_KEY_ARR.length; i++) {
+      int colorKey = SettingConstants.CATEGORY_COLOR_PREF_KEY_ARR[i];
+      
+      int[] colorCategory = getColorForCategory(PrefUtils.getStringValue(colorKey, getDefaultCategoryColorKeyForColorKey(colorKey)));
+      
+      if(colorCategory[0] == 1) {
+        categoryColorMap.put(names[i], Integer.valueOf(colorCategory[1]));
+      }
+    }
+        
+    return categoryColorMap;
+  }
+  
+  public static Spannable getInfoString(int value, Resources res, boolean colored) {
     String[] valueArr = {"",
         res.getString(R.string.info_black_and_white),
         res.getString(R.string.info_four_to_three),
@@ -211,16 +253,10 @@ public class IOUtils {
         res.getString(R.string.info_sign_language)
         };
     
-    int filmKeyIndex = 11;
-    int seriesKeyIndex = 12;
-    int newKeyIndex = 13;
-    int docuKeyIndex = 19;
-    int childrenKeyIndex = 22;
-    
     int[] prefKeyArr = SettingConstants.CATEGORY_PREF_KEY_ARR;
     int[] colorPrefKeyArr = SettingConstants.CATEGORY_COLOR_PREF_KEY_ARR;
-    
-    HashMap<String, Integer> colorMap = new HashMap<String, Integer>();
+        
+    SpannableStringBuilder infoString = new SpannableStringBuilder();
     
     for(int i = 1; i <= 25; i++) {
       if((value & (1 << i)) == (1 << i) && PrefUtils.getBooleanValue(prefKeyArr[i-1], R.bool.pref_info_show_default)) {
@@ -229,52 +265,32 @@ public class IOUtils {
         }
         infoString.append(valueArr[i]);
         
-        int defaultColorCategoryKey = R.string.pref_color_categories_default;
-        
-        if(i-1 == filmKeyIndex) {
-          defaultColorCategoryKey = R.string.pref_color_category_film_default;
-        }
-        else if(i-1 == seriesKeyIndex) {
-          defaultColorCategoryKey = R.string.pref_color_category_series_default;
-        }
-        else if(i-1 == newKeyIndex) {
-          defaultColorCategoryKey = R.string.pref_color_category_new_default;
-        }
-        else if(i-1 == docuKeyIndex) {
-          defaultColorCategoryKey = R.string.pref_color_category_docu_default;
-        }
-        else if(i-1 == childrenKeyIndex) {
-          defaultColorCategoryKey = R.string.pref_color_category_children_default;
-        }
-        
-        int[] colorCategory = getColorForCategory(PrefUtils.getStringValue(colorPrefKeyArr[i-1], defaultColorCategoryKey));
-        
-        if(colorCategory[0] == 1) {
-          colorMap.put(valueArr[i], Integer.valueOf(colorCategory[1]));
+        if(colored) {
+          int[] colorCategory = getColorForCategory(PrefUtils.getStringValue(colorPrefKeyArr[i-1], getDefaultCategoryColorKeyForColorKey(colorPrefKeyArr[i-1])));
+          
+          if(colorCategory[0] == 1) {
+            infoString.setSpan(new ForegroundColorSpan(colorCategory[1]), infoString.length()-valueArr[i].length(), infoString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+          }
         }
       }
     }
     
-    SpannableString categories = new SpannableString(infoString.toString().trim());
-    
-    Set<String> colorKeys = colorMap.keySet();
-    
-    for(String colorKey : colorKeys) {
-      categories = setColor(categories, colorKey, colorMap.get(colorKey).intValue());
+    if(infoString.length() > 0) {
+      return infoString;
     }
     
-    return categories;
+    return null;
   }
-  
-  private static SpannableString setColor(SpannableString categories, String value, int color) {
+  /*
+  public static SpannableString setColor(SpannableString categories, String value, int color, boolean foreground) {
     int index = categories.toString().indexOf(value);
     
     if(index != -1) {
-      categories.setSpan(new ForegroundColorSpan(color), index, index+value.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      categories.setSpan(foreground ? new ForegroundColorSpan(color) : new BackgroundColorSpan(color), index, index+value.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     }
     
     return categories;
-  }
+  }*/
   
   public static byte[] loadUrl(String urlString) throws MalformedURLException, IOException, TimeoutException {
     return loadUrl(urlString, 30000);
@@ -308,7 +324,6 @@ public class IOUtils {
     Thread wait = new Thread("SAVE URL WAITING THREAD") {
       public void run() {
         while(loadData.get() == null && count.getAndIncrement() < (timeout / 100)) {
-          Log.d("info51","timecount " + count.get());
           try {
             sleep(100);
           } catch (InterruptedException e) {}
@@ -348,7 +363,6 @@ public class IOUtils {
       int count;
       
       while ((count = in.read(temp, 0, 1024)) != -1) {
-        Log.d("info51","READ COUNT " + count);
         if(temp != null && count > 0) {
           out.write(temp, 0, count);
           
@@ -422,7 +436,6 @@ public class IOUtils {
     Thread wait = new Thread("SAVE URL WAITING THREAD") {
       public void run() {
         while(!wasSaved.get() && count.getAndIncrement() < (timeout / 100)) {
-          Log.d("info51","timecount " + count.get() + " " + (timeout / 100));
           try {
             sleep(100);
           } catch (InterruptedException e) {}
@@ -498,10 +511,9 @@ public class IOUtils {
     Intent dataUpdate = new Intent(context, AutoDataUpdateReceiver.class);
     dataUpdate.putExtra(SettingConstants.TIME_DATA_UPDATE_EXTRA, true);
     
-    Log.d("info", "time  " + new Date(time));
     if(time > System.currentTimeMillis()) {
       PendingIntent pending = PendingIntent.getBroadcast(context, DATA_UPDATE_KEY, dataUpdate, PendingIntent.FLAG_UPDATE_CURRENT);
-      Log.d("info", "" + pending);
+      
       alarmManager.set(AlarmManager.RTC_WAKEUP, time, pending);
     }
   }
@@ -568,7 +580,6 @@ public class IOUtils {
         currentTime.commit();
       }
       
-      Log.d("info", "xxx " + new Date(current));
       IOUtils.setDataUpdateTime(context, current, pref);
     }
   }
@@ -734,7 +745,7 @@ public class IOUtils {
   public static File getDownloadDirectory(Context context) {
     File parent = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
     boolean external = true;
-    Log.d("info77", "PARENT " + parent);
+    
     if(parent == null || !parent.isDirectory()) {
       external = false;
       parent = context.getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
@@ -761,8 +772,6 @@ public class IOUtils {
         nomedia.createNewFile();
       } catch (IOException e) {}
     }
-    
-    Log.d("info77", path.getAbsolutePath());
     
     return path;
   }

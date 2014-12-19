@@ -41,7 +41,6 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
-import android.util.Log;
 
 public class TvBrowserContentProvider extends ContentProvider {
   public static final String AUTHORITY = "org.tvbrowser.tvbrowsercontentprovider";
@@ -1062,7 +1061,6 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     @Override
     public void onUpgrade(final SQLiteDatabase db, int oldVersion, int newVersion) {
-      Log.d("info4", "oldVersion " + oldVersion + " newVersion " + newVersion);
       if(oldVersion == 1 && newVersion > 1) {
         boolean logoFound = false;
         
@@ -1140,7 +1138,6 @@ public class TvBrowserContentProvider extends ContentProvider {
         }
         
         if(oldMarkingColumnFound) {
-          Log.d("info4", "OLD MARKING COLUMN FOUND");
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_MARKING + " INTEGER DEFAULT 0");
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_FAVORITE + " INTEGER DEFAULT 0");
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_FAVORITE_REMINDER + " INTEGER DEFAULT 0");
@@ -1205,9 +1202,7 @@ public class TvBrowserContentProvider extends ContentProvider {
             }
           }
           
-          Log.d("info4", "ALTER TABLE " + DATA_TABLE + " RENAME TO " + DATA_TABLE + "_old");
           db.execSQL("ALTER TABLE " + DATA_TABLE + " RENAME TO " + DATA_TABLE + "_old");
-          Log.d("info4", CREATE_DATA_TABLE);
           db.execSQL(CREATE_DATA_TABLE);
           
           StringBuilder columnsSeparated = new StringBuilder();
@@ -1265,15 +1260,12 @@ public class TvBrowserContentProvider extends ContentProvider {
           columnsSeparated.append(DATA_KEY_MARKING_SYNC);
           
           db.beginTransaction();
-          Log.d("info4", "INSERT INTO " + DATA_TABLE + "(" + columnsSeparated + ") SELECT "
-              + columnsSeparated + " FROM " + DATA_TABLE + "_old;");
           db.execSQL("INSERT INTO " + DATA_TABLE + "(" + columnsSeparated + ") SELECT "
               + columnsSeparated + " FROM " + DATA_TABLE + "_old;");
           
           db.setTransactionSuccessful();
           db.endTransaction();
           
-          Log.d("info4","DROP TABLE " + DATA_TABLE + "_old;");
           db.execSQL("DROP TABLE " + DATA_TABLE + "_old;");
         }
       }

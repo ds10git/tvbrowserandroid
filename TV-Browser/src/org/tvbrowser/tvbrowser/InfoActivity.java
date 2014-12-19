@@ -37,7 +37,6 @@ import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
@@ -60,15 +59,12 @@ public class InfoActivity extends Activity {
   @Override
   protected void onResume() {
     super.onResume();
-    Log.d("info", "Resume");
     
-    //onNewIntent(getIntent());
     Intent intent = getIntent();
     
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
     
     if(programID >= 0) {
-      Log.d("info8", "HIER2");
       UiUtils.showProgramInfo(this, programID, this);
     }
     else if(intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID)) {

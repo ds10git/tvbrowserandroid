@@ -555,6 +555,14 @@
     
     <!-- WIDGETS -->
     
+    <string name="pref_widget_title_show_markings">Markierungen anzeigen</string>
+    <string name="pref_widget_summary_show_markings">Markierungen von Sendungen werden in den Widgets visualisiet.</string>
+    
+    <string name="widget_marking_plugins">M</string>
+    <string name="widget_marking_favorite">L</string>
+    <string name="widget_marking_reminder">E</string>
+    <string name="widget_marking_sync">S</string>
+    
     <string name="widget_important_widget_title">TV-Browser: Wichtige Sendungen/Sendungsliste</string>
     
     <string name="widget_important_default_title">Wichtige Sendungen</string>
@@ -656,7 +664,12 @@
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.3</h2>
+		<h2>0.5.3.1</h2>
+			&bull; Fehler bei Löschung entfernter Sendungen beim Datenupdate behoben<br>
+			&bull; Kategoriefarben auch für die Programmtabelle<br>
+            &bull; Sendungsmarkierungen werden in den Widgets visualisiert<br>
+		<br>
+        <h3>0.5.3</h3>
         	&bull; benutzerdefinierbare Farben für Anzeige der Sendungskategorien hinzugefügt (nicht für die Programmtabelle)<br>
         	&bull; Kategorieanzeige für Widgets hinzugefügt<br>
         	&bull; nicht funktionierender Download über LAN-Verbindungen behoben<br>

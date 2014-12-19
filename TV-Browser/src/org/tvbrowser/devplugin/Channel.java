@@ -21,7 +21,6 @@ package org.tvbrowser.devplugin;
 
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.Log;
 
 /**
  * A parcelable class with informations about a TV-Browser channel.
@@ -64,7 +63,7 @@ public final class Channel implements Parcelable {
    * @param channelIcon The data of the icon of the TV-Browser channel.
    */
   public Channel(int id, String channelName, byte[] channelIcon) {
-    mId = id;Log.d("info33", "NAME " + channelName + " LOGO " + channelIcon);
+    mId = id;
     mChannelName = channelName;
     mChannelIcon = channelIcon;
   }

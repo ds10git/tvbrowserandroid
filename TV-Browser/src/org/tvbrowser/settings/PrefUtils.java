@@ -22,7 +22,6 @@ import java.util.Set;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 public class PrefUtils {
   private static Context mContext;
@@ -38,8 +37,6 @@ public class PrefUtils {
       String installerSource = context.getPackageManager().getInstallerPackageName(context.getPackageName());
       
       SettingConstants.GOOGLE_PLAY = installerSource != null && installerSource.equals("com.android.vending");
-      
-      Log.d("info", "fromGooglePlay: " + SettingConstants.GOOGLE_PLAY);
     }
   }
   

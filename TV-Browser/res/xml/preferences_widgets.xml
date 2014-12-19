@@ -44,6 +44,10 @@
 	<CheckBoxPreference android:key="@string/PREF_WIDGET_SHOW_CATEGORIES" 
 		android:title="@string/pref_show_program_categories"
 		android:defaultValue="@bool/pref_widget_show_categories_default"/>
+	<CheckBoxPreference android:key="@string/PREF_WIDGET_SHOW_MARKINGS" 
+		android:title="@string/pref_widget_title_show_markings"
+		android:summary="@string/pref_widget_summary_show_markings"
+		android:defaultValue="@bool/pref_widget_show_markings_default"/>
 	<ListPreference android:key="@string/PREF_WIDGET_TEXT_SCALE"
 		android:title="@string/pref_detail_text_scale"
 		android:defaultValue="@string/pref_widget_text_scale_default"

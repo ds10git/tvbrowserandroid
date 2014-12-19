@@ -10,7 +10,6 @@ import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.os.Binder;
-import android.util.Log;
 
 public class ProgramUtils {
   public static final String[] DATA_CHANNEL_PROJECTION = {
@@ -97,16 +96,13 @@ public class ProgramUtils {
   }
   
   public static final boolean markProgram(Context context, Program program) {
-    Log.d("info44", "markProgram " + program);
     boolean result = false;
     
     final long token = Binder.clearCallingIdentity();
     Cursor programs = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, program.getId()), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_MARKING}, null, null, null);
-    Log.d("info44", "CURSOR " + programs.getCount());
+    
     try {
       if(programs != null && programs.moveToFirst()) {
-        Log.d("info44", "MARKING_VALUE " + programs.getInt(programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)));
-        
         if(programs.getInt(programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) == 0) {
           ContentValues mark = new ContentValues();
           mark.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, true);
@@ -129,10 +125,10 @@ public class ProgramUtils {
   
   public static final boolean unmarkProgram(Context context, Program program) {
     boolean result = false;
-    Log.d("info44", "UNMARK " + program);
+    
     final long token = Binder.clearCallingIdentity();
     Cursor programs = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, program.getId()), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_MARKING}, null, null, null);
-    Log.d("info44", "UNMARK CURSOR " + programs);
+    
     try {
       if(programs != null && programs.moveToFirst()) {
         if(programs.getInt(programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) == 1 && !PluginHandler.isMarkedByPlugins(program.getId())) {
