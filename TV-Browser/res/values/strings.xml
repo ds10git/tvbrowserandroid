@@ -569,6 +569,14 @@
     
     <!-- WIDGETS -->
     
+    <string name="pref_widget_title_show_markings">Show markings</string>
+    <string name="pref_widget_summary_show_markings">Markings of programs are visualized in the widgets</string>
+    
+    <string name="widget_marking_plugins">M</string>
+    <string name="widget_marking_favorite">F</string>
+    <string name="widget_marking_reminder">R</string>
+    <string name="widget_marking_sync">S</string>
+    
     <string name="widget_important_widget_title">TV-Browser: Important programs/Program list</string>
     
     <string name="widget_important_default_title">Important programs</string>
@@ -670,7 +678,12 @@
     
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.3</h2>
+        <h2>0.5.3.1</h2>
+            &bull; fixed problem of missing deletion removed programs during data update<br>
+        	&bull; category colors for program table also<br>
+            &bull; show program markings visualisation in widgets<br>
+		<br>
+        <h3>0.5.3</h3>
             &bull; added user defined program category color (not for program table)<br>
         	&bull; added category display for widgets<br>
         	&bull; fixed not working download LAN connections<br>

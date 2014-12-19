@@ -979,7 +979,7 @@ public class ProgramTableFragment extends Fragment {
     final long endTime = cursor.getLong(mEndTimeIndex);
     String title = cursor.getString(mTitleIndex);
     int channelID = cursor.getInt(mChannelIndex);
-    Spannable categories = IOUtils.getInfoString(cursor.getInt(mCategoryIndex),getResources());
+    Spannable categories = IOUtils.getInfoString(cursor.getInt(mCategoryIndex),getResources(),false);
     
     final ProgramPanel panel = new ProgramPanel(getActivity(),startTime,endTime,title,channelID);
     

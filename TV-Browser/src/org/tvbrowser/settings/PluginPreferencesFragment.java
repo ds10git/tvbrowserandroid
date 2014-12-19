@@ -16,23 +16,17 @@
  */
 package org.tvbrowser.settings;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
-import org.tvbrowser.devplugin.Channel;
 import org.tvbrowser.devplugin.Plugin;
-import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.view.InfoPreference;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.CheckBoxPreference;
 import android.preference.Preference;
@@ -40,9 +34,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.text.Html;
-import android.transition.ArcMotion;
-import android.util.Log;
-import android.widget.TextView;
 
 /**
  * The preferences fragment for the plugins.
@@ -54,9 +45,7 @@ public class PluginPreferencesFragment extends PreferenceFragment {
   
   @Override
   public void onDetach() {
-    // TODO Auto-generated method stub
     super.onDetach();
-    Log.d("info24", "cccc");
   }
   
   @Override
@@ -84,7 +73,6 @@ public class PluginPreferencesFragment extends PreferenceFragment {
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
     if(pluginConnection != null) {
-      Log.d("info24", ""+pluginConnection.getId());
       final CheckBoxPreference activated =  new CheckBoxPreference(getActivity());
       activated.setTitle(R.string.pref_activated);
       activated.setKey(mPluginId+"_ACTIVATED");
@@ -101,9 +89,6 @@ public class PluginPreferencesFragment extends PreferenceFragment {
         preferenceScreen.addPreference(descriptionPref);
       }
       
-      final Handler handler = new Handler();
-      final Context context = getActivity();
-      
       final AtomicReference<Preference> startSetupRef = new AtomicReference<Preference>(null);
       if(pluginConnection != null && pluginConnection.hasPreferences()) {
         final Preference startSetup = new Preference(getActivity());
@@ -112,59 +97,29 @@ public class PluginPreferencesFragment extends PreferenceFragment {
         startSetup.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
           @Override
           public boolean onPreferenceClick(Preference preference) {
-            String logtext = "onPreferenceClick: pluginConntection: " + (pluginConnection != null) +" ";
-            
             try {
-              
-              
               if(pluginConnection != null ) {
                 Plugin plugin = pluginConnection.getPlugin();
                 
-                logtext += "PLUGIN " + plugin + " isBound " + pluginConnection.isBound(getActivity().getApplicationContext());
-                //Log.d("info24", );
                 if(plugin != null && pluginConnection.isBound(getActivity().getApplicationContext())) {
-                  logtext += " openPreferences " + IOUtils.getChannelList(getActivity());
                   plugin.openPreferences(IOUtils.getChannelList(getActivity()));
                 }
                 else {
                   final Context bindContext = getActivity(); 
-                  logtext += " bindPlugin ";
+                  
                   if(pluginConnection.bindPlugin(bindContext, null)) {
-                    logtext += " BOUND PLUGIN ";
-                    Log.d("info23", logtext);
                     pluginConnection.getPlugin().onActivation(((PluginPreferencesActivity)getActivity()).getPluginManager());
                     pluginConnection.getPlugin().openPreferences(IOUtils.getChannelList(bindContext));
                     pluginConnection.callOnDeactivation();
-                    logtext += " UNBIND PLUGIN ";
+                    
                     pluginConnection.unbindPlugin(bindContext);
-                  }
-                  else {
-                    logtext += " COULD NOT BIND TO PLUGIN ";
                   }
                 }
                 
                 
               }
             } catch (Throwable e) {
-              // TODO Auto-generated catch block
-              Log.d("info24","",e);
-              
-              logtext += e.getMessage();
             }
-            /*
-            final String message = logtext;
-            
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                TextView view = new TextView(getActivity());
-                view.setText(message);
-                view.setTextIsSelectable(true);
-                view.setTextSize(18f);
-                
-                new AlertDialog.Builder(context).setView(view).setPositiveButton(android.R.string.ok, null).show();
-              }
-            });*/
             
             return true;
           }
@@ -193,7 +148,6 @@ public class PluginPreferencesFragment extends PreferenceFragment {
                   try {
                     pluginConnection.getPlugin().onActivation(((PluginPreferencesActivity)getActivity()).getPluginManager());
                   } catch (RemoteException e) {
-                    // TODO Auto-generated catch block
                     e.printStackTrace();
                   }
                 }

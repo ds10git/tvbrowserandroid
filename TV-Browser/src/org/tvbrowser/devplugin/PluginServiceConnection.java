@@ -25,7 +25,6 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 /**
  * A class with a service connection to a specific TV-Browser Plugin.
@@ -66,14 +65,13 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     if(!mBindContextList.contains(context)) {
       Intent intent = new Intent();
       intent.setClassName(mPackageId, mPluginId);
-      Log.d("info23", mPackageId + " " + mPluginId);try {
-      bound = context.bindService( intent, this, Context.BIND_AUTO_CREATE);
-      Log.d("info23", "BOUND23 " + bound);
-      if(bound) {
-        mBindContextList.add(context);
-      }
       
-      }catch(Throwable t) {Log.d("info23", "" , t);}
+      try {
+        bound = context.bindService( intent, this, Context.BIND_AUTO_CREATE);
+        if(bound) {
+          mBindContextList.add(context);
+        }
+      }catch(Throwable t) {}
     }
     
     return bound;
@@ -117,8 +115,6 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   
   @Override
   public void onServiceConnected(ComponentName name, IBinder service) {
-    Log.d("info23","onServiceConnected " + name );
-    
     mPlugin = Plugin.Stub.asInterface(service);
     
     if(isActivated()) {
@@ -129,7 +125,6 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   }
   
   public void callOnActivation() {
-    Log.d("info23", "callOnActivation " + isActivated());
     if(isConnected()) {
       try {
         if(PluginHandler.getPluginManager() != null) {
@@ -174,7 +169,6 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   }
   
   public void callOnDeactivation() {
-    Log.d("info23", "callOnActivation " + isActivated());
     if(isConnected()) {
       try {
         mPlugin.onDeactivation();
@@ -196,13 +190,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     mBindContextList.clear();
     
     PluginHandler.removePluginServiceConnection(this);
-    
-    Log.d("info23","onServiceDisconnected " + name + " " + mPlugin);
   }
-  
- /* public boolean isConnected() {
-    return mPlugin != null;
-  }*/
   
   public boolean isActivated() {
     return mPlugin != null && PreferenceManager.getDefaultSharedPreferences(mContext).getBoolean(mPluginId+"_ACTIVATED", true);

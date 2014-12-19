@@ -68,9 +68,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
       }
       
       Ringtone notificationSound = RingtoneManager.getRingtone(context, soundUri);
-      
-      Log.d("info", "" + soundUri + " " + notificationSound + " " + tone);
-      
+            
       boolean sound = tone == null || tone.trim().length() > 0;
       boolean vibrate = PrefUtils.getBooleanValue(R.string.PREF_REMINDER_VIBRATE, R.bool.pref_reminder_vibrate_default);
       boolean led = PrefUtils.getBooleanValue(R.string.PREF_REMINDER_LED, R.bool.pref_reminder_led_default);

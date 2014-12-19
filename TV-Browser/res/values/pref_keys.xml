@@ -113,6 +113,7 @@
 	    <string name="PREF_COLOR_CATEGORY_AUDIO_DESCRIPTION">PREF_COLOR_CATEGORY_AUDIO_DESCRIPTION</string>
 	    <string name="PREF_COLOR_CATEGORY_NEWS">PREF_COLOR_CATEGORY_NEWS</string>
 	    <string name="PREF_COLOR_CATEGORY_SHOW">PREF_COLOR_CATEGORY_SHOW</string>
+	    <item name="pref_color_category_show_default" type="string" format="string">true;-16732752</item>
 	    <string name="PREF_COLOR_CATEGORY_MAGAZIN">PREF_COLOR_CATEGORY_MAGAZIN</string>
 	    <string name="PREF_COLOR_CATEGORY_HD">PREF_COLOR_CATEGORY_HD</string>
 	    <string name="PREF_COLOR_CATEGORY_DOCU">PREF_COLOR_CATEGORY_DOCU</string>
@@ -511,7 +512,10 @@
 
 	    <string name="PREF_WIDGET_SHOW_CATEGORIES">PREF_WIDGET_SHOW_CATEGORIES</string>
 	    <item name="pref_widget_show_categories_default" type="bool" format="boolean">true</item>
-	    	    
+	    
+	    <string name="PREF_WIDGET_SHOW_MARKINGS">PREF_WIDGET_SHOW_MARKINGS</string>
+	    <item name="pref_widget_show_markings_default" type="bool" format="boolean">true</item>
+	    
 	    <string name="PREF_WIDGET_TEXT_SCALE">PREF_WIDGET_TEXT_SCALE</string>
 	    <item name="pref_widget_text_scale_default" type="string" format="string">1.0</item>
 	    

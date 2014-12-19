@@ -24,12 +24,10 @@ import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.tvbrowser.R;
 
 import android.annotation.TargetApi;
-import android.app.AlertDialog;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceActivity;
-import android.util.Log;
 
 /**
  * The preferences activity for the plugins.
@@ -87,7 +85,6 @@ public class PluginPreferencesActivity extends PreferenceActivity {
       PLUGIN_SERVICE_CONNECTIONS = PluginHandler.getAvailablePlugins();
     }
     
-    Log.d("info23", "onBuildHeaders");
     if(PLUGIN_SERVICE_CONNECTIONS != null) {
       for(PluginServiceConnection pluginConnection : PLUGIN_SERVICE_CONNECTIONS) {
         int id = 1;

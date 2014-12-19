@@ -16,10 +16,14 @@
  */
 package org.tvbrowser.view;
 
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
 
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.IOUtils;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -30,7 +34,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
 import android.text.Spannable;
 import android.text.TextPaint;
-import android.util.Log;
 import android.view.View;
 
 public class ProgramPanel extends View {
@@ -40,7 +43,7 @@ public class ProgramPanel extends View {
   private String mEpisode;
   private String mGenre;
   private String mPictureCopyright;
-  private String mInfoString;
+  private ColorLine[] mCategoriesString;
   private BitmapDrawable mPicture;
 
   private boolean mIsExpired;
@@ -84,7 +87,28 @@ public class ProgramPanel extends View {
     if(value != null && value.toString().trim().length() > 0) {
       Object[] result = getBreakerText(value.toString(), getTextWidth() - mStartTimeBounds.width() - ProgramTableLayoutConstants.TIME_TITLE_GAP, ProgramTableLayoutConstants.NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT);
       
-      mInfoString = result[0].toString();
+      String all = result[0].toString();
+      
+      String[] lines = all.split("\n");
+      
+      mCategoriesString = new ColorLine[lines.length];
+      
+      HashMap<String, Integer> categoryColorMap = IOUtils.loadCategoryColorMap(getContext());
+      
+      for(int i = 0; i < lines.length; i++) {
+        mCategoriesString[i] = new ColorLine();
+        
+        String[] lineParts = lines[i].split(",");
+        
+        for(int j = 0; j < lineParts.length-1; j++) {
+          mCategoriesString[i].addEntry(new ColorEntry(categoryColorMap.get(lineParts[j].trim()), lineParts[j], true));
+        }
+        
+        if(lineParts.length > 0) {
+          mCategoriesString[i].addEntry(new ColorEntry(categoryColorMap.get(lineParts[lineParts.length-1].trim()), lineParts[lineParts.length-1], (i != lines.length-1)));
+        }
+      }      
+      
       mSuperSmallCount += (Integer)result[1];
     }
   }
@@ -248,14 +272,64 @@ public class ProgramPanel extends View {
     }
     
     // draw additonal infos
-    if(mInfoString != null) {
-      lines = mInfoString.split("\n");
+    if(mCategoriesString != null) {
+      //lines = mInfoString.split("\n");
       
-      for(int i = 0; i < lines.length; i++) {
-        canvas.drawText(lines[i], 0, (i+1) * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT - ProgramTableLayoutConstants.SUPER_SMALL_FONT_DESCEND, toUseForPictureCopyright);
+      final int oldColor = toUseForPictureCopyright.getColor();
+      
+      final String separator = ",";
+      final float separatorWidth = toUseForPictureCopyright.measureText(separator);
+      
+      for(int i = 0; i < mCategoriesString.length; i++) {
+        canvas.save();
+        
+        for(Iterator<ColorEntry> it = mCategoriesString[i].getEntries(); it.hasNext();) {
+          ColorEntry entry = it.next();
+          
+          Integer color = entry.getColor();
+          
+          if(color != null && !isExpired()) {
+            toUseForPictureCopyright.setColor(color.intValue());
+          }
+          else {
+            toUseForPictureCopyright.setColor(oldColor);
+          }
+          
+          canvas.drawText(entry.getText(), 0, (i+1) * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT - ProgramTableLayoutConstants.SUPER_SMALL_FONT_DESCEND, toUseForPictureCopyright);
+          
+          canvas.translate(entry.measure(toUseForPictureCopyright), 0);
+          
+          if(entry.needsSeparator()) {
+            toUseForPictureCopyright.setColor(oldColor);
+            
+            canvas.drawText(separator, 0, (i+1) * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT - ProgramTableLayoutConstants.SUPER_SMALL_FONT_DESCEND, toUseForPictureCopyright);
+            canvas.translate(separatorWidth, 0);
+          }
+        }
+        
+        canvas.restore();
+        /*
+        String first = lines[i].substring(0, lines[i].length()/2);
+        String second = lines[i].substring(lines[i].length()/2);
+        
+        canvas.save();
+        
+        toUseForPictureCopyright.setColor(Color.BLUE);
+        
+        canvas.drawText(first, 0, (i+1) * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT - ProgramTableLayoutConstants.SUPER_SMALL_FONT_DESCEND, toUseForPictureCopyright);
+        
+        canvas.translate(toUseForPictureCopyright.measureText(first), 0);
+        
+        toUseForPictureCopyright.setColor(Color.RED);
+        
+        canvas.drawText(second, 0, (i+1) * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT - ProgramTableLayoutConstants.SUPER_SMALL_FONT_DESCEND, toUseForPictureCopyright);
+        
+        canvas.restore();*/
       }
       
-      canvas.translate(0, lines.length * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT);
+      toUseForPictureCopyright.setColor(oldColor);
+      
+      canvas.translate(0, mCategoriesString.length * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT);
     }
     
     // draw genre
@@ -290,7 +364,7 @@ public class ProgramPanel extends View {
         public void run() {
           try {
             invalidate();
-          }catch(Throwable t) {Log.d("info5", "", t);};
+          }catch(Throwable t) {};
         }
       });  
     }
@@ -351,5 +425,49 @@ public class ProgramPanel extends View {
   @Override
   public String toString() {
     return mStartTime + " '" + mTitle + "' on " + mChannelID;
+  }
+  
+  private static final class ColorEntry {
+    private Integer mColor;
+    private String mText;
+    private boolean mNeedsSeparator;
+    
+    public ColorEntry(Integer color, String text, boolean needsSeparator) {
+      mColor = color;
+      mText = text;
+      mNeedsSeparator = needsSeparator;
+    }
+    
+    public float measure(Paint paint) {
+      return paint.measureText(mText);
+    }
+    
+    public String getText() {
+      return mText;
+    }
+    
+    public Integer getColor() {
+      return mColor;
+    }
+    
+    public boolean needsSeparator() {
+      return mNeedsSeparator;
+    }
+  }
+  
+  private static final class ColorLine {
+    private ArrayList<ColorEntry> mEntryList;
+    
+    public ColorLine() {
+      mEntryList = new ArrayList<ProgramPanel.ColorEntry>();
+    }
+    
+    public Iterator<ColorEntry> getEntries() {
+      return mEntryList.iterator();
+    }
+    
+    public void addEntry(ColorEntry entry) {
+      mEntryList.add(entry);
+    }
   }
 }

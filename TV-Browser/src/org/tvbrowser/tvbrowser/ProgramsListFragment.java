@@ -617,7 +617,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
           boolean backstackup = !intent.getBooleanExtra(SettingConstants.NO_BACK_STACKUP_EXTRA, false);
           
           ChannelSelection current = (ChannelSelection)channel.getSelectedItem();
-          Log.d("info8", "backstackup " + backstackup);
+          
           if(current != null && filterSelection == -1 && backstackup) {                
             ((TvBrowser)getActivity()).addProgramListState(date.getSelectedItemPosition(), current.getID(), filter.getSelectedItemPosition(), getCurrentScrollIndex());
           }

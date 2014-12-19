@@ -19,7 +19,6 @@ package org.tvbrowser.devplugin;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -30,7 +29,6 @@ import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.ProgramUtils;
 import org.tvbrowser.tvbrowser.R;
 
-import android.content.ComponentName;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -46,7 +44,6 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 /**
  * A class that handles TV-Browser Plugins.
@@ -78,10 +75,10 @@ public final class PluginHandler {
       @Override
       public Program getProgramWithId(long programId) throws RemoteException {
         Program result = null;
-        Log.d("info44", "TRY TO LOAD " + programId);
+        
         final long token = Binder.clearCallingIdentity();
         Cursor programs = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL,programId), ProgramUtils.DATA_CHANNEL_PROJECTION, null, null, null);
-        Log.d("info44", "CURSOR " + programs.getCount());
+        
         try {
           result = ProgramUtils.createProgramFromDataCursor(context, programs);
         }finally {
@@ -100,7 +97,7 @@ public final class PluginHandler {
         
         final long token = Binder.clearCallingIdentity();
         Cursor programs = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, ProgramUtils.DATA_CHANNEL_PROJECTION, where, null, null);
-        Log.d("info44", "CURSOR " + programs.getCount());
+        
         try {
           result = ProgramUtils.createProgramFromDataCursor(context, programs);
         }finally {
@@ -125,13 +122,11 @@ public final class PluginHandler {
 
       @Override
       public boolean markProgram(Program program) throws RemoteException {
-        Log.d("info44", "MARK " + program);
         return program != null ? ProgramUtils.markProgram(context, program) : false;
       }
 
       @Override
       public boolean unmarkProgram(Program program) throws RemoteException {
-        Log.d("info44", "PLUGIN_HANDLER_UNMARK " + program);
         return program != null ? ProgramUtils.unmarkProgram(context, program) : false;
       }
     };
@@ -198,8 +193,7 @@ public final class PluginHandler {
           ResolveInfo info = list.get( i );
           ServiceInfo sinfo = info.serviceInfo;
           IntentFilter filter1 = info.filter;
-  
-          Log.d( "info23", "fillPluginList: i: "+i+"; sinfo: "+sinfo+";filter: "+filter1 + " " + sinfo.name);
+          
           if(sinfo != null) {
             PluginServiceConnection plugin = new PluginServiceConnection(sinfo.packageName, sinfo.name, context);
             
@@ -237,8 +231,7 @@ public final class PluginHandler {
       ResolveInfo info = list.get( i );
       ServiceInfo sinfo = info.serviceInfo;
       IntentFilter filter1 = info.filter;
-
-      Log.d( "info23", "fillPluginList: i: "+i+"; sinfo: "+sinfo+";filter: "+filter1 + " " + sinfo.name);
+      
       if(sinfo != null) {
         PluginServiceConnection plugin = new PluginServiceConnection(sinfo.packageName, sinfo.name, context);
         
@@ -262,7 +255,6 @@ public final class PluginHandler {
   }
   
   public static final void shutdownPlugins(Context context) {
-    Log.d("info87", "BLOG_COUNT " + BLOG_COUNT.get());
     if(BLOG_COUNT.get() == 1) {
       if(PLUGIN_LIST != null) {
         context = context.getApplicationContext();
@@ -296,9 +288,7 @@ public final class PluginHandler {
     
     if(PLUGIN_LIST != null) {
       for(PluginServiceConnection connection : PLUGIN_LIST) {
-        Log.d("info45", connection.getId());
         try {
-          Log.d("info45", "" + connection.getPlugin().isMarked(programId));
           if(connection.isActivated() && connection.getPlugin().isMarked(programId)) {
             result = true;
             break;

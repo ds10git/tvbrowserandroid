@@ -54,7 +54,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.text.Spannable;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -920,7 +919,6 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
     final View.OnClickListener listener = new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        Log.d("info", "" + v.equals(now) + " " + date.getCount());
         if(v.equals(now) && date.getCount() > 1) {
           date.setSelection(1);
         }
@@ -1043,7 +1041,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
             lastDay.set(Calendar.MINUTE, 0);
             lastDay.set(Calendar.SECOND, 0);
             lastDay.set(Calendar.MILLISECOND, 0);
-            Log.d("info2", "lastDay " + lastDay.getTime() + " " + dates.getString(1));
+            
             Calendar yesterday = Calendar.getInstance();
             yesterday.set(Calendar.HOUR_OF_DAY, 4);
             yesterday.set(Calendar.MINUTE, 0);
@@ -1161,7 +1159,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
     where += ") " + UiUtils.getDontWantToSeeFilterString(getActivity());
     
     where += ((TvBrowser)getActivity()).getChannelFilterSelection();
-    Log.d("info46", "WHERE " + where);
+    
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " COLLATE NOCASE, " + sort);
     
     return loader;
@@ -1217,7 +1215,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
     SparseArray<ChannelProgramBlock> channelProgramMap = new SparseArray<ChannelProgramBlock>();
     SparseArray<ChannelProgramBlock> currentProgramMap = new SparseArray<ChannelProgramBlock>();
     boolean showDontWantToSee = PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(getResources().getStringArray(R.array.pref_simple_string_value_array2)[1]);
-    Log.d("info46", "COUNT " + c.getCount());
+    
     mProgramBlockList.clear();
     mCurrentViewList.clear();
     mMarkingsMap.clear();

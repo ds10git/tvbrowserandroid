@@ -121,11 +121,11 @@
 	       	<org.tvbrowser.settings.PreferenceColorActivated
 		        android:key="@string/PREF_COLOR_CATEGORY_SHOW"
 		        android:title="@string/info_show"
-		        android:defaultValue="@string/pref_color_categories_default"/>
+		        android:defaultValue="@string/pref_color_category_show_default"/>
 	       	<org.tvbrowser.settings.PreferenceColorActivated
 		        android:key="@string/PREF_COLOR_CATEGORY_MAGAZIN"
 		        android:title="@string/info_magazin"
-		        android:defaultValue="@string/pref_color_categories_default"/>
+		        android:defaultValue="@string/pref_color_category_docu_default"/>
 	       	<org.tvbrowser.settings.PreferenceColorActivated
 		        android:key="@string/PREF_COLOR_CATEGORY_HD"
 		        android:title="@string/info_hd"

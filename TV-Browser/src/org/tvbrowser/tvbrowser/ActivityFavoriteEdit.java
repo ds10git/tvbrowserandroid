@@ -44,7 +44,6 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -646,9 +645,8 @@ public class ActivityFavoriteEdit extends Activity implements ChannelFilter {
     
     if(mFavorite.isAttributeRestricted()) {
       int[] restrictionIndices = mFavorite.getAttributeRestrictionIndices();
-      Log.d("info2", " xx " + restrictionIndices);
+      
       for(int index : restrictionIndices) {
-        Log.d("info2", " yy " + index);
         selection[index] = true;
       }
     }

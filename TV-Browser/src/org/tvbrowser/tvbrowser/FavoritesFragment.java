@@ -40,7 +40,6 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -48,7 +47,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -196,7 +194,6 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
             Method setItemChecked = mFavoriteSelection.getClass().getMethod("setItemChecked", new Class<?>[]{int.class,boolean.class});
             setItemChecked.invoke(mFavoriteSelection, new Object[]{-1,true});
           } catch (Exception e) {
-            Log.d("info2"," ttt ", e);
           }
           
           mCurrentFavoriteSelection = mMarkingsAdapter.getItem(position);
@@ -217,7 +214,6 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         Method setChoiceMode = mFavoriteSelection.getClass().getMethod("setChoiceMode", new Class<?>[] {int.class});
         setChoiceMode.invoke(mFavoriteSelection, new Object[] {ListView.CHOICE_MODE_SINGLE});
       } catch (Exception e) {
-        Log.d("info2", " fff ", e);
       }
       
       mContainsListViewFavoriteSelection = true;
@@ -313,7 +309,6 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
                   });
                 }
               } catch (Exception e) {
-                Log.d("info2", " tt ", e);
               }
             }
             else {

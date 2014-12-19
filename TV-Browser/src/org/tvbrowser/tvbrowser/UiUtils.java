@@ -421,35 +421,17 @@ public class UiUtils {
   
   public static void createContextMenu(final Context context, ContextMenu menu, final long id) {
     new MenuInflater(context).inflate(R.menu.program_context, menu);
-    Log.d("info23","ID " + id);
+    
     String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(ProgramUtils.DATA_CHANNEL_PROJECTION);
     
     Cursor cursor = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, id), projection, null, null, null);
     
-   /* if(Build.VERSION.SDK_INT < 14) {
-      menu.findItem(R.id.prog_create_calendar_entry).setVisible(false);
-    }*/
     
     if(cursor.getCount() > 0) {
       cursor.moveToFirst();
-      /*
-      final int channelId = cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
-      final String channelName = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-      final byte[] logo = cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
       
-      final Channel channel = new Channel(channelId, channelName, logo);
-      
-      final long startTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-      final long endTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
-      final String title = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
-      final String shortDescription = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
-      final String description = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
-      final String episodeTitle = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
-      */
       final Program pluginProgram = ProgramUtils.createProgramFromDataCursor(context, cursor);/*new Program(id, startTime, endTime, title, shortDescription, description, episodeTitle, channel);*/
-      Log.d("info44", "ID FOR " + pluginProgram.getTitle() + " " + pluginProgram.getId() + " " + id +  " " + pluginProgram.getChannel().getChannelId() + " " + pluginProgram.getChannel().getChannelName() + " " + pluginProgram.getStartTimeInUTC());
-   //   boolean showMark = true;
-    //  boolean showUnMark = false;
+      
       boolean showReminder = true;
       boolean isFavoriteReminder = false;
       boolean createFavorite = true;
@@ -464,39 +446,24 @@ public class UiUtils {
           else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) {
             isFavoriteReminder = column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER) && cursor.getInt(index) == 1;
           }
-         /* else {
-            showUnMark = showUnMark || cursor.getInt(index) == 1;
-          }*/
           
           if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE)) {
             createFavorite = column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE) && cursor.getInt(index) == 0;
           }
-         /* else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) {
-            showMark = column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && cursor.getInt(index) == 0;
-          }*/
-          
         }
       }
       
       showReminder = showReminder && !isFavoriteReminder;
             
       boolean showDontWantToSee = cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE)) == 0;
-      
-   //   long startTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-      
       boolean isFutureReminder = pluginProgram.getStartTimeInUTC() > System.currentTimeMillis() - 5 * 60000;
       
-      /*menu.findItem(R.id.prog_mark_item).setVisible(showMark);
-      menu.findItem(R.id.prog_unmark_item).setVisible(showUnMark);*/
       menu.findItem(R.id.prog_add_reminder).setVisible(showReminder && isFutureReminder);
       menu.findItem(R.id.prog_remove_reminder).setVisible(!showReminder);
-   //   menu.findItem(R.id.prog_create_calendar_entry).setVisible(isFutureCalendar && showCalender);
       menu.findItem(R.id.create_favorite_item).setVisible(createFavorite);
       
       menu.findItem(R.id.program_popup_dont_want_to_see).setVisible(showDontWantToSee && !SettingConstants.UPDATING_FILTER);
       menu.findItem(R.id.program_popup_want_to_see).setVisible(!showDontWantToSee && !SettingConstants.UPDATING_FILTER);
-      
-      
       
       if(PluginHandler.hasPlugins()) {
         PluginServiceConnection[] connections = PluginHandler.getAvailablePlugins();
@@ -515,9 +482,7 @@ public class UiUtils {
                   item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
                     @Override
                     public boolean onMenuItemClick(MenuItem item) {
-                      Log.d("info23", "onMenuItemClick " + item.getTitle() + " " + plugin.toString());
                       try {
-                        //plugin.openPreferences(null);
                         if(plugin.onProgramContextMenuSelected(pluginProgram, pluginMenu)) {
                           ProgramUtils.markProgram(context, pluginProgram);
                         }
@@ -625,212 +590,9 @@ public class UiUtils {
       UiUtils.editFavorite(null, activity, title);
       return true;
     }
-   /* else if(item.getItemId() == R.id.prog_send_email) {
-      info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
-      
-      if(info.getCount() > 0) {
-        info.moveToFirst();
-        
-        Cursor channel = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, info.getLong(info.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID))), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME}, null, null, null);
-        
-        if(channel.getCount() > 0) {
-          channel.moveToFirst();
-          Intent sendMail = new Intent(Intent.ACTION_SEND);
-          
-          StringBuilder message = new StringBuilder();
-          StringBuilder subject = new StringBuilder();
-          
-          String desc = null;
-          
-          String type = PreferenceManager.getDefaultSharedPreferences(activity).getString(activity.getString(R.string.PREF_EMAIL_DESCRIPTION_TYPE), activity.getString(R.string.pref_export_description_type_default));
-          
-          Log.d("info15", " TYPE " + type + " " + type.equals(activity.getResources().getStringArray(R.array.pref_simple_string_value_array2)[1]));
-          
-          if(type.equals(activity.getResources().getStringArray(R.array.pref_simple_string_value_array2)[1])) {
-            if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION))) {
-              desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
-              
-              if(desc != null && desc.trim().toLowerCase().equals("null")) {
-                desc = null;
-              } 
-            }
-          }
-          
-          if(desc == null && !info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
-            desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
-            
-            if(desc != null && desc.trim().toLowerCase().equals("null")) {
-              desc = null;
-            }
-          }
-          
-          String startDate = DateFormat.getLongDateFormat(activity).format(new Date(info.getLong(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))));
-          String startTime = DateFormat.getTimeFormat(activity).format(new Date(info.getLong(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))));
-          String endTime = DateFormat.getTimeFormat(activity).format(new Date(info.getLong(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME))));
-          
-          subject.append(startDate).append(", ").append(startTime).append(" - ").append(endTime).append(" ").append(channel.getString(0)).append(": ");
-          subject.append(info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
-          
-          message.append(info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
-          
-          if(episode != null) {
-            subject.append(" - ").append(episode);
-            message.append(" - ").append(episode);
-          }
-          
-          if(desc != null) {
-            message.append("\n\n").append(desc);
-          }
-          
-          String mail = PrefUtils.getStringValue(R.string.PREF_EMAIL_TARGET_ADDRESS, null);
-          
-          if(mail != null) {
-            sendMail.putExtra(Intent.EXTRA_EMAIL, new String[]{mail});
-          }
-          
-          sendMail.putExtra(Intent.EXTRA_SUBJECT, subject.toString());
-          sendMail.putExtra(Intent.EXTRA_TEXT, message.toString());
-          sendMail.setType("text/rtf");
-          activity.startActivity(Intent.createChooser(sendMail, activity.getResources().getString(R.string.log_send_mail)));
-        }
-        
-        channel.close();
-      }
-      
-      info.close();
-      
-      return true;
-    }*/
     else if(item.getItemId() == R.id.program_popup_search_repetition) {
       searchForRepetition(activity,title,episode);
     }
-   /* else if(item.getItemId() == R.id.prog_mark_item) {
-      if(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) {
-        return true;
-      }
-      else {
-        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, true);
-      }
-    }
-    else if(item.getItemId() == R.id.prog_unmark_item){
-      if(markedColumns.isEmpty()) {
-        return true;
-      }
-      
-      for(int i = markedColumns.size() - 1; i >=0 ; i--) {
-        String column = markedColumns.get(i);
-        if(!column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) && !column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) {
-          values.put(column, false);
-          markedColumns.remove(column);
-        }
-      }
-      
-      if(menuView != null) {
-        if(markedColumns.isEmpty()) {
-          menuView.setBackgroundResource(android.R.drawable.list_selector_background);  
-        }
-        else {
-          handleMarkings(activity, null, menuView, IOUtils.getStringArrayFromList(markedColumns));
-        }
-      }
-    }*/
-  /*  else if(item.getItemId() == R.id.prog_create_calendar_entry) {
-      info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME,TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.DATA_KEY_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE}, null, null,null);
-      
-      if(info.getCount() > 0) {
-        info.moveToFirst();
-        
-        Cursor channel = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, info.getLong(info.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID))), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME}, null, null, null);
-        
-        if(channel.getCount() > 0) {
-          channel.moveToFirst();
-          
-          // Create a new insertion Intent.
-          Intent addCalendarEntry = new Intent(Intent.ACTION_EDIT);
-          
-          addCalendarEntry.setType(activity.getContentResolver().getType(ContentUris.withAppendedId(CalendarContract.Events.CONTENT_URI,1)));
-          
-          String desc = null;
-          
-          String type = PreferenceManager.getDefaultSharedPreferences(activity).getString(activity.getString(R.string.PREF_CALENDAR_EXPORT_DESCRIPTION_TYPE), activity.getString(R.string.pref_export_description_type_default));
-          
-          Log.d("info15", " TYPE " + type + " " + type.equals(activity.getResources().getStringArray(R.array.pref_simple_string_value_array2)[1]));
-          
-          if(type.equals(activity.getResources().getStringArray(R.array.pref_simple_string_value_array2)[1])) {
-            if(!info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION))) {
-              desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
-              
-              if(desc != null && desc.trim().toLowerCase().equals("null")) {
-                desc = null;
-              } 
-            }
-          }
-          Log.d("info15", " DESC " + desc + " " + info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
-          if(desc == null && !info.isNull(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
-            desc = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
-            
-            if(desc != null && desc.trim().toLowerCase().equals("null")) {
-              desc = null;
-            }
-          }
-          
-          addCalendarEntry.putExtra(Events.EVENT_LOCATION, channel.getString(0));
-          // Add the calendar event details
-          addCalendarEntry.putExtra(Events.TITLE, info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)));
-          
-          String description = null;
-          
-          if(episode != null) {
-            description = episode;
-          }
-          
-          if(desc != null) {
-            if(description != null) {
-              description += "\n\n" + desc;
-            }
-            else {
-              description = desc;
-            }
-          }
-          
-          if(description != null) {
-            addCalendarEntry.putExtra(Events.DESCRIPTION, description);
-          }
-          
-          addCalendarEntry.putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME,info.getLong(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
-          addCalendarEntry.putExtra(CalendarContract.EXTRA_EVENT_END_TIME,info.getLong(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)));
-          
-          try {
-            // Use the Calendar app to add the new event.
-            activity.startActivity(addCalendarEntry);
-            
-            if(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR)) {
-              return true;
-            }
-            else {
-              values.put(TvBrowserContentProvider.DATA_KEY_MARKING_CALENDAR, true);
-            }
-            
-            if(menuView != null) {
-              menuView.setBackgroundColor(getColor(MARKED_REMINDER_COLOR_KEY, activity));
-            }
-          }catch(ActivityNotFoundException anfe) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-            
-            builder.setTitle(R.string.error_no_calendar_app_title);
-            builder.setMessage(R.string.error_no_calendar_app_message);
-            
-            builder.setPositiveButton(android.R.string.ok, null);
-            
-            builder.show();
-          }
-        }
-        
-        channel.close();
-      }
-      
-      info.close();
-    }*/
     else if(item.getItemId() == R.id.prog_add_reminder) {
       if(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) || markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) {
         return true;
@@ -1343,12 +1105,10 @@ public class UiUtils {
     }
     
     if(markedColumns != null && markedColumns.length > 0) {
-      Log.d("info4"," " + markedColumns.length);
-      
       if(markedColumns.length > 1) {
         int[] colors = new int[markedColumns.length];
         
-        for(int i = 0; i < markedColumns.length; i++) {Log.d("info4"," i " + i + " " + markedColumns[i]);
+        for(int i = 0; i < markedColumns.length; i++) {
           Integer color = SettingConstants.MARK_COLOR_KEY_MAP.get(markedColumns[i]);
           
           if(markedColumns[i].equals(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE) && PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(context.getResources().getStringArray(R.array.pref_simple_string_value_array2)[0])) {
