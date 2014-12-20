@@ -257,7 +257,7 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
         if(info != 0) {
           Spannable text = IOUtils.getInfoString(info,view.getResources());
           
-          if(text.toString().trim().length() > 0) {
+          if(text != null) {
             view.setVisibility(View.VISIBLE);
             ((TextView)view).setText(text);
           }

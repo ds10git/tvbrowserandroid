@@ -678,7 +678,10 @@
     
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.3.1</h2>
+        <h2>0.5.3.2</h2>
+            &bull; fixed possible crash with channels without program categories<br>
+		<br>
+        <h3>0.5.3.1</h3>
             &bull; fixed problem of missing deletion removed programs during data update<br>
         	&bull; category colors for program table also<br>
             &bull; show program markings visualisation in widgets<br>
