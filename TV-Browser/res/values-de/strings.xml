@@ -664,6 +664,9 @@
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
+        <h2>0.5.3.2</h2>
+            &bull; möglicher Absturz mit Sendern ohne Sendungskategorien beseitigt<br>
+		<br>
 		<h2>0.5.3.1</h2>
 			&bull; Fehler bei Löschung entfernter Sendungen beim Datenupdate behoben<br>
 			&bull; Kategoriefarben auch für die Programmtabelle<br>
