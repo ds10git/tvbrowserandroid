@@ -22,6 +22,7 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.PrefUtils;
@@ -40,6 +41,7 @@ import android.database.Cursor;
 import android.database.DataSetObserver;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -47,6 +49,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -221,45 +224,90 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
     
     addMarkingSelections();
     
+    final AtomicReference backgroundRef = new AtomicReference(null);
+    
+    TypedValue a = new TypedValue();
+    getActivity().getTheme().resolveAttribute(android.R.attr.windowBackground, a, true);
+    if (a.type >= TypedValue.TYPE_FIRST_COLOR_INT && a.type <= TypedValue.TYPE_LAST_COLOR_INT) {
+        // windowBackground is a color
+      backgroundRef.set(Integer.valueOf(a.data));
+    } else {
+        // windowBackground is not a color, probably a drawable
+        ///Drawable d = activity.getResources().getDrawable(a.resourceId);
+      backgroundRef.set(getActivity().getResources().getDrawable(a.resourceId));
+    }
+    
     mFavoriteAdapter = new ArrayAdapter<FavoriteSpinnerEntry>(getActivity(), rowLayout.get(), mFavoriteList){
       @Override
       public View getView(int position, View convertView, ViewGroup parent) {
-        FavoriteSpinnerEntry entry = getItem(position);
-        
-        if(convertView == null) {
-          convertView = getActivity().getLayoutInflater().inflate(rowLayout.get(), parent, false);
-        }
-        
-        String name = entry.toString();
-        
-        if(!mContainsListViewFavoriteSelection) {
-          Drawable draw = getResources().getDrawable(android.R.drawable.list_selector_background);
+        return getView(position, convertView, parent, false);
+      }
+      
+      public View getView(int position, View convertView, ViewGroup parent, boolean popup) {
+        if(position < getCount()) {
+          FavoriteSpinnerEntry entry = getItem(position);
           
-          if(!entry.containsFavorite()) {
-            if(name.equals(getString(R.string.marking_value_marked))) {
-              draw = new ColorDrawable(UiUtils.getColor(UiUtils.MARKED_COLOR_KEY, getContext()));
-            }
-            else if(name.equals(getString(R.string.marking_value_sync))) {
-              draw = new ColorDrawable(UiUtils.getColor(UiUtils.MARKED_SYNC_COLOR_KEY, getContext()));
-            }
-            else {
-              draw = new ColorDrawable(UiUtils.getColor(UiUtils.MARKED_REMINDER_COLOR_KEY, getContext()));
-            }
+          if(convertView == null) {
+            convertView = getActivity().getLayoutInflater().inflate(rowLayout.get(), parent, false);
           }
           
-          CompatUtils.setBackground(convertView, draw);
-          convertView.setPadding(UiUtils.convertDpToPixel(5f, getResources()), 0, 0, 0);
+          String name = entry.toString();
+          
+          Drawable layerDrawable = null;
+          Drawable backgound = null;
+          
+          if(backgroundRef.get() instanceof Drawable) {
+            backgound = (Drawable)backgroundRef.get();
+          }
+          else if(backgroundRef.get() instanceof Integer) {
+            backgound = new ColorDrawable(((Integer)backgroundRef.get()).intValue());
+          }
+          
+          if(!mContainsListViewFavoriteSelection) {
+            Drawable draw = getResources().getDrawable(android.R.drawable.list_selector_background);
+            
+            if(!entry.containsFavorite()) {
+              if(name.equals(getString(R.string.marking_value_marked))) {
+                draw = new ColorDrawable(UiUtils.getColor(UiUtils.MARKED_COLOR_KEY, getContext()));
+              }
+              else if(name.equals(getString(R.string.marking_value_sync))) {
+                draw = new ColorDrawable(UiUtils.getColor(UiUtils.MARKED_SYNC_COLOR_KEY, getContext()));
+              }
+              else {
+                draw = new ColorDrawable(UiUtils.getColor(UiUtils.MARKED_REMINDER_COLOR_KEY, getContext()));
+              }
+            }
+            
+            if(backgound != null && popup) {
+              layerDrawable = new LayerDrawable(new Drawable[] {backgound,draw});
+            }
+            else {
+              layerDrawable = draw;
+            }
+          }
+          else if(popup) {
+            layerDrawable = backgound;
+          }
+          
+          if(layerDrawable != null) {
+            CompatUtils.setBackground(convertView, layerDrawable);
+          }
+          
+          int pixel = UiUtils.convertDpToPixel(5f, getResources());
+          convertView.setPadding(pixel, 0, pixel, 0);
+          
+          ((TextView)convertView).setMaxLines(3);
+          ((TextView)convertView).setText(name);
+          
+          return convertView;
         }
         
-        ((TextView)convertView).setMaxLines(3);
-        ((TextView)convertView).setText(name);
-        
-        return convertView;
+        return null;
       }
       
       @Override
       public View getDropDownView(int position, View convertView, ViewGroup parent) {
-        return getView(position, convertView, parent);
+        return getView(position, convertView, parent, true);
       }
     };
     

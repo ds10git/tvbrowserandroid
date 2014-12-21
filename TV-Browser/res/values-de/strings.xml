@@ -664,7 +664,11 @@
     
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.3.2</h2>
+        <h2>0.5.3.3</h2>
+            &bull; Unterstützung für Material Design hinzugefügt<br>
+            &bull; dunkles Thema wird standardmäßig verwendet<br>
+		<br>
+        <h3>0.5.3.2</h3>
             &bull; möglicher Absturz mit Sendern ohne Sendungskategorien beseitigt<br>
 		<br>
 		<h2>0.5.3.1</h2>

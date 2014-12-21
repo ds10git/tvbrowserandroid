@@ -23,7 +23,6 @@ import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.AlertDialog;
-import android.app.ListActivity;
 import android.app.LoaderManager;
 import android.app.SearchManager;
 import android.content.ContentUris;
@@ -34,10 +33,12 @@ import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
+import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.ContextMenu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,7 +47,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-public class TvBrowserSearchResults extends ListActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface {
+public class TvBrowserSearchResults extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface {
   private SimpleCursorAdapter mProgramsListAdapter;
 
   private static String QUERY_EXTRA_KEY = "QUERY_EXTRA_KEY";
@@ -54,6 +55,23 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
   public static String QUERY_EXTRA_EPISODE_KEY = "QUERY_EXTRA_EPISODE_KEY";
   
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
+  
+  private ListView mListView;
+  
+  @Override
+  protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
+    PrefUtils.initialize(TvBrowserSearchResults.this);
+    
+    if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default)) {
+      resid = R.style.AppDarkTheme;
+    }
+    
+    super.onApplyThemeResource(theme, resid, first);
+  }
+  
+  private ListView getListView() {
+    return mListView;
+  }
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -64,9 +82,9 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowserSearchResults.this);
     pref.registerOnSharedPreferenceChangeListener(this);
     
-    if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default)) {
-      setTheme(android.R.style.Theme_Holo);
-    }
+    setContentView(R.layout.list_view);
+    
+    mListView = (ListView)findViewById(R.id.list_view);
     
     String[] projection = {
         TvBrowserContentProvider.DATA_KEY_UNIX_DATE,
@@ -89,7 +107,15 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
         projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0,false);
     mProgramsListAdapter.setViewBinder(mViewAndClickHandler);
     
-    setListAdapter(mProgramsListAdapter);
+    getListView().setAdapter(mProgramsListAdapter);
+    
+    mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+      @Override
+      public void onItemClick(AdapterView<?> l, View v, int position,
+          long id) {
+          mViewAndClickHandler.onListItemClick((ListView)l, v, position, id);
+      }
+    });
     
     // Initiate the Cursor Loader
     getLoaderManager().initLoader(0, null, this);
@@ -284,12 +310,11 @@ public class TvBrowserSearchResults extends ListActivity implements LoaderManage
   public boolean onContextItemSelected(MenuItem item) {
     return mViewAndClickHandler.onContextItemSelected(item);
   }
-  
-  @Override
+  /*
   public void onListItemClick(ListView l, View v, int position, long id) {
-    super.onListItemClick(l, v, position, id);
+    //super.onListItemClick(l, v, position, id);
     mViewAndClickHandler.onListItemClick(l, v, position, id);
-  }
+  }*/
   
   private void setDividerSize(String size) {    
     getListView().setDividerHeight(UiUtils.convertDpToPixel(Integer.parseInt(size), getResources()));

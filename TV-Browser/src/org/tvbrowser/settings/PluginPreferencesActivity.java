@@ -24,33 +24,33 @@ import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.tvbrowser.R;
 
 import android.annotation.TargetApi;
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceActivity;
 
 /**
  * The preferences activity for the plugins.
  * 
  * @author René Mach
  */
-public class PluginPreferencesActivity extends PreferenceActivity {
-  private static final String HEADER_SELECTION_EXTRA = "HEADER_SELECTION";
-  
+public class PluginPreferencesActivity extends ToolbarPreferencesActivity {  
   private static PluginServiceConnection[] PLUGIN_SERVICE_CONNECTIONS;
   private static PluginManager PLUGIN_MANAGER;
   
   private static int LAST_POS = 0;
-  
+    
   @Override
   protected void onCreate(Bundle savedInstanceState) {
-    if(SettingConstants.IS_DARK_THEME) {
-      setTheme(android.R.style.Theme_Holo);
-    }
-    
     super.onCreate(savedInstanceState);
-  }
     
+    Intent intent = getIntent();
+    
+    if(intent != null && intent.hasExtra(EXTRA_SHOW_FRAGMENT_ARGUMENTS)) {
+      mToolBar.setTitle(intent.getBundleExtra(EXTRA_SHOW_FRAGMENT_ARGUMENTS).getString("category"));
+    }
+  }
+  
   @Override
   protected void onResume() {
     super.onResume();

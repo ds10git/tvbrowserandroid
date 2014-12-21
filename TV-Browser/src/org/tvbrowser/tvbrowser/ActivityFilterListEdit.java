@@ -21,12 +21,13 @@ import java.util.Map;
 
 import org.tvbrowser.settings.SettingConstants;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Resources.Theme;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBarActivity;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.Menu;
@@ -41,7 +42,7 @@ import android.widget.ListView;
  * <p>
  * @author René Mach
  */
-public class ActivityFilterListEdit extends Activity implements ChannelFilter {
+public class ActivityFilterListEdit extends ActionBarActivity implements ChannelFilter {
   private ListView mFilterList;
   private ArrayAdapter<ChannelFilterImpl> mFilterListAdapter;
   private static final Comparator<ChannelFilterImpl> CHANNEL_FILTER_COMPARATOR = new Comparator<ChannelFilterImpl>() {
@@ -52,12 +53,15 @@ public class ActivityFilterListEdit extends Activity implements ChannelFilter {
   };
   
   @Override
+  protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
+    resid = UiUtils.getThemeResourceId();
+    
+    super.onApplyThemeResource(theme, resid, first);
+  }
+  
+  @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    
-    if(SettingConstants.IS_DARK_THEME) {
-      setTheme(android.R.style.Theme_Holo);
-    }
     
     mFilterListAdapter = new ArrayAdapter<ActivityFilterListEdit.ChannelFilterImpl>(ActivityFilterListEdit.this, android.R.layout.simple_list_item_1);
     

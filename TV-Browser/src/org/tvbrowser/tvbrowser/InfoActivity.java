@@ -184,7 +184,7 @@ public class InfoActivity extends Activity {
       final int appWidgetId = intent.getIntExtra(SettingConstants.WIDGET_CHANNEL_SELECTION_EXTRA, AppWidgetManager.INVALID_APPWIDGET_ID);
       
       if(SettingConstants.IS_DARK_THEME) {
-        setTheme(android.R.style.Theme_Holo);
+        setTheme(R.style.AppDarkTheme);
       }
       else {
         setTheme(R.style.AppTheme);

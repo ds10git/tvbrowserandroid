@@ -28,7 +28,6 @@ import java.util.TimeZone;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -36,10 +35,12 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
@@ -54,7 +55,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-public class ActivityFavoriteEdit extends Activity implements ChannelFilter {
+public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFilter {
   private Favorite mFavorite;
   private EditText mSearchValue;
   private EditText mName;
@@ -72,12 +73,15 @@ public class ActivityFavoriteEdit extends Activity implements ChannelFilter {
   private View mOkButton;
   
   @Override
+  protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
+    resid = UiUtils.getThemeResourceId();
+    
+    super.onApplyThemeResource(theme, resid, first);
+  }
+  
+  @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    
-    if(SettingConstants.IS_DARK_THEME) {
-      setTheme(android.R.style.Theme_Holo);
-    }
     
     setContentView(R.layout.activity_favorite_edit);
     
