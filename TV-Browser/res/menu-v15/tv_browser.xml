@@ -1,199 +1,200 @@
-<menu xmlns:android="http://schemas.android.com/apk/res/android" >
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/search"
           android:title="@string/search_title"
           android:icon="@android:drawable/ic_menu_search"
-          android:showAsAction="collapseActionView|always"
-          android:actionViewClass="android.widget.SearchView" />
+          app:showAsAction="collapseActionView|always"
+          app:actionViewClass="android.support.v7.widget.SearchView" />
     <item android:id="@+id/action_filter_channels"
           android:title="@string/action_filter_channels"
           android:icon="@drawable/ic_filter_default"
-          android:showAsAction="always">
+          app:showAsAction="always">
           <menu>
           	  <item
                   android:id="@+id/action_activity_filter_list_edit_open"
                   android:orderInCategory="2"
-                  android:showAsAction="never"
+                  app:showAsAction="never"
                   android:title="@string/activity_edit_filter_filter_title"/>
           </menu>
     </item>
     <item 
         android:id="@+id/action_scroll"
         android:orderInCategory="90"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/action_scroll_time"
-        android:icon="@android:drawable/ic_menu_recent_history">
+        android:icon="@android:drawable/ic_menu_recent_history" >
         <menu>
             <item 
                 android:id="@+id/action_scroll_now"
                 android:orderInCategory="1"
-                android:showAsAction="never"
+                app:showAsAction="never"
                 android:title="@string/button_now"/>
         </menu>
     </item>
     <item
         android:id="@+id/menu_tvbrowser_action_update_data"
         android:orderInCategory="90"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/menu_tvbrowser_title_update_data"
         android:icon="@android:drawable/stat_sys_download"
         />
     <item
         android:id="@+id/menu_tvbrowser_action_create_favorite"
         android:orderInCategory="90"
-        android:showAsAction="always"
+        app:showAsAction="always"
         android:title="@string/menu_tvbrowser_title_create_favorite"
         android:icon="@drawable/ic_favorite_add"
         />
   	<item
   	    android:id="@+id/action_pause_reminder"
   	    android:orderInCategory="100"
-        android:showAsAction="never"
+        app:showAsAction="never"
   	    android:title="@string/action_pause_reminder"/>
   	<item
   	    android:id="@+id/action_continue_reminder"
   	    android:orderInCategory="100"
-        android:showAsAction="never"
+        app:showAsAction="never"
   	    android:title="@string/action_continue_reminder"/>
     <item
         android:id="@+id/action_synchronize"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/action_synchronize">
         <menu>
 		    <item 
 		        android:id="@+id/action_username_password"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_username_password"/>
 		    <item 
 		        android:id="@+id/action_synchronize_channels_up"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_synchronize_channels_up"/>
 		    <item 
 		        android:id="@+id/action_synchronize_channels"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_synchronize_channels"/>
 		    <item 
 		        android:id="@+id/action_synchronize_favorites"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_synchronize_favorites"/>
 		    <item 
 		        android:id="@+id/action_synchronize_reminders_down"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_synchronize_reminders_down"/>
 		    <item 
 		        android:id="@+id/action_synchronize_reminders_up"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_synchronize_reminders_up"/>
 		    <item 
 		        android:id="@+id/action_synchronize_dont_want_to_see"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_synchronize_dont_want_to_see"/>
 		    <item 
 		        android:id="@+id/action_backup_preferences_save"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_backup_preferences_save"/>
 		    <item 
 		        android:id="@+id/action_backup_preferences_restore"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_backup_preferences_restore"/>
         </menu>
     </item>
     <item 
         android:id="@+id/menu_tvbrowser_action_settings"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/menu_tvbrowser_title_settings">
-        <menu>
+        <menu> 
             <item 
 		        android:id="@+id/menu_tvbrowser_action_settings_basic"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/menu_tvbrowser_title_settings_basic"/>
 			<item 
 		        android:id="@+id/menu_tvbrowser_action_settings_plugins"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/menu_tvbrowser_title_settings_plugins"/>
             <item
 		  	    android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		  	    android:title="@string/action_preferences_channels">
 		        <menu>
 		            <item
 				        android:id="@+id/action_load_channels_again"
 				        android:orderInCategory="100"
-				        android:showAsAction="never"
+				        app:showAsAction="never"
 				        android:title="@string/action_load_channels_again"/>
 				    <item
 				        android:id="@+id/action_select_channels"
 				        android:orderInCategory="100"
-				        android:showAsAction="never"
+				        app:showAsAction="never"
 				        android:title="@string/action_select_channels"/>
 				    <item
 				        android:id="@+id/action_sort_channels"
 				        android:orderInCategory="100"
-				        android:showAsAction="never"
+				        app:showAsAction="never"
 				        android:title="@string/action_sort_channels"/>
 		        </menu>
 		  	</item>
 		    <item
 		        android:id="@+id/action_delete_all_data"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_delete_all_data"/>
 		    <item 
 		        android:id="@+id/action_dont_want_to_see_edit"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_dont_want_to_see_edit"/>
         </menu>
     </item>
 	<item android:id="@+id/action_donation"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/donation"/>
 	<item android:id="@+id/action_search_plugins"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/action_search_plugins"/>
     <item android:id="@+id/action_about"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/action_about"/>
     <item android:id="@+id/action_debug"
         android:orderInCategory="100"
-        android:showAsAction="never"
+        app:showAsAction="never"
         android:title="@string/pref_debug">
         <menu >
             <item android:id="@+id/action_delete_data_update_log"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_delete_data_update_log"/>
 	    	<item android:id="@+id/action_send_data_update_log"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_send_data_update_log"/>
             <item android:id="@+id/action_delete_reminder_log"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_delete_reminder_log"/>
 	    	<item android:id="@+id/action_send_reminder_log"
 		        android:orderInCategory="100"
-		        android:showAsAction="never"
+		        app:showAsAction="never"
 		        android:title="@string/action_send_reminder_log"/>
         </menu>
     </item>
     <item android:id="@+id/action_reset"
 	    android:orderInCategory="100"
-	    android:showAsAction="never"
+	    app:showAsAction="never"
 	    android:title="Reset data update date"/>
 </menu>

@@ -35,7 +35,7 @@
     <!-- Apperience settings-->
 
 	    <string name="DARK_STYLE">DARK_STYLE</string>
-	    <item name="dark_style_default" type="bool" format="boolean">false</item>
+	    <item name="dark_style_default" type="bool" format="boolean">true</item>
 
 	    <string name="PREF_SHOW_PROGRESS">PREF_SHOW_PROGRESS</string>
 	    <item name="pref_show_progress_default" type="bool" format="boolean">true</item>

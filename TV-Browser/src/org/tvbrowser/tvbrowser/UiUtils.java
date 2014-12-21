@@ -1740,4 +1740,12 @@ public class UiUtils {
       mSelected = selected;
     }
   }
+  
+  public static final int getThemeResourceId() {
+    if(SettingConstants.IS_DARK_THEME) {
+      return R.style.AppDarkTheme;
+    }
+    
+    return R.style.AppTheme;
+  }
 }

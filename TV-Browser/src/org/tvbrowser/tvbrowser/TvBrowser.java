@@ -51,10 +51,11 @@ import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.xml.sax.XMLReader;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
+import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.Tab;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.FragmentTransaction;
+import android.support.v4.app.FragmentTransaction;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
@@ -74,6 +75,7 @@ import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.res.Configuration;
+import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -100,7 +102,10 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Html.TagHandler;
@@ -135,7 +140,6 @@ import android.widget.ListView;
 import android.widget.NumberPicker;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
-import android.widget.SearchView;
 import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -151,7 +155,7 @@ import billing.util.SkuDetails;
 import com.example.android.listviewdragginganimation.DynamicListView;
 import com.example.android.listviewdragginganimation.StableArrayAdapter;
 
-public class TvBrowser extends FragmentActivity implements
+public class TvBrowser extends ActionBarActivity implements
     ActionBar.TabListener {
   private static final boolean TEST_VERSION = false;
   
@@ -249,19 +253,32 @@ public class TvBrowser extends FragmentActivity implements
   }
   
   @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    handler = new Handler();
+  protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
     PrefUtils.initialize(TvBrowser.this);
-        
+    
+    if(PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default) < 283) {
+      Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+      edit.putBoolean(getString(R.string.DARK_STYLE), true);
+      edit.commit();
+    }
+    
     if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default)) {
-      setTheme(android.R.style.Theme_Holo);
-      
       SettingConstants.IS_DARK_THEME = true;
     }
     else {
       SettingConstants.IS_DARK_THEME = false;
     }
     
+    resid = UiUtils.getThemeResourceId();
+    
+    super.onApplyThemeResource(theme, resid, first);
+  }
+  
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    handler = new Handler();
+    PrefUtils.initialize(TvBrowser.this);
+        
     try {
       PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
       
@@ -389,7 +406,7 @@ public class TvBrowser extends FragmentActivity implements
     }
         
     // Set up the action bar.
-    actionBar = getActionBar();
+    actionBar = getSupportActionBar();
     actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
 
     // Create the adapter that will return a fragment for each of the three
@@ -4095,9 +4112,9 @@ public class TvBrowser extends FragmentActivity implements
     
     mSearchExpanded = false;
     
-    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+   // if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
       addOnActionExpandListener(menu.findItem(R.id.search));
-    }
+   // }
     
    // menu.findItem(R.id.action_synchronize_dont_want_to_see).setVisible(false);
     menu.findItem(R.id.action_synchronize_favorites).setVisible(false);
@@ -4142,7 +4159,7 @@ public class TvBrowser extends FragmentActivity implements
   @SuppressLint("NewApi")
   private void addOnActionExpandListener(MenuItem search) {
     if(search != null) {
-      search.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+      MenuItemCompat.setOnActionExpandListener(search, new MenuItemCompat.OnActionExpandListener() {
         @Override
         public boolean onMenuItemActionExpand(MenuItem item) {
           mSearchExpanded = true;
