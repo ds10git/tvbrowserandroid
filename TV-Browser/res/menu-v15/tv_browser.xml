@@ -125,6 +125,7 @@
 		        app:showAsAction="never"
 		        android:title="@string/menu_tvbrowser_title_settings_plugins"/>
             <item
+                android:id="@+id/action_preferences_channels"
 		  	    android:orderInCategory="100"
 		        app:showAsAction="never"
 		  	    android:title="@string/action_preferences_channels">

@@ -4,6 +4,7 @@ import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.UiUtils;
 
 import android.content.res.Resources.Theme;
+import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.support.v7.widget.Toolbar;
@@ -13,19 +14,25 @@ import android.widget.LinearLayout;
 
 public class ToolbarPreferencesActivity extends PreferenceActivity {
   protected Toolbar mToolBar;
+  private int mThemeId;
   
   @Override
   protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
-    resid = UiUtils.getThemeResourceId();
+    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+      mThemeId = R.style.AppTheme;
+    }
+    else {
+      mThemeId = UiUtils.getThemeResourceId();
+    }
     
-    super.onApplyThemeResource(theme, resid, first);
+    super.onApplyThemeResource(theme, mThemeId, first);
   }
   
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
-    setTheme(UiUtils.getThemeResourceId());
+    setTheme(mThemeId);
     
     ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
     View content = root.getChildAt(0);

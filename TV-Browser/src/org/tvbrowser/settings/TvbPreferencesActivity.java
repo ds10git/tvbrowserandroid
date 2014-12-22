@@ -19,55 +19,13 @@ package org.tvbrowser.settings;
 import java.util.List;
 
 import org.tvbrowser.tvbrowser.R;
-import org.tvbrowser.tvbrowser.UiUtils;
 
 import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.content.res.Resources.Theme;
 import android.os.Build;
-import android.os.Bundle;
-import android.preference.PreferenceActivity;
-import android.support.v7.widget.Toolbar;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
 public class TvbPreferencesActivity extends ToolbarPreferencesActivity {
-  /*private Toolbar mToolBar;
-  
-  @Override
-  protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
-    resid = UiUtils.getThemeResourceId();
-    
-    super.onApplyThemeResource(theme, resid, first);
-  }
-  
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
-    super.onCreate(savedInstanceState);
-    
-    ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
-    View content = root.getChildAt(0);
-    LinearLayout toolbarContainer = (LinearLayout) View.inflate(this, R.layout.activity_pref, null);
-
-    root.removeAllViews();
-    toolbarContainer.addView(content);
-    root.addView(toolbarContainer);
-
-    mToolBar = (Toolbar) toolbarContainer.findViewById(R.id.toolbar);
-    
-    mToolBar = (Toolbar) toolbarContainer.findViewById(R.id.toolbar);
-    mToolBar.setTitle(getTitle());
-    mToolBar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-    mToolBar.setNavigationOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            finish();
-        }
-    });
-  }
-*/
 	/**
 	 * Vulnerability fix as mentioned here:
 	 * http://securityintelligence.com/wp-content/uploads/2013/12/android-collapses-into-fragments.pdf
