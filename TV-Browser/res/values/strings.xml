@@ -1,6 +1,151 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <string name="info_version_new"><![CDATA[
+        <h2>0.5.3.3</h2>
+            &bull; search for new/updated channels regularly<br>
+            &bull; added support for Material design<br>
+            &bull; use dark theme by default<br>
+		<br>
+        <h3>0.5.3.2</h3>
+            &bull; fixed possible crash with channels without program categories<br>
+		<br>
+        <h3>0.5.3.1</h3>
+            &bull; fixed problem of missing deletion removed programs during data update<br>
+        	&bull; category colors for program table also<br>
+            &bull; show program markings visualisation in widgets<br>
+		<br>
+        <h3>0.5.3</h3>
+            &bull; added user defined program category color (not for program table)<br>
+        	&bull; added category display for widgets<br>
+        	&bull; fixed not working download LAN connections<br>
+        	&bull; made drive access for data download more safe<br>
+            &bull; added workaround for not working Plugin settings on problematic Android devices<br>
+			&bull; fix error in Channel handling for Plugins<br>
+			&bull; use "I don't want to see!" exclusions for program list widget<br>
+		<br>
+        <h3>0.5.2</h3>
+			&bull; make sure Plugin settings don\'t causes crash<br>
+			&bull; fixed problems with Plugin search<br>
+			&bull; better information for channel synchronisation<br>
+		<br>
+        <h3>0.5.1</h3>
+        	&bull; added type selection to important widget (can be used as program list)<br>
+			&bull; fixed possible crash caused by Plugins<br>
+		<br>
+        <h3>0.5.0.2</h3>
+			&bull; fixed channel restriction for Favorite backup (backup needs to be upload again)<br>
+		<br>
+        <h3>0.5.0.1</h3>
+			&bull; fixed crash under Android 5.0 with installed Plugins<br>
+		<br>
+		<h3>0.5</h3>
+		    &bull; added first version of the Plugin interface<br>
+		    &bull; added "Next" to running widget<br>
+		    &bull; added search for Plugins<br>
+		    &bull; removed manually markings function (can be integrated with Plugins)<br>
+		    &bull; removed calendar export and mail functionality (can be integrated with Plugins)<br>
+		    &bull; added new color style for dark theme<br>
+			&bull; added support for EPGdonate data channels<br>
+			&bull; fixed bug in preferences backup<br>
+        <br>
+		<h3>0.4.5.4</h3>
+		    &bull; hide buttons in action bar when search is selected<br>
+			&bull; added news access<br>
+        <br>
+		<h3>0.4.5.3</h3>
+			&bull; fixed possible crash with enabled program table<br>
+        <br>
+		<h3>0.4.5.2</h3>
+			&bull; fixed possible bug at database upgrade<br>
+			&bull; channels can be backuped at the TV-Browser server direct from the app<br>
+        <br>
+		<h3>0.4.5.1</h3>
+			&bull; fixed date bug caused by daylight savings time<br>
+			&bull; testet compatibility with Android 5.0<br>
+        <br>
+		<h3>0.4.5</h3>
+			&bull; added new restriction for program attributes in Favorites<br>
+			&bull; fixed bug in Favorite time restriction<br>
+		    &bull; added more global settings for widgets<br>
+        	&bull; layout style of Favorites tab selectable in layout settings<br>
+        	&bull; icon for new Favorite in ActionBar<br>
+        <br>
+        <h3>0.4.4</h3s>
+        	&bull; added user editable channel filters<br>
+        	&bull; new type of Favorite with search only for rules<br>
+        	&bull; changed default value for divider size in lists with programs<br>
+        	&bull; added duration restriction to Favorites<br>
+        	&bull; update icon in ActionBar only visible if auto update is disabled<br>
+        	&bull; enable/disable auto data update possible in data update dialog<br>
+            &bull; vertical space around programs selectable for lists with programs and widgets<br>
+			&bull; information about changes in version on version change<br>
+        	&bull; widgets also possible on lock screen<br>
+        	&bull; added additional global settings for widgets<br>
+        <br>
+        <h3>0.4.3</h3>
+        	&bull; fixed missing restoring of Favorites from synchronized settings<br>
+			&bull; new layout for Favorites tab<br>
+			&bull; new layout for program lists on small screens<br>
+			&bull; bigger channel icons selectable for widgets and program lists<br>
+			&bull; safer update of widgets<br>
+			&bull; added global settings for widgets<br>
+			&bull; text size scaling for widgets<br>
+			&bull; new separator for list entries of widgets<br>
+        <br>
+		<h3>0.4.2</h3>
+        	&bull; shown time of widget "Now running" selectable<br>
+			&bull; full data downloaded by default<br>
+        <br>
+        <h3>0.4.1</h3>
+        	&bull; backup of preferences and favorite definitions to TV-Browser server<br>
+			&bull; synchronize sort number of channel from desktop version<br>
+			&bull; fixed bug in saving of preferences of "Important Programs" widget<br>
+        <br>
+        <h3>0.4</h3>
+        	&bull; added widget for running and important programs (to use it TV-Browser has to be stored on internal drive)<br>
+			&bull; reminder up to 24h before program start<br>
+			&bull; added new color style<br>
+			&bull; made auto update more stable<br>
+			&bull; speed up channel download<br>
+			&bull; fixed bug at data update for channels with more than 127 programs per day<br>
+        <br>
+        <h3>0.3.3</h3>
+        	&bull; add ability to deactivate date display in programs list<br>
+			&bull; fixed wrong calculation of auto data update time<br>
+			&bull; fixed missing synchronization of reminders during auto data update<br>
+			&bull; refresh reminders every activation of device in Android<br>
+			&bull; fixed possible crash<br>
+			&bull; time selection for Running Programs also from button in action bar<br>
+        <br>
+        <h3>0.3.2</h3>
+        	&bull; speed up data update<br>
+			&bull; tried to fix possible crash with workaround<br>
+			&bull; sort Favorite list alphabetically in Favorite tab<br>
+			&bull; changed handling of Reminders<br>
+        <br>
+        <h3>0.3.1.1</h3>
+        	&bull; fixed possible update problems of changed programs at data update<br>
+        <br>
+        <h3>0.3.1</h3>
+        	&bull; fixed possible crash at data update<br>
+			&bull; fixed layout problems in favorite activity<br>
+			&bull; added ability to highlight "I don't want to see" programs instead of removing<br>
+        <br>
+        <h3>0.3</h3>
+        	&bull; added filter for favorite search<br>
+			&bull; new favorite edit activity<br>
+			&bull; added filter for channel type<br>
+			&bull; speeded up "I don't want to see" filtering<br>
+			&bull; changed data update<br>
+			&bull; configurable description for email and calendar export<br>
+			&bull; up to 24 time buttons configurable<br>
+			&bull; change update calculation of auto update<br>
+			&bull; added drag and drop support for channel sort<br>
+			&bull; added workaround for channel timezone GMT+01:00 instead of CET<br>
+        <br>
+        ]]></string>
+    <string name="info_version">What is new in this version?</string>
+    
     <string name="app_name">TV-Browser</string>
     <string name="search_activity_name">TV-Browser Search</string>
     <string name="search_no_result_title">No program found</string>
@@ -46,6 +191,8 @@
     <string name="button_at">At time</string>
     <string name="no_channels">No channels selected</string>
     <string name="select_channels">Select channels now</string>
+    <string name="dialog_select_channels_update_title">New channel were found or existing channels were updated</string>
+    <string name="dialog_select_channels_update_help">You can select channels new channels here. (Updated subscribed channels are preselected.)</string>
     <string name="tv">TV</string>
     <string name="radio">Radio</string>
     <string name="cinema">Cinema</string>
@@ -676,148 +823,5 @@
     <string name="plugin_info_load">Open list with available Plugins now</string>
     <string name="plugin_info_donwload">Downloading \'{0}\'</string>
     
-    <string name="info_version">What is new in this version?</string>
-    <string name="info_version_new"><![CDATA[
-        <h2>0.5.3.3</h2>
-            &bull; added support for Material design<br>
-            &bull; use dark theme by default<br>
-		<br>
-        <h3>0.5.3.2</h3>
-            &bull; fixed possible crash with channels without program categories<br>
-		<br>
-        <h3>0.5.3.1</h3>
-            &bull; fixed problem of missing deletion removed programs during data update<br>
-        	&bull; category colors for program table also<br>
-            &bull; show program markings visualisation in widgets<br>
-		<br>
-        <h3>0.5.3</h3>
-            &bull; added user defined program category color (not for program table)<br>
-        	&bull; added category display for widgets<br>
-        	&bull; fixed not working download LAN connections<br>
-        	&bull; made drive access for data download more safe<br>
-            &bull; added workaround for not working Plugin settings on problematic Android devices<br>
-			&bull; fix error in Channel handling for Plugins<br>
-			&bull; use "I don't want to see!" exclusions for program list widget<br>
-		<br>
-        <h3>0.5.2</h3>
-			&bull; make sure Plugin settings don\'t causes crash<br>
-			&bull; fixed problems with Plugin search<br>
-			&bull; better information for channel synchronisation<br>
-		<br>
-        <h3>0.5.1</h3>
-        	&bull; added type selection to important widget (can be used as program list)<br>
-			&bull; fixed possible crash caused by Plugins<br>
-		<br>
-        <h3>0.5.0.2</h3>
-			&bull; fixed channel restriction for Favorite backup (backup needs to be upload again)<br>
-		<br>
-        <h3>0.5.0.1</h3>
-			&bull; fixed crash under Android 5.0 with installed Plugins<br>
-		<br>
-		<h3>0.5</h3>
-		    &bull; added first version of the Plugin interface<br>
-		    &bull; added "Next" to running widget<br>
-		    &bull; added search for Plugins<br>
-		    &bull; removed manually markings function (can be integrated with Plugins)<br>
-		    &bull; removed calendar export and mail functionality (can be integrated with Plugins)<br>
-		    &bull; added new color style for dark theme<br>
-			&bull; added support for EPGdonate data channels<br>
-			&bull; fixed bug in preferences backup<br>
-        <br>
-		<h3>0.4.5.4</h3>
-		    &bull; hide buttons in action bar when search is selected<br>
-			&bull; added news access<br>
-        <br>
-		<h3>0.4.5.3</h3>
-			&bull; fixed possible crash with enabled program table<br>
-        <br>
-		<h3>0.4.5.2</h3>
-			&bull; fixed possible bug at database upgrade<br>
-			&bull; channels can be backuped at the TV-Browser server direct from the app<br>
-        <br>
-		<h3>0.4.5.1</h3>
-			&bull; fixed date bug caused by daylight savings time<br>
-			&bull; testet compatibility with Android 5.0<br>
-        <br>
-		<h3>0.4.5</h3>
-			&bull; added new restriction for program attributes in Favorites<br>
-			&bull; fixed bug in Favorite time restriction<br>
-		    &bull; added more global settings for widgets<br>
-        	&bull; layout style of Favorites tab selectable in layout settings<br>
-        	&bull; icon for new Favorite in ActionBar<br>
-        <br>
-        <h3>0.4.4</h3s>
-        	&bull; added user editable channel filters<br>
-        	&bull; new type of Favorite with search only for rules<br>
-        	&bull; changed default value for divider size in lists with programs<br>
-        	&bull; added duration restriction to Favorites<br>
-        	&bull; update icon in ActionBar only visible if auto update is disabled<br>
-        	&bull; enable/disable auto data update possible in data update dialog<br>
-            &bull; vertical space around programs selectable for lists with programs and widgets<br>
-			&bull; information about changes in version on version change<br>
-        	&bull; widgets also possible on lock screen<br>
-        	&bull; added additional global settings for widgets<br>
-        <br>
-        <h3>0.4.3</h3>
-        	&bull; fixed missing restoring of Favorites from synchronized settings<br>
-			&bull; new layout for Favorites tab<br>
-			&bull; new layout for program lists on small screens<br>
-			&bull; bigger channel icons selectable for widgets and program lists<br>
-			&bull; safer update of widgets<br>
-			&bull; added global settings for widgets<br>
-			&bull; text size scaling for widgets<br>
-			&bull; new separator for list entries of widgets<br>
-        <br>
-		<h3>0.4.2</h3>
-        	&bull; shown time of widget "Now running" selectable<br>
-			&bull; full data downloaded by default<br>
-        <br>
-        <h3>0.4.1</h3>
-        	&bull; backup of preferences and favorite definitions to TV-Browser server<br>
-			&bull; synchronize sort number of channel from desktop version<br>
-			&bull; fixed bug in saving of preferences of "Important Programs" widget<br>
-        <br>
-        <h3>0.4</h3>
-        	&bull; added widget for running and important programs (to use it TV-Browser has to be stored on internal drive)<br>
-			&bull; reminder up to 24h before program start<br>
-			&bull; added new color style<br>
-			&bull; made auto update more stable<br>
-			&bull; speed up channel download<br>
-			&bull; fixed bug at data update for channels with more than 127 programs per day<br>
-        <br>
-        <h3>0.3.3</h3>
-        	&bull; add ability to deactivate date display in programs list<br>
-			&bull; fixed wrong calculation of auto data update time<br>
-			&bull; fixed missing synchronization of reminders during auto data update<br>
-			&bull; refresh reminders every activation of device in Android<br>
-			&bull; fixed possible crash<br>
-			&bull; time selection for Running Programs also from button in action bar<br>
-        <br>
-        <h3>0.3.2</h3>
-        	&bull; speed up data update<br>
-			&bull; tried to fix possible crash with workaround<br>
-			&bull; sort Favorite list alphabetically in Favorite tab<br>
-			&bull; changed handling of Reminders<br>
-        <br>
-        <h3>0.3.1.1</h3>
-        	&bull; fixed possible update problems of changed programs at data update<br>
-        <br>
-        <h3>0.3.1</h3>
-        	&bull; fixed possible crash at data update<br>
-			&bull; fixed layout problems in favorite activity<br>
-			&bull; added ability to highlight "I don't want to see" programs instead of removing<br>
-        <br>
-        <h3>0.3</h3>
-        	&bull; added filter for favorite search<br>
-			&bull; new favorite edit activity<br>
-			&bull; added filter for channel type<br>
-			&bull; speeded up "I don't want to see" filtering<br>
-			&bull; changed data update<br>
-			&bull; configurable description for email and calendar export<br>
-			&bull; up to 24 time buttons configurable<br>
-			&bull; change update calculation of auto update<br>
-			&bull; added drag and drop support for channel sort<br>
-			&bull; added workaround for channel timezone GMT+01:00 instead of CET<br>
-        <br>
-        ]]></string>
+    
 </resources>

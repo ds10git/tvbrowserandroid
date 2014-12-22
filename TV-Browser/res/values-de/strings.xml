@@ -1,6 +1,155 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
+    <string name="info_version_new"><![CDATA[
+        <h2>0.5.3.3</h2>
+            &bull; regelmäßige Suche nach neuen/aktualisierten Sendern<br>
+            &bull; Unterstützung für Material Design hinzugefügt<br>
+            &bull; dunkles Thema wird standardmäßig verwendet<br>
+		<br>
+        <h3>0.5.3.2</h3>
+            &bull; möglicher Absturz mit Sendern ohne Sendungskategorien beseitigt<br>
+		<br>
+		<h2>0.5.3.1</h2>
+			&bull; Fehler bei Löschung entfernter Sendungen beim Datenupdate behoben<br>
+			&bull; Kategoriefarben auch für die Programmtabelle<br>
+            &bull; Sendungsmarkierungen werden in den Widgets visualisiert<br>
+		<br>
+        <h3>0.5.3</h3>
+        	&bull; benutzerdefinierbare Farben für Anzeige der Sendungskategorien hinzugefügt (nicht für die Programmtabelle)<br>
+        	&bull; Kategorieanzeige für Widgets hinzugefügt<br>
+        	&bull; nicht funktionierender Download über LAN-Verbindungen behoben<br>
+        	&bull; sicherer Zugriff auf die Laufwerke für den Datendownload<br>
+            &bull; Workaround für nicht funktionierende Plugin-Einstellungen auf problematisch Android-Geräten hinzugefügt<br>
+			&bull; Fehler bei der Übertragung von Sender an Plugins beseitigt<br>
+			&bull; "Will ich nicht sehen!"-Ausschlüsse werden auf Widget Sendungsliste angewendet<br>
+		<br>
+        <h3>0.5.2</h3>
+			&bull; stellt sicher, dass die Plugin-Einstellungen keinen Absturz verursachen<br>
+			&bull; Probleme bei der Suche nach Plugins beseitigt<br>
+			&bull; bessere Informationen bei der Sendersynchronisierung<br>
+		<br>
+		<h3>0.5.1</h3>
+        	&bull; Typauswahl für das Wichtige-Sendungen-Widget hinzugefügt (kann als Sendungsliste verwendet werden)<br>
+			&bull; möglichen Absturz in Verbindung mit Plugins beseitigt<br>
+		<br>
+        <h3>0.5.0.2</h3>
+			&bull; Probleme mit Senderbeschränkung beim Backup von Lieblingssendungen beseitigt (Backup muss neu hochgeladen werden)<br>
+		<br>
+        <h3>0.5.0.1</h3>
+			&bull; Absturzursache unter Android 5.0 bei installierten Plugins beseitigt<br>
+		<br>
+		<h3>0.5</h3>
+			&bull; erste Version der Plugin-Schnittstelle hinzugefügt<br>
+			&bull; "Als Nächstes" zum "Jetzt läuft"-Widget hinzugefügt<br>
+			&bull; Suche nach Plugins hinzugefügt<br>
+			&bull; manuelle Markierungsfunktion entfernt (kann mit Plugin nachgerüstet werden)<br>
+			&bull; Kalender- und E-Mail-Export entfernt (können mit Plugins nachgerüstet werden)<br>
+			&bull; neuen Farbstil für das dunkle Thema hinzugefügt<br>
+			&bull; Unterstützung für Sender aus EPGdonate-Daten hinzugefügt<br>
+			&bull; Fehler im Einstellungs-Backup beseitigt<br>
+        <br>
+		<h3>0.4.5.4</h3>
+		    &bull; Buttons in Werzeugleiste ausblenden, wenn Suche gestartet wird<br>
+			&bull; Nachrichtenabruf hinzugefügt<br>
+        <br>
+		<h3>0.4.5.3</h3>
+			&bull; möglicher Absturz bei aktivierter Programmtabelle beseitigt<br>
+        <br>
+		<h3>0.4.5.2</h3>
+			&bull; möglicher Fehler bei Update der Datenbank beseitigt<br>
+			&bull; Sender können von der App aus auf dem TV-Browser Server gesichert werden<br>
+        <br>
+		<h3>0.4.5.1</h3>
+			&bull; Fehler beim Datum durch Zeitumstellung beseitigt<br>
+			&bull; Kompatibilität mit Android 5.0 getestet<br>
+        <br>
+		<h3>0.4.5</h3>
+			&bull; neues Ausschlusskriterium für die Lieblingsendungen nach Sendungseigenschaften hinzugefügt<br>
+		    &bull; Fehler bei Zeitbeschränkung in Lieblingssendungen beseitigt<br>
+		    &bull; weitere globale Einstellungen für Widgets hinzugefügt<br>
+        	&bull; Layout-Stil des Lieblingssendungstabs unter Aussehen einstellbar<br>
+        	&bull; Symbol für neue Lieblingssendung in der Werkzeugleiste<br>
+        <br>
+        <h3>0.4.4</h3>
+        	&bull; benutzerdefinierbare Senderfilter hinzugefügt<br>
+        	&bull; neuer Typ Lieblingssendung mit Suche nur nach Ausschlusskriterien hinzugefügt<br>
+        	&bull; Standardwert für Trennergröße in Listen mit Sendungen geändert<br>
+        	&bull; Beschränkung der Sendungsdauer zu Lieblingssendungen hinzugefügt<br>
+        	&bull; Update-Symbol in der Werkzeugleiste nur sichtbar, wenn automatisches Datenupdate deaktiviert ist<br>
+        	&bull; aktivieren/deaktivieren des automatischen Datenupdates im Daten-Download Fenster möglich<br>
+            &bull; vertikaler Freiraum um Sender in Listen mit Sendungen und Widgets einstellbar<br>
+			&bull; Information über Änderungen in neuer Version, nach Update<br>
+        	&bull; Widgets auch auf Sperrbildschirm möglich<br>
+        	&bull; weitere globale Einstellungen für Widgets hinzugefügt<br>
+        <br>
+        <h3>0.4.3</h3>
+        	&bull; fehlende Wiederherstellung der Lieblingssendungen aus Backup korrigiert<br>
+        	&bull; neue Darstellung für den Lieblingssendungstab<br>
+        	&bull; neue Darstellung von Listen mit Sendungen auf kleinen Bildschirmen<br>
+        	&bull; größere Senderlogos auswählbar für Listen mit Sendungen und Widgets<br>
+        	&bull; sicherere Aktualisierung der Widgets<br>
+        	&bull; globale Einstellungen für Widgets hinzugefügt<br>
+        	&bull; Textskalierung für Widgets hinzugefügt<br>
+        	&bull; neuer Trenner für Listeneinträge der Widgets<br>
+        <br>
+		<h3>0.4.2</h3>
+        	&bull; angezeigte Zeit im Widget "Jetzt läuft" auswählbar<br>
+        	&bull; vollständige Daten werden standardmäßig geladen<br>
+        <br>
+        <h3>0.4.1</h3>
+        	&bull; Backup der Einstellungen und Definitionen der Lieblingssendungen auf den TV-Browser server<br>
+        	&bull; Sortierungsnummer aus der Desktopversion übernehmen<br>
+        	&bull; Fehler bei Sicherung der Einstellungen des "Wichtige Sendungen"-Widgets beseitigt<br>
+        <br>
+        <h3>0.4</h3>
+        	&bull; Widget für laufende und wichtige Sendungen hinzugefügt (TV-Browser muss sich auf dem Telefonspeicher befinden, damit diese verfügbar sind)<br>
+        	&bull; Erinnerungen bis zu 24h vor einer Sendung<br>
+        	&bull; zusätzlicher Farbstil hinzugefügt<br>
+        	&bull; automatisches Datenupdate stabilisiert<br>
+        	&bull; Senderupdate beschleunigt<br>
+        	&bull; Fehler beim Datenupdate für Sender mit mehr als 127 Sendungen am Tag beseitigt<br>
+        <br>
+        <h3>0.3.3</h3>
+        
+        	&bull; Datumsanzeige in Sendungsliste kann deaktiviert werden<br>
+        	&bull; fehlerhafte Berechnung des Zeitpunkts eine automatischen Datenupdates korrigiert<br>
+        	&bull; Fehler fehlender Synchronisation der Erinnerungen bei automatischen Datenupdate beseitigt<br>
+        	&bull; Erinnerungen bei jeder Aktivierung des Geräts in Android aktualisieren<br>
+        	&bull; mögliche Ursachen für Abstürze beseitigt<br>
+        	&bull; Zeitauswahl für Laufenden Sendungen auch über Symbol in Werkzeugleiste<br>
+        
+        <br>
+        <h3>0.3.2</h3>
+        
+        	&bull; Datenupdate beschleunigt<br>
+        	&bull; Workaround für möglichen Absturz hinzugefügt<br>
+        	&bull; alphabetische Sortierung der Liste der Lieblingssendungen im Lieblingssendungstab<br>
+        	&bull; Verarbeitung der Erinnerungen überarbeitet<br>
+        
+        <br>
+        <h3>0.3.1.1</h3>
+        	&bull; mögliches Problem fehlender Aktualisierung von Sendungen beim Datenupdate beseitigt<br>
+        <br>
+        <h3>0.3.1</h3>
+        	&bull; möglicher Absturz beim Datenupdate beseitigt<br>
+        	&bull; Probleme in der Darstellung der Bearbeitung der Lieblingssendungen beseitigt<br>
+        	&bull; Möglichkeit hinzugefügt gefilterte Sendungen von "Will ich nicht sehen!" hervorzuheben anstatt sie auszublenden<br>
+        <br>
+        <h3>0.3</h3>
+        	&bull; neue Filtermöglichkeiten für Lieblingssendungen<br>
+        	&bull; neue Oberfläche für Lieblingssendungen<br>
+        	&bull; Filter für Sendertyp<br>
+        	&bull; "Will ich nicht sehen!"-Filterung beschleunigt<br>
+        	&bull; Datenupdate überarbeitet<br>
+        	&bull; Beschreibung einstellbar für E-Mail- und Kalender-Export<br>
+        	&bull; bis zu 24 Zeitknöpfe einstellbar<br>
+        	&bull; Berechnung des Zeitpunkts für das Autoupdate geändert<br>
+        	&bull; DragAndDrop-Unterstützung für Sortierung der Sender<br>
+        	&bull; Workaround für Sender mit Zeitzone GMT+01:00 anstatt MEZ hinzugefügt<br>
+        <br>
+        ]]></string>
+    <string name="info_version">Was ist neu in dieser Version?</string>
+    
     <string name="app_name">TV-Browser</string>
     <string name="search_activity_name">TV-Browser-Suche</string>
     <string name="search_no_result_title">Keine Sendung gefunden</string>
@@ -41,6 +190,8 @@
     <string name="button_at">Genaue Zeit</string>
     <string name="no_channels">Keine Sender vorhanden.</string>
     <string name="select_channels">Sender jetzt auswählen</string>
+    <string name="dialog_select_channels_update_title">Es wurden neue Sender gefunden oder vorhandene aktualisiert</string>
+    <string name="dialog_select_channels_update_help">Sie können hier neue Sender auswählen. (Aktualisierte abonnierte Sender sind vorausgewählt.)</string>
     <string name="tv">Fernsehen</string>
     <string name="radio">Radio</string>
     <string name="cinema">Kino</string>
@@ -661,153 +812,4 @@
     <string name="plugin_info_message">TV-Browser kann mit Plugins um weitere Funktionen erweitert werden.\n\nSollten Sie eine Funktion vermissen, gibt es möglicherweise ein Plugin, was diese anbietet.\n\nMöchten Sie die Liste der verfügbaren Plugins jetzt öffnen (Sie können später auch über das Menü von TV-Browser nach Plugins suchen)?</string>
     <string name="plugin_info_load">Liste mit den Plugins jetzt öffnen</string>
     <string name="plugin_info_donwload">Lade \'{0}\' herunter</string>
-    
-    <string name="info_version">Was ist neu in dieser Version?</string>
-    <string name="info_version_new"><![CDATA[
-        <h2>0.5.3.3</h2>
-            &bull; Unterstützung für Material Design hinzugefügt<br>
-            &bull; dunkles Thema wird standardmäßig verwendet<br>
-		<br>
-        <h3>0.5.3.2</h3>
-            &bull; möglicher Absturz mit Sendern ohne Sendungskategorien beseitigt<br>
-		<br>
-		<h2>0.5.3.1</h2>
-			&bull; Fehler bei Löschung entfernter Sendungen beim Datenupdate behoben<br>
-			&bull; Kategoriefarben auch für die Programmtabelle<br>
-            &bull; Sendungsmarkierungen werden in den Widgets visualisiert<br>
-		<br>
-        <h3>0.5.3</h3>
-        	&bull; benutzerdefinierbare Farben für Anzeige der Sendungskategorien hinzugefügt (nicht für die Programmtabelle)<br>
-        	&bull; Kategorieanzeige für Widgets hinzugefügt<br>
-        	&bull; nicht funktionierender Download über LAN-Verbindungen behoben<br>
-        	&bull; sicherer Zugriff auf die Laufwerke für den Datendownload<br>
-            &bull; Workaround für nicht funktionierende Plugin-Einstellungen auf problematisch Android-Geräten hinzugefügt<br>
-			&bull; Fehler bei der Übertragung von Sender an Plugins beseitigt<br>
-			&bull; "Will ich nicht sehen!"-Ausschlüsse werden auf Widget Sendungsliste angewendet<br>
-		<br>
-        <h3>0.5.2</h3>
-			&bull; stellt sicher, dass die Plugin-Einstellungen keinen Absturz verursachen<br>
-			&bull; Probleme bei der Suche nach Plugins beseitigt<br>
-			&bull; bessere Informationen bei der Sendersynchronisierung<br>
-		<br>
-		<h3>0.5.1</h3>
-        	&bull; Typauswahl für das Wichtige-Sendungen-Widget hinzugefügt (kann als Sendungsliste verwendet werden)<br>
-			&bull; möglichen Absturz in Verbindung mit Plugins beseitigt<br>
-		<br>
-        <h3>0.5.0.2</h3>
-			&bull; Probleme mit Senderbeschränkung beim Backup von Lieblingssendungen beseitigt (Backup muss neu hochgeladen werden)<br>
-		<br>
-        <h3>0.5.0.1</h3>
-			&bull; Absturzursache unter Android 5.0 bei installierten Plugins beseitigt<br>
-		<br>
-		<h3>0.5</h3>
-			&bull; erste Version der Plugin-Schnittstelle hinzugefügt<br>
-			&bull; "Als Nächstes" zum "Jetzt läuft"-Widget hinzugefügt<br>
-			&bull; Suche nach Plugins hinzugefügt<br>
-			&bull; manuelle Markierungsfunktion entfernt (kann mit Plugin nachgerüstet werden)<br>
-			&bull; Kalender- und E-Mail-Export entfernt (können mit Plugins nachgerüstet werden)<br>
-			&bull; neuen Farbstil für das dunkle Thema hinzugefügt<br>
-			&bull; Unterstützung für Sender aus EPGdonate-Daten hinzugefügt<br>
-			&bull; Fehler im Einstellungs-Backup beseitigt<br>
-        <br>
-		<h3>0.4.5.4</h3>
-		    &bull; Buttons in Werzeugleiste ausblenden, wenn Suche gestartet wird<br>
-			&bull; Nachrichtenabruf hinzugefügt<br>
-        <br>
-		<h3>0.4.5.3</h3>
-			&bull; möglicher Absturz bei aktivierter Programmtabelle beseitigt<br>
-        <br>
-		<h3>0.4.5.2</h3>
-			&bull; möglicher Fehler bei Update der Datenbank beseitigt<br>
-			&bull; Sender können von der App aus auf dem TV-Browser Server gesichert werden<br>
-        <br>
-		<h3>0.4.5.1</h3>
-			&bull; Fehler beim Datum durch Zeitumstellung beseitigt<br>
-			&bull; Kompatibilität mit Android 5.0 getestet<br>
-        <br>
-		<h3>0.4.5</h3>
-			&bull; neues Ausschlusskriterium für die Lieblingsendungen nach Sendungseigenschaften hinzugefügt<br>
-		    &bull; Fehler bei Zeitbeschränkung in Lieblingssendungen beseitigt<br>
-		    &bull; weitere globale Einstellungen für Widgets hinzugefügt<br>
-        	&bull; Layout-Stil des Lieblingssendungstabs unter Aussehen einstellbar<br>
-        	&bull; Symbol für neue Lieblingssendung in der Werkzeugleiste<br>
-        <br>
-        <h3>0.4.4</h3>
-        	&bull; benutzerdefinierbare Senderfilter hinzugefügt<br>
-        	&bull; neuer Typ Lieblingssendung mit Suche nur nach Ausschlusskriterien hinzugefügt<br>
-        	&bull; Standardwert für Trennergröße in Listen mit Sendungen geändert<br>
-        	&bull; Beschränkung der Sendungsdauer zu Lieblingssendungen hinzugefügt<br>
-        	&bull; Update-Symbol in der Werkzeugleiste nur sichtbar, wenn automatisches Datenupdate deaktiviert ist<br>
-        	&bull; aktivieren/deaktivieren des automatischen Datenupdates im Daten-Download Fenster möglich<br>
-            &bull; vertikaler Freiraum um Sender in Listen mit Sendungen und Widgets einstellbar<br>
-			&bull; Information über Änderungen in neuer Version, nach Update<br>
-        	&bull; Widgets auch auf Sperrbildschirm möglich<br>
-        	&bull; weitere globale Einstellungen für Widgets hinzugefügt<br>
-        <br>
-        <h3>0.4.3</h3>
-        	&bull; fehlende Wiederherstellung der Lieblingssendungen aus Backup korrigiert<br>
-        	&bull; neue Darstellung für den Lieblingssendungstab<br>
-        	&bull; neue Darstellung von Listen mit Sendungen auf kleinen Bildschirmen<br>
-        	&bull; größere Senderlogos auswählbar für Listen mit Sendungen und Widgets<br>
-        	&bull; sicherere Aktualisierung der Widgets<br>
-        	&bull; globale Einstellungen für Widgets hinzugefügt<br>
-        	&bull; Textskalierung für Widgets hinzugefügt<br>
-        	&bull; neuer Trenner für Listeneinträge der Widgets<br>
-        <br>
-		<h3>0.4.2</h3>
-        	&bull; angezeigte Zeit im Widget "Jetzt läuft" auswählbar<br>
-        	&bull; vollständige Daten werden standardmäßig geladen<br>
-        <br>
-        <h3>0.4.1</h3>
-        	&bull; Backup der Einstellungen und Definitionen der Lieblingssendungen auf den TV-Browser server<br>
-        	&bull; Sortierungsnummer aus der Desktopversion übernehmen<br>
-        	&bull; Fehler bei Sicherung der Einstellungen des "Wichtige Sendungen"-Widgets beseitigt<br>
-        <br>
-        <h3>0.4</h3>
-        	&bull; Widget für laufende und wichtige Sendungen hinzugefügt (TV-Browser muss sich auf dem Telefonspeicher befinden, damit diese verfügbar sind)<br>
-        	&bull; Erinnerungen bis zu 24h vor einer Sendung<br>
-        	&bull; zusätzlicher Farbstil hinzugefügt<br>
-        	&bull; automatisches Datenupdate stabilisiert<br>
-        	&bull; Senderupdate beschleunigt<br>
-        	&bull; Fehler beim Datenupdate für Sender mit mehr als 127 Sendungen am Tag beseitigt<br>
-        <br>
-        <h3>0.3.3</h3>
-        
-        	&bull; Datumsanzeige in Sendungsliste kann deaktiviert werden<br>
-        	&bull; fehlerhafte Berechnung des Zeitpunkts eine automatischen Datenupdates korrigiert<br>
-        	&bull; Fehler fehlender Synchronisation der Erinnerungen bei automatischen Datenupdate beseitigt<br>
-        	&bull; Erinnerungen bei jeder Aktivierung des Geräts in Android aktualisieren<br>
-        	&bull; mögliche Ursachen für Abstürze beseitigt<br>
-        	&bull; Zeitauswahl für Laufenden Sendungen auch über Symbol in Werkzeugleiste<br>
-        
-        <br>
-        <h3>0.3.2</h3>
-        
-        	&bull; Datenupdate beschleunigt<br>
-        	&bull; Workaround für möglichen Absturz hinzugefügt<br>
-        	&bull; alphabetische Sortierung der Liste der Lieblingssendungen im Lieblingssendungstab<br>
-        	&bull; Verarbeitung der Erinnerungen überarbeitet<br>
-        
-        <br>
-        <h3>0.3.1.1</h3>
-        	&bull; mögliches Problem fehlender Aktualisierung von Sendungen beim Datenupdate beseitigt<br>
-        <br>
-        <h3>0.3.1</h3>
-        	&bull; möglicher Absturz beim Datenupdate beseitigt<br>
-        	&bull; Probleme in der Darstellung der Bearbeitung der Lieblingssendungen beseitigt<br>
-        	&bull; Möglichkeit hinzugefügt gefilterte Sendungen von "Will ich nicht sehen!" hervorzuheben anstatt sie auszublenden<br>
-        <br>
-        <h3>0.3</h3>
-        	&bull; neue Filtermöglichkeiten für Lieblingssendungen<br>
-        	&bull; neue Oberfläche für Lieblingssendungen<br>
-        	&bull; Filter für Sendertyp<br>
-        	&bull; "Will ich nicht sehen!"-Filterung beschleunigt<br>
-        	&bull; Datenupdate überarbeitet<br>
-        	&bull; Beschreibung einstellbar für E-Mail- und Kalender-Export<br>
-        	&bull; bis zu 24 Zeitknöpfe einstellbar<br>
-        	&bull; Berechnung des Zeitpunkts für das Autoupdate geändert<br>
-        	&bull; DragAndDrop-Unterstützung für Sortierung der Sender<br>
-        	&bull; Workaround für Sender mit Zeitzone GMT+01:00 anstatt MEZ hinzugefügt<br>
-        <br>
-        ]]></string>
 </resources>

@@ -784,7 +784,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
         Long tag = (Long)v.getTag();
         
         if(tag != null) {
-          UiUtils.showProgramInfo(getActivity(), tag.longValue());
+          UiUtils.showProgramInfo(getActivity(), tag.longValue(), (ViewGroup)getActivity().getCurrentFocus());
         }
       }
     };
@@ -852,7 +852,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
     
     getListView().setDivider(drawable);
     
-    setDividerSize(PrefUtils.getStringValue(R.string.PREF_RUNNING_DIVIDER_SIZE, R.string.divider_size_default));
+    setDividerSize(PrefUtils.getStringValue(R.string.PREF_RUNNING_DIVIDER_SIZE, R.string.pref_running_divider_size_default));
     
     getLoaderManager().initLoader(0, null, this);
   }
@@ -1380,7 +1380,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
   @Override
   public boolean onContextItemSelected(MenuItem item) {
     if(mContextProgramID >= 0) {
-      UiUtils.handleContextMenuSelection(getActivity(), item, mContextProgramID, mContextView);
+      UiUtils.handleContextMenuSelection(getActivity(), item, mContextProgramID, mContextView, (ViewGroup)getActivity().getCurrentFocus());
       
       mContextProgramID = -1;
     }
@@ -1396,7 +1396,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     if(!isDetached() && getActivity() != null) {
       if(getString(R.string.PREF_RUNNING_DIVIDER_SIZE).equals(key)) {
-        setDividerSize(PrefUtils.getStringValue(R.string.PREF_RUNNING_DIVIDER_SIZE, R.string.divider_size_default));
+        setDividerSize(PrefUtils.getStringValue(R.string.PREF_RUNNING_DIVIDER_SIZE, R.string.pref_running_divider_size_default));
       }
     }
   }

@@ -71,7 +71,6 @@ import android.database.Cursor;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.net.Uri;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PowerManager;
@@ -129,6 +128,9 @@ public class TvDataUpdateService extends Service {
   private ArrayList<String> mSyncFavorites;
     
   private DontWantToSeeExclusion[] mDontWantToSeeValues;
+  
+  private ArrayList<String> mChannelsNew;
+  private ArrayList<Integer> mChannelsUpdate;
     
   private static final String GROUP_FILE = "groups.txt";
   
@@ -278,7 +280,7 @@ public class TvDataUpdateService extends Service {
             updateTvData();
           }
           else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
-            updateChannels();
+            updateChannels(false);
           }
           else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == REMINDER_DOWN_TYPE) {
             startSynchronizeRemindersDown(intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true));
@@ -1092,9 +1094,9 @@ public class TvDataUpdateService extends Service {
     mSyncFavorites = null;
   }
   
-  private Hashtable<String, Integer> mCurrentChannelData;
+  private Hashtable<String, Object> mCurrentChannelData;
   
-  private void updateChannels() {
+  private void updateChannels(final boolean autoUpdate) {
     if(!IS_RUNNING) {
       IS_RUNNING = true;
       
@@ -1108,9 +1110,12 @@ public class TvDataUpdateService extends Service {
       mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
       startForeground(NOTIFY_ID, mBuilder.build());
       
-      mCurrentChannelData = new Hashtable<String, Integer>();
+      mCurrentChannelData = new Hashtable<String, Object>();
       
-      final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.GROUP_KEY_GROUP_ID,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID};
+      mChannelsNew = new ArrayList<String>();
+      mChannelsUpdate = new ArrayList<Integer>();
+      
+      final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.GROUP_KEY_GROUP_ID,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME};
       
       Cursor currentChannels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, null, null, null);
 
@@ -1120,10 +1125,11 @@ public class TvDataUpdateService extends Service {
         final int idIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
         final int groupKeyIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
         final int channelKeyIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+        final int channelNameIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
         
         while(currentChannels.moveToNext()) {
-          String key = currentChannels.getString(groupKeyIndex).trim()+"_##_"+currentChannels.getString(channelKeyIndex).trim();
-          mCurrentChannelData.put(key, Integer.valueOf(currentChannels.getInt(idIndex)));
+          String key = IOUtils.getUniqueChannelKey(currentChannels.getString(groupKeyIndex), currentChannels.getString(channelKeyIndex));
+          mCurrentChannelData.put(key, new Object[] {Integer.valueOf(currentChannels.getInt(idIndex)) , currentChannels.getString(channelNameIndex)});
         }
       }finally {
         if(currentChannels != null) {
@@ -1141,10 +1147,11 @@ public class TvDataUpdateService extends Service {
         try {
           IOUtils.saveUrl(groups.getAbsolutePath(), mirror);
           doLog("START GROUP UPDATE");
-          updateGroups(groups, path);
+          updateGroups(groups, path, autoUpdate);
         } catch (Exception e) {
           Intent updateDone = new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
-          updateDone.putExtra(SettingConstants.CHANNEL_DOWNLOAD_SUCCESSFULLY, false);
+          updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_SUCCESSFULLY, false);
+          updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_AUTO_UPDATE, autoUpdate);
           
           LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
           
@@ -1252,7 +1259,7 @@ public class TvDataUpdateService extends Service {
     return result;
   }
   
-  private void updateGroups(File groups, final File path) {
+  private void updateGroups(File groups, final File path, final boolean autoUpdate) {
     final ChangeableFinalBoolean success = new ChangeableFinalBoolean(true);
     Hashtable<String, Integer> currentGroups = new Hashtable<String, Integer>();
     
@@ -1413,8 +1420,46 @@ public class TvDataUpdateService extends Service {
       success.setBoolean(false);
     }
     
+    Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+    
+    if(success.getBoolean()) {
+      edit.putLong(getString(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST), System.currentTimeMillis());
+    }
+    
+    if(!mChannelsUpdate.isEmpty()) {
+      edit.putString(getString(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED), TextUtils.join(",", mChannelsUpdate));
+      mChannelsUpdate.clear();
+      mChannelsUpdate = null;
+    }
+    
+    if(!mChannelsNew.isEmpty()) {
+      ArrayList<Integer> updatedIdsList = new ArrayList<Integer>(mChannelsNew.size());
+      
+      String[] projection = {TvBrowserContentProvider.KEY_ID};
+      
+      for(String uniqueChannelKey : mChannelsNew) {
+        Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = ? AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = ?", IOUtils.getUniqueChannelKeyParts(uniqueChannelKey), TvBrowserContentProvider.KEY_ID);
+        Log.d("info77", uniqueChannelKey + " " + c.getCount());
+        try {
+          if(c.moveToFirst()) {
+            updatedIdsList.add(Integer.valueOf(c.getInt(c.getColumnIndex(TvBrowserContentProvider.KEY_ID))));
+          }
+        }finally {
+          IOUtils.closeCursor(c);
+        }
+      }
+      
+      mChannelsNew.clear();
+      mChannelsNew = null;
+      
+      edit.putString(getString(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED), TextUtils.join(",", updatedIdsList));
+    }
+    
+    edit.commit();
+    
     Intent updateDone = new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
-    updateDone.putExtra(SettingConstants.CHANNEL_DOWNLOAD_SUCCESSFULLY, success.getBoolean());
+    updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_SUCCESSFULLY, success.getBoolean());
+    updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_AUTO_UPDATE, autoUpdate);
     
     LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
     
@@ -1505,9 +1550,7 @@ public class TvDataUpdateService extends Service {
         
         final ArrayList<ContentValues> insertValuesList = new ArrayList<ContentValues>();
         final ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
-        
-        final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID};
-        
+                
         while((line = read.readLine()) != null) {
           String[] parts = line.split(";");
           
@@ -1585,7 +1628,7 @@ public class TvDataUpdateService extends Service {
             
             String key = info.mUniqueGroupID + "_##_" + channelId.trim();
             
-            Integer uniqueChannelId = mCurrentChannelData.get(key);
+            Object channelValues = mCurrentChannelData.get(key);
             
            // String where = TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + info.mUniqueGroupID + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = '" + channelId + "'";
             
@@ -1616,15 +1659,24 @@ public class TvDataUpdateService extends Service {
               }catch(Exception e1) {}
             }
             
-            if(uniqueChannelId == null) {
+            if(channelValues == null) {
               insertValuesList.add(values);
+              
+              if(!mCurrentChannelData.isEmpty()) {
+                mChannelsNew.add(IOUtils.getUniqueChannelKey(String.valueOf(info.getUniqueGroupID()), channelId));
+              }
             }
             else {
+              Integer uniqueChannelId = (Integer)((Object[])channelValues)[0];
               // update channel            
               ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, uniqueChannelId.intValue()));
               opBuilder.withValues(values);
               
               updateValuesList.add(opBuilder.build());
+              
+              if(!((String)((Object[])channelValues)[1]).trim().equals(name.trim())) {
+                mChannelsUpdate.add(uniqueChannelId);
+              }
             }
           }
           else {
@@ -2072,7 +2124,12 @@ public class TvDataUpdateService extends Service {
     
     IS_RUNNING = false;
     
-    stopSelfInternal();
+    if(PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0) + (14 * 24 * 60 * 60000L) < System.currentTimeMillis()) {
+      updateChannels(true);
+    }
+    else {
+      stopSelfInternal();
+    }
   }
   
   private AtomicInteger mFavoriteUpdateCount;
