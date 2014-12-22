@@ -334,13 +334,13 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
     if(item.getMenuInfo() != null) {
       long programID = ((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).id;
       
-      UiUtils.handleContextMenuSelection(mActivity, item, programID, null);
+      UiUtils.handleContextMenuSelection(mActivity, item, programID, null, null);
     }
     
     return false;
   }
   
   public void onListItemClick(ListView l, View v, int position, long id) {
-    UiUtils.showProgramInfo(mActivity, id);
+    UiUtils.showProgramInfo(mActivity, id, null);
   }
 }

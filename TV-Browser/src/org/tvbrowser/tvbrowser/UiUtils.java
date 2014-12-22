@@ -142,11 +142,11 @@ public class UiUtils {
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_RATING, R.id.detail_rating);
   }
   
-  public static void showProgramInfo(final Context context, long id) {
-    showProgramInfo(context, id, null);
+  public static void showProgramInfo(final Context context, long id, ViewGroup parent) {
+    showProgramInfo(context, id, null, parent);
   }
   
-  public static void showProgramInfo(final Context context, long id, final Activity finish) {
+  public static void showProgramInfo(final Context context, long id, final Activity finish, ViewGroup parent) {
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
     
     Cursor c = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), null, null, null, null);
@@ -154,7 +154,7 @@ public class UiUtils {
     if(c.moveToFirst()) {
       AlertDialog.Builder builder = new AlertDialog.Builder(context);
       
-      View layout =((LayoutInflater)context.getSystemService( Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.detail_layout, null);
+      View layout =((LayoutInflater)context.getSystemService( Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.detail_layout, parent, false);
       
       float textScale = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_TEXT_SCALE, R.string.detail_text_scale_default));
       
@@ -510,10 +510,10 @@ public class UiUtils {
     cursor.close();
   }
   
-  public static void searchForRepetition(final Context activity, String title, String episode) {
+  public static void searchForRepetition(final Context activity, String title, String episode, ViewGroup parent) {
     AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     
-    RelativeLayout layout = (RelativeLayout)((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.search_repetition_layout, null);
+    RelativeLayout layout = (RelativeLayout)((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.search_repetition_layout, parent, false);
     
     final EditText titleText = (EditText)layout.findViewById(R.id.search_repetition_title);
     final EditText episodeText = (EditText)layout.findViewById(R.id.search_repetition_episode);
@@ -556,7 +556,7 @@ public class UiUtils {
   }
   
   @SuppressLint("NewApi")
-  public static boolean handleContextMenuSelection(final Context activity, MenuItem item, long programID, final View menuView) {
+  public static boolean handleContextMenuSelection(final Context activity, MenuItem item, long programID, final View menuView, ViewGroup parent) {
     Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE), null, null,null);
     
     String title = null;
@@ -591,7 +591,7 @@ public class UiUtils {
       return true;
     }
     else if(item.getItemId() == R.id.program_popup_search_repetition) {
-      searchForRepetition(activity,title,episode);
+      searchForRepetition(activity,title,episode,parent);
     }
     else if(item.getItemId() == R.id.prog_add_reminder) {
       if(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) || markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) {
@@ -632,7 +632,7 @@ public class UiUtils {
         
         builder.setTitle(R.string.action_dont_want_to_see);
         
-        View view = ((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.dont_want_to_see_edit, null);
+        View view = ((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.dont_want_to_see_edit, parent, false);
         
         final TextView exclusion = (TextView)view.findViewById(R.id.dont_want_to_see_value);
         final CheckBox caseSensitive = (CheckBox)view.findViewById(R.id.dont_want_to_see_case_sensitve);
@@ -723,7 +723,6 @@ public class UiUtils {
                         try {
                           sleep(1);
                         } catch (InterruptedException e) {
-                          // TODO Auto-generated catch block
                           e.printStackTrace();
                         }
                       }
@@ -736,10 +735,8 @@ public class UiUtils {
                         activity.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
                         sendDontWantToSeeChangedBroadcast(applicationContext,true);
                       } catch (RemoteException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                       } catch (OperationApplicationException e) {
-                        // TODO Auto-generated catch block
                         e.printStackTrace();
                       }
                     }
@@ -852,10 +849,8 @@ public class UiUtils {
                 activity.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
                 sendDontWantToSeeChangedBroadcast(applicationContext,false);
               } catch (RemoteException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               } catch (OperationApplicationException e) {
-                // TODO Auto-generated catch block
                 e.printStackTrace();
               }
             }
@@ -908,7 +903,6 @@ public class UiUtils {
     updateImportantProgramsWidget(context.getApplicationContext());
   }
   
-  //TODO
   public static void addReminder(Context context, long programID, long startTime, Class<?> caller, boolean firstCreation) {try {
     Logging.log(ReminderBroadcastReceiver.tag, "addReminder called from: " + caller + " for programID: '" + programID + "' with start time: " + new Date(startTime), Logging.REMINDER_TYPE, context);
     
@@ -956,7 +950,7 @@ public class UiUtils {
     }
   }catch(Throwable t) {t.printStackTrace();}
   }
-  //TODO
+  
   public static void removeReminder(Context context, long programID) {
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
@@ -1014,22 +1008,13 @@ public class UiUtils {
 
     @Override
     public int getOpacity() {
-      // TODO Auto-generated method stub
       return 0;
     }
 
     @Override
-    public void setAlpha(int alpha) {
-      // TODO Auto-generated method stub
-      
-    }
-
+    public void setAlpha(int alpha) {}
     @Override
-    public void setColorFilter(ColorFilter cf) {
-      // TODO Auto-generated method stub
-      
-    }
-    
+    public void setColorFilter(ColorFilter cf) {}
   }
   
   public static void handleMarkings(Context activity, Cursor cursor, View view, String[] markingValues) {

@@ -230,7 +230,7 @@ public class ProgramTableFragment extends Fragment {
         Long id = (Long)v.getTag();
         
         if(id != null) {
-          UiUtils.showProgramInfo(getActivity(), id);
+          UiUtils.showProgramInfo(getActivity(), id, null);
         }
       }
     };
@@ -823,7 +823,7 @@ public class ProgramTableFragment extends Fragment {
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstanceState) {
-    RelativeLayout programTableLayout = (RelativeLayout)inflater.inflate(R.layout.program_table_layout, null);
+    RelativeLayout programTableLayout = (RelativeLayout)inflater.inflate(R.layout.program_table_layout, container, false);
     
     if(mCurrentDate == null) {
       mCurrentDate = Calendar.getInstance();
@@ -895,7 +895,7 @@ public class ProgramTableFragment extends Fragment {
     
       long programID = ((Long)temp.getTag());
       
-      return UiUtils.handleContextMenuSelection(getActivity(), item, programID, temp);
+      return UiUtils.handleContextMenuSelection(getActivity(), item, programID, temp, (ViewGroup)getActivity().getCurrentFocus());
     }
     
     return false;

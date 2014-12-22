@@ -51,11 +51,8 @@ import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.xml.sax.XMLReader;
 
 import android.annotation.SuppressLint;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.Tab;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.support.v4.app.FragmentTransaction;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
@@ -92,18 +89,18 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Environment;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.text.Editable;
@@ -359,6 +356,14 @@ public class TvBrowser extends ActionBarActivity implements
         
         edit.commit();
       }
+      if(oldVersion < 284 && PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.pref_program_lists_divider_size_default).equals(getString(R.string.divider_small))) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
+        
+        Editor edit = pref.edit();
+        edit.remove(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE));
+        edit.commit();
+      }
+      
       if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < pInfo.versionCode) {
         handler.postDelayed(new Runnable() {
           @Override
@@ -497,7 +502,7 @@ public class TvBrowser extends ActionBarActivity implements
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
       builder.setTitle(R.string.terms_of_use);
       
-      ScrollView layout = (ScrollView)getLayoutInflater().inflate(R.layout.terms_layout, null);
+      ScrollView layout = (ScrollView)getLayoutInflater().inflate(R.layout.terms_layout, (ViewGroup)getCurrentFocus(), false);
       
       ((TextView)layout.findViewById(R.id.terms_license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
       
@@ -646,7 +651,7 @@ public class TvBrowser extends ActionBarActivity implements
         builder.setTitle(R.string.epg_donate_name);
         builder.setCancelable(false);
         
-        View view = getLayoutInflater().inflate(R.layout.dialog_epg_donate_info, null);
+        View view = getLayoutInflater().inflate(R.layout.dialog_epg_donate_info, (ViewGroup)getCurrentFocus(), false);
         
         TextView message = (TextView)view.findViewById(R.id.dialog_epg_donate_message);
         message.setText(Html.fromHtml(info));
@@ -883,42 +888,48 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void showChannelSelection() {
-    AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-    
-    builder.setTitle(R.string.synchronize_title);
-    builder.setMessage(R.string.synchronize_text);
-    builder.setCancelable(false);
-    
-    builder.setPositiveButton(R.string.synchronize_ok, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        final SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
-        
-        if(pref.getString(SettingConstants.USER_NAME, "").trim().length() == 0 || pref.getString(SettingConstants.USER_PASSWORD, "").trim().length() == 0) {
-          showUserSetting(true);
-        }
-        else {
-          syncronizeChannels();
-        }
-      }
-    });
-    builder.setNegativeButton(R.string.synchronize_cancel, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            showChannelSelectionInternal();
+    if(PrefUtils.getStringValue(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED, null) != null ||
+     PrefUtils.getStringValue(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED, null) != null) {
+      showChannelUpdateInfo();
+    }
+    else {
+      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+      
+      builder.setTitle(R.string.synchronize_title);
+      builder.setMessage(R.string.synchronize_text);
+      builder.setCancelable(false);
+      
+      builder.setPositiveButton(R.string.synchronize_ok, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          final SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+          
+          if(pref.getString(SettingConstants.USER_NAME, "").trim().length() == 0 || pref.getString(SettingConstants.USER_PASSWORD, "").trim().length() == 0) {
+            showUserSetting(true);
           }
-        });
-      }
-    });
-    
-    AlertDialog d = builder.create();
-    
-    d.show();
-
-    ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+          else {
+            syncronizeChannels();
+          }
+        }
+      });
+      builder.setNegativeButton(R.string.synchronize_cancel, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              showChannelSelectionInternal();
+            }
+          });
+        }
+      });
+      
+      AlertDialog d = builder.create();
+      
+      d.show();
+  
+      ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+    }
   }
   
   private void updateProgramListChannelBar() {
@@ -1831,6 +1842,10 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void showChannelSelectionInternal() {
+    showChannelSelectionInternal(null,null,null);
+  }
+  
+  private void showChannelSelectionInternal(final String selection, final String title, final String help) {
     String[] projection = {
         TvBrowserContentProvider.KEY_ID,
         TvBrowserContentProvider.CHANNEL_KEY_NAME,
@@ -1841,7 +1856,7 @@ public class TvBrowser extends ActionBarActivity implements
         };
     
     ContentResolver cr = getContentResolver();
-    Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, null, null, null);
+    Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, selection, null, null);
     channels.moveToPosition(-1);
     
     // populate array list with all available channels
@@ -1891,9 +1906,7 @@ public class TvBrowser extends ActionBarActivity implements
         channelLogo = UiUtils.drawableToBitmap(logoDrawable);
       }
       
-      ChannelSelection selection = new ChannelSelection(channelID, name, category, countries, channelLogo, isSelected);
-      
-      channelSelectionList.add(selection);
+      channelSelectionList.add(new ChannelSelection(channelID, name, category, countries, channelLogo, isSelected));
     }
     
     // sort countries for filtering
@@ -1927,7 +1940,7 @@ public class TvBrowser extends ActionBarActivity implements
           
           holder = new ViewHolder();
           
-          convertView = mInflater.inflate(R.layout.channel_row, null);
+          convertView = mInflater.inflate(R.layout.channel_row, (ViewGroup)getCurrentFocus(), false);
           
           holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_text);
           holder.mCheckBox = (CheckBox)convertView.findViewById(R.id.row_of_channel_selection);
@@ -1957,10 +1970,18 @@ public class TvBrowser extends ActionBarActivity implements
     };
     
     // inflate channel selection view
-    View channelSelectionView = getLayoutInflater().inflate(R.layout.dialog_channel_selection_list, null);
+    View channelSelectionView = getLayoutInflater().inflate(R.layout.dialog_channel_selection_list, (ViewGroup)getCurrentFocus(), false);
     channelSelectionView.findViewById(R.id.channel_selection_selection_buttons).setVisibility(View.GONE);
-    channelSelectionView.findViewById(R.id.channel_selection_label_id_name).setVisibility(View.GONE);
     channelSelectionView.findViewById(R.id.channel_selection_input_id_name).setVisibility(View.GONE);
+    
+    TextView infoView = (TextView)channelSelectionView.findViewById(R.id.channel_selection_label_id_name);
+    
+    if(help != null) {
+      infoView.setText(help);
+    }
+    else {
+      infoView.setVisibility(View.GONE);
+    }
     
     // get spinner for country filtering and create array adapter with all available countries
     Spinner country = (Spinner)channelSelectionView.findViewById(R.id.channel_country_value);
@@ -2026,8 +2047,14 @@ public class TvBrowser extends ActionBarActivity implements
     // show dialog only if channels are available
     if(!channelSelectionList.isEmpty()) {
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-          
-      builder.setTitle(R.string.select_channels);
+      
+      if(title == null) {
+        builder.setTitle(R.string.select_channels);
+      }
+      else {
+        builder.setTitle(title);
+      }
+      
       builder.setView(channelSelectionView);
       
       builder.setPositiveButton(android.R.string.ok, new OnClickListener() {        
@@ -2148,7 +2175,7 @@ public class TvBrowser extends ActionBarActivity implements
           
           LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(this);
           
-          boolean success = intent.getBooleanExtra(SettingConstants.CHANNEL_DOWNLOAD_SUCCESSFULLY, false);
+          boolean success = intent.getBooleanExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_SUCCESSFULLY, false);
           
           if(mIsActive) {
             if(success) {
@@ -2216,7 +2243,7 @@ public class TvBrowser extends ActionBarActivity implements
     StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
     where.append("=1");
     
-    LinearLayout main = (LinearLayout)getLayoutInflater().inflate(R.layout.channel_sort_list, null);
+    LinearLayout main = (LinearLayout)getLayoutInflater().inflate(R.layout.channel_sort_list, (ViewGroup)getCurrentFocus(), false);
     
     Button sortAlphabetically = (Button)main.findViewById(R.id.channel_sort_alpabetically);
     
@@ -2295,7 +2322,7 @@ public class TvBrowser extends ActionBarActivity implements
             
             holder = new ViewHolder();
             
-            convertView = mInflater.inflate(R.layout.channel_sort_row, null);
+            convertView = mInflater.inflate(R.layout.channel_sort_row, (ViewGroup)getCurrentFocus(), false);
             
             holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_sort_text);
             holder.mSortNumber = (TextView)convertView.findViewById(R.id.row_of_channel_sort_number);
@@ -2378,7 +2405,7 @@ public class TvBrowser extends ActionBarActivity implements
             long id) {
           AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
           
-          LinearLayout numberSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.sort_number_selection, null);
+          LinearLayout numberSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.sort_number_selection, (ViewGroup)getCurrentFocus(), false);
           
           mSelectionNumberChanged = false;
           
@@ -2510,7 +2537,7 @@ public class TvBrowser extends ActionBarActivity implements
       if(test.getCount() > 0) {
         AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
         
-        RelativeLayout dataDownload = (RelativeLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection, null);
+        RelativeLayout dataDownload = (RelativeLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection, (ViewGroup)getCurrentFocus(), false);
         
         final Spinner days = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_selection_download_days);
         final CheckBox pictures = (CheckBox)dataDownload.findViewById(R.id.dialog_data_update_selection_download_picture);
@@ -2620,7 +2647,7 @@ public class TvBrowser extends ActionBarActivity implements
           public void onClick(View v) {
             AlertDialog.Builder b2 = new AlertDialog.Builder(TvBrowser.this);
             
-            LinearLayout timeSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection_auto_update_time, null);
+            LinearLayout timeSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection_auto_update_time, (ViewGroup)getCurrentFocus(), false);
             
             final TimePicker timePick = (TimePicker)timeSelection.findViewById(R.id.dialog_data_update_selection_auto_update_selection_time);
             timePick.setIs24HourView(DateFormat.is24HourFormat(TvBrowser.this));
@@ -2809,7 +2836,7 @@ public class TvBrowser extends ActionBarActivity implements
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     builder.setCancelable(false);
     
-    RelativeLayout username_password_setup = (RelativeLayout)getLayoutInflater().inflate(R.layout.username_password_setup, null);
+    RelativeLayout username_password_setup = (RelativeLayout)getLayoutInflater().inflate(R.layout.username_password_setup, (ViewGroup)getCurrentFocus(), false);
             
     final SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
     
@@ -2950,7 +2977,7 @@ public class TvBrowser extends ActionBarActivity implements
       
       final ArrayAdapter<ExclusionEdit> exclusionAdapter = new ArrayAdapter<TvBrowser.ExclusionEdit>(TvBrowser.this, android.R.layout.simple_list_item_1, mCurrentExclusionList);
       
-      View view = getLayoutInflater().inflate(R.layout.dont_want_to_see_exclusion_edit_list, null);
+      View view = getLayoutInflater().inflate(R.layout.dont_want_to_see_exclusion_edit_list, (ViewGroup)getCurrentFocus(), false);
       
       ListView list = (ListView)view.findViewById(R.id.dont_want_to_see_exclusion_list);
       
@@ -2966,7 +2993,7 @@ public class TvBrowser extends ActionBarActivity implements
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
           final ExclusionEdit edit = exclusionAdapter.getItem(position);
           
-          View editView = getLayoutInflater().inflate(R.layout.dont_want_to_see_edit, null);
+          View editView = getLayoutInflater().inflate(R.layout.dont_want_to_see_edit, (ViewGroup)getCurrentFocus(), false);
           
           final TextView exclusion = (TextView)editView.findViewById(R.id.dont_want_to_see_value);
           final CheckBox caseSensitive = (CheckBox)editView.findViewById(R.id.dont_want_to_see_case_sensitve);
@@ -3583,13 +3610,13 @@ public class TvBrowser extends ActionBarActivity implements
           savePluginInfoShown();
           
           if(isOnline()) {
-            searchPlugins();
+            searchPlugins(true);
           }
           else {
             showNoInternetConnection(getString(R.string.no_network_info_data_search_plugins),new Runnable() {
               @Override
               public void run() {
-                searchPlugins();
+                searchPlugins(true);
               }
             });
           }
@@ -3600,10 +3627,44 @@ public class TvBrowser extends ActionBarActivity implements
         @Override
         public void onClick(DialogInterface dialog, int which) {
           savePluginInfoShown();
+          showChannelUpdateInfo();
         }
       });
       
       builder.show();
+    }
+    else {
+      showChannelUpdateInfo();
+    }
+  }
+  
+  private void showChannelUpdateInfo() {
+    StringBuilder selection = new StringBuilder();
+    
+    String insertedChannels = PrefUtils.getStringValue(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED, null);
+    String updateChannels = PrefUtils.getStringValue(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED, null);
+    
+    Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+    
+    if(insertedChannels != null) {
+      selection.append(insertedChannels);
+      edit.remove(getString(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED));
+    }
+    if(updateChannels != null) {
+      if(selection.length() > 0) {
+        selection.append(",");
+      }
+      
+      selection.append(updateChannels);
+      edit.remove(getString(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED));
+    }
+    
+    if(selection.toString().trim().length() > 0) {
+      edit.commit();
+      selection.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
+      selection.append(" ) ");
+      
+      showChannelSelectionInternal(selection.toString(), getString(R.string.dialog_select_channels_update_title), getString(R.string.dialog_select_channels_update_help));
     }
   }
   
@@ -3679,7 +3740,7 @@ public class TvBrowser extends ActionBarActivity implements
     edit.commit();
   }
   
-  private void searchPlugins() {
+  private void searchPlugins(final boolean showChannelUpdateInfo) {
     if(isOnline()) {
       new Thread("SEARCH FOR PLUGINS THREAD") {
         @Override
@@ -3802,6 +3863,10 @@ public class TvBrowser extends ActionBarActivity implements
                     }
                   }
                 }, 2000);
+              }
+              
+              if(showChannelUpdateInfo) {
+                showChannelUpdateInfo();
               }
             }
           });
@@ -3937,13 +4002,13 @@ public class TvBrowser extends ActionBarActivity implements
       case R.id.action_donation: showDonationInfo(); break;
       case R.id.action_search_plugins: 
         if(isOnline()) {
-          searchPlugins();
+          searchPlugins(false);
         }
         else {
           showNoInternetConnection(getString(R.string.no_network_info_data_search_plugins),new Runnable() {
             @Override
             public void run() {
-              searchPlugins();
+              searchPlugins(false);
             }
           });
         }
@@ -4432,7 +4497,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     alert.setTitle(R.string.donation);
     
-    View view = getLayoutInflater().inflate(R.layout.in_app_donations, null);
+    View view = getLayoutInflater().inflate(R.layout.in_app_donations, (ViewGroup)getCurrentFocus(), false);
     LinearLayout layout = (LinearLayout)view.findViewById(R.id.donation_in_app_layout);
     
     alert.setView(view);
@@ -4640,7 +4705,7 @@ public class TvBrowser extends ActionBarActivity implements
       
       alert.setTitle(R.string.donation);
       
-      View view = getLayoutInflater().inflate(R.layout.open_donation, null);
+      View view = getLayoutInflater().inflate(R.layout.open_donation, (ViewGroup)getCurrentFocus(), false);
       
       alert.setView(view);
       
@@ -4689,7 +4754,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     alert.setTitle(R.string.donation);
     
-    View view = getLayoutInflater().inflate(R.layout.donations, null);
+    View view = getLayoutInflater().inflate(R.layout.donations, (ViewGroup)getCurrentFocus(), false);
     
     alert.setView(view);
     
@@ -4737,7 +4802,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     alert.setTitle(R.string.you_like_it);
     
-    View view = getLayoutInflater().inflate(R.layout.rating_and_donation, null);
+    View view = getLayoutInflater().inflate(R.layout.rating_and_donation, (ViewGroup)getCurrentFocus(), false);
     
     TextView ratingInfo = (TextView)view.findViewById(R.id.rating_info);
     Button rate = (Button)view.findViewById(R.id.rating_button);

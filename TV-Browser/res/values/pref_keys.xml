@@ -26,7 +26,12 @@
 	    
 	    <string name="PREF_AUTO_UPDATE_START_TIME">PREF_AUTO_UPDATE_START_TIME</string>
 	    <item name="pref_auto_update_start_time_default" type="integer" format="integer">0</item>
-    
+	    
+	    <string name="PREF_AUTO_CHANNEL_UPDATE_LAST">PREF_AUTO_CHANNEL_UPDATE_LAST</string>
+	    
+	    <string name="PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED">PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED</string>
+	    <string name="PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED">PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED</string>
+	    
     <!-- Start settings -->
     
 	    <string name="TAB_TO_SHOW_AT_START">TAB_TO_SHOW_AT_START</string>
@@ -258,7 +263,8 @@
 	
 	<!-- Running programs settings -->
 		<string name="PREF_RUNNING_DIVIDER_SIZE">PREF_RUNNING_DIVIDER_SIZE</string>
-
+		<item name="pref_running_divider_size_default" type="string" format="string">@string/divider_tiny</item>
+		
 		<string name="CHANNEL_LOGO_NAME_RUNNING">CHANNEL_LOGO_NAME_RUNNING</string>
 	    <item name="channel_logo_name_running_default" type="string" format="string">0</item>
 		
@@ -346,7 +352,7 @@
 	    <item name="pref_program_lists_vertical_padding_size_default" type="string" format="string">@string/divider_small</item>
 	    
 	    <string name="PREF_PROGRAM_LISTS_DIVIDER_SIZE">PREF_PROGRAM_LISTS_DIVIDER_SIZE</string>
-	    <item name="divider_size_default" type="string" format="string">@string/divider_small</item>
+	    <item name="pref_program_lists_divider_size_default" type="string" format="string">@string/divider_tiny</item>
 
 	    <string name="PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST">PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST</string>
 	    <item name="pref_program_lists_click_to_channel_to_list_default" type="bool" format="boolean">true</item>

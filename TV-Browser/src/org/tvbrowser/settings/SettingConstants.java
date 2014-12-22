@@ -292,7 +292,8 @@ public class SettingConstants {
   
   public static final String DEFAULT_RUNNING_PROGRAMS_LIST_LAYOUT = "1";
   
-  public static final String CHANNEL_DOWNLOAD_SUCCESSFULLY = "CHANNEL_DOWNLOAD_SUCCESSFULLY";
+  public static final String EXTRA_CHANNEL_DOWNLOAD_SUCCESSFULLY = "EXTRA_CHANNEL_DOWNLOAD_SUCCESSFULLY";
+  public static final String EXTRA_CHANNEL_DOWNLOAD_AUTO_UPDATE = "EXTRA_CHANNEL_DOWNLOAD_AUTO_UPDATE";
   
   public static final IntentFilter RERESH_FILTER = new IntentFilter(REFRESH_VIEWS);
   

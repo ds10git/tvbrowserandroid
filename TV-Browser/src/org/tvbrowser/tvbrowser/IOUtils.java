@@ -796,4 +796,12 @@ public class IOUtils {
     
     return result;
   }
+  
+  public static final String getUniqueChannelKey(String groupKey, String channelKey) {
+    return new StringBuilder(groupKey.trim()).append("_##_").append(channelKey.trim()).toString();
+  }
+  
+  public static final String[] getUniqueChannelKeyParts(String uniqueKey) {
+    return uniqueKey.split("_##_");
+  }
 }
