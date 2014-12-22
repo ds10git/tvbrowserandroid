@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.3.3</h2>
+        	&bull; Standardwerte beim hellen Theme überschrieben (Text jetzt dunkler)<br>
             &bull; regelmäßige Suche nach neuen/aktualisierten Sendern<br>
             &bull; Unterstützung für Material Design hinzugefügt<br>
             &bull; dunkles Thema wird standardmäßig verwendet<br>

@@ -5,5 +5,5 @@
 	    android:id="@+id/activity_edit_filter_list_action_add"
 	  	android:title="@string/activity_edit_filter_list_text_add"
 	  	android:icon="@drawable/ic_filter_add"
-	  	app:showAsAction="always|withText"/>
+	  	app:showAsAction="always"/>
 </menu>

@@ -96,10 +96,10 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
     mAttributes = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_attributes);
     mExclusions = (EditText)findViewById(R.id.activity_edit_favorite_input_id_restriction_exclusion);
     
-    int color = getResources().getColor(android.R.color.primary_text_light);
+    int color = getResources().getColor(R.color.abc_primary_text_material_light);
     
     if(SettingConstants.IS_DARK_THEME) {
-      color = getResources().getColor(android.R.color.primary_text_dark);
+      color = getResources().getColor(R.color.abc_primary_text_material_dark);
     }
     
     mDuration.setTextColor(color);

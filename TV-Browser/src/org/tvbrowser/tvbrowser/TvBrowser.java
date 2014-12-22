@@ -112,6 +112,7 @@ import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.ReplacementSpan;
 import android.text.style.URLSpan;
 import android.util.Base64;
@@ -1978,6 +1979,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     if(help != null) {
       infoView.setText(help);
+      infoView.setTextSize(getResources().getDimension(R.dimen.epg_donate_info_font_size));
     }
     else {
       infoView.setVisibility(View.GONE);
@@ -3639,6 +3641,10 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void showChannelUpdateInfo() {
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        
     StringBuilder selection = new StringBuilder();
     
     String insertedChannels = PrefUtils.getStringValue(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED, null);
@@ -3666,6 +3672,9 @@ public class TvBrowser extends ActionBarActivity implements
       
       showChannelSelectionInternal(selection.toString(), getString(R.string.dialog_select_channels_update_title), getString(R.string.dialog_select_channels_update_help));
     }
+      }
+    });
+
   }
   
   private void savePluginInfoShown() {
@@ -4139,10 +4148,14 @@ public class TvBrowser extends ActionBarActivity implements
     }
   }
   
+  private Menu mMainMenu;
+  
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.tv_browser, menu);
+    
+    mMainMenu = menu;
     
     //  Associate searchable configuration with the SearchView
     SearchManager searchManager =
@@ -4218,6 +4231,8 @@ public class TvBrowser extends ActionBarActivity implements
     
     updateSynchroMenu();
     
+    applyStupidWorkaroundForWrongMenuPopupColor();
+    
     return true;
   }
 
@@ -4264,6 +4279,49 @@ public class TvBrowser extends ActionBarActivity implements
           return true;
         }
       });
+    }
+  }
+  
+  final int[] workaroundMenuIds = new int[] {
+      R.id.action_synchronize_channels,
+      R.id.action_synchronize_channels_up,
+      R.id.action_synchronize_dont_want_to_see,
+      R.id.action_synchronize_favorites,
+      R.id.action_synchronize_reminders_up,
+      R.id.action_synchronize_reminders_down,
+      R.id.action_backup_preferences_save,
+      R.id.action_backup_preferences_restore,
+      R.id.action_username_password,
+      R.id.menu_tvbrowser_action_settings_basic,
+      R.id.menu_tvbrowser_action_settings_plugins,
+      R.id.action_preferences_channels,
+      R.id.action_load_channels_again,
+      R.id.action_select_channels,
+      R.id.action_sort_channels,
+      R.id.action_delete_all_data,
+      R.id.action_dont_want_to_see_edit,
+      R.id.action_delete_data_update_log,
+      R.id.action_send_data_update_log,
+      R.id.action_delete_reminder_log,
+      R.id.action_send_reminder_log
+  };
+  
+  private void makeItemForegroundVisible(MenuItem item) {
+    SpannableStringBuilder test = new SpannableStringBuilder(item.getTitle());
+    test.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.abc_primary_text_material_light)), 0, item.getTitle().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    
+    item.setTitle(test);
+  }
+  
+  private void applyStupidWorkaroundForWrongMenuPopupColor() {
+    if(!SettingConstants.IS_DARK_THEME && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+      for(int i = 0; i < workaroundMenuIds.length; i++) {
+        MenuItem item = mMainMenu.findItem(workaroundMenuIds[i]);
+        
+        if(item != null) {
+          makeItemForegroundVisible(item);
+        }
+      }
     }
   }
   
