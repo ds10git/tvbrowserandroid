@@ -36,7 +36,6 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -45,7 +44,6 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,7 +56,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class ProgramsListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, ShowChannelInterface {
+public class FragmentProgramsList extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, ShowChannelInterface {
   private static final int NO_CHANNEL_SELECTION_ID = -1;
   
   private SimpleCursorAdapter mProgramListAdapter;
@@ -194,7 +192,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
   
   public void scrollToTime() {
     if(mScrollTime > 0) {
-      int testIndex = 0;
+      int testIndex = -1;
       
       if(mScrollTime <= 1441) {
         mScrollTime--;
@@ -222,14 +220,26 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
       if(c != null && c.moveToFirst()) {
         try {
           int index = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+          int endIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
           int count = 0;
           
           if(c != null && !c.isClosed()) {
             do {
               long startTime = c.getLong(index);
+              long endTime = c.getLong(endIndex);
               
-              if(startTime >= mScrollTime) {
+              if(startTime < mScrollTime && endTime > mScrollTime) {
+                testIndex = count++;
+              }
+              else if(startTime == mScrollTime) {
                 testIndex = count;
+                break;
+              }
+              else if(startTime > mScrollTime) {
+                if(testIndex == -1) {
+                  testIndex = count;
+                }
+                
                 break;
               }
               else {
@@ -241,7 +251,11 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
       }
       
       mScrollTime = -1;
-            
+      
+      if(testIndex == -1) {
+        testIndex = 0;
+      }
+      
       final int scollIndex = testIndex;
       
       handler.post(new Runnable() {
@@ -379,10 +393,10 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
     final Spinner channel = (Spinner)rootView.findViewById(R.id.channel_selection);
     
     final Button minus = (Button)rootView.findViewById(R.id.channel_minus);
-    minus.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));
+    CompatUtils.setBackground(minus, getResources().getDrawable(android.R.drawable.list_selector_background));
     
     final Button plus = (Button)rootView.findViewById(R.id.channel_plus);
-    plus.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));
+    CompatUtils.setBackground(plus, getResources().getDrawable(android.R.drawable.list_selector_background));
             
     final ArrayList<ChannelSelection> channelEntries = new ArrayList<ChannelSelection>();
     
@@ -400,8 +414,6 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
           ((TextView)convertView).setCompoundDrawablePadding(10);
           ((TextView)convertView).setGravity(Gravity.CENTER_VERTICAL);
         }
-        
-        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
         
         int logoValue = Integer.parseInt(PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAMS_LIST, R.string.channel_logo_name_programs_list_default));
         boolean showOrderNumber = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_PROGRAMS_LIST, R.bool.show_sort_number_in_programs_list_default);
@@ -515,12 +527,12 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
         text.setText(sel);
         
         switch(position) {
-          case 0: convertView.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));break;
+          case 0: CompatUtils.setBackground(convertView,getResources().getDrawable(android.R.drawable.list_selector_background));break;
           case 1: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_FAVORITE_COLOR_KEY, getContext()));break;
           case 2: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_COLOR_KEY, getContext()));break;
           case 3: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_REMINDER_COLOR_KEY, getContext()));break;
           case 4: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_SYNC_COLOR_KEY, getContext()));break;
-          case 5: convertView.setBackgroundDrawable(getResources().getDrawable(android.R.drawable.list_selector_background));break;
+          case 5: CompatUtils.setBackground(convertView,getResources().getDrawable(android.R.drawable.list_selector_background));break;
         }
         
         return convertView;
@@ -716,7 +728,7 @@ public class ProgramsListFragment extends Fragment implements LoaderManager.Load
             @Override
             public void run() {
               if(mKeepRunning && !isRemoving() && !TvDataUpdateService.IS_RUNNING) {
-                getLoaderManager().restartLoader(0, null, ProgramsListFragment.this);
+                getLoaderManager().restartLoader(0, null, FragmentProgramsList.this);
               }
             }
           });

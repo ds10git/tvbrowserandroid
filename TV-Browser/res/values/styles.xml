@@ -15,7 +15,7 @@
     </style>
     
     <style name="MyTextViewStyle" parent="android:Widget.TextView">
-    	<item name="android:textColor">#303030</item>
+    	<item name="android:textColor">@color/text_appcompat_light</item>
 	</style>
     
     <style name="AppDarkTheme" parent="Theme.AppCompat"/>

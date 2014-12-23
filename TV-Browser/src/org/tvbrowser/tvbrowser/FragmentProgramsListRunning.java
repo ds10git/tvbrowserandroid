@@ -72,7 +72,7 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class RunningProgramsListFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
+public class FragmentProgramsListRunning extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
   private static final String WHERE_CLAUSE_KEY = "WHERE_CLAUSE_KEY";
   private static final String DAY_CLAUSE_KEY = "DAY_CLAUSE_KEY";
     
@@ -644,7 +644,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
         }.start();
       }
       else {
-        layout.setBackgroundDrawable(getActivity().getResources().getDrawable(android.R.drawable.list_selector_background));
+        CompatUtils.setBackground(layout, getResources().getDrawable(android.R.drawable.list_selector_background));
       }
     }
     else {
@@ -819,8 +819,8 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
       }
     };
         
-    mProgramBlockList = new ArrayList<RunningProgramsListFragment.ChannelProgramBlock>();
-    mCurrentViewList = new ArrayList<RunningProgramsListFragment.ChannelProgramBlock>();
+    mProgramBlockList = new ArrayList<FragmentProgramsListRunning.ChannelProgramBlock>();
+    mCurrentViewList = new ArrayList<FragmentProgramsListRunning.ChannelProgramBlock>();
     
     java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(getActivity());
     String value = ((SimpleDateFormat)mTimeFormat).toLocalizedPattern();
@@ -832,7 +832,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
     final java.text.DateFormat timeFormat = new SimpleDateFormat(value, Locale.getDefault());
     final int DEFAULT_TEXT_COLOR = new TextView(getActivity()).getTextColors().getDefaultColor();
         
-    mRunningProgramListAdapter = new ArrayAdapter<RunningProgramsListFragment.ChannelProgramBlock>(getActivity(), R.layout.running_list_entries, mCurrentViewList) {
+    mRunningProgramListAdapter = new ArrayAdapter<FragmentProgramsListRunning.ChannelProgramBlock>(getActivity(), R.layout.running_list_entries, mCurrentViewList) {
       @Override
       public View getView(int position, View convertView, ViewGroup parent) {
         ChannelProgramBlock block = getItem(position);
@@ -888,7 +888,7 @@ public class RunningProgramsListFragment extends Fragment implements LoaderManag
             @Override
             public void run() {
               if(!isDetached() &&  mKeepRunning && !isRemoving()) {
-                getLoaderManager().restartLoader(0, null, RunningProgramsListFragment.this);
+                getLoaderManager().restartLoader(0, null, FragmentProgramsListRunning.this);
               }
             }
           });

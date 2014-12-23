@@ -3233,8 +3233,8 @@ public class TvBrowser extends ActionBarActivity implements
   private void updateFromPreferences() {
     Fragment test1 = mSectionsPagerAdapter.getRegisteredFragment(1);
     
-    if(test1 instanceof ProgramsListFragment) {
-      ((ProgramsListFragment)test1).updateChannels();
+    if(test1 instanceof FragmentProgramsList) {
+      ((FragmentProgramsList)test1).updateChannels();
     }
     
     Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
@@ -4127,16 +4127,16 @@ public class TvBrowser extends ActionBarActivity implements
     if(mViewPager.getCurrentItem() == 0) {
       Fragment test = mSectionsPagerAdapter.getRegisteredFragment(0);
       
-      if(test instanceof RunningProgramsListFragment && time >= 0) {
-        ((RunningProgramsListFragment)test).selectTime(time);
+      if(test instanceof FragmentProgramsListRunning && time >= 0) {
+        ((FragmentProgramsListRunning)test).selectTime(time);
       }
     }
     else if(mViewPager.getCurrentItem() == 1) {
       Fragment test = mSectionsPagerAdapter.getRegisteredFragment(1);
       
-      if(test instanceof ProgramsListFragment && time >= 0) {
-        ((ProgramsListFragment)test).setScrollTime(time);
-        ((ProgramsListFragment)test).scrollToTime();
+      if(test instanceof FragmentProgramsList && time >= 0) {
+        ((FragmentProgramsList)test).setScrollTime(time);
+        ((FragmentProgramsList)test).scrollToTime();
       }
     }
     else if(mViewPager.getCurrentItem() == 3) {
@@ -4448,10 +4448,10 @@ public class TvBrowser extends ActionBarActivity implements
       Fragment fragment = null;
       
       if(position == 0) {
-        fragment = new RunningProgramsListFragment();
+        fragment = new FragmentProgramsListRunning();
       }
       else if(position == 1) {
-        fragment = new ProgramsListFragment();
+        fragment = new FragmentProgramsList();
       }
       else if(position == 2) {
         fragment = new FavoritesFragment();
