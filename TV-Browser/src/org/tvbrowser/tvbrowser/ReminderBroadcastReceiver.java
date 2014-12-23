@@ -42,7 +42,6 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.text.format.DateFormat;
-import android.util.Log;
 
 public class ReminderBroadcastReceiver extends BroadcastReceiver {
   public static final String tag = null;

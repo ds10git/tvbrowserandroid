@@ -215,9 +215,10 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
 
       if(!isKeyguard) {
         Intent tvb = new Intent(context, TvBrowser.class);
-            
+        tvb.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        
         PendingIntent tvbstart = PendingIntent.getActivity(context, 0, tvb, PendingIntent.FLAG_UPDATE_CURRENT);
-        views.setOnClickPendingIntent(R.id.running_widget_header, tvbstart);
+        views.setOnClickPendingIntent(R.id.running_widget_header_info_wrapper, tvbstart);
         
         Intent config = new Intent(context, InfoActivity.class);
         config.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);

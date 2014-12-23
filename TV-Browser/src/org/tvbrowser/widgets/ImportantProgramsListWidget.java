@@ -210,9 +210,10 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
       
       if(!isKeyguard) {
         Intent tvb = new Intent(context, TvBrowser.class);
+        tvb.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         
-        PendingIntent tvbstart = PendingIntent.getActivity(context, 0, tvb, PendingIntent.FLAG_UPDATE_CURRENT);
-        views.setOnClickPendingIntent(R.id.important_widget_header, tvbstart);
+        PendingIntent tvbstart = PendingIntent.getActivity(context, appWidgetId, tvb, PendingIntent.FLAG_UPDATE_CURRENT);
+        views.setOnClickPendingIntent(R.id.important_widget_header_info_wrapper, tvbstart);
         
         Intent templateIntent = new Intent(SettingConstants.HANDLE_APP_WIDGET_CLICK);
         templateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);

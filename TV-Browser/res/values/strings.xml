@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.3.3</h2>
+        	&bull; make sure widget header click always opens TV-Browser<br>
         	&bull; tweaked bright theme<br>
             &bull; search for new/updated channels regularly<br>
             &bull; added support for Material design<br>

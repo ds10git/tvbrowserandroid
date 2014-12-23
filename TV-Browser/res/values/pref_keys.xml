@@ -263,7 +263,7 @@
 	
 	<!-- Running programs settings -->
 		<string name="PREF_RUNNING_DIVIDER_SIZE">PREF_RUNNING_DIVIDER_SIZE</string>
-		<item name="pref_running_divider_size_default" type="string" format="string">@string/divider_tiny</item>
+		<item name="pref_running_divider_size_default" type="string" format="string">@string/divider_small</item>
 		
 		<string name="CHANNEL_LOGO_NAME_RUNNING">CHANNEL_LOGO_NAME_RUNNING</string>
 	    <item name="channel_logo_name_running_default" type="string" format="string">0</item>
