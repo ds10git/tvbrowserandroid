@@ -364,6 +364,14 @@ public class TvBrowser extends ActionBarActivity implements
         edit.remove(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE));
         edit.commit();
       }
+      if(oldVersion < 287 && PrefUtils.getBooleanValue(R.string.PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS, true)) {
+        Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+        edit.remove(getString(R.string.PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS));
+        edit.commit();
+        
+        UiUtils.updateImportantProgramsWidget(getApplicationContext());
+        UiUtils.updateRunningProgramsWidget(getApplicationContext());
+      }
       
       if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < pInfo.versionCode) {
         handler.postDelayed(new Runnable() {
@@ -442,10 +450,10 @@ public class TvBrowser extends ActionBarActivity implements
             }
             
             if(mFilterItem != null) {
-              mFilterItem.setVisible(!(fragment instanceof FavoritesFragment) && !mSearchExpanded);
+              mFilterItem.setVisible(!(fragment instanceof FragmentFavorites) && !mSearchExpanded);
             }
             if(mCreateFavorite != null) {
-              mCreateFavorite.setVisible(fragment instanceof FavoritesFragment && !mSearchExpanded);
+              mCreateFavorite.setVisible(fragment instanceof FragmentFavorites && !mSearchExpanded);
             }
             
             mProgramsListWasShow = false;
@@ -2749,8 +2757,8 @@ public class TvBrowser extends ActionBarActivity implements
     
     Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
     
-    if(fragment instanceof FavoritesFragment) {
-      ((FavoritesFragment)fragment).updateSynchroButton(null);
+    if(fragment instanceof FragmentFavorites) {
+      ((FragmentFavorites)fragment).updateSynchroButton(null);
     }
     
     if(syncChannels) {
@@ -3239,9 +3247,9 @@ public class TvBrowser extends ActionBarActivity implements
     
     Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
     
-    if(fragment instanceof FavoritesFragment) {
-      ((FavoritesFragment)fragment).updateSynchroButton(null);
-      ((FavoritesFragment)fragment).updateProgramsList();
+    if(fragment instanceof FragmentFavorites) {
+      ((FragmentFavorites)fragment).updateSynchroButton(null);
+      ((FragmentFavorites)fragment).updateProgramsList();
     }
     
     boolean programTableActivated = PrefUtils.getBooleanValue(R.string.PROG_TABLE_ACTIVATED, R.bool.prog_table_activated_default);
@@ -3683,10 +3691,12 @@ public class TvBrowser extends ActionBarActivity implements
     edit.commit();
   }
   
-  private void updateFromFilterEdit() {
+  private int FILTER_MAX_ID = 0; 
+  
+  private synchronized void updateFromFilterEdit() {
     final SubMenu filters = mFilterItem.getSubMenu();
-    
-    for(int i = 2; i < filters.size(); i++) {
+
+    for(int i = 0; i < FILTER_MAX_ID; i++) {
       filters.removeItem(i);
     }
     
@@ -3705,25 +3715,26 @@ public class TvBrowser extends ActionBarActivity implements
     Collections.sort(channelFilterList, ChannelFilterValues.CHANNEL_FILTER_VALUES_COMPARATOR);
     
     int groupId = 3;
+    int id = 1;
     
     final ChannelFilterValues allFilter = new ChannelFilterValues(SettingConstants.ALL_FILTER_ID, getString(R.string.activity_edit_filter_list_text_all), "");
     
-    MenuItem all = filters.add(groupId, Menu.NONE, groupId, allFilter.toString());
+    MenuItem all = filters.add(groupId, id++, groupId, allFilter.toString());
     all.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
       @Override
       public boolean onMenuItemClick(MenuItem item) {
         updateChannelFilter(allFilter,R.drawable.ic_filter_default);
-        
+        item.setChecked(true);
         return true;
       }
     });
-    
+           
     if(mCurrentChannelFilterId == null || allFilter.getId().endsWith(mCurrentChannelFilterId)) {
       all.setChecked(true);
     }
     
     for(final ChannelFilterValues filter : channelFilterList) {
-      MenuItem item = filters.add(groupId, Menu.NONE, groupId, filter.toString());
+      MenuItem item = filters.add(groupId, id++, groupId, filter.toString());
       
       if(mCurrentChannelFilterId != null && filter.getId().endsWith(mCurrentChannelFilterId)) {
         mFilterItem.setIcon(R.drawable.ic_filter_on);
@@ -3734,11 +3745,14 @@ public class TvBrowser extends ActionBarActivity implements
         @Override
         public boolean onMenuItemClick(MenuItem item) {
           updateChannelFilter(filter,R.drawable.ic_filter_on);
+          item.setChecked(true);
           
           return true;
         }
       });
     }
+    
+    FILTER_MAX_ID = id;
     
     filters.setGroupCheckable(groupId, true, true);
   }
@@ -4176,8 +4190,8 @@ public class TvBrowser extends ActionBarActivity implements
     
     Fragment fragment = mSectionsPagerAdapter.getItem(mViewPager.getCurrentItem());
     
-    mFilterItem.setVisible(!(fragment instanceof FavoritesFragment));
-    mCreateFavorite.setVisible(fragment instanceof FavoritesFragment);
+    mFilterItem.setVisible(!(fragment instanceof FragmentFavorites));
+    mCreateFavorite.setVisible(fragment instanceof FragmentFavorites);
     mScrollTimeItem = menu.findItem(R.id.action_scroll);
     
     updateFromFilterEdit();
@@ -4265,14 +4279,14 @@ public class TvBrowser extends ActionBarActivity implements
           if(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
             mUpdateItem.setVisible(true);
           }
-          if(!(fragment instanceof FavoritesFragment)) {
+          if(!(fragment instanceof FragmentFavorites)) {
             mScrollTimeItem.setVisible(true);
           }
-          if((fragment instanceof FavoritesFragment)) {
+          if((fragment instanceof FragmentFavorites)) {
             mCreateFavorite.setVisible(true);
           }
           
-          if(!(fragment instanceof FavoritesFragment)) {
+          if(!(fragment instanceof FragmentFavorites)) {
             mFilterItem.setVisible(true);
           }
           
@@ -4454,7 +4468,7 @@ public class TvBrowser extends ActionBarActivity implements
         fragment = new FragmentProgramsList();
       }
       else if(position == 2) {
-        fragment = new FavoritesFragment();
+        fragment = new FragmentFavorites();
       }
       else if(position == 3) {
         fragment = new ProgramTableFragment();
@@ -4699,22 +4713,26 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void listPurchaseItems() {
-    mHelper.queryInventoryAsync(true, SettingConstants.SKU_LIST, new QueryInventoryFinishedListener() {
-      @Override
-      public void onQueryInventoryFinished(IabResult result, final Inventory inv) {
-        if(result.isFailure()) {
-          showInAppError("InApp Billing listing failed");
+    try {
+      mHelper.queryInventoryAsync(true, SettingConstants.SKU_LIST, new QueryInventoryFinishedListener() {
+        @Override
+        public void onQueryInventoryFinished(IabResult result, final Inventory inv) {
+          if(result.isFailure()) {
+            showInAppError("InApp Billing listing failed");
+          }
+          else {
+            handler.post(new Runnable() {
+              @Override
+              public void run() {
+                showInAppDonations(inv,false);
+              }
+            });
+          }
         }
-        else {
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              showInAppDonations(inv,false);
-            }
-          });
-        }
-      }
-    });
+      });
+    }catch(IllegalStateException e) {
+      showInAppError("InApp Billing listing failed");
+    }
   }
   
   private void prepareInAppPayment() {
@@ -4820,10 +4838,8 @@ public class TvBrowser extends ActionBarActivity implements
     Button inAppDonation = (Button)view.findViewById(R.id.donation_in_app_button);
     Button openWeb = (Button)view.findViewById(R.id.donation_website_button);
     
-    if(!SettingConstants.GOOGLE_PLAY) {
-      inAppInfo.setVisibility(View.GONE);
-      inAppDonation.setVisibility(View.GONE);
-    }
+    inAppInfo.setVisibility(View.GONE);
+    inAppDonation.setVisibility(View.GONE);
     
     alert.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), new OnClickListener() {
       @Override

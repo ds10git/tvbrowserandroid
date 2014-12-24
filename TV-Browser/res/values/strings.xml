@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.3.3</h2>
+        <h2>0.5.4</h2>
+        	&bull; fixed missing context menu for drop down view of favorites on Android 5.0<br>
+        	&bull; fixed bugs in filter menu<br>
         	&bull; make sure widget header click always opens TV-Browser<br>
         	&bull; tweaked bright theme<br>
             &bull; search for new/updated channels regularly<br>
@@ -192,7 +194,7 @@
     <string name="button_after">Next</string>
     <string name="button_at">At time</string>
     <string name="no_channels">No channels selected</string>
-    <string name="select_channels">Select channels now</string>
+    <string name="select_channels">Select channels\nnow</string>
     <string name="dialog_select_channels_update_title">New channel were found or existing channels were updated</string>
     <string name="dialog_select_channels_update_help">You can select channels new channels here. (Updated subscribed channels are preselected.)</string>
     <string name="tv">TV</string>
@@ -201,7 +203,7 @@
     <string name="filter_channel_country">Country:</string>
     <string name="filter_channel_category">Category:</string>
     <string name="filter_channel_all">All</string>
-    <string name="dont_select_channels">Don\'t select channels</string>
+    <string name="dont_select_channels">Don\'t\nselect channels</string>
     <string name="menu_tvbrowser_title_update_data">Update Data</string>
     <string name="menu_tvbrowser_title_create_favorite">New Favorite</string>
     <string name="versionExpired">Version expired</string>
@@ -347,18 +349,18 @@
 	<string name="channel_selection_input_name_hint">Enter name of filter</string>
 	<string name="synchronize_title">Synchronize channels?</string>
 	<string name="synchronize_text">You can synchronize your with the channels from your desktop TV-Browser.\n\nYou will have to <a href="http://android.tvbrowser.org/index.php?id=createaccount">register a user first</a> and export your channels from your desktop TV-Browser with the Android Sync plugin.\n\nDo you wish to synchronize your channels now or do you wish to select the channels manually?</string>
-	<string name="synchronize_ok">Synchronize channels now</string>
-	<string name="synchronize_cancel">Select channels manually</string>
+	<string name="synchronize_ok">Synchronize\nchannels now</string>
+	<string name="synchronize_cancel">Select channels\nmanually</string>
 	<string name="synchronize_replace_add_title">Replace or add?</string>
-	<string name="synchronize_replace_add_text">You can replace your current selected channels with the synchronization data or only add new channels to your selected channels.\nWhat should be done?</string>
-	<string name="synchronize_replace">Replace selected channels</string>
-	<string name="synchronize_add">Add new to selected channels</string>
+	<string name="synchronize_replace_add_text">You can replace your current selected channels with the synchronization data or only add new channels to your selected channels.\n\nWhat should be done?</string>
+	<string name="synchronize_replace">Replace selected\nchannels</string>
+	<string name="synchronize_add">Add new to\nselected channels</string>
 	<string name="synchronize_done">Channels synchronizing done!</string>
 	<string name="synchronize_error">Channels could not be synchronized.</string>
 	
 	<string name="synchronize_replace_exclusion_add_text">You can replace your current exclusion list with the synchronization data or only add new exclusions for \"I don\'t want to see!\".\n\nThe joined exclusions will be uploaded to the server if you add the new exclusions.\n\nWhat should be done?</string>
-	<string name="synchronize_replace_exclusion">Replace exclusion</string>
-	<string name="synchronize_add_exclusion">Add new exclusions</string>
+	<string name="synchronize_replace_exclusion">Replace\nexclusion</string>
+	<string name="synchronize_add_exclusion">Add new\nexclusions</string>
 	
 	
 	<string name="previous_day">Previous</string>
@@ -680,10 +682,10 @@
     <string name="donation_info_inapp">You can donate directly with InApp payment from a list of possible amounts. (You won\'t be charged unless you accept the donation in Google Play.)</string>
     <string name="donation_open_inapp">Open InApp Donations</string>
     <string name="donation_info_website">To see possible ways of donating to the TV-Browser development you can look at the website of TV-Browser for Android.</string>
-    <string name="donation_open_website">Show website with ways of donating.</string>
+    <string name="donation_open_website">Show website with\nways of donating</string>
     <string name="donation_thanks_text">Thank you for considering to make a donation, you can select from the following donations (these contains 30% Google Play transaction fee):</string>
     <string name="make_donation_info">You are about to make a donation of {0}.\n\nWith clicking on \'Yes, make donation\' you confirm that you are at least 18 years and therefor allowed to make donations.</string>
-    <string name="make_donation">Yes, make donation</string>
+    <string name="make_donation">Yes, make\ndonation</string>
     <string name="stop_donation">No, thanks</string>
     <string name="thanks_for_donation">Thank you for donating for TV-Browser for Android.</string>
     <string name="in_app_error">Could not etablish connection to Google Play.\n\nPlease try again later or use a different donation method.</string>
@@ -822,7 +824,7 @@
     
     <string name="plugin_info_title">More functions with Plugins</string>
     <string name="plugin_info_message">TV-Browser can be extended with new functions by Plugins.\n\nIf you miss a function you may find it in a Plugin.\n\nDo you want to open the list with the available Plugins now (you later can search for Plugins from the menu of TV-Browser)?</string>
-    <string name="plugin_info_load">Open list with available Plugins now</string>
+    <string name="plugin_info_load">Open list with available\nPlugins now</string>
     <string name="plugin_info_donwload">Downloading \'{0}\'</string>
     
     

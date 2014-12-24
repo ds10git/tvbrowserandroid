@@ -529,7 +529,7 @@
     	<item name="pref_widget_click_to_channel_to_list_default" type="bool" format="boolean">true</item>
 
     	<string name="PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS">PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS</string>
-    	<item name="pref_widget_background_rounded_corners_default" type="bool" format="boolean">true</item>
+    	<item name="pref_widget_background_rounded_corners_default" type="bool" format="boolean">false</item>
     		
     <!-- 	<string name="PREF_WIDGET_BACKGROUND_TRANSPARENCY">PREF_WIDGET_BACKGROUND_TRANSPARENCY</string>
     	<item name="pref_widget_background_transparency_default" type="bool" format="boolean">true</item>

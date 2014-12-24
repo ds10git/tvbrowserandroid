@@ -37,7 +37,7 @@ import android.preference.PreferenceManager;
 import android.util.SparseArray;
 
 public class SettingConstants {
-  public static boolean GOOGLE_PLAY = false;
+  public static boolean GOOGLE_PLAY = true;
   public static final int ACCEPTED_DAY_COUNT = 8;
   
   private static final String REMINDER_PAUSE_KEY = "REMINDER_PAUSE_KEY";
