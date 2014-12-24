@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.4</h2>
+        <h2>0.5.4.1</h2>
+            &bull; added workaround to try to fix crash on Samsung and Wiko devices with Android 4.2<br>
+            &bull; Internet connection check accepts more response codes<br>
+		<br>
+        <h3>0.5.4</h3>
         	&bull; fixed missing context menu for drop down view of favorites on Android 5.0<br>
         	&bull; fixed bugs in filter menu<br>
         	&bull; make sure widget header click always opens TV-Browser<br>

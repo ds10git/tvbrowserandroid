@@ -916,7 +916,6 @@ public class TvBrowserContentProvider extends ContentProvider {
   
   // Helper class for opneing, creating, and managing database version control
   private static class TvBrowserDataBaseHelper extends SQLiteOpenHelper {
-    private static final String TAG = "TvBrowserContentProvider";
     private static final String DATABASE_NAME = "tvbrowser.db";
     
     private static final String GROUPS_TABLE = "channelGroups";
@@ -1157,7 +1156,6 @@ public class TvBrowserContentProvider extends ContentProvider {
               
               final String MARK_VALUE = "marked";
               final String MARK_VALUE_FAVORITE = "favorite";
-              final String MARK_VALUE_CALENDAR = "calendar";
               final String MARK_VALUE_SYNC_FAVORITE = "syncfav";
               final String MARK_VALUE_REMINDER = "reminder";
               

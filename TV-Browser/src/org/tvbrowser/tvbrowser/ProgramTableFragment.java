@@ -58,7 +58,6 @@ import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
-import android.view.Display;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
@@ -192,14 +191,8 @@ public class ProgramTableFragment extends Fragment {
                 public void run() {
                   int location[] = new int[2];
                   view.getLocationInWindow(location);
-                  
-                  Activity activity = getActivity();
-                  
-                  if(activity != null && !activity.isFinishing()) {
-                    Display display = activity.getWindowManager().getDefaultDisplay();
-                    
-                    scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]-display.getHeight()/3);
-                  }
+                                      
+                  scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]);
                 }
               });
             }

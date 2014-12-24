@@ -1487,7 +1487,7 @@ public class TvDataUpdateService extends Service {
     ArrayList<String> mirrorList = new ArrayList<String>();
     
     for(String mirror : mirrors) {
-      if(IOUtils.isConnectedToServer(mirror,5000)) {
+      if(IOUtils.isConnectedToServer(mirror,10000)) {
         if(!mirror.endsWith("/")) {
           mirror += "/";
         }
@@ -2115,9 +2115,7 @@ public class TvDataUpdateService extends Service {
         
     stopForeground(true);
     
-    PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-    
-    if(pm.isScreenOn()) {
+    if(IOUtils.isInteractive(TvDataUpdateService.this)) {
       UiUtils.updateImportantProgramsWidget(getApplicationContext());
       UiUtils.updateRunningProgramsWidget(getApplicationContext());
     }

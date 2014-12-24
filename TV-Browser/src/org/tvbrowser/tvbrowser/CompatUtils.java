@@ -25,6 +25,7 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.PowerManager;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -87,6 +88,20 @@ public class CompatUtils {
     
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
       result = connMgr.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
+    }
+    
+    return result;
+  }
+  
+  @SuppressWarnings("deprecation")
+  public static boolean isInteractive(PowerManager pm) {
+    boolean result = false;
+    
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT_WATCH) {
+      result = pm.isInteractive();
+    }
+    else {
+      result = pm.isScreenOn();
     }
     
     return result;

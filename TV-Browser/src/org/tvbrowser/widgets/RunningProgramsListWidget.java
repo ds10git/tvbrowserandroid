@@ -21,6 +21,7 @@ import java.util.Calendar;
 import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.CompatUtils;
+import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.InfoActivity;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.TvBrowser;
@@ -33,7 +34,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
-import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.view.View;
@@ -51,9 +51,7 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
       UiUtils.updateRunningProgramsWidget(context);
     }
     else {
-      final PowerManager pm = (PowerManager)context.getSystemService(Context.POWER_SERVICE);
-      
-      if(pm.isScreenOn()) {
+      if(IOUtils.isInteractive(context)) {
         if((AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction()) || SettingConstants.UPDATE_RUNNING_APP_WIDGET.equals(intent.getAction())) && intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID) && 
             intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID) != AppWidgetManager.INVALID_APPWIDGET_ID) {
           AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());

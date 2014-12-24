@@ -32,7 +32,6 @@ import org.tvbrowser.tvbrowser.R;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
@@ -192,7 +191,6 @@ public final class PluginHandler {
         for( int i = 0 ; i < list.size() ; ++i ) {
           ResolveInfo info = list.get( i );
           ServiceInfo sinfo = info.serviceInfo;
-          IntentFilter filter1 = info.filter;
           
           if(sinfo != null) {
             PluginServiceConnection plugin = new PluginServiceConnection(sinfo.packageName, sinfo.name, context);
@@ -230,7 +228,6 @@ public final class PluginHandler {
     for( int i = 0 ; i < list.size() ; ++i ) {
       ResolveInfo info = list.get( i );
       ServiceInfo sinfo = info.serviceInfo;
-      IntentFilter filter1 = info.filter;
       
       if(sinfo != null) {
         PluginServiceConnection plugin = new PluginServiceConnection(sinfo.packageName, sinfo.name, context);

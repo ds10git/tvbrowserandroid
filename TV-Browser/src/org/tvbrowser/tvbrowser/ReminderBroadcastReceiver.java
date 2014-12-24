@@ -37,7 +37,6 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.Canvas;
 import android.graphics.Color;
-import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
@@ -65,9 +64,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
       if(tone != null) {
         soundUri = Uri.parse(tone);
       }
-      
-      Ringtone notificationSound = RingtoneManager.getRingtone(context, soundUri);
-            
+                  
       boolean sound = tone == null || tone.trim().length() > 0;
       boolean vibrate = PrefUtils.getBooleanValue(R.string.PREF_REMINDER_VIBRATE, R.bool.pref_reminder_vibrate_default);
       boolean led = PrefUtils.getBooleanValue(R.string.PREF_REMINDER_LED, R.bool.pref_reminder_led_default);
@@ -185,7 +182,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           String episode = values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
           
           long startTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-          long endTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+         // long endTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
           
           Bitmap logo = UiUtils.createBitmapFromByteArray(values.getBlob(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
           Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' LOADED VALUES:  title '" + title + "' channelName '" + channelName + "' episode '" + episode + "' logo " + logo, Logging.REMINDER_TYPE, context);
