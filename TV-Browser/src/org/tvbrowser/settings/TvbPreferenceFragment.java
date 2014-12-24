@@ -164,34 +164,36 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       else if(key.equals(getString(R.string.TIME_BUTTON_COUNT))) {
         PreferenceScreen screen = (PreferenceScreen)findPreference(getString(R.string.TIME_BUTTON_PREFERENCES_SUB_SCREEN));
         
-        int timeButtonCount = sharedPreferences.getInt(key, getResources().getInteger(R.integer.time_button_count_default));
-        
-        int currentTimeButtonCount = screen.getPreferenceCount() - 1;
-        
-        for(int i = currentTimeButtonCount; i > timeButtonCount; i--) {
-          screen.removePreference(screen.getPreference(i));
-        }
-        
-        for(int i = currentTimeButtonCount + 1; i <= timeButtonCount; i++) {
-          TimePreference timePref = new TimePreference(getActivity(), null);
+        if(screen != null) {
+          int timeButtonCount = sharedPreferences.getInt(key, getResources().getInteger(R.integer.time_button_count_default));
           
-          String index = String.valueOf(i);
-          int defaultValue = 0;
+          int currentTimeButtonCount = screen.getPreferenceCount() - 1;
           
-          switch(i) {
-            case 2: index = "TWO"; defaultValue = getResources().getInteger(R.integer.time_button_2_default);break;
-            case 3: index = "THREE"; defaultValue = getResources().getInteger(R.integer.time_button_3_default);break;
-            case 4: index = "FOUR"; defaultValue = getResources().getInteger(R.integer.time_button_4_default);break;
-            case 5: index = "FIVE"; defaultValue = getResources().getInteger(R.integer.time_button_5_default);break;
-            case 6: index = "SIX"; defaultValue = getResources().getInteger(R.integer.time_button_6_default);break;
+          for(int i = currentTimeButtonCount; i > timeButtonCount; i--) {
+            screen.removePreference(screen.getPreference(i));
           }
           
-          timePref.setDefaultValue(defaultValue);
-          timePref.setKey(getString(R.string.time_button_key_prefix) + index);
-          timePref.setSummary(R.string.pref_time_button_hint);
-          timePref.onSetInitialValue(true, defaultValue);
-          
-          screen.addPreference(timePref);
+          for(int i = currentTimeButtonCount + 1; i <= timeButtonCount; i++) {
+            TimePreference timePref = new TimePreference(getActivity(), null);
+            
+            String index = String.valueOf(i);
+            int defaultValue = 0;
+            
+            switch(i) {
+              case 2: index = "TWO"; defaultValue = getResources().getInteger(R.integer.time_button_2_default);break;
+              case 3: index = "THREE"; defaultValue = getResources().getInteger(R.integer.time_button_3_default);break;
+              case 4: index = "FOUR"; defaultValue = getResources().getInteger(R.integer.time_button_4_default);break;
+              case 5: index = "FIVE"; defaultValue = getResources().getInteger(R.integer.time_button_5_default);break;
+              case 6: index = "SIX"; defaultValue = getResources().getInteger(R.integer.time_button_6_default);break;
+            }
+            
+            timePref.setDefaultValue(defaultValue);
+            timePref.setKey(getString(R.string.time_button_key_prefix) + index);
+            timePref.setSummary(R.string.pref_time_button_hint);
+            timePref.onSetInitialValue(true, defaultValue);
+            
+            screen.addPreference(timePref);
+          }
         }
       }
       else if(key.equals(getString(R.string.PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS)) || key.equals(getString(R.string.PREF_WIDGET_SIMPLE_ICON))) {

@@ -1372,7 +1372,7 @@ public class TvDataUpdateService extends Service {
               
               for(String url : info.getUrls()) {
                 try {
-                  if(IOUtils.saveUrl(group.getAbsolutePath(), url + info.getUrlFileName(), 10000)) {
+                  if(IOUtils.saveUrl(group.getAbsolutePath(), url + info.getUrlFileName(), 15000)) {
                     groupSucces = addChannels(group,info);
                     
                     mBuilder.setProgress(channelMirrors.size(), mCurrentDownloadCount++, false);
@@ -2415,7 +2415,7 @@ public class TvDataUpdateService extends Service {
                     if(!donationInfoLoaded) {
                       Editor edit = PreferenceManager.getDefaultSharedPreferences(TvDataUpdateService.this).edit();
                       edit.putLong(getString(R.string.EPG_DONATE_LAST_DATA_DOWNLOAD), System.currentTimeMillis());
-                      Log.d("info22", "EPG DONATE FIRST DOWNLOAD " + PrefUtils.getLongValue(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD, -1));
+                      
                       if(PrefUtils.getLongValue(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD, -1) == -1) {
                         edit.putLong(getString(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD), System.currentTimeMillis());
                       }

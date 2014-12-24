@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.3.3</h2>
+        <h2>0.5.4</h2>
+        	&bull; fehlendes Kontextmenü für Drop-Down-Liste der Favoriten unter Android 5.0 wiederhergestellt<br>
+        	&bull; Fehler im Filtermenü beseitigt<br>
         	&bull; stellt sicher, dass Klick in den Widget-Kopf immer TV-Browser öffnet<br>
         	&bull; Standardwerte beim hellen Thema überschrieben (Text jetzt dunkler)<br>
             &bull; regelmäßige Suche nach neuen/aktualisierten Sendern<br>
@@ -191,7 +193,7 @@
     <string name="button_before">Davor</string>
     <string name="button_at">Genaue Zeit</string>
     <string name="no_channels">Keine Sender vorhanden.</string>
-    <string name="select_channels">Sender jetzt auswählen</string>
+    <string name="select_channels">Sender jetzt\nauswählen</string>
     <string name="dialog_select_channels_update_title">Es wurden neue Sender gefunden oder vorhandene aktualisiert</string>
     <string name="dialog_select_channels_update_help">Sie können hier neue Sender auswählen. (Aktualisierte abonnierte Sender sind vorausgewählt.)</string>
     <string name="tv">Fernsehen</string>
@@ -345,16 +347,16 @@
 	<string name="channel_selection_input_name_hint">Name des Filters eingeben</string>
 	<string name="synchronize_title">Sender synchronisieren?</string>
 	<string name="synchronize_text">Sie können die Sender aus dem Desktop-TV-Browser synchronisieren.\n\nDazu müssen Sie sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> und die Sender aus dem Desktop-TV-Browser mit dem Android-Sync Plugin exportieren.\n\nMöchten Sie die Sender jetzt synchronisieren oder möchten Sie die Sender manuell auswählen?</string>
-	<string name="synchronize_ok">Sender jetzt synchronisieren</string>
-	<string name="synchronize_cancel">Sender manuell auswählen</string>
+	<string name="synchronize_ok">Sender jetzt\nsynchronisieren</string>
+	<string name="synchronize_cancel">Sender manuell\nauswählen</string>
 	<string name="synchronize_replace_add_title">Ersetzen oder ergänzen?</string>
-	<string name="synchronize_replace_add_text">Die ausgewählten Sender können mit den Synchronisationsdaten ersetzt oder ergänzt werden.\nWas soll getan werden?</string>
-	<string name="synchronize_replace">Ausgewählte Sender ersetzen</string>
-	<string name="synchronize_add">Neue Sender ergänzen</string>
+	<string name="synchronize_replace_add_text">Die ausgewählten Sender können mit den Synchronisationsdaten ersetzt oder ergänzt werden.\n\nWas soll getan werden?</string>
+	<string name="synchronize_replace">Ausgewählte Sender\nersetzen</string>
+	<string name="synchronize_add">Neue Sender\nergänzen</string>
 	
 	<string name="synchronize_replace_exclusion_add_text">Die Ausschlüsse von \"Will ich nicht sehen!\" können mit den Synchronisationsdaten ersetzt order ergänzt werden.\n\nBei Ergänzung werden die zusammengeführten Daten wieder auf den Server hochgeladen.\n\nWas soll getan werden?</string>
-	<string name="synchronize_replace_exclusion">Ausschlüsse ersetzen</string>
-	<string name="synchronize_add_exclusion">Neue Ausschlüsse ergänzen</string>
+	<string name="synchronize_replace_exclusion">Ausschlüsse\nersetzen</string>
+	<string name="synchronize_add_exclusion">Neue Ausschlüsse\nergänzen</string>
 	
 	<string name="synchronize_done">Synchronisation der Sender abgeschlossen!</string>
 	<string name="synchronize_error">Sender konnten nicht synchronisiert werden.</string>
@@ -672,10 +674,10 @@
     <string name="donation_info_inapp">Sie können direkt über InApp-Zahlung aus einer Liste von Beträgen eine Summe auswählen. (Die Spende wird erst gebucht, wenn dies in Google Play bestätigt wurde.)</string>
     <string name="donation_open_inapp">Zeige InApp-Spenden</string>
     <string name="donation_info_website">Alle Spendenmöglichkeiten sind auf der Webseite von TV-Browser für Android beschrieben.</string>
-    <string name="donation_open_website">Webseite mit allen Spendenmöglichkeiten öffnen.</string>
+    <string name="donation_open_website">Webseite mit allen\nSpendenmöglichkeiten öffnen</string>
     <string name="donation_thanks_text">Vielen Dank für das Interesse an Spenden für TV-Browser, Sie können aus folgenden Beträgen auswählen (diese enthalen jeweils 30% Google Play Zahlungsgebühr):</string>
     <string name="make_donation_info">Sie sind dabei eine Spende von {0} zu leisten.\n\nMit dem Klick auf \'Ja, jetzt spenden\' bestätigen Sie, dass sie mindestens 18 Jahre alt sind und damit Spenden leisten dürfen.</string>
-    <string name="make_donation">Ja, jetzt spenden</string>
+    <string name="make_donation">Ja, jetzt\nspenden</string>
     <string name="stop_donation">Nein, Danke</string>
     <string name="thanks_for_donation">Vielen Dank für die Spende für TV-Browser für Android.</string>
     <string name="in_app_error">Konnte keine Verbindung zu Google Play herstellen.\n\nBitte versuchen Sie es später erneut oder verwenden Sie eine Spendenalternative.</string>
@@ -812,6 +814,6 @@
     
     <string name="plugin_info_title">Weitere Funktionen mit Plugins</string>
     <string name="plugin_info_message">TV-Browser kann mit Plugins um weitere Funktionen erweitert werden.\n\nSollten Sie eine Funktion vermissen, gibt es möglicherweise ein Plugin, was diese anbietet.\n\nMöchten Sie die Liste der verfügbaren Plugins jetzt öffnen (Sie können später auch über das Menü von TV-Browser nach Plugins suchen)?</string>
-    <string name="plugin_info_load">Liste mit den Plugins jetzt öffnen</string>
+    <string name="plugin_info_load">Liste mit den Plugins\njetzt öffnen</string>
     <string name="plugin_info_donwload">Lade \'{0}\' herunter</string>
 </resources>

@@ -50,6 +50,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -64,7 +65,7 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-public class FavoritesFragment extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface {
+public class FragmentFavorites extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface {
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   private SimpleCursorAdapter mProgramListAdapter;
   private ArrayAdapter<FavoriteSpinnerEntry> mFavoriteAdapter;
@@ -207,7 +208,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
             @Override
             public void run() {
               if(!isDetached()) {
-                getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
+                getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
               }
             }
           });
@@ -352,7 +353,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
                     @Override
                     public void run() {
                       if(!isDetached() && getActivity() != null) {
-                        getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
+                        getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
                       }
                     }
                   });
@@ -378,7 +379,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
           @Override
           public void run() {
             if(!isDetached() && getActivity() != null) {
-              getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
+              getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
             }
           }
         });
@@ -389,7 +390,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
         mWhereClause = null;
         
         if(!isDetached() && getActivity() != null) {
-          getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
+          getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
         }
       }
     });
@@ -405,7 +406,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
             @Override
             public void run() {
               if(!isDetached()) {
-                getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
+                getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
               }
             }
           });
@@ -575,7 +576,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
           @Override
           public void run() {
             if(!isDetached() && !isRemoving() && mIsRunning) {
-              getLoaderManager().restartLoader(0, null, FavoritesFragment.this);
+              getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
             }
           }
         });
@@ -757,8 +758,7 @@ public class FavoritesFragment extends Fragment implements LoaderManager.LoaderC
   private FavoriteSpinnerEntry mCurrentSelection;
   
   @Override
-  public void onCreateContextMenu(ContextMenu menu, View v,
-    ContextMenuInfo menuInfo) {
+  public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
     int pos = mFavoriteSelection.getSelectedItemPosition();
     
     if(pos == -1 && menuInfo != null && menuInfo instanceof AdapterContextMenuInfo) {
