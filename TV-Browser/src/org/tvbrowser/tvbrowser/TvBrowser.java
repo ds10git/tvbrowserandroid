@@ -4843,7 +4843,7 @@ public class TvBrowser extends ActionBarActivity implements
     timeout.set(2015, Calendar.JANUARY,1,0,0,0);
     timeout.set(Calendar.MILLISECOND, 0);
     
-    if(Locale.getDefault().getCountry().equals("DE") && timeout.compareTo(Calendar.getInstance()) < 0) {
+    if(!Locale.getDefault().getCountry().equals("DE") && timeout.compareTo(Calendar.getInstance()) < 0) {
       webInfo.setVisibility(View.GONE);
       openWeb.setVisibility(View.GONE);
     }
