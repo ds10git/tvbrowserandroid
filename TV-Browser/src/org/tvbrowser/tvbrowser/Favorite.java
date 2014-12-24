@@ -36,7 +36,6 @@ import android.database.Cursor;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   public static final int KEYWORD_ONLY_TITLE_TYPE = 0;

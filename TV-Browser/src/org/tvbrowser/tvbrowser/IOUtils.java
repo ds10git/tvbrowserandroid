@@ -39,6 +39,8 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.Channel;
 import org.tvbrowser.settings.PrefUtils;
@@ -54,6 +56,7 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Binder;
 import android.os.Environment;
+import android.os.PowerManager;
 import android.preference.PreferenceManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -609,7 +612,8 @@ public class IOUtils {
           if(httpConnection != null) {
             int responseCode = httpConnection.getResponseCode();
           
-            isConnected.set(responseCode == HttpURLConnection.HTTP_OK);
+            isConnected.set(responseCode == HttpURLConnection.HTTP_OK || responseCode == HttpURLConnection.HTTP_ACCEPTED
+                || responseCode == HttpURLConnection.HTTP_CREATED || responseCode == HttpsURLConnection.HTTP_SEE_OTHER);
           }
         } catch (IOException e) {
           e.printStackTrace();
@@ -803,5 +807,9 @@ public class IOUtils {
   
   public static final String[] getUniqueChannelKeyParts(String uniqueKey) {
     return uniqueKey.split("_##_");
+  }
+  
+  public static final boolean isInteractive(Context context) {
+    return CompatUtils.isInteractive((PowerManager)context.getSystemService(Context.POWER_SERVICE));
   }
 }

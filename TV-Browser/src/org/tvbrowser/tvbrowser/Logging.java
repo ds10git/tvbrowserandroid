@@ -24,9 +24,9 @@ import java.util.Date;
 
 import org.tvbrowser.settings.PrefUtils;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
-import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.util.Log;
 
@@ -35,6 +35,7 @@ public class Logging {
   public static final int REMINDER_TYPE = 1;
   
   private static RandomAccessFile DATA_UPDATE_LOG;
+  @SuppressLint("SimpleDateFormat")
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyyMMdd HH:mm:ss");
   
   public synchronized static void log(String tag, String message, int type, Context context) {

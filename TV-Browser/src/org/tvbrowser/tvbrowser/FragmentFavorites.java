@@ -42,7 +42,6 @@ import android.database.DataSetObserver;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -50,7 +49,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -226,7 +224,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     
     addMarkingSelections();
     
-    final AtomicReference backgroundRef = new AtomicReference(null);
+    final AtomicReference<Object> backgroundRef = new AtomicReference<Object>(null);
     
     TypedValue a = new TypedValue();
     getActivity().getTheme().resolveAttribute(android.R.attr.windowBackground, a, true);

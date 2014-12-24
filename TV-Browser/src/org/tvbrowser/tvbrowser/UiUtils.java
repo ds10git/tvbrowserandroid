@@ -1040,13 +1040,13 @@ public class UiUtils {
     final LayerDrawable draw = getMarkingsDrawable(context, cursor, startTime, endTime, markedColumns, vertical);
     
     if(handler == null) {
-      view.setBackgroundDrawable(draw);
+      CompatUtils.setBackground(view, draw);
     }
     else{
       handler.post(new Runnable() {
         @Override
         public void run() {
-          view.setBackgroundDrawable(draw);
+          CompatUtils.setBackground(view, draw);
         }
       });
     }
@@ -1149,6 +1149,7 @@ public class UiUtils {
     return formatDate(date, context, onlyDays, withDayString, false);
   }
   
+  @SuppressLint("SimpleDateFormat")
   public static String formatDate(long date, Context context, boolean onlyDays, boolean withDayString, boolean withDate) {
     Calendar progDate = Calendar.getInstance();
     progDate.setTimeInMillis(date);
@@ -1209,6 +1210,7 @@ public class UiUtils {
     return value;
   }
   
+  @SuppressLint("SimpleDateFormat")
   public static void formatDayView(Activity activity, Cursor cursor, View view, int startDayLabelID) {try {
     long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
     

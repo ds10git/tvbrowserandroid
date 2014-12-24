@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.4</h2>
+		<h2>0.5.4.1</h2>
+            &bull; Workaround hinzugefügt um Absturz auf Samsung und Wiko Geräten mit Android 4.2 zu umgehen<br>
+            &bull; Internetverbindungstest akzeptiert mehr Antwortcodes<br>
+		<br>
+        <h3>0.5.4</h3>
         	&bull; fehlendes Kontextmenü für Drop-Down-Liste der Favoriten unter Android 5.0 wiederhergestellt<br>
         	&bull; Fehler im Filtermenü beseitigt<br>
         	&bull; stellt sicher, dass Klick in den Widget-Kopf immer TV-Browser öffnet<br>

@@ -70,11 +70,11 @@ public class NDSpinner extends Spinner {
     super.setOnCreateContextMenuListener(l);
   }
 
-  @Override public void
-  setSelection(int position)
-  {
-    boolean sameSelected = position == getSelectedItemPosition();
+  @Override 
+  public void setSelection(int position) {
     super.setSelection(position);
+    
+    boolean sameSelected = position == getSelectedItemPosition();
     if (sameSelected) {
       // Spinner does not call the OnItemSelectedListener if the same item is selected, so do it manually now
       getOnItemSelectedListener().onItemSelected(this, getSelectedView(), position, getSelectedItemId());

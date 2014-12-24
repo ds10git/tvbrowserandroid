@@ -3308,7 +3308,7 @@ public class TvBrowser extends ActionBarActivity implements
   private void showAbout() {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     
-    RelativeLayout about = (RelativeLayout)getLayoutInflater().inflate(R.layout.about, null);
+    RelativeLayout about = (RelativeLayout)getLayoutInflater().inflate(R.layout.about, (ViewGroup)getCurrentFocus(), false);
     
     try {
       PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -4834,12 +4834,19 @@ public class TvBrowser extends ActionBarActivity implements
     
     alert.setView(view);
     
-    TextView inAppInfo = (TextView)view.findViewById(R.id.donation_in_app_text);
     Button inAppDonation = (Button)view.findViewById(R.id.donation_in_app_button);
+    
+    TextView webInfo = (TextView)view.findViewById(R.id.donation_show_ways);
     Button openWeb = (Button)view.findViewById(R.id.donation_website_button);
     
-    inAppInfo.setVisibility(View.GONE);
-    inAppDonation.setVisibility(View.GONE);
+    Calendar timeout = Calendar.getInstance();
+    timeout.set(2015, Calendar.JANUARY,1,0,0,0);
+    timeout.set(Calendar.MILLISECOND, 0);
+    
+    if(Locale.getDefault().getCountry().equals("DE") && timeout.compareTo(Calendar.getInstance()) < 0) {
+      webInfo.setVisibility(View.GONE);
+      openWeb.setVisibility(View.GONE);
+    }
     
     alert.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), new OnClickListener() {
       @Override
