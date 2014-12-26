@@ -11,4 +11,5 @@
     <dimen name="detail_padding_left_right">14dp</dimen>
     <dimen name="detail_padding_top_bottom">8dp</dimen>
     <dimen name="running_bar_height">48dp</dimen>
+    <dimen name="epg_donate_info_font_size">19sp</dimen>
 </resources>

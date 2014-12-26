@@ -117,6 +117,7 @@ import android.text.style.URLSpan;
 import android.util.Base64;
 import android.util.Log;
 import android.util.SparseArray;
+import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
@@ -125,6 +126,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
+import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -282,7 +284,22 @@ public class TvBrowser extends ActionBarActivity implements
   protected void onCreate(Bundle savedInstanceState) {
     handler = new Handler();
     PrefUtils.initialize(TvBrowser.this);
-        
+    
+    /*
+     * Hack to force overflow menu button to be shown from:
+     * http://stackoverflow.com/questions/9286822/how-to-force-use-of-overflow-menu-on-devices-with-menu-button
+     */
+    try {
+      ViewConfiguration config = ViewConfiguration.get(this);
+      Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+      if(menuKeyField != null) {
+          menuKeyField.setAccessible(true);
+          menuKeyField.setBoolean(config, false);
+      }
+    } catch (Exception ex) {
+        // Ignore
+    }
+    
     try {
       PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
       
@@ -517,7 +534,7 @@ public class TvBrowser extends ActionBarActivity implements
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
       builder.setTitle(R.string.terms_of_use);
       
-      ScrollView layout = (ScrollView)getLayoutInflater().inflate(R.layout.terms_layout, (ViewGroup)getCurrentFocus(), false);
+      ScrollView layout = (ScrollView)getLayoutInflater().inflate(R.layout.terms_layout, getParentViewGroup(), false);
       
       ((TextView)layout.findViewById(R.id.terms_license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
       
@@ -666,7 +683,7 @@ public class TvBrowser extends ActionBarActivity implements
         builder.setTitle(R.string.epg_donate_name);
         builder.setCancelable(false);
         
-        View view = getLayoutInflater().inflate(R.layout.dialog_epg_donate_info, (ViewGroup)getCurrentFocus(), false);
+        View view = getLayoutInflater().inflate(R.layout.dialog_epg_donate_info, getParentViewGroup(), false);
         
         TextView message = (TextView)view.findViewById(R.id.dialog_epg_donate_message);
         message.setText(Html.fromHtml(info));
@@ -1857,7 +1874,7 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void showChannelSelectionInternal() {
-    showChannelSelectionInternal(null,null,null);
+    showChannelSelectionInternal(null,null,"This is a test");
   }
   
   private void showChannelSelectionInternal(final String selection, final String title, final String help) {
@@ -1955,7 +1972,7 @@ public class TvBrowser extends ActionBarActivity implements
           
           holder = new ViewHolder();
           
-          convertView = mInflater.inflate(R.layout.channel_row, (ViewGroup)getCurrentFocus(), false);
+          convertView = mInflater.inflate(R.layout.channel_row, getParentViewGroup(), false);
           
           holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_text);
           holder.mCheckBox = (CheckBox)convertView.findViewById(R.id.row_of_channel_selection);
@@ -1985,7 +2002,7 @@ public class TvBrowser extends ActionBarActivity implements
     };
     
     // inflate channel selection view
-    View channelSelectionView = getLayoutInflater().inflate(R.layout.dialog_channel_selection_list, (ViewGroup)getCurrentFocus(), false);
+    View channelSelectionView = getLayoutInflater().inflate(R.layout.dialog_channel_selection_list, getParentViewGroup(), false);
     channelSelectionView.findViewById(R.id.channel_selection_selection_buttons).setVisibility(View.GONE);
     channelSelectionView.findViewById(R.id.channel_selection_input_id_name).setVisibility(View.GONE);
     
@@ -1993,7 +2010,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     if(help != null) {
       infoView.setText(help);
-      infoView.setTextSize(getResources().getDimension(R.dimen.epg_donate_info_font_size));
+      infoView.setTextSize(TypedValue.COMPLEX_UNIT_PX, getResources().getDimension(R.dimen.epg_donate_info_font_size));
     }
     else {
       infoView.setVisibility(View.GONE);
@@ -2259,7 +2276,7 @@ public class TvBrowser extends ActionBarActivity implements
     StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
     where.append("=1");
     
-    LinearLayout main = (LinearLayout)getLayoutInflater().inflate(R.layout.channel_sort_list, (ViewGroup)getCurrentFocus(), false);
+    LinearLayout main = (LinearLayout)getLayoutInflater().inflate(R.layout.channel_sort_list, getParentViewGroup(), false);
     
     Button sortAlphabetically = (Button)main.findViewById(R.id.channel_sort_alpabetically);
     
@@ -2338,7 +2355,7 @@ public class TvBrowser extends ActionBarActivity implements
             
             holder = new ViewHolder();
             
-            convertView = mInflater.inflate(R.layout.channel_sort_row, (ViewGroup)getCurrentFocus(), false);
+            convertView = mInflater.inflate(R.layout.channel_sort_row, getParentViewGroup(), false);
             
             holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_sort_text);
             holder.mSortNumber = (TextView)convertView.findViewById(R.id.row_of_channel_sort_number);
@@ -2421,7 +2438,7 @@ public class TvBrowser extends ActionBarActivity implements
             long id) {
           AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
           
-          LinearLayout numberSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.sort_number_selection, (ViewGroup)getCurrentFocus(), false);
+          LinearLayout numberSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.sort_number_selection, getParentViewGroup(), false);
           
           mSelectionNumberChanged = false;
           
@@ -2553,7 +2570,7 @@ public class TvBrowser extends ActionBarActivity implements
       if(test.getCount() > 0) {
         AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
         
-        RelativeLayout dataDownload = (RelativeLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection, (ViewGroup)getCurrentFocus(), false);
+        RelativeLayout dataDownload = (RelativeLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection, getParentViewGroup(), false);
         
         final Spinner days = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_selection_download_days);
         final CheckBox pictures = (CheckBox)dataDownload.findViewById(R.id.dialog_data_update_selection_download_picture);
@@ -2663,7 +2680,7 @@ public class TvBrowser extends ActionBarActivity implements
           public void onClick(View v) {
             AlertDialog.Builder b2 = new AlertDialog.Builder(TvBrowser.this);
             
-            LinearLayout timeSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection_auto_update_time, (ViewGroup)getCurrentFocus(), false);
+            LinearLayout timeSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection_auto_update_time, getParentViewGroup(), false);
             
             final TimePicker timePick = (TimePicker)timeSelection.findViewById(R.id.dialog_data_update_selection_auto_update_selection_time);
             timePick.setIs24HourView(DateFormat.is24HourFormat(TvBrowser.this));
@@ -2852,7 +2869,7 @@ public class TvBrowser extends ActionBarActivity implements
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     builder.setCancelable(false);
     
-    RelativeLayout username_password_setup = (RelativeLayout)getLayoutInflater().inflate(R.layout.username_password_setup, (ViewGroup)getCurrentFocus(), false);
+    RelativeLayout username_password_setup = (RelativeLayout)getLayoutInflater().inflate(R.layout.username_password_setup, getParentViewGroup(), false);
             
     final SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
     
@@ -2993,7 +3010,7 @@ public class TvBrowser extends ActionBarActivity implements
       
       final ArrayAdapter<ExclusionEdit> exclusionAdapter = new ArrayAdapter<TvBrowser.ExclusionEdit>(TvBrowser.this, android.R.layout.simple_list_item_1, mCurrentExclusionList);
       
-      View view = getLayoutInflater().inflate(R.layout.dont_want_to_see_exclusion_edit_list, (ViewGroup)getCurrentFocus(), false);
+      View view = getLayoutInflater().inflate(R.layout.dont_want_to_see_exclusion_edit_list, getParentViewGroup(), false);
       
       ListView list = (ListView)view.findViewById(R.id.dont_want_to_see_exclusion_list);
       
@@ -3009,7 +3026,7 @@ public class TvBrowser extends ActionBarActivity implements
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
           final ExclusionEdit edit = exclusionAdapter.getItem(position);
           
-          View editView = getLayoutInflater().inflate(R.layout.dont_want_to_see_edit, (ViewGroup)getCurrentFocus(), false);
+          View editView = getLayoutInflater().inflate(R.layout.dont_want_to_see_edit, getParentViewGroup(), false);
           
           final TextView exclusion = (TextView)editView.findViewById(R.id.dont_want_to_see_value);
           final CheckBox caseSensitive = (CheckBox)editView.findViewById(R.id.dont_want_to_see_case_sensitve);
@@ -3314,7 +3331,7 @@ public class TvBrowser extends ActionBarActivity implements
   private void showAbout() {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     
-    RelativeLayout about = (RelativeLayout)getLayoutInflater().inflate(R.layout.about, (ViewGroup)getCurrentFocus(), false);
+    RelativeLayout about = (RelativeLayout)getLayoutInflater().inflate(R.layout.about, getParentViewGroup(), false);
     
     try {
       PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -4530,7 +4547,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     alert.setTitle(R.string.donation);
     
-    View view = getLayoutInflater().inflate(R.layout.in_app_donations, (ViewGroup)getCurrentFocus(), false);
+    View view = getLayoutInflater().inflate(R.layout.in_app_donations, getParentViewGroup(), false);
     LinearLayout layout = (LinearLayout)view.findViewById(R.id.donation_in_app_layout);
     
     alert.setView(view);
@@ -4754,7 +4771,7 @@ public class TvBrowser extends ActionBarActivity implements
       
       alert.setTitle(R.string.donation);
       
-      View view = getLayoutInflater().inflate(R.layout.open_donation, (ViewGroup)getCurrentFocus(), false);
+      View view = getLayoutInflater().inflate(R.layout.open_donation, getParentViewGroup(), false);
       
       alert.setView(view);
       
@@ -4803,7 +4820,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     alert.setTitle(R.string.donation);
     
-    View view = getLayoutInflater().inflate(R.layout.donations, (ViewGroup)getCurrentFocus(), false);
+    View view = getLayoutInflater().inflate(R.layout.donations, getParentViewGroup(), false);
     
     alert.setView(view);
     
@@ -4852,7 +4869,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     alert.setTitle(R.string.you_like_it);
     
-    View view = getLayoutInflater().inflate(R.layout.rating_and_donation, (ViewGroup)getCurrentFocus(), false);
+    View view = getLayoutInflater().inflate(R.layout.rating_and_donation, getParentViewGroup(), false);
     
     TextView ratingInfo = (TextView)view.findViewById(R.id.rating_info);
     Button rate = (Button)view.findViewById(R.id.rating_button);
@@ -5020,11 +5037,14 @@ public class TvBrowser extends ActionBarActivity implements
   
   /*
    * Workaround for NPE on LG devices from:
-   * http://stackoverflow.com/questions/26833242/nullpointerexception-phonewindowonkeyuppanel1002-main 
+   * http://stackoverflow.com/questions/26833242/nullpointerexception-phonewindowonkeyuppanel1002-main
+   * 
+   * Use workaround for all devices.
    */
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
-    if (keyCode == KeyEvent.KEYCODE_MENU && "LGE".equalsIgnoreCase(Build.BRAND)) {
+    Log.d("info2", "onKeyDown");
+    if (keyCode == KeyEvent.KEYCODE_MENU/* && "LGE".equalsIgnoreCase(Build.BRAND)*/) {
       return true;
     }
     
@@ -5033,7 +5053,8 @@ public class TvBrowser extends ActionBarActivity implements
 
   @Override
   public boolean onKeyUp(int keyCode, KeyEvent event) {
-    if (keyCode == KeyEvent.KEYCODE_MENU && "LGE".equalsIgnoreCase(Build.BRAND)) {
+    Log.d("info2", "onKeyUp");
+    if (keyCode == KeyEvent.KEYCODE_MENU/* && "LGE".equalsIgnoreCase(Build.BRAND)*/) {
       openOptionsMenu();
       
       return true;
@@ -5041,5 +5062,16 @@ public class TvBrowser extends ActionBarActivity implements
     
     return super.onKeyUp(keyCode, event);
   }
+  
+  public ViewGroup getParentViewGroup() {
+    View test = getCurrentFocus();
+    
+    if(test instanceof ViewGroup) {
+      return (ViewGroup)test;
+    }
+    
+    return null;
+  }
+  
   /* Workaround end */
 }

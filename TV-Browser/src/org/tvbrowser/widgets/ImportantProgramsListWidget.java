@@ -32,7 +32,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
+import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 /**
@@ -47,14 +49,24 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
       UiUtils.updateImportantProgramsWidget(context);
     }
     else {
-      if(IOUtils.isInteractive(context)) {
+      if(IOUtils.isInteractive(context) || AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction())) {
         if((AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction()) || SettingConstants.UPDATE_IMPORTANT_APP_WIDGET.equals(intent.getAction())) && intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID) && 
-            intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID) != AppWidgetManager.INVALID_APPWIDGET_ID) {
+            intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID) != AppWidgetManager.INVALID_APPWIDGET_ID || intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)) {
           AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
           
-          int appWidgetId = intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID);
-          onUpdate(context, appWidgetManager, new int[] {appWidgetId});
-          appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetId, R.id.important_widget_list_view);
+          int[] appWidgetIds = null;
+          
+          if(intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
+            appWidgetIds = new int[] {intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID)};
+          }
+          else if(intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)) {
+            appWidgetIds = intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS);
+          }
+          
+          if(appWidgetIds != null) {
+            onUpdate(context, appWidgetManager, appWidgetIds);
+            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.important_widget_list_view);
+          }
         }
         else {
           super.onReceive(context, intent);

@@ -814,8 +814,7 @@ public class ProgramTableFragment extends Fragment {
   }
   
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container,
-      Bundle savedInstanceState) {
+  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     RelativeLayout programTableLayout = (RelativeLayout)inflater.inflate(R.layout.program_table_layout, container, false);
     
     if(mCurrentDate == null) {
@@ -888,7 +887,7 @@ public class ProgramTableFragment extends Fragment {
     
       long programID = ((Long)temp.getTag());
       
-      return UiUtils.handleContextMenuSelection(getActivity(), item, programID, temp, (ViewGroup)getActivity().getCurrentFocus());
+      return UiUtils.handleContextMenuSelection(getActivity(), item, programID, temp, getActivity().getCurrentFocus());
     }
     
     return false;
@@ -996,7 +995,7 @@ public class ProgramTableFragment extends Fragment {
       
       if(logo != null) {
         BitmapDrawable l = new BitmapDrawable(getResources(), logo);
-        l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
+        l.setBounds(0, 0, (int)(ProgramTableLayoutConstants.getZoom() * logo.getWidth()), (int)(ProgramTableLayoutConstants.getZoom() * logo.getHeight()));
         
         panel.setPicture(cursor.getString(mPictureCopyrightIndex), l);
       }
