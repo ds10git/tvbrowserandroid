@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.tvbrowser.tvbrowser"
-	android:versionCode="288"
-	android:versionName="0.5.4.1"
+	android:versionCode="289"
+	android:versionName="0.5.4.2"
 	android:installLocation="auto">
 
 	<uses-sdk
@@ -30,7 +30,7 @@
 		android:theme="@style/AppDarkTheme"
 		android:largeHeap="true">
 		<meta-data android:name="android.app.default_searchable"
-			android:value="org.tvbrowser.tvbrowser.TvBrowserSearchResults"/>
+			android:value="org.tvbrowser.tvbrowser.ActivityTvBrowserSearchResults"/>
 		<provider android:name="org.tvbrowser.content.TvBrowserContentProvider"
 			android:authorities="org.tvbrowser.tvbrowsercontentprovider" 
 			android:exported="false"/>
@@ -65,7 +65,7 @@
 			android:configChanges="orientation|screenSize"
 			android:windowSoftInputMode="adjustResize" >
 		</activity>
-		<activity android:name="org.tvbrowser.tvbrowser.TvBrowserSearchResults"
+		<activity android:name="org.tvbrowser.tvbrowser.ActivityTvBrowserSearchResults"
 			android:label="@string/search_activity_name"
 			android:launchMode="singleTop"
 			android:configChanges="orientation|screenSize" >

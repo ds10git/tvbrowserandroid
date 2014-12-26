@@ -47,7 +47,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-public class TvBrowserSearchResults extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface {
+public class ActivityTvBrowserSearchResults extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface {
   private SimpleCursorAdapter mProgramsListAdapter;
 
   private static String QUERY_EXTRA_KEY = "QUERY_EXTRA_KEY";
@@ -60,10 +60,13 @@ public class TvBrowserSearchResults extends ActionBarActivity implements LoaderM
   
   @Override
   protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
-    PrefUtils.initialize(TvBrowserSearchResults.this);
+    PrefUtils.initialize(ActivityTvBrowserSearchResults.this);
     
     if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default)) {
       resid = R.style.AppDarkTheme;
+    }
+    else {
+      resid = R.style.AppTheme;
     }
     
     super.onApplyThemeResource(theme, resid, first);
@@ -77,9 +80,9 @@ public class TvBrowserSearchResults extends ActionBarActivity implements LoaderM
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-    PrefUtils.initialize(TvBrowserSearchResults.this);
+    PrefUtils.initialize(ActivityTvBrowserSearchResults.this);
     
-    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowserSearchResults.this);
+    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(ActivityTvBrowserSearchResults.this);
     pref.registerOnSharedPreferenceChangeListener(this);
     
     setContentView(R.layout.list_view);
@@ -135,7 +138,7 @@ public class TvBrowserSearchResults extends ActionBarActivity implements LoaderM
       ContextMenuInfo menuInfo) {
     long programID = ((AdapterView.AdapterContextMenuInfo)menuInfo).id;
     
-    UiUtils.createContextMenu(TvBrowserSearchResults.this, menu, programID);
+    UiUtils.createContextMenu(ActivityTvBrowserSearchResults.this, menu, programID);
   }
   
   @Override
@@ -272,7 +275,7 @@ public class TvBrowserSearchResults extends ActionBarActivity implements LoaderM
       uri = ContentUris.withAppendedId(uri, ID);
     }
     else {
-      where += UiUtils.getDontWantToSeeFilterString(TvBrowserSearchResults.this);
+      where += UiUtils.getDontWantToSeeFilterString(ActivityTvBrowserSearchResults.this);
     }
     
     // Create the new Cursor loader
@@ -284,7 +287,7 @@ public class TvBrowserSearchResults extends ActionBarActivity implements LoaderM
     mProgramsListAdapter.swapCursor(cursor);
     
     if(cursor == null || cursor.getCount() < 1) {
-      AlertDialog.Builder info = new AlertDialog.Builder(TvBrowserSearchResults.this);
+      AlertDialog.Builder info = new AlertDialog.Builder(ActivityTvBrowserSearchResults.this);
       
       info.setTitle(R.string.search_no_result_title);
       info.setMessage(R.string.search_no_result_text);

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.4.1</h2>
+		<h2>0.5.4.2</h2>
+            &bull; fehlerhafte Farbe in der Suche im hellen Thema korrigiert<br>
+            &bull; Workaround für Absturz auf LG-Geräten bei Klick auf Menübutton hinzugefügt<br>
+		<br>
+		<h3>0.5.4.1</h3>
             &bull; Workaround hinzugefügt um Absturz auf Samsung und Wiko Geräten mit Android 4.2 zu umgehen<br>
             &bull; Internetverbindungstest akzeptiert mehr Antwortcodes<br>
 		<br>
@@ -684,7 +688,8 @@
     <string name="make_donation">Ja, jetzt\nspenden</string>
     <string name="stop_donation">Nein, Danke</string>
     <string name="thanks_for_donation">Vielen Dank für die Spende für TV-Browser für Android.</string>
-    <string name="in_app_error">Konnte keine Verbindung zu Google Play herstellen.\n\nBitte versuchen Sie es später erneut oder verwenden Sie eine Spendenalternative.</string>
+    <string name="in_app_error_1">Konnte keine Verbindung zu Google Play herstellen.\n\nBitte versuchen Sie es später erneut</string>
+    <string name="in_app_error_2">oder verwenden Sie eine Spendenalternative.</string>
     <string name="already_donated">Sie haben bereits am {1} {0} gespendet. Nochmal danke dafür.\n\nMöchten Sie tatsächlich nochmals spenden?</string>
     <string name="donate_again">Ja, nochmals spenden</string>
     <string name="no_donation_possible">Zur Zeit keine Spenden möglich.\nBitte versuchen Sie es später erneut.</string>

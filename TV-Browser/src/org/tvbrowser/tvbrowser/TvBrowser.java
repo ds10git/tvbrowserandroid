@@ -112,7 +112,6 @@ import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
-import android.text.style.ForegroundColorSpan;
 import android.text.style.ReplacementSpan;
 import android.text.style.URLSpan;
 import android.util.Base64;
@@ -120,6 +119,7 @@ import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
+import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -224,8 +224,14 @@ public class TvBrowser extends ActionBarActivity implements
   
   private long mResumeTime;
   private IabHelper mHelper;
+  
+  private static final Calendar mVATtimeout;
     
   static {
+    mVATtimeout = Calendar.getInstance();
+    mVATtimeout.set(2015, Calendar.JANUARY,1,0,0,0);
+    mVATtimeout.set(Calendar.MILLISECOND, 0);
+    
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2015);
     mRundate.set(Calendar.MONTH, Calendar.AUGUST);
@@ -4168,7 +4174,7 @@ public class TvBrowser extends ActionBarActivity implements
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.tv_browser, menu);
-    
+    //new MenuInflater(getSupportActionBar().getThemedContext()).inflate(R.menu.tv_browser, menu);
     mMainMenu = menu;
     
     //  Associate searchable configuration with the SearchView
@@ -4244,9 +4250,7 @@ public class TvBrowser extends ActionBarActivity implements
     mOptionsMenu = menu;
     
     updateSynchroMenu();
-    
-    applyStupidWorkaroundForWrongMenuPopupColor();
-    
+        
     return true;
   }
 
@@ -4293,49 +4297,6 @@ public class TvBrowser extends ActionBarActivity implements
           return true;
         }
       });
-    }
-  }
-  
-  final int[] workaroundMenuIds = new int[] {
-      R.id.action_synchronize_channels,
-      R.id.action_synchronize_channels_up,
-      R.id.action_synchronize_dont_want_to_see,
-      R.id.action_synchronize_favorites,
-      R.id.action_synchronize_reminders_up,
-      R.id.action_synchronize_reminders_down,
-      R.id.action_backup_preferences_save,
-      R.id.action_backup_preferences_restore,
-      R.id.action_username_password,
-      R.id.menu_tvbrowser_action_settings_basic,
-      R.id.menu_tvbrowser_action_settings_plugins,
-      R.id.action_preferences_channels,
-      R.id.action_load_channels_again,
-      R.id.action_select_channels,
-      R.id.action_sort_channels,
-      R.id.action_delete_all_data,
-      R.id.action_dont_want_to_see_edit,
-      R.id.action_delete_data_update_log,
-      R.id.action_send_data_update_log,
-      R.id.action_delete_reminder_log,
-      R.id.action_send_reminder_log
-  };
-  
-  private void makeItemForegroundVisible(MenuItem item) {
-    SpannableStringBuilder test = new SpannableStringBuilder(item.getTitle());
-    test.setSpan(new ForegroundColorSpan(getResources().getColor(R.color.abc_primary_text_material_light)), 0, item.getTitle().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-    
-    item.setTitle(test);
-  }
-  
-  private void applyStupidWorkaroundForWrongMenuPopupColor() {
-    if(!SettingConstants.IS_DARK_THEME && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-      for(int i = 0; i < workaroundMenuIds.length; i++) {
-        MenuItem item = mMainMenu.findItem(workaroundMenuIds[i]);
-        
-        if(item != null) {
-          makeItemForegroundVisible(item);
-        }
-      }
     }
   }
   
@@ -4574,19 +4535,16 @@ public class TvBrowser extends ActionBarActivity implements
     
     alert.setView(view);
     
-    alert.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
+    alert.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), null);
         
-      }
-    });
-    
-    alert.setPositiveButton(R.string.donation_info_website, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=donations")));
-      }
-    });
+    if(Locale.getDefault().getCountry().equals("DE") || mVATtimeout.compareTo(Calendar.getInstance()) > 0) {
+      alert.setPositiveButton(R.string.donation_info_website, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=donations")));
+        }
+      });
+    }
     
     final AlertDialog d = alert.create();
     
@@ -4695,19 +4653,34 @@ public class TvBrowser extends ActionBarActivity implements
     AlertDialog.Builder alert = new AlertDialog.Builder(TvBrowser.this);
     
     alert.setTitle(R.string.donation);
-    alert.setMessage(R.string.in_app_error);
     
-    alert.setNegativeButton(android.R.string.ok, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {}
-    });
+    boolean showOthers = true;
     
-    alert.setPositiveButton(R.string.donation_open_website, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=donations")));
-      }
-    });
+    if(!Locale.getDefault().getCountry().equals("DE") && mVATtimeout.compareTo(Calendar.getInstance()) < 0) {
+      showOthers = false;
+    }
+    
+    String message = getString(R.string.in_app_error_1);
+    
+    if(showOthers) {
+      message += " " + getString(R.string.in_app_error_2);
+    }
+    else {
+      message += ".";
+    }
+    
+    alert.setMessage(message);
+    
+    alert.setNegativeButton(android.R.string.ok, null);
+    
+    if(showOthers) {
+      alert.setPositiveButton(R.string.donation_open_website, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=donations")));
+        }
+      });
+    }
     
     alert.show();
   }
@@ -4838,12 +4811,8 @@ public class TvBrowser extends ActionBarActivity implements
     
     TextView webInfo = (TextView)view.findViewById(R.id.donation_show_ways);
     Button openWeb = (Button)view.findViewById(R.id.donation_website_button);
-    
-    Calendar timeout = Calendar.getInstance();
-    timeout.set(2015, Calendar.JANUARY,1,0,0,0);
-    timeout.set(Calendar.MILLISECOND, 0);
-    
-    if(!Locale.getDefault().getCountry().equals("DE") && timeout.compareTo(Calendar.getInstance()) < 0) {
+        
+    if(!Locale.getDefault().getCountry().equals("DE") && mVATtimeout.compareTo(Calendar.getInstance()) < 0) {
       webInfo.setVisibility(View.GONE);
       openWeb.setVisibility(View.GONE);
     }
@@ -5048,4 +5017,29 @@ public class TvBrowser extends ActionBarActivity implements
     
     return "";
   }
+  
+  /*
+   * Workaround for NPE on LG devices from:
+   * http://stackoverflow.com/questions/26833242/nullpointerexception-phonewindowonkeyuppanel1002-main 
+   */
+  @Override
+  public boolean onKeyDown(int keyCode, KeyEvent event) {
+    if (keyCode == KeyEvent.KEYCODE_MENU && "LGE".equalsIgnoreCase(Build.BRAND)) {
+      return true;
+    }
+    
+    return super.onKeyDown(keyCode, event);
+  }
+
+  @Override
+  public boolean onKeyUp(int keyCode, KeyEvent event) {
+    if (keyCode == KeyEvent.KEYCODE_MENU && "LGE".equalsIgnoreCase(Build.BRAND)) {
+      openOptionsMenu();
+      
+      return true;
+    }
+    
+    return super.onKeyUp(keyCode, event);
+  }
+  /* Workaround end */
 }
