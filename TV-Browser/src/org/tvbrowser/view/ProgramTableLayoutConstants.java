@@ -85,6 +85,8 @@ public class ProgramTableLayoutConstants {
   private static int RAW_COLUMN_WIDTH;
   private static float TEXT_SCALE;
   
+  static float ZOOM = 1.0f;
+  
   static {
     NOT_EXPIRED_TITLE_PAINT.setTypeface(Typeface.DEFAULT_BOLD);
     
@@ -133,6 +135,7 @@ public class ProgramTableLayoutConstants {
     
     // Get the screen's density scale 
     final float scale = context.getResources().getDisplayMetrics().density;
+    ZOOM = scale;
     // Convert the dps to pixels, based on density scale
     COLUMN_WIDTH = (int) (RAW_COLUMN_WIDTH * scale + 0.5f);
     GAP = (int) (1 * scale + 0.5f);
@@ -221,5 +224,9 @@ public class ProgramTableLayoutConstants {
   
   public static boolean getShowOrderNumber() {
     return SHOW_ORDER_NUMBER;
+  }
+  
+  public static float getZoom() {
+    return ZOOM;
   }
 }

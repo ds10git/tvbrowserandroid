@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.4.2</h2>
+        <h2>0.5.4.3</h2>
+            &bull; added workaround to force showing of overflow menu button in action bar (might not work on every device)<br>
+            &bull; initialize widgets after device is started<br>
+            &bull; prevent possible crash for opening dialog windows<br>
+            &bull; zoom pictures of program accordingly to screen density<br>
+            &bull; fix wrong font size for new channels info dialog<br>
+		<br>
+        <h3>0.5.4.2</h3>
             &bull; fixed wrong color for search with light theme<br>
             &bull; added workaround for crash on LG devices on menu button click<br>
 		<br>

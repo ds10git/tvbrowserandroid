@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.4.2</h2>
+        <h2>0.5.4.3</h2>
+            &bull; Workaround hinzugefügt um Menü-Button in der Werkzeugleiste immer anzuzeigen (funktioniert möglicherweise nicht auf allen Geräten)<br>
+            &bull; Widgets beim Start des Geräts initialisieren<br>
+            &bull; möglicher Absturz beim Öffnen von Dialog-Fenstern beseitigt<br>
+            &bull; Bilder der Sendungen werden an Bildschirmauflösung angepasst<br>
+            &bull; fehlerhafte Schriftgröße im Senderaktualisierungsdialog korrigiert<br>
+		<br>
+		<h3>0.5.4.2</h3>
             &bull; fehlerhafte Farbe in der Suche im hellen Thema korrigiert<br>
             &bull; Workaround für Absturz auf LG-Geräten bei Klick auf Menübutton hinzugefügt<br>
 		<br>

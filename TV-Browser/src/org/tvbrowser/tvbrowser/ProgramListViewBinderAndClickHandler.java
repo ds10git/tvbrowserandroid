@@ -28,10 +28,10 @@ import android.app.Activity;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
-import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.text.Spannable;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
@@ -48,11 +48,13 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
   private Activity mActivity;
   private int mDefaultTextColor;
   private ShowDateInterface mDateShowInterface;
+  private float mZoom;
   
   public ProgramListViewBinderAndClickHandler(Activity act, ShowDateInterface showDateInterface) {
     mActivity = act;
     mDefaultTextColor = new TextView(mActivity).getTextColors().getDefaultColor();
     mDateShowInterface = showDateInterface;
+    mZoom = mActivity.getResources().getDisplayMetrics().density;
   }
 
   @Override
@@ -238,15 +240,6 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
        
       return true;
     }
-   /* else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)) {
-      TextView text = (TextView)view;
-      
-      if(end <= System.currentTimeMillis()) {
-        int DEFAULT_TEXT_COLOR = new TextView(mActivity).getTextColors().getDefaultColor();
-        
-        text.setTextColor(DEFAULT_TEXT_COLOR);
-      }
-    }*/
     else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)) {
       if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)) || !showInfo) {
         view.setVisibility(View.GONE);
@@ -298,10 +291,7 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
         Bitmap logo = UiUtils.createBitmapFromByteArray(cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)));
         
         if(logo != null) {
-          BitmapDrawable l = new BitmapDrawable(view.getResources(), logo);
-          l.setBounds(0, 0, logo.getWidth(), logo.getHeight());
-          
-          picture.setImageDrawable(l);
+          picture.setImageBitmap(Bitmap.createScaledBitmap(logo, (int)(mZoom * logo.getWidth()), (int)(mZoom * logo.getHeight()), false));//.setImageDrawable(l);
           
           text.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)));
           text.setVisibility(View.VISIBLE);

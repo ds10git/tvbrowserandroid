@@ -784,7 +784,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         Long tag = (Long)v.getTag();
         
         if(tag != null) {
-          UiUtils.showProgramInfo(getActivity(), tag.longValue(), (ViewGroup)getActivity().getCurrentFocus());
+          UiUtils.showProgramInfo(getActivity(), tag.longValue(), getActivity().getCurrentFocus());
         }
       }
     };
@@ -899,8 +899,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   }
   
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container,
-      Bundle savedInstanceState) {
+  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.running_program_fragment, container, false);
     
     mListView = (ListView)view.findViewById(R.id.running_list_fragment_list_view);
@@ -1380,7 +1379,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   @Override
   public boolean onContextItemSelected(MenuItem item) {
     if(mContextProgramID >= 0) {
-      UiUtils.handleContextMenuSelection(getActivity(), item, mContextProgramID, mContextView, (ViewGroup)getActivity().getCurrentFocus());
+      UiUtils.handleContextMenuSelection(getActivity(), item, mContextProgramID, mContextView, getActivity().getCurrentFocus());
       
       mContextProgramID = -1;
     }
