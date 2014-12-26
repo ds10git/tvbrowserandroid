@@ -503,7 +503,7 @@ public class UiUtils {
       }
     }
     
-    if(context != null && context instanceof TvBrowserSearchResults) {
+    if(context != null && context instanceof ActivityTvBrowserSearchResults) {
       menu.findItem(R.id.program_popup_search_repetition).setVisible(false);
     }
     
@@ -531,14 +531,14 @@ public class UiUtils {
     builder.setPositiveButton(activity.getResources().getString(android.R.string.search_go), new DialogInterface.OnClickListener() {      
       @Override
       public void onClick(DialogInterface dialog, int which) {
-        Intent search = new Intent(activity,TvBrowserSearchResults.class);
+        Intent search = new Intent(activity,ActivityTvBrowserSearchResults.class);
         
         search.putExtra(SearchManager.QUERY, String.valueOf(titleText.getText()));
         
         String episode = String.valueOf(episodeText.getText()).trim();
         
         if(episode.length() > 0) {
-          search.putExtra(TvBrowserSearchResults.QUERY_EXTRA_EPISODE_KEY, episode);
+          search.putExtra(ActivityTvBrowserSearchResults.QUERY_EXTRA_EPISODE_KEY, episode);
         }
         
         activity.startActivity(search);

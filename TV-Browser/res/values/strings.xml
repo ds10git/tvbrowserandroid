@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.4.1</h2>
+        <h2>0.5.4.2</h2>
+            &bull; fixed wrong color for search with light theme<br>
+            &bull; added workaround for crash on LG devices on menu button click<br>
+		<br>
+        <h3>0.5.4.1</h3>
             &bull; added workaround to try to fix crash on Samsung and Wiko devices with Android 4.2<br>
             &bull; Internet connection check accepts more response codes<br>
 		<br>
@@ -692,7 +696,8 @@
     <string name="make_donation">Yes, make\ndonation</string>
     <string name="stop_donation">No, thanks</string>
     <string name="thanks_for_donation">Thank you for donating for TV-Browser for Android.</string>
-    <string name="in_app_error">Could not etablish connection to Google Play.\n\nPlease try again later or use a different donation method.</string>
+    <string name="in_app_error_1">Could not etablish connection to Google Play.\n\nPlease try again later</string>
+    <string name="in_app_error_2">or use a different donation method.</string>
     <string name="already_donated">You have already donated {0} on {1}. Thanks again for that donation.\n\nDo you really want to donate again?</string>
     <string name="donate_again">Yes, donate again</string>
     <string name="no_donation_possible">At the moment no donation is possible.\nPlease try again later.</string>
