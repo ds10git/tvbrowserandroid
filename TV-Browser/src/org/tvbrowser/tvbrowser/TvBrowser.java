@@ -858,11 +858,8 @@ public class TvBrowser extends ActionBarActivity implements
       finally {
         IOUtils.closeCursor(channels);
       }
-      
-      Calendar now = Calendar.getInstance();
-      
-      now.add(Calendar.MINUTE, 1);
-      now.set(Calendar.SECOND, 5);
+            
+      Date firstUpdate = new Date((((long)(System.currentTimeMillis() / 60000L)) * 60000) + 61000);
       
       mTimer = new Timer();
       mTimer.scheduleAtFixedRate(new TimerTask() {
@@ -893,7 +890,7 @@ public class TvBrowser extends ActionBarActivity implements
           
           LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
         }
-      }, new Date(((now.getTimeInMillis() / 60000L) * 60000) + 62000), 60000);
+      }, firstUpdate, 60000);
     }
   }
   
