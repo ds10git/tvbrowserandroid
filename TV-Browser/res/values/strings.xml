@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.4.3</h2>
+        <h2>0.5.5</h2>
+        	&bull; update programs list only when needed<br>
             &bull; added workaround to force showing of overflow menu button in action bar (might not work on every device)<br>
             &bull; initialize widgets after device is started<br>
             &bull; prevent possible crash for opening dialog windows<br>
             &bull; zoom pictures of program accordingly to screen density<br>
             &bull; fix wrong font size for new channels info dialog<br>
+            &bull; prevent wrong search results in Favorites<br>
 		<br>
         <h3>0.5.4.2</h3>
             &bull; fixed wrong color for search with light theme<br>
@@ -843,5 +845,6 @@
     <string name="plugin_info_load">Open list with available\nPlugins now</string>
     <string name="plugin_info_donwload">Downloading \'{0}\'</string>
     
+    <string name="waiting_detail_show">Opening detail window&#8230;</string>
     
 </resources>

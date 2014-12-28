@@ -44,6 +44,7 @@ import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -58,6 +59,7 @@ import android.widget.TextView;
 
 public class FragmentProgramsList extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, ShowChannelInterface {
   private static final int NO_CHANNEL_SELECTION_ID = -1;
+  private static final String EXTRA_NEXT_UPDATE = "EXTRA_NEXT_UPDATE";
   
   private SimpleCursorAdapter mProgramListAdapter;
   
@@ -85,14 +87,17 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   private int mScrollPos;
   
   private ListView mListView;
+  
+  private long mCursorLoadLastTime = 0;
+  private long mNextUpdate = 0;
     
   @Override
   public void onResume() {
     super.onResume();
     
     mKeepRunning = true;
-    
-    startUpdateThread();
+    Log.d("info2", "RECEIVE ON RESUME");
+    startUpdateThread(mNextUpdate);
   }
   
   @Override
@@ -100,6 +105,22 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     super.onPause();
     
     mKeepRunning = false;
+  }
+  
+  @Override
+  public void onSaveInstanceState(Bundle outState) {
+    super.onSaveInstanceState(outState);
+    
+    outState.putLong(EXTRA_NEXT_UPDATE, mNextUpdate);
+  }
+  
+  @Override
+  public void onViewStateRestored(Bundle savedInstanceState) {
+    super.onViewStateRestored(savedInstanceState);
+    
+    if(savedInstanceState != null) {
+      mNextUpdate = savedInstanceState.getLong(EXTRA_NEXT_UPDATE, 0);
+    }
   }
   
   @Override
@@ -113,6 +134,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mDataUpdateReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
+        Log.d("info2", "RECEIVE DATA UPDATE");
         startUpdateThread();
       }
     };
@@ -120,6 +142,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mDontWantToSeeReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
+        Log.d("info2", "RECEIVE DONT WANT TO SEE UPDATE");
         startUpdateThread();
       }
     };
@@ -129,7 +152,8 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mRefreshReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        startUpdateThread();
+        Log.d("info2", "RECEIVE REFRESH UPDATE");
+        startUpdateThread(mNextUpdate);
       }
     };
 
@@ -137,14 +161,11 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, intent);
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
-    mKeepRunning = true;
   }
   
   @Override
   public void onDetach() {
     super.onDetach();
-    
-    mKeepRunning = false;
     
     if(mDataUpdateReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
@@ -191,6 +212,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   }
   
   public void scrollToTime() {
+    new Thread("SCROLL TO TIME THREAD") {
+      @Override
+      public void run() {
     if(mScrollTime > 0) {
       int testIndex = -1;
       
@@ -292,6 +316,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
         });
       }
     }
+      }
+    }.start();
+
   }
   
   public void setChannelID(long id) {
@@ -711,17 +738,18 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mListView.setDivider(drawable);
     
     setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.pref_program_lists_divider_size_default));
-    
-    
-    getLoaderManager().initLoader(0, null, this);
   }
   
   public void setDontUpdate(boolean value) {
     mDontUpdate = value;
   }
   
-  public void startUpdateThread() {
-    if(!mDontUpdate && (mUpdateThread == null || !mUpdateThread.isAlive())) {
+  private void startUpdateThread() {
+    startUpdateThread(0);
+  }
+  
+  private void startUpdateThread(long nextUpdate) {
+    if(mKeepRunning && !mDontUpdate && nextUpdate < System.currentTimeMillis() && (mUpdateThread == null || !mUpdateThread.isAlive())) {
       mUpdateThread = new Thread() {
         public void run() {
           handler.post(new Runnable() {
@@ -737,9 +765,8 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       mUpdateThread.start();
     }
   }
-
-  @Override
-  public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+  
+  private static final String[] getProjection() {
     String[] projection = null;
     
     if(PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default)) {
@@ -772,7 +799,11 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
     }
     
-    long time = System.currentTimeMillis();
+    return projection;
+  }
+  
+  private String getWhereClause(boolean useCursorLoadLastTime) {
+    long time = (useCursorLoadLastTime && mCursorLoadLastTime != 0) ? mCursorLoadLastTime : System.currentTimeMillis();
     
     String where = mDayClause.trim().length() == 0 ? " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + time + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + time + " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + time + " ) " : " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " > 0 ) ";
         
@@ -786,14 +817,37 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     where += ((TvBrowser)getActivity()).getChannelFilterSelection();
     
-    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where + mDayClause + mFilterClause, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+    mCursorLoadLastTime = time;
+    
+    return where;
+  }
+
+  @Override
+  public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, getProjection(), getWhereClause(false) + mDayClause + mFilterClause, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     
     return loader;
   }
 
   @Override
   public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
+    mNextUpdate = 0;
     mProgramListAdapter.swapCursor(c);
+    
+    new Thread("FIND PROGRAMLIST NEXT UPDATE") {
+      @Override
+      public void run() {
+        Cursor test = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_ENDTIME}, getWhereClause(true) + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME +">0", null, TvBrowserContentProvider.DATA_KEY_ENDTIME + " ASC LIMIT 1");
+        
+        try {
+          if(test.moveToFirst()) {
+            mNextUpdate = test.getLong(test.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+          }
+        }finally {
+          IOUtils.closeCursor(test);
+        }
+      }
+    }.start();
     
     if(mScrollPos == -1) {
       scrollToTime();

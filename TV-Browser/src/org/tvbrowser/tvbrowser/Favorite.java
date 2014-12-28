@@ -437,35 +437,35 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     }
     
     if(mType == KEYWORD_TYPE) {
-      builder.append(" || ifnull(");
+      builder.append(" || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL);
-      builder.append(",\"\") || ifnull(");
+      builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
-      builder.append(",\"\") || ifnull(");
+      builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL);
-      builder.append(",\"\") || ifnull(");
+      builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION);
-      builder.append(",\"\") || ifnull(");
+      builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_DESCRIPTION);
-      builder.append(",\"\") || ifnull(");
+      builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_ACTORS);
-      builder.append(",\"\") || ifnull(");
+      builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_REGIE);
-      builder.append(",\"\") || ifnull(");
+      builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_SCRIPT);
-      builder.append(",\"\") || ifnull(");
+      builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO);
-      builder.append(",\"\") || ifnull(");
+      builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_CAMERA);
-      builder.append(",\"\") || ifnull(");
+      builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_MODERATION);
-      builder.append(",\"\") || ifnull(");
+      builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_MUSIC);
-      builder.append(",\"\") || ifnull(");
+      builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_PRODUCER);
-      builder.append(",\"\") || ifnull(");
+      builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_GENRE);
-      builder.append(",\"\") || ifnull(");
+      builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_OTHER_PERSONS);
       builder.append(",\"\")");
     }
