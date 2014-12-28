@@ -881,7 +881,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   }
     
   private synchronized void startUpdateThread() {
-    if(mUpdateThread == null || !mUpdateThread.isAlive()) {
+    if(mKeepRunning && (mUpdateThread == null || !mUpdateThread.isAlive())) {
       mUpdateThread = new Thread() {
         public void run() {
           handler.post(new Runnable() {

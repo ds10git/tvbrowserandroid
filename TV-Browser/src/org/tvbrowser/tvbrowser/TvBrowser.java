@@ -865,7 +865,7 @@ public class TvBrowser extends ActionBarActivity implements
       now.set(Calendar.SECOND, 5);
       
       mTimer = new Timer();
-      mTimer.schedule(new TimerTask() {
+      mTimer.scheduleAtFixedRate(new TimerTask() {
         private int mCurrentDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
         @Override
         public void run() {
@@ -893,7 +893,7 @@ public class TvBrowser extends ActionBarActivity implements
           
           LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
         }
-      }, now.getTime(), 60000);
+      }, new Date(((now.getTimeInMillis() / 60000L) * 60000) + 62000), 60000);
     }
   }
   
@@ -4000,7 +4000,7 @@ public class TvBrowser extends ActionBarActivity implements
                         }
                         
                         protected void onPostExecute(Boolean result) {
-                          mProgress.hide();
+                          mProgress.dismiss();
                           
                           if(result) {
                             Intent intent = new Intent(Intent.ACTION_VIEW);
@@ -5043,7 +5043,6 @@ public class TvBrowser extends ActionBarActivity implements
    */
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
-    Log.d("info2", "onKeyDown");
     if (keyCode == KeyEvent.KEYCODE_MENU/* && "LGE".equalsIgnoreCase(Build.BRAND)*/) {
       return true;
     }
@@ -5053,7 +5052,6 @@ public class TvBrowser extends ActionBarActivity implements
 
   @Override
   public boolean onKeyUp(int keyCode, KeyEvent event) {
-    Log.d("info2", "onKeyUp");
     if (keyCode == KeyEvent.KEYCODE_MENU/* && "LGE".equalsIgnoreCase(Build.BRAND)*/) {
       openOptionsMenu();
       

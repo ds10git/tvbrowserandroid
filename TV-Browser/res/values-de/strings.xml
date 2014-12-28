@@ -1,12 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.4.3</h2>
+        <h2>0.5.5</h2>
+        	&bull; Sendungsliste nur aktualisieren, wenn notwendig<br>
             &bull; Workaround hinzugefügt um Menü-Button in der Werkzeugleiste immer anzuzeigen (funktioniert möglicherweise nicht auf allen Geräten)<br>
             &bull; Widgets beim Start des Geräts initialisieren<br>
             &bull; möglicher Absturz beim Öffnen von Dialog-Fenstern beseitigt<br>
             &bull; Bilder der Sendungen werden an Bildschirmauflösung angepasst<br>
             &bull; fehlerhafte Schriftgröße im Senderaktualisierungsdialog korrigiert<br>
+            &bull; verhindert fehlerhafte Suchergebnisse in den Lieblingssendungen<br>
 		<br>
 		<h3>0.5.4.2</h3>
             &bull; fehlerhafte Farbe in der Suche im hellen Thema korrigiert<br>
@@ -832,4 +834,6 @@
     <string name="plugin_info_message">TV-Browser kann mit Plugins um weitere Funktionen erweitert werden.\n\nSollten Sie eine Funktion vermissen, gibt es möglicherweise ein Plugin, was diese anbietet.\n\nMöchten Sie die Liste der verfügbaren Plugins jetzt öffnen (Sie können später auch über das Menü von TV-Browser nach Plugins suchen)?</string>
     <string name="plugin_info_load">Liste mit den Plugins\njetzt öffnen</string>
     <string name="plugin_info_donwload">Lade \'{0}\' herunter</string>
+    
+    <string name="waiting_detail_show">Öffne Detail-Fenster&#8230;</string>
 </resources>

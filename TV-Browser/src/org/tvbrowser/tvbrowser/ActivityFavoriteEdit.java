@@ -713,7 +713,7 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
     
     if(exclusions.trim().length() > 0) {
       if(exclusions.contains(",")) {
-        mFavorite.setExclusions(exclusions.split(",\\s+"));
+        mFavorite.setExclusions(exclusions.split(",\\s*"));
       }
       else {
         mFavorite.setExclusions(new String[] {exclusions.trim()});
