@@ -1,8 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.5</h2>
-        	&bull; update programs list only when needed<br>
+        <h2>0.5.5.1</h2>
+        	&bull; restore missing date and channel selection in program list<br>
+        <br>
+        <h3>0.5.5</h3>
+        	&bull; update program list only when needed<br>
             &bull; added workaround to force showing of overflow menu button in action bar (might not work on every device)<br>
             &bull; initialize widgets after device is started<br>
             &bull; prevent possible crash for opening dialog windows<br>

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.5</h2>
+        <h2>0.5.5.1</h2>
+        	&bull; Datums- und Senderauswahl in der Sendungsliste wiederhergestellt<br>
+        <br>
+        <h3>0.5.5</h3>
         	&bull; Sendungsliste nur aktualisieren, wenn notwendig<br>
             &bull; Workaround hinzugefügt um Menü-Button in der Werkzeugleiste immer anzuzeigen (funktioniert möglicherweise nicht auf allen Geräten)<br>
             &bull; Widgets beim Start des Geräts initialisieren<br>
