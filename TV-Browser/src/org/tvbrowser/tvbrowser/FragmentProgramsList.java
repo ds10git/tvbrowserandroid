@@ -422,7 +422,6 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     };
     
     localBroadcastManager.registerReceiver(dataUpdateReceiver, dataUpdateFilter);
-    dataUpdateReceiver.onReceive(null, null);
     
     final Spinner channel = (Spinner)rootView.findViewById(R.id.channel_selection);
     
@@ -645,7 +644,11 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     };
     
     localBroadcastManager.registerReceiver(mChannelUpdateReceiver, channelUpdateFilter);
+    
+    mKeepRunning = true;
+    dataUpdateReceiver.onReceive(null, null);
     mChannelUpdateReceiver.onReceive(null, null);
+    mKeepRunning = false;
     
     IntentFilter showChannelFilter = new IntentFilter(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
     
