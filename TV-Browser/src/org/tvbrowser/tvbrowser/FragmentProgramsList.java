@@ -96,7 +96,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     super.onResume();
     
     mKeepRunning = true;
-    Log.d("info2", "RECEIVE ON RESUME");
+    
     startUpdateThread(mNextUpdate);
   }
   
@@ -134,7 +134,6 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mDataUpdateReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        Log.d("info2", "RECEIVE DATA UPDATE");
         startUpdateThread();
       }
     };
@@ -142,7 +141,6 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mDontWantToSeeReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        Log.d("info2", "RECEIVE DONT WANT TO SEE UPDATE");
         startUpdateThread();
       }
     };
@@ -152,8 +150,17 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mRefreshReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        Log.d("info2", "RECEIVE REFRESH UPDATE");
-        startUpdateThread(mNextUpdate);
+        if(mNextUpdate <= System.currentTimeMillis()) {
+          startUpdateThread();
+        }
+        else {
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              mProgramListAdapter.notifyDataSetChanged();
+            }
+          });
+        }
       }
     };
 
@@ -749,7 +756,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   }
   
   private void startUpdateThread(long nextUpdate) {
-    if(mKeepRunning && !mDontUpdate && nextUpdate < System.currentTimeMillis() && (mUpdateThread == null || !mUpdateThread.isAlive())) {
+    if(mKeepRunning && !mDontUpdate && nextUpdate <= System.currentTimeMillis() && (mUpdateThread == null || !mUpdateThread.isAlive())) {
       mUpdateThread = new Thread() {
         public void run() {
           handler.post(new Runnable() {
