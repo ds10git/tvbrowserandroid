@@ -228,6 +228,9 @@ public class TvBrowser extends ActionBarActivity implements
   private IabHelper mHelper;
   
   private static final Calendar mVATtimeout;
+  
+  private int mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
+  private long mProgramListScrollTime = -1;
     
   static {
     mVATtimeout = Calendar.getInstance();
@@ -284,6 +287,13 @@ public class TvBrowser extends ActionBarActivity implements
   protected void onCreate(Bundle savedInstanceState) {
     handler = new Handler();
     PrefUtils.initialize(TvBrowser.this);
+    
+    Intent start = getIntent();
+    
+    if(start != null && start.hasExtra(SettingConstants.CHANNEL_ID_EXTRA)) {
+      mProgramListChannelId = start.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA,FragmentProgramsList.NO_CHANNEL_SELECTION_ID);
+      mProgramListScrollTime = start.getLongExtra(SettingConstants.START_TIME_EXTRA,-1);
+    }
     
     /*
      * Hack to force overflow menu button to be shown from:
@@ -578,6 +588,7 @@ public class TvBrowser extends ActionBarActivity implements
     mResumeTime = System.currentTimeMillis();
     
     mIsActive = true;
+    
     showTerms();
     
     if(mUpdateItem != null && !TvDataUpdateService.IS_RUNNING) {
@@ -635,6 +646,35 @@ public class TvBrowser extends ActionBarActivity implements
         showEpgDonateInfo();
       }
     }, 7000);
+    
+    if(mProgramListChannelId != FragmentProgramsList.NO_CHANNEL_SELECTION_ID) {
+      showProgramsListTab(false);
+    }
+  }
+  
+  @Override
+  protected void onNewIntent(Intent intent) {
+    Log.d("info2", "onNewIntent " + intent);
+    super.onNewIntent(intent);
+    setIntent(intent);
+    
+    if(mProgamListStateStack != null) {
+      mProgamListStateStack.clear();
+    }
+    
+    if(intent != null && intent.hasExtra(SettingConstants.CHANNEL_ID_EXTRA)) {
+      final Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
+      showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA, intent.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA,0));
+      showChannel.putExtra(SettingConstants.START_TIME_EXTRA, intent.getLongExtra(SettingConstants.START_TIME_EXTRA,0));
+      showChannel.putExtra(SettingConstants.NO_BACK_STACKUP_EXTRA, true);
+      
+      handler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+          LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcastSync(showChannel);
+        }
+      }, 1000);
+    }
   }
   
   private static boolean SHOWING_DONATION_INFO = false;
@@ -1339,7 +1379,9 @@ public class TvBrowser extends ActionBarActivity implements
               backup.append("boolean:").append(key).append("=").append(value).append("\n");
             }
             else if(value instanceof Integer) {
-              backup.append("int:").append(key).append("=").append(value).append("\n");
+              if(!getString(R.string.OLD_VERSION).equals(key)) {
+                backup.append("int:").append(key).append("=").append(value).append("\n");
+              }
             }
             else if(value instanceof Float) {
               backup.append("float:").append(key).append("=").append(value).append("\n");
@@ -1432,7 +1474,9 @@ public class TvBrowser extends ActionBarActivity implements
                     edit.putBoolean(parts[0], Boolean.valueOf(parts[1].trim()));
                   }
                   else if(type.equals("int")) {
-                    edit.putInt(parts[0], Integer.valueOf(parts[1].trim()));
+                    if(!getString(R.string.OLD_VERSION).equals(parts[0])) {
+                      edit.putInt(parts[0], Integer.valueOf(parts[1].trim()));
+                    }
                   }
                   else if(type.equals("float")) {
                     edit.putFloat(parts[0], Float.valueOf(parts[1].trim()));
@@ -3259,8 +3303,10 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void updateFromPreferences() {
-    Fragment test1 = mSectionsPagerAdapter.getRegisteredFragment(1);
+    SettingConstants.initializeLogoMap(getApplicationContext(), true);
     
+    Fragment test1 = mSectionsPagerAdapter.getRegisteredFragment(1);
+        
     if(test1 instanceof FragmentProgramsList) {
       ((FragmentProgramsList)test1).updateChannels();
     }
@@ -4440,7 +4486,9 @@ public class TvBrowser extends ActionBarActivity implements
         fragment = new FragmentProgramsListRunning();
       }
       else if(position == 1) {
-        fragment = new FragmentProgramsList();
+        fragment = new FragmentProgramsList(mProgramListChannelId, mProgramListScrollTime);
+        mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
+        mProgramListScrollTime = -1;
       }
       else if(position == 2) {
         fragment = new FragmentFavorites();

@@ -64,6 +64,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       
       onSharedPreferenceChanged(pref, getString(R.string.PREF_SHOW_PROGRESS));
       onSharedPreferenceChanged(pref, getString(R.string.PREF_COLOR_STYLE));
+      onSharedPreferenceChanged(pref, getString(R.string.PREF_LOGO_BORDER));
     }
     else if(getString(R.string.category_reminder).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_reminder);
@@ -146,6 +147,14 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     if(getActivity() != null) {
+      if(key.equals(getString(R.string.PREF_LOGO_BORDER))) {
+        CheckBoxPreference transparent = (CheckBoxPreference)findPreference(key);
+        ColorPreference borderColor = (ColorPreference)findPreference(getString(R.string.PREF_LOGO_BORDER_COLOR));
+        
+        if(transparent != null && borderColor != null) {
+          borderColor.setEnabled(transparent.isChecked());
+        }
+      }
       if(key.equals(getString(R.string.PREF_AUTO_UPDATE_START_TIME))) {
         Editor edit = sharedPreferences.edit();
         edit.putLong(getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), 0);

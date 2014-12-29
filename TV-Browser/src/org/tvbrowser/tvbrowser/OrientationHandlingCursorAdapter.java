@@ -181,6 +181,7 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
       info.mID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
       info.mStartTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
     }
+    
     return view;
   }
 }

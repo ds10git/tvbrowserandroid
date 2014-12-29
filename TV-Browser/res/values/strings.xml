@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.5.1</h2>
+        <h2>0.5.6</h2>
+        	&bull; color of background of channel icons configurable<br>
+        	&bull; size of filling of background of channel icons configurable<br>
+        	&bull; border for channel icons possible<br>
+        	&bull; color of border of channel icons configurable<br>
+        	&bull; restore widget update after time selection<br>
+        	&bull; prevent possible crash with opening program list from channel click<br>
+        	&bull; make sure program list is always opened on channel click in widgets<br>
+        <br>
+        <h3>0.5.5.1</h3>
         	&bull; restore missing date and channel selection in program list<br>
         <br>
         <h3>0.5.5</h3>
@@ -575,6 +584,11 @@
     <string name="pref_theme_category">Appearance</string>
     <string name="dark_theme">Dark Theme</string>
     <string name="dark_theme_summary">(Needs restart)</string>
+    <string name="pref_logo_background_color_title">Color of channel icons background</string>
+    <string name="pref_logo_border_title">Channel icons with border</string>
+    <string name="pref_logo_border_color_title">Color of channel icons border</string>
+    <string name="pref_logo_background_fill_title">Fill background of channel icon to full size</string>
+    <string name="pref_logo_background_fill_summary">Background of channel icons is filled with the background color to make all icons the same size.</string>
     <string name="pref_running_sort_time_buttons">Sort</string>
     <string name="pref_running_sort_time_buttons_summary_on">Time buttons appear sorted by time</string>
     <string name="pref_running_sort_time_buttons_summary_off">Time buttons appear in below order</string>

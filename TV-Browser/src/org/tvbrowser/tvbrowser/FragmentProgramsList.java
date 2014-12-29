@@ -58,7 +58,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 
 public class FragmentProgramsList extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, ShowChannelInterface {
-  private static final int NO_CHANNEL_SELECTION_ID = -1;
+  public static final int NO_CHANNEL_SELECTION_ID = -1;
   private static final String EXTRA_NEXT_UPDATE = "EXTRA_NEXT_UPDATE";
   
   private SimpleCursorAdapter mProgramListAdapter;
@@ -90,7 +90,15 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   
   private long mCursorLoadLastTime = 0;
   private long mNextUpdate = 0;
-    
+  
+  private Spinner channel;
+  
+  public FragmentProgramsList(int channelId, long startTime) {
+    mScrollTime = startTime;
+    mChannelID = channelId;
+    mScrollPos = -1;
+  }
+  
   @Override
   public void onResume() {
     super.onResume();
@@ -157,7 +165,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
           handler.post(new Runnable() {
             @Override
             public void run() {
-              mProgramListAdapter.notifyDataSetChanged();
+              if(!mIsLoading) {
+                mProgramListAdapter.notifyDataSetChanged();
+              }
             }
           });
         }
@@ -218,114 +228,115 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mScrollTime = time;
   }
   
-  public void scrollToTime() {
-    new Thread("SCROLL TO TIME THREAD") {
+  public void scrollToTime() {    Log.d("info2", "scrollToTime");
+    handler.post(new Thread("SCROLL TO TIME THREAD") {
       @Override
       public void run() {
-    if(mScrollTime > 0) {
-      int testIndex = -1;
-      
-      if(mScrollTime <= 1441) {
-        mScrollTime--;
-        
-        if(mDayStart > 0) {
-          mScrollTime = mDayStart + mScrollTime * 60000;
-        }
-        else {
-          Calendar now = Calendar.getInstance();
-          now.set(Calendar.HOUR_OF_DAY,(int)(mScrollTime / 60));
-          now.set(Calendar.MINUTE,(int)(mScrollTime % 60));
-          now.set(Calendar.SECOND, 0);
-          now.set(Calendar.MILLISECOND, 0);
+        if(mScrollTime > 0) {
+          int testIndex = -1;
           
-          mScrollTime = now.getTimeInMillis();
-          
-          if(mScrollTime < System.currentTimeMillis()) {
-            mScrollTime += 1440 * 60000;
-          }
-        }
-      }
-    
-      Cursor c = mProgramListAdapter.getCursor();
-      
-      if(c != null && c.moveToFirst()) {
-        try {
-          int index = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-          int endIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
-          int count = 0;
-          
-          if(c != null && !c.isClosed()) {
-            do {
-              long startTime = c.getLong(index);
-              long endTime = c.getLong(endIndex);
+          if(mScrollTime <= 1441) {
+            mScrollTime--;
+            
+            if(mDayStart > 0) {
+              mScrollTime = mDayStart + mScrollTime * 60000;
+            }
+            else {
+              Calendar now = Calendar.getInstance();
+              now.set(Calendar.HOUR_OF_DAY,(int)(mScrollTime / 60));
+              now.set(Calendar.MINUTE,(int)(mScrollTime % 60));
+              now.set(Calendar.SECOND, 0);
+              now.set(Calendar.MILLISECOND, 0);
               
-              if(startTime < mScrollTime && endTime > mScrollTime) {
-                testIndex = count++;
+              mScrollTime = now.getTimeInMillis();
+              
+              if(mScrollTime < System.currentTimeMillis()) {
+                mScrollTime += 1440 * 60000;
               }
-              else if(startTime == mScrollTime) {
-                testIndex = count;
-                break;
-              }
-              else if(startTime > mScrollTime) {
-                if(testIndex == -1) {
-                  testIndex = count;
-                }
-                
-                break;
-              }
-              else {
-                count++;
-              }
-            }while(c.moveToNext());
+            }
           }
-        }catch(IllegalStateException e) {}
-      }
+        
+          Cursor c = mProgramListAdapter.getCursor();
+          
+          if(c != null && c.moveToFirst()) {
+            try {
+              int index = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+              int endIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+              int count = 0;
+              
+              if(c != null && !c.isClosed()) {
+                do {
+                  long startTime = c.getLong(index);
+                  long endTime = c.getLong(endIndex);
+                  
+                  if(startTime < mScrollTime && endTime > mScrollTime) {
+                    testIndex = count++;
+                  }
+                  else if(startTime == mScrollTime) {
+                    testIndex = count;
+                    break;
+                  }
+                  else if(startTime > mScrollTime) {
+                    if(testIndex == -1) {
+                      testIndex = count;
+                    }
+                    
+                    break;
+                  }
+                  else {
+                    count++;
+                  }
+                }while(c.moveToNext());
+              }
+            }catch(IllegalStateException e) {}
+          }
+          
+          mScrollTime = -1;
+          
+          if(testIndex == -1) {
+            testIndex = 0;
+          }
+          
+          final int scollIndex = testIndex;
+          
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              if(mListView != null) {
+                mListView.setSelection(scollIndex);
+                handler.post(new Runnable() {
+                  @Override
+                  public void run() {
+                    Log.d("info2", "scrollIndex " + scollIndex);
+                    
+                    mListView.setSelection(scollIndex);
+                  }
+                });
+              }
+            }
+          });
+        }
+        else if(mScrollTime == 0) {
+          Spinner test = (Spinner)((ViewGroup)getView().getParent()).findViewById(R.id.date_selection);
+          
+          if(test != null && test.getSelectedItemPosition() > 0) {
+            test.setSelection(0);
+          }
+          else {
+            mScrollTime = -1;
       
-      mScrollTime = -1;
-      
-      if(testIndex == -1) {
-        testIndex = 0;
-      }
-      
-      final int scollIndex = testIndex;
-      
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          if(mListView != null) {
-            mListView.setSelection(scollIndex);
             handler.post(new Runnable() {
               @Override
               public void run() {
-                mListView.setSelection(scollIndex);
+                if(getView() != null) {
+                  mListView.setSelection(0);
+                }
               }
             });
           }
         }
-      });
-    }
-    else if(mScrollTime == 0) {
-      Spinner test = (Spinner)((ViewGroup)getView().getParent()).findViewById(R.id.date_selection);
-      
-      if(test != null && test.getSelectedItemPosition() > 0) {
-        test.setSelection(0);
       }
-      else {
-        mScrollTime = -1;
-  
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            if(getView() != null) {
-              mListView.setSelection(0);
-            }
-          }
-        });
-      }
-    }
-      }
-    }.start();
-
+    });
   }
   
   public void setChannelID(long id) {
@@ -423,7 +434,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     localBroadcastManager.registerReceiver(dataUpdateReceiver, dataUpdateFilter);
     
-    final Spinner channel = (Spinner)rootView.findViewById(R.id.channel_selection);
+    channel = (Spinner)rootView.findViewById(R.id.channel_selection);
     
     final Button minus = (Button)rootView.findViewById(R.id.channel_minus);
     CompatUtils.setBackground(minus, getResources().getDrawable(android.R.drawable.list_selector_background));
@@ -619,7 +630,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
             do {
               Bitmap logo = UiUtils.createBitmapFromByteArray(channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
                             
-              LayerDrawable logoDrawable = null;
+              Drawable logoDrawable = null;
               
               if(logo != null) {
                 logoDrawable = SettingConstants.createLayerDrawable(22, getActivity(), logo);
@@ -632,9 +643,15 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
                 name = shortName;
               }
               
-              ChannelSelection channelSel = new ChannelSelection(channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ", name, logoDrawable);
+              int id = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+              
+              ChannelSelection channelSel = new ChannelSelection(id, channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ", name, logoDrawable);
               
               channelAdapter.add(channelSel);
+              
+              if(id == mChannelID) {
+                channel.setSelection(channelAdapter.getCount()-1);
+              }
             }while(channelCursor.moveToNext());
           }
           
@@ -832,8 +849,12 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     return where;
   }
 
+  private boolean mIsLoading;
+  
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
+    Log.d("info2", "onCreateLoader");
+    mIsLoading = true;
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, getProjection(), getWhereClause(false) + mDayClause + mFilterClause, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     
     return loader;
@@ -841,6 +862,8 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
 
   @Override
   public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
+    Log.d("info2", "onLoadFinished");
+    mIsLoading = false;
     mNextUpdate = 0;
     mProgramListAdapter.swapCursor(c);
     
@@ -873,7 +896,8 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
 
   @Override
   public void onLoaderReset(Loader<Cursor> loader) {
-    mProgramListAdapter.swapCursor(null);
+    mIsLoading = false;
+    mProgramListAdapter.changeCursor(null);
   }
   
   private void setDividerSize(String size) {

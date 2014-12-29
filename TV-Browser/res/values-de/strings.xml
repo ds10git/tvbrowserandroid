@@ -1,7 +1,16 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.5.1</h2>
+        <h2>0.5.6</h2>
+        	&bull; Farbe des Hintergrunds der Senderlogos einstellbar<br>
+        	&bull; Ausdehnung der Füllung des Hintergrunds der Senderlogos einstellbar<br>
+        	&bull; Rahmen um Senderlogos möglich<br>
+        	&bull; Farbe des Rahmens der Senderlogos einstellbar<br>
+        	&bull; Widget-Update nach Auswahl der Zeit wiederhergestellt<br>
+        	&bull; möglicher Absturz beim Öffnen der Sendungsliste durch Klick auf Sender beseitigt<br>
+        	&bull; stellt sicher, dass Sendungsliste immer geöffnet wird, wenn Sender in Widgets angeklickt werden<br>
+        <br>
+        <h3>0.5.5.1</h3>
         	&bull; Datums- und Senderauswahl in der Sendungsliste wiederhergestellt<br>
         <br>
         <h3>0.5.5</h3>
@@ -567,6 +576,11 @@
     <string name="pref_theme_category">Aussehen</string>
     <string name="dark_theme">Dunkles Thema</string>
     <string name="dark_theme_summary">(Neustart notwendig)</string>
+    <string name="pref_logo_background_color_title">Hintergrundfarbe der Senderlogos</string>
+    <string name="pref_logo_border_title">Senderlogos mit Umrandung</string>
+    <string name="pref_logo_border_color_title">Farbe der Umrandung der Senderlogos</string>
+    <string name="pref_logo_background_fill_title">Hintergrund der Senderlogos auf volle Größe füllen</string>
+    <string name="pref_logo_background_fill_summary">Der Hintergrund der Senderlogos wird mit der Hintergrundfarbe aufgefüllt um alle Logos auf die gleiche Größe zu bringen.</string>
     <string name="pref_running_sort_time_buttons">Sortieren</string>
     <string name="pref_running_sort_time_buttons_summary_on">Zeitknöpfe werden nach Zeit sortiert angeordnet</string>
     <string name="pref_running_sort_time_buttons_summary_off">Zeitknöpfe erscheinen in der unten eingestellten Reihenfolge</string>

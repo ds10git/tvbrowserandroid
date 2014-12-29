@@ -34,8 +34,14 @@ public class WidgetOnClickReceiver extends BroadcastReceiver {
     if(intent.hasExtra(SettingConstants.CHANNEL_ID_EXTRA) && intent.hasExtra(SettingConstants.START_TIME_EXTRA)) {
       Intent startTVB = new Intent(context, TvBrowser.class);
       startTVB.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+      startTVB.putExtra(SettingConstants.CHANNEL_ID_EXTRA, intent.getExtras().getInt(SettingConstants.CHANNEL_ID_EXTRA));
+      startTVB.putExtra(SettingConstants.START_TIME_EXTRA, intent.getExtras().getLong(SettingConstants.START_TIME_EXTRA));
+      startTVB.putExtra(SettingConstants.NO_BACK_STACKUP_EXTRA, true);
+      
       context.getApplicationContext().startActivity(startTVB);
       
+      
+      /*
       new Handler().postDelayed(new Runnable() {
         @Override
         public void run() {
@@ -46,7 +52,7 @@ public class WidgetOnClickReceiver extends BroadcastReceiver {
           
           LocalBroadcastManager.getInstance(context.getApplicationContext()).sendBroadcast(send);
         }
-      }, 1000);
+      }, 1000);*/
     }
     else if(programID >= 0) {
       Intent startInfo = new Intent(context, InfoActivity.class);
