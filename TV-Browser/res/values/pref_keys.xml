@@ -41,7 +41,19 @@
 
 	    <string name="DARK_STYLE">DARK_STYLE</string>
 	    <item name="dark_style_default" type="bool" format="boolean">true</item>
-
+		
+	    <string name="PREF_LOGO_BACKGROUND_COLOR">PREF_LOGO_BACKGROUND_COLOR</string>
+	    <item name="pref_logo_background_color_default" type="color" format="color">#fff</item>
+	    
+	    <string name="PREF_LOGO_BACKGROUND_FILL">PREF_LOGO_BACKGROUND_FILL</string>
+	    <item name="pref_logo_background_fill_default" type="bool" format="boolean">false</item>
+	    
+	    <string name="PREF_LOGO_BORDER">PREF_LOGO_BORDER</string>
+	    <item name="pref_logo_border_default" type="bool" format="boolean">false</item>
+	    
+	    <string name="PREF_LOGO_BORDER_COLOR">PREF_LOGO_BORDER_COLOR</string>
+	    <item name="pref_logo_border_color_default" type="color" format="color">#777</item>
+	    	    
 	    <string name="PREF_SHOW_PROGRESS">PREF_SHOW_PROGRESS</string>
 	    <item name="pref_show_progress_default" type="bool" format="boolean">true</item>
 	    

@@ -32,7 +32,9 @@ import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
+import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.GradientDrawable.Orientation;
 import android.preference.PreferenceManager;
 import android.util.SparseArray;
 
@@ -213,6 +215,8 @@ public class SettingConstants {
   
   public static synchronized void initializeLogoMap(Context context, boolean reload) {
     if(SMALL_LOGO_MAP.size() == 0 || MEDIUM_LOGO_MAP.size() == 0 || reload) {
+      PrefUtils.initialize(context.getApplicationContext());
+      
       Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, null);
       
       SMALL_LOGO_MAP.clear();
@@ -228,7 +232,7 @@ public class SettingConstants {
             Bitmap logoBitmap = UiUtils.createBitmapFromByteArray(channels.getBlob(logoIndex));
             
             if(logoBitmap != null) {
-              SMALL_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(15,context,logoBitmap));
+              SMALL_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(17,context,logoBitmap));
               MEDIUM_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(25,context,logoBitmap));
             }
           }
@@ -244,26 +248,46 @@ public class SettingConstants {
   }
   
   public static LayerDrawable createLayerDrawable(int baseHeight, Context context, Bitmap logoBitmap) {
+    boolean withBorder = PrefUtils.getBooleanValue(R.string.PREF_LOGO_BORDER, R.bool.pref_logo_border_default);
+    
+    int padding = withBorder ? 4 : 3;
+    
     float scale = UiUtils.convertDpToPixel(baseHeight, context.getResources()) / (float)logoBitmap.getHeight();
     int maxwidth = UiUtils.convertDpToPixel(80, context.getResources());
+    int maxheight = UiUtils.convertDpToPixel(baseHeight, context.getResources())+padding;
     
     int width = (int)(logoBitmap.getWidth() * scale);
     int height = (int)(logoBitmap.getHeight() * scale);
     
-    if(width > maxwidth) {
-      width = maxwidth;
-      height = (int)(logoBitmap.getHeight() * maxwidth/(float)logoBitmap.getWidth());
+    if(width > maxwidth-padding) {
+      width = maxwidth-padding;
+      height = (int)(logoBitmap.getHeight() * width/(float)logoBitmap.getWidth());
     }
-    
-    ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
-    background.setBounds(0, 0, width + 2, height + 2);
     
     BitmapDrawable logo1 = new BitmapDrawable(context.getResources(), logoBitmap);
     
-    LayerDrawable logo = new LayerDrawable(new Drawable[] {background,logo1});
-    logo.setBounds(0, 0, width + 2, height + 2);
+    LayerDrawable logo = new LayerDrawable(new Drawable[] {logo1});
+    GradientDrawable background = null;
     
-    logo1.setBounds(2, 2, width, height);
+    int backgroundColor = PrefUtils.getIntValue(R.string.PREF_LOGO_BACKGROUND_COLOR, context.getResources().getColor(R.color.pref_logo_background_color_default));
+    
+    background = new GradientDrawable(Orientation.BOTTOM_TOP, new int[] {backgroundColor,backgroundColor});
+    
+    logo = new LayerDrawable(new Drawable[] {background,logo1});
+    logo.setBounds(0, 0, maxwidth, maxheight);
+    
+    if(PrefUtils.getBooleanValue(R.string.PREF_LOGO_BACKGROUND_FILL, R.bool.pref_logo_background_fill_default)) {
+      background.setBounds(0, 0, maxwidth, maxheight);
+    }
+    else {
+      background.setBounds(maxwidth/2-width/2-padding/2, maxheight/2-height/2-padding/2, maxwidth/2+width/2+padding/2, maxheight/2+height/2+padding/2);
+    }
+    
+    logo1.setBounds(maxwidth/2-width/2, maxheight/2-height/2, maxwidth/2+width/2, maxheight/2+height/2);
+    
+    if(withBorder) {
+      background.setStroke(1, PrefUtils.getIntValue(R.string.PREF_LOGO_BORDER_COLOR, context.getResources().getColor(R.color.pref_logo_border_color_default)));
+    }
     
     return logo;
   }
@@ -317,6 +341,7 @@ public class SettingConstants {
   private static final int GRAY_LIGHT_VALUE = 155;
   private static final int GRAY_DARK_VALUE = 78;
   public static final int LOGO_BACKGROUND_COLOR = Color.WHITE;
+  public static final int LOGO_TRANSPARENT_BACKGROUND_COLOR = Color.argb(0, 0, 0, 0);
   
   public static final int EXPIRED_LIGHT_COLOR = Color.rgb(GRAY_LIGHT_VALUE, GRAY_LIGHT_VALUE, GRAY_LIGHT_VALUE);
   public static final int EXPIRED_DARK_COLOR = Color.rgb(GRAY_DARK_VALUE, GRAY_DARK_VALUE, GRAY_DARK_VALUE);

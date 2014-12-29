@@ -36,6 +36,7 @@ import android.content.SharedPreferences;
 import android.net.Uri;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
 
@@ -47,13 +48,14 @@ import android.widget.RemoteViews;
 public class RunningProgramsListWidget extends AppWidgetProvider {
   @Override
   public void onReceive(Context context, Intent intent) {
+    Log.d("info2", "" + IOUtils.isInteractive(context) + " " +intent);
     if(intent != null && Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
       UiUtils.updateRunningProgramsWidget(context);
     }
     else {
       if(IOUtils.isInteractive(context) || AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction())) {
         if((AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction()) || SettingConstants.UPDATE_RUNNING_APP_WIDGET.equals(intent.getAction())) && intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID) && 
-            intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID) != AppWidgetManager.INVALID_APPWIDGET_ID || intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS)) {
+            (intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID) != AppWidgetManager.INVALID_APPWIDGET_ID || intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS))) {
           AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
           
           int[] appWidgetIds = null;
@@ -67,7 +69,7 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
           
           if(appWidgetIds != null) {
             onUpdate(context, appWidgetManager, appWidgetIds);
-            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.important_widget_list_view);
+            appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.running_widget_list_view);
           }
         }
         else {
