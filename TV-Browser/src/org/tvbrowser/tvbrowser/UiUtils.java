@@ -70,6 +70,7 @@ import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.GradientDrawable.Orientation;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -240,11 +241,21 @@ public class UiUtils {
   
               BitmapDrawable l = new BitmapDrawable(context.getResources(), logo);
               
-              ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
-              background.setBounds(0, 0, width + 2, height + 2);
+              int color = PrefUtils.getIntValue(R.string.PREF_LOGO_BACKGROUND_COLOR, context.getResources().getColor(R.color.pref_logo_background_color_default));
+              
+              GradientDrawable background = new GradientDrawable(Orientation.BOTTOM_TOP,new int[] {color,color});
+              
+              int add = 2;
+              
+              if(PrefUtils.getBooleanValue(R.string.PREF_LOGO_BORDER, R.bool.pref_logo_border_default)) {
+                add = 3;
+                background.setStroke(1, PrefUtils.getIntValue(R.string.PREF_LOGO_BORDER_COLOR, context.getResources().getColor(R.color.pref_logo_border_color_default)));
+              }
+              
+              background.setBounds(0, 0, width + add, height + add);
               
               LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
-              logoDrawable.setBounds(0, 0, width + 2, height + 2);
+              logoDrawable.setBounds(0, 0, width + add, height + add);
               
               l.setBounds(2, 2, width, height);
               

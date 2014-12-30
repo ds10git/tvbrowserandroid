@@ -93,6 +93,10 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   
   private Spinner channel;
   
+  public FragmentProgramsList() {
+    this(NO_CHANNEL_SELECTION_ID,-1);
+  }
+  
   public FragmentProgramsList(int channelId, long startTime) {
     mScrollTime = startTime;
     mChannelID = channelId;
