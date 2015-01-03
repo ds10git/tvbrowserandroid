@@ -99,10 +99,13 @@ public class SettingConstants {
   public static final String SKU_THREE_STAR_DONATION = "three_star_donation";
   public static final String SKU_FOUR_STAR_DONATION = "four_star_donation";
   public static final String SKU_FIVE_STAR_DONATION = "five_star_donation";
+  public static final String SKU_EPG_DONATE_ONCE = "epg_donate_once";
+  public static final String SKU_EPG_DONATE_ABO = "epg_donate_abo";
   
   public static final ArrayList<String> SKU_LIST = new ArrayList<String>();
   
   static {
+    SKU_LIST.add(SKU_EPG_DONATE_ONCE);
     SKU_LIST.add(SKU_ONE_STAR_DONATION);
     SKU_LIST.add(SKU_TWO_STAR_DONATION);
     SKU_LIST.add(SKU_THREE_STAR_DONATION);

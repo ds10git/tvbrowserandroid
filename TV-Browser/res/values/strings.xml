@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.6.1</h2>
+        <h2>0.5.6.2</h2>
+        	&bull; more zoom values for detail window<br>
+        	&bull; Edit/Delete Favorites also from ActionBar<br>
+        	&bull; added donation value for EPGdonate<br>
+        	&bull; full transparent background for widgets possible<br>
+        <br>
+        <h3>0.5.6.1</h3>
         	&bull; use channel icon color values for detail window also<br>
         	&bull; fix possible crash caused by program list<br>
         <br>
@@ -239,6 +245,11 @@
     <string name="dont_select_channels">Don\'t\nselect channels</string>
     <string name="menu_tvbrowser_title_update_data">Update Data</string>
     <string name="menu_tvbrowser_title_create_favorite">New Favorite</string>
+    <string name="menu_tvbrowser_title_edit_favorite">Edit Favorite</string>
+    <string name="menu_tvbrowser_title_delete_favorite">Delete Favorite</string>
+    <string name="dialog_favorite_delete_title">Delete Favorite?</string>
+    <string name="dialog_favorite_delete_message">Do you really want to delete the Favorite \'{0}\'?</string>
+    <string name="dialog_favorite_delete_button">Delete\nFavorite</string>
     <string name="versionExpired">Version expired</string>
     <string name="versionExpiredMsg">This version will stop working in {0} days.\n\nPlease install an update for the app.</string>
     <string name="versionExpiredMsgLast">This version will stop working from tomorrow on.\n\nPlease install an update for the app.</string>
@@ -273,7 +284,7 @@
         <item>Top drop down menu (Needs restart)</item>
         <item>Left side list selection (Needs restart)</item>
     </string-array>
-    <string name="favorite_fragment_help">The selected Favorite has no found programs.\n\nTo edit or delete Favorites, please select it and click long on the selected entry.\n\nTo add a new Favorite click on the heart icon.</string>
+    <string name="favorite_fragment_help">The selected Favorite has no found programs.\n\nTo edit or delete Favorites, please select it and click long on the selected entry or use the heart icon.\n\nTo add a new Favorite click on the heart icon.</string>
     <string name="favorite_name">Name:</string>
     <string name="favorite_name_hint">Enter name (optional)</string>
     <string name="favorite_search">Search:</string>
@@ -721,7 +732,7 @@
     <string name="donation_open_inapp">Open InApp Donations</string>
     <string name="donation_info_website">To see possible ways of donating to the TV-Browser development you can look at the website of TV-Browser for Android.</string>
     <string name="donation_open_website">Show website with\nways of donating</string>
-    <string name="donation_thanks_text">Thank you for considering to make a donation, you can select from the following donations (these contains 30% Google Play transaction fee):</string>
+    <string name="donation_thanks_text">Thank you for considering to make a donation, you can select from the following donations (these contains 30% Google Play transaction fee and the VAT):</string>
     <string name="make_donation_info">You are about to make a donation of {0}.\n\nWith clicking on \'Yes, make donation\' you confirm that you are at least 18 years and therefor allowed to make donations.</string>
     <string name="make_donation">Yes, make\ndonation</string>
     <string name="stop_donation">No, thanks</string>
@@ -800,6 +811,7 @@
         <item>Low</item>
         <item>Medium</item>
         <item>High</item>
+        <item>Full</item>
     </string-array>
     
     <string name="backup_channels_success">Channels successfully stored on TV-Browser server</string>

@@ -58,13 +58,20 @@
         <item>140%</item>
         <item>150%</item>
     </string-array>
-    <string-array name="picture_zoom_values_names">
+     <string-array name="picture_zoom_values_names">
         <item>100%</item>
         <item>120%</item>
         <item>140%</item>
         <item>160%</item>
         <item>180%</item>
         <item>200%</item>
+        <item>225%</item>
+        <item>250%</item>
+        <item>275%</item>
+        <item>300%</item>
+        <item>350%</item>
+        <item>400%</item>
+        <item>500%</item>
     </string-array>
     <string-array name="picture_zoom_values">
         <item>1.0</item>
@@ -73,6 +80,13 @@
         <item>1.6</item>
         <item>1.8</item>
         <item>2.0</item>
+        <item>2.25</item>
+        <item>2.5</item>
+        <item>2.75</item>
+        <item>3.0</item>
+        <item>3.5</item>
+        <item>4.0</item>
+        <item>5.0</item>
     </string-array>
     <integer-array name="time_button_defaults">
         <item>1215</item>
@@ -151,6 +165,13 @@
         <item>1</item>
         <item>2</item>
         <item>3</item>
+    </string-array>
+    <string-array name="pref_simple_string_value_array5">
+        <item>0</item>
+        <item>1</item>
+        <item>2</item>
+        <item>3</item>
+        <item>4</item>
     </string-array>
     <string name="pref_news_type_none">None</string>
     <string name="pref_news_type_all">All</string>

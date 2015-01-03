@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.6.1</h2>
+        <h2>0.5.6.2</h2>
+        	&bull; mehr Skalierungsstufen für Bilder im Detail-Fenster<br>
+        	&bull; Lieblingssendungen bearbeiten/löschen auch über Werkzeugleiste möglich<br>
+        	&bull; Spendenbetrag für EPGdonate hinzugefügt<br>
+        	&bull; vollständig transparenter Hintergrund für Widgets möglich<br>
+        <br>
+        <h3>0.5.6.1</h3>
         	&bull; Logofarben werden auch für das Detail-Fenster verwendet<br>
         	&bull; möglicher Absturz durch Sendungsliste beseitigt<br>
         <br>
@@ -238,6 +244,11 @@
     <string name="dont_select_channels">Jetzt nicht</string>
     <string name="menu_tvbrowser_title_update_data">Datenupdate</string>
     <string name="menu_tvbrowser_title_create_favorite">Neue Lieblingssendung</string>
+    <string name="menu_tvbrowser_title_edit_favorite">Bearbeite Lieblingssendung</string>
+    <string name="menu_tvbrowser_title_delete_favorite">Lösche Lieblingssendung</string>
+    <string name="dialog_favorite_delete_title">Lieblingssendung löschen?</string>
+    <string name="dialog_favorite_delete_message">Möchten Sie die Lieblingssendung \'{0}\' wirklich löschen?</string>
+    <string name="dialog_favorite_delete_button">Lieblingssendung\nlöschen</string>
     <string name="versionExpired">Version abgelaufen</string>
     <string name="versionExpiredMsg">Diese Version wird sich in {0} Tagen nicht mehr benutzen lassen.\n\nBitte installieren Sie ein Update.</string>
     <string name="versionExpiredMsgLast">Diese Version wird sich ab morgen nicht mehr benutzen lassen.\n\nBitte installieren Sie ein Update.</string>
@@ -271,7 +282,7 @@
         <item>Auswahlbox am oberen Rand (Neustart notwendig)</item>
         <item>Listenauswahl auf der linken Seite (Neustart notwendig)</item>
     </string-array>
-    <string name="favorite_fragment_help">Die ausgewählte Lieblingssendung hat keine gefundenen Sendungen.\n\nUm eine Lieblingssendung zu bearbeiten oder zu löschen, wählen Sie diese aus und klicken Sie dann lang auf die ausgewählte Lieblingssendung.\n\nKlicken Sie auf das Herzsymbol um eine neue Lieblingssendung anzulegen.</string>
+    <string name="favorite_fragment_help">Die ausgewählte Lieblingssendung hat keine gefundenen Sendungen.\n\nUm eine Lieblingssendung zu bearbeiten oder zu löschen, wählen Sie diese aus und klicken Sie dann lang auf die ausgewählte Lieblingssendung oder verwenden Sie das Herzsymbol.\n\nKlicken Sie auf das Herzsymbol um eine neue Lieblingssendung anzulegen.</string>
     <string name="favorite_name">Name:</string>
     <string name="favorite_name_hint">Namen eingeben (optional)</string>
     <string name="favorite_search">Suchen:</string>
@@ -713,7 +724,7 @@
     <string name="donation_open_inapp">Zeige InApp-Spenden</string>
     <string name="donation_info_website">Alle Spendenmöglichkeiten sind auf der Webseite von TV-Browser für Android beschrieben.</string>
     <string name="donation_open_website">Webseite mit allen\nSpendenmöglichkeiten öffnen</string>
-    <string name="donation_thanks_text">Vielen Dank für das Interesse an Spenden für TV-Browser, Sie können aus folgenden Beträgen auswählen (diese enthalen jeweils 30% Google Play Zahlungsgebühr):</string>
+    <string name="donation_thanks_text">Vielen Dank für das Interesse an Spenden für TV-Browser, Sie können aus folgenden Beträgen auswählen (diese enthalen jeweils 30% Google Play Zahlungsgebühr und die jeweilige Mehrwertsteuer):</string>
     <string name="make_donation_info">Sie sind dabei eine Spende von {0} zu leisten.\n\nMit dem Klick auf \'Ja, jetzt spenden\' bestätigen Sie, dass sie mindestens 18 Jahre alt sind und damit Spenden leisten dürfen.</string>
     <string name="make_donation">Ja, jetzt\nspenden</string>
     <string name="stop_donation">Nein, Danke</string>
@@ -790,6 +801,7 @@
         <item>Gering</item>
         <item>Mittel</item>
         <item>Hoch</item>
+        <item>Vollständig</item>
     </string-array>
     
     <string name="widget_prefrerences_simple_icon">Einfarbiges Widget-Symbol</string>

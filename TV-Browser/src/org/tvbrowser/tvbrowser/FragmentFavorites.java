@@ -30,8 +30,10 @@ import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -49,6 +51,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -202,6 +205,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           mCurrentFavoriteSelection = mMarkingsAdapter.getItem(position);
           mWhereClause = mCurrentFavoriteSelection.getWhereClause();
           
+          ((TvBrowser)getActivity()).updateFavoritesMenu(false);
+          
           handler.post(new Runnable() {
             @Override
             public void run() {
@@ -344,17 +349,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
                 setItemChecked.invoke(mFavoriteSelection, new Object[]{position.get(),true});
                 
                 if(position.get() < mFavoriteList.size()) {
-                  mCurrentFavoriteSelection = mFavoriteList.get(position.get());
-                  mWhereClause = mCurrentFavoriteSelection.getWhereClause();
-                  
-                  handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                      if(!isDetached() && getActivity() != null) {
-                        getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
-                      }
-                    }
-                  });
+                  selectFavorite(position.get());
                 }
               } catch (Exception e) {
               }
@@ -370,24 +365,16 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     mFavoriteSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
       public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        mCurrentFavoriteSelection = mFavoriteList.get(position);
-        mWhereClause = mCurrentFavoriteSelection.getWhereClause();
-        
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            if(!isDetached() && getActivity() != null) {
-              getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
-            }
-          }
-        });
+        selectFavorite(position);
       }
       
       @Override
       public void onNothingSelected(AdapterView<?> parent) {
+        mCurrentSelection = mCurrentFavoriteSelection = null;
         mWhereClause = null;
         
         if(!isDetached() && getActivity() != null) {
+          ((TvBrowser)getActivity()).updateFavoritesMenu(false);
           getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
         }
       }
@@ -397,17 +384,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       mFavoriteSelection.setOnItemClickListener(new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
-          mCurrentFavoriteSelection = mFavoriteList.get(position);
-          mWhereClause = mCurrentFavoriteSelection.getWhereClause();
-          
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              if(!isDetached()) {
-                getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
-              }
-            }
-          });
+          selectFavorite(position);
         }
       });
     }
@@ -453,6 +430,22 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     prefs.registerOnSharedPreferenceChangeListener(this);
     
     setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.pref_program_lists_divider_size_default));
+  }
+  
+  private void selectFavorite(int position) {
+    mCurrentSelection = mCurrentFavoriteSelection = mFavoriteList.get(position);
+    mWhereClause = mCurrentFavoriteSelection.getWhereClause();
+    
+    ((TvBrowser)getActivity()).updateFavoritesMenu(mCurrentFavoriteSelection.containsFavorite());
+    
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        if(!isDetached() && getActivity() != null) {
+          getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
+        }
+      }
+    });
   }
   
   @Override
@@ -775,18 +768,10 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   public boolean onContextItemSelected(MenuItem item) {
     if(mCurrentSelection != null) {
       if(item.getItemId() == R.id.delete_favorite) {
-        mFavoriteList.remove(mCurrentSelection);
-        
-        new Thread() {
-          public void run() {
-            Favorite.removeFavoriteMarking(getActivity().getApplicationContext(), getActivity().getContentResolver(), mCurrentSelection.getFavorite());
-          }
-        }.start();
-        
-        updateFavorites();
+        deleteSelectedFavorite();
       }
       else if(item.getItemId() == R.id.edit_favorite) {
-        editFavorite(mCurrentSelection.getFavorite());
+        editSelectedFavorite();
       }
       
       return true;
@@ -878,6 +863,40 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     @Override
     public int compareTo(FavoriteSpinnerEntry another) {
       return toString().compareToIgnoreCase(another.toString());
+    }
+  }
+  
+  public void editSelectedFavorite() {
+    if(mCurrentSelection != null) {
+      editFavorite(mCurrentSelection.getFavorite());
+    }
+  }
+  
+  public void deleteSelectedFavorite() {
+    if(mCurrentSelection != null) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+      
+      builder.setTitle(R.string.dialog_favorite_delete_title);
+      builder.setMessage(getString(R.string.dialog_favorite_delete_message).replace("{0}", mCurrentSelection.getFavorite().getName()));
+      
+      builder.setPositiveButton(R.string.dialog_favorite_delete_button, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          mFavoriteList.remove(mCurrentSelection);
+          mCurrentSelection = null;
+          
+          new Thread() {
+            public void run() {
+              Favorite.removeFavoriteMarking(getActivity().getApplicationContext(), getActivity().getContentResolver(), mCurrentSelection.getFavorite());
+            }
+          }.start();
+          
+          updateFavorites();        
+        }
+      });
+      
+      builder.setNegativeButton(android.R.string.cancel, null);
+      builder.show();
     }
   }
 }

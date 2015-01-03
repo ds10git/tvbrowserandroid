@@ -30,13 +30,13 @@
 	    android:title="@string/widget_preferences_background_transpacency_header"
 	    android:defaultValue="@string/pref_widget_background_transparency_header_default"
 	    android:entries="@array/widget_preferences_background_transpacency"
-	    android:entryValues="@array/pref_simple_string_value_array4"
+	    android:entryValues="@array/pref_simple_string_value_array5"
 	    android:summary="%s"/>
 	<ListPreference android:key="@string/PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST"
 	    android:title="@string/widget_preferences_background_transpacency_list"
 	    android:defaultValue="@string/pref_widget_background_transparency_list_default"
 	    android:entries="@array/widget_preferences_background_transpacency"
-	    android:entryValues="@array/pref_simple_string_value_array4"
+	    android:entryValues="@array/pref_simple_string_value_array5"
 	    android:summary="%s"/>
 	<CheckBoxPreference android:key="@string/PREF_WIDGET_SHOW_EPISODE" 
 		android:title="@string/pref_show_episode"
