@@ -32,9 +32,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
-import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.util.Log;
 import android.widget.RemoteViews;
 
 /**
@@ -135,6 +133,9 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
           case 3:
             headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_high;
             break;
+          case 4:
+            headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_full;
+            break;
 
           default:
             headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_none;
@@ -151,7 +152,10 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
           case 3:
             listDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_high;
             break;
-          
+          case 4:
+            listDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_full;
+            break;
+            
           default:
             listDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_none;
             break;
@@ -168,7 +172,10 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
           case 3:
             headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_high;
             break;
-
+          case 4:
+            headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_full;
+            break;
+            
           default:
             headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_none;
             break;
@@ -184,7 +191,10 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
           case 3:
             listDrawable = R.drawable.shape_widget_background_corners_straight_transparency_high;
             break;
-          
+          case 4:
+            listDrawable = R.drawable.shape_widget_background_corners_straight_transparency_full;
+            break;
+            
           default:
             listDrawable = R.drawable.shape_widget_background_corners_straight_transparency_none;
             break;

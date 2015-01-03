@@ -38,13 +38,33 @@
         android:title="@string/menu_tvbrowser_title_update_data"
         android:icon="@android:drawable/stat_sys_download"
         />
-    <item
+<item
         android:id="@+id/menu_tvbrowser_action_create_favorite"
         android:orderInCategory="90"
         app:showAsAction="always"
         android:title="@string/menu_tvbrowser_title_create_favorite"
-        android:icon="@drawable/ic_favorite_add"
-        />
+        android:icon="@drawable/ic_favorite_add">
+    	<menu>
+    	    <item
+    	        android:id="@+id/menu_tvbrowser_action_favorite_add"
+    	        android:orderInCategory="90"
+    	        app:showAsAction="never"
+    	        android:title="@string/menu_tvbrowser_title_create_favorite"
+    	        />
+    	    <item
+    	        android:id="@+id/menu_tvbrowser_action_favorite_edit"
+    	        android:orderInCategory="90"
+    	        app:showAsAction="never"
+    	        android:title="@string/menu_tvbrowser_title_edit_favorite"
+    	        />
+			<item
+    	        android:id="@+id/menu_tvbrowser_action_favorite_delete"
+    	        android:orderInCategory="90"
+    	        app:showAsAction="never"
+    	        android:title="@string/menu_tvbrowser_title_delete_favorite"
+    	        />
+    	</menu>
+    </item>
   	<item
   	    android:id="@+id/action_pause_reminder"
   	    android:orderInCategory="100"

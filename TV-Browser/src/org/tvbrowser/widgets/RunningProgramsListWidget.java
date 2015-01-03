@@ -137,7 +137,10 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
           case 3:
             headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_high;
             break;
-
+          case 4:
+            headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_full;
+            break;
+            
           default:
             headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_rounded_transparency_none;
             break;
@@ -153,7 +156,10 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
           case 3:
             listDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_high;
             break;
-          
+          case 4:
+            listDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_full;
+            break;
+            
           default:
             listDrawable = R.drawable.shape_widget_background_corners_rounded_transparency_none;
             break;
@@ -170,7 +176,10 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
           case 3:
             headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_high;
             break;
-
+          case 4:
+            headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_full;
+            break;
+            
           default:
             headerDrawable = buttonDrawable = R.drawable.shape_button_background_corners_straight_transparency_none;
             break;
@@ -186,7 +195,10 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
           case 3:
             listDrawable = R.drawable.shape_widget_background_corners_straight_transparency_high;
             break;
-          
+          case 4:
+            listDrawable = R.drawable.shape_widget_background_corners_straight_transparency_full;
+            break;
+            
           default:
             listDrawable = R.drawable.shape_widget_background_corners_straight_transparency_none;
             break;

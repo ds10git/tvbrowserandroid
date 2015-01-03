@@ -112,6 +112,7 @@ import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.text.style.RelativeSizeSpan;
 import android.text.style.ReplacementSpan;
 import android.text.style.URLSpan;
 import android.util.Base64;
@@ -226,23 +227,16 @@ public class TvBrowser extends ActionBarActivity implements
   
   private long mResumeTime;
   private IabHelper mHelper;
-  
-  private static final Calendar mVATtimeout;
-  
+    
   private int mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
   private long mProgramListScrollTime = -1;
-    
+  
   static {
-    mVATtimeout = Calendar.getInstance();
-    mVATtimeout.set(2015, Calendar.JANUARY,1,0,0,0);
-    mVATtimeout.set(Calendar.MILLISECOND, 0);
-    
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2015);
     mRundate.set(Calendar.MONTH, Calendar.AUGUST);
     mRundate.set(Calendar.DAY_OF_MONTH, 1);
   }
-  
   
   @Override
   protected void onSaveInstanceState(Bundle outState) {
@@ -654,7 +648,6 @@ public class TvBrowser extends ActionBarActivity implements
   
   @Override
   protected void onNewIntent(Intent intent) {
-    Log.d("info2", "onNewIntent " + intent);
     super.onNewIntent(intent);
     setIntent(intent);
     
@@ -1721,14 +1714,16 @@ public class TvBrowser extends ActionBarActivity implements
     private String mName;
     private boolean mIsSelected;
     private boolean mWasSelected;
+    private boolean mIsEpgDonateChannel;
     
-    public ChannelSelection(int channelID, String name, int category, String country, Bitmap channelLogo, boolean isSelected) {
+    public ChannelSelection(int channelID, String name, int category, String country, Bitmap channelLogo, boolean isSelected, boolean isEpgDonateChannel) {
       mChannelID = channelID;
       mCategory = category;
       mCountry = country;
       mChannelLogo = channelLogo;
       mName = name;
       mWasSelected = mIsSelected = isSelected;
+      mIsEpgDonateChannel = isEpgDonateChannel;
     }
     
     public boolean isCategory(int category) {
@@ -1757,6 +1752,10 @@ public class TvBrowser extends ActionBarActivity implements
     
     public String toString() {
       return mName;
+    }
+    
+    public boolean isEpgDonateChannel() {
+      return mIsEpgDonateChannel;
     }
     
     public int getChannelID() {
@@ -1915,12 +1914,13 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void showChannelSelectionInternal() {
-    showChannelSelectionInternal(null,null,"This is a test");
+    showChannelSelectionInternal(null,null,null);
   }
   
   private void showChannelSelectionInternal(final String selection, final String title, final String help) {
     String[] projection = {
-        TvBrowserContentProvider.KEY_ID,
+        TvBrowserContentProvider.CHANNEL_TABLE+"."+TvBrowserContentProvider.KEY_ID,
+        TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID,
         TvBrowserContentProvider.CHANNEL_KEY_NAME,
         TvBrowserContentProvider.CHANNEL_KEY_SELECTION,
         TvBrowserContentProvider.CHANNEL_KEY_CATEGORY,
@@ -1929,20 +1929,29 @@ public class TvBrowser extends ActionBarActivity implements
         };
     
     ContentResolver cr = getContentResolver();
-    Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, selection, null, null);
+    Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, selection, null, TvBrowserContentProvider.CHANNEL_KEY_NAME);
     channels.moveToPosition(-1);
     
     // populate array list with all available channels
     final ArrayListWrapper channelSelectionList = new ArrayListWrapper();
     ArrayList<Country> countryList = new ArrayList<Country>();
-            
+    
+    int channelIdColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+    int categoryColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CATEGORY);
+    int logoColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
+    int dataServiceColumn = channels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID);
+    int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+    int countyColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ALL_COUNTRIES);
+    int selectionColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
+    
     while(channels.moveToNext()) {
-      int channelID = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-      int category = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CATEGORY));
-      byte[] logo = channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO));
-      String name = channels.getString(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-      String countries = channels.getString(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ALL_COUNTRIES));
-      boolean isSelected = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_SELECTION)) == 1;
+      int channelID = channels.getInt(channelIdColumn);
+      int category = channels.getInt(categoryColumn);
+      byte[] logo = channels.getBlob(logoColumn);
+      String dataService = channels.getString(dataServiceColumn);
+      String name = channels.getString(nameColumn);
+      String countries = channels.getString(countyColumn);
+      boolean isSelected = channels.getInt(selectionColumn) == 1;
       
       if(countries.contains("$")) {
         String[] values = countries.split("\\$");
@@ -1978,8 +1987,8 @@ public class TvBrowser extends ActionBarActivity implements
         
         channelLogo = UiUtils.drawableToBitmap(logoDrawable);
       }
-      
-      channelSelectionList.add(new ChannelSelection(channelID, name, category, countries, channelLogo, isSelected));
+      Log.d("ifno2", "  CHANNELID " + channelID + " " + name);
+      channelSelectionList.add(new ChannelSelection(channelID, name, category, countries, channelLogo, isSelected, SettingConstants.EPG_DONATE_KEY.equals(dataService)));
     }
     
     // sort countries for filtering
@@ -2020,14 +2029,22 @@ public class TvBrowser extends ActionBarActivity implements
           holder.mLogo = (ImageView)convertView.findViewById(R.id.row_of_channel_icon);
           
           convertView.setTag(holder);
-          
         }
         else {
           holder = (ViewHolder)convertView.getTag();
         }
         
-        holder.mTextView.setText(value.toString());
+        if(value.isEpgDonateChannel()) {
+          SpannableStringBuilder nameBuilder = new SpannableStringBuilder(value.toString());
+          nameBuilder.append("\n(EPGdonate)");
+          nameBuilder.setSpan(new RelativeSizeSpan(0.65f), value.toString().length(), nameBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+          holder.mTextView.setText(nameBuilder);
+        }else {
+          holder.mTextView.setText(value.toString());
+        }
         holder.mCheckBox.setChecked(value.isSelected());
+        
+        
         
         Bitmap logo = value.getLogo();
         
@@ -4079,6 +4096,31 @@ public class TvBrowser extends ActionBarActivity implements
       return strBuilder;    
   }
   
+  private void editFavorite() {
+    Fragment favorites = mSectionsPagerAdapter.getRegisteredFragment(2);
+    
+    if(favorites instanceof FragmentFavorites) {
+      ((FragmentFavorites) favorites).editSelectedFavorite();
+    }
+  }
+  
+  private void deleteFavorite() {
+    Fragment favorites = mSectionsPagerAdapter.getRegisteredFragment(2);
+    
+    if(favorites instanceof FragmentFavorites) {
+      ((FragmentFavorites) favorites).deleteSelectedFavorite();
+    }
+  }
+  
+  public void updateFavoritesMenu(boolean editDeleteEnabled) {
+    if(mCreateFavorite != null) {
+      SubMenu menu = mCreateFavorite.getSubMenu();
+      
+      menu.findItem(R.id.menu_tvbrowser_action_favorite_edit).setEnabled(editDeleteEnabled);
+      menu.findItem(R.id.menu_tvbrowser_action_favorite_delete).setEnabled(editDeleteEnabled);
+    }
+  }
+  
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
@@ -4087,7 +4129,9 @@ public class TvBrowser extends ActionBarActivity implements
         showUserSetting(false);
       }
       break;
-      case R.id.menu_tvbrowser_action_create_favorite: UiUtils.editFavorite(null, TvBrowser.this, null);break;
+      case R.id.menu_tvbrowser_action_favorite_add: UiUtils.editFavorite(null, TvBrowser.this, null);break;
+      case R.id.menu_tvbrowser_action_favorite_edit: editFavorite();break;
+      case R.id.menu_tvbrowser_action_favorite_delete: deleteFavorite();break;
       case R.id.action_donation: showDonationInfo(); break;
       case R.id.action_search_plugins: 
         if(isOnline()) {
@@ -4599,7 +4643,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     alert.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), null);
         
-    if(Locale.getDefault().getCountry().equals("DE") || mVATtimeout.compareTo(Calendar.getInstance()) > 0) {
+    if(Locale.getDefault().getCountry().equals("DE")) {
       alert.setPositiveButton(R.string.donation_info_website, new OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
@@ -4631,19 +4675,21 @@ public class TvBrowser extends ActionBarActivity implements
         donatedDetails = details;
       }
       if(details != null) {
-        String title = details.getTitle().substring(0,details.getTitle().indexOf("(")-1);
+        if(!details.getSku().equals(SettingConstants.SKU_EPG_DONATE_ONCE) || hasEpgDonateChannelsSubscribed()) {
+          String title = details.getTitle().substring(0,details.getTitle().indexOf("(")-1);
+          
+          Button donation = new Button(this);
+          donation.setTextSize(TypedValue.COMPLEX_UNIT_SP,18);
+          donation.setText(title + ": " + details.getPrice());
+          donation.setTag(details);
+          donation.setOnClickListener(onDonationClick);
         
-        Button donation = new Button(this);
-        donation.setTextSize(UiUtils.convertDpToPixel(16, getResources()));
-        donation.setText(title + ": " + details.getPrice());
-        donation.setTag(details);
-        donation.setOnClickListener(onDonationClick);
-      
-        layout.addView(donation);
-        
-        LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)donation.getLayoutParams();
-        params.setMargins(5, 0, 5, 5); //left, top, right, bottom
-        donation.setLayoutParams(params);
+          layout.addView(donation);
+          
+          LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)donation.getLayoutParams();
+          params.setMargins(5, 0, 5, 5); //left, top, right, bottom
+          donation.setLayoutParams(params);
+        }
       }
     }
     
@@ -4718,7 +4764,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     boolean showOthers = true;
     
-    if(!Locale.getDefault().getCountry().equals("DE") && mVATtimeout.compareTo(Calendar.getInstance()) < 0) {
+    if(!Locale.getDefault().getCountry().equals("DE")) {
       showOthers = false;
     }
     
@@ -4874,7 +4920,7 @@ public class TvBrowser extends ActionBarActivity implements
     TextView webInfo = (TextView)view.findViewById(R.id.donation_show_ways);
     Button openWeb = (Button)view.findViewById(R.id.donation_website_button);
         
-    if(!Locale.getDefault().getCountry().equals("DE") && mVATtimeout.compareTo(Calendar.getInstance()) < 0) {
+    if(!Locale.getDefault().getCountry().equals("DE")) {
       webInfo.setVisibility(View.GONE);
       openWeb.setVisibility(View.GONE);
     }
