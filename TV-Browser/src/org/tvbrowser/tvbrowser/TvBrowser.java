@@ -1369,7 +1369,9 @@ public class TvBrowser extends ActionBarActivity implements
             Object value = preferences.get(key);
             
             if(value instanceof Boolean) {
-              backup.append("boolean:").append(key).append("=").append(value).append("\n");
+              if(!getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(key) || ((Boolean)value).booleanValue()) {
+                backup.append("boolean:").append(key).append("=").append(value).append("\n");
+              }
             }
             else if(value instanceof Integer) {
               if(!getString(R.string.OLD_VERSION).equals(key)) {
@@ -1464,7 +1466,11 @@ public class TvBrowser extends ActionBarActivity implements
                 
                 if(parts != null && parts.length > 1) {
                   if(type.equals("boolean")) {
-                    edit.putBoolean(parts[0], Boolean.valueOf(parts[1].trim()));
+                    boolean boolValue = Boolean.valueOf(parts[1].trim());
+                    
+                    if(!getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(parts[0]) || boolValue) {
+                      edit.putBoolean(parts[0], boolValue);
+                    }
                   }
                   else if(type.equals("int")) {
                     if(!getString(R.string.OLD_VERSION).equals(parts[0])) {

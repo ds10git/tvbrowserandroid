@@ -155,7 +155,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           borderColor.setEnabled(transparent.isChecked());
         }
       }
-      if(key.equals(getString(R.string.PREF_AUTO_UPDATE_START_TIME))) {
+      else if(key.equals(getString(R.string.PREF_AUTO_UPDATE_START_TIME))) {
         Editor edit = sharedPreferences.edit();
         edit.putLong(getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), 0);
         edit.commit();
@@ -273,6 +273,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_HEADER))
           || key.equals(getResources().getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST))
           || key.equals(getResources().getString(R.string.PREF_NEWS_TYPE))
+          || key.equals(getResources().getString(R.string.DETAIL_PICTURE_DESCRIPTION_POSITION))
           ) {
         ListPreference lp = (ListPreference) findPreference(key);
         
@@ -544,9 +545,11 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       else if(key.equals(getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS))) {
         CheckBoxPreference picturesInDetails = (CheckBoxPreference) findPreference(key);
         ListPreference pictureZoom = (ListPreference) findPreference(getResources().getString(R.string.DETAIL_PICTURE_ZOOM));
+        ListPreference pictureDescPos = (ListPreference)findPreference(getString(R.string.DETAIL_PICTURE_DESCRIPTION_POSITION));
         
-        if(picturesInDetails != null && pictureZoom != null) {
+        if(picturesInDetails != null && pictureZoom != null && pictureDescPos != null) {
           pictureZoom.setEnabled(picturesInDetails.isChecked());
+          pictureDescPos.setEnabled(picturesInDetails.isChecked());
         }
       }
       else if(key.equals(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED)) || key.equals(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER))) {

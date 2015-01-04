@@ -391,7 +391,10 @@
 	
 	    <string name="SHOW_PICTURE_IN_DETAILS">SHOW_PICTURE_IN_DETAILS</string>
     	<item name="show_picture_in_details_default" type="bool" format="boolean">true</item>
-	
+
+    	<string name="DETAIL_PICTURE_DESCRIPTION_POSITION">DETAIL_PICTURE_DESCRIPTION_POSITION</string>
+    	<item name="detail_picture_description_position_default" type="string" format="string">0</item>
+    		
     	<string name="SHOW_SORT_NUMBER_IN_DETAILS">SHOW_SORT_NUMBER_IN_DETAILS</string>
 	    <item name="show_sort_number_in_details_default" type="bool" format="boolean">true</item>
 	    
