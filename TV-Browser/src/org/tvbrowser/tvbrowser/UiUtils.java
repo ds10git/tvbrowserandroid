@@ -312,7 +312,12 @@ public class UiUtils {
                 
                 b.setBounds(0, 0, (int)(image.getWidth() * zoom), (int)(image.getHeight() * zoom));
                 
-                pictureDescription.setCompoundDrawables(b, null, null, null);
+                if(PrefUtils.getStringValue(R.string.DETAIL_PICTURE_DESCRIPTION_POSITION, R.string.detail_picture_description_position_default).equals("0")) {
+                  pictureDescription.setCompoundDrawables(b, null, null, null);
+                }
+                else {
+                  pictureDescription.setCompoundDrawables(null, b, null, null);
+                }
               }
             }
             

@@ -2,10 +2,12 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.6.2</h2>
+        	&bull; picture description position in detail window configurable<br>
         	&bull; more zoom values for detail window<br>
         	&bull; Edit/Delete Favorites also from ActionBar<br>
         	&bull; added donation value for EPGdonate<br>
         	&bull; full transparent background for widgets possible<br>
+        	&bull; EPGdonate channels are marked in channels selection<br>
         <br>
         <h3>0.5.6.1</h3>
         	&bull; use channel icon color values for detail window also<br>
@@ -458,6 +460,11 @@
 	<string name="pref_list_category">Lists with programs</string>
 	<string name="pref_list_category_summary">Which information should be shown in the lists with programs?</string>
 	<string name="pref_show_pictures">Show pictures</string>
+	<string name="pref_detail_picture_description_position">Position of picture description</string>
+	<string-array name="pref_detail_picture_description_entries">
+	    <item>To right of picture</item>
+	    <item>At botton of picture</item>
+	</string-array>
 	<string name="pref_show_genre">Show genre</string>
 	<string name="pref_show_episode">Show episode title</string>
 	<string name="pref_show_program_categories">Show program categories</string>

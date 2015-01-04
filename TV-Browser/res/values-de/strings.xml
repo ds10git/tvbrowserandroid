@@ -2,10 +2,12 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.6.2</h2>
+        	&bull; Position der Bildbeschreibung im Detail-Fenster einstellbar<br>
         	&bull; mehr Skalierungsstufen für Bilder im Detail-Fenster<br>
         	&bull; Lieblingssendungen bearbeiten/löschen auch über Werkzeugleiste möglich<br>
         	&bull; Spendenbetrag für EPGdonate hinzugefügt<br>
         	&bull; vollständig transparenter Hintergrund für Widgets möglich<br>
+        	&bull; EPGdonate-Sender sind in der Senderauswahl markiert<br>
         <br>
         <h3>0.5.6.1</h3>
         	&bull; Logofarben werden auch für das Detail-Fenster verwendet<br>
@@ -456,6 +458,11 @@
 	<string name="pref_list_category">Listen mit Sendungen</string>
 	<string name="pref_list_category_summary">Welche Informationen sollen in den Listen mit Sendungen angezeigt werden?</string>
 	<string name="pref_show_pictures">Bilder anzeigen</string>
+	<string name="pref_detail_picture_description_position">Position der Bildbeschreibung</string>
+	<string-array name="pref_detail_picture_description_entries">
+	    <item>Rechts neben dem Bild</item>
+	    <item>Unter dem Bild</item>
+	</string-array>
 	<string name="pref_show_genre">Genre anzeigen</string>
 	<string name="pref_show_episode">Episodentitel anzeigen</string>
 	<string name="pref_show_program_categories">Sendungskategorien anzeigen</string>
