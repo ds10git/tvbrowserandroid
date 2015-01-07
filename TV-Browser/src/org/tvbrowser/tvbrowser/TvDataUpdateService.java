@@ -607,6 +607,68 @@ public class TvDataUpdateService extends Service {
     }
     
     if(mCurrentChannelData != null) {
+      long lastChannelUpdate = PrefUtils.getLongValue(R.string.PREF_LAST_CHANNEL_UPDATE, 0);
+      
+      Editor edit = PreferenceManager.getDefaultSharedPreferences(TvDataUpdateService.this).edit();
+      edit.putLong(getString(R.string.PREF_LAST_CHANNEL_UPDATE), System.currentTimeMillis());
+      
+      if((lastChannelUpdate + (2 * 24 * 60 * 60000L)) < System.currentTimeMillis()) {
+        Set<String> currentFirstDeletedChannels = PrefUtils.getStringSetValue(R.string.PREF_FIRST_DELETED_CHANNELS, new HashSet<String>());
+        Set<String> keptDeletedChannels = PrefUtils.getStringSetValue(R.string.PREF_KEPT_DELETED_CHANNELS, new HashSet<String>());
+        
+        HashSet<String> firstDeletedNew = new HashSet<String>();
+        HashSet<String> secondDeletedUserChannels = new HashSet<String>();
+        HashSet<String> keptDeletedChannelsNew = new HashSet<String>();
+        
+        Set<String> keys = mCurrentChannelData.keySet();
+        
+        StringBuilder delete = new StringBuilder();
+        
+        for(String key : keys) {
+          Object channelValues = mCurrentChannelData.get(key);
+          
+          String uniqueChannelId = String.valueOf(((Object[])channelValues)[0]);
+          Integer selection = (Integer)((Object[])channelValues)[2];
+          
+          if(currentFirstDeletedChannels.contains(uniqueChannelId)) {
+            if(selection.intValue() == 1) {
+              secondDeletedUserChannels.add(uniqueChannelId);
+            }
+            else {
+              if(delete.length() > 0) {
+                delete.append(", ");
+              }
+              
+              delete.append(uniqueChannelId);
+            }
+          }
+          else {
+            firstDeletedNew.add(uniqueChannelId);
+          }
+          
+          if(keptDeletedChannels.contains(uniqueChannelId)) {
+            keptDeletedChannelsNew.add(uniqueChannelId);
+          }
+        }
+        
+        edit.putStringSet(getString(R.string.PREF_FIRST_DELETED_CHANNELS), firstDeletedNew);
+        edit.putStringSet(getString(R.string.PREF_SECOND_DELETED_CHANNELS), secondDeletedUserChannels);
+        edit.putStringSet(getString(R.string.PREF_KEPT_DELETED_CHANNELS), keptDeletedChannelsNew);
+        
+        if(delete.length() > 0) {
+          delete.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
+          delete.append(" ) ");
+          
+          doLog("DELETE REMOVED CHANNELS: " + delete);
+          
+          int deleteCount = getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_CHANNELS, delete.toString(), null);
+          
+          doLog("DELETED REMOVED CHANNELS COUNT: " + deleteCount);
+        }
+      }
+      
+      edit.commit();
+      
       mCurrentChannelData.clear();
       mCurrentChannelData = null;
     }
@@ -1095,6 +1157,7 @@ public class TvDataUpdateService extends Service {
   }
   
   private Hashtable<String, Object> mCurrentChannelData;
+  private boolean mHadChannels;
   
   private void updateChannels(final boolean autoUpdate) {
     if(!IS_RUNNING) {
@@ -1115,7 +1178,7 @@ public class TvDataUpdateService extends Service {
       mChannelsNew = new ArrayList<String>();
       mChannelsUpdate = new ArrayList<Integer>();
       
-      final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.GROUP_KEY_GROUP_ID,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME};
+      final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.GROUP_KEY_GROUP_ID,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_SELECTION};
       
       Cursor currentChannels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, null, null, null);
 
@@ -1126,16 +1189,19 @@ public class TvDataUpdateService extends Service {
         final int groupKeyIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
         final int channelKeyIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
         final int channelNameIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+        final int channelSelectionIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
         
         while(currentChannels.moveToNext()) {
           String key = IOUtils.getUniqueChannelKey(currentChannels.getString(groupKeyIndex), currentChannels.getString(channelKeyIndex));
-          mCurrentChannelData.put(key, new Object[] {Integer.valueOf(currentChannels.getInt(idIndex)) , currentChannels.getString(channelNameIndex)});
+          mCurrentChannelData.put(key, new Object[] {Integer.valueOf(currentChannels.getInt(idIndex)) , currentChannels.getString(channelNameIndex), Integer.valueOf(currentChannels.getInt(channelSelectionIndex))});
         }
       }finally {
         if(currentChannels != null) {
           currentChannels.close();
         }
       }
+      
+      mHadChannels = !mCurrentChannelData.isEmpty();
       
       final File path = IOUtils.getDownloadDirectory(TvDataUpdateService.this.getApplicationContext());
 
@@ -1628,7 +1694,7 @@ public class TvDataUpdateService extends Service {
             
             String key = info.mUniqueGroupID + "_##_" + channelId.trim();
             
-            Object channelValues = mCurrentChannelData.get(key);
+            Object channelValues = mCurrentChannelData.remove(key);
             
            // String where = TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = " + info.mUniqueGroupID + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = '" + channelId + "'";
             
@@ -1662,7 +1728,7 @@ public class TvDataUpdateService extends Service {
             if(channelValues == null) {
               insertValuesList.add(values);
               
-              if(!mCurrentChannelData.isEmpty()) {
+              if(mHadChannels) {
                 mChannelsNew.add(IOUtils.getUniqueChannelKey(String.valueOf(info.getUniqueGroupID()), channelId));
               }
             }
@@ -4082,7 +4148,10 @@ public class TvDataUpdateService extends Service {
             doLog(" DELETE WHERE " + where);
             Log.d("info66", " DELETE WHERE " + where);
             
-            getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, where.toString(), null);
+            int deletedRows = getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, where.toString(), null);
+            
+            doLog(" DELETED ROWS: " + deletedRows);
+            Log.d("info66", " DELETED ROWS: " + deletedRows);
           }
           
           Log.d("info5", "INSERTED");

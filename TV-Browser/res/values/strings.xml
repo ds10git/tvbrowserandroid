@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.6.2</h2>
+        	&bull; removed channels are deleted<br>
         	&bull; picture description position in detail window configurable<br>
         	&bull; more zoom values for detail window<br>
         	&bull; Edit/Delete Favorites also from ActionBar<br>
@@ -238,6 +239,8 @@
     <string name="select_channels">Select channels\nnow</string>
     <string name="dialog_select_channels_update_title">New channel were found or existing channels were updated</string>
     <string name="dialog_select_channels_update_help">You can select channels new channels here. (Updated subscribed channels are preselected.)</string>
+    <string name="dialog_select_channels_delete_title">Channel are no longer available</string>
+    <string name="dialog_select_channels_delete_help">The listed channel are no longer available, this might be a temporarily problem. Select the channels that should be remove permanently.</string>
     <string name="tv">TV</string>
     <string name="radio">Radio</string>
     <string name="cinema">Cinema</string>
@@ -394,7 +397,7 @@
 	<string name="channel_selection_label_text_name">Name:</string>
 	<string name="channel_selection_input_name_hint">Enter name of filter</string>
 	<string name="synchronize_title">Synchronize channels?</string>
-	<string name="synchronize_text">You can synchronize your with the channels from your desktop TV-Browser.\n\nYou will have to <a href="http://android.tvbrowser.org/index.php?id=createaccount">register a user first</a> and export your channels from your desktop TV-Browser with the Android Sync plugin.\n\nDo you wish to synchronize your channels now or do you wish to select the channels manually?</string>
+	<string name="synchronize_text">You can synchronize your with the channels from your desktop TV-Browser.\n\nYou will have to <a href="http://android.tvbrowser.org/index.php?id=createaccount">register a user first</a> and export your channels from your desktop TV-Browser with the Android Sync plugin.\n\nYou <u><b>don\'t need to register</b></u> if you wan\'t use the <u><b>app without synchronization</b></u>.\n\nDo you wish to synchronize your channels now or do you wish to select the channels manually?</string>
 	<string name="synchronize_ok">Synchronize\nchannels now</string>
 	<string name="synchronize_cancel">Select channels\nmanually</string>
 	<string name="synchronize_replace_add_title">Replace or add?</string>

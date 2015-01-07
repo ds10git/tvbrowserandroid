@@ -29,6 +29,7 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
@@ -112,6 +113,7 @@ import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.ReplacementSpan;
 import android.text.style.URLSpan;
@@ -1920,10 +1922,10 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void showChannelSelectionInternal() {
-    showChannelSelectionInternal(null,null,null);
+    showChannelSelectionInternal(null,null,null,false);
   }
   
-  private void showChannelSelectionInternal(final String selection, final String title, final String help) {
+  private void showChannelSelectionInternal(final String selection, final String title, final String help, final boolean delete) {
     String[] projection = {
         TvBrowserContentProvider.CHANNEL_TABLE+"."+TvBrowserContentProvider.KEY_ID,
         TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID,
@@ -1957,7 +1959,7 @@ public class TvBrowser extends ActionBarActivity implements
       String dataService = channels.getString(dataServiceColumn);
       String name = channels.getString(nameColumn);
       String countries = channels.getString(countyColumn);
-      boolean isSelected = channels.getInt(selectionColumn) == 1;
+      boolean isSelected = channels.getInt(selectionColumn) == 1 && !delete;
       
       if(countries.contains("$")) {
         String[] values = countries.split("\\$");
@@ -1993,7 +1995,7 @@ public class TvBrowser extends ActionBarActivity implements
         
         channelLogo = UiUtils.drawableToBitmap(logoDrawable);
       }
-      Log.d("ifno2", "  CHANNELID " + channelID + " " + name);
+      
       channelSelectionList.add(new ChannelSelection(channelID, name, category, countries, channelLogo, isSelected, SettingConstants.EPG_DONATE_KEY.equals(dataService)));
     }
     
@@ -2016,6 +2018,12 @@ public class TvBrowser extends ActionBarActivity implements
     
     // create default logo for channels without logo
     final Bitmap defaultLogo = BitmapFactory.decodeResource( getResources(), R.drawable.ic_launcher);
+    
+    final Set<String> firstDeletedChannels = PrefUtils.getStringSetValue(R.string.PREF_FIRST_DELETED_CHANNELS, new HashSet<String>());
+    final Set<String> keptDeletedChannels = PrefUtils.getStringSetValue(R.string.PREF_KEPT_DELETED_CHANNELS, new HashSet<String>());
+    
+    final int firstDeletedColor = getResources().getColor(R.color.pref_first_deleted_channels);
+    final int keptDeletedColor = getResources().getColor(R.color.pref_kept_deleted_channels);
     
     // Custom array adapter for channel selection
     final ArrayAdapter<ChannelSelection> channelSelectionAdapter = new ArrayAdapter<ChannelSelection>(TvBrowser.this, R.layout.channel_row, channelSelectionList) {
@@ -2040,14 +2048,23 @@ public class TvBrowser extends ActionBarActivity implements
           holder = (ViewHolder)convertView.getTag();
         }
         
-        if(value.isEpgDonateChannel()) {
-          SpannableStringBuilder nameBuilder = new SpannableStringBuilder(value.toString());
-          nameBuilder.append("\n(EPGdonate)");
-          nameBuilder.setSpan(new RelativeSizeSpan(0.65f), value.toString().length(), nameBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-          holder.mTextView.setText(nameBuilder);
-        }else {
-          holder.mTextView.setText(value.toString());
+        SpannableStringBuilder nameBuilder = new SpannableStringBuilder(value.toString());
+        
+        String channelID = String.valueOf(value.getChannelID());
+        
+        if(keptDeletedChannels.contains(channelID)) {
+          nameBuilder.setSpan(new ForegroundColorSpan(keptDeletedColor), 0, value.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
         }
+        else if(firstDeletedChannels.contains(channelID)) {
+          nameBuilder.setSpan(new ForegroundColorSpan(firstDeletedColor), 0, value.toString().length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        }
+        
+        if(value.isEpgDonateChannel()) {
+          nameBuilder.append("\n(EPGdonate)");
+          nameBuilder.setSpan(new RelativeSizeSpan(0.65f), value.toString().length(), nameBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);          
+        }
+        
+        holder.mTextView.setText(nameBuilder);
         holder.mCheckBox.setChecked(value.isSelected());
         
         
@@ -2123,6 +2140,14 @@ public class TvBrowser extends ActionBarActivity implements
       public void onNothingSelected (AdapterView<?> parent) {}
     });
     
+    if(delete) {
+      channelSelectionView.findViewById(R.id.channel_country_label).setVisibility(View.GONE);
+      channelSelectionView.findViewById(R.id.channel_category_label).setVisibility(View.GONE);
+      
+      country.setVisibility(View.GONE);
+      category.setVisibility(View.GONE);
+    }
+    
     // get the list view of the layout and add adapter with available channels
     ListView list = (ListView)channelSelectionView.findViewById(R.id.channel_selection_list);
     list.setAdapter(channelSelectionAdapter);
@@ -2162,17 +2187,29 @@ public class TvBrowser extends ActionBarActivity implements
           
           Iterator<ChannelSelection> it = channelSelectionList.superIterator();
           
+          StringBuilder deleteWhere = new StringBuilder();
+          HashSet<String> keep = new HashSet<String>();
+          
           while(it.hasNext()) {
             ChannelSelection sel = it.next();
             
             if(sel.isSelected() && !sel.wasSelected()) {
               somethingChanged = somethingSelected = true;
               
-              ContentValues values = new ContentValues();
+              if(delete) {
+                if(deleteWhere.length() > 0) {
+                  deleteWhere.append(", ");
+                }
+                
+                deleteWhere.append(sel.getChannelID());
+              }
+              else {
+                ContentValues values = new ContentValues();
               
-              values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
+                values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
               
-              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, sel.getChannelID()), values, null, null);              
+                getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, sel.getChannelID()), values, null, null);
+              }
             }
             else if(!sel.isSelected() && sel.wasSelected()) {
               somethingChanged = true;
@@ -2186,6 +2223,26 @@ public class TvBrowser extends ActionBarActivity implements
               getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + sel.getChannelID(), null);
               getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + sel.getChannelID(), null);
             }
+            else if(delete && !sel.isSelected()) {
+              keep.add(String.valueOf(sel.getChannelID()));
+            }
+          }
+          
+          if(delete) {
+            if(deleteWhere.length() > 0) {
+              deleteWhere.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
+              deleteWhere.append(" ) ");
+              
+              Log.d("info2", "DELETE WHERE FOR REMOVED CHANNELS " + deleteWhere.toString());
+              
+              int count = getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_CHANNELS, deleteWhere.toString(), null);
+              
+              Log.d("info2", "REMOVED CHANNELS COUNT " + count);
+            }
+            
+            Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+            edit.putStringSet(getString(R.string.PREF_KEPT_DELETED_CHANNELS), keep);
+            edit.commit();
           }
           
           // if something was changed we need to update channel list bar in program list and the complete program table
@@ -2195,7 +2252,7 @@ public class TvBrowser extends ActionBarActivity implements
           }
           
           // if something was selected we need to download new data
-          if(somethingSelected) {
+          if(somethingSelected && !delete) {
             checkTermsAccepted();
           }
         }
@@ -2203,7 +2260,22 @@ public class TvBrowser extends ActionBarActivity implements
       
       builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {        
         @Override
-        public void onClick(DialogInterface dialog, int which) {}
+        public void onClick(DialogInterface dialog, int which) {
+          if(delete) {
+            HashSet<String> keep = new HashSet<String>();
+            Iterator<ChannelSelection> it = channelSelectionList.superIterator();
+            
+            while(it.hasNext()) {
+              ChannelSelection sel = it.next();
+              
+              keep.add(String.valueOf(sel.getChannelID()));
+            }
+            
+            Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+            edit.putStringSet(getString(R.string.PREF_KEPT_DELETED_CHANNELS), keep);
+            edit.commit();
+          }
+        }
       });
       
       builder.show();
@@ -3741,34 +3813,69 @@ public class TvBrowser extends ActionBarActivity implements
     handler.post(new Runnable() {
       @Override
       public void run() {
+        StringBuilder selection = new StringBuilder();
         
-    StringBuilder selection = new StringBuilder();
-    
-    String insertedChannels = PrefUtils.getStringValue(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED, null);
-    String updateChannels = PrefUtils.getStringValue(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED, null);
-    
-    Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
-    
-    if(insertedChannels != null) {
-      selection.append(insertedChannels);
-      edit.remove(getString(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED));
-    }
-    if(updateChannels != null) {
-      if(selection.length() > 0) {
-        selection.append(",");
-      }
-      
-      selection.append(updateChannels);
-      edit.remove(getString(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED));
-    }
-    
-    if(selection.toString().trim().length() > 0) {
-      edit.commit();
-      selection.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
-      selection.append(" ) ");
-      
-      showChannelSelectionInternal(selection.toString(), getString(R.string.dialog_select_channels_update_title), getString(R.string.dialog_select_channels_update_help));
-    }
+        String insertedChannels = PrefUtils.getStringValue(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED, null);
+        String updateChannels = PrefUtils.getStringValue(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED, null);
+        
+        Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+        
+        if(insertedChannels != null) {
+          selection.append(insertedChannels);
+          edit.remove(getString(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED));
+        }
+        if(updateChannels != null) {
+          if(selection.length() > 0) {
+            selection.append(",");
+          }
+          
+          selection.append(updateChannels);
+          edit.remove(getString(R.string.PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED));
+        }
+        
+        if(selection.toString().trim().length() > 0) {
+          edit.commit();
+          selection.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
+          selection.append(" ) ");
+          
+          showChannelSelectionInternal(selection.toString(), getString(R.string.dialog_select_channels_update_title), getString(R.string.dialog_select_channels_update_help), false);
+        }
+        else {
+          Set<String> deletedChannels = PrefUtils.getStringSetValue(R.string.PREF_SECOND_DELETED_CHANNELS, new HashSet<String>());
+          
+          edit.remove(getString(R.string.PREF_SECOND_DELETED_CHANNELS));
+          edit.commit();
+          
+          Log.d("info2", "deletedChannels " + deletedChannels.size());
+          StringBuilder askToDelete = new StringBuilder();
+          
+          final String[] projection = {TvBrowserContentProvider.KEY_ID};
+          
+          for(String deleted : deletedChannels) {
+            Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + deleted, null, null);
+            
+            try {
+              if(test.getCount() == 0) {
+                if(askToDelete.length() > 0) {
+                  askToDelete.append(", ");
+                }
+                
+                askToDelete.append(deleted);
+              }
+            }finally {
+              IOUtils.closeCursor(test);
+            }
+          }
+          
+          if(askToDelete.length() > 0) {
+            askToDelete.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
+            askToDelete.append(" ) ");
+            
+            Log.d("info2", "ASK TO DELETE CHANNELS WHERE " + askToDelete.toString());
+            
+            showChannelSelectionInternal(askToDelete.toString(), getString(R.string.dialog_select_channels_delete_title), getString(R.string.dialog_select_channels_delete_help), true);
+          }
+        }
       }
     });
 

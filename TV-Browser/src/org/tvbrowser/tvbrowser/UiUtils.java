@@ -376,16 +376,43 @@ public class UiUtils {
             
             String shortDescriptionValue = null;
             String descriptionValue = null;
-            
+            boolean showShortDescription = true;
+                
             if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
-              shortDescriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
+              shortDescriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION)).trim();
             }
             
             if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION))) {
               descriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
+              
+              if(shortDescriptionValue != null) {
+                String test = shortDescriptionValue;
+                
+                if(test.endsWith("...")) {
+                  test = test.substring(0,test.length()-3);
+                }
+                else if(test.endsWith("\u2026")) {
+                  test = test.substring(0,test.length()-1);
+                }
+                
+                test = test.replaceAll("\\s+", " ").trim();
+                
+                showShortDescription = !descriptionValue.replaceAll("\\s+", " ").trim().startsWith(test);
+                
+                String[] paragraphs = descriptionValue.split("\n+");
+                
+                if(paragraphs.length > 1) {
+                  String para0 = paragraphs[0].replaceAll("\\s+", " ").trim();
+                  String para1 = paragraphs[1].replaceAll("\\s+", " ").trim();
+                  
+                  if(para1.startsWith(para0) || para0.startsWith(para1)) {
+                    descriptionValue = descriptionValue.substring(paragraphs[0].length()+1).trim();
+                  }
+                }
+              }
             }
             
-            if(shortDescriptionValue == null || (descriptionValue != null && descriptionValue.startsWith(shortDescriptionValue))) {
+            if(shortDescriptionValue == null || !showShortDescription) {
               shortDescription.setVisibility(View.GONE);
             }
             else {

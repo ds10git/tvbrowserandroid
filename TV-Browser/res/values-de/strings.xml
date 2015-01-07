@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.6.2</h2>
+        	&bull; weggefallene Sender werden gelöscht<br>
         	&bull; Position der Bildbeschreibung im Detail-Fenster einstellbar<br>
         	&bull; mehr Skalierungsstufen für Bilder im Detail-Fenster<br>
         	&bull; Lieblingssendungen bearbeiten/löschen auch über Werkzeugleiste möglich<br>
@@ -237,6 +238,8 @@
     <string name="select_channels">Sender jetzt\nauswählen</string>
     <string name="dialog_select_channels_update_title">Es wurden neue Sender gefunden oder vorhandene aktualisiert</string>
     <string name="dialog_select_channels_update_help">Sie können hier neue Sender auswählen. (Aktualisierte abonnierte Sender sind vorausgewählt.)</string>
+    <string name="dialog_select_channels_delete_title">Sender nicht länger verfügbar</string>
+    <string name="dialog_select_channels_delete_help">Die aufgelisteten Sender sind nicht mehr verfügbar, dies könnte ein temporäres Problem sein. Wählen Sie die Sender aus, die endgültig gelöscht werden sollen.</string>
     <string name="tv">Fernsehen</string>
     <string name="radio">Radio</string>
     <string name="cinema">Kino</string>
@@ -392,7 +395,7 @@
 	<string name="channel_selection_label_text_name">Name:</string>
 	<string name="channel_selection_input_name_hint">Name des Filters eingeben</string>
 	<string name="synchronize_title">Sender synchronisieren?</string>
-	<string name="synchronize_text">Sie können die Sender aus dem Desktop-TV-Browser synchronisieren.\n\nDazu müssen Sie sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> und die Sender aus dem Desktop-TV-Browser mit dem Android-Sync Plugin exportieren.\n\nMöchten Sie die Sender jetzt synchronisieren oder möchten Sie die Sender manuell auswählen?</string>
+	<string name="synchronize_text">Sie können die Sender aus dem Desktop-TV-Browser synchronisieren.\n\nDazu müssen Sie sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> und die Sender aus dem Desktop-TV-Browser mit dem Android-Sync Plugin exportieren.\n\nUm die <u><b>App ohne Synchronistation</b></u> nutzen zu können, müssen sie sich <u><b>nicht registrieren</b></u>.\n\nMöchten Sie die Sender jetzt synchronisieren oder möchten Sie die Sender manuell auswählen?</string>
 	<string name="synchronize_ok">Sender jetzt\nsynchronisieren</string>
 	<string name="synchronize_cancel">Sender manuell\nauswählen</string>
 	<string name="synchronize_replace_add_title">Ersetzen oder ergänzen?</string>
