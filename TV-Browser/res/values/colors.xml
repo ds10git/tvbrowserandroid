@@ -35,4 +35,6 @@
     <color name="separator_color_light">#15646464</color>
     <color name="i_dont_want_to_see_highlight">#669f7440</color>
     
+    <color name="pref_first_deleted_channels">#ff5a00</color>
+    <color name="pref_kept_deleted_channels">#c60000</color>
 </resources>
