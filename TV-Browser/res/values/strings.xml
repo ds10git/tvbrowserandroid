@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.6.2</h2>
+        <h2>0.5.7</h2>
+        	&bull; fixed possible problem with loading of available download servers<br>
+        	&bull; fixed possible problem with deleting of removed programs<br>
         	&bull; removed channels are deleted<br>
         	&bull; picture description position in detail window configurable<br>
         	&bull; more zoom values for detail window<br>
@@ -240,7 +242,7 @@
     <string name="dialog_select_channels_update_title">New channel were found or existing channels were updated</string>
     <string name="dialog_select_channels_update_help">You can select channels new channels here. (Updated subscribed channels are preselected.)</string>
     <string name="dialog_select_channels_delete_title">Channel are no longer available</string>
-    <string name="dialog_select_channels_delete_help">The listed channel are no longer available, this might be a temporarily problem. Select the channels that should be remove permanently.</string>
+    <string name="dialog_select_channels_delete_help">The listed channels are no longer available and no data is stored for this channels on the device, this might be a temporarily problem. Select the channels that should be remove permanently.</string>
     <string name="tv">TV</string>
     <string name="radio">Radio</string>
     <string name="cinema">Cinema</string>

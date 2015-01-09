@@ -408,6 +408,17 @@ public class UiUtils {
                   if(para1.startsWith(para0) || para0.startsWith(para1)) {
                     descriptionValue = descriptionValue.substring(paragraphs[0].length()+1).trim();
                   }
+                  else {
+                    int testIndex = para0.indexOf(".");
+                    
+                    if(testIndex > 0) {
+                      para0 = para0.substring(testIndex+1).trim();
+                      
+                      if(para1.endsWith(para0)) {
+                        descriptionValue = descriptionValue.substring(paragraphs[0].length()+1).trim();
+                      }
+                    }
+                  }
                 }
               }
             }

@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.6.2</h2>
+        <h2>0.5.7</h2>
+        	&bull; mögliche Probleme beim Laden der verfügbaren Downloadserver behoben<br>
+        	&bull; mögliche Probleme beim Löschen entfernter Sendungen behoben<br>
         	&bull; weggefallene Sender werden gelöscht<br>
         	&bull; Position der Bildbeschreibung im Detail-Fenster einstellbar<br>
         	&bull; mehr Skalierungsstufen für Bilder im Detail-Fenster<br>
@@ -239,7 +241,7 @@
     <string name="dialog_select_channels_update_title">Es wurden neue Sender gefunden oder vorhandene aktualisiert</string>
     <string name="dialog_select_channels_update_help">Sie können hier neue Sender auswählen. (Aktualisierte abonnierte Sender sind vorausgewählt.)</string>
     <string name="dialog_select_channels_delete_title">Sender nicht länger verfügbar</string>
-    <string name="dialog_select_channels_delete_help">Die aufgelisteten Sender sind nicht mehr verfügbar, dies könnte ein temporäres Problem sein. Wählen Sie die Sender aus, die endgültig gelöscht werden sollen.</string>
+    <string name="dialog_select_channels_delete_help">Die aufgelisteten Sender sind nicht mehr verfügbar und es sind keine Daten für diese Sender auf dem Gerät vorhanden, dies könnte ein temporäres Problem sein. Wählen Sie die Sender aus, die endgültig gelöscht werden sollen.</string>
     <string name="tv">Fernsehen</string>
     <string name="radio">Radio</string>
     <string name="cinema">Kino</string>
@@ -376,7 +378,7 @@
   JEDOCH NICHT DARAUF BESCHRÄNKT. IN KEINEM FALL SIND DIE AUTOREN ODER COPYRIGHTINHABER FÜR JEGLICHEN SCHADEN
   ODER SONSTIGE ANSPRÜCHE HAFTBAR ZU MACHEN, OB INFOLGE DER ERFÜLLUNG EINES VERTRAGES, EINES DELIKTES ODER
   ANDERS IM ZUSAMMENHANG MIT DER SOFTWARE ODER SONSTIGER VERWENDUNG DER SOFTWARE ENTSTANDEN.</p>
-  <p>Teile der für TV-Browser für Android verwendeten Bibliotheken und Quellcode-Dateien sind linzensiert unter der the Apache License, Version 2.0.<br>
+  <p>Teile der für TV-Browser für Android verwendeten Bibliotheken und Quellcode-Dateien sind linzensiert unter der Apache License, Version 2.0.<br>
   Eine Kopie dieser Lizenz kann gefunden werden unter:<br><br>
   http://www.apache.org/licenses/LICENSE-2.0</p></html>]]></string>
     <string name="terms">Der Benutzungszeitraum von TV-Browser für Android kann begrenzt sein. Die Begrenzung ist auf der Über-Seite ersichtlich. Es wird garantiert, dass nach Ablauf des Benutzungszeitraums ein kostenloses Update zur Verfügung steht, so lange die Entwickler von TV-Browser für Android in der Lage und gewillt sind Updates herauszugeben.</string>

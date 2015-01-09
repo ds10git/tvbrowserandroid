@@ -29,7 +29,6 @@ import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Locale;
@@ -1927,7 +1926,7 @@ public class TvBrowser extends ActionBarActivity implements
   
   private void showChannelSelectionInternal(final String selection, final String title, final String help, final boolean delete) {
     String[] projection = {
-        TvBrowserContentProvider.CHANNEL_TABLE+"."+TvBrowserContentProvider.KEY_ID,
+        TvBrowserContentProvider.CHANNEL_TABLE+"."+TvBrowserContentProvider.KEY_ID +" AS "+TvBrowserContentProvider.KEY_ID,
         TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID,
         TvBrowserContentProvider.CHANNEL_KEY_NAME,
         TvBrowserContentProvider.CHANNEL_KEY_SELECTION,
@@ -1939,7 +1938,7 @@ public class TvBrowser extends ActionBarActivity implements
     ContentResolver cr = getContentResolver();
     Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, selection, null, TvBrowserContentProvider.CHANNEL_KEY_NAME);
     channels.moveToPosition(-1);
-    
+    Log.d("info2","CURSOR SIZE " + channels.getCount());
     // populate array list with all available channels
     final ArrayListWrapper channelSelectionList = new ArrayListWrapper();
     ArrayList<Country> countryList = new ArrayList<Country>();
@@ -1951,7 +1950,7 @@ public class TvBrowser extends ActionBarActivity implements
     int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
     int countyColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ALL_COUNTRIES);
     int selectionColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
-    
+    ;
     while(channels.moveToNext()) {
       int channelID = channels.getInt(channelIdColumn);
       int category = channels.getInt(categoryColumn);
@@ -2013,9 +2012,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     // create filter for filtering of category and country
     final ChannelFilter filter = new ChannelFilter(SettingConstants.TV_CATEGORY, null);
-    
-    channelSelectionList.setFilter(filter);
-    
+        
     // create default logo for channels without logo
     final Bitmap defaultLogo = BitmapFactory.decodeResource( getResources(), R.drawable.ic_launcher);
     
@@ -3835,7 +3832,7 @@ public class TvBrowser extends ActionBarActivity implements
         
         if(selection.toString().trim().length() > 0) {
           edit.commit();
-          selection.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
+          selection.insert(0, TvBrowserContentProvider.CHANNEL_TABLE+"."+TvBrowserContentProvider.KEY_ID + " IN ( ");
           selection.append(" ) ");
           
           showChannelSelectionInternal(selection.toString(), getString(R.string.dialog_select_channels_update_title), getString(R.string.dialog_select_channels_update_help), false);
@@ -3846,7 +3843,6 @@ public class TvBrowser extends ActionBarActivity implements
           edit.remove(getString(R.string.PREF_SECOND_DELETED_CHANNELS));
           edit.commit();
           
-          Log.d("info2", "deletedChannels " + deletedChannels.size());
           StringBuilder askToDelete = new StringBuilder();
           
           final String[] projection = {TvBrowserContentProvider.KEY_ID};
@@ -3868,7 +3864,7 @@ public class TvBrowser extends ActionBarActivity implements
           }
           
           if(askToDelete.length() > 0) {
-            askToDelete.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
+            askToDelete.insert(0, TvBrowserContentProvider.CHANNEL_TABLE+"."+TvBrowserContentProvider.KEY_ID + " IN ( ");
             askToDelete.append(" ) ");
             
             Log.d("info2", "ASK TO DELETE CHANNELS WHERE " + askToDelete.toString());
