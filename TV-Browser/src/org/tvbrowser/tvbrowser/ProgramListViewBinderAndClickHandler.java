@@ -29,6 +29,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
+import android.os.Handler;
 import android.text.Spannable;
 import android.text.format.DateFormat;
 import android.util.Log;
@@ -49,12 +50,14 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
   private int mDefaultTextColor;
   private ShowDateInterface mDateShowInterface;
   private float mZoom;
+  private Handler mHandler;
   
-  public ProgramListViewBinderAndClickHandler(Activity act, ShowDateInterface showDateInterface) {
+  public ProgramListViewBinderAndClickHandler(Activity act, ShowDateInterface showDateInterface, Handler handler) {
     mActivity = act;
     mDefaultTextColor = new TextView(mActivity).getTextColors().getDefaultColor();
     mDateShowInterface = showDateInterface;
     mZoom = mActivity.getResources().getDisplayMetrics().density;
+    mHandler = handler;
   }
 
   @Override
@@ -335,6 +338,6 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
   }
   
   public void onListItemClick(ListView l, View v, int position, long id) {
-    UiUtils.showProgramInfo(mActivity, id, null);
+    UiUtils.showProgramInfo(mActivity, id, null,mHandler);
   }
 }

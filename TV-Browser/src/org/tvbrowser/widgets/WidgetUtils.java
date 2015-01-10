@@ -35,11 +35,11 @@ public final class WidgetUtils {
       if(pluginMarkingIndex != -1 && cursor.getInt(pluginMarkingIndex) == 1) {
         addMarkingInfo(context,markings,UiUtils.MARKED_COLOR_KEY);
       }
-      if(cursor.getInt(favoriteMarkingIndex) == 1) {
+      if(cursor.getInt(favoriteMarkingIndex) >= 1) {
         addMarkingInfo(context,markings,UiUtils.MARKED_FAVORITE_COLOR_KEY);
       }
       if((reminderMarkingIndex != -1 && cursor.getInt(reminderMarkingIndex) == 1) || 
-          (favoriteReminderMarkingIndex != -1 && cursor.getInt(favoriteReminderMarkingIndex) == 1)) {
+          (favoriteReminderMarkingIndex != -1 && cursor.getInt(favoriteReminderMarkingIndex) >= 1)) {
         addMarkingInfo(context,markings,UiUtils.MARKED_REMINDER_COLOR_KEY);
       }
       if(syncMarkingIndex != -1 && cursor.getInt(syncMarkingIndex) == 1) {

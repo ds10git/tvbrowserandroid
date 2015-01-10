@@ -23,12 +23,13 @@ import org.tvbrowser.settings.SettingConstants;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.ContextMenu;
+import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.widget.AdapterView;
 import android.widget.SimpleCursorAdapter;
 
@@ -43,11 +44,13 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
   private View.OnCreateContextMenuListener mContextMenuListener;
   private AdapterView.AdapterContextMenuInfo mContextMenuInfo;
   private Context mContext;
+  private Handler mHandler;
   
-  public OrientationHandlingCursorAdapter(final Context context, int layout, Cursor c, String[] from, int[] to, int flags, boolean handleClicks) {
+  public OrientationHandlingCursorAdapter(final Context context, int layout, Cursor c, String[] from, int[] to, int flags, boolean handleClicks, Handler handler) {
     super(context, layout, c, from, to, flags);
     
     mContext = context;
+    mHandler = handler;
     
     if(handleClicks) {
       mOnClickListener = new View.OnClickListener() {
@@ -56,7 +59,7 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
           Long tag = (Long)v.getTag();
           
           if(tag != null) {
-            UiUtils.showProgramInfo(context, tag.longValue(), null);
+            UiUtils.showProgramInfo(context, tag.longValue(), null, mHandler);
           }
         }
       };

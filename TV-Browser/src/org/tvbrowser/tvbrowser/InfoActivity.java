@@ -34,6 +34,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
@@ -65,7 +66,7 @@ public class InfoActivity extends Activity {
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
     
     if(programID >= 0) {
-      UiUtils.showProgramInfo(this, programID, this, getCurrentFocus());
+      UiUtils.showProgramInfo(this, programID, this, getCurrentFocus(), new Handler());
     }
     else if(intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
       final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(InfoActivity.this);

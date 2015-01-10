@@ -715,7 +715,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     // If this is a row query, limit the result set to teh pased in row.
     switch(uriMatcher.match(uri)) {
       case SEARCH: String search = uri.getPathSegments().get(1).replace("\"", "");
-                   qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE \"%" + search + "%\" OR " + DATA_KEY_EPISODE_TITLE + " LIKE \"%" +  search + "%\") AND " + DATA_KEY_STARTTIME + ">=" + System.currentTimeMillis());
+                   qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE \"%" + search + "%\" OR " + DATA_KEY_EPISODE_TITLE + " LIKE \"%" +  search + "%\") AND " + DATA_KEY_STARTTIME + ">=" + System.currentTimeMillis() + " AND NOT " + DATA_KEY_DONT_WANT_TO_SEE);
                    qb.setProjectionMap(SEARCH_PROJECTION_MAP);
                    qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
                    orderBy = DATA_KEY_STARTTIME;

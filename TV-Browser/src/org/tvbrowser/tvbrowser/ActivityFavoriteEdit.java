@@ -29,7 +29,6 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -45,6 +44,7 @@ import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
@@ -71,6 +71,7 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
   private int mCheckedCount;
   private Favorite mOldFavorite;
   private View mOkButton;
+  private Favorite mOriginal;
   
   @Override
   protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
@@ -139,6 +140,8 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
         mSearchValue.setText(search);
       }
     }
+    
+    mOriginal = mFavorite.copy();
     
     mTypeSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
@@ -287,7 +290,7 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
         if(minimumValue > maximumValue && maximumValue != -1) {
           maximumValue = -1;
         }
-        
+                
         mFavorite.setDurationRestrictionMinimum(minimumValue);
         mFavorite.setDurationRestrictionMaximum(maximumValue);
         
@@ -701,9 +704,17 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
   }
   
   public void ok(View view) {
+    boolean notChanged = true;
+    
+    boolean remindChanged = mOriginal.remind() != mRemind.isChecked();
+    
+    notChanged = notChanged && mOriginal.getName().equals(mName.getText().toString());
+    notChanged = notChanged && mOriginal.getSearchValue().equals(mSearchValue.getText().toString());
+    notChanged = notChanged && mOriginal.getType() == mTypeSelection.getSelectedItemPosition();
+    
     findViewById(R.id.favorite_ok).setEnabled(false);
     findViewById(R.id.favorite_cancel).setEnabled(false);
-
+        
     mFavorite.setName(mName.getText().toString());
     mFavorite.setSearchValue(mSearchValue.getText().toString());
     mFavorite.setType(mTypeSelection.getSelectedItemPosition());
@@ -723,68 +734,162 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
       mFavorite.setExclusions(null);
     }
     
-    if(mFavorite.getName().trim().length() == 0) {
-      if(mFavorite.getType() == Favorite.RESTRICTION_RULES_TYPE) {
-        mFavorite.setName(getResources().getStringArray(R.array.activity_edit_favorite_input_text_type)[Favorite.RESTRICTION_RULES_TYPE] + " - " +
-                          DateFormat.getMediumDateFormat(ActivityFavoriteEdit.this).format(new Date(System.currentTimeMillis())) + " " + 
-                          DateFormat.getTimeFormat(ActivityFavoriteEdit.this).format(new Date(System.currentTimeMillis())));
-      }
-      else {
-        mFavorite.setName(mFavorite.getSearchValue());
-      }
+    if(notChanged) {
+      notChanged = mOriginal.getDurationRestrictionMinimum() == mFavorite.getDurationRestrictionMinimum() && mOriginal.getDurationRestrictionMaximum() == mFavorite.getDurationRestrictionMaximum();
+      notChanged = mOriginal.getTimeRestrictionStart() == mFavorite.getTimeRestrictionStart() && mOriginal.getTimeRestrictionEnd() == mFavorite.getTimeRestrictionEnd();
     }
     
-    final Intent intent = new Intent(SettingConstants.FAVORITES_CHANGED);
-    
-    if(mOldFavorite != null) {
-      intent.putExtra(Favorite.OLD_NAME_KEY, mOldFavorite.getName());
-    }
-    
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ActivityFavoriteEdit.this);
-    
-    Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
-    HashSet<String> newFavoriteList = new HashSet<String>();
-    
-    boolean added = false;
-    
-    for(String favorite : favoritesSet) {
-      String[] values = favorite.split(";;");
+    if(notChanged) {
+      String[] orgExclusions = mOriginal.getExclusions();
+      String[] newExclusions = mFavorite.getExclusions();
       
-      if(mOldFavorite != null && values[0].equals(mOldFavorite.getName())) {                
-        newFavoriteList.add(mFavorite.getSaveString());
-        added = true;
-      }
-      else {
-        newFavoriteList.add(favorite);
-      }
-    }
-      
-    if(!added) {
-      newFavoriteList.add(mFavorite.getSaveString());
-    }
+      notChanged = orgExclusions == newExclusions;
     
-    Editor edit = prefs.edit();
-    edit.putStringSet(SettingConstants.FAVORITE_LIST, newFavoriteList);
-    edit.commit();
-    
-    intent.putExtra(Favorite.FAVORITE_EXTRA, mFavorite);
-    
-    final Context context = getApplicationContext();
-    final ContentResolver resolver = getContentResolver();
-    
-    new Thread() {
-      @Override
-      public void run() {
-        if(mOldFavorite != null) {
-          Favorite.removeFavoriteMarking(context, resolver, mOldFavorite);
+      if(!notChanged && orgExclusions != null && newExclusions != null && orgExclusions.length == newExclusions.length) {
+        boolean equal = true;
+        
+        for(int i = 0; i < orgExclusions.length; i++) {
+          if(!orgExclusions[i].equals(newExclusions[i])) {
+            equal = false;
+            break;
+          }
         }
         
-        Favorite.updateFavoriteMarking(context, resolver, mFavorite);
-        
-        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        notChanged = equal;
       }
-    }.start();
+    }
+    
+    if(notChanged) {
+      int[] orgChannelRestrictions = mOriginal.getChannelRestrictionIDs();
+      int[] newChannelRestrictions = mFavorite.getChannelRestrictionIDs();
+      
+      notChanged = orgChannelRestrictions == newChannelRestrictions;
+      
+      if(!notChanged && orgChannelRestrictions != null && newChannelRestrictions != null && orgChannelRestrictions.length == newChannelRestrictions.length) {
+        boolean equal = true;
         
+        for(int i = 0; i < orgChannelRestrictions.length; i++) {
+          if(orgChannelRestrictions[i] != newChannelRestrictions[i]) {
+            equal = false;
+            break;
+          }
+        }
+        
+        notChanged = equal;
+      }
+    }
+    
+    if(notChanged) {
+      int[] orgDayRestrictions = mOriginal.getDayRestriction();
+      int[] newDayRestrictions = mFavorite.getDayRestriction();
+      
+      notChanged = orgDayRestrictions == newDayRestrictions;
+      
+      if(!notChanged && orgDayRestrictions != null && newDayRestrictions != null && orgDayRestrictions.length == newDayRestrictions.length) {
+        boolean equal = true;
+        
+        for(int i = 0; i < orgDayRestrictions.length; i++) {
+          if(orgDayRestrictions[i] != newDayRestrictions[i]) {
+            equal = false;
+            break;
+          }
+        }
+        
+        notChanged = equal;
+      }
+    }
+    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ActivityFavoriteEdit.this);
+    Log.d("info2", " notChanged " + notChanged + " remindChanged " + remindChanged);
+    if(notChanged && remindChanged) {
+      Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
+      HashSet<String> newFavoriteList = new HashSet<String>();
+      
+      for(String favorite : favoritesSet) {
+        String[] values = favorite.split(";;");
+        
+        if(values[0].equals(mFavorite.getName())) {
+          Log.d("info2", "changeFAV");
+          newFavoriteList.add(mFavorite.getSaveString());
+        }
+        else {
+          newFavoriteList.add(favorite);
+        }
+      }
+      
+      Editor edit = prefs.edit();
+      edit.putStringSet(SettingConstants.FAVORITE_LIST, newFavoriteList);
+      edit.commit();
+      
+      Favorite.handleFavoriteMarking(getApplicationContext(), mFavorite, Favorite.TYPE_MARK_UPDATE_REMINDERS);
+      
+      final Intent intent = new Intent(SettingConstants.FAVORITES_CHANGED);
+      intent.putExtra(Favorite.FAVORITE_EXTRA, mFavorite);
+      intent.putExtra(Favorite.OLD_NAME_KEY, mFavorite.getName());
+      LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(intent);
+    }
+    else if(!notChanged) {
+      Log.d("info2", "hier");
+      if(mFavorite.getName().trim().length() == 0) {
+        if(mFavorite.getType() == Favorite.RESTRICTION_RULES_TYPE) {
+          mFavorite.setName(getResources().getStringArray(R.array.activity_edit_favorite_input_text_type)[Favorite.RESTRICTION_RULES_TYPE] + " - " +
+                            DateFormat.getMediumDateFormat(ActivityFavoriteEdit.this).format(new Date(System.currentTimeMillis())) + " " + 
+                            DateFormat.getTimeFormat(ActivityFavoriteEdit.this).format(new Date(System.currentTimeMillis())));
+        }
+        else {
+          mFavorite.setName(mFavorite.getSearchValue());
+        }
+      }
+      
+      final Intent intent = new Intent(SettingConstants.FAVORITES_CHANGED);
+      
+      if(mOldFavorite != null) {
+        intent.putExtra(Favorite.OLD_NAME_KEY, mOldFavorite.getName());
+      }
+      
+      Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
+      HashSet<String> newFavoriteList = new HashSet<String>();
+      
+      boolean added = false;
+      Log.d("info2", "hier2");
+      for(String favorite : favoritesSet) {
+        String[] values = favorite.split(";;");
+        
+        if(mOldFavorite != null && values[0].equals(mOldFavorite.getName())) {                
+          newFavoriteList.add(mFavorite.getSaveString());
+          added = true;
+        }
+        else {
+          newFavoriteList.add(favorite);
+        }
+      }
+      Log.d("info2", "hier3");
+      if(!added) {
+        newFavoriteList.add(mFavorite.getSaveString());
+      }
+      
+      Editor edit = prefs.edit();
+      edit.putStringSet(SettingConstants.FAVORITE_LIST, newFavoriteList);
+      edit.commit();
+      
+      intent.putExtra(Favorite.FAVORITE_EXTRA, mFavorite);
+      
+      final Context context = getApplicationContext();
+      
+      Log.d("info2", "hier4");
+      new Thread() {
+        @Override
+        public void run() {
+          if(mOldFavorite != null) {
+            Favorite.handleFavoriteMarking(context, mOldFavorite, Favorite.TYPE_MARK_REMOVE);
+          }
+          Log.d("info2", "hier5a");
+          Favorite.handleFavoriteMarking(context, mFavorite, Favorite.TYPE_MARK_ADD);
+          Log.d("info2", "hier5");
+          LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+        }
+      }.start();
+    }
+    
     finish();
   }
 

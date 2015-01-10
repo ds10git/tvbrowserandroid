@@ -37,6 +37,7 @@ import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
 import android.view.ContextMenu;
@@ -105,9 +106,11 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
     
     // Create a new Adapter an bind it to the List View
     
-    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(this,this);
+    Handler handler = new Handler();
+    
+    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(this,this,handler);
     mProgramsListAdapter = new OrientationHandlingCursorAdapter(this,/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
-        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0,false);
+        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0,false,handler);
     mProgramsListAdapter.setViewBinder(mViewAndClickHandler);
     
     getListView().setAdapter(mProgramsListAdapter);

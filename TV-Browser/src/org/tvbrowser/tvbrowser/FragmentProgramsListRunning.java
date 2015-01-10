@@ -785,7 +785,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         Long tag = (Long)v.getTag();
         
         if(tag != null) {
-          UiUtils.showProgramInfo(getActivity(), tag.longValue(), getActivity().getCurrentFocus());
+          UiUtils.showProgramInfo(getActivity(), tag.longValue(), getActivity().getCurrentFocus(), handler);
         }
       }
     };

@@ -51,7 +51,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -71,12 +70,13 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   private SimpleCursorAdapter mProgramListAdapter;
   private ArrayAdapter<FavoriteSpinnerEntry> mFavoriteAdapter;
   private ArrayList<FavoriteSpinnerEntry> mFavoriteList;
+  private DataSetObserver mFavoriteSelectionObserver;
   
   private ListView mFavoriteProgramList;
   
   private ArrayAdapter<FavoriteSpinnerEntry> mMarkingsAdapter;
   
-  private String mWhereClause;
+  private WhereClause mWhereClause;
   
   private Handler handler;
   
@@ -134,7 +134,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     
     handler = new Handler();
     
-    mWhereClause = null;
+    mWhereClause = new WhereClause();
     
     mFavoriteList = new ArrayList<FavoriteSpinnerEntry>();
     
@@ -318,8 +318,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     
     mHelp = (TextView)getView().findViewById(R.id.favorite_fragment_help);
     
-    mFavoriteSelection.setAdapter(mFavoriteAdapter);
-    mFavoriteSelection.getAdapter().registerDataSetObserver(new DataSetObserver() {
+    mFavoriteSelectionObserver = new DataSetObserver() {
       @Override
       public void onChanged() {
         final AtomicInteger position = new AtomicInteger(-1);
@@ -360,7 +359,10 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           }
         });
       }
-    });
+    };
+    
+    mFavoriteSelection.setAdapter(mFavoriteAdapter);
+    mFavoriteSelection.getAdapter().registerDataSetObserver(mFavoriteSelectionObserver);
     
     mFavoriteSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
@@ -371,7 +373,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       @Override
       public void onNothingSelected(AdapterView<?> parent) {
         mCurrentSelection = mCurrentFavoriteSelection = null;
-        mWhereClause = null;
+        mWhereClause = new WhereClause();
         
         if(!isDetached() && getActivity() != null) {
           ((TvBrowser)getActivity()).updateFavoritesMenu(false);
@@ -414,11 +416,11 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
         TvBrowserContentProvider.DATA_KEY_CATEGORIES
     };
     
-    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity(),this);
+    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity(),this,handler);
     
     // Create a new Adapter an bind it to the List View
     mProgramListAdapter = new OrientationHandlingCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
-        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0, true);
+        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0, true, handler);
     mProgramListAdapter.setViewBinder(mViewAndClickHandler);
         
     mFavoriteProgramList.setAdapter(mProgramListAdapter);
@@ -480,13 +482,14 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
                 else {
                   Favorite temp = (Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA);
                   
-                  fav.getFavorite().setValues(temp.getName(), temp.getSearchValue(), temp.getType(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs(), temp.getExclusions(), temp.getDurationRestrictionMinimum(), temp.getDurationRestrictionMaximum(), temp.getAttributeRestrictionIndices());
+                  fav.getFavorite().setValues(temp.getName(), temp.getSearchValue(), temp.getType(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs(), temp.getExclusions(), temp.getDurationRestrictionMinimum(), temp.getDurationRestrictionMaximum(), temp.getAttributeRestrictionIndices(), temp.getUniqueProgramIds());
                 }
                 
                 handler.post(new Runnable() {
                   @Override
                   public void run() {
                     mFavoriteAdapter.notifyDataSetChanged();
+                    mFavoriteSelectionObserver.onChanged();
                   }
                 });
               }
@@ -494,7 +497,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
                 if(!isDetached() && getActivity() != null) {
                   for(FavoriteSpinnerEntry fav : mFavoriteList) {
                     if(fav.containsFavorite()) {
-                      Favorite.removeFavoriteMarking(getActivity(), getActivity().getContentResolver(), fav.getFavorite());
+                      Favorite.handleFavoriteMarking(getActivity(), fav.getFavorite(), Favorite.TYPE_MARK_REMOVE);
                     }
                   }
                   
@@ -506,7 +509,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
                   
                   for(String favorite : favoritesSet) {
                     Favorite fav = new Favorite(favorite);
-                    Favorite.updateFavoriteMarking(getActivity(), getActivity().getContentResolver(), fav);
+                    Favorite.handleFavoriteMarking(getActivity(), fav, Favorite.TYPE_MARK_ADD);
                     mFavoriteList.add(new FavoriteSpinnerEntry(fav));
                   }
                 }
@@ -607,18 +610,18 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
   
   private void addMarkingSelections() {
-    final FavoriteSpinnerEntry marked = new FavoriteSpinnerEntry(getString(R.string.marking_value_marked), TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " " + TvBrowserContentProvider.DATA_KEY_MARKING_MARKING);
+    final FavoriteSpinnerEntry marked = new FavoriteSpinnerEntry(getString(R.string.marking_value_marked), new WhereClause(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " " + TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, null));
       
     String name = getString(R.string.marking_value_reminder);
     String whereClause = TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " ";
     
     whereClause += " ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER  + " ) ) ";
     
-    final FavoriteSpinnerEntry reminder = new FavoriteSpinnerEntry(name, whereClause);
+    final FavoriteSpinnerEntry reminder = new FavoriteSpinnerEntry(name, new WhereClause(whereClause,null));
     FavoriteSpinnerEntry syncTemp = null;
     
     if(PrefUtils.getBooleanValue(R.string.PREF_SYNC_FAV_FROM_DESKTOP, R.bool.pref_sync_fav_from_desktop_default) && getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
-      syncTemp = new FavoriteSpinnerEntry(getString(R.string.marking_value_sync), TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " " + TvBrowserContentProvider.DATA_KEY_MARKING_SYNC);
+      syncTemp = new FavoriteSpinnerEntry(getString(R.string.marking_value_sync), new WhereClause(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " " + TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, null));
     }
     
     final FavoriteSpinnerEntry sync = syncTemp;
@@ -699,8 +702,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     for(int i = startIndex ; i < (startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length); i++) {
       projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
     }
-
-    String where = mWhereClause;
+    
+    String where = mWhereClause.getWhere();
     
     if(where == null) {
       where = " " + TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=0 ";
@@ -714,7 +717,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
     where += UiUtils.getDontWantToSeeFilterString(getActivity());
     
-    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, mWhereClause.getSelectionArgs(), TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     
     return loader;
   }
@@ -822,10 +825,10 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   
   private static final class FavoriteSpinnerEntry implements Comparable<FavoriteSpinnerEntry> {
     private String mName;
-    private String mEntryWhereClause;
+    private WhereClause mEntryWhereClause;
     private Favorite mFavorite;
     
-    public FavoriteSpinnerEntry(String name, String whereClause) {
+    public FavoriteSpinnerEntry(String name, WhereClause whereClause) {
       mName = name;
       mEntryWhereClause = whereClause;
       mFavorite = null;
@@ -843,9 +846,9 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       return mFavorite;
     }
     
-    public String getWhereClause() { 
+    public WhereClause getWhereClause() { 
       if(containsFavorite()) {
-        return mFavorite.getWhereClause();
+        return mFavorite.getExternalWhereClause();
       }
       
       return mEntryWhereClause;
@@ -883,15 +886,17 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
         @Override
         public void onClick(DialogInterface dialog, int which) {
           mFavoriteList.remove(mCurrentSelection);
+          final Favorite current = mCurrentSelection.getFavorite();
           mCurrentSelection = null;
           
           new Thread() {
             public void run() {
-              Favorite.removeFavoriteMarking(getActivity().getApplicationContext(), getActivity().getContentResolver(), mCurrentSelection.getFavorite());
+              Favorite.handleFavoriteMarking(getActivity(), current, Favorite.TYPE_MARK_REMOVE);
+              
+              mCurrentSelection = null;
+              updateFavorites();
             }
           }.start();
-          
-          updateFavorites();        
         }
       });
       
