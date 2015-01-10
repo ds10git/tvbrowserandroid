@@ -322,7 +322,7 @@ public class TvBrowser extends ActionBarActivity implements
             newFavorites.add(favorite);
           }
           else {
-            Favorite.removeFavoriteMarking(TvBrowser.this, getContentResolver(), fav);
+            Favorite.handleFavoriteMarking(TvBrowser.this, fav, Favorite.TYPE_MARK_REMOVE);
           }
         }
         

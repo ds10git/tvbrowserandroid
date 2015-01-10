@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+        <h2>0.5.7.1</h2>
+        	&bull; Verarbeitung der Lieblingssendungen überarbeitet<br>
+        	&bull; möglicher Absturz beim Löschen von Lieblingssendungen beseitigt<br>
+        	&bull; "Will ich nicht sehen!"-Sendungen werden bei Schnellsuche nicht mehr angzeigt<br>
+		<br>
         <h2>0.5.7</h2>
         	&bull; mögliche Probleme beim Laden der verfügbaren Downloadserver behoben<br>
         	&bull; mögliche Probleme beim Löschen entfernter Sendungen behoben<br>

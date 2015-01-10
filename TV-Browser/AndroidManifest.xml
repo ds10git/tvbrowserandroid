@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.tvbrowser.tvbrowser"
-	android:versionCode="301"
-	android:versionName="0.5.7"
+	android:versionCode="302"
+	android:versionName="0.5.7.1"
 	android:installLocation="auto">
 
 	<uses-sdk

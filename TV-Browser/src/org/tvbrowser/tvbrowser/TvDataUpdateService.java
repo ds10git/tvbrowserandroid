@@ -2310,7 +2310,8 @@ public class TvDataUpdateService extends Service {
         updateFavorites.execute(new Thread("DATA UPDATE FAVORITE UPDATE THREAD") {
           @Override
           public void run() {
-            Favorite.updateFavoriteMarking(TvDataUpdateService.this, getContentResolver(), fav);
+            Favorite.handleFavoriteMarking(TvDataUpdateService.this, fav, Favorite.TYPE_MARK_REMOVE);
+            Favorite.handleFavoriteMarking(TvDataUpdateService.this, fav, Favorite.TYPE_MARK_ADD);
             mBuilder.setProgress(favoritesSet.size(), mFavoriteUpdateCount.getAndIncrement(), false);
             notification.notify(NOTIFY_ID, mBuilder.build());
           }

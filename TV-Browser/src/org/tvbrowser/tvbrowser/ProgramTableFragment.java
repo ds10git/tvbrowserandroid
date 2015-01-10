@@ -223,7 +223,7 @@ public class ProgramTableFragment extends Fragment {
         Long id = (Long)v.getTag();
         
         if(id != null) {
-          UiUtils.showProgramInfo(getActivity(), id, null);
+          UiUtils.showProgramInfo(getActivity(), id, null, handler);
         }
       }
     };

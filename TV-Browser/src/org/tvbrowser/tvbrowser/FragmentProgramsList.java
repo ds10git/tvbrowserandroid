@@ -63,7 +63,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   
   private SimpleCursorAdapter mProgramListAdapter;
   
-  private Handler handler = new Handler();
+  private Handler handler;
     
   private boolean mKeepRunning;
   private Thread mUpdateThread;
@@ -101,6 +101,12 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mScrollTime = startTime;
     mChannelID = channelId;
     mScrollPos = -1;
+  }
+  
+  @Override
+  public void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+    handler = new Handler();
   }
   
   @Override
@@ -754,11 +760,11 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
         TvBrowserContentProvider.DATA_KEY_CATEGORIES
     };
     
-    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity(),this);
+    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity(),this,handler);
     
     // Create a new Adapter an bind it to the List View
     mProgramListAdapter = new OrientationHandlingCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
-        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0,true);
+        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0,true,handler);
     
     mProgramListAdapter.setViewBinder(mViewAndClickHandler);
     
