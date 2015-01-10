@@ -217,7 +217,7 @@ public class IOUtils {
     for(int i = 0; i < SettingConstants.CATEGORY_COLOR_PREF_KEY_ARR.length; i++) {
       int colorKey = SettingConstants.CATEGORY_COLOR_PREF_KEY_ARR[i];
       
-      int[] colorCategory = getColorForCategory(PrefUtils.getStringValue(colorKey, getDefaultCategoryColorKeyForColorKey(colorKey)));
+      int[] colorCategory = getActivatedColorFor(PrefUtils.getStringValue(colorKey, getDefaultCategoryColorKeyForColorKey(colorKey)));
       
       if(colorCategory[0] == 1) {
         categoryColorMap.put(names[i], Integer.valueOf(colorCategory[1]));
@@ -228,6 +228,10 @@ public class IOUtils {
   }
   
   public static Spannable getInfoString(int value, Resources res, boolean colored) {
+    return getInfoString(value, res, colored, null);
+  }
+  
+  public static Spannable getInfoString(int value, Resources res, boolean colored, Integer defaultColor) {
     String[] valueArr = {"",
         res.getString(R.string.info_black_and_white),
         res.getString(R.string.info_four_to_three),
@@ -265,15 +269,25 @@ public class IOUtils {
       if((value & (1 << i)) == (1 << i) && PrefUtils.getBooleanValue(prefKeyArr[i-1], R.bool.pref_info_show_default)) {
         if(infoString.length() > 0) {
           infoString.append(", ");
+          
+          if(defaultColor != null) {
+            infoString.setSpan(new ForegroundColorSpan(defaultColor.intValue()), infoString.length()-2, infoString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+          }
         }
         infoString.append(valueArr[i]);
         
         if(colored) {
-          int[] colorCategory = getColorForCategory(PrefUtils.getStringValue(colorPrefKeyArr[i-1], getDefaultCategoryColorKeyForColorKey(colorPrefKeyArr[i-1])));
+          int[] colorCategory = getActivatedColorFor(PrefUtils.getStringValue(colorPrefKeyArr[i-1], getDefaultCategoryColorKeyForColorKey(colorPrefKeyArr[i-1])));
+          
+          Integer color = defaultColor;
           
           if(colorCategory[0] == 1) {
-            infoString.setSpan(new ForegroundColorSpan(colorCategory[1]), infoString.length()-valueArr[i].length(), infoString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            color = Integer.valueOf(colorCategory[1]);
           }
+          
+          if(color != null) {
+            infoString.setSpan(new ForegroundColorSpan(color.intValue()), infoString.length()-valueArr[i].length(), infoString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+          }          
         }
       }
     }
@@ -785,14 +799,14 @@ public class IOUtils {
    * containing the activated state of the color category 0 means disabled,
    * 1 means activated. The value with index 1 contains the color.
    * <p>
-   * @param encodedColorCategory The color categroy preference value.
+   * @param encodedColor The color category preference value.
    * @return An int array with the result.
    */
-  public static int[] getColorForCategory(String encodedColorCategory) {
+  public static int[] getActivatedColorFor(String encodedColor) {
     int[] result = new int[] {0,0};
     
-    if(encodedColorCategory != null) {
-      String[] parts = encodedColorCategory.split(";");
+    if(encodedColor != null) {
+      String[] parts = encodedColor.split(";");
       
       result[0] = Boolean.parseBoolean(parts[0]) ? 1 : 0;
       result[1] = Integer.parseInt(parts[1]);

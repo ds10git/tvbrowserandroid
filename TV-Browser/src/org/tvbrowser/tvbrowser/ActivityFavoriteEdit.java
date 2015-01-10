@@ -798,6 +798,27 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
         notChanged = equal;
       }
     }
+    
+    if(notChanged) {
+      int[] orgAttributeRestrictionIndices = mOriginal.getAttributeRestrictionIndices();
+      int[] newAttributeRestrictionIndices = mFavorite.getAttributeRestrictionIndices();
+      
+      notChanged = orgAttributeRestrictionIndices == newAttributeRestrictionIndices;
+      
+      if(!notChanged && orgAttributeRestrictionIndices != null && newAttributeRestrictionIndices != null && orgAttributeRestrictionIndices.length == newAttributeRestrictionIndices.length) {
+        boolean equal = true;
+        
+        for(int i = 0; i < orgAttributeRestrictionIndices.length; i++) {
+          if(orgAttributeRestrictionIndices[i] != newAttributeRestrictionIndices[i]) {
+            equal = false;
+            break;
+          }
+        }
+        
+        notChanged = equal;
+      }
+    }
+    
     SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ActivityFavoriteEdit.this);
     Log.d("info2", " notChanged " + notChanged + " remindChanged " + remindChanged);
     if(notChanged && remindChanged) {

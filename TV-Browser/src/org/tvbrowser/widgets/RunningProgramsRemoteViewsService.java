@@ -93,6 +93,12 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
     private boolean mChannelClickToProgramsList;
     private float mTextScale;
     
+    private int[] mUserDefindedColorChannel;
+    private int[] mUserDefindedColorTime;
+    private int[] mUserDefindedColorTitel;
+    private int[] mUserDefindedColorCategoryDefault;
+    private int[] mUserDefindedColorEpisode;
+    
     private void executeQuery() {
       IOUtils.closeCursor(mCursor);
       
@@ -153,6 +159,12 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       }
       
       String mCurrentChannelFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, SettingConstants.ALL_FILTER_ID);
+      
+      mUserDefindedColorChannel = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_CHANNEL, null));
+      mUserDefindedColorTime = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_TIME, R.string.pref_widget_color_time_default));
+      mUserDefindedColorTitel = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_TITLE, R.string.pref_widget_color_title_default));
+      mUserDefindedColorCategoryDefault = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_CATEGORY, null));
+      mUserDefindedColorEpisode = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_EPISODE, null));
       
       SharedPreferences pref = getSharedPreferences(SettingConstants.FILTER_PREFERENCES, Context.MODE_PRIVATE);
       
@@ -281,13 +293,13 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         final String id = mCursor.getString(mIdIndex);
         final long startTime = mCursor.getLong(mStartTimeIndex);
         final long endTime = mCursor.getLong(mEndTimeIndex);
-        final String title = mCursor.getString(mTitleIndex);
+        final CharSequence title = WidgetUtils.getColoredString(mCursor.getString(mTitleIndex),mUserDefindedColorTitel);
         
-        String name = mCursor.getString(mChannelNameIndex);
+        CharSequence name = mCursor.getString(mChannelNameIndex);
         final String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
         String number = null;
-        final String episodeTitle = mShowEpisode ? mCursor.getString(mEpisodeIndex) : null;
-        Spannable categorySpan = mShowCategories ? IOUtils.getInfoString(mCursor.getInt(mCategoryIndex), getResources()) : null;
+        final CharSequence episodeTitle = (mShowEpisode && !mCursor.isNull(mEpisodeIndex)) ? WidgetUtils.getColoredString(mCursor.getString(mEpisodeIndex),mUserDefindedColorEpisode) : null;
+        Spannable categorySpan = (mShowCategories && !mCursor.isNull(mCategoryIndex)) ? IOUtils.getInfoString(mCursor.getInt(mCategoryIndex), getResources(), true, mUserDefindedColorCategoryDefault[0] == 1 ? Integer.valueOf(mUserDefindedColorCategoryDefault[1]) : null) : null;
         Spannable marking = WidgetUtils.getMarkings(mContext, mCursor, mShowMarkings, mMarkingPluginsIndex, mMarkingFavoriteIndex, mMarkingReminderIndex, mMarkingFavoriteReminderIndex, mMarkingSyncIndex);
         
         if(shortName != null) {
@@ -319,7 +331,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
           }
         }
         
-        final String time = DateFormat.getTimeFormat(mContext).format(new Date(startTime));
+        final CharSequence time = WidgetUtils.getColoredString(DateFormat.getTimeFormat(mContext).format(new Date(startTime)),mUserDefindedColorTime);
         
         CompatUtils.setRemoteViewsPadding(rv, R.id.running_programs_widget_row, 0, mVerticalPadding, 0, mVerticalPadding);
         
@@ -348,6 +360,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         }
         
         if(mShowChannelName || logo == null) {
+          name = WidgetUtils.getColoredString(name, mUserDefindedColorChannel);
           rv.setTextViewText(R.id.running_programs_widget_row_channel_name, name);
           rv.setViewVisibility(R.id.running_programs_widget_row_channel_name, View.VISIBLE);
         }

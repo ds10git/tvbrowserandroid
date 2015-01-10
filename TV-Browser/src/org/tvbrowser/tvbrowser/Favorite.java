@@ -903,7 +903,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     where +=  " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
     where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
         
-    Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+    Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, whereClause.getSelectionArgs(), TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
     try {
       int idColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
@@ -1076,6 +1076,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       }
     }
     finally {
+      favorite.mUniqueProgramIds = null;
       cursor.close();
     }
   }
