@@ -551,6 +551,15 @@
 
     	<string name="PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS">PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS</string>
     	<item name="pref_widget_background_rounded_corners_default" type="bool" format="boolean">false</item>
+    	
+    	<string name="PREF_WIDGET_COLOR_CHANNEL">PREF_WIDGET_COLOR_CHANNEL</string>
+    	<string name="PREF_WIDGET_COLOR_DATE">PREF_WIDGET_COLOR_DATE</string>
+    	<string name="PREF_WIDGET_COLOR_TIME">PREF_WIDGET_COLOR_TIME</string>
+    	<item name="pref_widget_color_time_default" type="string" format="string">true;-5850113</item>
+    	<string name="PREF_WIDGET_COLOR_TITLE">PREF_WIDGET_COLOR_TITLE</string>
+    	<item name="pref_widget_color_title_default" type="string" format="string">true;-1</item>
+    	<string name="PREF_WIDGET_COLOR_CATEGORY">PREF_WIDGET_COLOR_CATEGORY</string>
+    	<string name="PREF_WIDGET_COLOR_EPISODE">PREF_WIDGET_COLOR_EPISODE</string>
     		
     <!-- 	<string name="PREF_WIDGET_BACKGROUND_TRANSPARENCY">PREF_WIDGET_BACKGROUND_TRANSPARENCY</string>
     	<item name="pref_widget_background_transparency_default" type="bool" format="boolean">true</item>

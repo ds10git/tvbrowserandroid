@@ -22,6 +22,7 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.database.Cursor;
 import android.text.Spannable;
+import android.text.SpannableString;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
@@ -60,5 +61,14 @@ public final class WidgetUtils {
     markings.append("\u2593\u2593");
     markings.setSpan(new ForegroundColorSpan(UiUtils.getColor(colorKey,context)), markings.length()-2, markings.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
     markings.setSpan(new RelativeSizeSpan(0.85f), markings.length()-2, markings.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+  }
+  
+  public static CharSequence getColoredString(CharSequence original, int[] encodedColorValue) {
+    if(encodedColorValue != null && encodedColorValue[0] == 1) {
+      original = new SpannableString(original);
+      ((SpannableString)original).setSpan(new ForegroundColorSpan(encodedColorValue[1]), 0, original.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+    }
+    
+    return original;
   }
 }

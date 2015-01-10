@@ -43,7 +43,7 @@ public class PreferenceColorActivated extends DialogPreference {
       int resId =  attrs.getAttributeResourceValue(namespace, "defaultValue", -1);
       
       if(resId != -1) {
-        int[] values = IOUtils.getColorForCategory(context.getResources().getString(resId));
+        int[] values = IOUtils.getActivatedColorFor(context.getResources().getString(resId));
                 
         mActivated = values[0] == 1;
         mColor = mDefaultColor = values[1];
@@ -205,20 +205,20 @@ public class PreferenceColorActivated extends DialogPreference {
   protected void onSetInitialValue(boolean restorePersistedValue, Object defaultValue) {
     if(!restorePersistedValue) {
       if(defaultValue == null) {
-        int[] values = IOUtils.getColorForCategory("false;-16777216");
+        int[] values = IOUtils.getActivatedColorFor("false;-16777216");
         
         mActivated = values[0] == 1;
         mColor = values[1];
       }
       else {
-        int[] values = IOUtils.getColorForCategory((String)defaultValue);
+        int[] values = IOUtils.getActivatedColorFor((String)defaultValue);
         
         mActivated = values[0] == 1;
         mColor = values[1];
       }
     }
     else {
-      int[] values = IOUtils.getColorForCategory(getPersistedString((String)defaultValue));
+      int[] values = IOUtils.getActivatedColorFor(getPersistedString((String)defaultValue));
       
       mActivated = values[0] == 1;
       mColor = values[1];

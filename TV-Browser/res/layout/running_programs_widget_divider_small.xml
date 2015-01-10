@@ -7,7 +7,7 @@
          android:id="@+id/running_widget_header_wrapper"
          android:layout_width="match_parent"
          android:layout_height="wrap_content"
-         android:background="@drawable/shape_button_background_corners_rounded_transparency_high">
+         android:background="@drawable/shape_button_background_corners_straight_transparency_high">
          <ImageButton android:id="@+id/running_widget_time"
 	         android:layout_width="wrap_content"
 	         android:layout_height="wrap_content"
@@ -16,7 +16,7 @@
 	         android:src="@android:drawable/ic_menu_recent_history"
 	         android:layout_alignParentEnd="true"
 	         android:layout_alignParentRight="true"
-	         android:background="@drawable/shape_button_background_corners_rounded_transparency_high"/>
+	         android:background="@drawable/shape_button_background_corners_straight_transparency_high"/>
          <LinearLayout
              android:id="@+id/running_widget_header_info_wrapper"
              android:orientation="horizontal"
@@ -43,7 +43,7 @@
          </LinearLayout>
      </RelativeLayout>
     <ListView
-        android:background="@drawable/shape_widget_background_corners_rounded_transparency_medium"
+        android:background="@drawable/shape_widget_background_corners_straight_transparency_medium"
         android:id="@+id/running_widget_list_view"
         android:layout_width="match_parent"
         android:dividerHeight="5dp"
@@ -51,7 +51,7 @@
         android:layout_height="match_parent"
         android:layout_below="@id/running_widget_header_wrapper"/>
 	<TextView
-	    android:background="@drawable/shape_widget_background_corners_rounded_transparency_medium"
+	    android:background="@drawable/shape_widget_background_corners_straight_transparency_medium"
 	    android:id="@+id/running_widget_empty_text"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"

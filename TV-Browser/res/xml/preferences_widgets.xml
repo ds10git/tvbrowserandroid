@@ -38,6 +38,34 @@
 	    android:entries="@array/widget_preferences_background_transpacency"
 	    android:entryValues="@array/pref_simple_string_value_array5"
 	    android:summary="%s"/>
+	<PreferenceScreen
+	    android:title="@string/widget_preferences_text_color_user_defined_title"
+	    android:summary="@string/widget_preferences_text_color_user_defined_summary">
+	    <org.tvbrowser.settings.PreferenceColorActivated
+	        android:key="@string/PREF_WIDGET_COLOR_CHANNEL"
+	        android:title="@string/widget_preferences_text_color_channel"
+	        android:defaultValue="@string/pref_color_categories_default"/>
+	    <org.tvbrowser.settings.PreferenceColorActivated
+	        android:key="@string/PREF_WIDGET_COLOR_DATE"
+	        android:title="@string/widget_preferences_text_color_date"
+	        android:defaultValue="@string/pref_color_categories_default"/>
+	    <org.tvbrowser.settings.PreferenceColorActivated
+	        android:key="@string/PREF_WIDGET_COLOR_TIME"
+	        android:title="@string/widget_preferences_text_color_time"
+	        android:defaultValue="@string/pref_widget_color_time_default"/>
+	    <org.tvbrowser.settings.PreferenceColorActivated
+	        android:key="@string/PREF_WIDGET_COLOR_TITLE"
+	        android:title="@string/widget_preferences_text_color_title"
+	        android:defaultValue="@string/pref_widget_color_title_default"/>
+	    <org.tvbrowser.settings.PreferenceColorActivated
+	        android:key="@string/PREF_WIDGET_COLOR_CATEGORY"
+	        android:title="@string/widget_preferences_text_color_category"
+	        android:defaultValue="@string/pref_color_categories_default"/>
+	    <org.tvbrowser.settings.PreferenceColorActivated
+	        android:key="@string/PREF_WIDGET_COLOR_EPISODE"
+	        android:title="@string/widget_preferences_text_color_episode"
+	        android:defaultValue="@string/pref_color_categories_default"/>
+	</PreferenceScreen>
 	<CheckBoxPreference android:key="@string/PREF_WIDGET_SHOW_EPISODE" 
 		android:title="@string/pref_show_episode"
 		android:defaultValue="@bool/pref_widget_show_episode_default"/>

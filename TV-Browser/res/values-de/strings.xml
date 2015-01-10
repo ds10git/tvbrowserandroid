@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.7.1</h2>
+        	&bull; benutzerdefinierbare Textfarben für die Widgets<br>
         	&bull; Verarbeitung der Lieblingssendungen überarbeitet<br>
         	&bull; möglicher Absturz beim Löschen von Lieblingssendungen beseitigt<br>
         	&bull; "Will ich nicht sehen!"-Sendungen werden bei Schnellsuche nicht mehr angzeigt<br>
@@ -820,6 +821,16 @@
         <item>Hoch</item>
         <item>Vollständig</item>
     </string-array>
+    
+    <string name="widget_preferences_text_color_user_defined_title">Benutzerdefinierte Textfarben</string>
+    <string name="widget_preferences_text_color_user_defined_summary">Welche Farben sollen für den Text verwendet werden?</string>
+    
+    <string name="widget_preferences_text_color_channel">Sendername und -nummer</string>
+    <string name="widget_preferences_text_color_date">Datum</string>
+    <string name="widget_preferences_text_color_time">Zeit</string>
+    <string name="widget_preferences_text_color_title">Titel</string>
+    <string name="widget_preferences_text_color_category">Kategory-Standard</string>
+    <string name="widget_preferences_text_color_episode">Episode</string>
     
     <string name="widget_prefrerences_simple_icon">Einfarbiges Widget-Symbol</string>
     

@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.7.1</h2>
+        	&bull; user defined colors for widget texts<br>
         	&bull; changed processing of Favorites<br>
         	&bull; fixed possible crash at deleting of Favorites<br>
         	&bull; don\'t show programs of "I don\'t want to see" at quick search<br>
@@ -830,6 +831,16 @@
         <item>High</item>
         <item>Full</item>
     </string-array>
+    
+    <string name="widget_preferences_text_color_user_defined_title">User defined text colors</string>
+    <string name="widget_preferences_text_color_user_defined_summary">What colors should be used for text?</string>
+    
+    <string name="widget_preferences_text_color_channel">Channel name and number</string>
+    <string name="widget_preferences_text_color_date">Date</string>
+    <string name="widget_preferences_text_color_time">Time</string>
+    <string name="widget_preferences_text_color_title">Title</string>
+    <string name="widget_preferences_text_color_category">Category default</string>
+    <string name="widget_preferences_text_color_episode">Episode</string>
     
     <string name="backup_channels_success">Channels successfully stored on TV-Browser server</string>
     
