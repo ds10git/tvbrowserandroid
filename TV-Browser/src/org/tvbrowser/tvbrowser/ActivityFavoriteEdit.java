@@ -20,9 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
 import java.util.Locale;
-import java.util.Set;
 import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -32,12 +30,9 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.preference.PreferenceManager;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
@@ -819,27 +814,9 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
       }
     }
     
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(ActivityFavoriteEdit.this);
     Log.d("info2", " notChanged " + notChanged + " remindChanged " + remindChanged);
     if(notChanged && remindChanged) {
-      Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
-      HashSet<String> newFavoriteList = new HashSet<String>();
-      
-      for(String favorite : favoritesSet) {
-        String[] values = favorite.split(";;");
-        
-        if(values[0].equals(mFavorite.getName())) {
-          Log.d("info2", "changeFAV");
-          newFavoriteList.add(mFavorite.getSaveString());
-        }
-        else {
-          newFavoriteList.add(favorite);
-        }
-      }
-      
-      Editor edit = prefs.edit();
-      edit.putStringSet(SettingConstants.FAVORITE_LIST, newFavoriteList);
-      edit.commit();
+      mFavorite.save(getApplicationContext());
       
       Favorite.handleFavoriteMarking(getApplicationContext(), mFavorite, Favorite.TYPE_MARK_UPDATE_REMINDERS);
       
@@ -867,30 +844,7 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
         intent.putExtra(Favorite.OLD_NAME_KEY, mOldFavorite.getName());
       }
       
-      Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
-      HashSet<String> newFavoriteList = new HashSet<String>();
-      
-      boolean added = false;
-      Log.d("info2", "hier2");
-      for(String favorite : favoritesSet) {
-        String[] values = favorite.split(";;");
-        
-        if(mOldFavorite != null && values[0].equals(mOldFavorite.getName())) {                
-          newFavoriteList.add(mFavorite.getSaveString());
-          added = true;
-        }
-        else {
-          newFavoriteList.add(favorite);
-        }
-      }
-      Log.d("info2", "hier3");
-      if(!added) {
-        newFavoriteList.add(mFavorite.getSaveString());
-      }
-      
-      Editor edit = prefs.edit();
-      edit.putStringSet(SettingConstants.FAVORITE_LIST, newFavoriteList);
-      edit.commit();
+      mFavorite.save(getApplicationContext());
       
       intent.putExtra(Favorite.FAVORITE_EXTRA, mFavorite);
       

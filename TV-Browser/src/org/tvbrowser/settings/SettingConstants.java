@@ -44,7 +44,6 @@ public class SettingConstants {
   
   private static final String REMINDER_PAUSE_KEY = "REMINDER_PAUSE_KEY";
   
-  public static final String FILTER_PREFERENCES = "filterPreferences";
   public static final String ALL_FILTER_ID = "filter.allFilter";
   
   public static final String EPG_FREE_KEY = "EPG_FREE";
@@ -311,7 +310,8 @@ public class SettingConstants {
     };
   
   public static final String MARKINGS_ID = "MARKINGS_ID";
-  public static final String FAVORITE_LIST = "FAVORITE_LIST";
+  
+  //public static final String FAVORITE_LIST = "FAVORITE_LIST";
   
   public static final String USER_NAME = "CAR";
   public static final String USER_PASSWORD = "BICYCLE";
