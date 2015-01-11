@@ -19,6 +19,7 @@ package org.tvbrowser.tvbrowser;
 import java.util.Comparator;
 import java.util.Map;
 
+import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 
 import android.content.Context;
@@ -70,7 +71,7 @@ public class ActivityFilterListEdit extends ActionBarActivity implements Channel
     mFilterList = (ListView)findViewById(R.id.activity_edit_filter_list_list);
     mFilterList.setAdapter(mFilterListAdapter);
     
-    SharedPreferences pref = getSharedPreferences(SettingConstants.FILTER_PREFERENCES, Context.MODE_PRIVATE);
+    SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, ActivityFilterListEdit.this);
     
     Map<String,?> filterValues = pref.getAll();
     
@@ -172,7 +173,7 @@ public class ActivityFilterListEdit extends ActionBarActivity implements Channel
       mName = name;
       mFilteredChannelIds = filteredChannelIds;
       
-      Editor edit = mContext.getSharedPreferences(SettingConstants.FILTER_PREFERENCES, Context.MODE_PRIVATE).edit();
+      Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, mContext).edit();
       
       StringBuilder value = new StringBuilder(name);
       value.append("##_##");
@@ -235,7 +236,7 @@ public class ActivityFilterListEdit extends ActionBarActivity implements Channel
         mFilterListAdapter.remove(mCurrentFilter);
         mFilterListAdapter.notifyDataSetChanged();
         
-        Editor edit = getSharedPreferences(SettingConstants.FILTER_PREFERENCES, Context.MODE_PRIVATE).edit();
+        Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, ActivityFilterListEdit.this).edit();
         edit.remove(mCurrentFilter.getId());
         edit.commit();
         

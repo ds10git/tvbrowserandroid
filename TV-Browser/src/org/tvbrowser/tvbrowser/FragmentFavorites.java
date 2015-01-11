@@ -19,8 +19,6 @@ package org.tvbrowser.tvbrowser;
 import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -37,7 +35,6 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.database.DataSetObserver;
@@ -46,7 +43,6 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
@@ -138,14 +134,9 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     
     mFavoriteList = new ArrayList<FavoriteSpinnerEntry>();
     
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    SharedPreferences prefs = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getActivity());
     
-    Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
-    
-    for(String favorite : favoritesSet) {
-      mFavoriteList.add(new FavoriteSpinnerEntry(new Favorite(favorite)));
-    }
-    
+    updateFavoriteList(false);
     removeMarkingSelections();
     
     Collections.sort(mFavoriteList);
@@ -502,16 +493,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
                   }
                   
                   mFavoriteList.clear();
-
-                  SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-                  
-                  Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
-                  
-                  for(String favorite : favoritesSet) {
-                    Favorite fav = new Favorite(favorite);
-                    Favorite.handleFavoriteMarking(getActivity(), fav, Favorite.TYPE_MARK_ADD);
-                    mFavoriteList.add(new FavoriteSpinnerEntry(fav));
-                  }
+                  updateFavoriteList(true);
                 }
               }
               
@@ -722,21 +704,19 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     return loader;
   }
 
-  private void updateFavorites() {
-    HashSet<String> favoriteSet = new HashSet<String>();
+  private void updateFavoriteList(boolean mark) {
+    Favorite[] favorites = Favorite.getAllFavorites(getActivity());
     
-    for(FavoriteSpinnerEntry fav : mFavoriteList) {
-      if(fav.containsFavorite()) {
-        favoriteSet.add(fav.getFavorite().getSaveString());
+    for(Favorite favorite : favorites) {
+      if(mark) {
+        Favorite.handleFavoriteMarking(getActivity(), favorite, Favorite.TYPE_MARK_ADD);
       }
+      
+      mFavoriteList.add(new FavoriteSpinnerEntry(favorite));
     }
-    
-    Editor edit = PreferenceManager.getDefaultSharedPreferences(getActivity()).edit();
-    
-    edit.putStringSet(SettingConstants.FAVORITE_LIST, favoriteSet);
-    
-    edit.commit();
-    
+  }
+  
+  private void updateFavorites() {
     handler.post(new Runnable() {
       @Override
       public void run() {
@@ -888,11 +868,11 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           mFavoriteList.remove(mCurrentSelection);
           final Favorite current = mCurrentSelection.getFavorite();
           mCurrentSelection = null;
+          final Context context = getActivity().getApplicationContext();
           
-          new Thread() {
+          new Thread("DELETE FAVORITE REMOVE MARKING THREAD") {
             public void run() {
-              Favorite.handleFavoriteMarking(getActivity(), current, Favorite.TYPE_MARK_REMOVE);
-              
+              Favorite.deleteFavorite(context, current);
               mCurrentSelection = null;
               updateFavorites();
             }

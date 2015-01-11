@@ -200,6 +200,7 @@
         ]]></string>
     <string name="info_version">What is new in this version?</string>
     
+    <string name="tab_restoring_name">RESTORING PREFERENCES</string>
     <string name="app_name">TV-Browser</string>
     <string name="search_activity_name">TV-Browser Search</string>
     <string name="search_no_result_title">No program found</string>

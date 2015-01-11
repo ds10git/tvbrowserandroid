@@ -42,6 +42,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
@@ -907,7 +908,7 @@ public class TvDataUpdateService extends Service {
         documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=reminderFromDesktop");
         URLConnection connection = documentUrl.openConnection();
         
-        SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+        SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_TRANSPORTATION, TvDataUpdateService.this);
         
         String car = pref.getString(SettingConstants.USER_NAME, null);
         String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
@@ -2291,11 +2292,9 @@ public class TvDataUpdateService extends Service {
   private AtomicInteger mFavoriteUpdateCount;
   
   private void updateFavorites(final NotificationManager notification) {
-    SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(TvDataUpdateService.this);
+    final Favorite[] favorites = Favorite.getAllFavorites(TvDataUpdateService.this);
     
-    final Set<String> favoritesSet = prefs.getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
-    
-    mBuilder.setProgress(favoritesSet.size(), 0, false);
+    mBuilder.setProgress(favorites.length, 0, false);
     mBuilder.setContentText(getResources().getText(R.string.update_data_notification_favorites));
     notification.notify(NOTIFY_ID, mBuilder.build());
     
@@ -2303,16 +2302,14 @@ public class TvDataUpdateService extends Service {
     
     mFavoriteUpdateCount = new AtomicInteger(1);
     
-    for(String favorite : favoritesSet) {
-      final Favorite fav = new Favorite(favorite);
-      
+    for(final Favorite favorite : favorites) {
       if(!updateFavorites.isShutdown()) {
         updateFavorites.execute(new Thread("DATA UPDATE FAVORITE UPDATE THREAD") {
           @Override
           public void run() {
-            Favorite.handleFavoriteMarking(TvDataUpdateService.this, fav, Favorite.TYPE_MARK_REMOVE);
-            Favorite.handleFavoriteMarking(TvDataUpdateService.this, fav, Favorite.TYPE_MARK_ADD);
-            mBuilder.setProgress(favoritesSet.size(), mFavoriteUpdateCount.getAndIncrement(), false);
+            Favorite.handleFavoriteMarking(TvDataUpdateService.this, favorite, Favorite.TYPE_MARK_REMOVE);
+            Favorite.handleFavoriteMarking(TvDataUpdateService.this, favorite, Favorite.TYPE_MARK_ADD);
+            mBuilder.setProgress(favorites.length, mFavoriteUpdateCount.getAndIncrement(), false);
             notification.notify(NOTIFY_ID, mBuilder.build());
           }
         });
@@ -2322,7 +2319,7 @@ public class TvDataUpdateService extends Service {
     updateFavorites.shutdown();
     
     try {
-      updateFavorites.awaitTermination(favoritesSet.size(), TimeUnit.MINUTES);
+      updateFavorites.awaitTermination(favorites.length, TimeUnit.MINUTES);
     } catch (InterruptedException e) {}
     
     notification.cancel(NOTIFY_ID);

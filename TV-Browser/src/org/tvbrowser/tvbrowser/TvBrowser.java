@@ -101,6 +101,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
+import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.SearchView;
 import android.text.Editable;
@@ -309,17 +310,17 @@ public class TvBrowser extends ActionBarActivity implements
       PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
       
       int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
-      
-      if(oldVersion < 167) {
-        Set<String> favoritesSet = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).getStringSet(SettingConstants.FAVORITE_LIST, new HashSet<String>());
+      //FAVORITE_LIST
+      if(oldVersion < 304) {
+        Set<String> favoritesSet = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).getStringSet("FAVORITE_LIST", new HashSet<String>());
         
-        HashSet<String> newFavorites = new HashSet<String>();
+        int id = 1000;
         
         for(String favorite : favoritesSet) {
-          Favorite fav = new Favorite(favorite);
+          Favorite fav = new Favorite(id++,favorite);
           
           if(fav.isValid()) {
-            newFavorites.add(favorite);
+            fav.save(getApplicationContext());
           }
           else {
             Favorite.handleFavoriteMarking(TvBrowser.this, fav, Favorite.TYPE_MARK_REMOVE);
@@ -327,7 +328,7 @@ public class TvBrowser extends ActionBarActivity implements
         }
         
         Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
-        edit.putStringSet(SettingConstants.FAVORITE_LIST, newFavorites);
+        edit.remove("FAVORITE_LIST");
         edit.commit();
       }
       if(oldVersion < 204) {
@@ -618,7 +619,7 @@ public class TvBrowser extends ActionBarActivity implements
     mCurrentChannelFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, SettingConstants.ALL_FILTER_ID);
     
     if(!mCurrentChannelFilterId.equals(SettingConstants.ALL_FILTER_ID)) {
-      SharedPreferences pref = getSharedPreferences(SettingConstants.FILTER_PREFERENCES, Context.MODE_PRIVATE);
+      SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, TvBrowser.this);
       
       String values = pref.getString(mCurrentChannelFilterId, null);
       
@@ -1392,18 +1393,6 @@ public class TvBrowser extends ActionBarActivity implements
               if(!key.equals(getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES))) {
                 Set<String> valueSet = (Set<String>)value;
                 
-                if(key.equals(SettingConstants.FAVORITE_LIST)) {
-                  HashSet<String> favoriteList = new HashSet<String>();
-                  
-                  for(String setValue : valueSet) {
-                    Favorite temp = new Favorite(setValue);
-                    temp.loadChannelRestrictionIdsFromUniqueChannelRestriction(getApplicationContext());
-                    favoriteList.add(temp.getSaveString(getApplicationContext()));
-                  }
-                  
-                  valueSet = favoriteList;
-                }
-                
                 backup.append("set:").append(key).append("=");
                 
                 backup.append(TextUtils.join("#,#", valueSet));
@@ -1411,6 +1400,16 @@ public class TvBrowser extends ActionBarActivity implements
                 backup.append("\n");
               }
             }
+          }
+          
+          Favorite[] favorites = Favorite.getAllFavorites(getApplicationContext());
+          
+          for(Favorite favorite : favorites) {
+            backup.append("favorite:");
+            backup.append(favorite.getFavoriteId());
+            backup.append("=");
+            backup.append(favorite.getSaveString(TvBrowser.this));
+            backup.append("\n");
           }
           
           startSynchronizeUp(true, backup.toString(), "http://android.tvbrowser.org/data/scripts/syncUp.php?type=preferencesBackup", SettingConstants.SYNCHRONIZE_UP_DONE, getString(R.string.backup_preferences_success));
@@ -1427,134 +1426,182 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void restorePreferencesInternal() {
-    new Thread("RESTORE PREFERENCES") {
+    handler.post(new Runnable() {
       @Override
       public void run() {
-        updateProgressIcon(true);
+        mViewPager.setCurrentItem(0,true);
         
-        URL documentUrl;
+        for(int i = mSectionsPagerAdapter.getCount()-1; i >= 0; i--) {
+          mSectionsPagerAdapter.destroyItem(mViewPager, i, mSectionsPagerAdapter.getRegisteredFragment(i));
+          mSectionsPagerAdapter.notifyDataSetChanged();
+          actionBar.removeTabAt(i);
+        }
         
-        BufferedReader read = null;
-        boolean restored = false;
+        actionBar.addTab(actionBar.newTab().setText(getString(R.string.tab_restoring_name)).setTabListener(new ActionBar.TabListener() {
+          @Override
+          public void onTabUnselected(Tab arg0, FragmentTransaction arg1) {}
+          
+          @Override
+          public void onTabSelected(Tab arg0, FragmentTransaction arg1) {}
+          
+          @Override
+          public void onTabReselected(Tab arg0, FragmentTransaction arg1) {}
+        }));
         
-        try {
-          documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=preferencesBackup");
-          URLConnection connection = documentUrl.openConnection();
-          
-          SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
-          
-          String car = pref.getString(SettingConstants.USER_NAME, null);
-          String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
-          
-          if(car != null && bicycle != null) {
-            String userpass = car + ":" + bicycle;
-            String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
+        new Thread("RESTORE PREFERENCES") {
+          @Override
+          public void run() {
+            updateProgressIcon(true);
             
-            connection.setRequestProperty ("Authorization", basicAuth);
+            URL documentUrl;
             
-            read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+            BufferedReader read = null;
+            boolean restored = false;
             
-            String line = null;
-            Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-            
-            while((line = read.readLine()) != null) {
-              int index = line.indexOf(":");
+            try {
+              documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=preferencesBackup");
+              URLConnection connection = documentUrl.openConnection();
               
-              if(index > 0) {
-                restored = true;
-                String type = line.substring(0,index);
-                String[] parts = line.substring(index+1).split("=");
+              SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+              
+              String car = pref.getString(SettingConstants.USER_NAME, null);
+              String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+              
+              if(car != null && bicycle != null) {
+                String userpass = car + ":" + bicycle;
+                String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
                 
-                if(parts != null && parts.length > 1) {
-                  if(type.equals("boolean")) {
-                    boolean boolValue = Boolean.valueOf(parts[1].trim());
+                connection.setRequestProperty ("Authorization", basicAuth);
+                
+                read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+                
+                String line = null;
+                Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+                
+                TvBrowserContentProvider.INFORM_FOR_CHANGES = false;
+                
+                final Favorite[] existingFavorites = Favorite.getAllFavorites(getApplicationContext());
+                
+                while((line = read.readLine()) != null) {
+                  int index = line.indexOf(":");
+                  
+                  if(index > 0) {
+                    restored = true;
+                    String type = line.substring(0,index);
+                    String[] parts = line.substring(index+1).split("=");
                     
-                    if(!getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(parts[0]) || boolValue) {
-                      edit.putBoolean(parts[0], boolValue);
-                    }
-                  }
-                  else if(type.equals("int")) {
-                    if(!getString(R.string.OLD_VERSION).equals(parts[0])) {
-                      edit.putInt(parts[0], Integer.valueOf(parts[1].trim()));
-                    }
-                  }
-                  else if(type.equals("float")) {
-                    edit.putFloat(parts[0], Float.valueOf(parts[1].trim()));
-                  }
-                  else if(type.equals("long")) {
-                    edit.putLong(parts[0], Long.valueOf(parts[1].trim()));
-                  }
-                  else if(type.equals("string")) {
-                    edit.putString(parts[0], parts[1].trim());
-                  }
-                  else if(type.equals("set")) {
-                    HashSet<String> set = new HashSet<String>();
-                    
-                    String[] setParts = parts[1].split("#,#");
-                    
-                    if(setParts != null && setParts.length > 0) {
-                      for(String setPart : setParts) {
-                        if(parts[0].equals(SettingConstants.FAVORITE_LIST)) {
-                          Favorite temp = new Favorite(setPart);
-                          temp.loadChannelRestrictionIdsFromUniqueChannelRestriction(getApplicationContext());
-                          set.add(temp.getSaveString());
-                        }
-                        else {
-                          set.add(setPart);
+                    if(parts != null && parts.length > 1) {
+                      if(type.equals("boolean")) {
+                        boolean boolValue = Boolean.valueOf(parts[1].trim());
+                        
+                        if(!getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(parts[0]) || boolValue) {
+                          edit.putBoolean(parts[0], boolValue);
                         }
                       }
-                      
-                      edit.putStringSet(parts[0], set);
+                      else if(type.equals("int")) {
+                        if(!getString(R.string.OLD_VERSION).equals(parts[0])) {
+                          edit.putInt(parts[0], Integer.valueOf(parts[1].trim()));
+                        }
+                      }
+                      else if(type.equals("float")) {
+                        edit.putFloat(parts[0], Float.valueOf(parts[1].trim()));
+                      }
+                      else if(type.equals("long")) {
+                        edit.putLong(parts[0], Long.valueOf(parts[1].trim()));
+                      }
+                      else if(type.equals("string")) {
+                        edit.putString(parts[0], parts[1].trim());
+                      }
+                      else if(type.equals("set")) {
+                        HashSet<String> set = new HashSet<String>();
+                        
+                        String[] setParts = parts[1].split("#,#");
+                        
+                        if(setParts != null && setParts.length > 0) {
+                          if(parts[0].equals("FAVORITE_LIST")) {
+                            Favorite.deleteAllFavorites(getApplicationContext());
+                            int id = 1000;
+                            
+                            for(String setPart : setParts) {
+                              Favorite favorite = new Favorite(id++,setPart);
+                              favorite.loadChannelRestrictionIdsFromUniqueChannelRestriction(getApplicationContext());
+                              Favorite.handleFavoriteMarking(getApplicationContext(), favorite, Favorite.TYPE_MARK_ADD);
+                            }
+                          }
+                          else {
+                            for(String setPart : setParts) {
+                              set.add(setPart);
+                            }
+                            
+                            edit.putStringSet(parts[0], set);
+                          }
+                        }
+                      }
+                      else if(type.equals("favorite")) {
+                        Favorite favorite = new Favorite(Long.parseLong(parts[0]),parts[1]);
+                        
+                        for(Favorite test : existingFavorites) {
+                          if(test.getFavoriteId() == favorite.getFavoriteId()) {
+                            Favorite.deleteFavorite(getApplicationContext(), favorite);
+                            break;
+                          }
+                        }
+                        
+                        favorite.loadChannelRestrictionIdsFromUniqueChannelRestriction(getApplicationContext());
+                        Favorite.handleFavoriteMarking(getApplicationContext(), favorite, Favorite.TYPE_MARK_ADD);
+                      }
                     }
                   }
                 }
+                
+                TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
+                
+                if(restored) {
+                  edit.commit();
+                  handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      updateFromPreferences();
+                      TvBrowser.this.finish();
+                    }
+                  });
+                  
+                  IOUtils.handleDataUpdatePreferences(getApplicationContext());
+                }
+              }
+            }catch(Exception e) {
+              restored = false;
+            }
+            finally {
+              if(read != null) {
+                try {
+                  read.close();
+                } catch (IOException e) {}
               }
             }
             
             if(restored) {
-              edit.commit();
               handler.post(new Runnable() {
                 @Override
                 public void run() {
-                  updateFromPreferences();
-                  TvBrowser.this.finish();
+                  Toast.makeText(TvBrowser.this, getString(R.string.backup_preferences_restore_success), Toast.LENGTH_LONG).show();
                 }
               });
-              
-              IOUtils.handleDataUpdatePreferences(getApplicationContext());
             }
+            else {
+              handler.post(new Runnable() {
+                @Override
+                public void run() {
+                  Toast.makeText(TvBrowser.this, getString(R.string.backup_preferences_restore_failure), Toast.LENGTH_LONG).show();
+                }
+              });
+            }
+            
+            updateProgressIcon(false);
           }
-        }catch(Exception e) {
-          restored = false;
-        }
-        finally {
-          if(read != null) {
-            try {
-              read.close();
-            } catch (IOException e) {}
-          }
-        }
-        
-        if(restored) {
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              Toast.makeText(TvBrowser.this, getString(R.string.backup_preferences_restore_success), Toast.LENGTH_LONG).show();
-            }
-          });
-        }
-        else {
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              Toast.makeText(TvBrowser.this, getString(R.string.backup_preferences_restore_failure), Toast.LENGTH_LONG).show();
-            }
-          });
-        }
-        
-        updateProgressIcon(false);
+        }.start();
       }
-    }.start();
+    });
   }
   
   private void restorePreferences() {
@@ -1938,7 +1985,7 @@ public class TvBrowser extends ActionBarActivity implements
     ContentResolver cr = getContentResolver();
     Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, selection, null, TvBrowserContentProvider.CHANNEL_KEY_NAME);
     channels.moveToPosition(-1);
-    Log.d("info2","CURSOR SIZE " + channels.getCount());
+    
     // populate array list with all available channels
     final ArrayListWrapper channelSelectionList = new ArrayListWrapper();
     ArrayList<Country> countryList = new ArrayList<Country>();
@@ -3893,7 +3940,7 @@ public class TvBrowser extends ActionBarActivity implements
     }
     
     ArrayList<ChannelFilterValues> channelFilterList = new ArrayList<ChannelFilterValues>();
-    SharedPreferences filterPreferences = getSharedPreferences(SettingConstants.FILTER_PREFERENCES, Context.MODE_PRIVATE);
+    SharedPreferences filterPreferences = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, TvBrowser.this);
     Map<String,?> filterValues = filterPreferences.getAll();
     
     for(String key : filterValues.keySet()) {
