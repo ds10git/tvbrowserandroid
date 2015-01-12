@@ -926,6 +926,9 @@ public class TvDataUpdateService extends Service {
           ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
           ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
           
+          Hashtable<String, Object> currentGroups = getCurrentGroups();
+          Hashtable<String, Integer> knownChannels = new Hashtable<String, Integer>();
+          
           while((reminder = read.readLine()) != null) {
             if(reminder != null && reminder.contains(";") && reminder.contains(":")) {
               String[] parts = reminder.split(";");
@@ -933,40 +936,47 @@ public class TvDataUpdateService extends Service {
               long time = Long.parseLong(parts[0]) * 60000;
               String[] idParts = parts[1].split(":");
             
-              String dataService = null;
-              String groupKeyId = null;
+              Object groupInfo = null;
+              String groupKey = null;
               String channelIdKey = null;
               
               if(idParts[0].equals(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_FREE_KEY))) {
-                dataService = SettingConstants.EPG_FREE_KEY;
-                groupKeyId = idParts[1];
+                groupKey = getGroupsKey(SettingConstants.EPG_FREE_KEY,idParts[1]);
+                groupInfo = currentGroups.get(groupKey);
                 channelIdKey = idParts[2];
               }
               else if(idParts[0].equals(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_DONATE_KEY))) {
-                dataService = SettingConstants.EPG_DONATE_KEY;
-                groupKeyId = SettingConstants.EPG_DONATE_GROUP_KEY;
+                groupKey = getGroupsKey(SettingConstants.EPG_DONATE_KEY,SettingConstants.EPG_DONATE_GROUP_KEY);
+                groupInfo = currentGroups.get(groupKey);
                 channelIdKey = idParts[1];
               }
                 
-              if(dataService != null) {
-                String where = " ( " +TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = \"" + dataService + "\" ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + groupKeyId + "\" ) ";
+              if(groupInfo != null) {
+                String groupChannelKey = getGroupChannelKey(groupKey,channelIdKey);
+                Integer channelId = knownChannels.get(groupChannelKey);
                 
-                Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
-                
-                if(group.moveToFirst()) {
-                  int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-                  
-                  where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + channelIdKey + "\' ) ";
+                if(channelId == null) {
+                  String where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + ((Integer)((Object[])groupInfo)[0]).intValue() + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + channelIdKey + "\' ) ";
                   
                   Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
                   
-                  if(channel.moveToFirst()) {
-                    int channelId = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-                    
-                    where = " ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelId + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time + " ) " + " AND ( NOT " + TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER + " ) ";
-                    
-                    Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
-                    
+                  try {
+                    if(channel.moveToFirst()) {
+                      int channelIdValue = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                      channelId = Integer.valueOf(channelIdValue);
+                      
+                      knownChannels.put(groupChannelKey, channelId);
+                    }
+                  }finally {
+                    IOUtils.closeCursor(channel);
+                  }
+                }
+                
+                if(channelId != null) {
+                  String where = " ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelId + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time + " ) " + " AND ( NOT " + TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER + " ) ";
+                  
+                  Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
+                  try {
                     if(program.moveToFirst()) {
                       boolean marked = program.getInt(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER)) == 1;
                                                 
@@ -989,14 +999,10 @@ public class TvDataUpdateService extends Service {
                         UiUtils.addReminder(TvDataUpdateService.this, programID, time, TvBrowser.class, true);
                       }
                     }
-                    
-                    program.close();
+                  }finally {
+                    IOUtils.closeCursor(program);
                   }
-                  
-                  channel.close();
                 }
-                
-                group.close();
               }
             }
           }
@@ -1051,6 +1057,10 @@ public class TvDataUpdateService extends Service {
     }
   }
   
+  private static final String getGroupChannelKey(String groupKey, String channelId) {
+    return groupKey + "_##_" + channelId;
+  }
+  
   private void syncFavorites(final NotificationManager notification) {
     if(mSyncFavorites != null) {
       mBuilder.setProgress(100, 0, true);
@@ -1060,6 +1070,9 @@ public class TvDataUpdateService extends Service {
       ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
       ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
       
+      Hashtable<String, Object> currentGroups = getCurrentGroups();
+      Hashtable<String, Integer> knownChannels = new Hashtable<String, Integer>();
+      
       for(String fav : mSyncFavorites) {
         if(fav != null && fav.contains(";") && fav.contains(":")) {
           String[] parts = fav.split(";");
@@ -1067,40 +1080,47 @@ public class TvDataUpdateService extends Service {
           long time = Long.parseLong(parts[0]) * 60000;
           String[] idParts = parts[1].split(":");
           
-          String dataService = null;
-          String groupKeyId = null;
+          Object groupInfo = null;
+          String groupKey = null;
           String channelIdKey = null;
           
           if(idParts[0].equals(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_FREE_KEY))) {
-            dataService = SettingConstants.EPG_FREE_KEY;
-            groupKeyId = idParts[1];
+            groupKey = getGroupsKey(SettingConstants.EPG_FREE_KEY,idParts[1]);
+            groupInfo = currentGroups.get(groupKey);
             channelIdKey = idParts[2];
           }
           else if(idParts[0].equals(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_DONATE_KEY))) {
-            dataService = SettingConstants.EPG_DONATE_KEY;
-            groupKeyId = SettingConstants.EPG_DONATE_GROUP_KEY;
+            groupKey = getGroupsKey(SettingConstants.EPG_DONATE_KEY,SettingConstants.EPG_DONATE_GROUP_KEY);
+            groupInfo = currentGroups.get(groupKey);
             channelIdKey = idParts[1];
           }
             
-          if(dataService != null) {
-            String where = " ( " +TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = \"" + dataService + "\" ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " = \"" + groupKeyId + "\" ) ";
+          if(groupInfo != null) {
+            String groupChannelKey = getGroupChannelKey(groupKey,channelIdKey);
+            Integer channelId = knownChannels.get(groupChannelKey);
             
-            Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
-            
-            if(group.moveToFirst()) {
-              int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-              
-              where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + channelIdKey + "\' ) ";
+            if(channelId == null) {
+              String where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + ((Integer)((Object[])groupInfo)[0]).intValue() + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + channelIdKey + "\' ) ";
               
               Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
               
-              if(channel.moveToFirst()) {
-                int channelId = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+              try {
+                if(channel.moveToFirst()) {
+                  int channelIdValue = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                  channelId = Integer.valueOf(channelIdValue);
+                  
+                  knownChannels.put(groupChannelKey, channelId);
+                }
+              }finally {
+                IOUtils.closeCursor(channel);
+              }
+            }
+            
+            if(channelId != null) {
+              String where = " ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelId.intValue() + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time + " ) ";
                 
-                where = " ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelId + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time + " ) ";
-                
-                Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
-                
+              Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
+              try {
                 if(program.moveToFirst()) {
                   boolean markedAsFavorite = program.getInt(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE)) == 1;
                   
@@ -1121,14 +1141,10 @@ public class TvDataUpdateService extends Service {
                     markingIntentList.add(intent);
                   }
                 }
-                
-                program.close();
+              }finally {
+                IOUtils.closeCursor(program);
               }
-              
-              channel.close();
             }
-            
-            group.close();
           }
         }
       }
@@ -1329,11 +1345,45 @@ public class TvDataUpdateService extends Service {
     return result;
   }
   
-  private void updateGroups(File groups, final File path, final boolean autoUpdate) {
-    final ChangeableFinalBoolean success = new ChangeableFinalBoolean(true);
+  private static final String getGroupsKey(String dataServiceId, String groupId) {
+    return dataServiceId.trim() + "_##_" + groupId.trim();
+  }
+  
+  private Hashtable<String, Object> getCurrentGroups() {
     Hashtable<String, Object> currentGroups = new Hashtable<String, Object>();
     
+    final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID,TvBrowserContentProvider.GROUP_KEY_GROUP_ID,TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS};
+    
+    final Cursor currentGroupsQuery = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, projection, null, null, null);
+    
+    try {
+      currentGroupsQuery.moveToPosition(-1);
+      
+      int keyIndex = currentGroupsQuery.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+      int dataServiceIndex = currentGroupsQuery.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID);
+      int groupIndex = currentGroupsQuery.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+      int mirrorIndex = currentGroupsQuery.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS);
+      
+      while(currentGroupsQuery.moveToNext()) {
+        String key = getGroupsKey(currentGroupsQuery.getString(dataServiceIndex),currentGroupsQuery.getString(groupIndex));
+        
+        currentGroups.put(key, new Object[] {Integer.valueOf(currentGroupsQuery.getInt(keyIndex)), currentGroupsQuery.getString(mirrorIndex)});
+      }
+    }finally {
+      if(currentGroupsQuery != null) {
+        currentGroupsQuery.close();
+      }
+    }
+    
+    return currentGroups;
+  }
+  
+  private void updateGroups(File groups, final File path, final boolean autoUpdate) {
+    final ChangeableFinalBoolean success = new ChangeableFinalBoolean(true);
+    
     if(groups.isFile()) {
+      Hashtable<String, Object> currentGroups = getCurrentGroups();
+      
       final NotificationManager notification = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
       final ArrayList<GroupInfo> channelMirrors = new ArrayList<GroupInfo>();
       
@@ -1344,29 +1394,6 @@ public class TvDataUpdateService extends Service {
           
         String line = null;
         doLog("Read groups from: " + groups.getName());
-        
-        final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID,TvBrowserContentProvider.GROUP_KEY_GROUP_ID,TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS};
-        
-        final Cursor currentGroupsQuery = cr.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, projection, null, null, null);
-        
-        try {
-          currentGroupsQuery.moveToPosition(-1);
-          
-          int keyIndex = currentGroupsQuery.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-          int dataServiceIndex = currentGroupsQuery.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID);
-          int groupIndex = currentGroupsQuery.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-          int mirrorIndex = currentGroupsQuery.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS);
-          
-          while(currentGroupsQuery.moveToNext()) {
-            String key = currentGroupsQuery.getString(dataServiceIndex).trim() + "_##_" + currentGroupsQuery.getString(groupIndex).trim();
-            
-            currentGroups.put(key, new Object[] {Integer.valueOf(currentGroupsQuery.getInt(keyIndex)), currentGroupsQuery.getString(mirrorIndex)});
-          }
-        }finally {
-          if(currentGroupsQuery != null) {
-            currentGroupsQuery.close();
-          }
-        }
         
         while((line = in.readLine()) != null) {
           doLog("GROUP LINE: " + line);
@@ -1556,6 +1583,11 @@ public class TvDataUpdateService extends Service {
       }
       
       deleteFile(groups);
+      
+      if(currentGroups != null) {
+        currentGroups.clear();
+        currentGroups = null;
+      }
     }
     else {
       success.setBoolean(false);
@@ -1603,11 +1635,6 @@ public class TvDataUpdateService extends Service {
     updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_AUTO_UPDATE, autoUpdate);
     
     LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
-    
-    if(currentGroups != null) {
-      currentGroups.clear();
-      currentGroups = null;
-    }
     
     IS_RUNNING = false;
     stopForeground(true);
