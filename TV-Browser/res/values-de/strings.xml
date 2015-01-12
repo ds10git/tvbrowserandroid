@@ -2,7 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.7.1</h2>
-        	&bull; neue Symbole für Vorheriger und Nächster Tag in der Programmtabelle<br>
+        	&bull; neue Symbole für vorheriger und nächster Tag in der Programmtabelle<br>
         	&bull; benutzerdefinierbare Textfarben für die Widgets<br>
         	&bull; Verarbeitung der Lieblingssendungen überarbeitet<br>
         	&bull; möglicher Absturz beim Löschen von Lieblingssendungen beseitigt<br>
