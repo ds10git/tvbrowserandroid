@@ -2,12 +2,13 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.7.1</h2>
+        	&bull; neue Symbole für Vorheriger und Nächster Tag in der Programmtabelle<br>
         	&bull; benutzerdefinierbare Textfarben für die Widgets<br>
         	&bull; Verarbeitung der Lieblingssendungen überarbeitet<br>
         	&bull; möglicher Absturz beim Löschen von Lieblingssendungen beseitigt<br>
         	&bull; "Will ich nicht sehen!"-Sendungen werden bei Schnellsuche nicht mehr angzeigt<br>
 		<br>
-        <h2>0.5.7</h2>
+        <h3>0.5.7</h3>
         	&bull; mögliche Probleme beim Laden der verfügbaren Downloadserver behoben<br>
         	&bull; mögliche Probleme beim Löschen entfernter Sendungen behoben<br>
         	&bull; weggefallene Sender werden gelöscht<br>

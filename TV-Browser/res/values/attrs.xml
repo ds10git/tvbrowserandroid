@@ -4,4 +4,6 @@
 		<attr name="minValue" format="integer"/>
 		<attr name="maxValue" format="integer"/>
 	</declare-styleable>
+	<attr name="ic_back_icon" format="reference"/>
+	<attr name="ic_forward_icon" format="reference"/>
 </resources>
