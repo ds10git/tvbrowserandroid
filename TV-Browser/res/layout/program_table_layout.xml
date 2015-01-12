@@ -15,7 +15,7 @@
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentBottom="true"
 	    android:layout_alignParentLeft="true"
-	    android:drawableLeft="@android:drawable/arrow_down_float"
+	    android:drawableLeft="?attr/ic_back_icon"
 	    android:gravity="left|center_vertical"
 	    android:text="@string/previous_day" />
     
@@ -37,7 +37,7 @@
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentRight="true"
 	    android:layout_alignTop="@+id/show_current_day"
-	    android:drawableRight="@android:drawable/arrow_up_float"
+	    android:drawableRight="?attr/ic_forward_icon"
 	    android:gravity="right|center_vertical"
 	    android:text="@string/next_day"
 	     />
