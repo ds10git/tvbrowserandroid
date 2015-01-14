@@ -83,4 +83,26 @@ interface PluginManager {
 	 *         not be updated.  
 	 */
 	boolean unmarkProgram(in Program program);
+	
+	/**
+	 * Marks the program for the plugin with the given id.
+	 * 
+	 * @param program The program to mark.
+	 * @param pluginCannonicalClassName The canonical class name of the plugin class.
+	 * @return <code>true</code> if the program was successfully marked (or was already marked),
+	 *         <code>false</code> if the program could not be marked. 
+	 */
+	boolean markProgramWithIcon(in Program program, in String pluginCanonicalClassName);
+	
+	/**
+	 * Unmarks the program for the plugin with the given id.
+	 * NOTE: The program is only completely unmarked if no other plugin has marked it.
+	 *
+	 * @param program The program to unmark.
+	 * @param pluginCannonicalClassName The canonical class name of the plugin class.
+	 * @return <code>true</code> if the program exists and could be updated (if it is completely unmarked
+	 *         depends on other plugin markings), <code>false</code> if the program didn't exists or could
+	 *         not be updated.  
+	 */
+	boolean unmarkProgramWithIcon(in Program program, in String pluginCanonicalClassName);
 }

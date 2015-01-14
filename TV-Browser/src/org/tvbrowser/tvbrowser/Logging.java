@@ -22,7 +22,8 @@ import java.io.RandomAccessFile;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import org.tvbrowser.settings.PrefUtils;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

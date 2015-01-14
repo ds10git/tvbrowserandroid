@@ -1,8 +1,8 @@
 package org.tvbrowser.settings;
 
-import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.R;
-import org.tvbrowser.tvbrowser.UiUtils;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.UiUtils;
 import org.tvbrowser.view.ColorView;
 
 import android.content.Context;

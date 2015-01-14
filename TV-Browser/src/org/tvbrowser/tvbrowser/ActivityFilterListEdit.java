@@ -19,8 +19,9 @@ package org.tvbrowser.tvbrowser;
 import java.util.Comparator;
 import java.util.Map;
 
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;

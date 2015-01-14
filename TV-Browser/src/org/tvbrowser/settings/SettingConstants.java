@@ -21,7 +21,8 @@ import java.util.HashMap;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.tvbrowser.R;
-import org.tvbrowser.tvbrowser.UiUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;
 import android.content.IntentFilter;
@@ -309,7 +310,8 @@ public class SettingConstants {
     TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE
     };
   
-  public static final String MARKINGS_ID = "MARKINGS_ID";
+  public static final String EXTRA_MARKINGS_ID = "EXTRA_MARKINGS_ID";
+  public static final String EXTRA_MARKINGS_ONLY_UPDATE = "EXTRA_MARKINGS_ONLY_UPDATE";
   
   //public static final String FAVORITE_LIST = "FAVORITE_LIST";
   

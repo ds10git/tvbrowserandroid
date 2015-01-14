@@ -53,8 +53,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.CompatUtils;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
@@ -992,7 +995,7 @@ public class TvDataUpdateService extends Service {
                         updateValuesList.add(opBuilder.build());
                         
                         Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-                        intent.putExtra(SettingConstants.MARKINGS_ID, programID);
+                        intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, programID);
                         
                         markingIntentList.add(intent);
                                                     
@@ -1136,7 +1139,7 @@ public class TvDataUpdateService extends Service {
                     updateValuesList.add(opBuilder.build());
                     
                     Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-                    intent.putExtra(SettingConstants.MARKINGS_ID, programID);
+                    intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, programID);
                     
                     markingIntentList.add(intent);
                   }

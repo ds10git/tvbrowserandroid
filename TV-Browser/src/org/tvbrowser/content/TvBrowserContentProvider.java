@@ -22,7 +22,7 @@ import java.util.HashMap;
 import java.util.Set;
 import java.util.TimeZone;
 
-import org.tvbrowser.tvbrowser.IOUtils;
+import org.tvbrowser.utils.IOUtils;
 
 import android.app.SearchManager;
 import android.content.ContentProvider;

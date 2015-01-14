@@ -21,8 +21,9 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;

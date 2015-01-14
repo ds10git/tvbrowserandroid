@@ -25,6 +25,8 @@ import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.app.AlertDialog;
 import android.content.Context;

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeoutException;
 
-import org.tvbrowser.tvbrowser.IOUtils;
+import org.tvbrowser.utils.IOUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;

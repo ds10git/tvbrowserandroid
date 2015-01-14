@@ -16,6 +16,8 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import org.tvbrowser.utils.UiUtils;
+
 import android.content.Context;
 
 public class DateSelection {

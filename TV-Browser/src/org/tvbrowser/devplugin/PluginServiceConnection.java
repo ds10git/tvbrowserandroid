@@ -18,13 +18,22 @@ package org.tvbrowser.devplugin;
 
 import java.util.ArrayList;
 
+import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.UiUtils;
+
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.BitmapDrawable;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.text.style.ImageSpan;
 
 /**
  * A class with a service connection to a specific TV-Browser Plugin.
@@ -43,6 +52,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   private String mPluginAuthor;
   private String mPluginLicense;
   private boolean mHasPreferences;
+  private ImageSpan mIcon;
   
   private Runnable mBindCallback;
   
@@ -109,6 +119,10 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     return mPluginLicense;
   }
   
+  public ImageSpan getPluginMarkIcon() {
+    return mIcon;
+  }
+  
   public boolean hasPreferences() {
     return mHasPreferences;
   }
@@ -148,6 +162,35 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     }
   }
   
+  public void loadIcon() {
+    mIcon = null;
+    
+    if(isConnected() && isActivated()) {
+      try {
+        byte[] iconBytes = mPlugin.getMarkIcon();
+        
+        if(iconBytes != null) {
+          Bitmap iconBitmap = UiUtils.createBitmapFromByteArray(iconBytes);
+          
+          BitmapDrawable icon = new BitmapDrawable(mContext.getResources(),iconBitmap);
+          
+          float zoom = 16f/iconBitmap.getHeight() * mContext.getResources().getDisplayMetrics().density;
+          
+          icon.setBounds(0, 0, (int)(iconBitmap.getWidth() * zoom), (int)(iconBitmap.getHeight() * zoom));
+          
+          if(!SettingConstants.IS_DARK_THEME) {
+            icon.setColorFilter(new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY));
+          }
+          
+          mIcon = new ImageSpan(icon, ImageSpan.ALIGN_BASELINE);
+        }
+      } catch (RemoteException e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      }
+    }
+  }
+  
   public void readPluginMetaData() {
     if(isConnected()) {
       try {
@@ -157,6 +200,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
         mPluginAuthor = mPlugin.getAuthor();
         mPluginLicense = mPlugin.getLicense();
         mHasPreferences = mPlugin.hasPreferences();
+        loadIcon();
       } catch (RemoteException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();

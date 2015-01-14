@@ -16,8 +16,8 @@
  */
 package org.tvbrowser.settings;
 
-import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.widgets.ImportantProgramsListWidget;
 import org.tvbrowser.widgets.RunningProgramsListWidget;
 

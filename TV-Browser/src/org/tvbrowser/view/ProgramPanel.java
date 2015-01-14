@@ -23,7 +23,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.tvbrowser.IOUtils;
+import org.tvbrowser.utils.IOUtils;
 
 import android.content.Context;
 import android.graphics.Canvas;

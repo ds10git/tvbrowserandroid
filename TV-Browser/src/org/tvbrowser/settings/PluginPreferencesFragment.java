@@ -20,8 +20,8 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.tvbrowser.devplugin.Plugin;
 import org.tvbrowser.devplugin.PluginServiceConnection;
-import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.view.InfoPreference;
 
 import android.content.Context;

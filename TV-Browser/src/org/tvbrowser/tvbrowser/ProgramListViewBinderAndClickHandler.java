@@ -21,8 +21,11 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.ProgramUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.app.Activity;
 import android.content.res.Configuration;
@@ -32,7 +35,6 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.text.Spannable;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
@@ -86,8 +88,14 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
           ((TextView) view).setTextColor(mDefaultTextColor);
         }
       }
-      
-      if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
+      if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)) {
+        TextView title = (TextView)((ViewGroup)view.getParent()).findViewById(R.id.titleLabelPL);
+        String titleValue = cursor.getString(columnIndex);
+        title.setText(ProgramUtils.getMarkIcons(mActivity, cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), titleValue));
+        
+        return true;
+      }
+      else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
         TextView until = (TextView)((ViewGroup)view.getParent()).findViewById(R.id.untilLabelPL);
         
         if(showEndTime) {

@@ -14,7 +14,7 @@
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
  * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.tvbrowser.tvbrowser;
+package org.tvbrowser.utils;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
@@ -43,8 +43,12 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.Channel;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.AutoDataUpdateReceiver;
+import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.tvbrowser.R.bool;
+import org.tvbrowser.tvbrowser.R.integer;
+import org.tvbrowser.tvbrowser.R.string;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

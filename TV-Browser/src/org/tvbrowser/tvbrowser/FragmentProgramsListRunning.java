@@ -25,8 +25,12 @@ import java.util.HashMap;
 import java.util.Locale;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.CompatUtils;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.ProgramUtils;
+import org.tvbrowser.utils.UiUtils;
 import org.tvbrowser.view.SeparatorDrawable;
 
 import android.annotation.SuppressLint;
@@ -54,7 +58,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.text.Spannable;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -98,6 +101,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   private ArrayList<ChannelProgramBlock> mCurrentViewList;
   
   private LongSparseArray<String[]> mMarkingsMap;
+  private LongSparseArray<String> mTitleMap;
   
   private long mCurrentTime;
   
@@ -222,7 +226,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       public void onReceive(Context context, final Intent intent) {
         new Thread() {
           public void run() {
-            long programID = intent.getLongExtra(SettingConstants.MARKINGS_ID, -1);
+            final long programID = intent.getLongExtra(SettingConstants.EXTRA_MARKINGS_ID, -1);
             
             if(mMarkingsMap.indexOfKey(programID) >= 0) {
               String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
@@ -234,9 +238,6 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                   final View view = getListView().findViewWithTag(programID);
                   
                   if(view != null) {
-                    long startTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-                    long endTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
-                    
                     ArrayList<String> markedColumns = new ArrayList<String>();
                     
                     for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
@@ -247,7 +248,14 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                       }
                     }
                     
-                    UiUtils.handleMarkings(getActivity(), null, startTime, endTime, view, IOUtils.getStringArrayFromList(markedColumns), handler);
+                    mMarkingsMap.put(programID, IOUtils.getStringArrayFromList(markedColumns));
+                    
+                    handler.post(new Runnable() {
+                      @Override
+                      public void run() {
+                        getListView().invalidateViews();
+                      }
+                    });
                   }
                 }catch(NullPointerException npe) {}
               }
@@ -497,7 +505,6 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         infoView = viewHolder.mPreviousInfos;
         startTime = block.mPreviousStart;
         endTime = block.mPreviousEnd;
-        title = block.mPreviousTitle;
         episode = block.mPreviousEpisode;
         infos = block.mPreviousCategory;
         programID = block.mPreviousProgramID;
@@ -510,7 +517,6 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         infoView = viewHolder.mNowInfos;
         startTime = block.mNowStart;
         endTime = block.mNowEnd;
-        title = block.mNowTitle;
         episode = block.mNowEpisode;
         infos = block.mNowCategory;
         programID = block.mNowProgramID;
@@ -523,12 +529,13 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         infoView = viewHolder.mNextInfos;
         startTime = block.mNextStart;
         endTime = block.mNextEnd;
-        title = block.mNextTitle;
         episode = block.mNextEpisode;
         infos = block.mNextCategory;
         programID = block.mNextProgramID;
         break;
     }
+    
+    title = mTitleMap.get(programID);
     
     if(startTime > 0 && title != null) {
       switch(type) {
@@ -552,7 +559,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       viewHolder.setVisibility(type, View.VISIBLE);
     
       startTimeView.setText(timeFormat.format(startTime));
-      titleView.setText(title);
+      titleView.setText(ProgramUtils.getMarkIcons(getActivity(), programID, title));
       
       if(!showEpisode || episode == null || episode.trim().length() == 0) {
         episodeView.setVisibility(View.GONE);
@@ -778,6 +785,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     }
         
     mMarkingsMap = new LongSparseArray<String[]>();
+    mTitleMap = new LongSparseArray<String>();
     
     mOnClickListener = new View.OnClickListener() {
       @Override
@@ -1174,7 +1182,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     public long mPreviousStart;
     public long mPreviousEnd;
     public long mPreviousProgramID;
-    public String mPreviousTitle;
+//    public String mPreviousTitle;
     public String mPreviousEpisode;
     public String mPreviousGenre;
     public Spannable mPreviousCategory;
@@ -1185,7 +1193,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     public long mNowStart;
     public long mNowEnd;
     public long mNowProgramID;
-    public String mNowTitle;
+   // public String mNowTitle;
     public String mNowEpisode;
     public String mNowGenre;
     public Spannable mNowCategory;
@@ -1196,7 +1204,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     public long mNextStart;
     public long mNextEnd;
     public long mNextProgramID;
-    public String mNextTitle;
+   // public String mNextTitle;
     public String mNextEpisode;
     public String mNextGenre;
     public Spannable mNextCategory;
@@ -1219,6 +1227,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     mProgramBlockList.clear();
     mCurrentViewList.clear();
     mMarkingsMap.clear();
+    mTitleMap.clear();
     
     mProgramIDColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
     mStartTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
@@ -1299,7 +1308,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                   block.mPreviousProgramID = programID;
                   block.mPreviousStart = startTime;
                   block.mPreviousEnd = endTime;
-                  block.mPreviousTitle = title;
+                  mTitleMap.put(programID, title);
                   block.mPreviousEpisode = episode;
                   block.mPreviousGenre = genre;
                   block.mPreviousPicture = picture;
@@ -1311,7 +1320,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                   block.mNowProgramID = programID;
                   block.mNowStart = startTime;
                   block.mNowEnd = endTime;
-                  block.mNowTitle = title;
+                  mTitleMap.put(programID, title);
                   block.mNowEpisode = episode;
                   block.mNowGenre = genre;
                   block.mNowPicture = picture;
@@ -1329,7 +1338,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                 block.mNextStart = startTime;
                 block.mNextEnd = endTime;
                 block.mNextProgramID = programID;
-                block.mNextTitle = title;
+                mTitleMap.put(programID, title);
                 block.mNextEpisode = episode;
                 block.mNextGenre = genre;
                 block.mNextPicture = picture;

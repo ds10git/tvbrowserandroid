@@ -28,10 +28,11 @@ import android.os.Parcelable;
  * @author René Mach
  */
 public class TvBrowserSettings implements Parcelable {
-  private static final int VERSION = 1;
+  private static final int VERSION = 2;
   
   private boolean mUsesDarkTheme;
   private String mTvbVersion;
+  private int mTvbVersionCode;
   
   public static final Parcelable.Creator<TvBrowserSettings> CREATOR = new Parcelable.Creator<TvBrowserSettings>() {
     @Override
@@ -61,8 +62,20 @@ public class TvBrowserSettings implements Parcelable {
    * @param tvbVersion The version of the TV-Browser.
    */
   public TvBrowserSettings(boolean usesDarkTheme, String tvbVersion) {
+    this(usesDarkTheme, tvbVersion, -1);
+  }
+  
+  /**
+   * Creates an instance of this class.
+   * <p>
+   * @param usesDarkTheme <code>true</code> if TV-Browser uses the dark theme, <code>false</code> if not.
+   * @param tvbVersion The version of the TV-Browser.
+   * @param tvbVersionCode The version code of the TV-Browser.
+   */
+  public TvBrowserSettings(boolean usesDarkTheme, String tvbVersion, int tvbVersionCode) {
     mUsesDarkTheme = usesDarkTheme;
     mTvbVersion = tvbVersion;
+    mTvbVersionCode = tvbVersionCode;
   }
   
   /**
@@ -72,6 +85,15 @@ public class TvBrowserSettings implements Parcelable {
    */
   public String getTvbVersion() {
     return mTvbVersion;
+  }
+  
+  /**
+   * Gets the version code of TV-Browser
+   * <p>
+   * @return The version code of TV-Browser.
+   */
+  public int getTvbVersionCode() {
+    return mTvbVersionCode;
   }
   
   /**
@@ -89,9 +111,16 @@ public class TvBrowserSettings implements Parcelable {
   }
   
   private void readFromParcel(Parcel source) {
-    source.readInt(); // read version
+    int version = source.readInt(); // read version
     mUsesDarkTheme = source.readByte() == 1;
     mTvbVersion = source.readString();
+    
+    if(version >= 2) {
+      mTvbVersionCode = source.readInt();
+    }
+    else {
+      mTvbVersionCode = -1;
+    }
   }
 
   @Override
@@ -99,5 +128,6 @@ public class TvBrowserSettings implements Parcelable {
     dest.writeInt(VERSION);
     dest.writeByte((byte)(mUsesDarkTheme ? 1 : 0));
     dest.writeString(mTvbVersion);
+    dest.writeInt(mTvbVersionCode);
   }
 }

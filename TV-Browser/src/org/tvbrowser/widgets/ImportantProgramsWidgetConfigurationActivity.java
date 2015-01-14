@@ -1,8 +1,8 @@
 package org.tvbrowser.widgets;
 
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.utils.PrefUtils;
 
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
