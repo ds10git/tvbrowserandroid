@@ -21,12 +21,12 @@ import java.util.Date;
 import java.util.HashMap;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.tvbrowser.CompatUtils;
-import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.R;
-import org.tvbrowser.tvbrowser.UiUtils;
+import org.tvbrowser.utils.CompatUtils;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;

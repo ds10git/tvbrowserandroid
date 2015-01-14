@@ -23,8 +23,11 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.CompatUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.ProgramUtils;
+import org.tvbrowser.utils.UiUtils;
 import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.Activity;
@@ -47,6 +50,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -67,6 +71,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   private ArrayAdapter<FavoriteSpinnerEntry> mFavoriteAdapter;
   private ArrayList<FavoriteSpinnerEntry> mFavoriteList;
   private DataSetObserver mFavoriteSelectionObserver;
+  
+  private ListenerListMarkings mMarkingsListener;
   
   private ListView mFavoriteProgramList;
   
@@ -109,6 +115,9 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   @Override
   public void onResume() {
     super.onResume();
+    Log.d("info2", "s " + handler);
+    mMarkingsListener = new ListenerListMarkings(mFavoriteProgramList, handler);
+    ProgramUtils.registerMarkingsListener(getActivity(), mMarkingsListener);
     
     handler.post(new Runnable() {
       @Override
@@ -119,6 +128,17 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       }
     });
   }
+  
+  @Override
+  public void onPause() {
+    if(mMarkingsListener != null) {
+      ProgramUtils.unregisterMarkingsListener(getActivity(), mMarkingsListener);
+    }
+    
+    super.onPause();
+  }
+  
+  
   private AdapterView<ArrayAdapter<FavoriteSpinnerEntry>> mFavoriteSelection;
   private FavoriteSpinnerEntry mCurrentFavoriteSelection;
   
@@ -444,7 +464,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   @Override
   public void onAttach(Activity activity) {
     super.onAttach(activity);
-        
+    
     mReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, final Intent intent) {
@@ -523,6 +543,15 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           @Override
           public void run() {
             if(!isDetached() && !isRemoving()) {
+              mFavoriteList.clear();
+              updateFavoriteList(false);
+              
+              removeMarkingSelections();
+              
+              Collections.sort(mFavoriteList);
+              
+              addMarkingSelections();
+              
               mFavoriteAdapter.notifyDataSetChanged();
             }
           }

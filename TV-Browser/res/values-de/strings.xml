@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.7.1</h2>
+        <h2>0.5.7.2</h2>
+        	&bull; Anzahl gefundener Lieblingssendungen werden im Lieblingssendungstab angezeigt<br>
+        	&bull; Markierungssymbole der Plugins für markierte Sendungen (nicht für Programmtabelle)<br>
+        <br>
+        <h3>0.5.7.1</h3>
         	&bull; Synchronisierung beschleunigt<br>
         	&bull; neue Symbole für vorheriger und nächster Tag in der Programmtabelle<br>
         	&bull; benutzerdefinierbare Textfarben für die Widgets<br>

@@ -20,8 +20,12 @@ import java.util.ArrayList;
 import java.util.Calendar;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.CompatUtils;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.ProgramUtils;
+import org.tvbrowser.utils.UiUtils;
 import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.Activity;
@@ -92,6 +96,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   private long mNextUpdate = 0;
   
   private Spinner channel;
+  private ListenerListMarkings mMarkingsListener;
   
   public FragmentProgramsList() {
     this(NO_CHANNEL_SELECTION_ID,-1);
@@ -114,6 +119,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     super.onResume();
     
     mKeepRunning = true;
+    Log.d("info2", "" + handler);
+    mMarkingsListener = new ListenerListMarkings(mListView, handler);
+    ProgramUtils.registerMarkingsListener(getActivity(), mMarkingsListener);
     
     startUpdateThread(mNextUpdate);
   }
@@ -121,6 +129,10 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   @Override
   public void onPause() {
     super.onPause();
+    
+    if(mMarkingsListener != null) {
+      ProgramUtils.unregisterMarkingsListener(getActivity(), mMarkingsListener);
+    }
     
     mKeepRunning = false;
   }

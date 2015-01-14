@@ -14,7 +14,7 @@
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
  * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.tvbrowser.tvbrowser;
+package org.tvbrowser.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -31,8 +31,16 @@ import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginMenu;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.devplugin.Program;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.ActivityFavoriteEdit;
+import org.tvbrowser.tvbrowser.ActivityTvBrowserSearchResults;
+import org.tvbrowser.tvbrowser.ChannelFilter;
+import org.tvbrowser.tvbrowser.DontWantToSeeExclusion;
+import org.tvbrowser.tvbrowser.Favorite;
+import org.tvbrowser.tvbrowser.Logging;
+import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.tvbrowser.ReminderBroadcastReceiver;
+import org.tvbrowser.tvbrowser.TvBrowser;
 import org.tvbrowser.widgets.ImportantProgramsListWidget;
 import org.tvbrowser.widgets.RunningProgramsListWidget;
 
@@ -69,8 +77,8 @@ import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
+import android.graphics.drawable.LayerDrawable;
 import android.os.AsyncTask;
 import android.os.Handler;
 import android.os.RemoteException;
@@ -583,7 +591,7 @@ public class UiUtils {
       if(PluginHandler.hasPlugins()) {
         PluginServiceConnection[] connections = PluginHandler.getAvailablePlugins();
         
-        for(PluginServiceConnection pluginService : connections) {
+        for(final PluginServiceConnection pluginService : connections) {
           final Plugin plugin = pluginService.getPlugin();
           
           if(plugin != null && pluginService.isActivated()) {
@@ -599,7 +607,12 @@ public class UiUtils {
                     public boolean onMenuItemClick(MenuItem item) {
                       try {
                         if(plugin.onProgramContextMenuSelected(pluginProgram, pluginMenu)) {
-                          ProgramUtils.markProgram(context, pluginProgram);
+                          if(pluginService.getPluginMarkIcon() != null) {
+                            ProgramUtils.markProgram(context, pluginProgram, pluginService.getId());
+                          }
+                          else {
+                            ProgramUtils.markProgram(context, pluginProgram, null);
+                          }
                         }
                       } catch (RemoteException e) {
                         Log.d("info23", "", e);
@@ -994,7 +1007,7 @@ public class UiUtils {
       
       activity.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), values, null, null);
       
-      sendMarkingChangedBroadcast(activity, programID);
+      sendMarkingChangedBroadcast(activity, programID, true);
     }
     
     return true;
@@ -1010,9 +1023,10 @@ public class UiUtils {
     updateRunningProgramsWidget(context);
   }
   
-  public static void sendMarkingChangedBroadcast(Context context, long programID) {
+  public static void sendMarkingChangedBroadcast(Context context, long programID, boolean onlyUpdate) {
     Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-    intent.putExtra(SettingConstants.MARKINGS_ID, programID);
+    intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, programID);
+    intent.putExtra(SettingConstants.EXTRA_MARKINGS_ONLY_UPDATE, onlyUpdate);
     
     LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     updateImportantProgramsWidget(context.getApplicationContext());
@@ -1155,12 +1169,14 @@ public class UiUtils {
     final LayerDrawable draw = getMarkingsDrawable(context, cursor, startTime, endTime, markedColumns, vertical);
     
     if(handler == null) {
+      view.invalidate();
       CompatUtils.setBackground(view, draw);
     }
     else{
       handler.post(new Runnable() {
         @Override
         public void run() {
+          view.invalidate();
           CompatUtils.setBackground(view, draw);
         }
       });
@@ -1173,8 +1189,12 @@ public class UiUtils {
       
       for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
         int index = cursor.getColumnIndex(column);
+        int keyIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
         
         if(index >= 0 && cursor.getInt(index) >= 1) {
+          markedColumnList.add(column);
+        }
+        else if(keyIndex >= 0 && column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && ProgramUtils.isMarkedWithIcon(context, cursor.getLong(keyIndex))) {
           markedColumnList.add(column);
         }
       }

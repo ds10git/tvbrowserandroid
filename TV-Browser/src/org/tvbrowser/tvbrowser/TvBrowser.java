@@ -45,9 +45,11 @@ import org.tvbrowser.devplugin.PluginDefinition;
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.settings.PluginPreferencesActivity;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.settings.TvbPreferencesActivity;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 import org.xml.sax.XMLReader;
 
 import android.annotation.SuppressLint;
@@ -3438,6 +3440,12 @@ public class TvBrowser extends ActionBarActivity implements
     }
     else if(requestCode == SHOW_PLUGIN_PREFERENCES) {
       PluginPreferencesActivity.clearPlugins();
+      
+      PluginServiceConnection[] plugins = PluginHandler.getAvailablePlugins();
+      
+      for(PluginServiceConnection plugin : plugins) {
+        plugin.loadIcon();
+      }
     }
   }
   

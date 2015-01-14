@@ -14,10 +14,12 @@
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
  * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
-package org.tvbrowser.settings;
+package org.tvbrowser.utils;
 
 import java.util.HashSet;
 import java.util.Set;
+
+import org.tvbrowser.settings.SettingConstants;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -161,10 +163,12 @@ public class PrefUtils {
   public static final int TYPE_PREFERENCES_FAVORITES = 1;
   public static final int TYPE_PREFERENCES_FILTERS = 2;
   public static final int TYPE_PREFERENCES_TRANSPORTATION = 3;
+  public static final int TYPE_PREFERENCES_MARKINGS = 4;
   
   private static final String PREFERENCES_FAVORITE = "preferencesFavorite";
   private static final String PREFERENCES_FILTER = "filterPreferences";
   private static final String PREFERENCES_TRANSPORTATION = "transportation";
+  private static final String PREFERENCES_MARKINGS = "markings";
   
   public static final SharedPreferences getSharedPreferences(int type, Context context) {
     SharedPreferences pref = null;
@@ -174,6 +178,7 @@ public class PrefUtils {
       case TYPE_PREFERENCES_FAVORITES: pref = context.getSharedPreferences(PREFERENCES_FAVORITE, Context.MODE_PRIVATE);break;
       case TYPE_PREFERENCES_FILTERS: pref = context.getSharedPreferences(PREFERENCES_FILTER, Context.MODE_PRIVATE);break;
       case TYPE_PREFERENCES_TRANSPORTATION: pref = context.getSharedPreferences(PREFERENCES_TRANSPORTATION, Context.MODE_PRIVATE);break;
+      case TYPE_PREFERENCES_MARKINGS: pref = context.getSharedPreferences(PREFERENCES_MARKINGS, Context.MODE_PRIVATE);break;
     }
     
     return pref;

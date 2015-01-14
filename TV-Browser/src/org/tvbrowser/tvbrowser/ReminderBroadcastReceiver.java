@@ -22,8 +22,9 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.app.Notification;
 import android.app.NotificationManager;

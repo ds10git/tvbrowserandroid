@@ -1,7 +1,7 @@
 package org.tvbrowser.settings;
 
 import org.tvbrowser.tvbrowser.R;
-import org.tvbrowser.tvbrowser.UiUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.content.res.Resources.Theme;
 import android.os.Build;

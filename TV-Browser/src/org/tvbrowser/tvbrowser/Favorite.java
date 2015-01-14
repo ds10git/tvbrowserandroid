@@ -23,8 +23,10 @@ import java.util.Map;
 import java.util.Set;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
@@ -450,7 +452,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   }
   
   public String toString() {
-    return mName;
+    return mName + (mUniqueProgramIds == null ? "" : " ["+ mUniqueProgramIds.length+"]");
   }
   
   public boolean isValid() {
@@ -962,7 +964,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         
         if(updateMarking) {
           Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-          intent.putExtra(SettingConstants.MARKINGS_ID, id);
+          intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, id);
           
           markingIntentList.add(intent);
         }
@@ -1062,7 +1064,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           
           if(updateMarking) {
             Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-            intent.putExtra(SettingConstants.MARKINGS_ID, id);
+            intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, id);
             
             markingIntentList.add(intent);
           }
@@ -1231,7 +1233,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           
           if(markingsChanged) {
             Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-            intent.putExtra(SettingConstants.MARKINGS_ID, id);
+            intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, id);
             
             markingIntentList.add(intent);
           }

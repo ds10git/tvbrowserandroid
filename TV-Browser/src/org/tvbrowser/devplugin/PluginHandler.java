@@ -23,11 +23,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.tvbrowser.IOUtils;
-import org.tvbrowser.tvbrowser.ProgramUtils;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.ProgramUtils;
 
 import android.content.ContentUris;
 import android.content.Context;
@@ -110,23 +110,35 @@ public final class PluginHandler {
       @Override
       public TvBrowserSettings getTvBrowserSettings() throws RemoteException {
         String version = "Unknown";
+        int versionCode = -1;
 
         try {
           PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
           version = pInfo.versionName;
+          versionCode = pInfo.versionCode;
         } catch (NameNotFoundException e) {}
         
-        return new TvBrowserSettings(SettingConstants.IS_DARK_THEME, version);
+        return new TvBrowserSettings(SettingConstants.IS_DARK_THEME, version, versionCode);
       }
 
       @Override
       public boolean markProgram(Program program) throws RemoteException {
-        return program != null ? ProgramUtils.markProgram(context, program) : false;
+        return program != null ? markProgramWithIcon(program, null) : false;
       }
 
       @Override
       public boolean unmarkProgram(Program program) throws RemoteException {
-        return program != null ? ProgramUtils.unmarkProgram(context, program) : false;
+        return program != null ? unmarkProgramWithIcon(program, null) : false;
+      }
+
+      @Override
+      public boolean markProgramWithIcon(Program program, String pluginCanonicalClassName) throws RemoteException {
+        return program != null ? ProgramUtils.markProgram(context, program, pluginCanonicalClassName) : false;
+      }
+
+      @Override
+      public boolean unmarkProgramWithIcon(Program program, String pluginCanonicalClassName) throws RemoteException {
+        return program != null ? ProgramUtils.unmarkProgram(context, program, pluginCanonicalClassName) : false;
       }
     };
   }

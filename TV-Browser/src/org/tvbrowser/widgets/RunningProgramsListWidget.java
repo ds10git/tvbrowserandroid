@@ -18,14 +18,14 @@ package org.tvbrowser.widgets;
 
 import java.util.Calendar;
 
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.tvbrowser.CompatUtils;
-import org.tvbrowser.tvbrowser.IOUtils;
 import org.tvbrowser.tvbrowser.InfoActivity;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.TvBrowser;
-import org.tvbrowser.tvbrowser.UiUtils;
+import org.tvbrowser.utils.CompatUtils;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;

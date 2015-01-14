@@ -19,8 +19,10 @@ package org.tvbrowser.tvbrowser;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

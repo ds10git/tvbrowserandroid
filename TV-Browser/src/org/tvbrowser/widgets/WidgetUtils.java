@@ -16,7 +16,7 @@
  */
 package org.tvbrowser.widgets;
 
-import org.tvbrowser.tvbrowser.UiUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

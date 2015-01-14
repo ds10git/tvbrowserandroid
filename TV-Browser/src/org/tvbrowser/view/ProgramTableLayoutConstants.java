@@ -19,9 +19,9 @@ package org.tvbrowser.view;
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.tvbrowser.R;
-import org.tvbrowser.tvbrowser.UiUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;
 import android.graphics.Color;

@@ -28,6 +28,7 @@ import java.util.Date;
 import java.util.Random;
 
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.IOUtils;
 
 /**
  * Class with informations about a webserver for data update.

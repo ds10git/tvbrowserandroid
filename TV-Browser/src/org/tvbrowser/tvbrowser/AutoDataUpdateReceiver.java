@@ -19,8 +19,10 @@ package org.tvbrowser.tvbrowser;
 import java.util.Calendar;
 import java.util.Date;
 
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.CompatUtils;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;

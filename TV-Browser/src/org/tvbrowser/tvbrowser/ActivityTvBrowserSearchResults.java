@@ -18,8 +18,10 @@ package org.tvbrowser.tvbrowser;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.PluginHandler;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.ProgramUtils;
+import org.tvbrowser.utils.UiUtils;
 import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.AlertDialog;
@@ -56,8 +58,10 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
   public static String QUERY_EXTRA_EPISODE_KEY = "QUERY_EXTRA_EPISODE_KEY";
   
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
+  private ListenerListMarkings mMarkingsListener;
   
   private ListView mListView;
+  private Handler handler;
   
   @Override
   protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
@@ -106,7 +110,7 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
     
     // Create a new Adapter an bind it to the List View
     
-    Handler handler = new Handler();
+    handler = new Handler();
     
     mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(this,this,handler);
     mProgramsListAdapter = new OrientationHandlingCursorAdapter(this,/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
@@ -148,12 +152,17 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
   protected void onResume() {
     PluginHandler.incrementBlogCount();
     
+    mMarkingsListener = new ListenerListMarkings(mListView, handler);
+    ProgramUtils.registerMarkingsListener(getApplicationContext(), mMarkingsListener);
+    
     super.onResume();
   }
   
   @Override
   protected void onPause() {
     PluginHandler.decrementBlogCount();
+    
+    ProgramUtils.unregisterMarkingsListener(getApplicationContext(), mMarkingsListener);
     
     super.onPause();
   }

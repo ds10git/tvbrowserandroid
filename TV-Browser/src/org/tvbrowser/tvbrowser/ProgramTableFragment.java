@@ -23,8 +23,10 @@ import java.util.HashMap;
 import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.settings.PrefUtils;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 import org.tvbrowser.view.ChannelLabel;
 import org.tvbrowser.view.CompactProgramTableLayout;
 import org.tvbrowser.view.ProgramPanel;
@@ -255,7 +257,7 @@ public class ProgramTableFragment extends Fragment {
     mUpdateMarkingsReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        long id = intent.getLongExtra(SettingConstants.MARKINGS_ID, 0);
+        long id = intent.getLongExtra(SettingConstants.EXTRA_MARKINGS_ID, 0);
         
         if(id > 0 && getView() != null) {
           View view = getView().findViewWithTag(id);
