@@ -246,6 +246,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                       if(index >= 0 && c.getInt(index) == 1) {
                         markedColumns.add(column);
                       }
+                      else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && ProgramUtils.isMarkedWithIcon(getActivity(), programID)) {
+                        markedColumns.add(column);
+                      }
                     }
                     
                     mMarkingsMap.put(programID, IOUtils.getStringArrayFromList(markedColumns));
@@ -1281,6 +1284,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
               Integer value = markingColumnsMap.get(column);
               
               if(value != null && c.getInt(value.intValue()) == 1) {
+                markedColumsList.add(column);
+              }
+              else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && ProgramUtils.isMarkedWithIcon(getActivity(), programID)) {
                 markedColumsList.add(column);
               }
             }

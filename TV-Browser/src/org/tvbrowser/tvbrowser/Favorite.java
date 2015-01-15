@@ -26,6 +26,7 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
 
 import android.content.ContentProviderOperation;
@@ -38,8 +39,14 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
+import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import android.support.v4.content.LocalBroadcastManager;
+import android.text.Spannable;
+import android.text.style.ImageSpan;
 
 public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   public static final int KEYWORD_ONLY_TITLE_TYPE = 0;
@@ -52,6 +59,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   public static final String OLD_NAME_KEY = "OLD_NAME_KEY";
   
   public static final String START_DAY_COLUMN = "startDayOfWeek";
+  
+  public static final String KEY_MARKING_ICON = "org.tvbrowser.tvbrowser.Favorite";
   
   private String mName;
   private String mSearch;
@@ -903,6 +912,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         TvBrowserContentProvider.KEY_ID,
         TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER,
         TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER,
+        TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER,
         TvBrowserContentProvider.DATA_KEY_STARTTIME
     };
     
@@ -926,11 +936,13 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       int favoriteReminderIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
       int reminderIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
       int startTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      int removedReminderIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER);
       
       cursor.moveToPosition(-1);
       
       ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
       ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
+      ArrayList<String> reminderIdList = new ArrayList<String>();
       
       while(!cursor.isClosed() && cursor.moveToNext()) {
         long id = cursor.getLong(idColumnIndex);
@@ -939,39 +951,54 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         boolean updateMarking = false;
         
         ContentValues values = new ContentValues();
-        
+                
         if(favorite.remind()) {
-          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, favoriteReminderMarkingCount+1);
-          
-          if(favoriteReminderMarkingCount == 0 && !remind) {
-            UiUtils.addReminder(context, id, cursor.getLong(startTimeIndex), Favorite.class, true);
-            updateMarking = true;
+          if(cursor.getInt(removedReminderIndex) == 0) {
+            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, favoriteReminderMarkingCount+1);
+            
+            if(favoriteReminderMarkingCount == 0 && !remind) {
+              reminderIdList.add(String.valueOf(id));
+              UiUtils.addReminder(context, id, cursor.getLong(startTimeIndex), Favorite.class, true);
+              updateMarking = true;
+            }
           }
         }
         else {
           values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, Math.max(0, favoriteReminderMarkingCount-1));
           
           if(favoriteReminderMarkingCount == 1 && !remind) {
+            reminderIdList.add(String.valueOf(id));
             UiUtils.removeReminder(context, id);
             updateMarking = true;
           }
         }
         
-        ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
-        opBuilder.withValues(values);
-        
-        updateValuesList.add(opBuilder.build());
-        
-        if(updateMarking) {
-          Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-          intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, id);
+        if(values.size() > 0) {
+          ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id));
+          opBuilder.withValues(values);
           
-          markingIntentList.add(intent);
+          updateValuesList.add(opBuilder.build());
+          
+          if(updateMarking) {
+            Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
+            intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, id);
+            
+            markingIntentList.add(intent);
+          }
         }
       }
       
       if(!updateValuesList.isEmpty()) {
         try {
+          if(!reminderIdList.isEmpty()) {
+            if(favorite.remind()) {
+              ProgramUtils.addReminderIds(context, reminderIdList);
+            }
+            else {
+              ProgramUtils.removeReminderIds(context, reminderIdList);
+            }
+          }
+          
           resolver.applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
           
           LocalBroadcastManager localBroadcast = LocalBroadcastManager.getInstance(context);
@@ -1037,6 +1064,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       if(cursor.moveToFirst()) {
         ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
         ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
+        ArrayList<String> removedReminderIdList = new ArrayList<String>();
         
         do {
           long id = cursor.getLong(idColumnIndex);
@@ -1052,6 +1080,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
             values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, Math.max(0, favoriteReminderCount-1));
             
             if(favoriteReminderCount == 1 && cursor.getInt(reminderColumnIndex) == 0) {
+              removedReminderIdList.add(String.valueOf(id));
               UiUtils.removeReminder(context, id);
               updateMarking = true;
             }
@@ -1069,8 +1098,12 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
             markingIntentList.add(intent);
           }
         }while(!cursor.isClosed() && cursor.moveToNext());
-        
+                
         if(!updateValuesList.isEmpty()) {
+          if(!removedReminderIdList.isEmpty()) {
+            ProgramUtils.removeReminderIds(context, removedReminderIdList);
+          }
+          
           try {
             resolver.applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
             
@@ -1200,9 +1233,9 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         
         ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
         ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
+        ArrayList<String> reminderIdList = new ArrayList<String>();
         
         do {
-          
           long id = cursor.getLong(idColumn);
           long startTime = cursor.getLong(startTimeColumn);
           int markingCount = cursor.getInt(favoriteMarkingColumn);
@@ -1221,6 +1254,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
             values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, favoriteReminderCount+1);
             
             if(favoriteReminderCount == 0 && cursor.getInt(reminderColumn) == 0) {
+              reminderIdList.add(String.valueOf(id));
               markingsChanged = true;
               UiUtils.addReminder(context, id, startTime, Favorite.class, true);
             }
@@ -1240,6 +1274,10 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         }while(cursor.moveToNext());
         
         if(!updateValuesList.isEmpty()) {
+          if(!reminderIdList.isEmpty()) {
+            ProgramUtils.addReminderIds(context, reminderIdList);
+          }
+          
           try {
             resolver.applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
             
@@ -1324,5 +1362,54 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     }
     
     edit.commit();
+  }
+  
+  public static final int getFavoriteMarkIconType(Context context, long programId) {
+    int result = 0;
+    
+    Favorite[] favorites = getAllFavorites(context);
+    
+    for(Favorite fav : favorites) {
+      long[] programIds = fav.getUniqueProgramIds();
+      
+      if(programIds != null) {
+        for(long test : programIds) {
+          if(test == programId) {
+            result++;
+            break;
+          }
+        }
+        
+        if(result > 1) {
+          break;
+        }
+      }
+    }
+    
+    return result;
+  }
+  
+  private static ImageSpan MARK_ICON_SINGLE;
+  private static ImageSpan MARK_ICON_MULTIPLE;
+  
+  public static final ImageSpan getMarkIcon(Context context, int type) {
+    ImageSpan result = null;
+    
+    if(type > 1) {
+      if(MARK_ICON_MULTIPLE == null) {
+        MARK_ICON_MULTIPLE = UiUtils.createImageSpan(context, R.drawable.ic_favorite_mark_more);
+      }
+      
+      result = MARK_ICON_MULTIPLE;
+    }
+    else {
+      if(MARK_ICON_SINGLE == null) {
+        MARK_ICON_SINGLE = UiUtils.createImageSpan(context, R.drawable.ic_favorite_mark);
+      }
+      
+      result = MARK_ICON_SINGLE;
+    }
+    
+    return result;
   }
 }

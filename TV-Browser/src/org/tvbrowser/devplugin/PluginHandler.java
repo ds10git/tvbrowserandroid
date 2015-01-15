@@ -43,6 +43,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 /**
  * A class that handles TV-Browser Plugins.
@@ -128,16 +129,19 @@ public final class PluginHandler {
 
       @Override
       public boolean unmarkProgram(Program program) throws RemoteException {
+        Log.d("info2", "unmarkProgram " + program);
         return program != null ? unmarkProgramWithIcon(program, null) : false;
       }
 
       @Override
       public boolean markProgramWithIcon(Program program, String pluginCanonicalClassName) throws RemoteException {
+        Log.d("info2", "markProgramWithIcon " + pluginCanonicalClassName + " " + program);
         return program != null ? ProgramUtils.markProgram(context, program, pluginCanonicalClassName) : false;
       }
 
       @Override
       public boolean unmarkProgramWithIcon(Program program, String pluginCanonicalClassName) throws RemoteException {
+        Log.d("info2", "unmarkProgramWithIcon " + pluginCanonicalClassName + " " + program);
         return program != null ? ProgramUtils.unmarkProgram(context, program, pluginCanonicalClassName) : false;
       }
     };
@@ -191,9 +195,10 @@ public final class PluginHandler {
       PLUGIN_MANAGER = createPluginManager(context);
       
       if(PLUGIN_LIST == null) {
-        loadFirstProgramId(context);
-        
         PLUGIN_LIST = new ArrayList<PluginServiceConnection>();
+        
+        loadFirstProgramId(context);
+        ProgramUtils.handleFirstKnownProgramId(context, FIRST_PROGRAM_ID);
         
         PackageManager packageManager = context.getPackageManager();
         Intent baseIntent = new Intent( PluginHandler.PLUGIN_ACTION );

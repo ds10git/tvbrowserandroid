@@ -3,7 +3,7 @@
     <string name="info_version_new"><![CDATA[
         <h2>0.5.7.2</h2>
         	&bull; show number of found favorites in favorites tab<br>
-        	&bull; show mark icons of plugins for marked programs (not in program table)<br>
+        	&bull; show mark icons for marked programs (not in program table)<br>
         <br>
         <h3>0.5.7.1</h3>
         	&bull; speed up synchronization<br>
@@ -624,6 +624,7 @@
     <string name="pref_theme_category">Appearance</string>
     <string name="dark_theme">Dark Theme</string>
     <string name="dark_theme_summary">(Needs restart)</string>
+    <string name="pref_mark_icon_show_title">Show mark icons</string>
     <string name="pref_logo_background_color_title">Color of channel icons background</string>
     <string name="pref_logo_border_title">Channel icons with border</string>
     <string name="pref_logo_border_color_title">Color of channel icons border</string>

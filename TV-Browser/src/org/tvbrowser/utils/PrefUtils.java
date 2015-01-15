@@ -164,11 +164,13 @@ public class PrefUtils {
   public static final int TYPE_PREFERENCES_FILTERS = 2;
   public static final int TYPE_PREFERENCES_TRANSPORTATION = 3;
   public static final int TYPE_PREFERENCES_MARKINGS = 4;
+  public static final int TYPE_PREFERENCES_MARKING_REMINDERS = 5;
   
   private static final String PREFERENCES_FAVORITE = "preferencesFavorite";
   private static final String PREFERENCES_FILTER = "filterPreferences";
   private static final String PREFERENCES_TRANSPORTATION = "transportation";
   private static final String PREFERENCES_MARKINGS = "markings";
+  private static final String PREFERENCES_MARKING_REMINDERS = "markingsReminders";
   
   public static final SharedPreferences getSharedPreferences(int type, Context context) {
     SharedPreferences pref = null;
@@ -179,6 +181,7 @@ public class PrefUtils {
       case TYPE_PREFERENCES_FILTERS: pref = context.getSharedPreferences(PREFERENCES_FILTER, Context.MODE_PRIVATE);break;
       case TYPE_PREFERENCES_TRANSPORTATION: pref = context.getSharedPreferences(PREFERENCES_TRANSPORTATION, Context.MODE_PRIVATE);break;
       case TYPE_PREFERENCES_MARKINGS: pref = context.getSharedPreferences(PREFERENCES_MARKINGS, Context.MODE_PRIVATE);break;
+      case TYPE_PREFERENCES_MARKING_REMINDERS: pref = context.getSharedPreferences(PREFERENCES_MARKING_REMINDERS, Context.MODE_PRIVATE);break;
     }
     
     return pref;

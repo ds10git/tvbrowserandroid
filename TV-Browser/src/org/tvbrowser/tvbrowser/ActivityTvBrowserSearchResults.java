@@ -50,7 +50,7 @@ import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 
-public class ActivityTvBrowserSearchResults extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface {
+public class ActivityTvBrowserSearchResults extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, MarkingsUpdateListener {
   private SimpleCursorAdapter mProgramsListAdapter;
 
   private static String QUERY_EXTRA_KEY = "QUERY_EXTRA_KEY";
@@ -58,7 +58,6 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
   public static String QUERY_EXTRA_EPISODE_KEY = "QUERY_EXTRA_EPISODE_KEY";
   
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
-  private ListenerListMarkings mMarkingsListener;
   
   private ListView mListView;
   private Handler handler;
@@ -152,8 +151,7 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
   protected void onResume() {
     PluginHandler.incrementBlogCount();
     
-    mMarkingsListener = new ListenerListMarkings(mListView, handler);
-    ProgramUtils.registerMarkingsListener(getApplicationContext(), mMarkingsListener);
+    ProgramUtils.registerMarkingsListener(getApplicationContext(), this);
     
     super.onResume();
   }
@@ -162,7 +160,7 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
   protected void onPause() {
     PluginHandler.decrementBlogCount();
     
-    ProgramUtils.unregisterMarkingsListener(getApplicationContext(), mMarkingsListener);
+    ProgramUtils.unregisterMarkingsListener(getApplicationContext(), this);
     
     super.onPause();
   }
@@ -354,5 +352,15 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
   @Override
   public boolean showDate() {
     return true;
+  }
+
+  @Override
+  public void refreshMarkings() {
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        getListView().invalidateViews();
+      }
+    });
   }
 }
