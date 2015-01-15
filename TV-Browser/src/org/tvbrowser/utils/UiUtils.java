@@ -1889,6 +1889,9 @@ public class UiUtils {
     if(!SettingConstants.IS_DARK_THEME) {
       icon.setColorFilter(new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY));
     }
+    else {
+      icon.setColorFilter(null);
+    }
     
     return new ImageSpan(icon,ImageSpan.ALIGN_BASELINE);
   }

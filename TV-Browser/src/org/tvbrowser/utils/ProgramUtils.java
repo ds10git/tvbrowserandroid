@@ -25,6 +25,9 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
+import android.graphics.Color;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.os.Binder;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Spannable;
@@ -317,6 +320,17 @@ public class ProgramUtils {
   
   private static ImageSpan ICON_REMINDER;
   private static final String KEY_REMINDER_ICON = "org.tvbrowser.tvbrowser.REMINDER";
+  
+  public static void resetReminderMarkIcon(boolean isDarkTheme) {
+    if(ICON_REMINDER != null) {
+      if(!isDarkTheme) {
+        ICON_REMINDER.getDrawable().setColorFilter(new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY));
+      }
+      else {
+        ICON_REMINDER.getDrawable().setColorFilter(null);
+      }
+    }
+  }
   
   public static CharSequence getMarkIcons(Context context, long programId, String title) {
     CharSequence result = title;
