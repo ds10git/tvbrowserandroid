@@ -42,10 +42,8 @@ import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
-import android.graphics.drawable.Drawable;
 import android.os.RemoteException;
 import android.support.v4.content.LocalBroadcastManager;
-import android.text.Spannable;
 import android.text.style.ImageSpan;
 
 public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
@@ -1391,6 +1389,25 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   
   private static ImageSpan MARK_ICON_SINGLE;
   private static ImageSpan MARK_ICON_MULTIPLE;
+  
+  public static void resetMarkIcons(boolean isDarkTheme) {
+    if(!isDarkTheme) {
+      if(MARK_ICON_SINGLE != null) {
+        MARK_ICON_SINGLE.getDrawable().setColorFilter(new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY));
+      }
+      if(MARK_ICON_MULTIPLE != null) {
+        MARK_ICON_MULTIPLE.getDrawable().setColorFilter(new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY));
+      }
+    }
+    else {
+      if(MARK_ICON_SINGLE != null) {
+        MARK_ICON_SINGLE.getDrawable().setColorFilter(null);
+      }
+      if(MARK_ICON_MULTIPLE != null) {
+        MARK_ICON_MULTIPLE.getDrawable().setColorFilter(null);
+      }
+    }
+  }
   
   public static final ImageSpan getMarkIcon(Context context, int type) {
     ImageSpan result = null;

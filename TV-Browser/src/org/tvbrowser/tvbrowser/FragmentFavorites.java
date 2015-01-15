@@ -113,7 +113,6 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   @Override
   public void onResume() {
     super.onResume();
-    Log.d("info2", "s " + handler);
     ProgramUtils.registerMarkingsListener(getActivity(), this);
     
     handler.post(new Runnable() {
@@ -726,7 +725,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       where = " " + TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=0 ";
     }
     
-    if(where.trim().length() > 0) {
+    if(where.trim().length() > 0 && !where.trim().equals(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER)) {
       where += " AND ";
     }
     

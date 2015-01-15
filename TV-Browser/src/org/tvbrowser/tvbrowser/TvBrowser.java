@@ -272,12 +272,7 @@ public class TvBrowser extends ActionBarActivity implements
       edit.commit();
     }
     
-    if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default)) {
-      SettingConstants.IS_DARK_THEME = true;
-    }
-    else {
-      SettingConstants.IS_DARK_THEME = false;
-    }
+    SettingConstants.IS_DARK_THEME = PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default);
     
     resid = UiUtils.getThemeResourceId();
     
@@ -1601,8 +1596,7 @@ public class TvBrowser extends ActionBarActivity implements
                   handler.post(new Runnable() {
                     @Override
                     public void run() {
-                      updateFromPreferences();
-                      TvBrowser.this.finish();
+                      updateFromPreferences(true);
                     }
                   });
                   
@@ -3464,7 +3458,7 @@ public class TvBrowser extends ActionBarActivity implements
     }
     
     if(requestCode == SHOW_PREFERENCES) {
-      updateFromPreferences();
+      updateFromPreferences(false);
     }
     else if(requestCode == OPEN_FILTER_EDIT) {
       updateFromFilterEdit();
@@ -3487,7 +3481,7 @@ public class TvBrowser extends ActionBarActivity implements
     }
   }
   
-  private void updateFromPreferences() {
+  private void updateFromPreferences(boolean finish) {
     SettingConstants.initializeLogoMap(getApplicationContext(), true);
     
     Fragment test1 = mSectionsPagerAdapter.getRegisteredFragment(1);
@@ -3554,6 +3548,25 @@ public class TvBrowser extends ActionBarActivity implements
     }
     
     new UpdateAlarmValue().onReceive(TvBrowser.this, null);
+    
+    if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default) != SettingConstants.IS_DARK_THEME) {
+      SettingConstants.IS_DARK_THEME = PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default);
+      
+      Favorite.resetMarkIcons(SettingConstants.IS_DARK_THEME);
+      ProgramUtils.resetReminderMarkIcon(SettingConstants.IS_DARK_THEME);
+      
+      PluginServiceConnection[] plugins = PluginHandler.getAvailablePlugins();
+      
+      for(PluginServiceConnection plugin : plugins) {
+        plugin.loadIcon();
+      }
+      
+      finish = true;
+    }
+    
+    if(finish) {
+      finish();
+    }
   }
   
   private void showAbout() {
