@@ -71,8 +71,11 @@ import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.PorterDuff;
+import android.graphics.PorterDuffColorFilter;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -91,6 +94,7 @@ import android.text.Spannable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ImageSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -729,6 +733,8 @@ public class UiUtils {
         values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, true);
       }
       
+      ProgramUtils.addReminderId(activity, programID);
+      
       addReminder(activity.getApplicationContext(),programID,0,UiUtils.class,true);
     }
     else if(item.getItemId() == R.id.prog_remove_reminder) {
@@ -739,6 +745,8 @@ public class UiUtils {
       values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, false);
       values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, 0);
       values.put(TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER, true);
+      
+      ProgramUtils.removeReminderId(activity, programID);
       
       if(menuView != null) {
         markedColumns.remove(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
@@ -1869,5 +1877,19 @@ public class UiUtils {
     }
     
     return R.style.AppTheme;
+  }
+  
+  public static final ImageSpan createImageSpan(Context context, int drawable) {
+    Drawable icon = context.getResources().getDrawable(drawable);
+    
+    float zoom = 16f/icon.getIntrinsicHeight() * context.getResources().getDisplayMetrics().density;
+    
+    icon.setBounds(0, 0, (int)(icon.getIntrinsicWidth() * zoom), (int)(icon.getIntrinsicHeight() * zoom));
+    
+    if(!SettingConstants.IS_DARK_THEME) {
+      icon.setColorFilter(new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY));
+    }
+    
+    return new ImageSpan(icon,ImageSpan.ALIGN_BASELINE);
   }
 }

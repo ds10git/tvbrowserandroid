@@ -65,14 +65,12 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-public class FragmentFavorites extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface {
+public class FragmentFavorites extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, MarkingsUpdateListener {
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   private SimpleCursorAdapter mProgramListAdapter;
   private ArrayAdapter<FavoriteSpinnerEntry> mFavoriteAdapter;
   private ArrayList<FavoriteSpinnerEntry> mFavoriteList;
   private DataSetObserver mFavoriteSelectionObserver;
-  
-  private ListenerListMarkings mMarkingsListener;
   
   private ListView mFavoriteProgramList;
   
@@ -116,8 +114,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   public void onResume() {
     super.onResume();
     Log.d("info2", "s " + handler);
-    mMarkingsListener = new ListenerListMarkings(mFavoriteProgramList, handler);
-    ProgramUtils.registerMarkingsListener(getActivity(), mMarkingsListener);
+    ProgramUtils.registerMarkingsListener(getActivity(), this);
     
     handler.post(new Runnable() {
       @Override
@@ -131,9 +128,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   
   @Override
   public void onPause() {
-    if(mMarkingsListener != null) {
-      ProgramUtils.unregisterMarkingsListener(getActivity(), mMarkingsListener);
-    }
+    ProgramUtils.unregisterMarkingsListener(getActivity(), this);
     
     super.onPause();
   }
@@ -214,7 +209,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           }
           
           mCurrentFavoriteSelection = mMarkingsAdapter.getItem(position);
-          mWhereClause = mCurrentFavoriteSelection.getWhereClause();
+          mWhereClause = getWhereClause();
           
           ((TvBrowser)getActivity()).updateFavoritesMenu(false);
           
@@ -445,9 +440,20 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.pref_program_lists_divider_size_default));
   }
   
+  private WhereClause getWhereClause() {
+    WhereClause whereClause = mCurrentFavoriteSelection.getWhereClause();
+    
+    if(whereClause == null) {
+      WhereClause marking = ProgramUtils.getPluginMarkingsSelection(getActivity());
+      whereClause = new WhereClause(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " " + marking.getWhere(), marking.getSelectionArgs());
+    }
+    
+    return whereClause;
+  }
+  
   private void selectFavorite(int position) {
     mCurrentSelection = mCurrentFavoriteSelection = mFavoriteList.get(position);
-    mWhereClause = mCurrentFavoriteSelection.getWhereClause();
+    mWhereClause = getWhereClause();
     
     ((TvBrowser)getActivity()).updateFavoritesMenu(mCurrentFavoriteSelection.containsFavorite());
     
@@ -621,7 +627,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
   
   private void addMarkingSelections() {
-    final FavoriteSpinnerEntry marked = new FavoriteSpinnerEntry(getString(R.string.marking_value_marked), new WhereClause(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " " + TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, null));
+    final FavoriteSpinnerEntry marked = new FavoriteSpinnerEntry(getString(R.string.marking_value_marked), null);
       
     String name = getString(R.string.marking_value_reminder);
     String whereClause = TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " ";
@@ -912,5 +918,29 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       builder.setNegativeButton(android.R.string.cancel, null);
       builder.show();
     }
+  }
+
+  @Override
+  public void refreshMarkings() {
+    
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          if(mCurrentFavoriteSelection != null) {
+            if(mIsRunning && !isDetached() && !isRemoving()) {
+              WhereClause test = mCurrentFavoriteSelection.getWhereClause();
+              
+              if(test == null) {
+                mWhereClause = getWhereClause();
+                getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
+                return;
+              }
+            }
+            
+            mFavoriteProgramList.invalidateViews();
+          }
+        }
+      });
+    
   }
 }

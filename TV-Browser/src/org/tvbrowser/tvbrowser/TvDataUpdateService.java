@@ -42,7 +42,6 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
-import java.util.Map;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
@@ -57,6 +56,7 @@ import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
 
 import android.annotation.SuppressLint;
@@ -931,6 +931,7 @@ public class TvDataUpdateService extends Service {
           
           Hashtable<String, Object> currentGroups = getCurrentGroups();
           Hashtable<String, Integer> knownChannels = new Hashtable<String, Integer>();
+          ArrayList<String> reminderIdList = new ArrayList<String>();
           
           while((reminder = read.readLine()) != null) {
             if(reminder != null && reminder.contains(";") && reminder.contains(":")) {
@@ -998,7 +999,9 @@ public class TvDataUpdateService extends Service {
                         intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, programID);
                         
                         markingIntentList.add(intent);
-                                                    
+                        
+                        reminderIdList.add(String.valueOf(programID));
+                        
                         UiUtils.addReminder(TvDataUpdateService.this, programID, time, TvBrowser.class, true);
                       }
                     }
@@ -1011,6 +1014,10 @@ public class TvDataUpdateService extends Service {
           }
           
           if(!updateValuesList.isEmpty()) {
+            if(!reminderIdList.isEmpty()) {
+              ProgramUtils.addReminderIds(getApplicationContext(), reminderIdList);
+            }
+            
             try {
               getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
               

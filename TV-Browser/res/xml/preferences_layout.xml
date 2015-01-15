@@ -4,6 +4,10 @@
 	        android:title="@string/dark_theme"
 	        android:summary="@string/dark_theme_summary"
 	        android:defaultValue="@bool/dark_style_default"/>
+	<CheckBoxPreference
+	    android:key="@string/PREF_MARK_ICON_SHOW"
+	    android:title="@string/pref_mark_icon_show_title"
+	    android:defaultValue="@bool/pref_mark_icon_show_default"/>
 	<org.tvbrowser.settings.ColorPreference
 	        android:key="@string/PREF_LOGO_BACKGROUND_COLOR"
 	        android:title="@string/pref_logo_background_color_title"

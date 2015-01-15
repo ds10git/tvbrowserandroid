@@ -3,7 +3,7 @@
     <string name="info_version_new"><![CDATA[
         <h2>0.5.7.2</h2>
         	&bull; Anzahl gefundener Lieblingssendungen werden im Lieblingssendungstab angezeigt<br>
-        	&bull; Markierungssymbole der Plugins für markierte Sendungen (nicht für Programmtabelle)<br>
+        	&bull; Markierungssymbole für markierte Sendungen (nicht für Programmtabelle)<br>
         <br>
         <h3>0.5.7.1</h3>
         	&bull; Synchronisierung beschleunigt<br>
@@ -616,6 +616,7 @@
     <string name="pref_theme_category">Aussehen</string>
     <string name="dark_theme">Dunkles Thema</string>
     <string name="dark_theme_summary">(Neustart notwendig)</string>
+    <string name="pref_mark_icon_show_title">Markierungssymbole anzeigen</string>
     <string name="pref_logo_background_color_title">Hintergrundfarbe der Senderlogos</string>
     <string name="pref_logo_border_title">Senderlogos mit Umrandung</string>
     <string name="pref_logo_border_color_title">Farbe der Umrandung der Senderlogos</string>

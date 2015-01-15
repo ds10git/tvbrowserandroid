@@ -49,6 +49,7 @@ import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
 import org.xml.sax.XMLReader;
 
@@ -235,6 +236,8 @@ public class TvBrowser extends ActionBarActivity implements
   private int mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
   private long mProgramListScrollTime = -1;
   
+  private ChannelFilterValues mAllFilter;
+  
   static {
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2015);
@@ -313,6 +316,29 @@ public class TvBrowser extends ActionBarActivity implements
       
       int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
       //FAVORITE_LIST
+      if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < 309) {
+        new Thread("READ REMINDERS ONCE FOR ICON") {
+          @Override
+          public void run() {
+            Cursor reminders = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " OR " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, null, TvBrowserContentProvider.KEY_ID);
+            
+            try {
+              reminders.moveToPosition(-1);
+              
+              int idColumn = reminders.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+              ArrayList<String> reminderIdList = new ArrayList<String>();
+              
+              while(reminders.moveToNext()) {
+                reminderIdList.add(String.valueOf(reminders.getLong(idColumn)));
+              }
+              
+              ProgramUtils.addReminderIds(getApplicationContext(), reminderIdList);
+            }finally {
+              IOUtils.closeCursor(reminders);
+            }
+          };
+        }.start();
+      }
       if(oldVersion < 304) {
         Set<String> favoritesSet = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).getStringSet("FAVORITE_LIST", new HashSet<String>());
         
@@ -632,6 +658,12 @@ public class TvBrowser extends ActionBarActivity implements
         mCurrentChannelFilter = new ChannelFilterValues(SettingConstants.ALL_FILTER_ID, getString(R.string.activity_edit_filter_list_text_all), "");
         mCurrentChannelFilterId = mCurrentChannelFilter.getId();
       }
+      
+      if(mProgramListChannelId != FragmentProgramsList.NO_CHANNEL_SELECTION_ID && !getChannelFilterSelection().contains(String.valueOf(mProgramListChannelId)) && !mCurrentChannelFilterId.equals(SettingConstants.ALL_FILTER_ID)) {
+        mCurrentChannelFilter = new ChannelFilterValues(SettingConstants.ALL_FILTER_ID, getString(R.string.activity_edit_filter_list_text_all), "");
+        
+        updateChannelFilter(mCurrentChannelFilter,R.drawable.ic_filter_default);
+      }
     }
     
     if(mCurrentChannelFilterId.equals(SettingConstants.ALL_FILTER_ID)) {
@@ -660,8 +692,14 @@ public class TvBrowser extends ActionBarActivity implements
     }
     
     if(intent != null && intent.hasExtra(SettingConstants.CHANNEL_ID_EXTRA)) {
+      int channelId = intent.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA,0);
+      
+      if(!getChannelFilterSelection().contains(String.valueOf(channelId)) && !mCurrentChannelFilterId.equals(SettingConstants.ALL_FILTER_ID)) {
+        updateChannelFilter(mAllFilter,R.drawable.ic_filter_default);
+      }
+      
       final Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
-      showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA, intent.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA,0));
+      showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA, channelId);
       showChannel.putExtra(SettingConstants.START_TIME_EXTRA, intent.getLongExtra(SettingConstants.START_TIME_EXTRA,0));
       showChannel.putExtra(SettingConstants.NO_BACK_STACKUP_EXTRA, true);
       
@@ -3964,19 +4002,19 @@ public class TvBrowser extends ActionBarActivity implements
     int groupId = 3;
     int id = 1;
     
-    final ChannelFilterValues allFilter = new ChannelFilterValues(SettingConstants.ALL_FILTER_ID, getString(R.string.activity_edit_filter_list_text_all), "");
+    mAllFilter = new ChannelFilterValues(SettingConstants.ALL_FILTER_ID, getString(R.string.activity_edit_filter_list_text_all), "");
     
-    MenuItem all = filters.add(groupId, id++, groupId, allFilter.toString());
+    MenuItem all = filters.add(groupId, id++, groupId, mAllFilter.toString());
     all.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
       @Override
       public boolean onMenuItemClick(MenuItem item) {
-        updateChannelFilter(allFilter,R.drawable.ic_filter_default);
+        updateChannelFilter(mAllFilter,R.drawable.ic_filter_default);
         item.setChecked(true);
         return true;
       }
     });
            
-    if(mCurrentChannelFilterId == null || allFilter.getId().endsWith(mCurrentChannelFilterId)) {
+    if(mCurrentChannelFilterId == null || mAllFilter.getId().endsWith(mCurrentChannelFilterId)) {
       all.setChecked(true);
     }
     

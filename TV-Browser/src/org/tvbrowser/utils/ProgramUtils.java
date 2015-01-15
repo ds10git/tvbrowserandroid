@@ -11,7 +11,10 @@ import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.devplugin.Program;
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.tvbrowser.ListenerListMarkings;
+import org.tvbrowser.tvbrowser.Favorite;
+import org.tvbrowser.tvbrowser.MarkingsUpdateListener;
+import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.tvbrowser.WhereClause;
 
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
@@ -125,20 +128,11 @@ public class ProgramUtils {
           ContentValues mark = new ContentValues();
           mark.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, true);
           
-          if(pluginId != null) {
-            result = markProgram(context, program.getId(), pluginId);
+          if(pluginId == null) {
+            pluginId = "#unknownID";
           }
-          else {
-            result = true;
-          }
-          
-          if(result) {
-            result = context.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, program.getId()), mark, null, null) > 0;
-          }
-          
-          if(!result && pluginId != null) {
-            unmarkProgram(context, program.getId(), pluginId);
-          }
+            
+          result = markProgram(context, program.getId(), pluginId);
                     
           UiUtils.sendMarkingChangedBroadcast(context, program.getId(), false);
         }
@@ -175,16 +169,11 @@ public class ProgramUtils {
           ContentValues mark = new ContentValues();
           mark.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, false);
           
-          if(pluginId != null) {
-            result = unmarkProgram(context, program.getId(), pluginId);
+          if(pluginId == null) {
+            pluginId = "#unknownID";
           }
-          else {
-            result = true;
-          }
-          
-          if(result) {
-            result = context.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, program.getId()), mark, null, null) > 0;
-          }
+            
+          result = unmarkProgram(context, program.getId(), pluginId);
           
           UiUtils.sendMarkingChangedBroadcast(context, program.getId(), false);
         }
@@ -301,92 +290,160 @@ public class ProgramUtils {
   }
   
   public static final void handleFirstKnownProgramId(Context context, long programId) {
-    SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKINGS, context);
+    handleKnownIdInternal(context, programId, PrefUtils.TYPE_PREFERENCES_MARKINGS);
+    handleKnownIdInternal(context, programId, PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS);
+  }
+  
+  private static final void handleKnownIdInternal(Context context, long programId, int prefType) {
+    SharedPreferences pref = PrefUtils.getSharedPreferences(prefType, context);
     Editor edit = pref.edit();
     
-    Map<String,?> prefMap = pref.getAll();
-    Set<String> keys = prefMap.keySet();
-    
-    for(String key : keys) {
-      if(Long.parseLong(key) < programId) {
-        edit.remove(key);
+    if(programId == -1) {
+      edit.clear();
+    }
+    else {
+      Map<String,?> prefMap = pref.getAll();
+      Set<String> keys = prefMap.keySet();
+      
+      for(String key : keys) {
+        if(Long.parseLong(key) < programId) {
+          edit.remove(key);
+        }
       }
     }
     
     edit.commit();
   }
   
+  private static ImageSpan ICON_REMINDER;
+  private static final String KEY_REMINDER_ICON = "org.tvbrowser.tvbrowser.REMINDER";
+  
   public static CharSequence getMarkIcons(Context context, long programId, String title) {
     CharSequence result = title;
     
-    SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKINGS, context);
-    
-    String value = pref.getString(String.valueOf(programId), null);
-    
-    if(value != null && !value.trim().isEmpty()) {
-      String[] plugins = value.split(";");
-      SpannableStringBuilder markIcons = new SpannableStringBuilder(title);
+    if(PrefUtils.getBooleanValue(R.string.PREF_MARK_ICON_SHOW, R.bool.pref_mark_icon_show_default)) {
+      SpannableStringBuilder markIcons = new SpannableStringBuilder();
       
-      boolean added = false;
+      int favoriteMarkIconType = Favorite.getFavoriteMarkIconType(context, programId);
       
-      for(String plugin : plugins) {
-        PluginServiceConnection connection = PluginHandler.getConnectionForId(plugin);
+      if(favoriteMarkIconType >= 1) {
+        markIcons.append(" ");
+        markIcons.append(Favorite.KEY_MARKING_ICON);
+              
+        markIcons.setSpan(Favorite.getMarkIcon(context, favoriteMarkIconType), markIcons.length()-Favorite.KEY_MARKING_ICON.length(), markIcons.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+      
+      if(PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS, context).contains(String.valueOf(programId))) {
+        markIcons.append(" ");
+        markIcons.append(KEY_REMINDER_ICON);
         
-        if(connection != null && connection.isActivated()) {
-          ImageSpan icon = connection.getPluginMarkIcon();
+        if(ICON_REMINDER == null) {
+          ICON_REMINDER = UiUtils.createImageSpan(context, R.drawable.ic_action_alarms);
+        }
+        
+        markIcons.setSpan(ICON_REMINDER, markIcons.length()-KEY_REMINDER_ICON.length(), markIcons.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+      
+      SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKINGS, context);
+      
+      String value = pref.getString(String.valueOf(programId), null);
+      
+      if(value != null && !value.trim().isEmpty()) {
+        String[] plugins = value.split(";");
+              
+        for(String plugin : plugins) {
+          PluginServiceConnection connection = PluginHandler.getConnectionForId(plugin);
           
-          if(icon != null) {
-            markIcons.append(" ");
-            markIcons.append(plugin);
+          if(connection != null && connection.isActivated()) {
+            ImageSpan icon = connection.getPluginMarkIcon();
             
-            markIcons.setSpan(icon, markIcons.length()-plugin.length(), markIcons.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            if(icon != null) {
+              markIcons.append(" ");
+              markIcons.append(plugin);
+              
+              markIcons.setSpan(icon, markIcons.length()-plugin.length(), markIcons.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            }
           }
-          added = true;
         }
       }
       
-      if(added) {
+      if(markIcons.length() > 0) {
+        markIcons.insert(0, title);
         result = markIcons;
       }
+    }
+    return result;
+  }
+  
+
+  public static final WhereClause getPluginMarkingsSelection(Context context) {
+    WhereClause result = new WhereClause("", null);
+    
+    SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKINGS, context);
+    
+    Map<String,?> prefMap = pref.getAll();
+    Set<String> keys = prefMap.keySet();
+    
+    StringBuilder where = new StringBuilder();
+    String[] selectionArgs = new String[prefMap.size()];
+    
+    int i = 0;
+    
+    for(String key : keys) {
+      if(where.length() > 0) {
+        where.append(", ");
+      }
+      
+      where.append("?");
+      selectionArgs[i] = key;
+      i++;
+    }
+    
+    if(where.length() > 0) {
+      where.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
+      where.append(" ) ");
+      
+      result = new WhereClause(where.toString(), selectionArgs);
     }
     
     return result;
   }
   
   private static BroadcastReceiver mRefreshReceiver;
-  private static ArrayList<ListenerListMarkings> mMarkingsListener;
+  private static ArrayList<MarkingsUpdateListener> mMarkingsListener;
   
-  public static final void registerMarkingsListener(Context context, ListenerListMarkings listener) {
+  public static final void registerMarkingsListener(Context context, MarkingsUpdateListener listener) {
     if(mRefreshReceiver == null) {
       if(mMarkingsListener != null) {
         mMarkingsListener.clear();
       }
       else {
-        mMarkingsListener = new ArrayList<ListenerListMarkings>();
+        mMarkingsListener = new ArrayList<MarkingsUpdateListener>();
       }
       
       mRefreshReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-          if(intent.getBooleanExtra(SettingConstants.EXTRA_MARKINGS_ONLY_UPDATE,false)) {
+          //if(intent.getBooleanExtra(SettingConstants.EXTRA_MARKINGS_ONLY_UPDATE,false)) {
             if(mMarkingsListener != null) {
-              for(ListenerListMarkings listener : mMarkingsListener) {
-                listener.refresh();
+              for(MarkingsUpdateListener listener : mMarkingsListener) {
+                listener.refreshMarkings();
               }
             }
-          }
+          //}
         }
       };
       
       IntentFilter filter = new IntentFilter(SettingConstants.MARKINGS_CHANGED);
       
       LocalBroadcastManager.getInstance(context.getApplicationContext()).registerReceiver(mRefreshReceiver, filter);
+      listener.refreshMarkings();
     }
     
     mMarkingsListener.add(listener);
   }
   
-  public static final void unregisterMarkingsListener(Context context, ListenerListMarkings listener) {
+  public static final void unregisterMarkingsListener(Context context, MarkingsUpdateListener listener) {
     if(mMarkingsListener != null && !mMarkingsListener.isEmpty()) {
       mMarkingsListener.remove(listener);
       
@@ -397,5 +454,41 @@ public class ProgramUtils {
         mMarkingsListener = null;
       }
     }
+  }
+  
+  public static final void addReminderId(Context context, long programId) {
+    Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS, context).edit();
+    
+    edit.putBoolean(String.valueOf(programId), true);
+    
+    edit.commit();
+  }
+  
+  public static final void addReminderIds(Context context, ArrayList<String> idList) {
+    Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS, context).edit();
+    
+    for(String programId : idList) {
+      edit.putBoolean(programId, true);
+    }
+    
+    edit.commit();
+  }
+  
+  public static final void removeReminderId(Context context, long programId) {
+    Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS, context).edit();
+    
+    edit.remove(String.valueOf(programId));
+    
+    edit.commit();
+  }
+  
+  public static final void removeReminderIds(Context context, ArrayList<String> idList) {
+    Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS, context).edit();
+    
+    for(String programId : idList) {
+      edit.remove(programId);
+    }
+    
+    edit.commit();
   }
 }

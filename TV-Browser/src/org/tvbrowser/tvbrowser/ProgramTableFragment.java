@@ -26,6 +26,7 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
 import org.tvbrowser.view.ChannelLabel;
 import org.tvbrowser.view.CompactProgramTableLayout;
@@ -58,6 +59,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -263,13 +265,13 @@ public class ProgramTableFragment extends Fragment {
           View view = getView().findViewWithTag(id);
           
           if(view != null) {
-            String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
-                        
-            Cursor cursor = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), projection, null, null, null);
+            String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
             
+            Cursor cursor = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), projection, null, null, null);
+            Log.d("info2", "CURSOR " + cursor);
             if(cursor.getCount() > 0) {
               cursor.moveToFirst();
-              
+              Log.d("info2", "SIZE " + cursor.getCount());
               UiUtils.handleMarkings(getActivity(), cursor, view, null, null, true);
             }
             
@@ -416,7 +418,7 @@ public class ProgramTableFragment extends Fragment {
                       @Override
                       public void run() {
                         if(!isDetached() && mKeepRunning) {
-                          String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
+                          String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
                           
                           Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), projection, null, null, null);
                           
@@ -969,6 +971,7 @@ public class ProgramTableFragment extends Fragment {
   }
   
   private void addPanel(final Cursor cursor, final ProgramTableLayout layout) {
+    final long programId = cursor.getLong(mKeyIndex);
     final long startTime = cursor.getLong(mStartTimeIndex);
     final long endTime = cursor.getLong(mEndTimeIndex);
     String title = cursor.getString(mTitleIndex);
@@ -988,7 +991,7 @@ public class ProgramTableFragment extends Fragment {
     }
     
     panel.setOnClickListener(mClickListener);
-    panel.setTag(cursor.getLong(mKeyIndex));
+    panel.setTag(programId);
     
     registerForContextMenu(panel);
         
@@ -1011,6 +1014,9 @@ public class ProgramTableFragment extends Fragment {
       Integer value = mMarkingsMap.get(column);
       
       if(value != null && cursor.getInt(value.intValue()) == 1) {
+        markedColumns.add(column);
+      }
+      else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && ProgramUtils.isMarkedWithIcon(getActivity(), programId)) {
         markedColumns.add(column);
       }
     }

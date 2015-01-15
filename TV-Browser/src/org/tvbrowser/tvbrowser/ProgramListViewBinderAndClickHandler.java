@@ -220,6 +220,7 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
           else {
             logoView.setVisibility(View.GONE);
             text.setVisibility(View.VISIBLE);
+            showChannelName = true;
           }
           if(showChannelName) {
             text.setText(name);

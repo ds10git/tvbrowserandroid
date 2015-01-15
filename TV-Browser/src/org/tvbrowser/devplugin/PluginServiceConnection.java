@@ -34,6 +34,7 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.text.style.ImageSpan;
+import android.util.Log;
 
 /**
  * A class with a service connection to a specific TV-Browser Plugin.

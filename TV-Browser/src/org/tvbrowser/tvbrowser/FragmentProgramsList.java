@@ -39,7 +39,6 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -61,7 +60,7 @@ import android.widget.SimpleCursorAdapter;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class FragmentProgramsList extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, ShowChannelInterface {
+public class FragmentProgramsList extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, ShowChannelInterface, MarkingsUpdateListener {
   public static final int NO_CHANNEL_SELECTION_ID = -1;
   private static final String EXTRA_NEXT_UPDATE = "EXTRA_NEXT_UPDATE";
   
@@ -77,7 +76,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   private long mDayStart;
   
   private String mDayClause;
-  private String mFilterClause;
+  private WhereClause mFilterClause;
   
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   
@@ -96,7 +95,6 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   private long mNextUpdate = 0;
   
   private Spinner channel;
-  private ListenerListMarkings mMarkingsListener;
   
   public FragmentProgramsList() {
     this(NO_CHANNEL_SELECTION_ID,-1);
@@ -120,8 +118,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     mKeepRunning = true;
     Log.d("info2", "" + handler);
-    mMarkingsListener = new ListenerListMarkings(mListView, handler);
-    ProgramUtils.registerMarkingsListener(getActivity(), mMarkingsListener);
+    ProgramUtils.registerMarkingsListener(getActivity(), this);
     
     startUpdateThread(mNextUpdate);
   }
@@ -130,9 +127,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   public void onPause() {
     super.onPause();
     
-    if(mMarkingsListener != null) {
-      ProgramUtils.unregisterMarkingsListener(getActivity(), mMarkingsListener);
-    }
+    ProgramUtils.unregisterMarkingsListener(getActivity(), this);
     
     mKeepRunning = false;
   }
@@ -159,7 +154,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     mDayStart = 0;
     mDayClause = "";
-    mFilterClause = "";
+    mFilterClause = new WhereClause("", null);
     
     mDataUpdateReceiver = new BroadcastReceiver() {
       @Override
@@ -233,15 +228,22 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     startUpdateThread();
   }
   
+  private boolean mIsShowingMarkings = false;
+  
   public void setMarkFilter(int pos) {
     switch(pos) {
-      case 0: mFilterClause = "";;break;
-      case 1: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE + " ) ";break;
-      case 2: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_MARKING + " ) ";break;
-      case 3: mFilterClause = " AND ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER + " ) ) ";break;
-      case 4: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_SYNC + " ) ";break;
-      case 5: mFilterClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ";break;
+      case 0: mFilterClause = new WhereClause("",null);break;
+      case 1: mFilterClause = new WhereClause(" AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE + " ) ",null);break;
+      case 2: {
+        WhereClause markings = ProgramUtils.getPluginMarkingsSelection(getActivity());
+        mFilterClause = new WhereClause(" AND ( " + markings.getWhere() + " ) ", markings.getSelectionArgs());break;
+      }
+      case 3: mFilterClause = new WhereClause(" AND ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER + " ) ) ",null);break;
+      case 4: mFilterClause = new WhereClause(" AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_SYNC + " ) ",null);break;
+      case 5: mFilterClause = new WhereClause(" AND ( " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " ) ",null);break;
     }
+    
+    mIsShowingMarkings = pos == 2;
     
     startUpdateThread();
   }
@@ -623,7 +625,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     filter.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
       public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
-          setMarkFilter(pos);
+        setMarkFilter(pos);
       }
       
       @Override
@@ -715,7 +717,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
           if(current == null || current.getID() != id) {
             for(int i = 0; i < channelEntries.size(); i++) {
               ChannelSelection sel = channelEntries.get(i);
-              
+              Log.d("info2", "sel " + sel.getID() + " " + id);
               if(sel.getID() == id) {
                 channel.setSelection(i);
                 break;
@@ -860,7 +862,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       where += "AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + mChannelID;
     }
     
-    if(!mFilterClause.contains(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE)) {
+    if(!mFilterClause.getWhere().contains(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE)) {
       where += UiUtils.getDontWantToSeeFilterString(getActivity());
     }
     
@@ -877,7 +879,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     Log.d("info2", "onCreateLoader");
     mIsLoading = true;
-    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, getProjection(), getWhereClause(false) + mDayClause + mFilterClause, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, getProjection(), getWhereClause(false) + mDayClause + mFilterClause.getWhere(), mFilterClause.getSelectionArgs(), TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     
     return loader;
   }
@@ -1019,5 +1021,22 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     }
     
     return returnValue;
+  }
+
+  @Override
+  public void refreshMarkings() {
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        if(!isDetached() && !mIsLoading && !isRemoving() && mKeepRunning) {
+          if(mIsShowingMarkings) {
+            setMarkFilter(2);
+          }
+          else {
+            mListView.invalidateViews();
+          }
+        }
+      }
+    });
   }
 }

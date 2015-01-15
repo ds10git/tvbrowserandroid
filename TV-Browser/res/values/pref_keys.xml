@@ -47,7 +47,10 @@
 
 	    <string name="DARK_STYLE">DARK_STYLE</string>
 	    <item name="dark_style_default" type="bool" format="boolean">true</item>
-		
+
+	    <string name="PREF_MARK_ICON_SHOW">PREF_MARK_ICON_SHOW</string>
+	    <item name="pref_mark_icon_show_default" type="bool" format="boolean">true</item>
+	    		
 	    <string name="PREF_LOGO_BACKGROUND_COLOR">PREF_LOGO_BACKGROUND_COLOR</string>
 	    <item name="pref_logo_background_color_default" type="color" format="color">#fff</item>
 	    
