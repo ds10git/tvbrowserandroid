@@ -34,7 +34,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.text.style.ImageSpan;
-import android.util.Log;
 
 /**
  * A class with a service connection to a specific TV-Browser Plugin.
@@ -147,7 +146,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
           
           long firstProgramId = PluginHandler.getFirstProgramId();
           
-          if(firstProgramId != PluginHandler.FIRST_PROGRAM_ALREADY_HANDLED_ID) {
+          if(firstProgramId != PluginHandler.PROGRAM_IDS_ALREADY_HANDLED_ID) {
             mPlugin.handleFirstKnownProgramId(firstProgramId);
           }
         }

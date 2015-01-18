@@ -193,7 +193,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
 
     IntentFilter intent = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
     
-    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, intent);
+    getActivity().registerReceiver(mDataUpdateReceiver, intent);
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
   }
   
@@ -202,7 +202,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     super.onDetach();
     
     if(mDataUpdateReceiver != null) {
-      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
+      getActivity().unregisterReceiver(mDataUpdateReceiver);
     }
     if(mRefreshReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mRefreshReceiver);
@@ -456,7 +456,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       }
     };
     
-    localBroadcastManager.registerReceiver(dataUpdateReceiver, dataUpdateFilter);
+    getActivity().registerReceiver(dataUpdateReceiver, dataUpdateFilter);
     
     channel = (Spinner)rootView.findViewById(R.id.channel_selection);
     

@@ -2,6 +2,9 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.7.2</h2>
+        	&bull; Information über Änderungen nach Versionsupdates deaktivierbar<br>
+        	&bull; globale Benachrichtigung über Abschluss des Datenupdates hinzugefügt (kann von anderen Apps verwendet werden)<br>
+        	&bull; globale Benachrichtigung bei Erinnerung an Sendungen hinzugefügt (kann von anderen Apps verwendet werden)<br>
         	&bull; Anzahl gefundener Lieblingssendungen werden im Lieblingssendungstab angezeigt<br>
         	&bull; Markierungssymbole für markierte Sendungen (nicht für Programmtabelle)<br>
         <br>
@@ -209,6 +212,8 @@
         <br>
         ]]></string>
     <string name="info_version">Was ist neu in dieser Version?</string>
+    <string name="info_version_dont_show_again">Diese Information\nnicht mehr anzeigen</string>
+    <string name="info_version_show">Änderungen anzeigen</string>
     
     <string name="tab_restoring_name">EINSTELLUNGEN WIEDERHERSTELLEN</string>
     <string name="app_name">TV-Browser</string>

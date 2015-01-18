@@ -11,4 +11,8 @@
 		android:entries="@array/news_type_entries"
 		android:entryValues="@array/news_type_value_array"
 		android:summary="%s"/>
+	<CheckBoxPreference
+        android:key="@string/PREF_INFO_VERSION_UPDATE_SHOW"
+        android:title="@string/pref_info_version_title"
+        android:defaultValue="@bool/pref_info_version_update_show_default"/>
 </PreferenceScreen>

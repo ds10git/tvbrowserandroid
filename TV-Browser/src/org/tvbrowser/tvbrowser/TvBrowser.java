@@ -16,11 +16,13 @@
  */
 package org.tvbrowser.tvbrowser;
 
+
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -134,6 +136,7 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -425,17 +428,11 @@ public class TvBrowser extends ActionBarActivity implements
         UiUtils.updateRunningProgramsWidget(getApplicationContext());
       }
       
-      if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < pInfo.versionCode) {
+      if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < pInfo.versionCode && PrefUtils.getBooleanValue(R.string.PREF_INFO_VERSION_UPDATE_SHOW, R.bool.pref_info_version_update_show_default)) {
         handler.postDelayed(new Runnable() {
           @Override
           public void run() {
-            AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-            
-            builder.setTitle(R.string.info_version);
-            builder.setMessage(Html.fromHtml(getString(R.string.info_version_new)));
-            builder.setPositiveButton(android.R.string.ok, null);
-            
-            builder.show();
+            showVersionInfo(true);
           }
         }, 5000);
         
@@ -554,7 +551,7 @@ public class TvBrowser extends ActionBarActivity implements
     }
     
     if(mUpdateDoneBroadcastReceiver != null) {
-      LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(mUpdateDoneBroadcastReceiver);
+      TvBrowser.this.unregisterReceiver(mUpdateDoneBroadcastReceiver);
     }
   }
   
@@ -628,7 +625,7 @@ public class TvBrowser extends ActionBarActivity implements
     mUpdateDoneBroadcastReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        PluginHandler.loadFirstProgramId(TvBrowser.this.getApplicationContext());
+        PluginHandler.loadFirstAndLastProgramId(TvBrowser.this.getApplicationContext());
         
         updateProgressIcon(false);
         showNews();
@@ -637,7 +634,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     IntentFilter filter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
     
-    LocalBroadcastManager.getInstance(getApplicationContext()).registerReceiver(mUpdateDoneBroadcastReceiver, filter);
+    TvBrowser.this.registerReceiver(mUpdateDoneBroadcastReceiver, filter);
     
     mCurrentChannelFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, SettingConstants.ALL_FILTER_ID);
     
@@ -950,7 +947,7 @@ public class TvBrowser extends ActionBarActivity implements
                 
                 try {
                   getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + cal2.getTimeInMillis(), null);
-                  LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.DATA_UPDATE_DONE));
+                  TvBrowser.this.sendBroadcast(new Intent(SettingConstants.DATA_UPDATE_DONE));
                 }catch(IllegalArgumentException e) {}
               }
             }.start();
@@ -3569,6 +3566,27 @@ public class TvBrowser extends ActionBarActivity implements
     }
   }
   
+  private void showVersionInfo(boolean showDisable) {
+    AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+    
+    builder.setTitle(R.string.info_version);
+    builder.setMessage(Html.fromHtml(getString(R.string.info_version_new)));
+    builder.setPositiveButton(android.R.string.ok, null);
+    
+    if(showDisable) {
+      builder.setNegativeButton(R.string.info_version_dont_show_again, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
+          edit.putBoolean(getString(R.string.PREF_INFO_VERSION_UPDATE_SHOW), false);
+          edit.commit();
+        }
+      });
+    }
+    
+    builder.show();
+  }
+  
   private void showAbout() {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     
@@ -3606,12 +3624,19 @@ public class TvBrowser extends ActionBarActivity implements
     builder.setTitle(R.string.action_about);
     builder.setView(about);
     
-    builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+    builder.setPositiveButton(android.R.string.ok, null);
+    builder.setNegativeButton(R.string.info_version_show, new OnClickListener() {
       @Override
       public void onClick(DialogInterface dialog, int which) {
-        
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            showVersionInfo(false);
+          }
+        });
       }
     });
+    
     builder.show();
   }
   
@@ -3733,7 +3758,7 @@ public class TvBrowser extends ActionBarActivity implements
   
   private void sendChannelFilterUpdate() {
     Intent refresh = new Intent(SettingConstants.DATA_UPDATE_DONE);
-    LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcast(refresh);
+    TvBrowser.this.sendBroadcast(refresh);
     UiUtils.updateRunningProgramsWidget(TvBrowser.this);
     
     updateProgramListChannelBar();
@@ -5378,4 +5403,26 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   /* Workaround end */
+  
+  /*@Override
+  public boolean onMenuOpened(int featureId, Menu menu)
+  {
+      if(featureId == Window.FEATURE_ACTION_BAR && menu != null){
+          if(menu.getClass().getSimpleName().equals("MenuBuilder")){
+              try{
+                  Method m = menu.getClass().getDeclaredMethod(
+                      "setOptionalIconsVisible", Boolean.TYPE);
+                  m.setAccessible(true);
+                  m.invoke(menu, true);
+              }
+              catch(NoSuchMethodException e){
+                 // Log.e(TAG, "onMenuOpened", e);
+              }
+              catch(Exception e){
+                  throw new RuntimeException(e);
+              }
+          }
+      }
+      return super.onMenuOpened(featureId, menu);
+  }*/
 }

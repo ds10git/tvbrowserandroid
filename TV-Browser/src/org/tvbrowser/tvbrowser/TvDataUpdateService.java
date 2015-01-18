@@ -2166,85 +2166,95 @@ public class TvDataUpdateService extends Service {
           TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME,
           TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE
       };
-            
-      Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, null, null, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " DESC");
       
+      long lastKnownDate = SettingConstants.DATA_LAST_DATE_NO_DATA;
       ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
       
-      // only if there are data update it
-      if(c.getCount() > 0) {
-        int nettoColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME);
-        
-        int keyIDColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-        int channelKeyColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-        int startTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-        int endTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
-        int timeZoneColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE);
-        
-        long lastStartTime = -1;
-        int lastChannelKey = -1;
-        
-        c.moveToPosition(-1);
-        
-        Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        Calendar cal = null;
-        
-        while(c.moveToNext()) {
-          long progID = c.getLong(keyIDColumn);
-          int channelKey = c.getInt(channelKeyColumn);
-          long meStart = c.getLong(startTimeColumn);
-          long end = c.getLong(endTimeColumn);
-          long nettoPlayTime = 0;
-                    
-          if(c.isNull(nettoColumn)) {
-            nettoPlayTime = c.getLong(nettoColumn) * 60000;
-          }
-          
-          if(lastChannelKey == channelKey) {
-            cal = Calendar.getInstance(TimeZone.getTimeZone(c.getString(timeZoneColumn)));
-            
-            // if end not set or netto play time larger than next start or next time not end time
-            if(end == 0 || (nettoPlayTime > (lastStartTime - meStart))/* || (lastProgram && end != nextStart && ((nextStart - meStart) < (3 * 60 * 60000)))*/) {
-              if(nettoPlayTime > (lastStartTime - meStart)) {
-                lastStartTime = meStart + nettoPlayTime;
-              }
-              else if((lastStartTime - meStart) >= (12 * 60 * 60000)) {
-                lastStartTime = meStart + (long)(2.5 * 60 * 60000);
-              }
-              
-              utc.setTimeInMillis((((long)(cal.getTimeInMillis() / 60000)) * 60000));
-              
-              ContentValues values = new ContentValues();
-              values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, lastStartTime);
-              values.put(TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES, (int)((lastStartTime-meStart)/60000));
-              
-              cal.setTimeInMillis(lastStartTime);
-              
-              int startHour = cal.get(Calendar.HOUR_OF_DAY);
-              int startMinute = cal.get(Calendar.MILLISECOND);
-              
-              // Normalize start hour and minute to 2014-12-31 to have the same time base on all occasions
-              utc.setTimeInMillis((((long)(IOUtils.normalizeTime(cal, startHour, startMinute, 30).getTimeInMillis() / 60000)) * 60000));              
-              
-              values.put(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT, utc.get(Calendar.HOUR_OF_DAY) * 60 + utc.get(Calendar.MINUTE));
-              
-              ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
-              opBuilder.withValues(values);
-              
-              updateValuesList.add(opBuilder.build());
-            }
-          }
-          
-          lastChannelKey = channelKey;
-          lastStartTime = meStart;
-        }
-      }
+      Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, null, null, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " , " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " DESC");
       
-      c.close();
+      try {
+        // only if there are data update it
+        if(c.getCount() > 0) {
+          int nettoColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME);
+          
+          int keyIDColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+          int channelKeyColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+          int startTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+          int endTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+          int timeZoneColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE);
+          
+          long lastStartTime = -1;
+          int lastChannelKey = -1;
+          
+          c.moveToPosition(-1);
+          
+          Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+          Calendar cal = null;
+          
+          while(c.moveToNext()) {
+            long progID = c.getLong(keyIDColumn);
+            int channelKey = c.getInt(channelKeyColumn);
+            long meStart = c.getLong(startTimeColumn);
+            long end = c.getLong(endTimeColumn);
+            long nettoPlayTime = 0;
+                                
+            if(c.isNull(nettoColumn)) {
+              nettoPlayTime = c.getLong(nettoColumn) * 60000;
+            }
+            
+            if(lastChannelKey == channelKey) {
+              cal = Calendar.getInstance(TimeZone.getTimeZone(c.getString(timeZoneColumn)));
+              
+              // if end not set or netto play time larger than next start or next time not end time
+              if(end == 0 || (nettoPlayTime > (lastStartTime - meStart))/* || (lastProgram && end != nextStart && ((nextStart - meStart) < (3 * 60 * 60000)))*/) {
+                if(nettoPlayTime > (lastStartTime - meStart)) {
+                  lastStartTime = meStart + nettoPlayTime;
+                }
+                else if((lastStartTime - meStart) >= (12 * 60 * 60000)) {
+                  lastStartTime = meStart + (long)(2.5 * 60 * 60000);
+                }
+                
+                utc.setTimeInMillis((((long)(cal.getTimeInMillis() / 60000)) * 60000));
+                
+                ContentValues values = new ContentValues();
+                values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, lastStartTime);
+                values.put(TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES, (int)((lastStartTime-meStart)/60000));
+                
+                cal.setTimeInMillis(lastStartTime);
+                
+                int startHour = cal.get(Calendar.HOUR_OF_DAY);
+                int startMinute = cal.get(Calendar.MILLISECOND);
+                
+                // Normalize start hour and minute to 2014-12-31 to have the same time base on all occasions
+                utc.setTimeInMillis((((long)(IOUtils.normalizeTime(cal, startHour, startMinute, 30).getTimeInMillis() / 60000)) * 60000));              
+                
+                values.put(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT, utc.get(Calendar.HOUR_OF_DAY) * 60 + utc.get(Calendar.MINUTE));
+                
+                ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
+                opBuilder.withValues(values);
+                
+                updateValuesList.add(opBuilder.build());
+              }
+            }
+            else {
+              lastKnownDate = Math.max(meStart, lastKnownDate);
+            }
+            
+            lastChannelKey = channelKey;
+            lastStartTime = meStart;
+          }
+        }
+      }finally {
+        IOUtils.closeCursor(c);
+      }
       
       if(!updateValuesList.isEmpty()) {
         getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
       }
+      
+      Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvDataUpdateService.this).edit();
+      edit.putLong(getString(R.string.PREF_LAST_KNOWN_DATA_DATE), lastKnownDate);
+      edit.commit();
     }catch(Throwable t) {
       Log.d("info13", "", t);
     }
@@ -2288,8 +2298,9 @@ public class TvDataUpdateService extends Service {
     }
     
     Intent inform = new Intent(SettingConstants.DATA_UPDATE_DONE);
+    inform.putExtra(SettingConstants.EXTRA_DATA_DATE_LAST_KNOWN, PrefUtils.getLongValue(R.string.PREF_LAST_KNOWN_DATA_DATE, SettingConstants.DATA_LAST_DATE_NO_DATA));
     
-    LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(inform);
+    TvDataUpdateService.this.sendBroadcast(inform);
     
     mDontWantToSeeValues = null;
     

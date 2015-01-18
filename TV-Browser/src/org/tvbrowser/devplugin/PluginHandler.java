@@ -43,7 +43,6 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 /**
  * A class that handles TV-Browser Plugins.
@@ -56,8 +55,9 @@ public final class PluginHandler {
   
   private static PluginManager PLUGIN_MANAGER;
   
-  public static final long FIRST_PROGRAM_ALREADY_HANDLED_ID = -2;
-  private static long FIRST_PROGRAM_ID = FIRST_PROGRAM_ALREADY_HANDLED_ID;
+  public static final long PROGRAM_IDS_ALREADY_HANDLED_ID = -2;
+  private static long PROGRAM_ID_FIRST = PROGRAM_IDS_ALREADY_HANDLED_ID;
+  private static long PROGRAM_ID_LAST = PROGRAM_IDS_ALREADY_HANDLED_ID;
   
   private static final AtomicInteger BLOG_COUNT = new AtomicInteger(0);
   
@@ -119,7 +119,7 @@ public final class PluginHandler {
           versionCode = pInfo.versionCode;
         } catch (NameNotFoundException e) {}
         
-        return new TvBrowserSettings(SettingConstants.IS_DARK_THEME, version, versionCode);
+        return new TvBrowserSettings(SettingConstants.IS_DARK_THEME, version, versionCode, PROGRAM_ID_FIRST, PROGRAM_ID_LAST, PrefUtils.getLongValue(R.string.PREF_LAST_KNOWN_DATA_DATE, SettingConstants.DATA_LAST_DATE_NO_DATA));
       }
 
       @Override
@@ -129,20 +129,42 @@ public final class PluginHandler {
 
       @Override
       public boolean unmarkProgram(Program program) throws RemoteException {
-        Log.d("info2", "unmarkProgram " + program);
         return program != null ? unmarkProgramWithIcon(program, null) : false;
       }
 
       @Override
       public boolean markProgramWithIcon(Program program, String pluginCanonicalClassName) throws RemoteException {
-        Log.d("info2", "markProgramWithIcon " + pluginCanonicalClassName + " " + program);
         return program != null ? ProgramUtils.markProgram(context, program, pluginCanonicalClassName) : false;
       }
 
       @Override
       public boolean unmarkProgramWithIcon(Program program, String pluginCanonicalClassName) throws RemoteException {
-        Log.d("info2", "unmarkProgramWithIcon " + pluginCanonicalClassName + " " + program);
         return program != null ? ProgramUtils.unmarkProgram(context, program, pluginCanonicalClassName) : false;
+      }
+
+      @Override
+      public Program[] getProgramsForChannelInRange(int channelId, long startTimeInUTC, long endTimeInUTC) throws RemoteException {
+        Program[] result = null;
+        StringBuilder where = new StringBuilder();
+        
+        where.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID).append(" IS ").append(channelId);
+        where.append(" AND ");
+        where.append(TvBrowserContentProvider.DATA_KEY_STARTTIME).append(">=").append(startTimeInUTC);
+        where.append(" AND ");
+        where.append(TvBrowserContentProvider.DATA_KEY_ENDTIME).append("<=").append(endTimeInUTC);
+        
+        final long token = Binder.clearCallingIdentity();
+        
+        Cursor programs = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, ProgramUtils.DATA_CHANNEL_PROJECTION, null, null, null);
+        
+        try {
+          result = ProgramUtils.createProgramsFromDataCursor(context, programs);
+        }finally {
+          IOUtils.closeCursor(programs);
+          Binder.restoreCallingIdentity(token);
+        }
+        
+        return result;
       }
     };
   }
@@ -155,7 +177,7 @@ public final class PluginHandler {
     return PLUGIN_MANAGER;
   }
   
-  public static final void loadFirstProgramId(Context context) {
+  public static final void loadFirstAndLastProgramId(Context context) {
     PrefUtils.initialize(context);
     long lastInfo = PrefUtils.getLongValue(org.tvbrowser.tvbrowser.R.string.PLUGIN_LAST_ID_INFO_DATE, 0);
     
@@ -166,20 +188,35 @@ public final class PluginHandler {
     test.set(Calendar.SECOND, 0);
     test.set(Calendar.MILLISECOND, 0);
     
-    FIRST_PROGRAM_ID = FIRST_PROGRAM_ALREADY_HANDLED_ID;
+    PROGRAM_ID_LAST = PROGRAM_ID_FIRST = PROGRAM_IDS_ALREADY_HANDLED_ID;
     
     if(lastInfo != test.getTimeInMillis()) {
-      Cursor firstProgram = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.DATA_KEY_STARTTIME +">="+test.getTimeInMillis(), null, TvBrowserContentProvider.KEY_ID + " LIMIT 1");
+      Cursor firstProgram = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME}, TvBrowserContentProvider.DATA_KEY_STARTTIME +">="+test.getTimeInMillis(), null, TvBrowserContentProvider.KEY_ID + " LIMIT 1");
       
       try {
         if(firstProgram.moveToFirst()) {
-          FIRST_PROGRAM_ID = firstProgram.getLong(firstProgram.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+          PROGRAM_ID_FIRST = firstProgram.getLong(firstProgram.getColumnIndex(TvBrowserContentProvider.KEY_ID));
         }
         else {
-          FIRST_PROGRAM_ID = -1;
+          PROGRAM_ID_FIRST = -1;
         }
       }finally {
         IOUtils.closeCursor(firstProgram);
+      }
+      
+      if(PROGRAM_ID_FIRST != -1 && PROGRAM_ID_FIRST != PROGRAM_IDS_ALREADY_HANDLED_ID) {
+        Cursor lastProgram = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME}, TvBrowserContentProvider.DATA_KEY_STARTTIME +">="+test.getTimeInMillis(), null, TvBrowserContentProvider.KEY_ID + " DESC LIMIT 1");
+        
+        try {
+          if(lastProgram.moveToFirst()) {
+            PROGRAM_ID_LAST = lastProgram.getLong(lastProgram.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+          }
+          else {
+            PROGRAM_ID_LAST = -1;
+          }
+        }finally {
+          IOUtils.closeCursor(lastProgram);
+        }
       }
       
       Editor edit = PreferenceManager.getDefaultSharedPreferences(context).edit();
@@ -197,8 +234,8 @@ public final class PluginHandler {
       if(PLUGIN_LIST == null) {
         PLUGIN_LIST = new ArrayList<PluginServiceConnection>();
         
-        loadFirstProgramId(context);
-        ProgramUtils.handleFirstKnownProgramId(context, FIRST_PROGRAM_ID);
+        loadFirstAndLastProgramId(context);
+        ProgramUtils.handleFirstAndLastKnownProgramId(context, PROGRAM_ID_FIRST, PROGRAM_ID_LAST);
         
         PackageManager packageManager = context.getPackageManager();
         Intent baseIntent = new Intent( PluginHandler.PLUGIN_ACTION );
@@ -315,7 +352,7 @@ public final class PluginHandler {
   }
   
   public static long getFirstProgramId() {
-    return FIRST_PROGRAM_ID;
+    return PROGRAM_ID_FIRST;
   }
   
   public static PluginServiceConnection getConnectionForId(String id) {

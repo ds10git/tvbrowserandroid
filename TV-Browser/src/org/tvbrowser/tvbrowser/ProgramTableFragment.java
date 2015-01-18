@@ -305,7 +305,7 @@ public class ProgramTableFragment extends Fragment {
     
     IntentFilter intent = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
     
-    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, intent);
+    getActivity().registerReceiver(mDataUpdateReceiver, intent);
     
     mUpdateChannelsReceiver = new BroadcastReceiver() {
       @Override
@@ -383,7 +383,7 @@ public class ProgramTableFragment extends Fragment {
     mKeepRunning = false;
     
     if(mDataUpdateReceiver != null) {
-      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
+      getActivity().unregisterReceiver(mDataUpdateReceiver);
     }
     if(mRefreshReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mRefreshReceiver);

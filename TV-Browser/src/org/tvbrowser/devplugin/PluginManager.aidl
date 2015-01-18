@@ -90,7 +90,8 @@ interface PluginManager {
 	 * @param program The program to mark.
 	 * @param pluginCannonicalClassName The canonical class name of the plugin class.
 	 * @return <code>true</code> if the program was successfully marked (or was already marked),
-	 *         <code>false</code> if the program could not be marked. 
+	 *         <code>false</code> if the program could not be marked.
+	 * @since 0.5.7.2
 	 */
 	boolean markProgramWithIcon(in Program program, in String pluginCanonicalClassName);
 	
@@ -102,7 +103,24 @@ interface PluginManager {
 	 * @param pluginCannonicalClassName The canonical class name of the plugin class.
 	 * @return <code>true</code> if the program exists and could be updated (if it is completely unmarked
 	 *         depends on other plugin markings), <code>false</code> if the program didn't exists or could
-	 *         not be updated.  
+	 *         not be updated.
+	 * @since 0.5.7.2
 	 */
 	boolean unmarkProgramWithIcon(in Program program, in String pluginCanonicalClassName);
+		
+	/**
+     * Gets the programs of the channel with the given unique channel id
+     * that have a start time in milliseconds since 1970 in UTC timezone between
+     * the given values.
+     * <p>
+     * @param channelId The unique id of the channel of the program to get
+     * @param startTimeInUTC The start time in milliseconds since 1970 in
+     *                       UTC timezone of the range to get the progams for.
+     * @param endTimeInUTC The end time in milliseconds since 1970 in
+     *                       UTC timezone of the range to get the progams for.
+     * @return The Programs with the given parameters or <code>null</code> if there 
+     *         are no program that are matching the given parameter.
+     * @since 0.5.7.2
+     */
+	Program[] getProgramsForChannelInRange(in int channelId, in long startTimeInUTC, in long endTimeInUTC);
 }

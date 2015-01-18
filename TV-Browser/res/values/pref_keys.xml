@@ -524,6 +524,11 @@
 	    <string name="PREF_NEWS_TYPE">PREF_NEWS_TYPE</string>
 	    <item name="pref_news_type_default" type="string" format="string">@string/pref_news_type_android</item>
 	    
+	    <string name="PREF_INFO_VERSION_UPDATE_SHOW">PREF_INFO_VERSION_UPDATE_SHOW</string>
+	    <item name="pref_info_version_update_show_default" type="bool" format="boolean">true</item>
+	    
+	    <string name="PREF_LAST_KNOWN_DATA_DATE">PREF_LAST_KNOWN_DATA_DATE</string>
+	    
 	<!-- Widgets layout settings -->
 	    <string name="PREF_WIDGET_VERTICAL_PADDING_SIZE">PREF_WIDGET_VERTICAL_PADDING_SIZE</string>
 	    <item name="pref_widget_vertical_padding_size_default" type="string" format="string">@string/divider_small</item>

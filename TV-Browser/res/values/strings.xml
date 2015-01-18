@@ -2,6 +2,9 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.7.2</h2>
+        	&bull; info about changes after version update deactivatable<br>
+        	&bull; added global message for data update done (can be used by other apps)<br>
+        	&bull; added global message for reminded programs (can be used by other apps)<br>
         	&bull; show number of found favorites in favorites tab<br>
         	&bull; show mark icons for marked programs (not in program table)<br>
         <br>
@@ -205,6 +208,9 @@
         <br>
         ]]></string>
     <string name="info_version">What is new in this version?</string>
+    <string name="info_version_dont_show_again">Don\'t show this\ninfo again</string>
+    <string name="info_version_show">Show changes</string>
+    <string name="pref_info_version_title">Änderungen bei Versionsupdate anzeigen</string>
     
     <string name="tab_restoring_name">RESTORING PREFERENCES</string>
     <string name="app_name">TV-Browser</string>
