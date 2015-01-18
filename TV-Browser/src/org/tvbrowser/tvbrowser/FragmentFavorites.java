@@ -50,7 +50,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -595,7 +594,9 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     
     IntentFilter dataUpdateFilter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
     
-    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, dataUpdateFilter);
+    getActivity().registerReceiver(mDataUpdateReceiver, dataUpdateFilter);
+    
+    //LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, dataUpdateFilter);
     
     IntentFilter filter = new IntentFilter(SettingConstants.FAVORITES_CHANGED);
     
@@ -676,7 +677,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mReceiver);
     }
     if(mDataUpdateReceiver != null) {
-      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
+      getActivity().unregisterReceiver(mDataUpdateReceiver);
     }
     if(mRefreshReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mRefreshReceiver);

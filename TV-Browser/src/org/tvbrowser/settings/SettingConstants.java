@@ -31,11 +31,10 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
+import android.graphics.drawable.LayerDrawable;
 import android.preference.PreferenceManager;
 import android.util.SparseArray;
 
@@ -59,11 +58,14 @@ public class SettingConstants {
   public static final String[] EPG_FREE_LEVEL_NAMES = {"base","more00-16","more16-00","picture00-16","picture16-00"};
   public static final String[] EPG_DONATE_LEVEL_NAMES = {"base","more","picture"};
   
+  public static final long DATA_LAST_DATE_NO_DATA = 0;
+  
   public static final String CHANNEL_DOWNLOAD_COMPLETE = "org.tvbrowser.CHANNEL_DOWNLOAD_COMPLETE";
   public static final String MARKINGS_CHANGED = "org.tvbrowser.MARKINGS_CHANGED";
   public static final String FAVORITES_CHANGED = "org.tvbrowser.FAVORTES_CHANGED";
   public static final String DONT_WANT_TO_SEE_CHANGED = "org.tvbrowser.DONT_WANT_TO_SEE_CHANGED";
   public static final String DATA_UPDATE_DONE = "org.tvbrowser.DATA_UPDATE_DONE";
+  public static final String PROGRAM_REMINDED_FOR = "org.tvbrowser.PROGRAM_REMINDED_FOR";
   public static final String REMINDER_DOWN_DONE = "org.tvbrowser.REMINDER_DOWN_DONE";
   public static final String SYNCHRONIZE_UP_DONE = "org.tvbrowser.SYNCHRONIZE_UP_DONE";
   public static final String CHANNEL_UPDATE_DONE = "org.tvbrowser.CHANNEL_UPDATE_DONE";
@@ -80,6 +82,9 @@ public class SettingConstants {
   public static final String SCROLL_POSITION_EXTRA = "SCROLL_POSITION_EXTRA";
   public static final String TIME_DATA_UPDATE_EXTRA = "TIME_DATA_UPDATE_EXTRA";
   public static final String INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA = "INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA";
+  
+  public static final String EXTRA_DATA_DATE_LAST_KNOWN = "dataDateLastKnown";
+  public static final String EXTRA_REMINDED_PROGRAM = "remindedProgram";
   
   public static final String EXTRA_FIRST_START = "EXTRA_FIRST_START";
   
@@ -302,13 +307,15 @@ public class SettingConstants {
   public static boolean UPDATING_REMINDERS = false;
   
   public static final String[] REMINDER_PROJECTION = new String[] {
-    TvBrowserContentProvider.CHANNEL_KEY_NAME,
-    TvBrowserContentProvider.CHANNEL_KEY_LOGO,
+    TvBrowserContentProvider.KEY_ID,
     TvBrowserContentProvider.DATA_KEY_STARTTIME,
     TvBrowserContentProvider.DATA_KEY_ENDTIME,
     TvBrowserContentProvider.DATA_KEY_TITLE,
-    TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE
-    };
+    TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
+    TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
+    TvBrowserContentProvider.DATA_KEY_DESCRIPTION,
+    TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID
+  };
   
   public static final String EXTRA_MARKINGS_ID = "EXTRA_MARKINGS_ID";
   public static final String EXTRA_MARKINGS_ONLY_UPDATE = "EXTRA_MARKINGS_ONLY_UPDATE";

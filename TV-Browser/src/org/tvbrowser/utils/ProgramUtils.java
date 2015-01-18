@@ -34,6 +34,7 @@ import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
+import android.util.SparseArray;
 
 public class ProgramUtils {
   public static final String[] DATA_CHANNEL_PROJECTION = {
@@ -80,6 +81,49 @@ public class ProgramUtils {
     }
     
     return result;
+  }
+  
+  public static final Program[] createProgramsFromDataCursor(Context context, Cursor cursor) {
+    ArrayList<Program> programsList = new ArrayList<Program>();
+    SparseArray<Channel> channelMap = new SparseArray<Channel>();
+    
+    if(cursor != null && !cursor.isClosed() && cursor.moveToFirst() && cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME) != -1) {
+      int idColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+      int startTimeColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      int endTimeColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+      int titleColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+      int shortDescriptionColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION);
+      int descriptionColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION);
+      int episodeColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
+      int channelIdColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+      
+      do {
+        int channelId = cursor.getInt(channelIdColumnIndex);
+        
+        Channel channel = channelMap.get(channelId);
+      
+        if(channel == null) {
+          channel = createChannelFromCursor(context, cursor);
+          
+          if(channel != null) {
+            channelMap.put(channelId, channel);
+          }
+        }
+        
+        if(channel != null) {
+          final long startTime = cursor.getLong(startTimeColumnIndex);
+          final long endTime = cursor.getLong(endTimeColumnIndex);
+          final String title = cursor.getString(titleColumnIndex);
+          final String shortDescription = cursor.getString(shortDescriptionColumnIndex);
+          final String description = cursor.getString(descriptionColumnIndex);
+          final String episodeTitle = cursor.getString(episodeColumnIndex);
+          
+          programsList.add(new Program(cursor.getLong(idColumnIndex), startTime, endTime, title, shortDescription, description, episodeTitle, channel));
+        }
+      }while(cursor.moveToNext());
+    }
+    
+    return programsList.isEmpty() ? null : programsList.toArray(new Program[programsList.size()]);
   }
   
   public static final Channel createChannelFromCursor(Context context, Cursor cursor) {
@@ -292,16 +336,16 @@ public class ProgramUtils {
     return result;
   }
   
-  public static final void handleFirstKnownProgramId(Context context, long programId) {
-    handleKnownIdInternal(context, programId, PrefUtils.TYPE_PREFERENCES_MARKINGS);
-    handleKnownIdInternal(context, programId, PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS);
+  public static final void handleFirstAndLastKnownProgramId(Context context, long firstProgramId, long lastProgramId) {
+    handleKnownIdInternal(context, firstProgramId, lastProgramId, PrefUtils.TYPE_PREFERENCES_MARKINGS);
+    handleKnownIdInternal(context, firstProgramId, lastProgramId, PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS);
   }
   
-  private static final void handleKnownIdInternal(Context context, long programId, int prefType) {
+  private static final void handleKnownIdInternal(Context context, long firstProgramId, long lastProgramId, int prefType) {
     SharedPreferences pref = PrefUtils.getSharedPreferences(prefType, context);
     Editor edit = pref.edit();
     
-    if(programId == -1) {
+    if(firstProgramId == -1) {
       edit.clear();
     }
     else {
@@ -309,7 +353,9 @@ public class ProgramUtils {
       Set<String> keys = prefMap.keySet();
       
       for(String key : keys) {
-        if(Long.parseLong(key) < programId) {
+        Long id = Long.parseLong(key);
+        
+        if(id < firstProgramId || (lastProgramId > firstProgramId && id > lastProgramId)) {
           edit.remove(key);
         }
       }

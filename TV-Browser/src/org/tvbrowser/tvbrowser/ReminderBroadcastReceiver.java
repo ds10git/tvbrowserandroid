@@ -22,8 +22,10 @@ import java.util.Date;
 import java.util.Locale;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.devplugin.Program;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
 
 import android.app.Notification;
@@ -173,19 +175,20 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
       
       if(showReminder) {
         Logging.log(tag,  new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' CONTEXT: " + context + " contentResolver: " + context.getContentResolver(), Logging.REMINDER_TYPE, context);
-        Cursor values = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, programID), SettingConstants.REMINDER_PROJECTION, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+        Cursor values = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), SettingConstants.REMINDER_PROJECTION, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
         Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Tried to load program with given ID, cursor size: " + values.getCount(), Logging.REMINDER_TYPE, context);
         if(values.moveToFirst()) {
           NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+          Program program = ProgramUtils.createProgramFromDataCursor(context, values);
           
-          String channelName = values.getString(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-          String title = values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
-          String episode = values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
+          String channelName = program.getChannel().getChannelName();//values.getString(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+          String title = program.getTitle();//values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
+          String episode = program.getEpisodeTitle();//values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
           
-          long startTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+          long startTime = program.getStartTimeInUTC();//values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
          // long endTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
           
-          Bitmap logo = UiUtils.createBitmapFromByteArray(values.getBlob(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+          Bitmap logo = UiUtils.createBitmapFromByteArray(/*values.getBlob(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))*/program.getChannel().getIcon());
           Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' LOADED VALUES:  title '" + title + "' channelName '" + channelName + "' episode '" + episode + "' logo " + logo, Logging.REMINDER_TYPE, context);
           if(logo != null) {              
             int width =  context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
@@ -260,6 +263,11 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Create notification with intent: " + startInfo, Logging.REMINDER_TYPE, context);
           ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(title,(int)(startTime / 60000), notification);
           Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Notification was send.", Logging.REMINDER_TYPE, context);
+          
+          Intent broadcastProgram = new Intent(SettingConstants.PROGRAM_REMINDED_FOR);
+          broadcastProgram.putExtra(SettingConstants.EXTRA_REMINDED_PROGRAM, program);
+          
+          context.sendBroadcast(broadcastProgram,"org.tvbrowser.permission.RECEIVE_PROGRAMS");
         }
         
         values.close();

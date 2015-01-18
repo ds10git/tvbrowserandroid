@@ -243,7 +243,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                     for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
                       int index = c.getColumnIndex(column);
                       
-                      if(index >= 0 && c.getInt(index) == 1) {
+                      if(index >= 0 && c.getInt(index) >= 1) {
                         markedColumns.add(column);
                       }
                       else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && ProgramUtils.isMarkedWithIcon(getActivity(), programID)) {
@@ -282,7 +282,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     IntentFilter channelsChanged = new IntentFilter(SettingConstants.CHANNEL_UPDATE_DONE);
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mChannelUpdateDone, channelsChanged);
-    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mDataUpdateReceiver, intent);
+    getActivity().registerReceiver(mDataUpdateReceiver, intent);
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMarkingChangeReceiver, markingsFilter);
   }
@@ -874,7 +874,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     super.onDetach();
     
     if(mDataUpdateReceiver != null) {
-      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDataUpdateReceiver);
+      getActivity().unregisterReceiver(mDataUpdateReceiver);
     }
     if(mRefreshReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mRefreshReceiver);
@@ -1087,7 +1087,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     
     IntentFilter dataUpdateFilter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
     
-    localBroadcastManager.registerReceiver(dataUpdateReceiver, dataUpdateFilter);
+    getActivity().registerReceiver(dataUpdateReceiver, dataUpdateFilter);
     dataUpdateReceiver.onReceive(null, null);
     
     if(date.getCount() > 1) {
@@ -1283,7 +1283,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
             for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
               Integer value = markingColumnsMap.get(column);
               
-              if(value != null && c.getInt(value.intValue()) == 1) {
+              if(value != null && c.getInt(value.intValue()) >= 1) {
                 markedColumsList.add(column);
               }
               else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && ProgramUtils.isMarkedWithIcon(getActivity(), programID)) {
