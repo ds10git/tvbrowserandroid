@@ -443,6 +443,11 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     
     if(whereClause == null) {
       WhereClause marking = ProgramUtils.getPluginMarkingsSelection(getActivity());
+      
+      if(marking.getWhere().trim().isEmpty()) {
+        marking = new WhereClause(TvBrowserContentProvider.KEY_ID + "<0", null);
+      }
+      
       whereClause = new WhereClause(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " " + marking.getWhere(), marking.getSelectionArgs());
     }
     
@@ -734,7 +739,13 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
     where += UiUtils.getDontWantToSeeFilterString(getActivity());
     
-    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, mWhereClause.getSelectionArgs(), TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+    TvBrowser tvb = (TvBrowser)getActivity();
+    
+    if(tvb != null && !isDetached()) {
+      tvb.showSQLquery(where, mWhereClause.getSelectionArgs());
+    }
+    
+    CursorLoader loader = new CursorLoader(tvb, TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, mWhereClause.getSelectionArgs(), TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     
     return loader;
   }

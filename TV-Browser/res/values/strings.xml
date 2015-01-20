@@ -280,11 +280,10 @@
     <string name="versionExpiredMsg">This version will stop working in {0} days.\n\nPlease install an update for the app.</string>
     <string name="versionExpiredMsgLast">This version will stop working from tomorrow on.\n\nPlease install an update for the app.</string>
     <string name="program_popup_mark">Mark program</string>
-    <string name="program_popup_unmark">Remove markings</string>
     <string name="program_popup_search_repetition">Search for repetition</string>
     <string name="program_popup_reminder">Remind for program</string>
     <string name="program_popup_reminder_remove">Remove Reminder</string>
-	<string name="program_popup_send_mail">Send as email</string>
+	<string name="program_popup_remove_sync">Remove Sync marking</string>
     <string name="pref_prog_table_width_hint">Column width</string>
     <string name="pref_email_title">To email address</string>
     <string name="pref_email_summary">Email address for sending program information.</string>

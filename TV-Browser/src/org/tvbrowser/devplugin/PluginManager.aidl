@@ -66,7 +66,7 @@ interface PluginManager {
 	
 	/**
 	 * Marks the program for the plugin with the given id.
-	 * 
+	 * <p>
 	 * @param program The program to mark.
 	 * @return <code>true</code> if the program was successfully marked (or was already marked),
 	 *         <code>false</code> if the program could not be marked. 
@@ -76,7 +76,7 @@ interface PluginManager {
 	/**
 	 * Unmarks the program for the plugin with the given id.
 	 * NOTE: The program is only completely unmarked if no other plugin has marked it.
-	 *
+	 * <p>
 	 * @param program The program to unmark.
 	 * @return <code>true</code> if the program exists and could be updated (if it is completely unmarked
 	 *         depends on other plugin markings), <code>false</code> if the program didn't exists or could
@@ -86,7 +86,7 @@ interface PluginManager {
 	
 	/**
 	 * Marks the program for the plugin with the given id.
-	 * 
+	 * <p>
 	 * @param program The program to mark.
 	 * @param pluginCannonicalClassName The canonical class name of the plugin class.
 	 * @return <code>true</code> if the program was successfully marked (or was already marked),
@@ -123,4 +123,15 @@ interface PluginManager {
      * @since 0.5.7.2
      */
 	Program[] getProgramsForChannelInRange(in int channelId, in long startTimeInUTC, in long endTimeInUTC);
+	
+	/**
+	 * Sets the rating value for a program.
+	 * NOTE: NOT IMPLEMENTED YET, INCLUDED FOR FUTURE USE.
+	 * <p>
+	 * @param program The program to set the rating for.
+	 * @param rating A value between 1 and 10 for the rating of the program.
+	 *               NOTE: Values below 1 and above 10 are ignored.
+	 * @since 0.5.7.2
+	 */
+	void setRatingForProgram(in Program program, in int rating);
 }

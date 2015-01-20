@@ -19,6 +19,7 @@ package org.tvbrowser.devplugin;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -43,6 +44,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 /**
  * A class that handles TV-Browser Plugins.
@@ -166,6 +168,11 @@ public final class PluginHandler {
         
         return result;
       }
+
+      @Override
+      public void setRatingForProgram(Program program, int rating) throws RemoteException {
+        // TODO Create rating function.
+      }
     };
   }
   
@@ -179,7 +186,7 @@ public final class PluginHandler {
   
   public static final void loadFirstAndLastProgramId(Context context) {
     PrefUtils.initialize(context);
-    long lastInfo = PrefUtils.getLongValue(org.tvbrowser.tvbrowser.R.string.PLUGIN_LAST_ID_INFO_DATE, 0);
+    long lastInfo = 0;//PrefUtils.getLongValue(org.tvbrowser.tvbrowser.R.string.PLUGIN_LAST_ID_INFO_DATE, 0);
     
     Calendar test = Calendar.getInstance();
     test.add(Calendar.DAY_OF_YEAR, -1);
@@ -191,11 +198,14 @@ public final class PluginHandler {
     PROGRAM_ID_LAST = PROGRAM_ID_FIRST = PROGRAM_IDS_ALREADY_HANDLED_ID;
     
     if(lastInfo != test.getTimeInMillis()) {
-      Cursor firstProgram = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME}, TvBrowserContentProvider.DATA_KEY_STARTTIME +">="+test.getTimeInMillis(), null, TvBrowserContentProvider.KEY_ID + " LIMIT 1");
-      
+      Cursor firstProgram = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_TITLE}, TvBrowserContentProvider.DATA_KEY_STARTTIME +">="+test.getTimeInMillis(), null, TvBrowserContentProvider.KEY_ID + " LIMIT 1");
+      long firstStart = 0;
+      String firstTitle = "";
       try {
         if(firstProgram.moveToFirst()) {
           PROGRAM_ID_FIRST = firstProgram.getLong(firstProgram.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+          firstStart = firstProgram.getLong(firstProgram.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+          firstTitle = firstProgram.getString(firstProgram.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
         }
         else {
           PROGRAM_ID_FIRST = -1;
@@ -218,6 +228,8 @@ public final class PluginHandler {
           IOUtils.closeCursor(lastProgram);
         }
       }
+      
+      Log.d("info2", "FIRST KNOWN ID: " + PROGRAM_ID_FIRST + new Date(firstStart) + " " + firstTitle + " LAST KNOWN ID " + " " + PROGRAM_ID_LAST);
       
       Editor edit = PreferenceManager.getDefaultSharedPreferences(context).edit();
       edit.putLong(context.getString(R.string.PLUGIN_LAST_ID_INFO_DATE), test.getTimeInMillis());

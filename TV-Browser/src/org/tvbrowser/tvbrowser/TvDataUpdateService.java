@@ -1127,7 +1127,7 @@ public class TvDataUpdateService extends Service {
             }
             
             if(channelId != null) {
-              String where = " ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelId.intValue() + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time + " ) ";
+              String where = " ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelId.intValue() + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_REMOVED_SYNC + " AND NOT " + TvBrowserContentProvider.DATA_KEY_MARKING_SYNC;
                 
               Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
               try {
