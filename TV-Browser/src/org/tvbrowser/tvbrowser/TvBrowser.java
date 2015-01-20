@@ -311,7 +311,30 @@ public class TvBrowser extends ActionBarActivity implements
       PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
       
       int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
-      //FAVORITE_LIST
+      
+      if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < 314) {
+        new Thread("READ SYNCED PROGRAMS ONCE FOR ICON") {
+          @Override
+          public void run() {
+            Cursor synced = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, null, TvBrowserContentProvider.KEY_ID);
+            
+            try {
+              synced.moveToPosition(-1);
+              
+              int idColumn = synced.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+              ArrayList<String> syncIdList = new ArrayList<String>();
+              
+              while(synced.moveToNext()) {
+                syncIdList.add(String.valueOf(synced.getLong(idColumn)));
+              }
+              
+              ProgramUtils.addSyncIds(getApplicationContext(), syncIdList);
+            }finally {
+              IOUtils.closeCursor(synced);
+            }
+          };
+        }.start();
+      }
       if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < 309) {
         new Thread("READ REMINDERS ONCE FOR ICON") {
           @Override
@@ -3548,7 +3571,7 @@ public class TvBrowser extends ActionBarActivity implements
       SettingConstants.IS_DARK_THEME = PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default);
       
       Favorite.resetMarkIcons(SettingConstants.IS_DARK_THEME);
-      ProgramUtils.resetReminderMarkIcon(SettingConstants.IS_DARK_THEME);
+      ProgramUtils.resetReminderAndSyncMarkIcon(SettingConstants.IS_DARK_THEME);
       
       PluginServiceConnection[] plugins = PluginHandler.getAvailablePlugins();
       

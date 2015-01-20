@@ -1082,6 +1082,7 @@ public class TvDataUpdateService extends Service {
       
       Hashtable<String, Object> currentGroups = getCurrentGroups();
       Hashtable<String, Integer> knownChannels = new Hashtable<String, Integer>();
+      ArrayList<String> idList = new ArrayList<String>();
       
       for(String fav : mSyncFavorites) {
         if(fav != null && fav.contains(";") && fav.contains(":")) {
@@ -1140,6 +1141,8 @@ public class TvDataUpdateService extends Service {
                     
                     long programID = program.getLong(program.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                     
+                    idList.add(String.valueOf(programID));
+                    
                     ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID));
                     opBuilder.withValues(values);
                     
@@ -1160,6 +1163,10 @@ public class TvDataUpdateService extends Service {
       }
       
       if(!updateValuesList.isEmpty()) {
+        if(!idList.isEmpty()) {
+          ProgramUtils.addSyncIds(TvDataUpdateService.this, idList);
+        }
+        
         try {
           getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
           

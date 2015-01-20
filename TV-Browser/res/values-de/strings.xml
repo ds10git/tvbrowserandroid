@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.7.2</h2>
+        	&bull; Markierung als synchronisierte Sendung kann entfernt werden<br>
         	&bull; Information über Änderungen nach Versionsupdates deaktivierbar<br>
         	&bull; globale Benachrichtigung über Abschluss des Datenupdates hinzugefügt (kann von anderen Apps verwendet werden)<br>
         	&bull; globale Benachrichtigung bei Erinnerung an Sendungen hinzugefügt (kann von anderen Apps verwendet werden)<br>
