@@ -584,6 +584,7 @@ public class UiUtils {
             
       boolean showDontWantToSee = cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE)) == 0;
       boolean isFutureReminder = pluginProgram.getStartTimeInUTC() > System.currentTimeMillis() - 5 * 60000;
+      boolean showSyncRemove = cursor.getInt(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC)) == 1;
       
       menu.findItem(R.id.prog_add_reminder).setVisible(showReminder && isFutureReminder);
       menu.findItem(R.id.prog_remove_reminder).setVisible(!showReminder);
@@ -591,6 +592,7 @@ public class UiUtils {
       
       menu.findItem(R.id.program_popup_dont_want_to_see).setVisible(showDontWantToSee && !SettingConstants.UPDATING_FILTER);
       menu.findItem(R.id.program_popup_want_to_see).setVisible(!showDontWantToSee && !SettingConstants.UPDATING_FILTER);
+      menu.findItem(R.id.program_popup_remove_sync).setVisible(showSyncRemove);
       
       if(PluginHandler.hasPlugins()) {
         PluginServiceConnection[] connections = PluginHandler.getAvailablePlugins();
@@ -1006,6 +1008,27 @@ public class UiUtils {
       }
       
       return true;
+    }
+    else {
+      if(!markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC)) {
+        return true;
+      }
+      
+      values.put(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, false);
+      values.put(TvBrowserContentProvider.DATA_KEY_REMOVED_SYNC, true);
+      
+      ProgramUtils.removeReminderId(activity, programID);
+      
+      if(menuView != null) {
+        markedColumns.remove(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC);
+        
+        if(markedColumns.isEmpty()) {
+          menuView.setBackgroundResource(android.R.drawable.list_selector_background);  
+        }
+        else {
+          handleMarkings(activity, null, menuView, IOUtils.getStringArrayFromList(markedColumns));
+        }
+      }
     }
     
     if(values.size() > 0) {

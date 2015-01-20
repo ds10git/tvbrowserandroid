@@ -278,11 +278,10 @@
     <string name="versionExpiredMsg">Diese Version wird sich in {0} Tagen nicht mehr benutzen lassen.\n\nBitte installieren Sie ein Update.</string>
     <string name="versionExpiredMsgLast">Diese Version wird sich ab morgen nicht mehr benutzen lassen.\n\nBitte installieren Sie ein Update.</string>
     <string name="program_popup_mark">Sendung markieren</string>
-    <string name="program_popup_unmark">Alle Markierungen löschen</string>
     <string name="program_popup_search_repetition">Wiederholung suchen</string>
     <string name="program_popup_reminder">An Sendung erinnern</string>
     <string name="program_popup_reminder_remove">Erinnerung löschen</string>
-    <string name="program_popup_send_mail">Als E-Mail versenden</string>
+    <string name="program_popup_remove_sync">Sync-Markierung entfernen</string>
     <string name="pref_prog_table_width_hint">Spaltenbreite</string>
     <string name="pref_email_title">Empfänger E-Mail Adresse</string>
 	<string name="pref_email_summary">E-Mail Adresse für das Versenden von Programminformationen.</string>

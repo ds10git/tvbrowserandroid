@@ -170,6 +170,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_MARKING_FAVORITE_REMINDER = "markingFavoriteReminder";
   public static final String DATA_KEY_MARKING_REMINDER = "markingReminder";
   public static final String DATA_KEY_MARKING_SYNC = "markingSync";
+  public static final String DATA_KEY_REMOVED_SYNC = "removedSync";
   
   public static final String DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT = "utcStartMinuteAfterMidnight";
   public static final String DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT = "utcEndMinuteAfterMidnight";
@@ -1004,6 +1005,7 @@ public class TvBrowserContentProvider extends ContentProvider {
         + DATA_KEY_MARKING_FAVORITE_REMINDER + " INTEGER DEFAULT 0, "
         + DATA_KEY_MARKING_REMINDER + " INTEGER DEFAULT 0, "
         + DATA_KEY_MARKING_SYNC + " INTEGER DEFAULT 0, "
+        + DATA_KEY_REMOVED_SYNC + " INTEGER DEFAULT 0, "
         + DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0, "
         + DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0, "
         + DATA_KEY_DURATION_IN_MINUTES + " INTEGER DEFAULT 0, "
@@ -1056,7 +1058,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       db.execSQL(CREATE_VERSION_TABLE);
     }
 
-    private static final int DATABASE_VERSION = 8;
+    private static final int DATABASE_VERSION = 9;
     
     @Override
     public void onUpgrade(final SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -1432,6 +1434,9 @@ public class TvBrowserContentProvider extends ContentProvider {
       
       if(oldVersion >= 7 && oldVersion < 8) {
         db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_DATE_PROG_STRING_ID + " TEXT");
+      }
+      if(oldVersion < 9) {
+        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_REMOVED_SYNC + " INTEGER DEFAULT 0");
       }
     }
   }

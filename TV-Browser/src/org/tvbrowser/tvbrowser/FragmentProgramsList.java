@@ -236,7 +236,14 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       case 1: mFilterClause = new WhereClause(" AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE + " ) ",null);break;
       case 2: {
         WhereClause markings = ProgramUtils.getPluginMarkingsSelection(getActivity());
-        mFilterClause = new WhereClause(" AND ( " + markings.getWhere() + " ) ", markings.getSelectionArgs());break;
+        
+        String where = markings.getWhere();
+        
+        if(where.trim().isEmpty()) {
+          where = TvBrowserContentProvider.KEY_ID + "<0";
+        }
+        
+        mFilterClause = new WhereClause(" AND ( " + where + " ) ", markings.getSelectionArgs());break;
       }
       case 3: mFilterClause = new WhereClause(" AND ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER + " ) ) ",null);break;
       case 4: mFilterClause = new WhereClause(" AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_SYNC + " ) ",null);break;

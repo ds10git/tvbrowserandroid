@@ -22,7 +22,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
@@ -136,7 +135,6 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
@@ -4017,67 +4015,69 @@ public class TvBrowser extends ActionBarActivity implements
   private int FILTER_MAX_ID = 0; 
   
   private synchronized void updateFromFilterEdit() {
-    final SubMenu filters = mFilterItem.getSubMenu();
-
-    for(int i = 0; i < FILTER_MAX_ID; i++) {
-      filters.removeItem(i);
-    }
-    
-    ArrayList<ChannelFilterValues> channelFilterList = new ArrayList<ChannelFilterValues>();
-    SharedPreferences filterPreferences = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, TvBrowser.this);
-    Map<String,?> filterValues = filterPreferences.getAll();
-    
-    for(String key : filterValues.keySet()) {
-      Object values = filterValues.get(key);
-      
-      if(key.startsWith("filter.") && values instanceof String && values != null) {        
-        channelFilterList.add(new ChannelFilterValues(key, (String)values));
-      }
-    }
-    
-    Collections.sort(channelFilterList, ChannelFilterValues.CHANNEL_FILTER_VALUES_COMPARATOR);
-    
-    int groupId = 3;
-    int id = 1;
-    
-    mAllFilter = new ChannelFilterValues(SettingConstants.ALL_FILTER_ID, getString(R.string.activity_edit_filter_list_text_all), "");
-    
-    MenuItem all = filters.add(groupId, id++, groupId, mAllFilter.toString());
-    all.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-      @Override
-      public boolean onMenuItemClick(MenuItem item) {
-        updateChannelFilter(mAllFilter,R.drawable.ic_filter_default);
-        item.setChecked(true);
-        return true;
-      }
-    });
-           
-    if(mCurrentChannelFilterId == null || mAllFilter.getId().endsWith(mCurrentChannelFilterId)) {
-      all.setChecked(true);
-    }
-    
-    for(final ChannelFilterValues filter : channelFilterList) {
-      MenuItem item = filters.add(groupId, id++, groupId, filter.toString());
-      
-      if(mCurrentChannelFilterId != null && filter.getId().endsWith(mCurrentChannelFilterId)) {
-        mFilterItem.setIcon(R.drawable.ic_filter_on);
-        item.setChecked(true);
+    if(mFilterItem != null) {
+      final SubMenu filters = mFilterItem.getSubMenu();
+  
+      for(int i = 0; i < FILTER_MAX_ID; i++) {
+        filters.removeItem(i);
       }
       
-      item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+      ArrayList<ChannelFilterValues> channelFilterList = new ArrayList<ChannelFilterValues>();
+      SharedPreferences filterPreferences = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, TvBrowser.this);
+      Map<String,?> filterValues = filterPreferences.getAll();
+      
+      for(String key : filterValues.keySet()) {
+        Object values = filterValues.get(key);
+        
+        if(key.startsWith("filter.") && values instanceof String && values != null) {        
+          channelFilterList.add(new ChannelFilterValues(key, (String)values));
+        }
+      }
+      
+      Collections.sort(channelFilterList, ChannelFilterValues.CHANNEL_FILTER_VALUES_COMPARATOR);
+      
+      int groupId = 3;
+      int id = 1;
+      
+      mAllFilter = new ChannelFilterValues(SettingConstants.ALL_FILTER_ID, getString(R.string.activity_edit_filter_list_text_all), "");
+      
+      MenuItem all = filters.add(groupId, id++, groupId, mAllFilter.toString());
+      all.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
-          updateChannelFilter(filter,R.drawable.ic_filter_on);
+          updateChannelFilter(mAllFilter,R.drawable.ic_filter_default);
           item.setChecked(true);
-          
           return true;
         }
       });
+             
+      if(mCurrentChannelFilterId == null || mAllFilter.getId().endsWith(mCurrentChannelFilterId)) {
+        all.setChecked(true);
+      }
+      
+      for(final ChannelFilterValues filter : channelFilterList) {
+        MenuItem item = filters.add(groupId, id++, groupId, filter.toString());
+        
+        if(mCurrentChannelFilterId != null && filter.getId().endsWith(mCurrentChannelFilterId)) {
+          mFilterItem.setIcon(R.drawable.ic_filter_on);
+          item.setChecked(true);
+        }
+        
+        item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
+          @Override
+          public boolean onMenuItemClick(MenuItem item) {
+            updateChannelFilter(filter,R.drawable.ic_filter_on);
+            item.setChecked(true);
+            
+            return true;
+          }
+        });
+      }
+      
+      FILTER_MAX_ID = id;
+      
+      filters.setGroupCheckable(groupId, true, true);
     }
-    
-    FILTER_MAX_ID = id;
-    
-    filters.setGroupCheckable(groupId, true, true);
   }
   
   private void setCurrentFilterPreference(String id) {
@@ -4361,6 +4361,26 @@ public class TvBrowser extends ActionBarActivity implements
     }
   }
   
+  private void showMarkingData() {
+    Map<String,?> mark = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKINGS, TvBrowser.this).getAll();
+    
+    StringBuilder markValue = new StringBuilder();
+    
+    for(String key : mark.keySet()) {
+      markValue.append(key).append("=").append(mark.get(key)).append("\n");
+    }
+    
+    if(markValue.length() == 0) {
+      markValue.append("NO PLUGIN MARKINGS");
+    }
+    
+    AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+    builder.setTitle("CURRENT PLUGIN MARKINGS");
+    builder.setMessage(markValue.toString());
+    builder.setPositiveButton(android.R.string.ok, null);
+    builder.show();
+  }
+  
   @Override
   public boolean onOptionsItemSelected(MenuItem item) {
     switch (item.getItemId()) {
@@ -4369,6 +4389,7 @@ public class TvBrowser extends ActionBarActivity implements
         showUserSetting(false);
       }
       break;
+      case R.id.action_show_markings: showMarkingData();break;
       case R.id.menu_tvbrowser_action_favorite_add: UiUtils.editFavorite(null, TvBrowser.this, null);break;
       case R.id.menu_tvbrowser_action_favorite_edit: editFavorite();break;
       case R.id.menu_tvbrowser_action_favorite_delete: deleteFavorite();break;
@@ -4551,6 +4572,7 @@ public class TvBrowser extends ActionBarActivity implements
     mPluginPreferencesMenuItem.setEnabled(PluginHandler.pluginsAvailable());
     
     menu.findItem(R.id.action_reset).setVisible(TEST_VERSION);
+    menu.findItem(R.id.action_show_markings).setVisible(TEST_VERSION);
     
     mSearchExpanded = false;
     
@@ -5425,4 +5447,29 @@ public class TvBrowser extends ActionBarActivity implements
       }
       return super.onMenuOpened(featureId, menu);
   }*/
+  
+  public void showSQLquery(String selection, String[] selectionArgs) {
+    if(TEST_VERSION) {
+      StringBuilder message = new StringBuilder();
+      
+      if(selection != null) {
+        message.append("SELECTION:\n").append(selection).append("\n\n");
+      }
+      if(selectionArgs != null) {
+        message.append("ARGUMENTS:\n");
+        
+        for(String arg : selectionArgs) {
+          message.append(arg).append(", ");
+        }
+      }
+      
+      if(message.length() > 0) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+        builder.setTitle("SQL QUERY SELECTION INFO");
+        builder.setMessage(message.toString());
+        builder.setPositiveButton(android.R.string.ok, null);
+        builder.show();
+      }
+    }
+  }
 }
