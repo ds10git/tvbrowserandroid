@@ -339,6 +339,7 @@ public class ProgramUtils {
   public static final void handleFirstAndLastKnownProgramId(Context context, long firstProgramId, long lastProgramId) {
     handleKnownIdInternal(context, firstProgramId, lastProgramId, PrefUtils.TYPE_PREFERENCES_MARKINGS);
     handleKnownIdInternal(context, firstProgramId, lastProgramId, PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS);
+    handleKnownIdInternal(context, firstProgramId, lastProgramId, PrefUtils.TYPE_PREFERENCES_MARKING_SYNC);
   }
   
   private static final void handleKnownIdInternal(Context context, long firstProgramId, long lastProgramId, int prefType) {
@@ -365,15 +366,25 @@ public class ProgramUtils {
   }
   
   private static ImageSpan ICON_REMINDER;
-  private static final String KEY_REMINDER_ICON = "org.tvbrowser.tvbrowser.REMINDER";
+  private static ImageSpan ICON_SYNC;
+  private static final String KEY_ICON_REMINDER = "org.tvbrowser.tvbrowser.REMINDER";
+  private static final String KEY_ICON_SYNC = "org.tvbrowser.tvbrowser.SYNC";
   
-  public static void resetReminderMarkIcon(boolean isDarkTheme) {
-    if(ICON_REMINDER != null) {
-      if(!isDarkTheme) {
+  public static void resetReminderAndSyncMarkIcon(boolean isDarkTheme) {
+    if(!isDarkTheme) {
+      if(ICON_REMINDER != null) {
         ICON_REMINDER.getDrawable().setColorFilter(new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY));
       }
-      else {
+      if(ICON_SYNC != null) {
+        ICON_SYNC.getDrawable().setColorFilter(new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY));
+      }
+    }
+    else {
+      if(ICON_REMINDER != null) {
         ICON_REMINDER.getDrawable().setColorFilter(null);
+      }
+      if(ICON_SYNC != null) {
+        ICON_SYNC.getDrawable().setColorFilter(null);
       }
     }
   }
@@ -395,13 +406,24 @@ public class ProgramUtils {
       
       if(PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS, context).contains(String.valueOf(programId))) {
         markIcons.append(" ");
-        markIcons.append(KEY_REMINDER_ICON);
+        markIcons.append(KEY_ICON_REMINDER);
         
         if(ICON_REMINDER == null) {
           ICON_REMINDER = UiUtils.createImageSpan(context, R.drawable.ic_action_alarms);
         }
         
-        markIcons.setSpan(ICON_REMINDER, markIcons.length()-KEY_REMINDER_ICON.length(), markIcons.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        markIcons.setSpan(ICON_REMINDER, markIcons.length()-KEY_ICON_REMINDER.length(), markIcons.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+      
+      if(PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKING_SYNC, context).contains(String.valueOf(programId))) {
+        markIcons.append(" ");
+        markIcons.append(KEY_ICON_SYNC);
+        
+        if(ICON_SYNC == null) {
+          ICON_SYNC = UiUtils.createImageSpan(context, R.drawable.ic_action_cloud);
+        }
+        
+        markIcons.setSpan(ICON_SYNC, markIcons.length()-KEY_ICON_SYNC.length(), markIcons.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
       }
       
       SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKINGS, context);
@@ -517,15 +539,39 @@ public class ProgramUtils {
   }
   
   public static final void addReminderId(Context context, long programId) {
-    Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS, context).edit();
+    addMarkId(context, programId, PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS);
+  }
+  
+  public static final void addReminderIds(Context context, ArrayList<String> idList) {
+    addMarkIds(context, idList, PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS);
+  }
+  
+  public static final void removeReminderId(Context context, long programId) {
+    removeMarkId(context, programId, PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS);
+  }
+  
+  public static final void removeReminderIds(Context context, ArrayList<String> idList) {
+    removeMarkIds(context, idList, PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS);
+  }
+    
+  public static final void addSyncIds(Context context, ArrayList<String> idList) {
+    addMarkIds(context, idList, PrefUtils.TYPE_PREFERENCES_MARKING_SYNC);
+  }
+  
+  public static final void removeSyncId(Context context, long programId) {
+    removeMarkId(context, programId, PrefUtils.TYPE_PREFERENCES_MARKING_SYNC);
+  }
+    
+  private static final void addMarkId(Context context, long programId, int type) {
+    Editor edit = PrefUtils.getSharedPreferences(type, context).edit();
     
     edit.putBoolean(String.valueOf(programId), true);
     
     edit.commit();
   }
   
-  public static final void addReminderIds(Context context, ArrayList<String> idList) {
-    Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS, context).edit();
+  private static final void addMarkIds(Context context, ArrayList<String> idList, int type) {
+    Editor edit = PrefUtils.getSharedPreferences(type, context).edit();
     
     for(String programId : idList) {
       edit.putBoolean(programId, true);
@@ -534,16 +580,16 @@ public class ProgramUtils {
     edit.commit();
   }
   
-  public static final void removeReminderId(Context context, long programId) {
-    Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS, context).edit();
+  private static final void removeMarkId(Context context, long programId, int type) {
+    Editor edit = PrefUtils.getSharedPreferences(type, context).edit();
     
     edit.remove(String.valueOf(programId));
     
     edit.commit();
   }
   
-  public static final void removeReminderIds(Context context, ArrayList<String> idList) {
-    Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS, context).edit();
+  private static final void removeMarkIds(Context context, ArrayList<String> idList, int type) {
+    Editor edit = PrefUtils.getSharedPreferences(type, context).edit();
     
     for(String programId : idList) {
       edit.remove(programId);

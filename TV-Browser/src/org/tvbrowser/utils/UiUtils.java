@@ -1017,7 +1017,7 @@ public class UiUtils {
       values.put(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, false);
       values.put(TvBrowserContentProvider.DATA_KEY_REMOVED_SYNC, true);
       
-      ProgramUtils.removeReminderId(activity, programID);
+      ProgramUtils.removeSyncId(activity, programID);
       
       if(menuView != null) {
         markedColumns.remove(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC);

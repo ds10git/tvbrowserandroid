@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.7.2</h2>
+        	&bull; sync markings can be removed<br>
         	&bull; info about changes after version update deactivatable<br>
         	&bull; added global message for data update done (can be used by other apps)<br>
         	&bull; added global message for reminded programs (can be used by other apps)<br>
