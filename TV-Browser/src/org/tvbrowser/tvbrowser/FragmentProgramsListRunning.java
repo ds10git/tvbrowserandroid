@@ -117,8 +117,6 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   int mChannelNameColumn;
   int mChannelIDColumn;
   
-  //private boolean showPicture;
-  //private boolean showGenre;
   private boolean showEpisode;
   private boolean showInfo;
   private boolean mShowOrderNumber;
@@ -131,6 +129,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   private ListView mListView;
   private LinearLayout mTimeBar;
+  private Spinner mDateSelection;
+  
+  private ArrayAdapter<DateSelection> mDateAdapter;
   
   static {
     BEFORE_GRADIENT = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[] {Color.argb(0x84, 0, 0, 0xff),Color.WHITE});
@@ -161,8 +162,16 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     
     mDataUpdateReceiver = new BroadcastReceiver() {
       @Override
-      public void onReceive(Context context, Intent intent) {
-        startUpdateThread();
+      public void onReceive(final Context context, final Intent intent) {
+        handler.post(new Runnable() {
+          public void run() {
+            updateDateSelection();
+            
+            if(intent != null) {
+              startUpdateThread();
+            }
+          }
+        });
       }
     };
     
@@ -924,14 +933,14 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   private void initialize(View rootView) {
     final Button now = (Button)rootView.findViewById(R.id.now_button);
-    final Spinner date = (Spinner)rootView.findViewById(R.id.running_date_selection);
+    mDateSelection = (Spinner)rootView.findViewById(R.id.running_date_selection);
     now.setTag(Integer.valueOf(-1));
     
     final View.OnClickListener listener = new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        if(v.equals(now) && date.getCount() > 1) {
-          date.setSelection(1);
+        if(v.equals(now) && mDateSelection.getCount() > 1) {
+          mDateSelection.setSelection(1);
         }
         
         setWhereClauseTime(v.getTag());
@@ -1013,15 +1022,15 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     
     ArrayList<DateSelection> dateEntries = new ArrayList<DateSelection>();
     
-    final ArrayAdapter<DateSelection> dateAdapter = new ArrayAdapter<DateSelection>(getActivity(), android.R.layout.simple_spinner_item, dateEntries);
-    dateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    date.setAdapter(dateAdapter);
+    mDateAdapter = new ArrayAdapter<DateSelection>(getActivity(), android.R.layout.simple_spinner_item, dateEntries);
+    mDateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    mDateSelection.setAdapter(mDateAdapter);
 
-    date.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+    mDateSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
       public void onItemSelected(AdapterView<?> parent, View view, 
           int pos, long id) {
-        DateSelection selection = dateAdapter.getItem(pos);
+        DateSelection selection = mDateAdapter.getItem(pos);
         
         setDay(selection.getTime());
       }
@@ -1032,69 +1041,65 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       }
     });
     
-    BroadcastReceiver dataUpdateReceiver = new BroadcastReceiver() {
-      @Override
-      public void onReceive(Context context, Intent intent) {
-        if(getActivity() != null && !isDetached()) {
-          int pos = date.getSelectedItemPosition();
-          
-          dateAdapter.clear();
-                  
-          Cursor dates = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
-          
-          if(dates.moveToLast()) {
-            long last = dates.getLong(0);
-            
-            Calendar lastDay = Calendar.getInstance();
-            lastDay.setTimeInMillis(last);
-            
-            lastDay.set(Calendar.HOUR_OF_DAY, 4);
-            lastDay.set(Calendar.MINUTE, 0);
-            lastDay.set(Calendar.SECOND, 0);
-            lastDay.set(Calendar.MILLISECOND, 0);
-            
-            Calendar yesterday = Calendar.getInstance();
-            yesterday.set(Calendar.HOUR_OF_DAY, 4);
-            yesterday.set(Calendar.MINUTE, 0);
-            yesterday.set(Calendar.SECOND, 0);
-            yesterday.set(Calendar.MILLISECOND, 0);
-            yesterday.add(Calendar.DAY_OF_YEAR, -1);
-            
-            long yesterdayStart = yesterday.getTimeInMillis();
-            long lastStart = lastDay.getTimeInMillis();
-            
-            Calendar cal = Calendar.getInstance();
-            
-            for(long day = yesterdayStart; day <= lastStart; day += (24 * 60 * 60000)) {
-              cal.setTimeInMillis(day);
-              cal.set(Calendar.HOUR_OF_DAY, 0);
-              
-              dateAdapter.add(new DateSelection(cal.getTimeInMillis(), getActivity()));
-            }
-          }
-          
-          dates.close();
-          
-          if(date.getCount() > pos) {
-            date.setSelection(pos);
-          }
-          else {
-            date.setSelection(date.getCount()-1);
-          }
-        }
-      }
-    };
+    updateDateSelection();
     
-    IntentFilter dataUpdateFilter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
-    
-    getActivity().registerReceiver(dataUpdateReceiver, dataUpdateFilter);
-    dataUpdateReceiver.onReceive(null, null);
-    
-    if(date.getCount() > 1) {
-      date.setSelection(1);
+    if(mDateSelection.getCount() > 1) {
+      mDateSelection.setSelection(1);
     }
   }
 
+  private void updateDateSelection() {
+    if(getActivity() != null && !isDetached() && mDateSelection != null) {
+      int pos = mDateSelection.getSelectedItemPosition();
+      
+      mDateAdapter.clear();
+              
+      Cursor dates = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      
+      try {
+        if(dates != null && dates.moveToLast()) {
+          long last = dates.getLong(dates.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+          
+          Calendar lastDay = Calendar.getInstance();
+          lastDay.setTimeInMillis(last);
+          
+          lastDay.set(Calendar.HOUR_OF_DAY, 4);
+          lastDay.set(Calendar.MINUTE, 0);
+          lastDay.set(Calendar.SECOND, 0);
+          lastDay.set(Calendar.MILLISECOND, 0);
+          
+          Calendar yesterday = Calendar.getInstance();
+          yesterday.set(Calendar.HOUR_OF_DAY, 4);
+          yesterday.set(Calendar.MINUTE, 0);
+          yesterday.set(Calendar.SECOND, 0);
+          yesterday.set(Calendar.MILLISECOND, 0);
+          yesterday.add(Calendar.DAY_OF_YEAR, -1);
+          
+          long yesterdayStart = yesterday.getTimeInMillis();
+          long lastStart = lastDay.getTimeInMillis();
+          
+          Calendar cal = Calendar.getInstance();
+          
+          for(long day = yesterdayStart; day <= lastStart; day += (24 * 60 * 60000)) {
+            cal.setTimeInMillis(day);
+            cal.set(Calendar.HOUR_OF_DAY, 0);
+            
+            mDateAdapter.add(new DateSelection(cal.getTimeInMillis(), getActivity()));
+          }
+        }
+      }finally {
+        IOUtils.closeCursor(dates);
+      }
+      
+      if(mDateSelection.getCount() > pos) {
+        mDateSelection.setSelection(pos);
+      }
+      else {
+        mDateSelection.setSelection(mDateSelection.getCount()-1);
+      }
+    }
+  }
+  
   private ListView getListView() {
     return mListView;
   }
