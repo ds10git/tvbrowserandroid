@@ -186,7 +186,7 @@ public final class PluginHandler {
   
   public static final void loadFirstAndLastProgramId(Context context) {
     PrefUtils.initialize(context);
-    long lastInfo = 0;//PrefUtils.getLongValue(org.tvbrowser.tvbrowser.R.string.PLUGIN_LAST_ID_INFO_DATE, 0);
+    long lastInfo = PrefUtils.getLongValue(org.tvbrowser.tvbrowser.R.string.PLUGIN_LAST_ID_INFO_DATE, 0);
     
     Calendar test = Calendar.getInstance();
     test.add(Calendar.DAY_OF_YEAR, -1);
