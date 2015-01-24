@@ -830,4 +830,88 @@ public class IOUtils {
   public static final boolean isInteractive(Context context) {
     return CompatUtils.isInteractive((PowerManager)context.getSystemService(Context.POWER_SERVICE));
   }
+  
+  /**
+   * Decode the given value into an array of episode numbers.
+   * <p>
+   * @param fieldValue The field value to decode.
+   * @return An array with the contained episode numbers.
+   * @since 0.5.7.3
+   */
+  public static Integer[] decodeSingleFieldValueToMultipleEpisodeNumers(int fieldValue) {
+    int encodingMask = (fieldValue >> 30) & 0x3;
+    
+    if(encodingMask == 0) {
+      if(((fieldValue >> 29) & 0x1) == 0x1) {
+        int first = fieldValue & 0x3FFF;
+        int second = (fieldValue >> 14) & 0x7FFF;
+        
+        return new Integer[] {first,second};
+      }
+      else {
+        return new Integer[] {fieldValue};
+      }
+    }
+    else {
+      int andMask = 0xFF;
+      int valueMask = 0x7F;
+      int shiftMask = 8;
+      int num = 2;
+              
+      if(encodingMask == 2) {          
+        andMask = 0x1F;
+        valueMask = 0xF;
+        shiftMask = 5;
+        num = 3;
+      }
+      else if(encodingMask == 3) {
+        andMask = 0xF;
+        valueMask = 0x7;
+        shiftMask = 4;
+        num = 4;
+      }
+      
+      int last = fieldValue & 0x3FFF;
+      
+      ArrayList<Integer> valueList = new ArrayList<Integer>();
+      valueList.add(last);
+      
+      for(int i = 0; i < num; i++) {
+        int testValue = (fieldValue >> (14 + i * shiftMask)) & andMask;
+        int absValue = (testValue & valueMask) + 1;
+        
+        if(((testValue >> shiftMask -1) & 0x1) == 0x1) {
+          absValue = absValue * -1;
+        }
+        
+        last += absValue;
+        valueList.add(last);
+      }
+      
+      return valueList.toArray(new Integer[valueList.size()]);
+    }
+  }
+  
+  /**
+   * Decode the given value into a String of episode numbers.
+   * <p>
+   * @param fieldValue The field value to decode.
+   * @return A String of episode numbers.
+   * @since 0.5.7.3
+   */
+  public static String decodeSingleFieldValueToMultipleEpisodeString(int fieldValue) {
+    Integer[] episodes = decodeSingleFieldValueToMultipleEpisodeNumers(fieldValue);
+    
+    StringBuilder epis = new StringBuilder();
+    
+    for(int episode : episodes) {
+      if(epis.length() > 0) {
+        epis.append("|");
+      }
+      
+      epis.append(episode);
+    }
+    
+    return epis.toString();
+  }
 }

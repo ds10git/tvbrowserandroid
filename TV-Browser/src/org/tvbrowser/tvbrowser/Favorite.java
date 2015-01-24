@@ -471,7 +471,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     StringBuilder where = new StringBuilder();
     String[] selectionArgs = null;
     
-    if(mUniqueProgramIds != null && mUniqueProgramIds.length > 0) {
+    if(mUniqueProgramIds != null && mUniqueProgramIds.length > 0 &&  mUniqueProgramIds.length < 500) {
       selectionArgs = new String[mUniqueProgramIds.length];
       
       where.append(" ");
@@ -499,12 +499,12 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   private String getWhereClause() {
     StringBuilder builder = new StringBuilder();
     
-    if(mType == KEYWORD_ONLY_TITLE_TYPE || mType == KEYWORD_TYPE) {
+    if(mType == KEYWORD_ONLY_TITLE_TYPE || mType == KEYWORD_TYPE || isHavingExclusions()) {
       builder.append(", ");
       builder.append(TvBrowserContentProvider.DATA_KEY_TITLE);
     }
     
-    if(mType == KEYWORD_TYPE) {
+    if(mType == KEYWORD_TYPE || isHavingExclusions()) {
       builder.append(" || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL);
       builder.append(",\"\") || ' ' || ifnull(");
@@ -538,7 +538,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       builder.append(",\"\")");
     }
     
-    if(mType == KEYWORD_ONLY_TITLE_TYPE || mType == KEYWORD_TYPE) {
+    if(mType == KEYWORD_ONLY_TITLE_TYPE || mType == KEYWORD_TYPE || isHavingExclusions()) {
       builder.append(" AS ");
       builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
       builder.append(" ");

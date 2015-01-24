@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.7.2</h2>
+        <h2>0.5.7.3</h2>
+        	&bull; fix crash for selecting exclusion Favorite (could happen at startup)<br>
+        	&bull; decode multiple episode number for program info<br>
+       	<br>
+        <h3>0.5.7.2</h3>
         	&bull; sync markings can be removed<br>
         	&bull; info about changes after version update deactivatable<br>
         	&bull; added global message for data update done (can be used by other apps)<br>
