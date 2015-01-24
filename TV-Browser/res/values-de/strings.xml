@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+        <h2>0.5.7.3</h2>
+        	&bull; Absturz durch Auswahl einer Lieblingssendung mit Ausschlussregeln beseitigt (kann beim Start auftreten)<br>
+        	&bull; Mehrfachepisodennummer wird für Anzeige der Sendungsinfos dekodiert<br>
+       	<br>
         <h2>0.5.7.2</h2>
         	&bull; Markierung als synchronisierte Sendung kann entfernt werden<br>
         	&bull; Information über Änderungen nach Versionsupdates deaktivierbar<br>

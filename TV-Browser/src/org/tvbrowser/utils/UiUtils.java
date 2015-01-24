@@ -359,10 +359,10 @@ public class UiUtils {
                 
                 if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER))) {
                   if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT))) {
-                    number = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER)) + "/" + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT)) + " ";
+                    number = IOUtils.decodeSingleFieldValueToMultipleEpisodeString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER))) + "/" + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT)) + " ";
                   }
                   else {
-                    number = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER)) + " ";
+                    number = IOUtils.decodeSingleFieldValueToMultipleEpisodeString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER))) + " ";
                   }
                 }
                 

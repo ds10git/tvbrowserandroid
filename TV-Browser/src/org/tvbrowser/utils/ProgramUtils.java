@@ -2,6 +2,7 @@ package org.tvbrowser.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
 
@@ -279,7 +280,7 @@ public class ProgramUtils {
     return marked;
   }
   
-  private static boolean markProgram(Context context, long programId, String pluginId) {
+  private static synchronized boolean markProgram(Context context, long programId, String pluginId) {
     boolean result = false;
     SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKINGS, context);
     
@@ -288,6 +289,14 @@ public class ProgramUtils {
     if(!value.contains(pluginId)) {
       if(!value.isEmpty()) {
         value += ";";
+      }
+      else {
+        ContentValues values = new ContentValues();
+        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, true);
+        
+        TvBrowserContentProvider.INFORM_FOR_CHANGES = false;
+        context.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programId), values, null, null);
+        TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
       }
       
       value += pluginId;
@@ -309,7 +318,7 @@ public class ProgramUtils {
     return result;
   }
   
-  private static boolean unmarkProgram(Context context, long programId, String pluginId) {
+  private static synchronized boolean unmarkProgram(Context context, long programId, String pluginId) {
     boolean result = false;
     SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKINGS, context);
     
@@ -322,6 +331,13 @@ public class ProgramUtils {
       
       if(value.trim().isEmpty() || value.equals(";")) {
         edit.remove(String.valueOf(programId));
+        
+        ContentValues values = new ContentValues();
+        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, false);
+        
+        TvBrowserContentProvider.INFORM_FOR_CHANGES = false;
+        context.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programId), values, null, null);
+        TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
       }
       else {
         edit.putString(String.valueOf(programId), value);
@@ -459,33 +475,34 @@ public class ProgramUtils {
   
 
   public static final WhereClause getPluginMarkingsSelection(Context context) {
-    WhereClause result = new WhereClause("", null);
+    WhereClause result = new WhereClause(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, null);
     
     SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKINGS, context);
     
     Map<String,?> prefMap = pref.getAll();
-    Set<String> keys = prefMap.keySet();
+    Set<String> keySet = prefMap.keySet();
     
-    StringBuilder where = new StringBuilder();
-    String[] selectionArgs = new String[prefMap.size()];
-    
-    int i = 0;
-    
-    for(String key : keys) {
-      if(where.length() > 0) {
-        where.append(", ");
+    if(keySet.size() < 500) {
+      StringBuilder where = new StringBuilder();
+      String[] selectionArgs = new String[prefMap.size()];
+      
+      Iterator<String> keys = keySet.iterator();
+      
+      for(int i=0; i < keySet.size(); i++) {
+        if(where.length() > 0) {
+          where.append(", ");
+        }
+        
+        where.append("?");
+        selectionArgs[i] = keys.next();
       }
       
-      where.append("?");
-      selectionArgs[i] = key;
-      i++;
-    }
-    
-    if(where.length() > 0) {
-      where.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
-      where.append(" ) ");
-      
-      result = new WhereClause(where.toString(), selectionArgs);
+      if(where.length() > 0) {
+        where.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
+        where.append(" ) ");
+        
+        result = new WhereClause(where.toString(), selectionArgs);
+      }
     }
     
     return result;
