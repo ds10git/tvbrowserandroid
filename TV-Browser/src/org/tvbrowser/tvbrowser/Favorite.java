@@ -499,12 +499,14 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   private String getWhereClause() {
     StringBuilder builder = new StringBuilder();
     
-    if(mType == KEYWORD_ONLY_TITLE_TYPE || mType == KEYWORD_TYPE || isHavingExclusions()) {
+    if(mType == KEYWORD_ONLY_TITLE_TYPE) {
       builder.append(", ");
       builder.append(TvBrowserContentProvider.DATA_KEY_TITLE);
     }
     
     if(mType == KEYWORD_TYPE || isHavingExclusions()) {
+      builder.append(", ");
+      builder.append(TvBrowserContentProvider.DATA_KEY_TITLE);
       builder.append(" || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL);
       builder.append(",\"\") || ' ' || ifnull(");
@@ -575,7 +577,14 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     
     if(mType == KEYWORD_ONLY_TITLE_TYPE || mType == KEYWORD_TYPE) {
       builder.append(" ( ");
-      builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
+      
+      if(mType == KEYWORD_TYPE) {
+        builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
+      }
+      else {
+        builder.append(TvBrowserContentProvider.DATA_KEY_TITLE);
+      }
+      
       builder.append(" LIKE \"%");
       builder.append(mSearch);
       builder.append("%\")");

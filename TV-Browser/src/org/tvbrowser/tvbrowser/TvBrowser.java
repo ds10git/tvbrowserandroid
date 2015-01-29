@@ -2163,8 +2163,6 @@ public class TvBrowser extends ActionBarActivity implements
         holder.mTextView.setText(nameBuilder);
         holder.mCheckBox.setChecked(value.isSelected());
         
-        
-        
         Bitmap logo = value.getLogo();
         
         if(logo != null) {
@@ -2349,7 +2347,26 @@ public class TvBrowser extends ActionBarActivity implements
           
           // if something was selected we need to download new data
           if(somethingSelected && !delete) {
-            checkTermsAccepted();
+            AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+            
+            builder.setTitle(R.string.dialog_info_channels_sort_title);
+            builder.setMessage(R.string.dialog_info_channels_sort_message);
+            
+            builder.setPositiveButton(R.string.dialog_info_channels_sort_ok, new OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                sortChannels(true);
+              }
+            });
+            
+            builder.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), new OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                checkTermsAccepted();
+              }
+            });
+            
+            builder.show();
           }
         }
       });
@@ -2502,7 +2519,7 @@ public class TvBrowser extends ActionBarActivity implements
     }
   }
   
-  private void sortChannels() {
+  private void sortChannels(final boolean showDownload) {
     ContentResolver cr = getContentResolver();
     
     StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
@@ -2770,12 +2787,18 @@ public class TvBrowser extends ActionBarActivity implements
           if(somethingChanged) {
             updateProgramListChannelBar();
           }
+          
+          if(showDownload) {
+            checkTermsAccepted();
+          }
         }
       });
       builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-          
+          if(showDownload) {
+            checkTermsAccepted();
+          }
         }
       });
       
@@ -4505,7 +4528,7 @@ public class TvBrowser extends ActionBarActivity implements
       case R.id.action_about: showAbout();break;
       case R.id.action_load_channels_again: selectChannels(true);break;
       case R.id.action_select_channels: selectChannels(false);break;
-      case R.id.action_sort_channels: sortChannels();break;
+      case R.id.action_sort_channels: sortChannels(false);break;
       case R.id.action_delete_all_data: getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.KEY_ID + " > 0", null);
                                         getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.KEY_ID + " > 0", null);
                                         break;

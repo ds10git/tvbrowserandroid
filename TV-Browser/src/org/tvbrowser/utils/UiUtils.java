@@ -48,6 +48,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.AlertDialog;
+import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
@@ -76,6 +77,7 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
+import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
@@ -83,6 +85,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.graphics.drawable.LayerDrawable;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
@@ -90,11 +94,18 @@ import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.Html;
+import android.text.Layout;
 import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.TextPaint;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ImageSpan;
+import android.text.style.LeadingMarginSpan;
+import android.text.style.StyleSpan;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -104,6 +115,7 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -171,6 +183,7 @@ public class UiUtils {
           private Handler mHandler;
           private Runnable mShowWaiting;
           private boolean mShowWaitingDialog;
+          private boolean mHasSpannableActors;
           
           @Override
           protected void onPreExecute() {
@@ -201,6 +214,7 @@ public class UiUtils {
             
             try {
               if(c.moveToFirst()) {
+                mHasSpannableActors = false;
                 result = Boolean.valueOf(true);
                 float textScale = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_TEXT_SCALE, R.string.detail_text_scale_default));
                 
@@ -446,7 +460,7 @@ public class UiUtils {
                 }
                 
                 if(descriptionValue != null) {
-                  description.setText(descriptionValue);
+                  description.setText(new SpannableString(descriptionValue));
                 }
                 else {
                   description.setVisibility(View.GONE);
@@ -460,7 +474,7 @@ public class UiUtils {
                 else {
                   link.setVisibility(View.GONE);
                 }
-                
+                                
                 Set<String> keys = VALUE_MAP.keySet();
                 
                 for(String key : keys) {
@@ -481,19 +495,153 @@ public class UiUtils {
                           endWith = true;
                         }
                         
-                        if(key.equals(TvBrowserContentProvider.DATA_KEY_VPS)) {
-                          Calendar temp = Calendar.getInstance();
-                          temp.set(Calendar.HOUR_OF_DAY, Integer.parseInt(text) / 60);
-                          temp.set(Calendar.MINUTE, Integer.parseInt(text) % 60);
+                        if(key.equals(TvBrowserContentProvider.DATA_KEY_ACTORS)){
+                          String separator = null;
                           
-                          text = DateFormat.getTimeFormat(context).format(temp.getTime());
+                          if(text.contains("\n")) {
+                            separator = "\n+";
+                          }
+                          else if(text.contains(",")) {
+                            separator = ",\\s*";
+                          }
+                          
+                          SpannableStringBuilder actors = new SpannableStringBuilder(name);
+                          actors.setSpan(new StyleSpan(Typeface.BOLD), 0, name.length()-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                          actors.setSpan(new UnderlineSpan(), 0, name.length()-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                          
+                          int screenSizeHalf = CompatUtils.getScreenSize(context).x/2;
+                          
+                          if(separator != null) {
+                            String[] lines = text.split(separator);
+                            
+                            float maxLength = 0;
+                            TextPaint actorPaint = textView.getPaint();
+                            
+                            for(int i = 0; i < lines.length; i++) {
+                              if(lines[i].contains("\t\t-\t\t")) {
+                                separator = "\t\t-\t\t";
+                              }
+                              else if(lines[i].contains("(")) {
+                                separator = "\\s*\\(";
+                              }
+                              else {
+                                separator = null;
+                              }
+                              
+                              if(separator != null) {
+                                String[] parts = lines[i].split(separator);
+                                
+                                if(parts.length > 1) {
+                                  float test = actorPaint.measureText(parts[0]);
+                                  
+                                  if(test > screenSizeHalf) {
+                                    String secondSeparator = null;
+                                    
+                                    if(parts[0].contains("(")) {
+                                      secondSeparator = "(";
+                                    }
+                                    else if(parts[0].contains(" ")) {
+                                      secondSeparator = " ";
+                                    }
+                                    else if(parts[0].contains("-")) {
+                                      secondSeparator = "-";
+                                    }
+                                    
+                                    if(secondSeparator != null) {
+                                      int index = parts[0].indexOf(secondSeparator);
+                                      
+                                      String firstPart = parts[0].substring(0, index).trim();
+                                      String secondPart = parts[0].substring(index).trim();
+                                      
+                                      float firstLength = actorPaint.measureText(firstPart);
+                                      float secondLength = actorPaint.measureText(secondPart);
+                                      
+                                      if(secondLength > screenSizeHalf) {
+                                        int whiteSpaceIndex = secondPart.indexOf(" ");
+                                        
+                                        if(whiteSpaceIndex >= 0) {
+                                          String thirdPart = secondPart.substring(0, whiteSpaceIndex).trim();
+                                          String fifthPart = secondPart.substring(whiteSpaceIndex).trim();
+                                          
+                                          secondLength = Math.max(actorPaint.measureText(thirdPart), actorPaint.measureText(fifthPart));
+                                          
+                                          if(secondLength < screenSizeHalf) {
+                                            secondPart = thirdPart + "\n" + fifthPart;
+                                          }
+                                        }
+                                      }
+                                      
+                                      test = Math.max(firstLength, secondLength);
+                                      
+                                      if(test < screenSizeHalf) {
+                                        lines[i] = lines[i].replace(parts[0], firstPart + "\n" + secondPart);
+                                      }
+                                    }
+                                  }
+                                  
+                                  maxLength = Math.max(maxLength,test); 
+                                }
+                              }
+                            }
+                            
+                            if(maxLength > 0 && maxLength <= screenSizeHalf) {
+                              for(int i = 0; i < lines.length; i++) {
+                                String[] parts = lines[i].split(separator);
+                                
+                                if(i > 0) {
+                                  actors.append("\n");
+                                }
+                                
+                                if(parts.length > 1) {
+                                  if(parts[1].trim().endsWith(")") || parts[1].trim().endsWith(",")) {
+                                    parts[1] = parts[1].substring(0,parts[1].length()-1);
+                                  }
+                                  
+                                  if(parts[0].contains("\n")) {
+                                    if(parts[0].indexOf("\n") != parts[0].lastIndexOf("\n")) {
+                                      parts[1] += "\n\n";
+                                    }
+                                    else {
+                                      parts[1] += "\n";
+                                    }
+                                  }
+                                  
+                                  actors.append(parts[1]);
+                                  
+                                  actors.setSpan(new ActorColumnSpan(parts[0],(int)maxLength+10), actors.length()-parts[1].length(), actors.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                  
+                                  mHasSpannableActors = true;
+                                }
+                                else {
+                                  actors.append(lines[i]);
+                                }
+                              }
+                            }
+                            else {
+                              actors.append(text);
+                            }
+                          }
+                          else {
+                            actors.append(text);
+                          }
+                          
+                          textView.setText(actors);
                         }
-                        
-                        text = text.replace("\n", "<br>");
-                        
-                        name = "<b><u>" + name.replace("\n", "<br>") + "</u></b>" + (endWith ? " " : "");
-                        
-                        textView.setText(Html.fromHtml(name + text));
+                        else {
+                          if(key.equals(TvBrowserContentProvider.DATA_KEY_VPS)) {
+                            Calendar temp = Calendar.getInstance();
+                            temp.set(Calendar.HOUR_OF_DAY, Integer.parseInt(text) / 60);
+                            temp.set(Calendar.MINUTE, Integer.parseInt(text) % 60);
+                            
+                            text = DateFormat.getTimeFormat(context).format(temp.getTime());
+                          }
+                          
+                          text = text.replace("\n", "<br>");
+                          
+                          name = "<b><u>" + name.replace("\n", "<br>") + "</u></b>" + (endWith ? " " : "");
+                          
+                          textView.setText(Html.fromHtml(name + text));
+                        }
                       } catch (Exception e) {
                         textView.setVisibility(View.GONE);
                       }
@@ -536,7 +684,30 @@ public class UiUtils {
               }
               
               builder.setView(mLayout);
-              builder.show();
+              
+
+              final AlertDialog test = builder.create();
+              
+              /* Stupid hack for wrong measured dialog size */
+              if(mHasSpannableActors && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                final OnPreDrawListener preDrawListener = new OnPreDrawListener() {
+                  @Override
+                  public boolean onPreDraw() {
+                      mLayout.getViewTreeObserver().removeOnPreDrawListener(this);
+                      
+                      int scrollHeight = mLayout.findViewById(R.id.test_test_test).getMeasuredHeight();
+                      
+                      if(scrollHeight < mLayout.getMeasuredHeight()) {
+                        test.getWindow().setLayout(mLayout.getMeasuredWidth()+40, scrollHeight+100);
+                      }
+                      
+                      return true;
+                  }
+                };
+                mLayout.getViewTreeObserver().addOnPreDrawListener(preDrawListener);
+              }
+              
+              test.show();
             }
           }
         };
@@ -1917,5 +2088,55 @@ public class UiUtils {
     }
     
     return new ImageSpan(icon,ImageSpan.ALIGN_BASELINE);
+  }
+  
+  private static final class ActorColumnSpan implements LeadingMarginSpan {
+    private String[] mActorParts;
+    private int mMargin;
+    private int mFirstBaseline;
+    
+    public ActorColumnSpan(String actor, int leadingMargin) {
+      mActorParts = actor.split("\n");
+      mMargin = leadingMargin;
+      mFirstBaseline = -1;
+    }
+    
+    @Override
+    public void drawLeadingMargin(Canvas c, Paint p, int x, int dir, int top,
+        int baseline, int bottom, CharSequence text, int start, int end,
+        boolean first, Layout layout) {
+      if(first && (mFirstBaseline == -1 || mFirstBaseline == baseline)) {
+        mFirstBaseline = baseline;
+        c.drawText(mActorParts[0], x + dir, baseline, p);
+        
+        if(mActorParts.length > 1) {
+          c.drawText(mActorParts[1], x + dir, baseline + (bottom-top), p);
+        }
+        if(mActorParts.length > 2) {
+          c.drawText(mActorParts[2], x + dir, baseline + 2*(bottom-top), p);
+        }
+      }
+    }
+
+    @Override
+    public int getLeadingMargin(boolean first) {
+      return mMargin;
+    }
+  }
+  
+  private static final class CustomDialogClass extends Dialog {
+    private View mView;
+    public CustomDialogClass(Context context, View layout) {
+      super(context);
+      mView = layout;
+      // TODO Auto-generated constructor stub
+    }
+    
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+      super.onCreate(savedInstanceState);
+      
+      setContentView(mView);
+    }
   }
 }
