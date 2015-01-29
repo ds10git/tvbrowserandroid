@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.7.3</h2>
+        <h2>0.5.7.4</h2>
+        	&bull; better actor layout in detail view<br>
+        	&bull; exclusions of Favorite with title type work also in other fields<br>
+       	<br>
+        <h3>0.5.7.3</h3>
         	&bull; fix crash for selecting exclusion Favorite (could happen at startup)<br>
         	&bull; decode multiple episode number for program info<br>
        	<br>
@@ -267,6 +271,9 @@
     <string name="dialog_select_channels_update_help">You can select channels new channels here. (Updated subscribed channels are preselected.)</string>
     <string name="dialog_select_channels_delete_title">Channel are no longer available</string>
     <string name="dialog_select_channels_delete_help">The listed channels are no longer available and no data is stored for this channels on the device, this might be a temporarily problem. Select the channels that should be remove permanently.</string>
+    <string name="dialog_info_channels_sort_title">Sort channels?</string>
+    <string name="dialog_info_channels_sort_message">Do you want to sort the channels now?</string>
+    <string name="dialog_info_channels_sort_ok">Sort channels</string>
     <string name="tv">TV</string>
     <string name="radio">Radio</string>
     <string name="cinema">Cinema</string>

@@ -21,12 +21,15 @@ import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Point;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.PowerManager;
+import android.view.Display;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.RemoteViews;
 
 /**
@@ -105,5 +108,22 @@ public class CompatUtils {
     }
     
     return result;
+  }
+  
+  @SuppressWarnings("deprecation")
+  public static final Point getScreenSize(Context context) {
+    WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    Display display = wm.getDefaultDisplay();
+    
+    Point size = new Point();
+    
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
+      display.getSize(size);
+    }
+    else {
+      size.set(display.getWidth(), display.getHeight());
+    }
+    
+    return size;
   }
 }
