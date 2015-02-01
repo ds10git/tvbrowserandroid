@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.tvbrowser.tvbrowser"
-	android:versionCode="319"
-	android:versionName="0.5.7.4 Beta1"
+	android:versionCode="321"
+	android:versionName="0.5.7.4 Beta3"
 	android:installLocation="auto">
 
 	<uses-sdk
@@ -64,7 +64,7 @@
 			android:windowSoftInputMode="adjustResize" >
 		</activity>
 		<activity
-			android:name="org.tvbrowser.tvbrowser.ActivityFilterListEdit"
+			android:name="org.tvbrowser.filter.ActivityFilterListEdit"
 			android:label="@string/activity_edit_filter_filter_title"
 			android:configChanges="orientation|screenSize"
 			android:windowSoftInputMode="adjustResize" >

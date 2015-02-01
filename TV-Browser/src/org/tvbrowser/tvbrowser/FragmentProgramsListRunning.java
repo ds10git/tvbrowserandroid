@@ -1106,7 +1106,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   @Override
   public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    int startIndex = 13;
+    String[] infoCategories = TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY;
+    int startIndex = 13 + infoCategories.length;
     
     String[] projection = new String[startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length];
     
@@ -1127,6 +1128,10 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     projection[10] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
     projection[11] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
     projection[12] = TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
+    
+    for(int i = 0; i < infoCategories.length; i++) {
+      projection[13+i] = infoCategories[i];
+    }
     
     for(int i = startIndex ; i < (startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length); i++) {
       projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
@@ -1174,7 +1179,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     
     where += ") " + UiUtils.getDontWantToSeeFilterString(getActivity());
     
-    where += ((TvBrowser)getActivity()).getChannelFilterSelection();
+    where += ((TvBrowser)getActivity()).getFilterSelection(false);
     
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " COLLATE NOCASE, " + sort);
     
@@ -1376,6 +1381,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     c.close();
     currentProgramMap.clear();
     channelProgramMap.clear();
+    
     mRunningProgramListAdapter.notifyDataSetChanged();
   }
 
@@ -1399,10 +1405,11 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   @Override
   public boolean onContextItemSelected(MenuItem item) {
-    if(mContextProgramID >= 0) {
+    if(getUserVisibleHint() && mContextProgramID >= 0) {
       UiUtils.handleContextMenuSelection(getActivity(), item, mContextProgramID, mContextView, getActivity().getCurrentFocus());
       
       mContextProgramID = -1;
+      return true;
     }
     
     return false;

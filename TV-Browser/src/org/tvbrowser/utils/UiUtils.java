@@ -18,6 +18,7 @@ package org.tvbrowser.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -31,10 +32,11 @@ import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginMenu;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.devplugin.Program;
+import org.tvbrowser.filter.CategoryFilter;
+import org.tvbrowser.filter.ChannelFilter;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.ActivityFavoriteEdit;
 import org.tvbrowser.tvbrowser.ActivityTvBrowserSearchResults;
-import org.tvbrowser.tvbrowser.ChannelFilter;
 import org.tvbrowser.tvbrowser.DontWantToSeeExclusion;
 import org.tvbrowser.tvbrowser.Favorite;
 import org.tvbrowser.tvbrowser.Logging;
@@ -125,6 +127,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 public class UiUtils {
@@ -2023,6 +2026,182 @@ public class UiUtils {
         }
       });
     }
+  }
+  
+  public static void showCategorySelection(Context context, final CategoryFilter categoryFilter, ViewGroup parent, final Runnable cancelCallBack) {
+    String[] names = IOUtils.getInfoStringArrayNames(context.getResources());
+    int[] restrictionIndices = categoryFilter.getCategoriyIndicies();
+        
+    final LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+    
+    View selectionView = inflater.inflate(R.layout.dialog_filter_categories, parent, false);
+    
+    final EditText nameInput = (EditText)selectionView.findViewById(R.id.dialog_filter_categories_input_name);
+    final Spinner operationSelection = (Spinner)selectionView.findViewById(R.id.dialog_filter_categories_selection_operation);
+    final ListView listView = (ListView)selectionView.findViewById(R.id.dialog_filter_categories_list);
+    
+    operationSelection.setSelection(categoryFilter.getOperation().equals("AND") ? 0 : 1);
+    nameInput.setText(categoryFilter.getName());
+    
+    final ArrayAdapter<AdapterCategory> categoryAdapter = new ArrayAdapter<AdapterCategory>(context, android.R.layout.simple_list_item_1) {
+      public View getView(int position, View convertView, ViewGroup parent) {
+        AdapterCategory value = getItem(position);
+        CategoryViewHolder holder = null;
+        
+        if (convertView == null) {
+          holder = new CategoryViewHolder();
+          
+          convertView = inflater.inflate(R.layout.list_row_selection, parent, false);
+          
+          holder.mTextView = (TextView)convertView.findViewById(R.id.row_selection_text);
+          holder.mCheckBox = (CheckBox)convertView.findViewById(R.id.row_selection_selection);
+          
+          convertView.setTag(holder);
+        }
+        else {
+          holder = (CategoryViewHolder)convertView.getTag();
+        }
+        
+        holder.mTextView.setText(value.mName);
+        holder.mCheckBox.setChecked(value.mSelected);
+        listView.setItemChecked(position, value.mSelected);
+                
+        return convertView;
+      }
+    };
+    
+    for(int i = 0; i < names.length; i++) {
+      boolean selected = false;
+      
+      for(int index : restrictionIndices) {
+        if(i == index) {
+          selected = true;
+          break;
+        }
+      }
+      
+      AdapterCategory category = new AdapterCategory(i, names[i], selected);
+      
+      categoryAdapter.add(category);
+    }
+    
+    listView.setAdapter(categoryAdapter);
+    
+    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+      @Override
+      public void onItemClick(AdapterView<?> parent, View view, int position,
+          long id) {
+        CheckBox check = (CheckBox)view.findViewById(R.id.row_selection_selection);
+        
+        if(check != null) {
+          check.setChecked(!check.isChecked());
+          categoryAdapter.getItem(position).mSelected = check.isChecked();
+          listView.setItemChecked(position, check.isChecked());
+        }
+      }
+    });
+    
+    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    
+    builder.setView(selectionView);
+    builder.setCancelable(false);
+    
+    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        ArrayList<Integer> channelIDList = new ArrayList<Integer>();
+        boolean allSelected = true;
+        
+        for(int i = 0; i < categoryAdapter.getCount(); i++) {
+          AdapterCategory item = categoryAdapter.getItem(i);
+          
+          if(item.mSelected) {
+            channelIDList.add(Integer.valueOf(item.mIndex));
+          }
+          else {
+            allSelected = false;
+          }
+        }
+        
+        if(allSelected || channelIDList.isEmpty()) {
+          categoryFilter.setFilterValues(null, null, null);
+        }
+        else {
+          int[] indicies = new int[channelIDList.size()];
+          
+          for(int i = 0; i < indicies.length; i++) {
+            indicies[i] = channelIDList.get(i);
+          }
+          
+          String name = null;
+          
+          if(nameInput.getVisibility() == View.VISIBLE) {
+            name = nameInput.getText().toString().trim();
+          }
+          
+          String operation = "AND";
+          
+          if(operationSelection.getVisibility() == View.VISIBLE) {
+            if(operationSelection.getSelectedItemPosition() == 1) {
+              operation = "OR";
+            }
+          }
+          
+          categoryFilter.setFilterValues(name,operation,indicies);
+        }
+      }
+    });
+    
+    if(cancelCallBack != null) {
+      builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          cancelCallBack.run();
+        }
+      });
+    }
+    else {
+      builder.setNegativeButton(android.R.string.cancel, null);
+    }
+    
+    AlertDialog dialog = builder.create();
+    dialog.show();
+    
+    if(nameInput.getVisibility() == View.VISIBLE) {
+      final Button ok = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+      ok.setEnabled(nameInput.getText().toString().trim().length() > 0);
+      
+      nameInput.addTextChangedListener(new TextWatcher() {
+        
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        
+        @Override
+        public void afterTextChanged(Editable s) {
+          ok.setEnabled(nameInput.getText().toString().trim().length() > 0);
+        }
+      });
+    }
+  }
+  
+  private static final class AdapterCategory {
+    int mIndex;
+    String mName;
+    boolean mSelected;
+    
+    public AdapterCategory(int index, String name, boolean selected) {
+      mIndex = index;
+      mName = name;
+      mSelected = selected;
+    }
+  }
+  
+  private static final class CategoryViewHolder {
+    CheckBox mCheckBox;
+    TextView mTextView;
   }
   
   /**

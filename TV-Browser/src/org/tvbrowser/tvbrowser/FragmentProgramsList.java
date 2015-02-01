@@ -613,7 +613,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
           
           StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
           
-          where.append(((TvBrowser)getActivity()).getChannelFilterSelection().replace(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, TvBrowserContentProvider.KEY_ID));
+          where.append(((TvBrowser)getActivity()).getFilterSelection(true).replace(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, TvBrowserContentProvider.KEY_ID));
           
           Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
           
@@ -829,14 +829,15 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   
   private static final String[] getProjection() {
     String[] projection = null;
+    String[] infoCategories = TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY;
     
     if(PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default)) {
-      projection = new String[15 + TvBrowserContentProvider.MARKING_COLUMNS.length];
+      projection = new String[15 + TvBrowserContentProvider.MARKING_COLUMNS.length + infoCategories.length];
       
       projection[projection.length-1] = TvBrowserContentProvider.DATA_KEY_PICTURE;
     }
     else {
-      projection = new String[14 + TvBrowserContentProvider.MARKING_COLUMNS.length];
+      projection = new String[14 + TvBrowserContentProvider.MARKING_COLUMNS.length + infoCategories.length];
     }
     
     projection[0] = TvBrowserContentProvider.KEY_ID;
@@ -854,7 +855,11 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     projection[12] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
     projection[13] = TvBrowserContentProvider.CHANNEL_KEY_LOGO;
     
-    int startIndex = 14;
+    for(int i = 0; i < infoCategories.length; i++) {
+      projection[14+i] = infoCategories[i];
+    }
+    
+    int startIndex = 14 + infoCategories.length;
 
     for(int i = startIndex ; i < (startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length); i++) {
       projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
@@ -876,7 +881,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       where += UiUtils.getDontWantToSeeFilterString(getActivity());
     }
     
-    where += ((TvBrowser)getActivity()).getChannelFilterSelection();
+    where += ((TvBrowser)getActivity()).getFilterSelection(false);
     
     mCursorLoadLastTime = time;
     

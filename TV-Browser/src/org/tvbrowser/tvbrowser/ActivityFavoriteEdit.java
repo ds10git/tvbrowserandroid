@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.filter.ChannelFilter;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.UiUtils;

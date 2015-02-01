@@ -45,6 +45,10 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.PluginDefinition;
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
+import org.tvbrowser.filter.ActivityFilterListEdit;
+import org.tvbrowser.filter.FilterValues;
+import org.tvbrowser.filter.FilterValuesCategories;
+import org.tvbrowser.filter.FilterValuesChannels;
 import org.tvbrowser.settings.PluginPreferencesActivity;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.settings.TvbPreferencesActivity;
@@ -171,8 +175,8 @@ public class TvBrowser extends ActionBarActivity implements
   private static final int INSTALL_PLUGIN = 3;
   private static final int SHOW_PLUGIN_PREFERENCES = 4;
   
-  private ChannelFilterValues mCurrentChannelFilter;
-  private String mCurrentChannelFilterId;
+  private FilterValues mCurrentFilter;
+  private String mCurrentFilterId;
     
   /**
    * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -237,7 +241,7 @@ public class TvBrowser extends ActionBarActivity implements
   private int mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
   private long mProgramListScrollTime = -1;
   
-  private ChannelFilterValues mAllFilter;
+  private FilterValues mAllFilter;
   
   static {
     mRundate = Calendar.getInstance();
@@ -657,30 +661,21 @@ public class TvBrowser extends ActionBarActivity implements
     
     TvBrowser.this.registerReceiver(mUpdateDoneBroadcastReceiver, filter);
     
-    mCurrentChannelFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, SettingConstants.ALL_FILTER_ID);
+    mCurrentFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, SettingConstants.ALL_FILTER_ID);
     
-    if(!mCurrentChannelFilterId.equals(SettingConstants.ALL_FILTER_ID)) {
-      SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, TvBrowser.this);
+    if(!mCurrentFilterId.contains(SettingConstants.ALL_FILTER_ID)) {
+      mCurrentFilter = FilterValues.load(mCurrentFilterId,TvBrowser.this);
       
-      String values = pref.getString(mCurrentChannelFilterId, null);
-      
-      if(mCurrentChannelFilterId != null && values != null) {
-        mCurrentChannelFilter = new ChannelFilterValues(mCurrentChannelFilterId,values);
-      }
-      else {
-        mCurrentChannelFilter = new ChannelFilterValues(SettingConstants.ALL_FILTER_ID, getString(R.string.activity_edit_filter_list_text_all), "");
-        mCurrentChannelFilterId = mCurrentChannelFilter.getId();
-      }
-      
-      if(mProgramListChannelId != FragmentProgramsList.NO_CHANNEL_SELECTION_ID && !getChannelFilterSelection().contains(String.valueOf(mProgramListChannelId)) && !mCurrentChannelFilterId.equals(SettingConstants.ALL_FILTER_ID)) {
-        mCurrentChannelFilter = new ChannelFilterValues(SettingConstants.ALL_FILTER_ID, getString(R.string.activity_edit_filter_list_text_all), "");
+      if(mCurrentFilter instanceof FilterValuesChannels && mProgramListChannelId != FragmentProgramsList.NO_CHANNEL_SELECTION_ID && !getFilterSelection(true).contains(String.valueOf(mProgramListChannelId)) && !mCurrentFilterId.equals(SettingConstants.ALL_FILTER_ID)) {
+        mCurrentFilter = FilterValues.load(SettingConstants.ALL_FILTER_ID, TvBrowser.this);
         
-        updateChannelFilter(mCurrentChannelFilter,R.drawable.ic_filter_default);
+        updateChannelFilter(mCurrentFilter,R.drawable.ic_filter_default);
       }
+      
+      mCurrentFilterId = mCurrentFilter.getId();
     }
-    
-    if(mCurrentChannelFilterId.equals(SettingConstants.ALL_FILTER_ID)) {
-      mCurrentChannelFilter = new ChannelFilterValues(SettingConstants.ALL_FILTER_ID, getString(R.string.activity_edit_filter_list_text_all), "");
+    else {
+      mCurrentFilter = FilterValues.load(SettingConstants.ALL_FILTER_ID, TvBrowser.this);
     }
     
     handler.postDelayed(new Runnable() {
@@ -707,7 +702,7 @@ public class TvBrowser extends ActionBarActivity implements
     if(intent != null && intent.hasExtra(SettingConstants.CHANNEL_ID_EXTRA)) {
       int channelId = intent.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA,0);
       
-      if(!getChannelFilterSelection().contains(String.valueOf(channelId)) && !mCurrentChannelFilterId.equals(SettingConstants.ALL_FILTER_ID)) {
+      if(mCurrentFilter instanceof FilterValuesChannels && !getFilterSelection(true).contains(String.valueOf(channelId)) && !mCurrentFilterId.equals(SettingConstants.ALL_FILTER_ID)) {
         updateChannelFilter(mAllFilter,R.drawable.ic_filter_default);
       }
       
@@ -3810,10 +3805,10 @@ public class TvBrowser extends ActionBarActivity implements
     updateProgramListChannelBar();
   }
   
-  private void updateChannelFilter(ChannelFilterValues filter, int iconRes) {
-    mCurrentChannelFilterId = filter.getId();
-    mCurrentChannelFilter = filter;
-    setCurrentFilterPreference(mCurrentChannelFilterId);
+  private void updateChannelFilter(FilterValues filter, int iconRes) {
+    mCurrentFilterId = filter.getId();
+    mCurrentFilter = filter;
+    setCurrentFilterPreference(mCurrentFilterId);
     mFilterItem.setIcon(iconRes);
 
     sendChannelFilterUpdate();
@@ -4070,24 +4065,30 @@ public class TvBrowser extends ActionBarActivity implements
         filters.removeItem(i);
       }
       
-      ArrayList<ChannelFilterValues> channelFilterList = new ArrayList<ChannelFilterValues>();
+      ArrayList<FilterValues> channelFilterList = new ArrayList<FilterValues>();
       SharedPreferences filterPreferences = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, TvBrowser.this);
       Map<String,?> filterValues = filterPreferences.getAll();
       
       for(String key : filterValues.keySet()) {
         Object values = filterValues.get(key);
         
-        if(key.startsWith("filter.") && values instanceof String && values != null) {        
-          channelFilterList.add(new ChannelFilterValues(key, (String)values));
+        Log.d("info2", "key " + key);
+
+        if(key.contains("filter.") && values instanceof String && values != null) {
+          FilterValues filter = FilterValues.load(key, (String)values);
+          Log.d("info2", "filter " + filter + " " + values);
+          if(filter != null) {
+            channelFilterList.add(filter);
+          }
         }
       }
       
-      Collections.sort(channelFilterList, ChannelFilterValues.CHANNEL_FILTER_VALUES_COMPARATOR);
+      Collections.sort(channelFilterList, FilterValues.COMPARATOR_FILTER_VALUES);
       
       int groupId = 3;
       int id = 1;
       
-      mAllFilter = new ChannelFilterValues(SettingConstants.ALL_FILTER_ID, getString(R.string.activity_edit_filter_list_text_all), "");
+      mAllFilter = FilterValues.load(SettingConstants.ALL_FILTER_ID, TvBrowser.this);
       
       MenuItem all = filters.add(groupId, id++, groupId, mAllFilter.toString());
       all.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
@@ -4099,14 +4100,14 @@ public class TvBrowser extends ActionBarActivity implements
         }
       });
              
-      if(mCurrentChannelFilterId == null || mAllFilter.getId().endsWith(mCurrentChannelFilterId)) {
+      if(mCurrentFilterId == null || mAllFilter.getId().endsWith(mCurrentFilterId)) {
         all.setChecked(true);
       }
       
-      for(final ChannelFilterValues filter : channelFilterList) {
+      for(final FilterValues filter : channelFilterList) {
         MenuItem item = filters.add(groupId, id++, groupId, filter.toString());
         
-        if(mCurrentChannelFilterId != null && filter.getId().endsWith(mCurrentChannelFilterId)) {
+        if(mCurrentFilterId != null && filter.getId().endsWith(mCurrentFilterId)) {
           mFilterItem.setIcon(R.drawable.ic_filter_on);
           item.setChecked(true);
         }
@@ -5428,9 +5429,17 @@ public class TvBrowser extends ActionBarActivity implements
     }
   }
   
-  public String getChannelFilterSelection() {
-    if(mCurrentChannelFilter != null) {
-      return mCurrentChannelFilter.getWhereClause();
+  public String getFilterSelection(boolean onlyChanneFilter) {
+    if(mCurrentFilter != null && (!onlyChanneFilter || mCurrentFilter instanceof FilterValuesChannels)) {
+      return mCurrentFilter.getWhereClause(getApplicationContext()).getWhere();
+    }
+    
+    return "";
+  }
+  
+  public String getCategoryFilterSelection() {
+    if(mCurrentFilter != null && mCurrentFilter instanceof FilterValuesCategories) {
+      return mCurrentFilter.getWhereClause(getApplicationContext()).getWhere();
     }
     
     return "";
