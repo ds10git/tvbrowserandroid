@@ -1,4 +1,4 @@
-package org.tvbrowser.tvbrowser;
+package org.tvbrowser.filter;
 
 public interface ChannelFilter {
   public int[] getFilteredChannelIds();

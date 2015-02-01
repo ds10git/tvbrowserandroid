@@ -20,8 +20,8 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.filter.FilterValues;
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.tvbrowser.ChannelFilterValues;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
@@ -171,7 +171,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       String values = pref.getString(mCurrentChannelFilterId, null);
       
       if(mCurrentChannelFilterId != null && values != null) {
-        where = where.replace("{0}", new ChannelFilterValues(mCurrentChannelFilterId,values).getWhereClause());
+        where = where.replace("{0}", FilterValues.load(mCurrentChannelFilterId, values).getWhereClause(mContext).getWhere());
       }
       else {
         where = where.replace("{0}", "");

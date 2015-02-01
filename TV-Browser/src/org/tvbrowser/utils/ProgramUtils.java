@@ -477,31 +477,33 @@ public class ProgramUtils {
   public static final WhereClause getPluginMarkingsSelection(Context context) {
     WhereClause result = new WhereClause(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, null);
     
-    SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKINGS, context);
-    
-    Map<String,?> prefMap = pref.getAll();
-    Set<String> keySet = prefMap.keySet();
-    
-    if(keySet.size() < 500) {
-      StringBuilder where = new StringBuilder();
-      String[] selectionArgs = new String[prefMap.size()];
+    if(context != null) {
+      SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_MARKINGS, context);
       
-      Iterator<String> keys = keySet.iterator();
+      Map<String,?> prefMap = pref.getAll();
+      Set<String> keySet = prefMap.keySet();
       
-      for(int i=0; i < keySet.size(); i++) {
-        if(where.length() > 0) {
-          where.append(", ");
+      if(keySet.size() < 500) {
+        StringBuilder where = new StringBuilder();
+        String[] selectionArgs = new String[prefMap.size()];
+        
+        Iterator<String> keys = keySet.iterator();
+        
+        for(int i=0; i < keySet.size(); i++) {
+          if(where.length() > 0) {
+            where.append(", ");
+          }
+          
+          where.append("?");
+          selectionArgs[i] = keys.next();
         }
         
-        where.append("?");
-        selectionArgs[i] = keys.next();
-      }
-      
-      if(where.length() > 0) {
-        where.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
-        where.append(" ) ");
-        
-        result = new WhereClause(where.toString(), selectionArgs);
+        if(where.length() > 0) {
+          where.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
+          where.append(" ) ");
+          
+          result = new WhereClause(where.toString(), selectionArgs);
+        }
       }
     }
     

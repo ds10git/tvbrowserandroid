@@ -50,6 +50,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -795,15 +796,17 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   
   @Override
   public boolean onContextItemSelected(MenuItem item) {
-    if(mCurrentSelection != null) {
-      if(item.getItemId() == R.id.delete_favorite) {
-        deleteSelectedFavorite();
+    if(getUserVisibleHint()) {
+      if(mCurrentSelection != null) {
+        if(item.getItemId() == R.id.delete_favorite) {
+          deleteSelectedFavorite();
+          return true;
+        }
+        else if(item.getItemId() == R.id.edit_favorite) {
+          editSelectedFavorite();
+          return true;
+        }
       }
-      else if(item.getItemId() == R.id.edit_favorite) {
-        editSelectedFavorite();
-      }
-      
-      return true;
     }
     
     return false;

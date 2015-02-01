@@ -2,6 +2,8 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.7.4</h2>
+        	&bull; added new filter type for filtering program categories<br>
+        	&bull; fixed not working context menu entries in program table<br>
         	&bull; better actor layout in detail view<br>
         	&bull; exclusions of Favorite with title type work also in other fields<br>
        	<br>
@@ -274,6 +276,11 @@
     <string name="dialog_info_channels_sort_title">Sort channels?</string>
     <string name="dialog_info_channels_sort_message">Do you want to sort the channels now?</string>
     <string name="dialog_info_channels_sort_ok">Sort channels</string>
+    <string name="dialog_categories_operation_name">Operation:</string>
+    <string-array name="dialog_categories_operation">
+        <item>UND</item>
+        <item>ODER</item>
+    </string-array>
     <string name="tv">TV</string>
     <string name="radio">Radio</string>
     <string name="cinema">Cinema</string>
@@ -885,6 +892,8 @@
     
     <string name="activity_edit_filter_filter_title">Edit filters</string>
     <string name="activity_edit_filter_list_text_add">Add filter</string>
+    <string name="activity_edit_filter_list_text_channels_add">Add channel filter</string>
+    <string name="activity_edit_filter_list_text_categories_add">Add category filter</string>
     <string name="activity_edit_filter_list_text_all">All programs</string>
     <string name="activity_edit_filter_edit">Edit filter</string>
     <string name="activity_edit_filter_delete">Delete filter</string>

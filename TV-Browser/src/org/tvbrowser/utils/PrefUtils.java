@@ -177,14 +177,16 @@ public class PrefUtils {
   public static final SharedPreferences getSharedPreferences(int type, Context context) {
     SharedPreferences pref = null;
     
-    switch(type) {
-      case TYPE_PREFERENCES_SHARED_GLOBAL: pref = PreferenceManager.getDefaultSharedPreferences(context);break;
-      case TYPE_PREFERENCES_FAVORITES: pref = context.getSharedPreferences(PREFERENCES_FAVORITE, Context.MODE_PRIVATE);break;
-      case TYPE_PREFERENCES_FILTERS: pref = context.getSharedPreferences(PREFERENCES_FILTER, Context.MODE_PRIVATE);break;
-      case TYPE_PREFERENCES_TRANSPORTATION: pref = context.getSharedPreferences(PREFERENCES_TRANSPORTATION, Context.MODE_PRIVATE);break;
-      case TYPE_PREFERENCES_MARKINGS: pref = context.getSharedPreferences(PREFERENCES_MARKINGS, Context.MODE_PRIVATE);break;
-      case TYPE_PREFERENCES_MARKING_REMINDERS: pref = context.getSharedPreferences(PREFERENCES_MARKING_REMINDERS, Context.MODE_PRIVATE);break;
-      case TYPE_PREFERENCES_MARKING_SYNC: pref = context.getSharedPreferences(PREFERENCES_MARKING_SYNC, Context.MODE_PRIVATE);break;
+    if(context != null) {
+      switch(type) {
+        case TYPE_PREFERENCES_SHARED_GLOBAL: pref = PreferenceManager.getDefaultSharedPreferences(context);break;
+        case TYPE_PREFERENCES_FAVORITES: pref = context.getSharedPreferences(PREFERENCES_FAVORITE, Context.MODE_PRIVATE);break;
+        case TYPE_PREFERENCES_FILTERS: pref = context.getSharedPreferences(PREFERENCES_FILTER, Context.MODE_PRIVATE);break;
+        case TYPE_PREFERENCES_TRANSPORTATION: pref = context.getSharedPreferences(PREFERENCES_TRANSPORTATION, Context.MODE_PRIVATE);break;
+        case TYPE_PREFERENCES_MARKINGS: pref = context.getSharedPreferences(PREFERENCES_MARKINGS, Context.MODE_PRIVATE);break;
+        case TYPE_PREFERENCES_MARKING_REMINDERS: pref = context.getSharedPreferences(PREFERENCES_MARKING_REMINDERS, Context.MODE_PRIVATE);break;
+        case TYPE_PREFERENCES_MARKING_SYNC: pref = context.getSharedPreferences(PREFERENCES_MARKING_SYNC, Context.MODE_PRIVATE);break;
+      }
     }
     
     return pref;
