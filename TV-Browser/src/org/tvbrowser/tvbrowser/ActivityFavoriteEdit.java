@@ -24,6 +24,7 @@ import java.util.Locale;
 import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.filter.CategoryFilter;
 import org.tvbrowser.filter.ChannelFilter;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.IOUtils;
@@ -53,7 +54,7 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
-public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFilter {
+public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFilter, CategoryFilter {
   private Favorite mFavorite;
   private EditText mSearchValue;
   private EditText mName;
@@ -641,60 +642,7 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
   }
   
   public void changeAttributes(View view) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(ActivityFavoriteEdit.this);
-    
-    String[] names = IOUtils.getInfoStringArrayNames(getResources());
-    final boolean[] selection = new boolean[names.length];
-    
-    Arrays.fill(selection, false);
-    
-    if(mFavorite.isAttributeRestricted()) {
-      int[] restrictionIndices = mFavorite.getAttributeRestrictionIndices();
-      
-      for(int index : restrictionIndices) {
-        selection[index] = true;
-      }
-    }
-    
-    builder.setMultiChoiceItems(names, selection, new DialogInterface.OnMultiChoiceClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-        selection[which] = isChecked;
-      }
-    });
-    
-    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        ArrayList<Integer> selectedAttributes = new ArrayList<Integer>();
-        
-        for(int i = 0; i < selection.length; i++) {
-          if(selection[i]) {
-            selectedAttributes.add(Integer.valueOf(i));
-          }
-        }
-        
-        if(!selectedAttributes.isEmpty()) {
-          int[] restrictedAttributes = new int[selectedAttributes.size()];
-          
-          for(int i = 0; i < restrictedAttributes.length; i++) {
-            restrictedAttributes[i] = selectedAttributes.get(i).intValue();
-          }
-          
-          mFavorite.setAttributeRestrictionIndices(restrictedAttributes);
-        }
-        else {
-          mFavorite.setAttributeRestrictionIndices(null);
-        }
-        
-        updateOkButton();
-        handleAttributeView();
-      }
-    });
-    
-    builder.setNegativeButton(android.R.string.cancel, null);
-    
-    builder.show();
+    UiUtils.showCategorySelection(ActivityFavoriteEdit.this, this, (ViewGroup)mSearchValue.getRootView(), null);
   }
   
   public void cancel(View view) {
@@ -888,5 +836,24 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
     
     updateOkButton();
     handleChannelView();
+  }
+
+  @Override
+  public int[] getCategoriyIndicies() {
+    return mFavorite.getAttributeRestrictionIndices();
+  }
+
+  @Override
+  public String getOperation() {
+    return "AND";
+  }
+
+  @Override
+  public void setFilterValues(String name, String operation, int[] categoryIndicies) {
+    if(categoryIndicies != null) {
+      mFavorite.setAttributeRestrictionIndices(categoryIndicies);
+    }
+    
+    handleAttributeView();
   }
 }
