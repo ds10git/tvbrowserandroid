@@ -690,6 +690,10 @@ public class TvBrowser extends ActionBarActivity implements
         updateChannelFilter(mCurrentFilter,R.drawable.ic_filter_default);
       }
       
+      if(mCurrentFilter == null) {
+        mCurrentFilter = FilterValues.load(SettingConstants.ALL_FILTER_ID, TvBrowser.this);
+      }
+      
       mCurrentFilterId = mCurrentFilter.getId();
     }
     else {
