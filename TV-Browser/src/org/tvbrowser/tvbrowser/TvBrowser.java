@@ -316,6 +316,24 @@ public class TvBrowser extends ActionBarActivity implements
       
       int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
       
+      if(oldVersion < 322) {
+        SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, getApplicationContext());
+        Editor edit = pref.edit();
+        
+        Map<String,?> filterMap = pref.getAll();
+        Set<String> keys = filterMap.keySet();
+        
+        for(String key : keys) {
+          if(!key.contains(FilterValues.SEPARATOR_CLASS)) {
+            String values = (String)filterMap.get(key);
+            
+            edit.remove(key);
+            edit.putString(FilterValuesChannels.class.getCanonicalName()+FilterValues.SEPARATOR_CLASS+key, values);
+          }
+        }
+        
+        edit.commit();
+      }
       if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < 314) {
         new Thread("READ SYNCED PROGRAMS ONCE FOR ICON") {
           @Override

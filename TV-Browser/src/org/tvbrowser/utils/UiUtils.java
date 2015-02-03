@@ -459,11 +459,11 @@ public class UiUtils {
                   shortDescription.setVisibility(View.GONE);
                 }
                 else {
-                  shortDescription.setText(shortDescriptionValue);
+                  shortDescription.setText(shortDescriptionValue.replaceAll("\\s{4,}", "\n\n").replaceAll("\\r", "").replaceAll("\\n{2,}", "\n\n"));
                 }
                 
                 if(descriptionValue != null) {
-                  description.setText(new SpannableString(descriptionValue));
+                  description.setText(descriptionValue.replaceAll("\\s{4,}", "\n\n").replaceAll("\\r", "").replaceAll("\\n{2,}", "\n\n"));
                 }
                 else {
                   description.setVisibility(View.GONE);
@@ -2040,8 +2040,16 @@ public class UiUtils {
     final Spinner operationSelection = (Spinner)selectionView.findViewById(R.id.dialog_filter_categories_selection_operation);
     final ListView listView = (ListView)selectionView.findViewById(R.id.dialog_filter_categories_list);
     
-    operationSelection.setSelection(categoryFilter.getOperation().equals("AND") ? 0 : 1);
-    nameInput.setText(categoryFilter.getName());
+    if(categoryFilter.getName() == null) {
+      selectionView.findViewById(R.id.dialog_filter_categories_label_name).setVisibility(View.GONE);
+      nameInput.setVisibility(View.GONE);
+      operationSelection.setVisibility(View.GONE);
+      selectionView.findViewById(R.id.dialog_filter_categories_label_operation).setVisibility(View.GONE);
+    }
+    else {
+      operationSelection.setSelection(categoryFilter.getOperation().equals("AND") ? 0 : 1);
+      nameInput.setText(categoryFilter.getName());
+    }
     
     final ArrayAdapter<AdapterCategory> categoryAdapter = new ArrayAdapter<AdapterCategory>(context, android.R.layout.simple_list_item_1) {
       public View getView(int position, View convertView, ViewGroup parent) {
@@ -2073,10 +2081,12 @@ public class UiUtils {
     for(int i = 0; i < names.length; i++) {
       boolean selected = false;
       
-      for(int index : restrictionIndices) {
-        if(i == index) {
-          selected = true;
-          break;
+      if(restrictionIndices != null) {
+        for(int index : restrictionIndices) {
+          if(i == index) {
+            selected = true;
+            break;
+          }
         }
       }
       

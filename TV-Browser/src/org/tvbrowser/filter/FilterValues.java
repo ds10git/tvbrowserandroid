@@ -10,7 +10,6 @@ import org.tvbrowser.utils.PrefUtils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.util.Log;
 import android.view.ViewGroup;
 
 public abstract class FilterValues {
@@ -28,8 +27,6 @@ public abstract class FilterValues {
   public static final Comparator<FilterValues> COMPARATOR_FILTER_VALUES = new Comparator<FilterValues>() {
     @Override
     public int compare(FilterValues lhs, FilterValues rhs) {
-      Log.d("info2", "lhs " + lhs + " rhs " + rhs);
-      
       return lhs.toString().compareToIgnoreCase(rhs.toString());
     }
   };
@@ -53,11 +50,11 @@ public abstract class FilterValues {
   
   public static final FilterValues load(String id, String values) {
     FilterValues result = null;
-    Log.d("info2", "load id " + id + " values " + values + " " + id.contains(SEPARATOR_CLASS));
+    
     if(id.contains(SEPARATOR_CLASS) && values != null) {
       String[] parts = id.split(SEPARATOR_CLASS);
       String[] valueParts = values.split(SEPARATOR);
-      Log.d("info2", "parts[0] " + parts[0]);
+      
       if(parts[0].equals(FilterValuesCategories.class.getCanonicalName())) {
         result = new FilterValuesCategories(valueParts[0], valueParts[1]);
         result.mId = parts[1];
