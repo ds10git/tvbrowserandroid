@@ -498,7 +498,7 @@
 	    <item name="old_version_default" type="integer" format="integer">166</item>
     
     	<string name="I_DONT_WANT_TO_SEE_ENTRIES">I_DONT_WANT_TO_SEE_ENTRIES</string>
-        
+    	
 	    <string name="LAST_DATA_UPDATE">LAST_DATA_UPDATE</string>
 	    <item name="last_data_update_default" type="integer" format="integer">0</item>
 
@@ -528,6 +528,9 @@
 	    <item name="pref_info_version_update_show_default" type="bool" format="boolean">true</item>
 	    
 	    <string name="PREF_LAST_KNOWN_DATA_DATE">PREF_LAST_KNOWN_DATA_DATE</string>
+	    
+	    <string name="PREF_WARNING_TIMEZONE_SHOW">PREF_WARNING_TIMEZONE_SHOW</string>
+	    <item name="pref_warning_timezone_show_default" type="bool" format="boolean">true</item>
 	    
 	<!-- Widgets layout settings -->
 	    <string name="PREF_WIDGET_VERTICAL_PADDING_SIZE">PREF_WIDGET_VERTICAL_PADDING_SIZE</string>

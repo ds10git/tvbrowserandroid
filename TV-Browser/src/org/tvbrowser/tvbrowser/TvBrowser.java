@@ -36,6 +36,7 @@ import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 import java.util.Stack;
+import java.util.TimeZone;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -243,6 +244,8 @@ public class TvBrowser extends ActionBarActivity implements
   
   private FilterValues mAllFilter;
   
+  private int mCurrentDay;
+  
   static {
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2015);
@@ -288,6 +291,8 @@ public class TvBrowser extends ActionBarActivity implements
   protected void onCreate(Bundle savedInstanceState) {
     handler = new Handler();
     PrefUtils.initialize(TvBrowser.this);
+    
+    mCurrentDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
     
     Intent start = getIntent();
     
@@ -572,7 +577,12 @@ public class TvBrowser extends ActionBarActivity implements
       mViewPager.setCurrentItem(startTab);      
     }
     
-    PluginHandler.loadPlugins(getApplicationContext(),handler);
+    handler.postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        PluginHandler.loadPlugins(getApplicationContext(),handler);
+      }
+    }, 2000);
     
     IOUtils.handleDataUpdatePreferences(TvBrowser.this);
   }
@@ -968,7 +978,6 @@ public class TvBrowser extends ActionBarActivity implements
       
       mTimer = new Timer();
       mTimer.scheduleAtFixedRate(new TimerTask() {
-        private int mCurrentDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
         @Override
         public void run() {
           int day = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
@@ -985,8 +994,9 @@ public class TvBrowser extends ActionBarActivity implements
                 
                 try {
                   getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + cal2.getTimeInMillis(), null);
-                  TvBrowser.this.sendBroadcast(new Intent(SettingConstants.DATA_UPDATE_DONE));
                 }catch(IllegalArgumentException e) {}
+                
+                TvBrowser.this.sendBroadcast(new Intent(SettingConstants.DATA_UPDATE_DONE));
               }
             }.start();
             
@@ -4065,10 +4075,43 @@ public class TvBrowser extends ActionBarActivity implements
             
             showChannelSelectionInternal(askToDelete.toString(), getString(R.string.dialog_select_channels_delete_title), getString(R.string.dialog_select_channels_delete_help), true);
           }
+          else {
+            testTimeZone();
+          }
         }
       }
     });
 
+  }
+  
+  private void testTimeZone() {
+    if(PrefUtils.getBooleanValue(R.string.PREF_WARNING_TIMEZONE_SHOW, R.bool.pref_warning_timezone_show_default) && "de".equals(Locale.getDefault().getLanguage()) && TimeZone.getDefault().getRawOffset() != TimeZone.getTimeZone("CET").getRawOffset()) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+      
+      builder.setTitle(R.string.dialog_warning_timezone_title);
+      builder.setMessage(R.string.dialog_warning_timezone_message);
+      
+      builder.setPositiveButton(R.string.dialog_warning_timezone_change, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          startActivity(new Intent(android.provider.Settings.ACTION_DATE_SETTINGS));
+          finish();
+        }
+      });
+      
+      builder.setNegativeButton(android.R.string.cancel, null);
+      
+      builder.setNeutralButton(R.string.info_version_dont_show_again, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
+          edit.putBoolean(getString(R.string.PREF_WARNING_TIMEZONE_SHOW), false);
+          edit.commit();
+        }
+      });
+      
+      builder.show();
+    }
   }
   
   private void savePluginInfoShown() {
@@ -4604,14 +4647,10 @@ public class TvBrowser extends ActionBarActivity implements
     }
   }
   
-  private Menu mMainMenu;
-  
   @Override
   public boolean onCreateOptionsMenu(Menu menu) {
     // Inflate the menu; this adds items to the action bar if it is present.
     getMenuInflater().inflate(R.menu.tv_browser, menu);
-    //new MenuInflater(getSupportActionBar().getThemedContext()).inflate(R.menu.tv_browser, menu);
-    mMainMenu = menu;
     
     //  Associate searchable configuration with the SearchView
     SearchManager searchManager =
@@ -4640,7 +4679,12 @@ public class TvBrowser extends ActionBarActivity implements
     
     mPluginPreferencesMenuItem = menu.findItem(R.id.menu_tvbrowser_action_settings_plugins);
     
-    mPluginPreferencesMenuItem.setEnabled(PluginHandler.pluginsAvailable());
+    handler.postDelayed(new Runnable() {
+      @Override
+      public void run() {
+        mPluginPreferencesMenuItem.setEnabled(PluginHandler.pluginsAvailable());
+      }
+    },3000);    
     
     menu.findItem(R.id.action_reset).setVisible(TEST_VERSION);
     menu.findItem(R.id.action_show_markings).setVisible(TEST_VERSION);
