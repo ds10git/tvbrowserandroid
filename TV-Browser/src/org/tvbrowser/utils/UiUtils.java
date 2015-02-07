@@ -18,7 +18,6 @@ package org.tvbrowser.utils;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -104,6 +103,7 @@ import android.text.TextPaint;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
+import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.text.style.LeadingMarginSpan;
 import android.text.style.StyleSpan;
@@ -2090,7 +2090,15 @@ public class UiUtils {
         }
       }
       
-      AdapterCategory category = new AdapterCategory(i, names[i], selected);
+      int[] color = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(SettingConstants.CATEGORY_COLOR_PREF_KEY_ARR[i], null));
+      
+      SpannableString name = new SpannableString(names[i]);
+      
+      if(color[0] == 1) {
+        name.setSpan(new ForegroundColorSpan(color[1]), 0, name.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+      }
+      
+      AdapterCategory category = new AdapterCategory(i, name, selected);
       
       categoryAdapter.add(category);
     }
@@ -2199,10 +2207,10 @@ public class UiUtils {
   
   private static final class AdapterCategory {
     int mIndex;
-    String mName;
+    Spannable mName;
     boolean mSelected;
     
-    public AdapterCategory(int index, String name, boolean selected) {
+    public AdapterCategory(int index, Spannable name, boolean selected) {
       mIndex = index;
       mName = name;
       mSelected = selected;

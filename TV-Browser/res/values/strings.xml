@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.7.4</h2>
+        <h2>0.5.8.2</h2>
+        	&bull; save current date only at first startup of day<br>
+        	&bull; delay plugin loading at startup<br>
+        	&bull; added warning for possible wrong timezone<br>
+       	<br>
+        <h3>0.5.8.1</h3>
+        	&bull; fixed possible crash at startup with activated channel filter<br>
+       	<br>
+        <h3>0.5.8</h3>
         	&bull; added new filter type for filtering program categories<br>
         	&bull; fixed not working context menu entries in program table<br>
         	&bull; better actor layout in detail view<br>
@@ -278,9 +286,12 @@
     <string name="dialog_info_channels_sort_ok">Sort channels</string>
     <string name="dialog_categories_operation_name">Operation:</string>
     <string-array name="dialog_categories_operation">
-        <item>UND</item>
-        <item>ODER</item>
+        <item>AND</item>
+        <item>OR</item>
     </string-array>
+    <string name="dialog_warning_timezone_title">Wrong timezone?</string>
+    <string name="dialog_warning_timezone_message">The system uses German as language but the timezone is not Central European Time.\n\nIf the start time of the programs is wrong, you need to change the timezone setting in the system.</string>
+    <string name="dialog_warning_timezone_change">Open timezone\nsetting</string>
     <string name="tv">TV</string>
     <string name="radio">Radio</string>
     <string name="cinema">Cinema</string>

@@ -23,6 +23,7 @@ import org.tvbrowser.settings.SettingConstants;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 
 public class PrefUtils {
@@ -40,6 +41,18 @@ public class PrefUtils {
       
       SettingConstants.GOOGLE_PLAY = installerSource != null && installerSource.equals("com.android.vending");
     }
+  }
+  
+  public static boolean setIntValue(int prefKey, int value) {
+    boolean result = false;
+    
+    if(mPref != null) {
+      Editor edit = mPref.edit();
+      edit.putInt(mContext.getString(prefKey), value);
+      result = edit.commit();
+    }
+    
+    return result;
   }
   
   public static int getIntValue(int prefKey, int defaultValue) {
@@ -72,6 +85,18 @@ public class PrefUtils {
     }
     
     return -1;
+  }
+  
+  public static boolean setBooleanValue(int prefKey, boolean value) {
+    boolean result = false;
+    
+    if(mPref != null) {
+      Editor edit = mPref.edit();
+      edit.putBoolean(mContext.getString(prefKey), value);
+      result = edit.commit();
+    }
+    
+    return result;
   }
   
   public static boolean getBooleanValue(int prefKey, boolean defaultValue) {
