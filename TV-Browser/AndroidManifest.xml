@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
 	package="org.tvbrowser.tvbrowser"
-	android:versionCode="326"
-	android:versionName="0.5.8.2"
+	android:versionCode="327"
+	android:versionName="0.5.8.3"
 	android:installLocation="auto">
 
 	<uses-sdk
@@ -40,7 +40,7 @@
 			android:exported="false"/>
 		<service android:name="org.tvbrowser.tvbrowser.TvDataUpdateService"
 			android:enabled="true"></service>
-		<service android:name="org.tvbrowser.widgets.ImportantProgramsRemoveViewsService"
+		<service android:name="org.tvbrowser.widgets.ImportantProgramsRemoteViewsService"
 		    android:permission="android.permission.BIND_REMOTEVIEWS"></service>
 		<service android:name="org.tvbrowser.widgets.RunningProgramsRemoteViewsService"
 		    android:permission="android.permission.BIND_REMOTEVIEWS"></service>

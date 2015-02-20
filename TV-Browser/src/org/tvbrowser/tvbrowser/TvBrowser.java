@@ -3543,8 +3543,10 @@ public class TvBrowser extends ActionBarActivity implements
       
       PluginServiceConnection[] plugins = PluginHandler.getAvailablePlugins();
       
-      for(PluginServiceConnection plugin : plugins) {
-        plugin.loadIcon();
+      if(plugins != null) {
+        for(PluginServiceConnection plugin : plugins) {
+          plugin.loadIcon();
+        }
       }
     }
   }

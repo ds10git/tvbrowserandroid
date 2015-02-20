@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+		<h2>0.5.8.3</h2>
+        	&bull; kleinere Fehler behoben<br>
+       	<br>
         <h2>0.5.8.2</h2>
         	&bull; aktuelles Datum nur beim ersten Start des Tages speichern<br>
         	&bull; verzögertes Laden der Plugins beim Start<br>
