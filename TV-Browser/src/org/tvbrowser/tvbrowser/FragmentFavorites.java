@@ -50,7 +50,6 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -459,16 +458,20 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     mCurrentSelection = mCurrentFavoriteSelection = mFavoriteList.get(position);
     mWhereClause = getWhereClause();
     
-    ((TvBrowser)getActivity()).updateFavoritesMenu(mCurrentFavoriteSelection.containsFavorite());
+    Activity tvb = getActivity();
     
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        if(!isDetached() && getActivity() != null) {
-          getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
+    if(tvb != null) {
+      ((TvBrowser)tvb).updateFavoritesMenu(mCurrentFavoriteSelection.containsFavorite());
+      
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          if(!isDetached() && getActivity() != null) {
+            getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
+          }
         }
-      }
-    });
+      });
+    }
   }
   
   @Override

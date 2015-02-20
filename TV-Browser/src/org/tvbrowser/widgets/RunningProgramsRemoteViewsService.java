@@ -287,7 +287,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
     public RemoteViews getViewAt(int position) {
       final RemoteViews rv = new RemoteViews(mContext.getPackageName(), R.layout.running_programs_widget_row);
       
-      if(mCursor.getCount() > position) {
+      if(mCursor != null && !mCursor.isClosed() && mCursor.getCount() > position) {
         mCursor.moveToPosition(position);
         
         final String id = mCursor.getString(mIdIndex);

@@ -52,7 +52,7 @@ import android.widget.RemoteViewsService;
  * 
  * @author René Mach
  */
-public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
+public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
 
   @Override
   public RemoteViewsFactory onGetViewFactory(Intent intent) {
@@ -294,132 +294,141 @@ public class ImportantProgramsRemoveViewsService extends RemoteViewsService {
     
     @Override
     public RemoteViews getViewAt(int position) {
-      mCursor.moveToPosition(position);
-
-      final String id = mCursor.getString(mIdIndex);
-      final long startTime = mCursor.getLong(mStartTimeIndex);
-      final long endTime = mCursor.getLong(mEndTimeIndex);
-      final CharSequence title = WidgetUtils.getColoredString(mCursor.getString(mTitleIndex),mUserDefindedColorTitel);
-      
-      CharSequence name = mCursor.getString(mChannelNameIndex);
-      final String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
-      String number = null;
-      final CharSequence episodeTitle = (mShowEpisode && !mCursor.isNull(mEpisodeIndex)) ? WidgetUtils.getColoredString(mCursor.getString(mEpisodeIndex),mUserDefindedColorEpisode) : null;
-      Spannable categorySpan = (mShowCategories && !mCursor.isNull(mCategoryIndex)) ? IOUtils.getInfoString(mCursor.getInt(mCategoryIndex), getResources(), true, mUserDefindedColorCategoryDefault[0] == 1 ? Integer.valueOf(mUserDefindedColorCategoryDefault[1]) : null) : null;
-      Spannable marking = WidgetUtils.getMarkings(mContext, mCursor, mShowMarkings, mMarkingPluginsIndex, mMarkingFavoriteIndex, mMarkingReminderIndex, mMarkingFavoriteReminderIndex, mMarkingSyncIndex);
-      
-      if(shortName != null) {
-        name = shortName;
-      }
-            
-      if(mShowOrderNumber) {
-        number = mCursor.getString(mOrderNumberIndex);
-        
-        if(number == null) {
-          number = "0";
-        }
-        
-        number += ".";
-        
-        name =  number + " " + name;
-      }
-      
-      Drawable logo = null;
-      
-      int channelKey = mCursor.getInt(mLogoIndex);
-      
-      if(mShowChannelLogo) {
-        if(mShowBigChannelLogo) {
-          logo = SettingConstants.MEDIUM_LOGO_MAP.get(channelKey);
-        }
-        else {
-          logo = SettingConstants.SMALL_LOGO_MAP.get(channelKey);
-        }
-      }
-      
       final RemoteViews rv = new RemoteViews(mContext.getPackageName(), R.layout.important_programs_widget_row);
       
-      CompatUtils.setRemoteViewsPadding(rv, R.id.important_programs_widget_row, 0, mVerticalPadding, 0, mVerticalPadding);
-      
-      final CharSequence date = WidgetUtils.getColoredString(UiUtils.formatDate(startTime, mContext, false, true, true),mUserDefindedColorDate);
-      final CharSequence time = WidgetUtils.getColoredString(DateFormat.getTimeFormat(mContext).format(new Date(startTime)),mUserDefindedColorTime);
-      
-      if(startTime <= System.currentTimeMillis() && endTime > System.currentTimeMillis()) {
-        final int length = (int)(endTime - startTime) / 60000;
-        final int progress = (int)(System.currentTimeMillis() - startTime) / 60000;
-        rv.setProgressBar(R.id.important_programs_widget_row_progress, length, progress, false);
-        rv.setViewVisibility(R.id.important_programs_widget_row_progress, View.VISIBLE);
-        rv.setViewVisibility(R.id.important_programs_widget_row_start_date1, View.GONE);
-      }
-      else {
-        rv.setTextViewText(R.id.important_programs_widget_row_start_date1, date);
-        rv.setViewVisibility(R.id.important_programs_widget_row_progress, View.GONE);
-        rv.setViewVisibility(R.id.important_programs_widget_row_start_date1, View.VISIBLE);
-      }
-      
-      rv.setTextViewText(R.id.important_programs_widget_row_start_time1, time);
-      rv.setTextViewText(R.id.important_programs_widget_row_title1, marking != null ? TextUtils.concat(title,marking) : title);
-      
-      if(categorySpan != null && categorySpan.toString().trim().length() > 0) {
-        rv.setViewVisibility(R.id.important_programs_widget_row_categories, View.VISIBLE);
-        rv.setTextViewText(R.id.important_programs_widget_row_categories, categorySpan);
-      }
-      else {
-        rv.setViewVisibility(R.id.important_programs_widget_row_categories, View.GONE);
-      }
-      
-      if(mShowChannelName || logo == null) {
-        name = WidgetUtils.getColoredString(name, mUserDefindedColorChannel);
-        rv.setTextViewText(R.id.important_programs_widget_row_channel_name1, name);
-        rv.setViewVisibility(R.id.important_programs_widget_row_channel_name1, View.VISIBLE);
-      }
-      else if(number != null) {
-        rv.setTextViewText(R.id.important_programs_widget_row_channel_name1, number);
-        rv.setViewVisibility(R.id.important_programs_widget_row_channel_name1, View.VISIBLE);
-      }
-      else {
-        rv.setViewVisibility(R.id.important_programs_widget_row_channel_name1, View.GONE);
-      }
-      
-      ArrayList<String> markedColumns = new ArrayList<String>();
-      
-      for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
-        final Integer index = mMarkingColumsIndexMap.get(column);
+      if(mCursor != null && !mCursor.isClosed() && mCursor.getCount() > position) {
+        mCursor.moveToPosition(position);
+  
+        final String id = mCursor.getString(mIdIndex);
+        final long startTime = mCursor.getLong(mStartTimeIndex);
+        final long endTime = mCursor.getLong(mEndTimeIndex);
+        final CharSequence title = WidgetUtils.getColoredString(mCursor.getString(mTitleIndex),mUserDefindedColorTitel);
         
-        if(index != null && mCursor.getInt(index.intValue()) == 1) {
-          markedColumns.add(column);
+        CharSequence name = mCursor.getString(mChannelNameIndex);
+        final String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
+        String number = null;
+        final CharSequence episodeTitle = (mShowEpisode && !mCursor.isNull(mEpisodeIndex)) ? WidgetUtils.getColoredString(mCursor.getString(mEpisodeIndex),mUserDefindedColorEpisode) : null;
+        Spannable categorySpan = (mShowCategories && !mCursor.isNull(mCategoryIndex)) ? IOUtils.getInfoString(mCursor.getInt(mCategoryIndex), getResources(), true, mUserDefindedColorCategoryDefault[0] == 1 ? Integer.valueOf(mUserDefindedColorCategoryDefault[1]) : null) : null;
+        Spannable marking = WidgetUtils.getMarkings(mContext, mCursor, mShowMarkings, mMarkingPluginsIndex, mMarkingFavoriteIndex, mMarkingReminderIndex, mMarkingFavoriteReminderIndex, mMarkingSyncIndex);
+        
+        if(shortName != null) {
+          name = shortName;
         }
-      }
-      
-      if(logo != null && ((BitmapDrawable)logo).getBitmap() != null) {
-        rv.setImageViewBitmap(R.id.important_programs_widget_row_channel_logo1, ((BitmapDrawable)logo).getBitmap());
-        rv.setViewVisibility(R.id.important_programs_widget_row_channel_logo1, View.VISIBLE);
-      }
-      else {
-        rv.setViewVisibility(R.id.important_programs_widget_row_channel_logo1, View.GONE);
-      }
-      
-      if(episodeTitle != null) {
-        rv.setTextViewText(R.id.important_programs_widget_row_episode, episodeTitle);
-        rv.setViewVisibility(R.id.important_programs_widget_row_episode, View.VISIBLE);
-      }
-      else {
-        rv.setViewVisibility(R.id.important_programs_widget_row_episode, View.GONE);
-      }
-      
-      if(!CompatUtils.isKeyguardWidget(mAppWidgetId, mContext)) {
-        final Intent fillInIntent = new Intent();
-        fillInIntent.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, Long.valueOf(id));
-        
-        rv.setOnClickFillInIntent(R.id.important_programs_widget_row_program, fillInIntent);
-        
-        if(mChannelClickToProgramsList) {
-          final Intent startTvbProgramList = new Intent();
-          startTvbProgramList.putExtra(SettingConstants.CHANNEL_ID_EXTRA, channelKey);
-          startTvbProgramList.putExtra(SettingConstants.START_TIME_EXTRA, startTime);
+              
+        if(mShowOrderNumber) {
+          number = mCursor.getString(mOrderNumberIndex);
           
-          rv.setOnClickFillInIntent(R.id.important_programs_widget_row_channel, startTvbProgramList);
+          if(number == null) {
+            number = "0";
+          }
+          
+          number += ".";
+          
+          name =  number + " " + name;
         }
+        
+        Drawable logo = null;
+        
+        int channelKey = mCursor.getInt(mLogoIndex);
+        
+        if(mShowChannelLogo) {
+          if(mShowBigChannelLogo) {
+            logo = SettingConstants.MEDIUM_LOGO_MAP.get(channelKey);
+          }
+          else {
+            logo = SettingConstants.SMALL_LOGO_MAP.get(channelKey);
+          }
+        }
+        
+        CompatUtils.setRemoteViewsPadding(rv, R.id.important_programs_widget_row, 0, mVerticalPadding, 0, mVerticalPadding);
+        
+        final CharSequence date = WidgetUtils.getColoredString(UiUtils.formatDate(startTime, mContext, false, true, true),mUserDefindedColorDate);
+        final CharSequence time = WidgetUtils.getColoredString(DateFormat.getTimeFormat(mContext).format(new Date(startTime)),mUserDefindedColorTime);
+        
+        if(startTime <= System.currentTimeMillis() && endTime > System.currentTimeMillis()) {
+          final int length = (int)(endTime - startTime) / 60000;
+          final int progress = (int)(System.currentTimeMillis() - startTime) / 60000;
+          rv.setProgressBar(R.id.important_programs_widget_row_progress, length, progress, false);
+          rv.setViewVisibility(R.id.important_programs_widget_row_progress, View.VISIBLE);
+          rv.setViewVisibility(R.id.important_programs_widget_row_start_date1, View.GONE);
+        }
+        else {
+          rv.setTextViewText(R.id.important_programs_widget_row_start_date1, date);
+          rv.setViewVisibility(R.id.important_programs_widget_row_progress, View.GONE);
+          rv.setViewVisibility(R.id.important_programs_widget_row_start_date1, View.VISIBLE);
+        }
+        
+        rv.setTextViewText(R.id.important_programs_widget_row_start_time1, time);
+        rv.setTextViewText(R.id.important_programs_widget_row_title1, marking != null ? TextUtils.concat(title,marking) : title);
+        
+        if(categorySpan != null && categorySpan.toString().trim().length() > 0) {
+          rv.setViewVisibility(R.id.important_programs_widget_row_categories, View.VISIBLE);
+          rv.setTextViewText(R.id.important_programs_widget_row_categories, categorySpan);
+        }
+        else {
+          rv.setViewVisibility(R.id.important_programs_widget_row_categories, View.GONE);
+        }
+        
+        if(mShowChannelName || logo == null) {
+          name = WidgetUtils.getColoredString(name, mUserDefindedColorChannel);
+          rv.setTextViewText(R.id.important_programs_widget_row_channel_name1, name);
+          rv.setViewVisibility(R.id.important_programs_widget_row_channel_name1, View.VISIBLE);
+        }
+        else if(number != null) {
+          rv.setTextViewText(R.id.important_programs_widget_row_channel_name1, number);
+          rv.setViewVisibility(R.id.important_programs_widget_row_channel_name1, View.VISIBLE);
+        }
+        else {
+          rv.setViewVisibility(R.id.important_programs_widget_row_channel_name1, View.GONE);
+        }
+        
+        ArrayList<String> markedColumns = new ArrayList<String>();
+        
+        for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
+          final Integer index = mMarkingColumsIndexMap.get(column);
+          
+          if(index != null && mCursor.getInt(index.intValue()) == 1) {
+            markedColumns.add(column);
+          }
+        }
+        
+        if(logo != null && ((BitmapDrawable)logo).getBitmap() != null) {
+          rv.setImageViewBitmap(R.id.important_programs_widget_row_channel_logo1, ((BitmapDrawable)logo).getBitmap());
+          rv.setViewVisibility(R.id.important_programs_widget_row_channel_logo1, View.VISIBLE);
+        }
+        else {
+          rv.setViewVisibility(R.id.important_programs_widget_row_channel_logo1, View.GONE);
+        }
+        
+        if(episodeTitle != null) {
+          rv.setTextViewText(R.id.important_programs_widget_row_episode, episodeTitle);
+          rv.setViewVisibility(R.id.important_programs_widget_row_episode, View.VISIBLE);
+        }
+        else {
+          rv.setViewVisibility(R.id.important_programs_widget_row_episode, View.GONE);
+        }
+        
+        if(!CompatUtils.isKeyguardWidget(mAppWidgetId, mContext)) {
+          final Intent fillInIntent = new Intent();
+          fillInIntent.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, Long.valueOf(id));
+          
+          rv.setOnClickFillInIntent(R.id.important_programs_widget_row_program, fillInIntent);
+          
+          if(mChannelClickToProgramsList) {
+            final Intent startTvbProgramList = new Intent();
+            startTvbProgramList.putExtra(SettingConstants.CHANNEL_ID_EXTRA, channelKey);
+            startTvbProgramList.putExtra(SettingConstants.START_TIME_EXTRA, startTime);
+            
+            rv.setOnClickFillInIntent(R.id.important_programs_widget_row_channel, startTvbProgramList);
+          }
+        }        
+      }
+      else {
+        rv.setTextViewText(R.id.important_programs_widget_row_title1, "Unknown");
+        rv.setViewVisibility(R.id.important_programs_widget_row_start_time1, View.GONE);
+        rv.setViewVisibility(R.id.important_programs_widget_row_episode, View.GONE);
+        rv.setViewVisibility(R.id.important_programs_widget_row_progress, View.GONE);
+        rv.setViewVisibility(R.id.important_programs_widget_row_channel, View.GONE);
       }
       
       float titleFontSize = mTextScale * UiUtils.convertPixelsToSp(mContext.getResources().getDimension(R.dimen.title_font_size),mContext);

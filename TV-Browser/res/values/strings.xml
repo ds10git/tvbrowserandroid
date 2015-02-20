@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.8.2</h2>
+		<h2>0.5.8.3</h2>
+        	&bull; minor bug fixes<br>
+       	<br>
+        <h3>0.5.8.2</h3>
         	&bull; save current date only at first startup of day<br>
         	&bull; delay plugin loading at startup<br>
         	&bull; added warning for possible wrong timezone<br>

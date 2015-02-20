@@ -84,7 +84,7 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
       boolean isKeyguard = CompatUtils.isKeyguardWidget(appWidgetId, context);
       int type = PreferenceManager.getDefaultSharedPreferences(context).getInt(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_IMPORTANT_TYPE), context.getResources().getInteger(R.integer.widget_config_important_type_index_default));
       
-      Intent intent = new Intent(context, ImportantProgramsRemoveViewsService.class);
+      Intent intent = new Intent(context, ImportantProgramsRemoteViewsService.class);
       intent.setData(Uri.parse("org.tvbrowser://importantWidget/" + appWidgetId));
       intent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
       
