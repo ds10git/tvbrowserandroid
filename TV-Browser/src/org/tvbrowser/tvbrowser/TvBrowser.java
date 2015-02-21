@@ -1279,6 +1279,7 @@ public class TvBrowser extends ActionBarActivity implements
           builder.setOngoing(true);
           builder.setContentTitle(getResources().getText(R.string.action_dont_want_to_see));
           builder.setContentText(getResources().getText(R.string.dont_want_to_see_notification_text));
+          builder.setProgress(0, 0, true);
           
           int notifyID = 2;
           
@@ -1310,12 +1311,12 @@ public class TvBrowser extends ActionBarActivity implements
               
               StringBuilder exclusionBuilder = new StringBuilder();
               HashSet<String> exclusions = new HashSet<String>();
-              ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<DontWantToSeeExclusion>();
+              HashSet<String> newExclusions = new HashSet<String>();
               
               while((line = read.readLine()) != null) {
                 if(line.contains(";;") && line.trim().length() > 0) {
                   exclusions.add(line);
-                  exclusionList.add(new DontWantToSeeExclusion(line));
+                  newExclusions.add(line);
                   exclusionBuilder.append(line).append("\n");
                 }
               }
@@ -1330,10 +1331,18 @@ public class TvBrowser extends ActionBarActivity implements
                   for(String old : oldValues) {
                     if(!exclusions.contains(old)) {
                       exclusions.add(old);
-                      exclusionList.add(new DontWantToSeeExclusion(old));
                       exclusionBuilder.append(old).append("\n");
                     }
+                    else {
+                      newExclusions.remove(old);
+                    }
                   }
+                }
+                
+                ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<DontWantToSeeExclusion>();
+                
+                for(String exclusion : newExclusions) {
+                  exclusionList.add(new DontWantToSeeExclusion(exclusion));
                 }
                 
                 Editor edit = pref1.edit();
@@ -1343,52 +1352,78 @@ public class TvBrowser extends ActionBarActivity implements
                 
                 DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
                 
-                Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.KEY_ID);
-                c.moveToPosition(-1);
-                
-                builder.setProgress(c.getCount(), 0, true);
-                notification.notify(notifyID, builder.build());
-                
-                ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
-                
-                int keyColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-                int titleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-                
-                while(c.moveToNext()) {
-                  builder.setProgress(c.getCount(), c.getPosition(), false);
+                if(exclusionArr.length > 0) {
+                  String where = null;
+                  
+                  if(!replace) {
+                    where = "NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE; 
+                  }
+                  
+                  ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+                  Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, where, null, TvBrowserContentProvider.KEY_ID);
+                  
+                  try {
+                    int count = c.getCount()/10;
+                    c.moveToPosition(-1);
+                  
+                    builder.setProgress(count, 0, false);
+                    notification.notify(notifyID, builder.build());
+                    
+                    int keyColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                    int titleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+                    
+                    while(c.moveToNext()) {
+                      int position = c.getPosition();
+                      
+                      if(position % 10 == 0) {
+                        builder.setProgress(count, position/10, false);
+                        notification.notify(notifyID, builder.build());
+                      }
+                      
+                      String title = c.getString(titleColumn);
+                      
+                      boolean filter = UiUtils.filter(getApplicationContext(), title, exclusionArr);
+                      long progID = c.getLong(keyColumn);
+                      
+                      ContentValues values = new ContentValues();
+                      values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, filter ? 1 : 0);
+                      
+                      ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
+                      opBuilder.withValues(values);
+                      
+                      updateValuesList.add(opBuilder.build());
+                    }
+                  }finally {
+                    IOUtils.closeCursor(c);
+                  }
+                  
+                  builder.setProgress(0, 0, true);
                   notification.notify(notifyID, builder.build());
                   
-                  String title = c.getString(titleColumn);
-                  
-                  boolean filter = UiUtils.filter(getApplicationContext(), title, exclusionArr);
-                  long progID = c.getLong(keyColumn);
-                  
-                  ContentValues values = new ContentValues();
-                  values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, filter ? 1 : 0);
-                  
-                  ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
-                  opBuilder.withValues(values);
-                  
-                  updateValuesList.add(opBuilder.build());
-                }
-                
-                c.close();
-                
-                if(!updateValuesList.isEmpty()) {
-                  try {
-                    getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
-                    UiUtils.sendDontWantToSeeChangedBroadcast(applicationContext,true);
-                    handler.post(new Runnable() {
-                      @Override
-                      public void run() {
-                        Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show();
-                      }
-                    });
-                  } catch (RemoteException e) {
-                    e.printStackTrace();
-                  } catch (OperationApplicationException e) {
-                    e.printStackTrace();
+                  if(!updateValuesList.isEmpty()) {
+                    try {
+                      getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+                      UiUtils.sendDontWantToSeeChangedBroadcast(applicationContext,true);
+                      handler.post(new Runnable() {
+                        @Override
+                        public void run() {
+                          Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show();
+                        }
+                      });
+                    } catch (RemoteException e) {
+                      e.printStackTrace();
+                    } catch (OperationApplicationException e) {
+                      e.printStackTrace();
+                    }
                   }
+                }
+                else if(newExclusions.isEmpty()) {
+                  handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show();
+                    }
+                  });
                 }
                 
                 if(!replace && exclusionBuilder.length() > 0) {
@@ -3363,6 +3398,7 @@ public class TvBrowser extends ActionBarActivity implements
           builder.setOngoing(true);
           builder.setContentTitle(getResources().getText(R.string.action_dont_want_to_see));
           builder.setContentText(getResources().getText(R.string.dont_want_to_see_refresh_notification_text));
+          builder.setProgress(0, 0, true);
           
           final int notifyID = 2;
           
@@ -3383,40 +3419,48 @@ public class TvBrowser extends ActionBarActivity implements
           
           new Thread() {
             public void run() {
-              Cursor programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.KEY_ID);
-              programs.moveToPosition(-1);
-              
-              builder.setProgress(programs.getCount(), 0, true);
-              notification.notify(notifyID, builder.build());
-              
               ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+              Cursor programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.KEY_ID);
               
-              int keyColumn = programs.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-              int titleColumn = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-              
-              DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
-              
-              while(programs.moveToNext()) {
-                builder.setProgress(programs.getCount(), programs.getPosition(), false);
+              try {
+                programs.moveToPosition(-1);
+                
+                int count = programs.getCount()/10;
+                
+                builder.setProgress(count, 0, false);
                 notification.notify(notifyID, builder.build());
                 
-                String title = programs.getString(titleColumn);
+                int keyColumn = programs.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                int titleColumn = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
                 
-                boolean filter = UiUtils.filter(getApplicationContext(), title, exclusionArr);
-                long progID = programs.getLong(keyColumn);
+                DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
                 
-                ContentValues values = new ContentValues();
-                values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, filter ? 1 : 0);
+                while(programs.moveToNext()) {
+                  int position = programs.getPosition();
+                  
+                  if(position % 10 == 0) {
+                    builder.setProgress(count, position/10, false);
+                    notification.notify(notifyID, builder.build());
+                  }
+                  
+                  String title = programs.getString(titleColumn);
+                  
+                  boolean filter = UiUtils.filter(getApplicationContext(), title, exclusionArr);
+                  long progID = programs.getLong(keyColumn);
+                  
+                  ContentValues values = new ContentValues();
+                  values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, filter ? 1 : 0);
+                  
+                  ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
+                  opBuilder.withValues(values);
+                  
+                  updateValuesList.add(opBuilder.build());
+                }
                 
-                ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
-                opBuilder.withValues(values);
-                
-                updateValuesList.add(opBuilder.build());
+                notification.cancel(notifyID);
+              }finally {
+                IOUtils.closeCursor(programs);
               }
-              
-              notification.cancel(notifyID);
-              
-              programs.close();
               
               if(!updateValuesList.isEmpty()) {
                 try {

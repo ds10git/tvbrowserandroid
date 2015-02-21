@@ -2,6 +2,8 @@
 <resources>
     <string name="info_version_new"><![CDATA[
 		<h2>0.5.8.3</h2>
+			&bull; Erinnerungen im Detail-Fenster hinzufügen/entfernen<br>
+			&bull; Synchronisation von "Will ich nicht sehen!"-Einträgen beschleunigt<br>
         	&bull; kleinere Fehler behoben<br>
        	<br>
         <h2>0.5.8.2</h2>
