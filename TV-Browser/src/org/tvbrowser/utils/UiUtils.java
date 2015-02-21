@@ -24,6 +24,8 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.Plugin;
@@ -38,6 +40,7 @@ import org.tvbrowser.tvbrowser.ActivityFavoriteEdit;
 import org.tvbrowser.tvbrowser.ActivityTvBrowserSearchResults;
 import org.tvbrowser.tvbrowser.DontWantToSeeExclusion;
 import org.tvbrowser.tvbrowser.Favorite;
+import org.tvbrowser.tvbrowser.InfoActivity;
 import org.tvbrowser.tvbrowser.Logging;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.ReminderBroadcastReceiver;
@@ -124,6 +127,7 @@ import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
@@ -221,6 +225,86 @@ public class UiUtils {
                 result = Boolean.valueOf(true);
                 float textScale = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_TEXT_SCALE, R.string.detail_text_scale_default));
                 
+                final long startTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+                final ImageButton handleReminder = (ImageButton)mLayout.findViewById(R.id.detail_handle_reminder);
+                
+                if(startTime <= System.currentTimeMillis()) {
+                  handleReminder.setVisibility(View.GONE);
+                }
+                else {
+                  final AtomicBoolean userRemind = new AtomicBoolean(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER)) == 1);
+                  final AtomicBoolean favoriteRemind = new AtomicBoolean(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) == 1);
+                  
+                  if(userRemind.get() || favoriteRemind.get()) {
+                    handleReminder.setImageResource(R.drawable.ic_action_remove_alarm);
+                    CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_remove));
+                  }
+                  else {
+                    handleReminder.setImageResource(R.drawable.ic_action_add_alarm);
+                    CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_add));
+                  }
+                  
+                  handleReminder.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                      ContentValues values = new ContentValues();
+                      boolean add = true;
+                      
+                      if(userRemind.get() || favoriteRemind.get()) {
+                        add = false;
+                        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, false);
+                        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, false);
+                        
+                      }
+                      else {
+                        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, true);
+                      }
+                      
+                      if(context.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), values, null, null) == 1) {
+                        if(add) {
+                          userRemind.set(true);
+                          
+                          UiUtils.addReminder(context, id, startTime, UiUtils.class, true);
+                          ProgramUtils.addReminderId(context, id);
+                          
+                          mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                              handleReminder.setImageResource(R.drawable.ic_action_remove_alarm);
+                              CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_remove));
+                              handleReminder.invalidate();
+                            }
+                          });
+                        }
+                        else {
+                          userRemind.set(false);
+                          favoriteRemind.set(false);
+                          
+                          UiUtils.removeReminder(context, id);
+                          ProgramUtils.removeReminderId(context, id);
+                          
+                          mHandler.post(new Runnable() {
+                            @Override
+                            public void run() {
+                              handleReminder.setImageResource(R.drawable.ic_action_add_alarm);
+                              CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_add));
+                              handleReminder.invalidate();
+                            }
+                          });
+                        }
+                        
+                        Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
+                        intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, id);
+                        
+                        LocalBroadcastManager.getInstance(context).sendBroadcastSync(intent);
+                        
+                        UiUtils.updateImportantProgramsWidget(context);
+                        UiUtils.updateRunningProgramsWidget(context);
+                      }
+                    }
+                  });
+                }
+                
                 TextView date = (TextView)mLayout.findViewById(R.id.detail_date_channel);
                 TextView title = (TextView)mLayout.findViewById(R.id.detail_title);
                 TextView genre = (TextView)mLayout.findViewById(R.id.detail_genre);
@@ -244,7 +328,11 @@ public class UiUtils {
                 pictureDescription.setTextSize(TypedValue.COMPLEX_UNIT_PX, pictureDescription.getTextSize() * textScale);
                 pictureCopyright.setTextSize(TypedValue.COMPLEX_UNIT_PX, pictureCopyright.getTextSize() * textScale);
                 
-                Date start = new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)));
+                if(!SettingConstants.IS_DARK_THEME && !(finish instanceof InfoActivity)) {
+                  date.setTextColor(context.getResources().getColor(R.color.detail_date_channel_color_light));
+                }
+                
+                Date start = new Date(startTime);
                 SimpleDateFormat day = new SimpleDateFormat("EEE",Locale.getDefault());
                 
                 int channelID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
