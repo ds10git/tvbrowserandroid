@@ -37,127 +37,110 @@ import android.preference.PreferenceManager;
 
 public class AutoDataUpdateReceiver extends BroadcastReceiver {
   private static Thread UPDATE_THREAD;
+  private static final String TAG = null;
   
   @Override
   public void onReceive(final Context context, Intent intent) {
     PowerManager pm = (PowerManager)context.getApplicationContext().getSystemService(Context.POWER_SERVICE);
     final WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBAUTOUPDATE_LOCK");
     wakeLock.setReferenceCounted(false);
-    wakeLock.acquire(60000);
+    wakeLock.acquire(7500);
     
-    PrefUtils.initialize(context);
-    
-    Logging.openLogForDataUpdate(context);
-    Logging.log(null, "AUTO DATA UPDATE onReceive Intent: " + intent + " Context: " + context, Logging.DATA_UPDATE_TYPE, context);
-    
-    final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-    
-    String updateType = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
-    
-    boolean autoUpdate = !updateType.equals("0");
-    final boolean internetConnectionType = updateType.equals("1");
-    boolean timeUpdateType = updateType.equals("2");
-    
-    Logging.log(null, "AUTO DATA UPDATE autoUpdateActive: " + autoUpdate + " Internet type: " + internetConnectionType + " Time type: " + timeUpdateType, Logging.DATA_UPDATE_TYPE, context);
-    
-    if(autoUpdate) {
-      if(internetConnectionType) {
-        int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default)) + 1;
-        
-        long lastDate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, R.integer.last_data_update_default);
-        
-        Calendar last = Calendar.getInstance();
-        last.setTimeInMillis(lastDate);
-        
-        int dayDiff = Calendar.getInstance().get(Calendar.DAY_OF_YEAR) - last.get(Calendar.DAY_OF_YEAR);//(int)((System.currentTimeMillis() - last.getTimeInMillis()) / 60000. / 60. / 24.);
-        
-        if(dayDiff < 0) {
-          dayDiff = Calendar.getInstance().getMaximum(Calendar.DAY_OF_YEAR) + dayDiff;
-        }
-
-        autoUpdate = dayDiff >= days && (System.currentTimeMillis() - lastDate) / 1000 / 60 / 60 > 12;
-      }
-      else if(timeUpdateType) {
-        autoUpdate = intent.getBooleanExtra(SettingConstants.TIME_DATA_UPDATE_EXTRA, false);
-      }
-      else {
-        autoUpdate = false;
-      }
+    try {
+      PrefUtils.initialize(context);
       
-      Logging.log(null, "AUTO DATA UPDATE doUpdateNow ('" + new Date(System.currentTimeMillis()) +"'): " + autoUpdate , Logging.DATA_UPDATE_TYPE, context);
+      Logging.openLogForDataUpdate(context);
+      Logging.log(TAG, "AUTO DATA UPDATE onReceive Intent: " + intent + " Context: " + context, Logging.DATA_UPDATE_TYPE, context);
+      
+      final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+      
+      String updateType = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
+      
+      boolean autoUpdate = !updateType.equals("0");
+      final boolean internetConnectionType = updateType.equals("1");
+      boolean timeUpdateType = updateType.equals("2");
+      
+      Logging.log(TAG, "AUTO DATA UPDATE autoUpdateActive: " + autoUpdate + " Internet type: " + internetConnectionType + " Time type: " + timeUpdateType, Logging.DATA_UPDATE_TYPE, context);
       
       if(autoUpdate) {
-        ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        
-        NetworkInfo lan = CompatUtils.getLanNetworkIfPossible(connMgr);
-        NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        
-        final boolean onlyWifi = PrefUtils.getBooleanValue(R.string.PREF_AUTO_UPDATE_ONLY_WIFI, R.bool.pref_auto_update_only_wifi_default);
-        
-        boolean isConnected = (wifi != null && wifi.isConnectedOrConnecting()) || (lan != null && lan.isConnectedOrConnecting());
-        
-        if(!onlyWifi) {
-          isConnected = isConnected || (mobile != null && mobile.isConnectedOrConnecting());
-        }
-        
-        Logging.log(null, "AUTO DATA UPDATE isConnected: " + isConnected + " IS_RUNNING: " + TvDataUpdateService.IS_RUNNING + " UPDATE_THREAD: " + UPDATE_THREAD, Logging.DATA_UPDATE_TYPE, context);
-        
-        Logging.closeLogForDataUpdate();
-        
-        if (isConnected && (UPDATE_THREAD == null || !UPDATE_THREAD.isAlive())) {
-          IOUtils.handleDataUpdatePreferences(context);
+        if(internetConnectionType) {
+          int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default)) + 1;
           
-          UPDATE_THREAD = new Thread() {
-            @Override
-            public void run() {
-              if(!TvDataUpdateService.IS_RUNNING) {
-                Logging.openLogForDataUpdate(context);
-                Logging.log(null, "UPDATE_THREAD STARTED", Logging.DATA_UPDATE_TYPE, context);
-                Logging.closeLogForDataUpdate();                
-              }
-              
-              if(internetConnectionType) {
-                try {
-                  sleep(10000);
-                } catch (InterruptedException e) {}
-              }
-              
-              if(!TvDataUpdateService.IS_RUNNING) {
-                Intent startDownload = new Intent(context, TvDataUpdateService.class);
-                startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
-                startDownload.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                startDownload.putExtra(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA, onlyWifi);
-                
-                int daysToDownload = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_RANGE, R.string.pref_auto_update_range_default));
-                
-                startDownload.putExtra(context.getString(R.string.DAYS_TO_DOWNLOAD), daysToDownload);
-                
-                Logging.openLogForDataUpdate(context);
-                Logging.log(null, "UPDATE START INTENT " + startDownload, Logging.DATA_UPDATE_TYPE, context);
-                Logging.closeLogForDataUpdate();
-                
-                context.startService(startDownload);
-                
-                releaseLock(wakeLock);
-              }
-            }
-          };
-          UPDATE_THREAD.start();
+          long lastDate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, R.integer.last_data_update_default);
+          
+          Calendar last = Calendar.getInstance();
+          last.setTimeInMillis(lastDate);
+          
+          int dayDiff = Calendar.getInstance().get(Calendar.DAY_OF_YEAR) - last.get(Calendar.DAY_OF_YEAR);//(int)((System.currentTimeMillis() - last.getTimeInMillis()) / 60000. / 60. / 24.);
+          
+          if(dayDiff < 0) {
+            dayDiff = Calendar.getInstance().getMaximum(Calendar.DAY_OF_YEAR) + dayDiff;
+          }
+  
+          autoUpdate = dayDiff >= days && (System.currentTimeMillis() - lastDate) / 1000 / 60 / 60 > 12;
         }
-        else if(!isConnected && timeUpdateType) {
-          reschedule(context,pref);
-          releaseLock(wakeLock);
+        else if(timeUpdateType) {
+          autoUpdate = intent.getBooleanExtra(SettingConstants.TIME_DATA_UPDATE_EXTRA, false);
+        }
+        else {
+          autoUpdate = false;
+        }
+        
+        Logging.log(TAG, "AUTO DATA UPDATE doUpdateNow ('" + new Date(System.currentTimeMillis()) +"'): " + autoUpdate , Logging.DATA_UPDATE_TYPE, context);
+        
+        if(autoUpdate) {
+          ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+          
+          NetworkInfo lan = CompatUtils.getLanNetworkIfPossible(connMgr);
+          NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+          NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+          
+          final boolean onlyWifi = PrefUtils.getBooleanValue(R.string.PREF_AUTO_UPDATE_ONLY_WIFI, R.bool.pref_auto_update_only_wifi_default);
+          
+          boolean isConnected = (wifi != null && wifi.isConnectedOrConnecting()) || (lan != null && lan.isConnectedOrConnecting());
+          
+          if(!onlyWifi) {
+            isConnected = isConnected || (mobile != null && mobile.isConnectedOrConnecting());
+          }
+          
+          Logging.log(TAG, "AUTO DATA UPDATE isConnected: " + isConnected + " IS_RUNNING: " + TvDataUpdateService.IS_RUNNING + " UPDATE_THREAD: " + UPDATE_THREAD, Logging.DATA_UPDATE_TYPE, context);
+          
+          Logging.closeLogForDataUpdate();
+          
+          if (isConnected && (UPDATE_THREAD == null || !UPDATE_THREAD.isAlive())) {
+            IOUtils.handleDataUpdatePreferences(context);
+            
+            if(!TvDataUpdateService.IS_RUNNING) {
+              Intent startDownload = new Intent(context, TvDataUpdateService.class);
+              startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
+              startDownload.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+              startDownload.putExtra(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA, onlyWifi);
+              startDownload.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE_INTERNET_CONNECTION, internetConnectionType);
+              
+              int daysToDownload = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_RANGE, R.string.pref_auto_update_range_default));
+              
+              startDownload.putExtra(context.getString(R.string.DAYS_TO_DOWNLOAD), daysToDownload);
+              
+              Logging.openLogForDataUpdate(context);
+              Logging.log(TAG, "UPDATE START INTENT " + startDownload, Logging.DATA_UPDATE_TYPE, context);
+              Logging.closeLogForDataUpdate();
+              
+              context.startService(startDownload);
+            }
+          }
+          else if(!isConnected && timeUpdateType) {
+            reschedule(context,pref);
+          }
+        }
+        else {
+          Logging.closeLogForDataUpdate();
         }
       }
       else {
-        releaseLock(wakeLock);
         Logging.closeLogForDataUpdate();
       }
-    }
-    else {
-      releaseLock(wakeLock);      
-      Logging.closeLogForDataUpdate();
+    }finally {
+      releaseLock(wakeLock);
     }
   }
   

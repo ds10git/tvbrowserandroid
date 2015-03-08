@@ -82,6 +82,7 @@ public class SettingConstants {
   public static final String SCROLL_POSITION_EXTRA = "SCROLL_POSITION_EXTRA";
   public static final String TIME_DATA_UPDATE_EXTRA = "TIME_DATA_UPDATE_EXTRA";
   public static final String INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA = "INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA";
+  public static final String EXTRA_DATA_UPDATE_TYPE_INTERNET_CONNECTION = "internetConnectionType";
   
   public static final String EXTRA_DATA_DATE_LAST_KNOWN = "dataDateLastKnown";
   public static final String EXTRA_REMINDED_PROGRAM = "remindedProgram";

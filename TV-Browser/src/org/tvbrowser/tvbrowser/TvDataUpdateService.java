@@ -259,9 +259,17 @@ public class TvDataUpdateService extends Service {
         
         boolean isConnected = false;
         boolean onlyWifi = false;
+        boolean isInternetConnectionAutoUpdate = false;
         
-        if(intent != null && intent.hasExtra(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA)) {
-          onlyWifi = intent.getExtras().getBoolean(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA);
+        if(intent != null) {
+          onlyWifi = intent.getBooleanExtra(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA, false);
+          isInternetConnectionAutoUpdate = intent.getBooleanExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE_INTERNET_CONNECTION, false);
+        }
+        
+        if(isInternetConnectionAutoUpdate) {
+          try {
+            sleep(15000);
+          } catch (InterruptedException e) {}
         }
         
         ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);

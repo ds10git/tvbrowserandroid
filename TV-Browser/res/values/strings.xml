@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.8.3</h2>
+		<h2>0.5.8.4</h2>
+			&bull; changed auto update process (might prolong battery life)<br>
+       	<br>
+		<h3>0.5.8.3</h3>
 			&bull; add/remove reminders from detail window<br>
 			&bull; speed up synchronization of "I don't want to see" values<br>
         	&bull; minor bug fixes<br>
