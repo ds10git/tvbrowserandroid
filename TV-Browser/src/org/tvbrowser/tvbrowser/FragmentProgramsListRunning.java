@@ -1087,6 +1087,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
             mDateAdapter.add(new DateSelection(cal.getTimeInMillis(), getActivity()));
           }
         }
+      }catch(IllegalStateException e) {
+        
       }finally {
         IOUtils.closeCursor(dates);
       }
