@@ -28,6 +28,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
+import android.util.Log;
 
 public class UpdateAlarmValue extends BroadcastReceiver {
   @Override
@@ -43,6 +44,7 @@ public class UpdateAlarmValue extends BroadcastReceiver {
       public void run() {
         PrefUtils.initialize(context);
         IOUtils.handleDataUpdatePreferences(context);
+        IOUtils.setDataTableRefreshTime(context);
         
         Cursor alarms = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.DATA_KEY_STARTTIME}, " ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " OR " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis() + " ) ", null, TvBrowserContentProvider.KEY_ID);
         alarms.moveToPosition(-1);

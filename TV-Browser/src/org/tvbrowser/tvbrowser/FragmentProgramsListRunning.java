@@ -58,6 +58,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.text.Spannable;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -1053,44 +1054,34 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       int pos = mDateSelection.getSelectedItemPosition();
       
       mDateAdapter.clear();
-              
-      Cursor dates = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
       
-      try {
-        if(dates != null && dates.moveToLast()) {
-          long last = dates.getLong(dates.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-          
-          Calendar lastDay = Calendar.getInstance();
-          lastDay.setTimeInMillis(last);
-          
-          lastDay.set(Calendar.HOUR_OF_DAY, 4);
-          lastDay.set(Calendar.MINUTE, 0);
-          lastDay.set(Calendar.SECOND, 0);
-          lastDay.set(Calendar.MILLISECOND, 0);
-          
-          Calendar yesterday = Calendar.getInstance();
-          yesterday.set(Calendar.HOUR_OF_DAY, 4);
-          yesterday.set(Calendar.MINUTE, 0);
-          yesterday.set(Calendar.SECOND, 0);
-          yesterday.set(Calendar.MILLISECOND, 0);
-          yesterday.add(Calendar.DAY_OF_YEAR, -1);
-          
-          long yesterdayStart = yesterday.getTimeInMillis();
-          long lastStart = lastDay.getTimeInMillis();
-          
-          Calendar cal = Calendar.getInstance();
-          
-          for(long day = yesterdayStart; day <= lastStart; day += (24 * 60 * 60000)) {
-            cal.setTimeInMillis(day);
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            
-            mDateAdapter.add(new DateSelection(cal.getTimeInMillis(), getActivity()));
-          }
-        }
-      }catch(IllegalStateException e) {
+      long last = PrefUtils.getLastKnownDataDate(getActivity());
+      
+      Calendar lastDay = Calendar.getInstance();
+      lastDay.setTimeInMillis(last);
+      
+      lastDay.set(Calendar.HOUR_OF_DAY, 4);
+      lastDay.set(Calendar.MINUTE, 0);
+      lastDay.set(Calendar.SECOND, 0);
+      lastDay.set(Calendar.MILLISECOND, 0);
+      
+      Calendar yesterday = Calendar.getInstance();
+      yesterday.set(Calendar.HOUR_OF_DAY, 4);
+      yesterday.set(Calendar.MINUTE, 0);
+      yesterday.set(Calendar.SECOND, 0);
+      yesterday.set(Calendar.MILLISECOND, 0);
+      yesterday.add(Calendar.DAY_OF_YEAR, -1);
+      
+      long yesterdayStart = yesterday.getTimeInMillis();
+      long lastStart = lastDay.getTimeInMillis();
+      
+      Calendar cal = Calendar.getInstance();
+      
+      for(long day = yesterdayStart; day <= lastStart; day += (24 * 60 * 60000)) {
+        cal.setTimeInMillis(day);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
         
-      }finally {
-        IOUtils.closeCursor(dates);
+        mDateAdapter.add(new DateSelection(cal.getTimeInMillis(), getActivity()));
       }
       
       if(mDateSelection.getCount() > pos) {

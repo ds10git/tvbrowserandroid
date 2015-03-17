@@ -1655,6 +1655,8 @@ public class TvDataUpdateService extends Service {
     
     edit.commit();
     
+    PrefUtils.updateLastKnownDataDate(TvDataUpdateService.this);
+    
     Intent updateDone = new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
     updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_SUCCESSFULLY, success.getBoolean());
     updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_AUTO_UPDATE, autoUpdate);

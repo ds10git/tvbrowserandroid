@@ -244,7 +244,7 @@ public class TvBrowser extends ActionBarActivity implements
   
   private FilterValues mAllFilter;
   
-  private int mCurrentDay;
+ // private int mCurrentDay;
   
   static {
     mRundate = Calendar.getInstance();
@@ -292,7 +292,7 @@ public class TvBrowser extends ActionBarActivity implements
     handler = new Handler();
     PrefUtils.initialize(TvBrowser.this);
     
-    mCurrentDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
+   // mCurrentDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
     
     Intent start = getIntent();
     
@@ -321,6 +321,9 @@ public class TvBrowser extends ActionBarActivity implements
       
       int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
       
+      if(oldVersion < 331) {
+        PrefUtils.updateLastKnownDataDate(TvBrowser.this);
+      }
       if(oldVersion < 322) {
         SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, getApplicationContext());
         Editor edit = pref.edit();
@@ -585,6 +588,7 @@ public class TvBrowser extends ActionBarActivity implements
     }, 2000);
     
     IOUtils.handleDataUpdatePreferences(TvBrowser.this);
+    IOUtils.setDataTableRefreshTime(TvBrowser.this);
   }
   
   @Override
@@ -892,7 +896,7 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void handleResume() {
-    new Thread() {
+    /*new Thread() {
       public void run() {
         Calendar cal2 = Calendar.getInstance();
         cal2.add(Calendar.DAY_OF_YEAR, -2);
@@ -908,7 +912,7 @@ public class TvBrowser extends ActionBarActivity implements
         }catch(IllegalArgumentException e) {}        
       }
     }.start();
-    
+    */
     // Don't allow use of version after date
     if(mRundate.getTimeInMillis() < System.currentTimeMillis()) {
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -980,9 +984,9 @@ public class TvBrowser extends ActionBarActivity implements
       mTimer.scheduleAtFixedRate(new TimerTask() {
         @Override
         public void run() {
-          int day = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
+          //int day = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
           
-          if(mCurrentDay != day) {
+         /* if(mCurrentDay != day) {
             new Thread() {
               public void run() {
                 try {
@@ -1001,7 +1005,7 @@ public class TvBrowser extends ActionBarActivity implements
             }.start();
             
             mCurrentDay = day;
-          }
+          }*/
           
           LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
         }
@@ -4643,6 +4647,7 @@ public class TvBrowser extends ActionBarActivity implements
       case R.id.action_sort_channels: sortChannels(false);break;
       case R.id.action_delete_all_data: getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.KEY_ID + " > 0", null);
                                         getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.KEY_ID + " > 0", null);
+                                        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().putLong(getString(R.string.LAST_KNOWN_DATA_DATE), 0).commit();
                                         break;
       case R.id.action_scroll_now:scrollToTime(0);break;
       case R.id.action_activity_filter_list_edit_open:openFilterEdit();break;

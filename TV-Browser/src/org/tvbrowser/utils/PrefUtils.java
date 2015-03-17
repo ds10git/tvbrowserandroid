@@ -19,12 +19,16 @@ package org.tvbrowser.utils;
 import java.util.HashSet;
 import java.util.Set;
 
+import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.R;
 
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.database.Cursor;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 public class PrefUtils {
   private static Context mContext;
@@ -215,5 +219,23 @@ public class PrefUtils {
     }
     
     return pref;
+  }
+  
+  public static void updateLastKnownDataDate(Context context) {
+    Cursor lastDate = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " DESC LIMIT 1");
+    
+    try {
+      if(lastDate != null && lastDate.moveToFirst()) {
+        long last = lastDate.getLong(lastDate.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+        
+        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.LAST_KNOWN_DATA_DATE), last).commit();
+      }
+    }finally {
+      IOUtils.closeCursor(lastDate);
+    }
+  }
+  
+  public static long getLastKnownDataDate(Context context) {
+    return PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).getLong(context.getString(R.string.LAST_KNOWN_DATA_DATE), context.getResources().getInteger(R.integer.last_known_data_date_default));
   }
 }

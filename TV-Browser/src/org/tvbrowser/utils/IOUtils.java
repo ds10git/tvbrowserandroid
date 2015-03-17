@@ -46,6 +46,7 @@ import org.tvbrowser.devplugin.Channel;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.AutoDataUpdateReceiver;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.tvbrowser.ServiceUpdateDataTable;
 import org.tvbrowser.tvbrowser.R.bool;
 import org.tvbrowser.tvbrowser.R.integer;
 import org.tvbrowser.tvbrowser.R.string;
@@ -74,6 +75,7 @@ import android.util.Log;
  */
 public class IOUtils {
   private static final int DATA_UPDATE_KEY = 1234;
+  private static final int REQUEST_CODE_DATA_TABLE_UPDATE = 1235;
   
   /**
    * Creates an integer value from the given byte array.
@@ -549,6 +551,28 @@ public class IOUtils {
     if(pending != null) {
       alarmManager.cancel(pending);
     }
+  }
+  
+  public static final void setDataTableRefreshTime(Context context) {
+    Calendar now = Calendar.getInstance();
+    
+    now.add(Calendar.DAY_OF_YEAR, 1);
+    now.set(Calendar.HOUR_OF_DAY, 0);
+    now.set(Calendar.MINUTE, 0);
+    now.set(Calendar.SECOND, 5);
+    now.set(Calendar.MILLISECOND, 0);
+    
+    AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+    
+    Intent dataUpdate = new Intent(context, ServiceUpdateDataTable.class);
+    
+    if(now.getTimeInMillis() < System.currentTimeMillis()) {
+      now.add(Calendar.SECOND, 10);
+    }
+    
+    PendingIntent pending = PendingIntent.getService(context, REQUEST_CODE_DATA_TABLE_UPDATE, dataUpdate, PendingIntent.FLAG_UPDATE_CURRENT);
+      
+    alarmManager.set(AlarmManager.RTC_WAKEUP, now.getTimeInMillis(), pending);
   }
   
   public static final void handleDataUpdatePreferences(Context context) {
