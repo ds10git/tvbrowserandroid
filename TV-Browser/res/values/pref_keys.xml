@@ -502,6 +502,9 @@
 	    <string name="LAST_DATA_UPDATE">LAST_DATA_UPDATE</string>
 	    <item name="last_data_update_default" type="integer" format="integer">0</item>
 
+	    <string name="LAST_KNOWN_DATA_DATE">LAST_KNOWN_DATA_DATE</string>
+	    <item name="last_known_data_date_default" type="integer" format="integer">0</item>
+	    
 	    <string name="PREF_RUNNING_TIME">PREF_RUNNING_TIME</string>
     	<item name="pref_running_time_default" type="integer" format="integer">0</item>
     

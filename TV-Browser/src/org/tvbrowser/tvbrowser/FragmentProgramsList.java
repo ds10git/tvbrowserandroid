@@ -725,41 +725,33 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       
       mDateAdapter.add(new DateSelection(-1, getActivity()));
     
-      Cursor dates = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      long last = PrefUtils.getLastKnownDataDate(getActivity());
       
-      try {
-        if(dates != null && dates.moveToLast()) {
-          long last = dates.getLong(0);
-          
-          Calendar lastDay = Calendar.getInstance();
-          lastDay.setTimeInMillis(last);
-          
-          lastDay.set(Calendar.HOUR_OF_DAY, 4);
-          lastDay.set(Calendar.MINUTE, 0);
-          lastDay.set(Calendar.SECOND, 0);
-          lastDay.set(Calendar.MILLISECOND, 0);
-          
-          Calendar yesterday = Calendar.getInstance();
-          yesterday.set(Calendar.HOUR_OF_DAY, 4);
-          yesterday.set(Calendar.MINUTE, 0);
-          yesterday.set(Calendar.SECOND, 0);
-          yesterday.set(Calendar.MILLISECOND, 0);
-          yesterday.add(Calendar.DAY_OF_YEAR, -1);
-          
-          long yesterdayStart = yesterday.getTimeInMillis();
-          long lastStart = lastDay.getTimeInMillis();
-          
-          Calendar cal = Calendar.getInstance();
-          
-          for(long day = yesterdayStart; day <= lastStart; day += (24 * 60 * 60000)) {
-            cal.setTimeInMillis(day);
-            cal.set(Calendar.HOUR_OF_DAY, 0);
-            
-            mDateAdapter.add(new DateSelection(cal.getTimeInMillis(), getActivity()));
-          }
-        }
-      }finally {
-        IOUtils.closeCursor(dates);
+      Calendar lastDay = Calendar.getInstance();
+      lastDay.setTimeInMillis(last);
+      
+      lastDay.set(Calendar.HOUR_OF_DAY, 4);
+      lastDay.set(Calendar.MINUTE, 0);
+      lastDay.set(Calendar.SECOND, 0);
+      lastDay.set(Calendar.MILLISECOND, 0);
+      
+      Calendar yesterday = Calendar.getInstance();
+      yesterday.set(Calendar.HOUR_OF_DAY, 4);
+      yesterday.set(Calendar.MINUTE, 0);
+      yesterday.set(Calendar.SECOND, 0);
+      yesterday.set(Calendar.MILLISECOND, 0);
+      yesterday.add(Calendar.DAY_OF_YEAR, -1);
+      
+      long yesterdayStart = yesterday.getTimeInMillis();
+      long lastStart = lastDay.getTimeInMillis();
+      
+      Calendar cal = Calendar.getInstance();
+      
+      for(long day = yesterdayStart; day <= lastStart; day += (24 * 60 * 60000)) {
+        cal.setTimeInMillis(day);
+        cal.set(Calendar.HOUR_OF_DAY, 0);
+        
+        mDateAdapter.add(new DateSelection(cal.getTimeInMillis(), getActivity()));
       }
     }
   }

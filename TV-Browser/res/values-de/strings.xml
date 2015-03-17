@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
 		<h2>0.5.8.4</h2>
+			&bull; Start von TV-Browser beschleunigt<br>
 			&bull; Autoupdate verändert (verlängert möglicherweise Akkulaufzeit)<br>
        	<br>
 		<h3>0.5.8.3</h3>
