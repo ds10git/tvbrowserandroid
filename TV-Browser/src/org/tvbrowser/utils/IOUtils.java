@@ -63,6 +63,7 @@ import android.os.Binder;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.support.v4.content.LocalBroadcastManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -937,5 +938,35 @@ public class IOUtils {
     }
     
     return epis.toString();
+  }
+  
+  public static final void deleteOldData(Context context) {
+    Calendar cal2 = Calendar.getInstance();
+    cal2.add(Calendar.DAY_OF_YEAR, -2);
+    cal2.set(Calendar.HOUR_OF_DAY, 0);
+    cal2.set(Calendar.MINUTE, 0);
+    cal2.set(Calendar.SECOND, 0);
+    cal2.set(Calendar.MILLISECOND, 0);
+    
+    long daysSince1970 = cal2.getTimeInMillis() / 24 / 60 / 60000;
+
+    try {
+      context.getContentResolver().delete(
+          TvBrowserContentProvider.CONTENT_URI_DATA,
+          TvBrowserContentProvider.DATA_KEY_STARTTIME + "<"
+              + cal2.getTimeInMillis(), null);
+    } catch (IllegalArgumentException e) {
+    }
+
+    try {
+      context.getContentResolver().delete(
+          TvBrowserContentProvider.CONTENT_URI_DATA_VERSION,
+          TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + "<"
+              + daysSince1970, null);
+    } catch (IllegalArgumentException e) {
+    }
+
+    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
+    
   }
 }

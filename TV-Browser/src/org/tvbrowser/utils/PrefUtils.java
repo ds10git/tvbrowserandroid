@@ -28,7 +28,6 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.preference.PreferenceManager;
-import android.util.Log;
 
 public class PrefUtils {
   private static Context mContext;
@@ -221,21 +220,61 @@ public class PrefUtils {
     return pref;
   }
   
-  public static void updateLastKnownDataDate(Context context) {
-    Cursor lastDate = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " DESC LIMIT 1");
+  public static void resetDataMetaData(Context context) {
+    Editor edit = getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).edit();
+    
+    edit.putLong(context.getString(R.string.META_DATA_DATE_FIRST_KNOWN), context.getResources().getInteger(R.integer.meta_data_date_known_default));
+    edit.putLong(context.getString(R.string.META_DATA_DATE_LAST_KNOWN), context.getResources().getInteger(R.integer.meta_data_date_known_default));
+    edit.putLong(context.getString(R.string.META_DATA_ID_FIRST_KNOWN), context.getResources().getInteger(R.integer.meta_data_id_default));
+    edit.putLong(context.getString(R.string.META_DATA_ID_LAST_KNOWN), context.getResources().getInteger(R.integer.meta_data_id_default));
+    
+    edit.commit();
+  }
+  
+  public static void updateDataMetaData(Context context) {
+    setMetaDataLongValue(context, R.string.META_DATA_DATE_FIRST_KNOWN);
+    setMetaDataLongValue(context, R.string.META_DATA_DATE_LAST_KNOWN);
+    setMetaDataLongValue(context, R.string.META_DATA_ID_FIRST_KNOWN);
+    setMetaDataLongValue(context, R.string.META_DATA_ID_LAST_KNOWN);
+  }
+  
+  private static void setMetaDataLongValue(Context context, int value) {
+    String sort = null;
+    String column = null;
+    
+    switch (value) {
+      case R.string.META_DATA_DATE_FIRST_KNOWN: column = TvBrowserContentProvider.DATA_KEY_STARTTIME; sort =  column + " ASC LIMIT 1";break;
+      case R.string.META_DATA_DATE_LAST_KNOWN: column = TvBrowserContentProvider.DATA_KEY_STARTTIME; sort =  column + " DESC LIMIT 1";break;
+      case R.string.META_DATA_ID_FIRST_KNOWN: column = TvBrowserContentProvider.KEY_ID; sort =  column + " ASC LIMIT 1";break;
+      case R.string.META_DATA_ID_LAST_KNOWN: column = TvBrowserContentProvider.KEY_ID; sort =  column + " DESC LIMIT 1";break;
+    }
+    
+    Cursor valueCursor = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {column}, null, null, sort);
     
     try {
-      if(lastDate != null && lastDate.moveToFirst()) {
-        long last = lastDate.getLong(lastDate.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-        
-        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.LAST_KNOWN_DATA_DATE), last).commit();
+      if(valueCursor != null && valueCursor.moveToFirst()) {
+        long last = valueCursor.getLong(valueCursor.getColumnIndex(column));
+        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(value), last).commit();
       }
     }finally {
-      IOUtils.closeCursor(lastDate);
+      IOUtils.closeCursor(valueCursor);
     }
   }
   
-  public static long getLastKnownDataDate(Context context) {
-    return PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).getLong(context.getString(R.string.LAST_KNOWN_DATA_DATE), context.getResources().getInteger(R.integer.last_known_data_date_default));
+  public static void updateChannelSelectionState(Context context) {
+    boolean value = false;
+    Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, TvBrowserContentProvider.KEY_ID + " ASC LIMIT 1");
+    
+    try {
+      value = channels != null && channels.getCount() > 0;
+    }finally {
+      IOUtils.closeCursor(channels);
+    }
+    
+    getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putBoolean(context.getString(R.string.CHANNELS_SELECTED), value).commit();
+  }
+  
+  public static boolean getChannelsSelected(Context context) {
+    return getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).getBoolean(context.getString(R.string.CHANNELS_SELECTED), context.getResources().getBoolean(R.bool.channels_selected_default));
   }
 }

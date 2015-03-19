@@ -50,7 +50,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
       PrefUtils.initialize(context);
       
       Logging.openLogForDataUpdate(context);
-      Logging.log(TAG, "AUTO DATA UPDATE onReceive Intent: " + intent + " Context: " + context, Logging.DATA_UPDATE_TYPE, context);
+      Logging.log(TAG, "AUTO DATA UPDATE onReceive Intent: " + intent + " Context: " + context, Logging.TYPE_DATA_UPDATE, context);
       
       final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
       
@@ -60,7 +60,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
       final boolean internetConnectionType = updateType.equals("1");
       boolean timeUpdateType = updateType.equals("2");
       
-      Logging.log(TAG, "AUTO DATA UPDATE autoUpdateActive: " + autoUpdate + " Internet type: " + internetConnectionType + " Time type: " + timeUpdateType, Logging.DATA_UPDATE_TYPE, context);
+      Logging.log(TAG, "AUTO DATA UPDATE autoUpdateActive: " + autoUpdate + " Internet type: " + internetConnectionType + " Time type: " + timeUpdateType, Logging.TYPE_DATA_UPDATE, context);
       
       if(autoUpdate) {
         if(internetConnectionType) {
@@ -86,7 +86,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
           autoUpdate = false;
         }
         
-        Logging.log(TAG, "AUTO DATA UPDATE doUpdateNow ('" + new Date(System.currentTimeMillis()) +"'): " + autoUpdate , Logging.DATA_UPDATE_TYPE, context);
+        Logging.log(TAG, "AUTO DATA UPDATE doUpdateNow ('" + new Date(System.currentTimeMillis()) +"'): " + autoUpdate , Logging.TYPE_DATA_UPDATE, context);
         
         if(autoUpdate) {
           ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -103,7 +103,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
             isConnected = isConnected || (mobile != null && mobile.isConnectedOrConnecting());
           }
           
-          Logging.log(TAG, "AUTO DATA UPDATE isConnected: " + isConnected + " IS_RUNNING: " + TvDataUpdateService.IS_RUNNING + " UPDATE_THREAD: " + UPDATE_THREAD, Logging.DATA_UPDATE_TYPE, context);
+          Logging.log(TAG, "AUTO DATA UPDATE isConnected: " + isConnected + " IS_RUNNING: " + TvDataUpdateService.IS_RUNNING + " UPDATE_THREAD: " + UPDATE_THREAD, Logging.TYPE_DATA_UPDATE, context);
           
           Logging.closeLogForDataUpdate();
           
@@ -122,7 +122,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
               startDownload.putExtra(context.getString(R.string.DAYS_TO_DOWNLOAD), daysToDownload);
               
               Logging.openLogForDataUpdate(context);
-              Logging.log(TAG, "UPDATE START INTENT " + startDownload, Logging.DATA_UPDATE_TYPE, context);
+              Logging.log(TAG, "UPDATE START INTENT " + startDownload, Logging.TYPE_DATA_UPDATE, context);
               Logging.closeLogForDataUpdate();
               
               context.startService(startDownload);

@@ -19,6 +19,9 @@ package org.tvbrowser.devplugin;
 import java.util.ArrayList;
 
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.Logging;
+import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.UiUtils;
 
 import android.content.ComponentName;
@@ -65,6 +68,8 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     mHasPreferences = false;
     
     mBindContextList = new ArrayList<Context>();
+    
+    doLog(mContext, "Plugin connection created: " + packageId + " " + id);
   }
   
   
@@ -130,7 +135,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   @Override
   public void onServiceConnected(ComponentName name, IBinder service) {
     mPlugin = Plugin.Stub.asInterface(service);
-    
+    doLog(mContext, "Plugin connected: " + name);
     if(isActivated()) {
       callOnActivation();
     }
@@ -144,10 +149,8 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
         if(PluginHandler.getPluginManager() != null) {
           mPlugin.onActivation(PluginHandler.getPluginManager());
           
-          long firstProgramId = PluginHandler.getFirstProgramId();
-          
-          if(firstProgramId != PluginHandler.PROGRAM_IDS_ALREADY_HANDLED_ID) {
-            mPlugin.handleFirstKnownProgramId(firstProgramId);
+          if(!PluginHandler.firstAndLastProgramIdAlreadyHandled()) {
+            mPlugin.handleFirstKnownProgramId(PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_FIRST_KNOWN, R.integer.meta_data_id_default));
           }
         }
         
@@ -226,7 +229,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   @Override
   public void onServiceDisconnected(ComponentName name) {
     mPlugin = null;
-    
+    doLog(mContext, "Plugin disconnected: " + name);
     for(Context context : mBindContextList) {
       context.unbindService(this);
     }
@@ -259,5 +262,9 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     }
     
     return isConnected() ? -1 : 1;
+  }
+  
+  private static void doLog(Context context, String message) {
+    Logging.log(null, message, Logging.TYPE_PLUGIN, context);
   }
 }

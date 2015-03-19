@@ -8,4 +8,8 @@
 		android:title="@string/pref_write_reminder_update_log"
 		android:defaultValue="@bool/write_reminder_log_default"
 		android:summary="@string/pref_write_reminder_update_log_summary"/>
+	<CheckBoxPreference android:key="@string/LOG_WRITE_PLUGIN_LOG"
+		android:title="@string/pref_log_write_plugin_log_title"
+		android:defaultValue="@bool/log_write_plugin_log_default"
+		android:summary="@string/pref_log_write_plugin_log_summary"/>
 </PreferenceScreen>

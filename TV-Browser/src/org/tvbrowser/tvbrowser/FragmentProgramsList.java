@@ -617,36 +617,38 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
           
           Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
           
-          if(channelCursor.moveToFirst()) {
-            do {
-              Bitmap logo = UiUtils.createBitmapFromByteArray(channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
-                            
-              Drawable logoDrawable = null;
-              
-              if(logo != null) {
-                logoDrawable = SettingConstants.createLayerDrawable(22, getActivity(), logo);
-              }
-                            
-              String name = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-              String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
-              
-              if(shortName != null) {
-                name = shortName;
-              }
-              
-              int id = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-              
-              ChannelSelection channelSel = new ChannelSelection(id, channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ", name, logoDrawable);
-              
-              channelAdapter.add(channelSel);
-              
-              if(id == mChannelID) {
-                mChannelSelection.setSelection(channelAdapter.getCount()-1);
-              }
-            }while(channelCursor.moveToNext());
+          try {
+            if(channelCursor != null && channelCursor.moveToFirst()) {
+              do {
+                Bitmap logo = UiUtils.createBitmapFromByteArray(channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+                              
+                Drawable logoDrawable = null;
+                
+                if(logo != null) {
+                  logoDrawable = SettingConstants.createLayerDrawable(22, getActivity(), logo);
+                }
+                              
+                String name = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+                String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
+                
+                if(shortName != null) {
+                  name = shortName;
+                }
+                
+                int id = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                
+                ChannelSelection channelSel = new ChannelSelection(id, channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ", name, logoDrawable);
+                
+                channelAdapter.add(channelSel);
+                
+                if(id == mChannelID) {
+                  mChannelSelection.setSelection(channelAdapter.getCount()-1);
+                }
+              }while(channelCursor.moveToNext());
+            }
+          }finally {
+            IOUtils.closeCursor(channelCursor);
           }
-          
-          channelCursor.close();
         }
       }
     };
@@ -725,7 +727,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       
       mDateAdapter.add(new DateSelection(-1, getActivity()));
     
-      long last = PrefUtils.getLastKnownDataDate(getActivity());
+      long last = PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_LAST_KNOWN, R.integer.meta_data_date_known_default);
       
       Calendar lastDay = Calendar.getInstance();
       lastDay.setTimeInMillis(last);

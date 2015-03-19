@@ -19,12 +19,12 @@ package org.tvbrowser.devplugin;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.Logging;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
@@ -33,7 +33,6 @@ import org.tvbrowser.utils.ProgramUtils;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -43,8 +42,6 @@ import android.database.Cursor;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.RemoteException;
-import android.preference.PreferenceManager;
-import android.util.Log;
 
 /**
  * A class that handles TV-Browser Plugins.
@@ -57,9 +54,9 @@ public final class PluginHandler {
   
   private static PluginManager PLUGIN_MANAGER;
   
-  public static final long PROGRAM_IDS_ALREADY_HANDLED_ID = -2;
-  private static long PROGRAM_ID_FIRST = PROGRAM_IDS_ALREADY_HANDLED_ID;
-  private static long PROGRAM_ID_LAST = PROGRAM_IDS_ALREADY_HANDLED_ID;
+  //public static final long PROGRAM_IDS_ALREADY_HANDLED_ID = -2;
+  //private static long PROGRAM_ID_FIRST = PROGRAM_IDS_ALREADY_HANDLED_ID;
+  //private static long PROGRAM_ID_LAST = PROGRAM_IDS_ALREADY_HANDLED_ID;
   
   private static final AtomicInteger BLOG_COUNT = new AtomicInteger(0);
   
@@ -121,7 +118,7 @@ public final class PluginHandler {
           versionCode = pInfo.versionCode;
         } catch (NameNotFoundException e) {}
         
-        return new TvBrowserSettings(SettingConstants.IS_DARK_THEME, version, versionCode, PROGRAM_ID_FIRST, PROGRAM_ID_LAST, PrefUtils.getLongValue(R.string.PREF_LAST_KNOWN_DATA_DATE, SettingConstants.DATA_LAST_DATE_NO_DATA));
+        return new TvBrowserSettings(SettingConstants.IS_DARK_THEME, version, versionCode, PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_FIRST_KNOWN, R.integer.meta_data_id_default), PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_LAST_KNOWN, R.integer.meta_data_id_default), PrefUtils.getLongValue(R.string.PREF_LAST_KNOWN_DATA_DATE, SettingConstants.DATA_LAST_DATE_NO_DATA));
       }
 
       @Override
@@ -183,7 +180,7 @@ public final class PluginHandler {
     
     return PLUGIN_MANAGER;
   }
-  
+  /*
   public static final void loadFirstAndLastProgramId(Context context) {
     PrefUtils.initialize(context);
     long lastInfo = PrefUtils.getLongValue(org.tvbrowser.tvbrowser.R.string.PLUGIN_LAST_ID_INFO_DATE, 0);
@@ -235,19 +232,25 @@ public final class PluginHandler {
       edit.putLong(context.getString(R.string.PLUGIN_LAST_ID_INFO_DATE), test.getTimeInMillis());
       edit.commit();
     }
+  }*/
+  
+  private static void doLog(Context context, String message) {
+    Logging.log(null, message, Logging.TYPE_PLUGIN, context);
   }
   
-  public static final void loadPlugins(Context context, Handler handler) {
+  public static final void loadPlugins(Context context1, Handler handler) {
     try {
-      context = context.getApplicationContext();
+      doLog(context1, "loadPlugins");
+      
+      final Context context = context1.getApplicationContext();
       
       PLUGIN_MANAGER = createPluginManager(context);
       
       if(PLUGIN_LIST == null) {
         PLUGIN_LIST = new ArrayList<PluginServiceConnection>();
         
-        loadFirstAndLastProgramId(context);
-        ProgramUtils.handleFirstAndLastKnownProgramId(context, PROGRAM_ID_FIRST, PROGRAM_ID_LAST);
+       // loadFirstAndLastProgramId(context);
+        ProgramUtils.handleFirstAndLastKnownProgramId(context, PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_FIRST_KNOWN, R.integer.meta_data_id_default), PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_LAST_KNOWN, R.integer.meta_data_id_default));
         
         PackageManager packageManager = context.getPackageManager();
         Intent baseIntent = new Intent( PluginHandler.PLUGIN_ACTION );
@@ -272,12 +275,14 @@ public final class PluginHandler {
           public void run() {
             if(PLUGIN_LIST != null) {
               Collections.sort(PLUGIN_LIST);
-            }        
+              PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putInt(context.getString(R.string.PLUGIN_LAST_ID_INFO_DATE), Calendar.getInstance().get(Calendar.DAY_OF_YEAR)).commit();
+            }
           }
         }, 2000);
       }
       
       incrementBlogCount();
+      doLog(context1, "Plugin reference count " + BLOG_COUNT.get());
     }catch(Throwable t) {
       
     }
@@ -318,7 +323,9 @@ public final class PluginHandler {
   }
   
   public static final void shutdownPlugins(Context context) {
+    doLog(context, "shutdownPlugins: reference count " + BLOG_COUNT.get());
     if(BLOG_COUNT.get() == 1) {
+      doLog(context, "do Plugin shutdown");
       if(PLUGIN_LIST != null) {
         context = context.getApplicationContext();
         
@@ -363,8 +370,8 @@ public final class PluginHandler {
     return result;
   }
   
-  public static long getFirstProgramId() {
-    return PROGRAM_ID_FIRST;
+  public static boolean firstAndLastProgramIdAlreadyHandled() {
+    return Calendar.getInstance().get(Calendar.DAY_OF_YEAR) == PrefUtils.getLongValue(R.string.PLUGIN_LAST_ID_INFO_DATE, 0);
   }
   
   public static PluginServiceConnection getConnectionForId(String id) {

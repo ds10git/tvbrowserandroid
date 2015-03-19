@@ -490,9 +490,14 @@
 	    <item name="write_reminder_log_default" type="bool" format="boolean">false</item>
 	    
 	    <string name="REMINDER_LOG_LAST_POS">REMINDER_LOG_LAST_POS</string>
-	    <item name="reminder_log_last_pos_default" type="integer" format="integer">0</item>
+	    <item name="log_last_pos_default" type="integer" format="integer">0</item>
     
-    <!-- Miscelangelous settings -->
+	    <string name="LOG_WRITE_PLUGIN_LOG">LOG_WRITE_PLUGIN_LOG</string>
+	    <item name="log_write_plugin_log_default" type="bool" format="boolean">false</item>
+	    
+	    <string name="LOG_PLUGIN_LAST_POST">LOG_PLUGIN_LAST_POST</string>
+	    
+	    <!-- Miscelangelous settings -->
     
 	    <string name="OLD_VERSION">OLD_VERSION</string>
 	    <item name="old_version_default" type="integer" format="integer">166</item>
@@ -501,9 +506,17 @@
     	
 	    <string name="LAST_DATA_UPDATE">LAST_DATA_UPDATE</string>
 	    <item name="last_data_update_default" type="integer" format="integer">0</item>
-
-	    <string name="LAST_KNOWN_DATA_DATE">LAST_KNOWN_DATA_DATE</string>
-	    <item name="last_known_data_date_default" type="integer" format="integer">0</item>
+		
+		<string name="META_DATA_DATE_FIRST_KNOWN">META_DATA_DATE_FIRST_KNOWN</string>
+	    <string name="META_DATA_DATE_LAST_KNOWN">META_DATA_DATE_LAST_KNOWN</string>
+	    <item name="meta_data_date_known_default" type="integer" format="integer">0</item>
+	    
+	    <string name="META_DATA_ID_FIRST_KNOWN">META_DATA_ID_FIRST_KNOWN</string>
+	    <string name="META_DATA_ID_LAST_KNOWN">META_DATA_ID_LAST_KNOWN</string>
+	    <item name="meta_data_id_default" type="integer" format="integer">-1</item>
+	    
+	    <string name="CHANNELS_SELECTED">CHANNELS_SELECTED</string>
+	    <item name="channels_selected_default" type="bool" format="boolean">false</item>
 	    
 	    <string name="PREF_RUNNING_TIME">PREF_RUNNING_TIME</string>
     	<item name="pref_running_time_default" type="integer" format="integer">0</item>

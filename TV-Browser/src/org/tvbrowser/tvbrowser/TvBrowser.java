@@ -211,6 +211,8 @@ public class TvBrowser extends ActionBarActivity implements
   private MenuItem mDeleteDataUpdateLogItem;
   private MenuItem mSendReminderLogItem;
   private MenuItem mDeleteReminderLogItem;
+  private MenuItem mSendPluginLogItem;
+  private MenuItem mDeletePluginLogItem;
   private MenuItem mScrollTimeItem;
   private MenuItem mPluginPreferencesMenuItem;
   
@@ -321,8 +323,9 @@ public class TvBrowser extends ActionBarActivity implements
       
       int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
       
-      if(oldVersion < 331) {
-        PrefUtils.updateLastKnownDataDate(TvBrowser.this);
+      if(oldVersion < 332) {
+        PrefUtils.updateDataMetaData(getApplicationContext());
+        PrefUtils.updateChannelSelectionState(getApplicationContext());
       }
       if(oldVersion < 322) {
         SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, getApplicationContext());
@@ -682,7 +685,7 @@ public class TvBrowser extends ActionBarActivity implements
     mUpdateDoneBroadcastReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        PluginHandler.loadFirstAndLastProgramId(TvBrowser.this.getApplicationContext());
+        //PluginHandler.loadFirstAndLastProgramId(TvBrowser.this.getApplicationContext());
         
         updateProgressIcon(false);
         showNews();
@@ -962,20 +965,13 @@ public class TvBrowser extends ActionBarActivity implements
       dialog.show();
     }
     else {
-      Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, null);
-      
-      try {
-        if(!selectingChannels && (channels == null || channels.getCount() == 0)) {
-          askChannelDownload(R.string.select_channels);
-        }
-        else if(PluginHandler.getFirstProgramId() == -1) {
-          if(isOnline()) {
-            checkTermsAccepted();
-          }
-        }
+      if(!selectingChannels && !PrefUtils.getChannelsSelected(getApplicationContext())) {
+        askChannelDownload(R.string.select_channels);
       }
-      finally {
-        IOUtils.closeCursor(channels);
+      else if(PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_LAST_KNOWN, R.integer.meta_data_date_known_default) < System.currentTimeMillis()) {
+        if(isOnline()) {
+          checkTermsAccepted();
+        }
       }
             
       Date firstUpdate = new Date((((long)(System.currentTimeMillis() / 60000L)) * 60000) + 61000);
@@ -1230,6 +1226,7 @@ public class TvBrowser extends ActionBarActivity implements
                 public void run() {
                   SettingConstants.initializeLogoMap(TvBrowser.this, true);
                   updateProgramListChannelBar();
+                  PrefUtils.updateChannelSelectionState(getApplicationContext());
                   Toast.makeText(getApplicationContext(), R.string.synchronize_done, Toast.LENGTH_LONG).show();
                   checkTermsAccepted();
                 }
@@ -2409,6 +2406,7 @@ public class TvBrowser extends ActionBarActivity implements
           if(somethingChanged) {
             SettingConstants.initializeLogoMap(TvBrowser.this, true);
             updateProgramListChannelBar();
+            PrefUtils.updateChannelSelectionState(getApplicationContext());
           }
           
           // if something was selected we need to download new data
@@ -3640,13 +3638,13 @@ public class TvBrowser extends ActionBarActivity implements
     if(mDebugMenuItem != null) {
       boolean dataUpdateLogEnabled = PrefUtils.getBooleanValue(R.string.WRITE_DATA_UPDATE_LOG, R.bool.write_data_update_log_default);
       boolean reminderLogEnabled = PrefUtils.getBooleanValue(R.string.WRITE_REMINDER_LOG, R.bool.write_reminder_log_default);
+      boolean pluginLogEnabled = PrefUtils.getBooleanValue(R.string.LOG_WRITE_PLUGIN_LOG, R.bool.log_write_plugin_log_default);
       
-      mDebugMenuItem.setVisible(dataUpdateLogEnabled || reminderLogEnabled);
-      
-      mSendDataUpdateLogItem.setEnabled(dataUpdateLogEnabled);
-      mDeleteDataUpdateLogItem.setEnabled(dataUpdateLogEnabled);
+      mDebugMenuItem.setVisible(dataUpdateLogEnabled || reminderLogEnabled || pluginLogEnabled);
       mSendReminderLogItem.setEnabled(reminderLogEnabled);
       mDeleteReminderLogItem.setEnabled(reminderLogEnabled);
+      mSendPluginLogItem.setEnabled(pluginLogEnabled);
+      mDeletePluginLogItem.setEnabled(pluginLogEnabled);
     }
     
     UiUtils.updateImportantProgramsWidget(getApplicationContext());
@@ -3713,7 +3711,7 @@ public class TvBrowser extends ActionBarActivity implements
   private void showAbout() {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     
-    RelativeLayout about = (RelativeLayout)getLayoutInflater().inflate(R.layout.about, getParentViewGroup(), false);
+    RelativeLayout about = (RelativeLayout)getLayoutInflater().inflate(R.layout.dialog_about, getParentViewGroup(), false);
     
     try {
       PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -3741,6 +3739,9 @@ public class TvBrowser extends ActionBarActivity implements
         nextUpdate.setText(DateFormat.getMediumDateFormat(TvBrowser.this).format(date) + " " + DateFormat.getTimeFormat(TvBrowser.this).format(date));
       } break;
     }
+    
+    TextView dataRange = (TextView)about.findViewById(R.id.data_range);
+    dataRange.setText(DateFormat.getMediumDateFormat(TvBrowser.this).format(new Date(PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_FIRST_KNOWN, R.integer.meta_data_date_known_default))) + " - " + DateFormat.getMediumDateFormat(TvBrowser.this).format(new Date(PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_LAST_KNOWN, R.integer.meta_data_date_known_default))));
     
     ((TextView)about.findViewById(R.id.rundate_value)).setText(DateFormat.getLongDateFormat(getApplicationContext()).format(mRundate.getTime()));
     
@@ -4623,8 +4624,10 @@ public class TvBrowser extends ActionBarActivity implements
         break;
       case R.id.action_delete_data_update_log: deleteLog("data-update-log.txt");break;
       case R.id.action_delete_reminder_log: deleteLog("reminder-log.txt");break;
+      case R.id.action_delete_plugin_log: deleteLog("plugin-log.txt");break;
       case R.id.action_send_data_update_log:sendLogMail("data-update-log.txt",getString(R.string.log_send_data_update));break;
       case R.id.action_send_reminder_log:sendLogMail("reminder-log.txt",getString(R.string.log_send_reminder));break;
+      case R.id.action_send_plugin_log:sendLogMail("plugin-log.txt",getString(R.string.log_send_plugin));break;
       case R.id.menu_tvbrowser_action_settings_basic:
         Intent startPref = new Intent(this, TvbPreferencesActivity.class);
         startActivityForResult(startPref, SHOW_PREFERENCES);
@@ -4647,7 +4650,7 @@ public class TvBrowser extends ActionBarActivity implements
       case R.id.action_sort_channels: sortChannels(false);break;
       case R.id.action_delete_all_data: getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.KEY_ID + " > 0", null);
                                         getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.KEY_ID + " > 0", null);
-                                        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().putLong(getString(R.string.LAST_KNOWN_DATA_DATE), 0).commit();
+                                        PrefUtils.resetDataMetaData(getApplicationContext());
                                         break;
       case R.id.action_scroll_now:scrollToTime(0);break;
       case R.id.action_activity_filter_list_edit_open:openFilterEdit();break;
@@ -4758,6 +4761,8 @@ public class TvBrowser extends ActionBarActivity implements
     mDeleteDataUpdateLogItem = menu.findItem(R.id.action_delete_data_update_log);
     mSendReminderLogItem = menu.findItem(R.id.action_send_reminder_log);
     mDeleteReminderLogItem = menu.findItem(R.id.action_delete_reminder_log);
+    mSendPluginLogItem = menu.findItem(R.id.action_send_plugin_log);
+    mDeletePluginLogItem = menu.findItem(R.id.action_delete_plugin_log);
         
     mPauseReminder = menu.findItem(R.id.action_pause_reminder);
     mContinueReminder = menu.findItem(R.id.action_continue_reminder);
@@ -4769,13 +4774,16 @@ public class TvBrowser extends ActionBarActivity implements
         
     boolean dataUpdateLogEnabled = PrefUtils.getBooleanValue(R.string.WRITE_DATA_UPDATE_LOG, R.bool.write_data_update_log_default);
     boolean reminderLogEnabled = PrefUtils.getBooleanValue(R.string.WRITE_REMINDER_LOG, R.bool.write_reminder_log_default);
+    boolean pluginLogEnabled = PrefUtils.getBooleanValue(R.string.LOG_WRITE_PLUGIN_LOG, R.bool.log_write_plugin_log_default);
     
-    mDebugMenuItem.setVisible(dataUpdateLogEnabled || reminderLogEnabled);
+    mDebugMenuItem.setVisible(dataUpdateLogEnabled || reminderLogEnabled || pluginLogEnabled);
     
     mSendDataUpdateLogItem.setEnabled(dataUpdateLogEnabled);
     mDeleteDataUpdateLogItem.setEnabled(dataUpdateLogEnabled);
     mSendReminderLogItem.setEnabled(reminderLogEnabled);
     mDeleteReminderLogItem.setEnabled(reminderLogEnabled);
+    mSendPluginLogItem.setEnabled(pluginLogEnabled);
+    mDeletePluginLogItem.setEnabled(pluginLogEnabled);
     
     updateScrollMenu();
     
