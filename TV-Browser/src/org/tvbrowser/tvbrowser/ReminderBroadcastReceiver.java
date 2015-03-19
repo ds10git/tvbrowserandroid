@@ -52,10 +52,10 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
   public void onReceive(Context context, Intent intent) {
     PrefUtils.initialize(context);
     
-    Logging.log(tag, "ReminderBroadcastReceiver.onReceive " + intent + " " + context, Logging.REMINDER_TYPE, context);
+    Logging.log(tag, "ReminderBroadcastReceiver.onReceive " + intent + " " + context, Logging.TYPE_REMINDER, context);
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
     
-    Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' reminder is paused '" + SettingConstants.isReminderPaused(context) + "'", Logging.REMINDER_TYPE, context);
+    Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' reminder is paused '" + SettingConstants.isReminderPaused(context) + "'", Logging.TYPE_REMINDER, context);
     
     if(!SettingConstants.isReminderPaused(context) && programID >= 0) {
       Uri defaultUri = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
@@ -74,7 +74,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
       
       boolean showReminder = true;
       
-      Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' NIGHT MODE ACTIVATED '" + PrefUtils.getBooleanValue(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED, R.bool.pref_reminder_night_mode_activated_default) + "' sound '" + sound + "' vibrate '" + vibrate + "' led '" + led + "'", Logging.REMINDER_TYPE, context);
+      Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' NIGHT MODE ACTIVATED '" + PrefUtils.getBooleanValue(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED, R.bool.pref_reminder_night_mode_activated_default) + "' sound '" + sound + "' vibrate '" + vibrate + "' led '" + led + "'", Logging.TYPE_REMINDER, context);
       
       if(PrefUtils.getBooleanValue(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED, R.bool.pref_reminder_night_mode_activated_default)) {
         int start = PrefUtils.getIntValueWithDefaultKey(R.string.PREF_REMINDER_NIGHT_MODE_START, R.integer.pref_reminder_night_mode_start_default);
@@ -95,7 +95,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
         if(start <= minutes && minutes <= end) {
           showReminder = !PrefUtils.getBooleanValue(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER, R.bool.pref_reminder_night_mode_no_reminder_default);
           
-          Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' CURRENTLY NIGHT MODE, Don't show '" + !showReminder + "'", Logging.REMINDER_TYPE, context);
+          Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' CURRENTLY NIGHT MODE, Don't show '" + !showReminder + "'", Logging.TYPE_REMINDER, context);
           
           if(showReminder) {
             tone = PrefUtils.getStringValue(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE, R.string.pref_reminder_night_mode_sound_value_default);
@@ -151,7 +151,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
         if(isWorkMode) {
           showReminder = !PrefUtils.getBooleanValue(R.string.PREF_REMINDER_WORK_MODE_NO_REMINDER, R.bool.pref_reminder_work_mode_no_reminder_default);
           
-          Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' CURRENTLY WORK MODE, Don't show '" + !showReminder + "'", Logging.REMINDER_TYPE, context);
+          Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' CURRENTLY WORK MODE, Don't show '" + !showReminder + "'", Logging.TYPE_REMINDER, context);
           
           if(showReminder) {
             tone = PrefUtils.getStringValue(R.string.PREF_REMINDER_WORK_MODE_SOUND_VALUE, R.string.pref_reminder_work_mode_sound_value_default);
@@ -171,12 +171,12 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
         
       }
       
-      Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' showReminder '" + showReminder + "' sound '" + sound + "' vibrate '" + vibrate + "' led '" + led + "'", Logging.REMINDER_TYPE, context);
+      Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' showReminder '" + showReminder + "' sound '" + sound + "' vibrate '" + vibrate + "' led '" + led + "'", Logging.TYPE_REMINDER, context);
       
       if(showReminder) {
-        Logging.log(tag,  new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' CONTEXT: " + context + " contentResolver: " + context.getContentResolver(), Logging.REMINDER_TYPE, context);
+        Logging.log(tag,  new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' CONTEXT: " + context + " contentResolver: " + context.getContentResolver(), Logging.TYPE_REMINDER, context);
         Cursor values = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), SettingConstants.REMINDER_PROJECTION, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
-        Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Tried to load program with given ID, cursor size: " + values.getCount(), Logging.REMINDER_TYPE, context);
+        Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Tried to load program with given ID, cursor size: " + values.getCount(), Logging.TYPE_REMINDER, context);
         if(values.moveToFirst()) {
           NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
           Program program = ProgramUtils.createProgramFromDataCursor(context, values);
@@ -189,7 +189,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
          // long endTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
           
           Bitmap logo = UiUtils.createBitmapFromByteArray(/*values.getBlob(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))*/program.getChannel().getIcon());
-          Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' LOADED VALUES:  title '" + title + "' channelName '" + channelName + "' episode '" + episode + "' logo " + logo, Logging.REMINDER_TYPE, context);
+          Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' LOADED VALUES:  title '" + title + "' channelName '" + channelName + "' episode '" + episode + "' logo " + logo, Logging.TYPE_REMINDER, context);
           if(logo != null) {              
             int width =  context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_width);
             int height = context.getResources().getDimensionPixelSize(android.R.dimen.notification_large_icon_height);
@@ -260,9 +260,9 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           builder.setContentIntent(PendingIntent.getActivity(context, 0, startInfo, 0));
           Notification notification = builder.build();
           
-          Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Create notification with intent: " + startInfo, Logging.REMINDER_TYPE, context);
+          Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Create notification with intent: " + startInfo, Logging.TYPE_REMINDER, context);
           ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(title,(int)(startTime / 60000), notification);
-          Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Notification was send.", Logging.REMINDER_TYPE, context);
+          Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Notification was send.", Logging.TYPE_REMINDER, context);
           
           Intent broadcastProgram = new Intent(SettingConstants.PROGRAM_REMINDED_FOR);
           broadcastProgram.putExtra(SettingConstants.EXTRA_REMINDED_PROGRAM, program);

@@ -86,6 +86,7 @@ public class ProgramTableFragment extends Fragment {
   private View.OnClickListener mClickListener;
   
   private View mMenuView;
+  private View mPrevious;
   
   private BroadcastReceiver mDataUpdateReceiver;
   private BroadcastReceiver mUpdateMarkingsReceiver;
@@ -784,6 +785,28 @@ public class ProgramTableFragment extends Fragment {
   }
   
   private void setDayString(TextView currentDay) {
+    if(mPrevious != null) {
+      final Calendar test = Calendar.getInstance();
+      test.add(Calendar.DAY_OF_YEAR, -1);
+      test.set(Calendar.HOUR_OF_DAY, 0);
+      test.set(Calendar.MINUTE, 0);
+      test.set(Calendar.SECOND, 0);
+      test.set(Calendar.MILLISECOND, 0);
+      
+      final Calendar test2 = Calendar.getInstance();
+      test2.setTimeInMillis(mCurrentDate.getTimeInMillis());
+      test2.set(Calendar.HOUR_OF_DAY, 0);
+      test2.set(Calendar.MINUTE, 0);
+      test2.set(Calendar.SECOND, 0);
+      test2.set(Calendar.MILLISECOND, 0);
+      
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          mPrevious.setEnabled(test2.compareTo(test) > 0);
+        }
+      });
+    }
     Date date = mCurrentDate.getTime();
     
     String longDate = DateFormat.getLongDateFormat(getActivity()).format(date);
@@ -865,7 +888,9 @@ public class ProgramTableFragment extends Fragment {
       }
     });
     
-    programTableLayout.findViewById(R.id.switch_to_previous_day).setOnClickListener(new View.OnClickListener() {
+    mPrevious = programTableLayout.findViewById(R.id.switch_to_previous_day);
+    
+    mPrevious.setOnClickListener(new View.OnClickListener() {
       @Override
       public void onClick(View v) {
         changeDay(-1);

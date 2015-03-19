@@ -1055,7 +1055,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       
       mDateAdapter.clear();
       
-      long last = PrefUtils.getLastKnownDataDate(getActivity());
+      long last = PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_LAST_KNOWN, R.integer.meta_data_date_known_default);
       
       Calendar lastDay = Calendar.getInstance();
       lastDay.setTimeInMillis(last);

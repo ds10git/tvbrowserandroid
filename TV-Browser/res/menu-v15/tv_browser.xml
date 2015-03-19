@@ -212,6 +212,14 @@
 		        android:orderInCategory="100"
 		        app:showAsAction="never"
 		        android:title="@string/action_send_reminder_log"/>
+	    	<item android:id="@+id/action_delete_plugin_log"
+		        android:orderInCategory="100"
+		        app:showAsAction="never"
+		        android:title="@string/action_delete_plugin_log"/>
+	    	<item android:id="@+id/action_send_plugin_log"
+		        android:orderInCategory="100"
+		        app:showAsAction="never"
+		        android:title="@string/action_send_plugin_log"/>
         </menu>
     </item>
     <item android:id="@+id/action_reset"

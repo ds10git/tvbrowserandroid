@@ -1655,8 +1655,6 @@ public class TvDataUpdateService extends Service {
     
     edit.commit();
     
-    PrefUtils.updateLastKnownDataDate(TvDataUpdateService.this);
-    
     Intent updateDone = new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
     updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_SUCCESSFULLY, success.getBoolean());
     updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_AUTO_UPDATE, autoUpdate);
@@ -2314,6 +2312,16 @@ public class TvDataUpdateService extends Service {
       }
     }
     
+    PrefUtils.updateDataMetaData(TvDataUpdateService.this);
+    
+    try {
+      doLog("FIRST KNOWN DATA ID: " + PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_FIRST_KNOWN, R.integer.meta_data_id_default));
+      doLog("FIRST KNOWN DATA DATE: " + new Date(PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_FIRST_KNOWN, R.integer.meta_data_date_known_default)));
+      doLog("LAST KNOWN DATA ID: " + PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_LAST_KNOWN, R.integer.meta_data_id_default));
+      doLog("LAST KNOWN DATA DATE: " + new Date(PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_LAST_KNOWN, R.integer.meta_data_date_known_default)));
+    }catch(Throwable tt) {
+      doLog(tt.toString());
+    }
     Intent inform = new Intent(SettingConstants.DATA_UPDATE_DONE);
     inform.putExtra(SettingConstants.EXTRA_DATA_DATE_LAST_KNOWN, PrefUtils.getLongValue(R.string.PREF_LAST_KNOWN_DATA_DATE, SettingConstants.DATA_LAST_DATE_NO_DATA));
     
@@ -2393,7 +2401,7 @@ public class TvDataUpdateService extends Service {
   }
   
   public void doLog(String value) {
-    Logging.log("info7", value, Logging.DATA_UPDATE_TYPE, TvDataUpdateService.this);
+    Logging.log("info7", value, Logging.TYPE_DATA_UPDATE, TvDataUpdateService.this);
   }
   
   private void doLogData(String msg) {
@@ -3035,6 +3043,8 @@ public class TvDataUpdateService extends Service {
   }
   
   private void readCurrentData() {
+    IOUtils.deleteOldData(TvDataUpdateService.this);
+    
     if(mCurrentData != null) {
       mCurrentData.clear();
     }

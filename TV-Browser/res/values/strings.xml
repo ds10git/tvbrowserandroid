@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
 		<h2>0.5.8.4</h2>
+			&bull; new logging for Plugin functions possible<br>
 		    &bull; speed up start<br>
 			&bull; changed auto update process (might prolong battery life)<br>
        	<br>
@@ -423,6 +424,7 @@
     <string name="android">Android:</string>
     <string name="last_data_update">Last data update:</string>
     <string name="next_data_update">Next data update:</string>
+    <string name="data_range_label">Data range:</string>
     <string name="next_data_update_manually">When manually started</string>
     <string name="next_data_update_connection">When connected to Internet</string>
     <string name="copyright">Copyright &#169; 2013, René Mach.</string>
@@ -594,11 +596,15 @@
 	<string name="pref_write_data_update_log_summary">A log file with information about the data update will be written. It is not deleted automatically and keeps growing until it is bigger than 5MB at the begin of the data update or you delete it manually.</string>
 	<string name="pref_write_reminder_update_log">Write log file for Reminder</string>
 	<string name="pref_write_reminder_update_log_summary">A log file with information about the function of the Reminder will be written. It is not deleted automatically and keeps growing until it reaches 5MB.</string>
+	<string name="pref_log_write_plugin_log_title">Write log file for Plugins</string>
+	<string name="pref_log_write_plugin_log_summary">A log file with information about the function of the Plugins will be written. It is not deleted automatically and keeps growing until it reaches 5MB.</string>
 	<string name="pref_debug_summary">Settings for beta tester</string>
 	<string name="action_send_data_update_log">Send log file for data update</string>
 	<string name="action_delete_data_update_log">Delete log file of data update</string>
 	<string name="action_send_reminder_log">Send log file for Reminder</string>
 	<string name="action_delete_reminder_log">Delete log file of Reminder</string>
+	<string name="action_send_plugin_log">Send log file for Plugins</string>
+	<string name="action_delete_plugin_log">Delete log file of Plugins</string>
 	<string name="no_log_file_title">No log file</string>
 	<string name="no_log_file_message">No log file found for sending.</string>
 	<string name="log_file_delete_title">Log file deleted.</string>
@@ -608,6 +614,7 @@
 	<string name="log_file_no_delete_message">Log file could not be deleted.\nIt will be deleted if the app is closed the next time.</string>
 	<string name="log_send_data_update">data update</string>
 	<string name="log_send_reminder">Reminder</string>
+	<string name="log_send_plugin">Plugins</string>
 	<string name="log_send_mail">Send Email</string>
 	<string name="log_send_mail_subject">{0} log file for TV-Browser for Android</string>
 	<string name="log_send_mail_content">The attachments contains the {0} log file of TV-Browser for Android, from</string>

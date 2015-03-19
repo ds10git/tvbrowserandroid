@@ -32,8 +32,9 @@ import android.preference.PreferenceManager;
 import android.util.Log;
 
 public class Logging {
-  public static final int DATA_UPDATE_TYPE = 0;
-  public static final int REMINDER_TYPE = 1;
+  public static final int TYPE_DATA_UPDATE = 0;
+  public static final int TYPE_REMINDER = 1;
+  public static final int TYPE_PLUGIN = 2;
   
   private static RandomAccessFile DATA_UPDATE_LOG;
   @SuppressLint("SimpleDateFormat")
@@ -47,16 +48,22 @@ public class Logging {
       try {
         log.writeBytes(DATE_FORMAT.format(new Date(System.currentTimeMillis())) + ": " + message + "\n");
         
-        if(type == REMINDER_TYPE) {
+        if(type == TYPE_REMINDER || type == TYPE_PLUGIN) {
+          int logKey = R.string.REMINDER_LOG_LAST_POS;
+          
+          if(type == TYPE_PLUGIN) {
+            logKey = R.string.LOG_PLUGIN_LAST_POST;
+          }
+          
           Editor edit = PreferenceManager.getDefaultSharedPreferences(context).edit();
-          edit.putLong(context.getString(R.string.REMINDER_LOG_LAST_POS), log.getFilePointer());
+          edit.putLong(context.getString(logKey), log.getFilePointer());
           edit.commit();
           
           log.writeBytes(" --- NEWEST ENTRY ABOVE THIS LINE --- \n");
         }
       } catch (IOException e) {}
       finally {
-        if(log != null && type == REMINDER_TYPE) {
+        if(log != null && type == TYPE_REMINDER) {
           try {
             log.close();
           } catch (IOException e) {}
@@ -107,21 +114,42 @@ public class Logging {
   
   private static RandomAccessFile getLogFileForType(int type, Context context) {
     RandomAccessFile log = null;
+    String tag = null;
     
-    if(type == DATA_UPDATE_TYPE) {
+    if(type == TYPE_DATA_UPDATE) {
       log = DATA_UPDATE_LOG;
+      tag = "DataUpdate";
     }
-    else if(type == REMINDER_TYPE) {
-      if(PrefUtils.getBooleanValue(R.string.WRITE_REMINDER_LOG, R.bool.write_reminder_log_default)) {
+    else {
+      String fileName = null;
+      int lastPosKey = 0;
+      
+      if(type == TYPE_REMINDER) {
+        tag = "Reminder";
+        if(PrefUtils.getBooleanValue(R.string.WRITE_REMINDER_LOG, R.bool.write_reminder_log_default)) {
+          fileName = "reminder-log.txt";
+          lastPosKey = R.string.REMINDER_LOG_LAST_POS;
+        }
+      }
+      else if(type == TYPE_PLUGIN) {
+        tag = "Plugin";
+        
+        if(PrefUtils.getBooleanValue(R.string.LOG_WRITE_PLUGIN_LOG, R.bool.log_write_plugin_log_default)) {
+          fileName = "plugin-log.txt";
+          lastPosKey = R.string.LOG_PLUGIN_LAST_POST;
+        }
+      }
+      
+      if(fileName != null) {
         try {
           final File path = IOUtils.getDownloadDirectory(context);
           
-          File logFile = new File(path,"reminder-log.txt");
+          File logFile = new File(path,fileName);
           boolean logFileExists = logFile.isFile();
           
           log = new RandomAccessFile(logFile, "rw");
           
-          long pos = PrefUtils.getLongValueWithDefaultKey(R.string.REMINDER_LOG_LAST_POS, R.integer.reminder_log_last_pos_default);
+          long pos = PrefUtils.getLongValueWithDefaultKey(lastPosKey, R.integer.log_last_pos_default);
           
           if(!logFileExists || pos > (5 * 1024 * 1024)) {
             log.seek(0);
@@ -132,11 +160,10 @@ public class Logging {
         }catch(IOException e) {}
       }
     }
-    if(log != null) {
+    if(log != null && tag != null) {
       try {
-        Log.d("Reminder", "" + log.length());
+        Log.d(tag, "" + log.length());
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       }
     }

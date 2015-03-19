@@ -13,7 +13,6 @@ import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 
 public class ServiceUpdateDataTable extends Service {
   private WakeLock mWakeLock;
@@ -55,28 +54,7 @@ public class ServiceUpdateDataTable extends Service {
     mWakeLock.setReferenceCounted(false);
     mWakeLock.acquire(60000);
 
-    Calendar cal2 = Calendar.getInstance();
-    cal2.add(Calendar.DAY_OF_YEAR, -2);
-
-    long daysSince1970 = cal2.getTimeInMillis() / 24 / 60 / 60000;
-
-    try {
-      getContentResolver().delete(
-          TvBrowserContentProvider.CONTENT_URI_DATA,
-          TvBrowserContentProvider.DATA_KEY_STARTTIME + "<"
-              + cal2.getTimeInMillis(), null);
-    } catch (IllegalArgumentException e) {
-    }
-
-    try {
-      getContentResolver().delete(
-          TvBrowserContentProvider.CONTENT_URI_DATA_VERSION,
-          TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + "<"
-              + daysSince1970, null);
-    } catch (IllegalArgumentException e) {
-    }
-
-    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
+    IOUtils.deleteOldData(ServiceUpdateDataTable.this);
     
     if(mWakeLock.isHeld()) {
       mWakeLock.release();
