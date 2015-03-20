@@ -2,6 +2,7 @@ package org.tvbrowser.utils;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Calendar;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -71,13 +72,23 @@ public class ProgramUtils {
       
       if(channel != null) {
         final long startTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-        final long endTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
-        final String title = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
-        final String shortDescription = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
-        final String description = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
-        final String episodeTitle = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
         
-        result = new Program(cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), startTime, endTime, title, shortDescription, description, episodeTitle, channel);
+        Calendar test = Calendar.getInstance();
+        test.add(Calendar.DAY_OF_YEAR, -1);
+        test.set(Calendar.HOUR_OF_DAY, 0);
+        test.set(Calendar.MINUTE, 0);
+        test.set(Calendar.SECOND, 0);
+        test.set(Calendar.MILLISECOND, 0);
+        
+        if(test.getTimeInMillis() <= startTime) {
+          final long endTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+          final String title = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
+          final String shortDescription = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION));
+          final String description = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
+          final String episodeTitle = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
+          
+          result = new Program(cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), startTime, endTime, title, shortDescription, description, episodeTitle, channel);
+        }
       }
     }
     
@@ -89,6 +100,13 @@ public class ProgramUtils {
     SparseArray<Channel> channelMap = new SparseArray<Channel>();
     
     if(cursor != null && !cursor.isClosed() && cursor.moveToFirst() && cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME) != -1) {
+      Calendar test = Calendar.getInstance();
+      test.add(Calendar.DAY_OF_YEAR, -1);
+      test.set(Calendar.HOUR_OF_DAY, 0);
+      test.set(Calendar.MINUTE, 0);
+      test.set(Calendar.SECOND, 0);
+      test.set(Calendar.MILLISECOND, 0);
+      
       int idColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
       int startTimeColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
       int endTimeColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
@@ -113,13 +131,16 @@ public class ProgramUtils {
         
         if(channel != null) {
           final long startTime = cursor.getLong(startTimeColumnIndex);
-          final long endTime = cursor.getLong(endTimeColumnIndex);
-          final String title = cursor.getString(titleColumnIndex);
-          final String shortDescription = cursor.getString(shortDescriptionColumnIndex);
-          final String description = cursor.getString(descriptionColumnIndex);
-          final String episodeTitle = cursor.getString(episodeColumnIndex);
           
-          programsList.add(new Program(cursor.getLong(idColumnIndex), startTime, endTime, title, shortDescription, description, episodeTitle, channel));
+          if(test.getTimeInMillis() <= startTime) {
+            final long endTime = cursor.getLong(endTimeColumnIndex);
+            final String title = cursor.getString(titleColumnIndex);
+            final String shortDescription = cursor.getString(shortDescriptionColumnIndex);
+            final String description = cursor.getString(descriptionColumnIndex);
+            final String episodeTitle = cursor.getString(episodeColumnIndex);
+            
+            programsList.add(new Program(cursor.getLong(idColumnIndex), startTime, endTime, title, shortDescription, description, episodeTitle, channel));
+          }
         }
       }while(cursor.moveToNext());
     }
