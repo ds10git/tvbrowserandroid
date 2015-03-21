@@ -47,9 +47,6 @@ import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.AutoDataUpdateReceiver;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.ServiceUpdateDataTable;
-import org.tvbrowser.tvbrowser.R.bool;
-import org.tvbrowser.tvbrowser.R.integer;
-import org.tvbrowser.tvbrowser.R.string;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -63,7 +60,6 @@ import android.os.Binder;
 import android.os.Environment;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
-import android.support.v4.content.LocalBroadcastManager;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -965,8 +961,5 @@ public class IOUtils {
               + daysSince1970, null);
     } catch (IllegalArgumentException e) {
     }
-
-    LocalBroadcastManager.getInstance(context).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
-    
   }
 }

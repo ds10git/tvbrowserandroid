@@ -1,10 +1,8 @@
 package org.tvbrowser.tvbrowser;
 
-import java.util.Calendar;
-
-import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
 
 import android.app.Service;
 import android.content.Context;
@@ -53,8 +51,11 @@ public class ServiceUpdateDataTable extends Service {
         "DATA TABLE UPDATE");
     mWakeLock.setReferenceCounted(false);
     mWakeLock.acquire(60000);
-
-    IOUtils.deleteOldData(ServiceUpdateDataTable.this);
+    
+    IOUtils.deleteOldData(getApplicationContext());
+    
+    PrefUtils.updateDataMetaData(getApplicationContext());
+    LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
     
     if(mWakeLock.isHeld()) {
       mWakeLock.release();
