@@ -293,7 +293,6 @@ public class TvBrowser extends ActionBarActivity implements
   protected void onCreate(Bundle savedInstanceState) {
     handler = new Handler();
     PrefUtils.initialize(TvBrowser.this);
-    
    // mCurrentDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
     
     Intent start = getIntent();
