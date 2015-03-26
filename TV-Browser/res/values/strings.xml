@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.8.4</h2>
+		<h2>0.5.8.5</h2>
+			&bull; fixed minor problems that could cause crash<br>
+       	<br>
+		<h3>0.5.8.4</h3>
 			&bull; new logging for Plugin functions possible<br>
 		    &bull; speed up start<br>
 			&bull; changed auto update process (might prolong battery life)<br>

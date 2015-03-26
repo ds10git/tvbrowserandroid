@@ -3068,9 +3068,7 @@ public class TvDataUpdateService extends Service {
       int titleColumn = data.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
       int dontWantToSeeColumn = data.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE);
       
-      if(data.getCount() > 0) {
-        data.moveToPosition(-1);
-        
+      if(IOUtils.prepareAccess(data)) {
         try {
           while(!data.isClosed() && data.moveToNext()) {
             long programKey = data.getInt(keyColumn);
@@ -3083,7 +3081,7 @@ public class TvDataUpdateService extends Service {
               frameID = String.valueOf(data.getInt(frameIDColumn));
             }
             
-            if(frameID != null) {
+            if(frameID != null && mCurrentData != null) {
               int channelID = data.getInt(channelColumn);
               long unixDate = data.getLong(unixDateColumn);
               
@@ -3109,7 +3107,8 @@ public class TvDataUpdateService extends Service {
               current.put(frameID, holder);
             }
           }
-        }catch(IllegalStateException e) {}
+        }catch(IllegalStateException e) {
+        }catch(NullPointerException e) {}
       }
     }finally {
       IOUtils.closeCursor(data);
@@ -3290,30 +3289,34 @@ public class TvDataUpdateService extends Service {
   }
   
   private synchronized void addInsert(ContentValues insert) {
-    mDataInsertList.add(insert);
-    
-    if(mDataInsertList.size() > TABLE_OPERATION_MIN_SIZE) {
-      insert(mDataInsertList);
+    if(mDataInsertList != null) {
+      mDataInsertList.add(insert);
+      
+      if(mDataInsertList.size() > TABLE_OPERATION_MIN_SIZE) {
+        insert(mDataInsertList);
+      }
     }
   }
   
   private synchronized void addUpdate(ContentProviderOperation update) {
-    mDataUpdateList.add(update);
-    
-    if(mDataUpdateList.size() > TABLE_OPERATION_MIN_SIZE) {
-      update(mDataUpdateList);
+    if(mDataUpdateList != null) {
+      mDataUpdateList.add(update);
+      
+      if(mDataUpdateList.size() > TABLE_OPERATION_MIN_SIZE) {
+        update(mDataUpdateList);
+      }
     }
   }
   
   private synchronized void insert(ArrayList<ContentValues> insertList) {
-    if(!insertList.isEmpty()) {
+    if(insertList != null && !insertList.isEmpty()) {
       getContentResolver().bulkInsert(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, insertList.toArray(new ContentValues[insertList.size()]));
       insertList.clear();
     }
   }
   
   private synchronized void update(ArrayList<ContentProviderOperation> updateList) {
-    if(!updateList.isEmpty()) {
+    if(updateList != null && !updateList.isEmpty()) {
       try {
         getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateList);
       } catch (RemoteException e) {
@@ -3329,23 +3332,27 @@ public class TvDataUpdateService extends Service {
   }
   
   private synchronized void addVersionInsert(ContentValues insert) {
-    mVersionInsertList.add(insert);
-    
-    if(mVersionInsertList.size() > TABLE_OPERATION_MIN_SIZE/10) {
-      insertVersion(mVersionInsertList);
+    if(mVersionInsertList != null) {
+      mVersionInsertList.add(insert);
+      
+      if(mVersionInsertList.size() > TABLE_OPERATION_MIN_SIZE/10) {
+        insertVersion(mVersionInsertList);
+      }
     }
   }
   
   private synchronized void addVersionUpdate(ContentProviderOperation update) {
-    mVersionUpdateList.add(update);
-    
-    if(mVersionUpdateList.size() > TABLE_OPERATION_MIN_SIZE/10) {
-      update(mVersionUpdateList);
+    if(mVersionUpdateList != null) {
+      mVersionUpdateList.add(update);
+      
+      if(mVersionUpdateList.size() > TABLE_OPERATION_MIN_SIZE/10) {
+        update(mVersionUpdateList);
+      }
     }
   }
   
   private synchronized void insertVersion(ArrayList<ContentValues> insertList) {
-    if(!insertList.isEmpty()) {
+    if(insertList != null && !insertList.isEmpty()) {
       getContentResolver().bulkInsert(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, insertList.toArray(new ContentValues[insertList.size()]));
       insertList.clear();
     }

@@ -962,4 +962,15 @@ public class IOUtils {
     } catch (IllegalArgumentException e) {
     }
   }
+  
+  public static final boolean prepareAccess(Cursor cursor) {
+    boolean result = false;
+    
+    if(cursor != null && cursor.getCount() > 0) {
+      cursor.moveToPosition(-1);
+      result = true;
+    }
+    
+    return result;
+  }
 }
