@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.8.4</h2>
+		<h2>0.5.8.5</h2>
+			&bull; kleinere Probleme, die zum Absturz führen konnten, beseitigt<br>
+       	<br>
+       	<h3>0.5.8.4</h3>
 			&bull; neue Loggingmöglichkeit für Plugin Funktion<br>
 			&bull; Start von TV-Browser beschleunigt<br>
 			&bull; Autoupdate verändert (verlängert möglicherweise Akkulaufzeit)<br>
