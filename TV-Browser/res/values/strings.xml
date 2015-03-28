@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.8.5</h2>
+		<h2>0.5.8.6</h2>
+			&bull; fixed problems during data and "I don't want to see" update that could cause crash<br>
+			&bull; fixed possible crash at startup<br>
+       	<br>
+       	<h3>0.5.8.5</h3>
 			&bull; fixed minor problems that could cause crash<br>
        	<br>
 		<h3>0.5.8.4</h3>
