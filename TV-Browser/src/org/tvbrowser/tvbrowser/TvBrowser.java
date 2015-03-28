@@ -75,7 +75,6 @@ import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.pm.PackageInfo;
@@ -99,7 +98,6 @@ import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -289,9 +287,16 @@ public class TvBrowser extends ActionBarActivity implements
     super.onApplyThemeResource(theme, resid, first);
   }
   
+  private static final int INFO_TYPE_NOTHING = 0;
+  private static final int INFO_TYPE_VERSION = 1;
+  private static final int INFO_TYPE_NEWS = 2;
+  
+  private int mInfoType;
+  
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     handler = new Handler();
+    mInfoType = INFO_TYPE_NOTHING;
     PrefUtils.initialize(TvBrowser.this);
    // mCurrentDay = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
     
@@ -482,21 +487,23 @@ public class TvBrowser extends ActionBarActivity implements
       }
       
       if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < pInfo.versionCode && PrefUtils.getBooleanValue(R.string.PREF_INFO_VERSION_UPDATE_SHOW, R.bool.pref_info_version_update_show_default)) {
-        handler.postDelayed(new Runnable() {
+        mInfoType = INFO_TYPE_VERSION;
+        /*handler.postDelayed(new Runnable() {
           @Override
           public void run() {
             showVersionInfo(true);
           }
-        }, 5000);
+        }, 2000);*/
         
       }
-      else if(oldVersion != getResources().getInteger(R.integer.old_version_default)) {      
-        handler.postDelayed(new Runnable() {
+      else if(oldVersion != getResources().getInteger(R.integer.old_version_default)) {
+        mInfoType = INFO_TYPE_NEWS;
+        /*handler.postDelayed(new Runnable() {
           @Override
           public void run() {
             showNews();
           }
-        }, 5000);
+        }, 2000);*/
       }
       
       if(oldVersion !=  pInfo.versionCode) {
@@ -716,12 +723,23 @@ public class TvBrowser extends ActionBarActivity implements
       mCurrentFilter = FilterValues.load(SettingConstants.ALL_FILTER_ID, TvBrowser.this);
     }
     
+    final int infoType = mInfoType;
+    mInfoType = INFO_TYPE_NOTHING;
+    
     handler.postDelayed(new Runnable() {
       @Override
       public void run() {
-        showEpgDonateInfo();
+        if(infoType == INFO_TYPE_NOTHING) {
+          showEpgDonateInfo();
+        }
+        else if(infoType == INFO_TYPE_VERSION) {
+          showVersionInfo(true);
+        }
+        else if(infoType == INFO_TYPE_NEWS) {
+          showNews();
+        }
       }
-    }, 7000);
+    }, 2000);
     
     if(mProgramListChannelId != FragmentProgramsList.NO_CHANNEL_SELECTION_ID) {
       showProgramsListTab(false);
@@ -1359,7 +1377,8 @@ public class TvBrowser extends ActionBarActivity implements
                     where = "NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE; 
                   }
                   
-                  ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+                  MemorySizeConstrictedDatabaseOperation dontWantToSeeUpdate = new MemorySizeConstrictedDatabaseOperation(TvBrowser.this, null);
+                  //ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
                   Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, where, null, TvBrowserContentProvider.KEY_ID);
                   
                   try {
@@ -1391,7 +1410,8 @@ public class TvBrowser extends ActionBarActivity implements
                       ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
                       opBuilder.withValues(values);
                       
-                      updateValuesList.add(opBuilder.build());
+                      dontWantToSeeUpdate.addUpdate(opBuilder.build());
+                      //updateValuesList.add(opBuilder.build());
                     }
                   }finally {
                     IOUtils.closeCursor(c);
@@ -1400,21 +1420,19 @@ public class TvBrowser extends ActionBarActivity implements
                   builder.setProgress(0, 0, true);
                   notification.notify(notifyID, builder.build());
                   
-                  if(!updateValuesList.isEmpty()) {
-                    try {
-                      getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
-                      UiUtils.sendDontWantToSeeChangedBroadcast(applicationContext,true);
-                      handler.post(new Runnable() {
-                        @Override
-                        public void run() {
-                          Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show();
-                        }
-                      });
-                    } catch (RemoteException e) {
-                      e.printStackTrace();
-                    } catch (OperationApplicationException e) {
-                      e.printStackTrace();
-                    }
+                  if(dontWantToSeeUpdate.operationsAvailable()) {
+                    dontWantToSeeUpdate.finish();
+                    //getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+                    UiUtils.sendDontWantToSeeChangedBroadcast(applicationContext,true);
+                    handler.post(new Runnable() {
+                      @Override
+                      public void run() {
+                        Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show();
+                      }
+                    });
+                  }
+                  else {
+                    dontWantToSeeUpdate.cancel();
                   }
                 }
                 else if(newExclusions.isEmpty()) {
@@ -3420,7 +3438,8 @@ public class TvBrowser extends ActionBarActivity implements
           
           new Thread() {
             public void run() {
-              ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+              MemorySizeConstrictedDatabaseOperation dontWantToSeeUpdate = new MemorySizeConstrictedDatabaseOperation(TvBrowser.this, null);
+              //ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
               Cursor programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.KEY_ID);
               
               try {
@@ -3455,7 +3474,8 @@ public class TvBrowser extends ActionBarActivity implements
                   ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
                   opBuilder.withValues(values);
                   
-                  updateValuesList.add(opBuilder.build());
+                  dontWantToSeeUpdate.addUpdate(opBuilder.build());
+                  //updateValuesList.add(opBuilder.build());
                 }
                 
                 notification.cancel(notifyID);
@@ -3463,21 +3483,19 @@ public class TvBrowser extends ActionBarActivity implements
                 IOUtils.closeCursor(programs);
               }
               
-              if(!updateValuesList.isEmpty()) {
-                try {
-                  getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
-                  UiUtils.sendDontWantToSeeChangedBroadcast(getApplicationContext(),true);
-                  handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                      Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show();
-                    }
-                  });
-                } catch (RemoteException e) {
-                  e.printStackTrace();
-                } catch (OperationApplicationException e) {
-                  e.printStackTrace();
-                }
+              if(dontWantToSeeUpdate.operationsAvailable()) {
+                dontWantToSeeUpdate.finish();
+                  //getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+                UiUtils.sendDontWantToSeeChangedBroadcast(getApplicationContext(),true);
+                handler.post(new Runnable() {
+                  @Override
+                  public void run() {
+                    Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show();
+                  }
+                });
+              }
+              else {
+                dontWantToSeeUpdate.cancel();
               }
               
               updateProgressIcon(false);

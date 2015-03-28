@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.8.5</h2>
+		<h2>0.5.8.6</h2>
+			&bull; Fehler beim Daten- und "Will ich nicht sehen!"-Update beseitigt, die zum Absturz führen konnten<br>
+			&bull; möglichen Absturz beim Start beseitigt<br>
+       	<br>
+		<h3>0.5.8.5</h3>
 			&bull; kleinere Probleme, die zum Absturz führen konnten, beseitigt<br>
        	<br>
        	<h3>0.5.8.4</h3>

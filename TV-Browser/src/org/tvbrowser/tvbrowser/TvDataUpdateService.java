@@ -121,13 +121,16 @@ public class TvDataUpdateService extends Service {
   private Hashtable<String, Hashtable<String, CurrentDataHolder>> mCurrentData;
   private Hashtable<String, int[]> mCurrentVersionIDs;
 
-  private static final int TABLE_OPERATION_MIN_SIZE = Math.max(100, (int)(Runtime.getRuntime().maxMemory()/1000000));
+//  private static final int TABLE_OPERATION_MIN_SIZE = Math.max(100, (int)(Runtime.getRuntime().maxMemory()/1000000));
   
-  private ArrayList<ContentValues> mDataInsertList;
-  private ArrayList<ContentProviderOperation> mDataUpdateList;
-
+  /*private ArrayList<ContentValues> mDataInsertList;
+  private ArrayList<ContentProviderOperation> mDataUpdateList;*/
+  
+  private MemorySizeConstrictedDatabaseOperation mDataDatabaseOperation;
+  private MemorySizeConstrictedDatabaseOperation mVersionDatabaseOperation;
+/*
   private ArrayList<ContentValues> mVersionInsertList;
-  private ArrayList<ContentProviderOperation> mVersionUpdateList;
+  private ArrayList<ContentProviderOperation> mVersionUpdateList;*/
   
   private ArrayList<String> mSyncFavorites;
     
@@ -244,86 +247,88 @@ public class TvDataUpdateService extends Service {
     return null;
   }
   
+  private Thread mOnStartCommandThread;
+  
   @Override
-  public int onStartCommand(final Intent intent, int flags, int startId) {
-    new Thread("DATA UPDATE ON START COMMOAND THREAD") {
-      public void run() {
-        setPriority(NORM_PRIORITY);
-        Logging.openLogForDataUpdate(TvDataUpdateService.this);
-        
-        doLog("Received intent: " + intent);
-        
-        if(intent != null) {
-          doLog("Extra Type: " + intent.getIntExtra(TYPE, TV_DATA_TYPE));
-        }
-        
-        boolean isConnected = false;
-        boolean onlyWifi = false;
-        boolean isInternetConnectionAutoUpdate = false;
-        
-        if(intent != null) {
-          onlyWifi = intent.getBooleanExtra(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA, false);
-          isInternetConnectionAutoUpdate = intent.getBooleanExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE_INTERNET_CONNECTION, false);
-        }
-        
-        if(isInternetConnectionAutoUpdate) {
-          try {
-            sleep(15000);
-          } catch (InterruptedException e) {}
-        }
-        
-        ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-        
-        NetworkInfo lan = CompatUtils.getLanNetworkIfPossible(connMgr);
-        NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-        NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
-        
-        if((wifi != null && wifi.isConnected()) || (lan != null && lan.isConnected())) {
-          isConnected = true;
-        }
-        
-        if(!isConnected && !onlyWifi && mobile != null && mobile.isConnected()) {
-          isConnected = true;
-        }
-        
-        if(isConnected && intent != null) {
-          if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
-            mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(getResources().getString(R.string.days_to_download_default)));
-            updateTvData();
+  public synchronized int onStartCommand(final Intent intent, int flags, int startId) {
+    if(mOnStartCommandThread == null || !mOnStartCommandThread.isAlive()) {
+      mOnStartCommandThread = new Thread("DATA UPDATE ON START COMMOAND THREAD") {
+        public void run() {
+          setPriority(NORM_PRIORITY);
+          Logging.openLogForDataUpdate(TvDataUpdateService.this);
+          
+          doLog("Received intent: " + intent);
+          
+          if(intent != null) {
+            doLog("Extra Type: " + intent.getIntExtra(TYPE, TV_DATA_TYPE));
           }
-          else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
-            updateChannels(false);
+          
+          boolean isConnected = false;
+          boolean onlyWifi = false;
+          boolean isInternetConnectionAutoUpdate = false;
+          
+          if(intent != null) {
+            onlyWifi = intent.getBooleanExtra(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA, false);
+            isInternetConnectionAutoUpdate = intent.getBooleanExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE_INTERNET_CONNECTION, false);
           }
-          else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == REMINDER_DOWN_TYPE) {
-            startSynchronizeRemindersDown(intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true));
+          
+          if(isInternetConnectionAutoUpdate) {
+            try {
+              sleep(15000);
+            } catch (InterruptedException e) {}
           }
-          else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == SYNCHRONIZE_UP_TYPE) {
-            if(intent.hasExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA)) {
-              String address = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA);
-              String value = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_VALUE_EXTRA);
-              boolean showInfo = intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true);
-              
-              startSynchronizeUp(showInfo, value, address);
+          
+          ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+          
+          NetworkInfo lan = CompatUtils.getLanNetworkIfPossible(connMgr);
+          NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+          NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+          
+          if((wifi != null && wifi.isConnected()) || (lan != null && lan.isConnected())) {
+            isConnected = true;
+          }
+          
+          if(!isConnected && !onlyWifi && mobile != null && mobile.isConnected()) {
+            isConnected = true;
+          }
+          
+          if(isConnected && intent != null) {
+            if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
+              mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(getResources().getString(R.string.days_to_download_default)));
+              updateTvData();
+            }
+            else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
+              updateChannels(false);
+            }
+            else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == REMINDER_DOWN_TYPE) {
+              startSynchronizeRemindersDown(intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true));
+            }
+            else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == SYNCHRONIZE_UP_TYPE) {
+              if(intent.hasExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA)) {
+                String address = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA);
+                String value = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_VALUE_EXTRA);
+                boolean showInfo = intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true);
+                
+                startSynchronizeUp(showInfo, value, address);
+              }
+            }
+            else {
+              stopSelfInternal();
             }
           }
           else {
-            stopSelfInternal();
+            if(!IS_RUNNING) {
+              IS_RUNNING = true;
+              mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
+              startForeground(NOTIFY_ID, mBuilder.build());
+              doLog("NO UPDATE DONE, NO INTERNET CONNECTION OR NO INTENT, PROCESS EXISTING DATA");
+              handleStoredDataFromKilledUpdate();
+            }
           }
         }
-        else {
-          if(!IS_RUNNING) {
-            IS_RUNNING = true;
-            mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
-            startForeground(NOTIFY_ID, mBuilder.build());
-            doLog("NO UPDATE DONE, NO INTERNET CONNECTION OR NO INTENT, PROCESS EXISTING DATA");
-            handleStoredDataFromKilledUpdate();
-          }
-          else {
-            stopSelfInternal();
-          }
-        }
-      }
-    }.start();
+      };
+      mOnStartCommandThread.start();
+    }
     
     return Service.START_STICKY;
   }
@@ -502,11 +507,13 @@ public class TvDataUpdateService extends Service {
           
           mDataUpdatePool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
           
-          mDataInsertList = new ArrayList<ContentValues>();
+          mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE);
+          mVersionDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_VERSION,10);
+         /* mDataInsertList = new ArrayList<ContentValues>();
           mDataUpdateList = new ArrayList<ContentProviderOperation>();
-          
-          mVersionInsertList = new ArrayList<ContentValues>();
-          mVersionUpdateList = new ArrayList<ContentProviderOperation>();
+          */
+         /* mVersionInsertList = new ArrayList<ContentValues>();
+          mVersionUpdateList = new ArrayList<ContentProviderOperation>();*/
           
           mCurrentDownloadCount = 0;
           
@@ -536,23 +543,33 @@ public class TvDataUpdateService extends Service {
           
           mShowNotification = false;
           
-          insert(mDataInsertList);
-          insertVersion(mVersionInsertList);
+          if(mDataDatabaseOperation != null) {
+            mDataDatabaseOperation.finish();
+          }
+          if(mVersionDatabaseOperation != null) {
+            mVersionDatabaseOperation.finish();
+          }
           
-          update(mDataUpdateList);      
-          update(mVersionUpdateList);
           
-          mDataInsertList = null;
-          mDataUpdateList = null;
+         // insert(mDataInsertList);
+          //insertVersion(mVersionInsertList);
           
+         // update(mDataUpdateList);      
+          //update(mVersionUpdateList);
+          
+          /*mDataInsertList = null;
+          mDataUpdateList = null;*/
+          /*
           mVersionInsertList = null;      
-          mVersionUpdateList = null;
+          mVersionUpdateList = null;*/
 
           mBuilder.setProgress(100, 0, true);
           notification.notify(NOTIFY_ID, mBuilder.build());
           
-          mCurrentVersionIDs.clear();
-          mCurrentVersionIDs = null;
+          if(mCurrentVersionIDs != null) {
+            mCurrentVersionIDs.clear();
+            mCurrentVersionIDs = null;
+          }
           
           if(mCurrentData != null) {
             mCurrentData.clear();
@@ -596,6 +613,15 @@ public class TvDataUpdateService extends Service {
       int notUpdatedSize = mDataUpdatePool.shutdownNow().size();
       doLog("onDestroy(), notUpdatedSize: " + notUpdatedSize);
     }
+    if(mDataDatabaseOperation != null) {
+      mDataDatabaseOperation.cancel();
+    }
+    if(mVersionDatabaseOperation != null) {
+      mVersionDatabaseOperation.cancel();
+    }
+    
+    mDataDatabaseOperation = null;
+    mVersionDatabaseOperation = null;
     
     stopForeground(true);
     ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFY_ID);
@@ -614,6 +640,9 @@ public class TvDataUpdateService extends Service {
   }
   
   private void stopSelfInternal() {
+    mDataDatabaseOperation = null;
+    mVersionDatabaseOperation = null;
+    
     if(mWakeLock != null && mWakeLock.isHeld()) {
       mWakeLock.release();
     }
@@ -2913,12 +2942,14 @@ public class TvDataUpdateService extends Service {
       //mDontWantToSeeValues = null;
       Log.d("info5", "updateCount " + downloadCountTemp);
       
-      mDataInsertList = new ArrayList<ContentValues>();
-      mDataUpdateList = new ArrayList<ContentProviderOperation>();
+      mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE);
+      mVersionDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_VERSION,10);
+     /* mDataInsertList = new ArrayList<ContentValues>();
+      mDataUpdateList = new ArrayList<ContentProviderOperation>();*/
       
-      mVersionInsertList = new ArrayList<ContentValues>();
+      /*mVersionInsertList = new ArrayList<ContentValues>();
       mVersionUpdateList = new ArrayList<ContentProviderOperation>();
-      
+      */
       if(downloadCountTemp > 0) {
         readCurrentData();
                 
@@ -2960,23 +2991,31 @@ public class TvDataUpdateService extends Service {
       
       mShowNotification = false;
       
-      insert(mDataInsertList);
-      insertVersion(mVersionInsertList);
+      if(mDataDatabaseOperation != null) {
+        mDataDatabaseOperation.finish();
+      }
+      if(mVersionDatabaseOperation != null) {
+        mVersionDatabaseOperation.finish();
+      }
+//      insert(mDataInsertList);
+     // insertVersion(mVersionInsertList);
       
-      update(mDataUpdateList);      
-      update(mVersionUpdateList);
+  //    update(mDataUpdateList);      
+    //  update(mVersionUpdateList);
       
-      mDataInsertList = null;
+    /*  mDataInsertList = null;
       mDataUpdateList = null;
-      
-      mVersionInsertList = null;      
-      mVersionUpdateList = null;
+      */
+      /*mVersionInsertList = null;      
+      mVersionUpdateList = null;*/
 
       mBuilder.setProgress(100, 0, true);
       notification.notify(NOTIFY_ID, mBuilder.build());
       
-      mCurrentVersionIDs.clear();
-      mCurrentVersionIDs = null;
+      if(mCurrentVersionIDs != null) {
+        mCurrentVersionIDs.clear();
+        mCurrentVersionIDs = null;
+      }
       
       if(mCurrentData != null) {
         mCurrentData.clear();
@@ -3043,7 +3082,11 @@ public class TvDataUpdateService extends Service {
   }
   
   private void readCurrentData() {
-    IOUtils.deleteOldData(TvDataUpdateService.this);
+    try {
+      IOUtils.deleteOldData(TvDataUpdateService.this);
+    }catch(Throwable t) {
+      doLog(t.toString());
+    }
     
     if(mCurrentData != null) {
       mCurrentData.clear();
@@ -3288,7 +3331,7 @@ public class TvDataUpdateService extends Service {
     test.close();
   }
   
-  private synchronized void addInsert(ContentValues insert) {
+ /*private synchronized void addInsert(ContentValues insert) {
     if(mDataInsertList != null) {
       mDataInsertList.add(insert);
       
@@ -3357,7 +3400,7 @@ public class TvDataUpdateService extends Service {
       insertList.clear();
     }
   }
-  
+  */
   private class UrlFileHolder {
     private File mDownloadFile;
     private String mDownloadURL;
@@ -3701,14 +3744,16 @@ public class TvDataUpdateService extends Service {
       
       int[] versionInfo = mCurrentVersionIDs.get(update.getChannelID() + "_" + daysSince1970);
       
-      if(versionInfo == null) {
-        addVersionInsert(values);
+      if(versionInfo == null && mVersionDatabaseOperation != null) {
+        mVersionDatabaseOperation.addInsert(values);
+        //addVersionInsert(values);
       }
-      else {
+      else if(mVersionDatabaseOperation != null) {
         ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, versionInfo[0]));
         opBuilder.withValues(values);
      
-        addVersionUpdate(opBuilder.build());
+        mVersionDatabaseOperation.addUpdate(opBuilder.build());
+        //addVersionUpdate(opBuilder.build());
       }
     }
   }
@@ -3919,14 +3964,16 @@ public class TvDataUpdateService extends Service {
       
       Log.d("info21","currentInfo " + versionInfo + " BASE " + values.getAsByte(TvBrowserContentProvider.VERSION_KEY_BASE_VERSION));
       
-      if(versionInfo == null) {
-        addVersionInsert(values);
+      if(versionInfo == null && mVersionDatabaseOperation != null) {
+        mVersionDatabaseOperation.addInsert(values);
+        //addVersionInsert(values);
       }
-      else {
+      else if(mVersionDatabaseOperation != null) {
         ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, versionInfo[0]));
         opBuilder.withValues(values);
      
-        addVersionUpdate(opBuilder.build());
+        mVersionDatabaseOperation.addUpdate(opBuilder.build());
+        //addVersionUpdate(opBuilder.build());
       }
     }
   }
@@ -4141,8 +4188,9 @@ public class TvDataUpdateService extends Service {
            toAdd = mInsertValuesList.get(i);
          }
          for(ContentValues values : mInsertValuesList) {
-           if(values.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
-             addInsert(values);
+           if(values.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME) && mDataDatabaseOperation != null) {
+             mDataDatabaseOperation.addInsert(values);
+             //addInsert(values);
            }
          }
        }
@@ -4151,11 +4199,12 @@ public class TvDataUpdateService extends Service {
          for(Long programID : mUpdateValueMap.keySet()) {
            ContentValues value = mUpdateValueMap.get(programID);
            
-           if(value != null) {
+           if(value != null && mDataDatabaseOperation != null) {
              ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, programID));
              opBuilder.withValues(value);
           
-             addUpdate(opBuilder.build());
+             mDataDatabaseOperation.addUpdate(opBuilder.build());
+             //addUpdate(opBuilder.build());
            }
          }
        }
