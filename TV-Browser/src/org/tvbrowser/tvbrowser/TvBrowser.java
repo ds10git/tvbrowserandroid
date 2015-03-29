@@ -1115,24 +1115,24 @@ public class TvBrowser extends ActionBarActivity implements
       builder.setPositiveButton(R.string.synchronize_add, new OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-          syncronizeChannels(false);
+          synchronizeChannels(false);
         }
       });
       builder.setNegativeButton(R.string.synchronize_replace, new OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-          syncronizeChannels(true);
+          synchronizeChannels(true);
         }
       });
       
       builder.show();
     }
     else {
-      syncronizeChannels(false);
+      synchronizeChannels(false);
     }
   }
   
-  private void syncronizeChannels(final boolean replace) {
+  private void synchronizeChannels(final boolean replace) {
     new Thread() {
       public void run() {
         boolean somethingSynchonized = false;
@@ -1172,6 +1172,9 @@ public class TvBrowser extends ActionBarActivity implements
             
             int sort = 1;
             
+            final String[] projection = {TvBrowserContentProvider.KEY_ID};
+            final ContentResolver resolver = getContentResolver();
+            
             while((line = read.readLine()) != null) {
               if(line.trim().length() > 0) {
                 if(line.contains(":")) {
@@ -1204,32 +1207,44 @@ public class TvBrowser extends ActionBarActivity implements
                   if(dataService != null) {  
                     String where = " ( " + TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + " = '" + dataService + "' ) AND ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "='" + groupKey + "' ) ";
                     
-                    Cursor group = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
+                    Cursor group = resolver.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, where, null, null);
                     
-                    if(group.moveToFirst()) {
-                      int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-                      
-                      where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=" + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "='" + channelId + "' ) ";
-                      
-                      ContentValues values = new ContentValues();
-                      
-                      if(sortNumber != null) {
+                    try {
+                      if(IOUtils.prepareAccess(group) && group.moveToFirst()) {
+                        int groupId = group.getInt(group.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                        
+                        where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=" + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "='" + channelId + "' ) ";
+                        
+                        ContentValues values = new ContentValues();
+                        
+                        if(sortNumber != null) {
+                          try {
+                            sort = Integer.parseInt(sortNumber);
+                          }catch(NumberFormatException e) {}
+                        }
+                        
+                        values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
+                        values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, sort);
+                        
+                        Cursor channelIdCursor = resolver.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where, null, TvBrowserContentProvider.KEY_ID + " ASC LIMIT 1");
+                        
                         try {
-                          sort = Integer.parseInt(sortNumber);
-                        }catch(NumberFormatException e) {}
+                          if(IOUtils.prepareAccess(channelIdCursor) && channelIdCursor.moveToFirst()) {
+                            int id = channelIdCursor.getInt(channelIdCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                            
+                            int changed = getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS,id), values, null, null);
+                            
+                            if(changed > 0) {
+                              somethingSynchonized = true;
+                            }
+                          }
+                        }finally {
+                          IOUtils.closeCursor(channelIdCursor);
+                        }
                       }
-                      
-                      values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
-                      values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, sort);
-                      
-                      int changed = getContentResolver().update(TvBrowserContentProvider.CONTENT_URI_CHANNELS, values, where, null);
-                      
-                      if(changed > 0) {
-                        somethingSynchonized = true;
-                      }
+                    }finally {
+                      IOUtils.closeCursor(group);
                     }
-                    
-                    group.close();
                     
                     sort++;
                   }
