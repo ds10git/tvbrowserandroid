@@ -2373,7 +2373,7 @@ public class TvDataUpdateService extends Service {
     edit.commit();
     
     Favorite.handleDataUpdateFinished();
-        
+    
     stopForeground(true);
     
     if(IOUtils.isInteractive(TvDataUpdateService.this)) {
