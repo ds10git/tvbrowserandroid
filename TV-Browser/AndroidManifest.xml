@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.tvbrowser.tvbrowser"
     android:installLocation="auto"
-    android:versionCode="337"
+    android:versionCode="338"
     android:versionName="0.5.8.6" >
 
     <uses-sdk

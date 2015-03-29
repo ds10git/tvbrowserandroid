@@ -525,7 +525,7 @@ public class IOUtils {
     return bytesOut.toByteArray();
   }
   
-  public static final void setDataUpdateTime(Context context, long time, SharedPreferences pref) {
+  public static final synchronized void setDataUpdateTime(Context context, long time, SharedPreferences pref) {
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
     Intent dataUpdate = new Intent(context, AutoDataUpdateReceiver.class);
@@ -538,7 +538,7 @@ public class IOUtils {
     }
   }
   
-  public static final void removeDataUpdateTime(Context context, SharedPreferences pref) {
+  public static final synchronized void removeDataUpdateTime(Context context, SharedPreferences pref) {
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
     Intent dataUpdate = new Intent(context, AutoDataUpdateReceiver.class);
@@ -572,7 +572,11 @@ public class IOUtils {
     alarmManager.set(AlarmManager.RTC_WAKEUP, now.getTimeInMillis(), pending);
   }
   
-  public static final void handleDataUpdatePreferences(Context context) {
+  public static final synchronized void handleDataUpdatePreferences(Context context) {
+    handleDataUpdatePreferences(context,false);
+  }
+  
+  public static final synchronized void handleDataUpdatePreferences(Context context, boolean fromNow) {
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
     IOUtils.removeDataUpdateTime(context, pref);
     
@@ -581,7 +585,7 @@ public class IOUtils {
       int time = PrefUtils.getIntValue(R.string.PREF_AUTO_UPDATE_START_TIME, R.integer.pref_auto_update_start_time_default);
       long current = PrefUtils.getLongValue(R.string.AUTO_UPDATE_CURRENT_START_TIME, R.integer.auto_update_current_start_time_default);
 
-      if(current < System.currentTimeMillis() - 5000) {
+      if(current < System.currentTimeMillis()) {
         long lastDate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, R.integer.last_data_update_default);
              
         if(lastDate == 0) {
@@ -590,6 +594,10 @@ public class IOUtils {
           Editor edit = pref.edit();
           edit.putLong(context.getString(R.string.LAST_DATA_UPDATE), lastDate);
           edit.commit();
+        }
+        
+        if(fromNow) {
+          current = System.currentTimeMillis();
         }
         
         time += ((int)(Math.random() * 6 * 60));

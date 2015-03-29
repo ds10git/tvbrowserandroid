@@ -108,7 +108,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
           Logging.closeLogForDataUpdate();
           
           if (isConnected && (UPDATE_THREAD == null || !UPDATE_THREAD.isAlive())) {
-            IOUtils.handleDataUpdatePreferences(context);
+            IOUtils.handleDataUpdatePreferences(context,true);
             
             if(!TvDataUpdateService.IS_RUNNING) {
               Intent startDownload = new Intent(context, TvDataUpdateService.class);
