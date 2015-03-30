@@ -28,7 +28,7 @@ public class ServiceUpdateDataTable extends Service {
     Thread background = new Thread("DATA TABLE UPDATE THREAD") {
       @Override
       public void run() {
-        while (TvDataUpdateService.IS_RUNNING) {
+        while (TvDataUpdateService.isRunning()) {
           try {
             sleep(500);
           } catch (InterruptedException e) {

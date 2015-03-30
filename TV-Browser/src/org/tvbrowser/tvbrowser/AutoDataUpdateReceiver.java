@@ -103,14 +103,14 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
             isConnected = isConnected || (mobile != null && mobile.isConnectedOrConnecting());
           }
           
-          Logging.log(TAG, "AUTO DATA UPDATE isConnected: " + isConnected + " IS_RUNNING: " + TvDataUpdateService.IS_RUNNING + " UPDATE_THREAD: " + UPDATE_THREAD, Logging.TYPE_DATA_UPDATE, context);
+          Logging.log(TAG, "AUTO DATA UPDATE isConnected: " + isConnected + " IS_RUNNING: " + TvDataUpdateService.isRunning() + " UPDATE_THREAD: " + UPDATE_THREAD, Logging.TYPE_DATA_UPDATE, context);
           
           Logging.closeLogForDataUpdate();
           
           if (isConnected && (UPDATE_THREAD == null || !UPDATE_THREAD.isAlive())) {
             IOUtils.handleDataUpdatePreferences(context,true);
             
-            if(!TvDataUpdateService.IS_RUNNING) {
+            if(!TvDataUpdateService.isRunning()) {
               Intent startDownload = new Intent(context, TvDataUpdateService.class);
               startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
               startDownload.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);

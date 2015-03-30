@@ -106,8 +106,7 @@ public class TvDataUpdateService extends Service {
   private static final int BASE_LEVEL = 0;
   private static final int MORE_LEVEL = 1;
   private static final int PICTURE_LEVEL = 2;
-    
-  public static boolean IS_RUNNING = false;
+  
   private ExecutorService mThreadPool;
   private ExecutorService mDataUpdatePool;
   private Handler mHandler;
@@ -117,6 +116,8 @@ public class TvDataUpdateService extends Service {
   private int mCurrentDownloadCount;
   private int mUnsuccessfulDownloads;
   private int mDaysToLoad;
+  
+  private static Thread ON_START_COMMAND_THEAD;
   
   private Hashtable<String, Hashtable<String, CurrentDataHolder>> mCurrentData;
   private Hashtable<String, int[]> mCurrentVersionIDs;
@@ -247,12 +248,10 @@ public class TvDataUpdateService extends Service {
     return null;
   }
   
-  private Thread mOnStartCommandThread;
-  
   @Override
   public synchronized int onStartCommand(final Intent intent, int flags, int startId) {
-    if(mOnStartCommandThread == null || !mOnStartCommandThread.isAlive()) {
-      mOnStartCommandThread = new Thread("DATA UPDATE ON START COMMOAND THREAD") {
+    if(!isRunning()) {
+      ON_START_COMMAND_THEAD = new Thread("DATA UPDATE ON START COMMOAND THREAD") {
         public void run() {
           setPriority(NORM_PRIORITY);
           Logging.openLogForDataUpdate(TvDataUpdateService.this);
@@ -317,20 +316,21 @@ public class TvDataUpdateService extends Service {
             }
           }
           else {
-            if(!IS_RUNNING) {
-              IS_RUNNING = true;
-              mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
-              startForeground(NOTIFY_ID, mBuilder.build());
-              doLog("NO UPDATE DONE, NO INTERNET CONNECTION OR NO INTENT, PROCESS EXISTING DATA");
-              handleStoredDataFromKilledUpdate();
-            }
+            mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
+            startForeground(NOTIFY_ID, mBuilder.build());
+            doLog("NO UPDATE DONE, NO INTERNET CONNECTION OR NO INTENT, PROCESS EXISTING DATA");
+            handleStoredDataFromKilledUpdate();
           }
         }
       };
-      mOnStartCommandThread.start();
+      ON_START_COMMAND_THEAD.start();
     }
     
     return Service.START_STICKY;
+  }
+  
+  public static final boolean isRunning() {
+    return ON_START_COMMAND_THEAD != null && ON_START_COMMAND_THEAD.isAlive();
   }
   
   private void handleStoredDataFromKilledUpdate() {
@@ -343,7 +343,6 @@ public class TvDataUpdateService extends Service {
     
     mShowNotification = true;
     mUnsuccessfulDownloads = 0;
-    IS_RUNNING = true;
     
     doLog("Favorite.handleDataUpdateStarted()");
     Favorite.handleDataUpdateStarted();
@@ -633,9 +632,7 @@ public class TvDataUpdateService extends Service {
     }
     
     Logging.closeLogForDataUpdate();
-    
-    IS_RUNNING = false;
-    
+        
     super.onDestroy();
   }
   
@@ -1231,69 +1228,65 @@ public class TvDataUpdateService extends Service {
   private boolean mHadChannels;
   
   private void updateChannels(final boolean autoUpdate) {
-    if(!IS_RUNNING) {
-      IS_RUNNING = true;
-      
-      final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-      mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBUPDATE_LOCK");
-      mWakeLock.setReferenceCounted(false);
-      mWakeLock.acquire(10*60000L);
-      
-      mBuilder.setProgress(100, 0, true);
-      mBuilder.setContentTitle(getResources().getText(R.string.channel_notification_title));
-      mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
-      startForeground(NOTIFY_ID, mBuilder.build());
-      
-      mCurrentChannelData = new Hashtable<String, Object>();
-      
-      mChannelsNew = new ArrayList<String>();
-      mChannelsUpdate = new ArrayList<Integer>();
-      
-      final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.GROUP_KEY_GROUP_ID,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_SELECTION};
-      
-      Cursor currentChannels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, null, null, null);
+    final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+    mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBUPDATE_LOCK");
+    mWakeLock.setReferenceCounted(false);
+    mWakeLock.acquire(10*60000L);
+    
+    mBuilder.setProgress(100, 0, true);
+    mBuilder.setContentTitle(getResources().getText(R.string.channel_notification_title));
+    mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
+    startForeground(NOTIFY_ID, mBuilder.build());
+    
+    mCurrentChannelData = new Hashtable<String, Object>();
+    
+    mChannelsNew = new ArrayList<String>();
+    mChannelsUpdate = new ArrayList<Integer>();
+    
+    final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.GROUP_KEY_GROUP_ID,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_SELECTION};
+    
+    Cursor currentChannels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, null, null, null);
 
-      try {
-        currentChannels.moveToPosition(-1);
-        
-        final int idIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-        final int groupKeyIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-        final int channelKeyIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-        final int channelNameIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-        final int channelSelectionIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
-        
-        while(currentChannels.moveToNext()) {
-          String key = IOUtils.getUniqueChannelKey(currentChannels.getString(groupKeyIndex), currentChannels.getString(channelKeyIndex));
-          mCurrentChannelData.put(key, new Object[] {Integer.valueOf(currentChannels.getInt(idIndex)) , currentChannels.getString(channelNameIndex), Integer.valueOf(currentChannels.getInt(channelSelectionIndex))});
-        }
-      }finally {
-        if(currentChannels != null) {
-          currentChannels.close();
-        }
+    try {
+      currentChannels.moveToPosition(-1);
+      
+      final int idIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+      final int groupKeyIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+      final int channelKeyIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+      final int channelNameIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+      final int channelSelectionIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
+      
+      while(currentChannels.moveToNext()) {
+        String key = IOUtils.getUniqueChannelKey(currentChannels.getString(groupKeyIndex), currentChannels.getString(channelKeyIndex));
+        mCurrentChannelData.put(key, new Object[] {Integer.valueOf(currentChannels.getInt(idIndex)) , currentChannels.getString(channelNameIndex), Integer.valueOf(currentChannels.getInt(channelSelectionIndex))});
       }
-      
-      mHadChannels = !mCurrentChannelData.isEmpty();
-      
-      final File path = IOUtils.getDownloadDirectory(TvDataUpdateService.this.getApplicationContext());
+    }finally {
+      if(currentChannels != null) {
+        currentChannels.close();
+      }
+    }
+    
+    mHadChannels = !mCurrentChannelData.isEmpty();
+    
+    final File path = IOUtils.getDownloadDirectory(TvDataUpdateService.this.getApplicationContext());
 
-      File groups = new File(path,GROUP_FILE);
-      
-      String mirror = getGroupFileMirror();
-      doLog("LOAD GROUPS FROM '" + mirror + "' to '" + groups + "'");
-      if(mirror != null) {
-        try {
-          IOUtils.saveUrl(groups.getAbsolutePath(), mirror);
-          doLog("START GROUP UPDATE");
-          updateGroups(groups, path, autoUpdate);
-        } catch (Exception e) {
-          Intent updateDone = new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
-          updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_SUCCESSFULLY, false);
-          updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_AUTO_UPDATE, autoUpdate);
-          
-          LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
-          
-          stopSelfInternal();
-        }
+    File groups = new File(path,GROUP_FILE);
+    
+    String mirror = getGroupFileMirror();
+    doLog("LOAD GROUPS FROM '" + mirror + "' to '" + groups + "'");
+    if(mirror != null) {
+      try {
+        IOUtils.saveUrl(groups.getAbsolutePath(), mirror);
+        doLog("START GROUP UPDATE");
+        updateGroups(groups, path, autoUpdate);
+      } catch (Exception e) {
+        Intent updateDone = new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
+        updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_SUCCESSFULLY, false);
+        updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_AUTO_UPDATE, autoUpdate);
+        
+        LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
+        
+        stopSelfInternal();
       }
     }
   }
@@ -1690,7 +1683,6 @@ public class TvDataUpdateService extends Service {
     
     LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
     
-    IS_RUNNING = false;
     stopForeground(true);
     stopSelfInternal();
   }
@@ -2380,9 +2372,7 @@ public class TvDataUpdateService extends Service {
       UiUtils.updateImportantProgramsWidget(getApplicationContext());
       UiUtils.updateRunningProgramsWidget(getApplicationContext());
     }
-    
-    IS_RUNNING = false;
-    
+        
     if(PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0) + (14 * 24 * 60 * 60000L) < System.currentTimeMillis()) {
       updateChannels(true);
     }
@@ -2505,532 +2495,525 @@ public class TvDataUpdateService extends Service {
   }
   
   private void updateTvData() {
-    doLog("Running state: " + IS_RUNNING);
-    if(!IS_RUNNING) {
-      final UncaughtExceptionHandler handleExc = new UncaughtExceptionHandler() {
-        @Override
-        public void uncaughtException(Thread thread, Throwable ex) {
-          doLog("UNCAUGHT EXCEPTION Thread: " + thread.getName() + " Throwable " + ex.toString());
-        }
-      };
-      
-      PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-      mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBUPDATE_LOCK");
-      mWakeLock.setReferenceCounted(false);
-      mWakeLock.acquire(120*60000L);
-      
-      mShowNotification = true;
-      mUnsuccessfulDownloads = 0;
-      IS_RUNNING = true;
-      
-      doLog("Favorite.handleDataUpdateStarted()");
-      Favorite.handleDataUpdateStarted();
-      
-      final File path = IOUtils.getDownloadDirectory(TvDataUpdateService.this.getApplicationContext());
-      
-      File[] oldDataFiles = path.listFiles(new FileFilter() {
-        @Override
-        public boolean accept(File pathname) {
-          return pathname.getName().toLowerCase().endsWith(".gz");
-        }
-      });
-      
-      for(File oldFile : oldDataFiles) {
-        deleteFile(oldFile);
+    final UncaughtExceptionHandler handleExc = new UncaughtExceptionHandler() {
+      @Override
+      public void uncaughtException(Thread thread, Throwable ex) {
+        doLog("UNCAUGHT EXCEPTION Thread: " + thread.getName() + " Throwable " + ex.toString());
       }
-      
-      int[] levels = null;
-            
-      Set<String> exclusions = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
-      
-      if(exclusions != null) {
-        mDontWantToSeeValues = new DontWantToSeeExclusion[exclusions.size()];
-        
-        int i = 0;
-        
-        for(String exclusion : exclusions) {
-          mDontWantToSeeValues[i++] = new DontWantToSeeExclusion(exclusion);
-        }
+    };
+    
+    PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+    mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBUPDATE_LOCK");
+    mWakeLock.setReferenceCounted(false);
+    mWakeLock.acquire(120*60000L);
+    
+    mShowNotification = true;
+    mUnsuccessfulDownloads = 0;
+    
+    doLog("Favorite.handleDataUpdateStarted()");
+    Favorite.handleDataUpdateStarted();
+    
+    final File path = IOUtils.getDownloadDirectory(TvDataUpdateService.this.getApplicationContext());
+    
+    File[] oldDataFiles = path.listFiles(new FileFilter() {
+      @Override
+      public boolean accept(File pathname) {
+        return pathname.getName().toLowerCase().endsWith(".gz");
       }
+    });
+    
+    for(File oldFile : oldDataFiles) {
+      deleteFile(oldFile);
+    }
+    
+    int[] levels = null;
+          
+    Set<String> exclusions = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
+    
+    if(exclusions != null) {
+      mDontWantToSeeValues = new DontWantToSeeExclusion[exclusions.size()];
       
-      if(PrefUtils.getBooleanValue(R.string.LOAD_FULL_DATA, R.bool.load_full_data_default)) {
-        if(PrefUtils.getBooleanValue(R.string.LOAD_PICTURE_DATA, R.bool.load_picture_data_default)) {
-          levels = new int[5];
-        }
-        else {
-          levels = new int[3];
-        }
-        
-        for(int j = 0; j < levels.length; j++) {
-          levels[j] = j;
-        }
+      int i = 0;
+      
+      for(String exclusion : exclusions) {
+        mDontWantToSeeValues[i++] = new DontWantToSeeExclusion(exclusion);
       }
-      else if (PrefUtils.getBooleanValue(R.string.LOAD_PICTURE_DATA, R.bool.load_picture_data_default)) {
-        levels = new int[3];
-        
-        levels[0] = 0;
-        levels[1] = 3;
-        levels[2] = 4;
+    }
+    
+    if(PrefUtils.getBooleanValue(R.string.LOAD_FULL_DATA, R.bool.load_full_data_default)) {
+      if(PrefUtils.getBooleanValue(R.string.LOAD_PICTURE_DATA, R.bool.load_picture_data_default)) {
+        levels = new int[5];
       }
       else {
-        levels = new int[1];
-        
-        levels[0] = 0;
+        levels = new int[3];
       }
       
-      mCurrentDownloadCount = 0;
-      mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
-      mBuilder.setContentText(getResources().getText(R.string.update_notification_text));
+      for(int j = 0; j < levels.length; j++) {
+        levels[j] = j;
+      }
+    }
+    else if (PrefUtils.getBooleanValue(R.string.LOAD_PICTURE_DATA, R.bool.load_picture_data_default)) {
+      levels = new int[3];
       
-      startForeground(NOTIFY_ID, mBuilder.build());
-      final NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-      //notification.notify(NOTIFY_ID, mBuilder.build());*/
-      doLog("loadAccessAndFavoriteSync()");
-      loadAccessAndFavoriteSync();
+      levels[0] = 0;
+      levels[1] = 3;
+      levels[2] = 4;
+    }
+    else {
+      levels = new int[1];
       
-      TvBrowserContentProvider.INFORM_FOR_CHANGES = false;
+      levels[0] = 0;
+    }
+    
+    mCurrentDownloadCount = 0;
+    mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
+    mBuilder.setContentText(getResources().getText(R.string.update_notification_text));
+    
+    startForeground(NOTIFY_ID, mBuilder.build());
+    final NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+    //notification.notify(NOTIFY_ID, mBuilder.build());*/
+    doLog("loadAccessAndFavoriteSync()");
+    loadAccessAndFavoriteSync();
+    
+    TvBrowserContentProvider.INFORM_FOR_CHANGES = false;
+    
+    ContentResolver cr = getContentResolver();
+    
+    StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
+   // where.append(" = 1");
+    
+    final ArrayList<ChannelUpdate> updateList = new ArrayList<ChannelUpdate>();
+    int downloadCountTemp = 0;
+    doLog("readCurrentVersionIDs()");
+    readCurrentVersionIDs();
+    
+    DataHandler epgFreeDataHandler = new EPGfreeDataHandler();
+    DataHandler epgDonateDataHandler = new EPGdonateDataHandler();
+    
+    ArrayList<MirrorDownload> downloadMirrorList = new ArrayList<MirrorDownload>();
+    
+    Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+    doLog("channelCursor: " + channelCursor);
+    boolean donationInfoLoaded = false;
+    
+    if(channelCursor.moveToFirst()) {
+      int lastGroup = -1;
+      Mirror mirror = null;
+      String groupId = null;
+      Summary summary = null;
+      String channelName = null;
       
-      ContentResolver cr = getContentResolver();
-      
-      StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
-     // where.append(" = 1");
-      
-      final ArrayList<ChannelUpdate> updateList = new ArrayList<ChannelUpdate>();
-      int downloadCountTemp = 0;
-      doLog("readCurrentVersionIDs()");
-      readCurrentVersionIDs();
-      
-      DataHandler epgFreeDataHandler = new EPGfreeDataHandler();
-      DataHandler epgDonateDataHandler = new EPGdonateDataHandler();
-      
-      ArrayList<MirrorDownload> downloadMirrorList = new ArrayList<MirrorDownload>();
-      
-      Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-      doLog("channelCursor: " + channelCursor);
-      boolean donationInfoLoaded = false;
-      
-      if(channelCursor.moveToFirst()) {
-        int lastGroup = -1;
-        Mirror mirror = null;
-        String groupId = null;
-        Summary summary = null;
-        String channelName = null;
-        
-        do {
-          try {
-            int groupKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
-            int channelKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-            String timeZone = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE));
-            channelName = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-            doLog("Load info for channel " + channelName);
-            
-            if(lastGroup != groupKey) {
-              summary = null;
-              mirror = null;
-              groupId = null;
-              doLog("Content URI for data update " + ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey));
-              Cursor group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
-              doLog("Cursor size for groupKey: " + group.getCount());
-              if(group.getCount() > 0) {
-                group.moveToFirst();
+      do {
+        try {
+          int groupKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
+          int channelKey = channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+          String timeZone = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE));
+          channelName = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+          doLog("Load info for channel " + channelName);
+          
+          if(lastGroup != groupKey) {
+            summary = null;
+            mirror = null;
+            groupId = null;
+            doLog("Content URI for data update " + ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey));
+            Cursor group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
+            doLog("Cursor size for groupKey: " + group.getCount());
+            if(group.getCount() > 0) {
+              group.moveToFirst();
+              
+              groupId = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
+              String mirrorURL = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS));
+              Log.d("info21", "GROUPID " + groupId + " " + mirrorURL);
+              doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
+              doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
+              
+              if(!mirrorURL.toLowerCase().startsWith("http://") && !mirrorURL.toLowerCase().startsWith("https://")) {
+                doLog("RELOAD MIRRORS FOR '" + groupId);
+                mirrorURL = reloadMirrors(groupId, path);
                 
-                groupId = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
-                String mirrorURL = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS));
-                Log.d("info21", "GROUPID " + groupId + " " + mirrorURL);
                 doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
                 doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
-                
-                if(!mirrorURL.toLowerCase().startsWith("http://") && !mirrorURL.toLowerCase().startsWith("https://")) {
-                  doLog("RELOAD MIRRORS FOR '" + groupId);
-                  mirrorURL = reloadMirrors(groupId, path);
-                  
-                  doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
-                  doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
-                }
-                
-                boolean checkOnlyConnection = false;
-                
-                if(groupId.equals(SettingConstants.EPG_DONATE_GROUP_KEY)) {
-                  checkOnlyConnection = true;
-                }
-                
-                Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL);
-                Log.d("info21", "MIRRORS AVAILABLE " + mirrors);
-                mirror = Mirror.getMirrorToUseForGroup(mirrors, groupId, this, checkOnlyConnection);                
-                doLog("Choosen mirror for group '" + groupId + "': " + mirror);
-                
-                Log.d("info21", "MIRROR CHOOSEN " + mirror);
-                if(mirror != null) {
-                  String url = mirror.getUrl() + groupId + "_mirrorlist.gz";
-                  String fileName = groupId + "_mirrorlist.gz";
-                  
-                  String summaryUrl = mirror.getUrl() + groupId + "_summary.gz";
-                  String summaryFileName = groupId + "_summary.gz";
-                  
-                  if(checkOnlyConnection) {
-                    if(!donationInfoLoaded) {
-                      Editor edit = PreferenceManager.getDefaultSharedPreferences(TvDataUpdateService.this).edit();
-                      edit.putLong(getString(R.string.EPG_DONATE_LAST_DATA_DOWNLOAD), System.currentTimeMillis());
-                      
-                      if(PrefUtils.getLongValue(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD, -1) == -1) {
-                        edit.putLong(getString(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD), System.currentTimeMillis());
-                      }
-                      
-                      File donationInfo = new File(path,groupId+"_donationinfo.gz");
-                      
-                      IOUtils.saveUrl(donationInfo.getAbsolutePath(), mirror.getUrl() + "donationinfo.gz");
-                      
-                      if(donationInfo.isFile()) {
-                        Properties donationProp = new Properties();
-                        
-                        GZIPInputStream in = null;
-                        try {
-                          in = new GZIPInputStream(new FileInputStream(donationInfo));
-                          
-                          donationProp.load(in);
-                        } catch(IOException e) {
-                          // ignore just load the info next time
-                        } finally {
-                          IOUtils.closeInputStream(in);
-                        }
-                        
-                        edit.putString(getString(R.string.EPG_DONATE_CURRENT_DONATION_PERCENT), donationProp.getProperty(SettingConstants.EPG_DONATE_DONATION_INFO_PERCENT_KEY,"-1"));
-                        
-                        String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
-                        
-                        String donationAmount = donationProp.getProperty(SettingConstants.EPG_DONATE_DONATION_INFO_AMOUNT_KEY_PREFIX+year, null);
-                        
-                        if(donationAmount != null) {
-                          edit.putString(getString(R.string.EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX)+"_"+year, donationAmount);
-                        }
-                        
-                        if(!donationInfo.delete()) {
-                          donationInfo.deleteOnExit();
-                        }
-                      }
-                      
-                      edit.commit();
-                      donationInfoLoaded = true;
-                    }
-                    
-                    url = mirror.getUrl() + "mirrors.gz";
-                    fileName = groupId + "_mirrors.gz";
-                    
-                    summaryUrl = mirror.getUrl() + "summary.gz";
-                    
-                    Log.d("info21", "SUMMARY " + summaryUrl);
-                  }
-                  
-                  doLog("Download summary from: " + summaryUrl);
-                  summary = readSummary(new File(path,summaryFileName),summaryUrl, groupId);
-                  
-                  doLog("To download: " + url);
-                  downloadMirrorList.add(new MirrorDownload(url, fileName));
-                }
               }
               
-              group.close();
+              boolean checkOnlyConnection = false;
+              
+              if(groupId.equals(SettingConstants.EPG_DONATE_GROUP_KEY)) {
+                checkOnlyConnection = true;
+              }
+              
+              Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL);
+              Log.d("info21", "MIRRORS AVAILABLE " + mirrors);
+              mirror = Mirror.getMirrorToUseForGroup(mirrors, groupId, this, checkOnlyConnection);                
+              doLog("Choosen mirror for group '" + groupId + "': " + mirror);
+              
+              Log.d("info21", "MIRROR CHOOSEN " + mirror);
+              if(mirror != null) {
+                String url = mirror.getUrl() + groupId + "_mirrorlist.gz";
+                String fileName = groupId + "_mirrorlist.gz";
+                
+                String summaryUrl = mirror.getUrl() + groupId + "_summary.gz";
+                String summaryFileName = groupId + "_summary.gz";
+                
+                if(checkOnlyConnection) {
+                  if(!donationInfoLoaded) {
+                    Editor edit = PreferenceManager.getDefaultSharedPreferences(TvDataUpdateService.this).edit();
+                    edit.putLong(getString(R.string.EPG_DONATE_LAST_DATA_DOWNLOAD), System.currentTimeMillis());
+                    
+                    if(PrefUtils.getLongValue(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD, -1) == -1) {
+                      edit.putLong(getString(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD), System.currentTimeMillis());
+                    }
+                    
+                    File donationInfo = new File(path,groupId+"_donationinfo.gz");
+                    
+                    IOUtils.saveUrl(donationInfo.getAbsolutePath(), mirror.getUrl() + "donationinfo.gz");
+                    
+                    if(donationInfo.isFile()) {
+                      Properties donationProp = new Properties();
+                      
+                      GZIPInputStream in = null;
+                      try {
+                        in = new GZIPInputStream(new FileInputStream(donationInfo));
+                        
+                        donationProp.load(in);
+                      } catch(IOException e) {
+                        // ignore just load the info next time
+                      } finally {
+                        IOUtils.closeInputStream(in);
+                      }
+                      
+                      edit.putString(getString(R.string.EPG_DONATE_CURRENT_DONATION_PERCENT), donationProp.getProperty(SettingConstants.EPG_DONATE_DONATION_INFO_PERCENT_KEY,"-1"));
+                      
+                      String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
+                      
+                      String donationAmount = donationProp.getProperty(SettingConstants.EPG_DONATE_DONATION_INFO_AMOUNT_KEY_PREFIX+year, null);
+                      
+                      if(donationAmount != null) {
+                        edit.putString(getString(R.string.EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX)+"_"+year, donationAmount);
+                      }
+                      
+                      if(!donationInfo.delete()) {
+                        donationInfo.deleteOnExit();
+                      }
+                    }
+                    
+                    edit.commit();
+                    donationInfoLoaded = true;
+                  }
+                  
+                  url = mirror.getUrl() + "mirrors.gz";
+                  fileName = groupId + "_mirrors.gz";
+                  
+                  summaryUrl = mirror.getUrl() + "summary.gz";
+                  
+                  Log.d("info21", "SUMMARY " + summaryUrl);
+                }
+                
+                doLog("Download summary from: " + summaryUrl);
+                summary = readSummary(new File(path,summaryFileName),summaryUrl, groupId);
+                
+                doLog("To download: " + url);
+                downloadMirrorList.add(new MirrorDownload(url, fileName));
+              }
             }
             
-            doLog("Summary downloaded: " + (summary != null));
+            group.close();
+          }
+          
+          doLog("Summary downloaded: " + (summary != null));
+          
+          if(summary != null && mirror != null) {
+            String channelID = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
             
-            if(summary != null && mirror != null) {
-              String channelID = channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+            Calendar now = Calendar.getInstance();
+            now.add(Calendar.DAY_OF_MONTH, -2);
+
+            Calendar to = Calendar.getInstance();
+            to.add(Calendar.DAY_OF_MONTH, mDaysToLoad);
+            doLog("End date of data to download for frame with ID '" + channelID + "': " + to.getTime());
+
+            if(summary instanceof EPGfreeSummary) {
+              doLog("Load summary info for: " + channelID);
+              ChannelFrame frame = ((EPGfreeSummary)summary).getChannelFrame(channelID);
+              doLog("Summary frame with ID '" + channelID + "' read: " + (frame != null));
               
-              Calendar now = Calendar.getInstance();
-              now.add(Calendar.DAY_OF_MONTH, -2);
-
-              Calendar to = Calendar.getInstance();
-              to.add(Calendar.DAY_OF_MONTH, mDaysToLoad);
-              doLog("End date of data to download for frame with ID '" + channelID + "': " + to.getTime());
-
-              if(summary instanceof EPGfreeSummary) {
-                doLog("Load summary info for: " + channelID);
-                ChannelFrame frame = ((EPGfreeSummary)summary).getChannelFrame(channelID);
-                doLog("Summary frame with ID '" + channelID + "' read: " + (frame != null));
+              if(frame != null) {
+                Calendar startDate = ((EPGfreeSummary)summary).getStartDate();
                 
-                if(frame != null) {
-                  Calendar startDate = ((EPGfreeSummary)summary).getStartDate();
+                Calendar testDate = Calendar.getInstance();
+                testDate.setTimeInMillis(startDate.getTimeInMillis());
+                testDate.set(Calendar.HOUR_OF_DAY, 0);
+                doLog("Start date of data for frame with ID '" + channelID + "': " + startDate.getTime());
+                
+                for(int i = 0; i < frame.getDayCount(); i++) {
+                  startDate.add(Calendar.DAY_OF_YEAR, 1);
+                  testDate.add(Calendar.DAY_OF_YEAR, 1);
                   
-                  Calendar testDate = Calendar.getInstance();
-                  testDate.setTimeInMillis(startDate.getTimeInMillis());
-                  testDate.set(Calendar.HOUR_OF_DAY, 0);
-                  doLog("Start date of data for frame with ID '" + channelID + "': " + startDate.getTime());
-                  
-                  for(int i = 0; i < frame.getDayCount(); i++) {
-                    startDate.add(Calendar.DAY_OF_YEAR, 1);
-                    testDate.add(Calendar.DAY_OF_YEAR, 1);
+                  if(testDate.compareTo(now) >= 0 && testDate.compareTo(to) <= 0) {
+                    int[] version = frame.getVersionForDay(i);
+                    doLog("Version found for frame with ID '" + channelID + "': " + (version != null));
                     
-                    if(testDate.compareTo(now) >= 0 && testDate.compareTo(to) <= 0) {
-                      int[] version = frame.getVersionForDay(i);
-                      doLog("Version found for frame with ID '" + channelID + "': " + (version != null));
+                    if(version != null) {
+                      long daysSince1970 = startDate.getTimeInMillis() / 24 / 60 / 60000;
                       
-                      if(version != null) {
-                        long daysSince1970 = startDate.getTimeInMillis() / 24 / 60 / 60000;
-                        
-                        String versionKey = channelKey + "_" + daysSince1970;
-                                            
-                        ChannelUpdate channelUpdate = new ChannelUpdate(epgFreeDataHandler, channelKey, timeZone, startDate.getTimeInMillis());
-                        
-                        for(int level : levels) {
-                          int testVersion = 0;
-                                                
-                          int[] versionInfo = mCurrentVersionIDs.get(versionKey);
-                          
-                          if(versionInfo != null) {
-                            testVersion = versionInfo[level+1];
-                          }
-                          
-                          doLog("Currently known version for '" + channelID + "' for level '" + level + "' and days since 1970 '" + daysSince1970 + "': " + testVersion);
-                          
-                          if(version.length > level && version[level] > testVersion) {
-                            String month = String.valueOf(startDate.get(Calendar.MONTH)+1);
-                            String day = String.valueOf(startDate.get(Calendar.DAY_OF_MONTH));
-                            
-                            if(month.length() == 1) {
-                              month = "0" + month;
-                            }
-                            
-                            if(day.length() == 1) {
-                              day = "0" + day;
-                            }
-                            doLog("Version for day unknown for '" + channelID + "'");
-                            StringBuilder dateFile = new StringBuilder();
-                            dateFile.append(mirror.getUrl());
-                            dateFile.append(startDate.get(Calendar.YEAR));
-                            dateFile.append("-");
-                            dateFile.append(month);
-                            dateFile.append("-");
-                            dateFile.append(day);
-                            dateFile.append("_");
-                            dateFile.append(frame.getCountry());
-                            dateFile.append("_");
-                            dateFile.append(frame.getChannelID());
-                            dateFile.append("_");
-                            dateFile.append(SettingConstants.EPG_FREE_LEVEL_NAMES[level]);
-                            dateFile.append("_full.prog.gz");
-                            
-                            doLog("Download data for '" + channelID + "' from " + dateFile.toString() + " for level: " + level);
-                            
-                            channelUpdate.addURL(dateFile.toString());
-                          }
-                        }
-                        
-                        doLogData(" CHANNEL UPDATE TO DOWNLOAD " + channelUpdate.getChannelID() + " " + channelUpdate.getDate() + " " + channelUpdate.toDownload());
-                        
-                        if(channelUpdate.toDownload()) {
-                          updateList.add(channelUpdate);
-                          downloadCountTemp += channelUpdate.size();
-                        }
-                      }
-                    }
-                  }
-                }
-              }
-              else if(summary instanceof EPGdonateSummary) {
-                Set<Object> keys = ((EPGdonateSummary)summary).keySet();
-                
-                boolean loadMoreData = levels.length >= 3;
-                boolean loadPictureData = levels.length >= 5;
-                
-                Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-                utc.set(2014, 12, 31, 0, 0, 0);
-                utc.set(Calendar.MILLISECOND, 0);
-                
-                for(Object key : keys) {
-                  if(key instanceof String && ((String)key).contains(channelID) && ((String)key).contains("_")) {
-                    String stringKey = (String)key;
-                    //Log.d("info21", "KEY " + key);
-                    Object value = ((EPGdonateSummary)summary).get(stringKey);
-                    
-                    if(value instanceof String) {
-                      String stringValue = (String)value;
-                      //Log.d("info21", "stringValue " + stringValue);
-                      long startMilliseconds = Long.parseLong(stringKey.substring(0,stringKey.indexOf("_"))) * 60000L;
-                      //Log.d("info21", "onTime " + ((startMilliseconds >= now.getTimeInMillis() && startMilliseconds <= to.getTimeInMillis())));
-                      if(startMilliseconds >= now.getTimeInMillis() && startMilliseconds <= to.getTimeInMillis()) {
-                        ChannelUpdate channelUpdate = new ChannelUpdate(epgDonateDataHandler, channelKey, timeZone, startMilliseconds);
-
-                        long daysSince1970 = startMilliseconds / 24 / 60 / 60000L;
-                        
-                        String versionKey = channelKey + "_" + daysSince1970;
-                        
+                      String versionKey = channelKey + "_" + daysSince1970;
+                                          
+                      ChannelUpdate channelUpdate = new ChannelUpdate(epgFreeDataHandler, channelKey, timeZone, startDate.getTimeInMillis());
+                      
+                      for(int level : levels) {
+                        int testVersion = 0;
+                                              
                         int[] versionInfo = mCurrentVersionIDs.get(versionKey);
                         
-                        if(versionInfo == null) {
-                          versionInfo = new int[] {0,0,0,0,0,0};
-                        }
-                                       
-                        String[] versionParts = stringValue.split(",");
-                        Log.d("info21", "versionInfo " + versionInfo[1] + " " + versionInfo[3] + " " + versionInfo[5]);
-                        if(versionInfo[1] < Integer.parseInt(versionParts[0])) {
-                          Log.d("info21", "ADDING " + mirror.getUrl() + stringKey + SettingConstants.EPG_DONATE_LEVEL_NAMES[0] + ".gz");
-                          channelUpdate.addURL(mirror.getUrl() + stringKey + SettingConstants.EPG_DONATE_LEVEL_NAMES[0] + ".gz");
-                        }
-                        if(loadMoreData && versionInfo[3] < Integer.parseInt(versionParts[1])) {
-                          channelUpdate.addURL(mirror.getUrl() + stringKey + SettingConstants.EPG_DONATE_LEVEL_NAMES[1] + ".gz");
-                        }
-                        if(loadPictureData && versionInfo[5] < Integer.parseInt(versionParts[2])) {
-                          channelUpdate.addURL(mirror.getUrl() + stringKey + SettingConstants.EPG_DONATE_LEVEL_NAMES[2] + ".gz");
+                        if(versionInfo != null) {
+                          testVersion = versionInfo[level+1];
                         }
                         
-                        if(channelUpdate.toDownload()) {
-                          Log.d("info21", "ADDING " + stringValue);
-                          updateList.add(channelUpdate);
-                          downloadCountTemp += channelUpdate.size();
+                        doLog("Currently known version for '" + channelID + "' for level '" + level + "' and days since 1970 '" + daysSince1970 + "': " + testVersion);
+                        
+                        if(version.length > level && version[level] > testVersion) {
+                          String month = String.valueOf(startDate.get(Calendar.MONTH)+1);
+                          String day = String.valueOf(startDate.get(Calendar.DAY_OF_MONTH));
+                          
+                          if(month.length() == 1) {
+                            month = "0" + month;
+                          }
+                          
+                          if(day.length() == 1) {
+                            day = "0" + day;
+                          }
+                          doLog("Version for day unknown for '" + channelID + "'");
+                          StringBuilder dateFile = new StringBuilder();
+                          dateFile.append(mirror.getUrl());
+                          dateFile.append(startDate.get(Calendar.YEAR));
+                          dateFile.append("-");
+                          dateFile.append(month);
+                          dateFile.append("-");
+                          dateFile.append(day);
+                          dateFile.append("_");
+                          dateFile.append(frame.getCountry());
+                          dateFile.append("_");
+                          dateFile.append(frame.getChannelID());
+                          dateFile.append("_");
+                          dateFile.append(SettingConstants.EPG_FREE_LEVEL_NAMES[level]);
+                          dateFile.append("_full.prog.gz");
+                          
+                          doLog("Download data for '" + channelID + "' from " + dateFile.toString() + " for level: " + level);
+                          
+                          channelUpdate.addURL(dateFile.toString());
                         }
+                      }
+                      
+                      doLogData(" CHANNEL UPDATE TO DOWNLOAD " + channelUpdate.getChannelID() + " " + channelUpdate.getDate() + " " + channelUpdate.toDownload());
+                      
+                      if(channelUpdate.toDownload()) {
+                        updateList.add(channelUpdate);
+                        downloadCountTemp += channelUpdate.size();
                       }
                     }
                   }
                 }
               }
             }
-            
-            lastGroup = groupKey;
-          }catch(Exception e) {
-            StringBuilder stackTrace = new StringBuilder("PROBLEM FOR CHANNEL: ");
-            stackTrace.append(channelName);
-            stackTrace.append(" ");
-            stackTrace.append(e.getLocalizedMessage());
-            stackTrace.append("\n");
-            
-            for(StackTraceElement element : e.getStackTrace()) {
-              stackTrace.append(element.getLineNumber()).append(" ").append(element.getFileName()).append(" ").append(element.getClassName()).append(" ").append(element.getMethodName());
-              stackTrace.append("\n");
+            else if(summary instanceof EPGdonateSummary) {
+              Set<Object> keys = ((EPGdonateSummary)summary).keySet();
+              
+              boolean loadMoreData = levels.length >= 3;
+              boolean loadPictureData = levels.length >= 5;
+              
+              Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+              utc.set(2014, 12, 31, 0, 0, 0);
+              utc.set(Calendar.MILLISECOND, 0);
+              
+              for(Object key : keys) {
+                if(key instanceof String && ((String)key).contains(channelID) && ((String)key).contains("_")) {
+                  String stringKey = (String)key;
+                  //Log.d("info21", "KEY " + key);
+                  Object value = ((EPGdonateSummary)summary).get(stringKey);
+                  
+                  if(value instanceof String) {
+                    String stringValue = (String)value;
+                    //Log.d("info21", "stringValue " + stringValue);
+                    long startMilliseconds = Long.parseLong(stringKey.substring(0,stringKey.indexOf("_"))) * 60000L;
+                    //Log.d("info21", "onTime " + ((startMilliseconds >= now.getTimeInMillis() && startMilliseconds <= to.getTimeInMillis())));
+                    if(startMilliseconds >= now.getTimeInMillis() && startMilliseconds <= to.getTimeInMillis()) {
+                      ChannelUpdate channelUpdate = new ChannelUpdate(epgDonateDataHandler, channelKey, timeZone, startMilliseconds);
+
+                      long daysSince1970 = startMilliseconds / 24 / 60 / 60000L;
+                      
+                      String versionKey = channelKey + "_" + daysSince1970;
+                      
+                      int[] versionInfo = mCurrentVersionIDs.get(versionKey);
+                      
+                      if(versionInfo == null) {
+                        versionInfo = new int[] {0,0,0,0,0,0};
+                      }
+                                     
+                      String[] versionParts = stringValue.split(",");
+                      Log.d("info21", "versionInfo " + versionInfo[1] + " " + versionInfo[3] + " " + versionInfo[5]);
+                      if(versionInfo[1] < Integer.parseInt(versionParts[0])) {
+                        Log.d("info21", "ADDING " + mirror.getUrl() + stringKey + SettingConstants.EPG_DONATE_LEVEL_NAMES[0] + ".gz");
+                        channelUpdate.addURL(mirror.getUrl() + stringKey + SettingConstants.EPG_DONATE_LEVEL_NAMES[0] + ".gz");
+                      }
+                      if(loadMoreData && versionInfo[3] < Integer.parseInt(versionParts[1])) {
+                        channelUpdate.addURL(mirror.getUrl() + stringKey + SettingConstants.EPG_DONATE_LEVEL_NAMES[1] + ".gz");
+                      }
+                      if(loadPictureData && versionInfo[5] < Integer.parseInt(versionParts[2])) {
+                        channelUpdate.addURL(mirror.getUrl() + stringKey + SettingConstants.EPG_DONATE_LEVEL_NAMES[2] + ".gz");
+                      }
+                      
+                      if(channelUpdate.toDownload()) {
+                        Log.d("info21", "ADDING " + stringValue);
+                        updateList.add(channelUpdate);
+                        downloadCountTemp += channelUpdate.size();
+                      }
+                    }
+                  }
+                }
+              }
             }
-            
-            doLog(stackTrace.toString());
-            Log.d("info21", stackTrace.toString());
           }
-        }while(channelCursor.moveToNext());
+          
+          lastGroup = groupKey;
+        }catch(Exception e) {
+          StringBuilder stackTrace = new StringBuilder("PROBLEM FOR CHANNEL: ");
+          stackTrace.append(channelName);
+          stackTrace.append(" ");
+          stackTrace.append(e.getLocalizedMessage());
+          stackTrace.append("\n");
+          
+          for(StackTraceElement element : e.getStackTrace()) {
+            stackTrace.append(element.getLineNumber()).append(" ").append(element.getFileName()).append(" ").append(element.getClassName()).append(" ").append(element.getMethodName());
+            stackTrace.append("\n");
+          }
+          
+          doLog(stackTrace.toString());
+          Log.d("info21", stackTrace.toString());
+        }
+      }while(channelCursor.moveToNext());
+    }
+    
+    channelCursor.close();
+    
+    final int downloadCount = downloadMirrorList.size() + downloadCountTemp;
+    doLog("Data files to load " + downloadCount);
+    mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
+    mDataUpdatePool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
+    
+    mBuilder.setProgress(downloadCount, 0, false);
+    notification.notify(NOTIFY_ID, mBuilder.build());
+    
+    for(final MirrorDownload mirror : downloadMirrorList) {
+      final File mirrorFile = new File(path,mirror.getFileName());
+      
+      if(!mThreadPool.isShutdown()) {
+        mThreadPool.execute(new Thread("DATA UPDATE MIRROR UPDATE THREAD") {
+          public void run() {
+            setUncaughtExceptionHandler(handleExc);
+            
+            try {
+              IOUtils.saveUrl(mirrorFile.getAbsolutePath(), mirror.getDownloadURL());
+              updateMirror(mirrorFile);
+              mCurrentDownloadCount++;
+              
+              if(mShowNotification) {
+                mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+                notification.notify(NOTIFY_ID, mBuilder.build());
+              }
+            } catch (Exception e) {
+              mUnsuccessfulDownloads++;
+            }
+          }
+        });
       }
-      
-      channelCursor.close();
-      
-      final int downloadCount = downloadMirrorList.size() + downloadCountTemp;
-      doLog("Data files to load " + downloadCount);
-      mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
-      mDataUpdatePool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
-      
-      mBuilder.setProgress(downloadCount, 0, false);
-      notification.notify(NOTIFY_ID, mBuilder.build());
-      
-      for(final MirrorDownload mirror : downloadMirrorList) {
-        final File mirrorFile = new File(path,mirror.getFileName());
-        
+    }
+    //mDontWantToSeeValues = null;
+    Log.d("info5", "updateCount " + downloadCountTemp);
+    
+    mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE);
+    mVersionDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_VERSION,10);
+   /* mDataInsertList = new ArrayList<ContentValues>();
+    mDataUpdateList = new ArrayList<ContentProviderOperation>();*/
+    
+    /*mVersionInsertList = new ArrayList<ContentValues>();
+    mVersionUpdateList = new ArrayList<ContentProviderOperation>();
+    */
+    if(downloadCountTemp > 0) {
+      readCurrentData();
+              
+      for(final ChannelUpdate update : updateList) {
         if(!mThreadPool.isShutdown()) {
-          mThreadPool.execute(new Thread("DATA UPDATE MIRROR UPDATE THREAD") {
+          mThreadPool.execute(new Thread("DATA UPDATE DATA DOWNLOAD THEAD") {
             public void run() {
               setUncaughtExceptionHandler(handleExc);
-              
-              try {
-                IOUtils.saveUrl(mirrorFile.getAbsolutePath(), mirror.getDownloadURL());
-                updateMirror(mirrorFile);
-                mCurrentDownloadCount++;
-                
-                if(mShowNotification) {
-                  mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-                  notification.notify(NOTIFY_ID, mBuilder.build());
-                }
-              } catch (Exception e) {
-                mUnsuccessfulDownloads++;
-              }
+              update.download(path, notification, downloadCount);
             }
           });
         }
       }
-      //mDontWantToSeeValues = null;
-      Log.d("info5", "updateCount " + downloadCountTemp);
-      
-      mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE);
-      mVersionDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_VERSION,10);
-     /* mDataInsertList = new ArrayList<ContentValues>();
-      mDataUpdateList = new ArrayList<ContentProviderOperation>();*/
-      
-      /*mVersionInsertList = new ArrayList<ContentValues>();
-      mVersionUpdateList = new ArrayList<ContentProviderOperation>();
-      */
-      if(downloadCountTemp > 0) {
-        readCurrentData();
-                
-        for(final ChannelUpdate update : updateList) {
-          if(!mThreadPool.isShutdown()) {
-            mThreadPool.execute(new Thread("DATA UPDATE DATA DOWNLOAD THEAD") {
-              public void run() {
-                setUncaughtExceptionHandler(handleExc);
-                update.download(path, notification, downloadCount);
-              }
-            });
-          }
-        }
-      }
-      
-      mThreadPool.shutdown();
-      
-      if(!mThreadPool.isTerminated()) {
-        try {
-          mThreadPool.awaitTermination(updateList.size(), TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
-          doLog("DOWNLOAD WAITING INTERRUPTED " + e.getLocalizedMessage());
-        }
-      }
-      
-      mDataUpdatePool.shutdown();
-      
-      doLog("WAIT FOR DATA UPDATE FOR: " + updateList.size() + " MINUTES");
-      
-      if(!mDataUpdatePool.isTerminated()) {
-        try {
-          mDataUpdatePool.awaitTermination(updateList.size(), TimeUnit.MINUTES);
-        } catch (InterruptedException e) {
-          doLog("UPDATE DATE INTERRUPTED " + e.getLocalizedMessage());
-        }
-      }
-      
-      doLog("WAIT FOR DATA UPDATE FOR DONE, DOWNLOAD: " + mThreadPool.isTerminated() + " DATA: " + mDataUpdatePool.isTerminated());
-      
-      mShowNotification = false;
-      
-      if(mDataDatabaseOperation != null) {
-        mDataDatabaseOperation.finish();
-      }
-      if(mVersionDatabaseOperation != null) {
-        mVersionDatabaseOperation.finish();
-      }
-//      insert(mDataInsertList);
-     // insertVersion(mVersionInsertList);
-      
-  //    update(mDataUpdateList);      
-    //  update(mVersionUpdateList);
-      
-    /*  mDataInsertList = null;
-      mDataUpdateList = null;
-      */
-      /*mVersionInsertList = null;      
-      mVersionUpdateList = null;*/
-
-      mBuilder.setProgress(100, 0, true);
-      notification.notify(NOTIFY_ID, mBuilder.build());
-      
-      if(mCurrentVersionIDs != null) {
-        mCurrentVersionIDs.clear();
-        mCurrentVersionIDs = null;
-      }
-      
-      if(mCurrentData != null) {
-        mCurrentData.clear();
-        mCurrentData = null;
-      }
-      
-      if(updateList.size() > 0) {
-        calculateMissingEnds(notification,true);
-      }
-      else {
-        finishUpdate(notification,false);
+    }
+    
+    mThreadPool.shutdown();
+    
+    if(!mThreadPool.isTerminated()) {
+      try {
+        mThreadPool.awaitTermination(updateList.size(), TimeUnit.MINUTES);
+      } catch (InterruptedException e) {
+        doLog("DOWNLOAD WAITING INTERRUPTED " + e.getLocalizedMessage());
       }
     }
+    
+    mDataUpdatePool.shutdown();
+    
+    doLog("WAIT FOR DATA UPDATE FOR: " + updateList.size() + " MINUTES");
+    
+    if(!mDataUpdatePool.isTerminated()) {
+      try {
+        mDataUpdatePool.awaitTermination(updateList.size(), TimeUnit.MINUTES);
+      } catch (InterruptedException e) {
+        doLog("UPDATE DATE INTERRUPTED " + e.getLocalizedMessage());
+      }
+    }
+    
+    doLog("WAIT FOR DATA UPDATE FOR DONE, DOWNLOAD: " + mThreadPool.isTerminated() + " DATA: " + mDataUpdatePool.isTerminated());
+    
+    mShowNotification = false;
+    
+    if(mDataDatabaseOperation != null) {
+      mDataDatabaseOperation.finish();
+    }
+    if(mVersionDatabaseOperation != null) {
+      mVersionDatabaseOperation.finish();
+    }
+//      insert(mDataInsertList);
+   // insertVersion(mVersionInsertList);
+    
+//    update(mDataUpdateList);      
+  //  update(mVersionUpdateList);
+    
+  /*  mDataInsertList = null;
+    mDataUpdateList = null;
+    */
+    /*mVersionInsertList = null;      
+    mVersionUpdateList = null;*/
+
+    mBuilder.setProgress(100, 0, true);
+    notification.notify(NOTIFY_ID, mBuilder.build());
+    
+    if(mCurrentVersionIDs != null) {
+      mCurrentVersionIDs.clear();
+      mCurrentVersionIDs = null;
+    }
+    
+    if(mCurrentData != null) {
+      mCurrentData.clear();
+      mCurrentData = null;
+    }
+    
+    if(updateList.size() > 0) {
+      calculateMissingEnds(notification,true);
+    }
     else {
-      stopSelfInternal();
+      finishUpdate(notification,false);
     }
   }
   
