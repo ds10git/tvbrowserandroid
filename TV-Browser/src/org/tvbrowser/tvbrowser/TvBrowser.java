@@ -673,7 +673,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     showTerms();
     
-    if(mUpdateItem != null && !TvDataUpdateService.IS_RUNNING) {
+    if(mUpdateItem != null && !TvDataUpdateService.isRunning()) {
       updateProgressIcon(false);
     }
     
@@ -2540,7 +2540,7 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void runChannelDownload() {
-    if(!TvDataUpdateService.IS_RUNNING) {
+    if(!TvDataUpdateService.isRunning()) {
       Intent updateChannels = new Intent(TvBrowser.this, TvDataUpdateService.class);
       updateChannels.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.CHANNEL_TYPE);
       
@@ -2915,7 +2915,7 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void updateTvData() {
-    if(!TvDataUpdateService.IS_RUNNING) {
+    if(!TvDataUpdateService.isRunning()) {
       Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, null);
       
       if(test.getCount() > 0) {
@@ -3685,7 +3685,7 @@ public class TvBrowser extends ActionBarActivity implements
     LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(SettingConstants.UPDATE_TIME_BUTTONS));
     updateScrollMenu();
     
-    if(mUpdateItem != null && !TvDataUpdateService.IS_RUNNING) {
+    if(mUpdateItem != null && !TvDataUpdateService.isRunning()) {
       if(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
         mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
       }
@@ -4784,7 +4784,7 @@ public class TvBrowser extends ActionBarActivity implements
    // menu.findItem(R.id.action_synchronize_dont_want_to_see).setVisible(false);
     menu.findItem(R.id.action_synchronize_favorites).setVisible(false);
     
-    if(mUpdateItem != null && TvDataUpdateService.IS_RUNNING) {
+    if(mUpdateItem != null && TvDataUpdateService.isRunning()) {
       updateProgressIcon(true);
     }
     
