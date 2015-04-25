@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.tvbrowser.tvbrowser"
     android:installLocation="auto"
-    android:versionCode="338"
-    android:versionName="0.5.8.6" >
+    android:versionCode="339"
+    android:versionName="0.5.8.7 Beta1" >
 
     <uses-sdk
         android:minSdkVersion="11"
@@ -170,6 +170,11 @@
 
         <service
             android:name=".ServiceUpdateDataTable"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+        <service
+            android:name=".ServiceChannelCleaner"
             android:enabled="true"
             android:exported="false" >
         </service>

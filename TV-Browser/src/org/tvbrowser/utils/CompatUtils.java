@@ -17,6 +17,8 @@
 package org.tvbrowser.utils;
 
 import android.annotation.SuppressLint;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
@@ -125,5 +127,14 @@ public class CompatUtils {
     }
     
     return size;
+  }
+  
+  public static final void setAlarm(AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+      alarm.setExact(type, triggerAtMillis, operation);
+    }
+    else {
+      alarm.set(type, triggerAtMillis, operation);
+    }
   }
 }

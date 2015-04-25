@@ -23,8 +23,6 @@ import org.tvbrowser.tvbrowser.TvBrowser;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.os.Handler;
-import android.support.v4.content.LocalBroadcastManager;
 
 public class WidgetOnClickReceiver extends BroadcastReceiver {
   @Override

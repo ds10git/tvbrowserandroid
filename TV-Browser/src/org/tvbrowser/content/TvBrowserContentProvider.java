@@ -1063,21 +1063,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     @Override
     public void onUpgrade(final SQLiteDatabase db, int oldVersion, int newVersion) {
       if(oldVersion == 1 && newVersion > 1) {
-        boolean logoFound = false;
-        
-        Cursor c = db.rawQuery("PRAGMA table_info(" + CHANNEL_TABLE + ")", null);
-        c.moveToPosition(-1);
-        
-        while(c.moveToNext()) {
-          if(c.getString(c.getColumnIndex("name")).equals(CHANNEL_KEY_LOGO)) {
-            logoFound = true;
-            break;
-          }
-        }
-        
-        c.close();
-      
-        if(!logoFound) {
+        if(!columnExists(db, CHANNEL_KEY_LOGO))  {
           db.execSQL("DROP TABLE IF EXISTS " + DATA_TABLE);
           db.execSQL("DROP TABLE IF EXISTS " + CHANNEL_TABLE);
           db.execSQL("DROP TABLE IF EXISTS " + GROUPS_TABLE);
@@ -1088,37 +1074,13 @@ public class TvBrowserContentProvider extends ContentProvider {
       }
       
       if(oldVersion < 4) {
-        Cursor c = db.rawQuery("PRAGMA table_info(" + DATA_TABLE + ")", null);
-        c.moveToPosition(-1);
-        
-        boolean dontWantColumnFound = false;
-        
-        while(c.moveToNext()) {
-          if(c.getString(c.getColumnIndex("name")).equals(DATA_KEY_DONT_WANT_TO_SEE)) {
-            dontWantColumnFound = true;
-            break;
-          }
-        }
-        
-        if(!dontWantColumnFound) {
+        if(!columnExists(db, DATA_KEY_DONT_WANT_TO_SEE)) {
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_DONT_WANT_TO_SEE + " INTEGER DEFAULT 0");
         }
       }
       
       if(oldVersion < 5) {
-        Cursor c = db.rawQuery("PRAGMA table_info(" + DATA_TABLE + ")", null);
-        c.moveToPosition(-1);
-        
-        boolean removedReminderColumnFound = false;
-        
-        while(c.moveToNext()) {
-          if(c.getString(c.getColumnIndex("name")).equals(DATA_KEY_REMOVED_REMINDER)) {
-            removedReminderColumnFound = true;
-            break;
-          }
-        }
-        
-        if(!removedReminderColumnFound) {
+        if(!columnExists(db, DATA_KEY_REMOVED_REMINDER)) {
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_REMOVED_REMINDER + " INTEGER DEFAULT 0");
         }
       }
@@ -1126,19 +1088,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       if(oldVersion < 6) {
         final String DATA_KEY_MARKING_VALUES = "markingValues";
         
-        Cursor c = db.rawQuery("PRAGMA table_info(" + DATA_TABLE + ")", null);
-        c.moveToPosition(-1);
-        
-        boolean oldMarkingColumnFound = false;
-        
-        while(c.moveToNext()) {
-          if(c.getString(c.getColumnIndex("name")).equals(DATA_KEY_MARKING_VALUES)) {
-            oldMarkingColumnFound = true;
-            break;
-          }
-        }
-        
-        if(oldMarkingColumnFound) {
+        if(columnExists(db, DATA_KEY_MARKING_VALUES)) {
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_MARKING + " INTEGER DEFAULT 0");
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_FAVORITE + " INTEGER DEFAULT 0");
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_FAVORITE_REMINDER + " INTEGER DEFAULT 0");
@@ -1433,11 +1383,35 @@ public class TvBrowserContentProvider extends ContentProvider {
       }
       
       if(oldVersion >= 7 && oldVersion < 8) {
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_DATE_PROG_STRING_ID + " TEXT");
+        if(!columnExists(db, DATA_KEY_DATE_PROG_STRING_ID)) {
+          db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_DATE_PROG_STRING_ID + " TEXT");
+        }
       }
       if(oldVersion < 9) {
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_REMOVED_SYNC + " INTEGER DEFAULT 0");
+        if(!columnExists(db, DATA_KEY_REMOVED_SYNC)) {
+          db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_REMOVED_SYNC + " INTEGER DEFAULT 0");
+        }
       }
     }
+  }
+  
+  private static final boolean columnExists(SQLiteDatabase db, String columnName) {
+    boolean result = false;
+    
+    Cursor c = db.rawQuery("PRAGMA table_info(" + CHANNEL_TABLE + ")", null);
+    try {
+      if(IOUtils.prepareAccess(c)) {
+        while(c.moveToNext()) {
+          if(c.getString(c.getColumnIndex("name")).equals(columnName)) {
+            result = true;
+            break;
+          }
+        }
+      }
+    }finally {
+      IOUtils.closeCursor(c);
+    }
+    
+    return result;
   }
 }
