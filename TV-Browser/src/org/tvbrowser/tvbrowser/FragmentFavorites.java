@@ -81,7 +81,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   
   private Thread mUpdateThread;
   
-  private BroadcastReceiver mReceiver;
+  private BroadcastReceiver mFavoriteChangedReceiver;
   private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mDataUpdateReceiver;
   private BroadcastReceiver mDontWantToSeeReceiver;
@@ -478,7 +478,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   public void onAttach(Activity activity) {
     super.onAttach(activity);
     
-    mReceiver = new BroadcastReceiver() {
+    mFavoriteChangedReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, final Intent intent) {
         if(mUpdateThread == null || !mUpdateThread.isAlive()) {
@@ -530,16 +530,16 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
                 }
               }
               
-              removeMarkingSelections();
-              
-              Collections.sort(mFavoriteList);
-              
-              addMarkingSelections();
-              
               handler.post(new Runnable() {
                 @Override
                 public void run() {
                   mFavoriteAdapter.notifyDataSetChanged();
+                  
+                  removeMarkingSelections();
+                  
+                  Collections.sort(mFavoriteList);
+                  
+                  addMarkingSelections();
                 }
               });
             }
@@ -609,7 +609,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     
     IntentFilter filter = new IntentFilter(SettingConstants.FAVORITES_CHANGED);
     
-    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mReceiver, filter);
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mFavoriteChangedReceiver, filter);
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
     
@@ -682,8 +682,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     super.onDetach();
     mIsRunning = false;
     
-    if(mReceiver != null) {
-      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mReceiver);
+    if(mFavoriteChangedReceiver != null) {
+      LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mFavoriteChangedReceiver);
     }
     if(mDataUpdateReceiver != null) {
       getActivity().unregisterReceiver(mDataUpdateReceiver);
@@ -918,6 +918,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
         @Override
         public void onClick(DialogInterface dialog, int which) {
           mFavoriteList.remove(mCurrentSelection);
+          updateFavorites();
+          
           final Favorite current = mCurrentSelection.getFavorite();
           mCurrentSelection = null;
           final Context context = getActivity().getApplicationContext();
@@ -926,7 +928,6 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
             public void run() {
               Favorite.deleteFavorite(context, current);
               mCurrentSelection = null;
-              updateFavorites();
             }
           }.start();
         }

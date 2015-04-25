@@ -534,7 +534,7 @@ public class IOUtils {
     if(time > System.currentTimeMillis()) {
       PendingIntent pending = PendingIntent.getBroadcast(context, DATA_UPDATE_KEY, dataUpdate, PendingIntent.FLAG_UPDATE_CURRENT);
       
-      alarmManager.set(AlarmManager.RTC_WAKEUP, time, pending);
+      CompatUtils.setAlarm(alarmManager,AlarmManager.RTC_WAKEUP, time, pending);
     }
   }
   
@@ -569,7 +569,7 @@ public class IOUtils {
     
     PendingIntent pending = PendingIntent.getService(context, REQUEST_CODE_DATA_TABLE_UPDATE, dataUpdate, PendingIntent.FLAG_UPDATE_CURRENT);
       
-    alarmManager.set(AlarmManager.RTC_WAKEUP, now.getTimeInMillis(), pending);
+    CompatUtils.setAlarm(alarmManager,AlarmManager.RTC_WAKEUP, now.getTimeInMillis(), pending);
   }
   
   public static final synchronized void handleDataUpdatePreferences(Context context) {

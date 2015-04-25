@@ -235,7 +235,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
               
               final PendingIntent pending = PendingIntent.getBroadcast(mContext, (int)(startTime/60000), update, PendingIntent.FLAG_UPDATE_CURRENT);
               
-              alarm.set(AlarmManager.RTC, startTime + 100, pending);
+              CompatUtils.setAlarm(alarm, AlarmManager.RTC, startTime + 100, pending);
             }
             else {
               startRunningAlarm();

@@ -1226,154 +1226,156 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   @Override
   public synchronized void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, final Cursor c) {
-    SparseArray<ChannelProgramBlock> channelProgramMap = new SparseArray<ChannelProgramBlock>();
-    SparseArray<ChannelProgramBlock> currentProgramMap = new SparseArray<ChannelProgramBlock>();
-    boolean showDontWantToSee = PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(getResources().getStringArray(R.array.pref_simple_string_value_array2)[1]);
-    
-    mProgramBlockList.clear();
-    mCurrentViewList.clear();
-    mMarkingsMap.clear();
-    mTitleMap.clear();
-    
-    mProgramIDColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-    mStartTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-    mEndTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
-    mTitleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-    mPictureColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
-    mPictureCopyrightColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT);
-    mCategoryColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
-    mGenreColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE);
-    mEpsiodeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
-    mChannelNameColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-    mChannelIDColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-    int channelOrderColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
-    int dontWantToSeeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE);
-    
-    HashMap<String, Integer> markingColumnsMap = new HashMap<String, Integer>();
-    
-    c.moveToPosition(-1);
-    
-    for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
-      int index = c.getColumnIndex(column);
+    if(c != null) {
+      SparseArray<ChannelProgramBlock> channelProgramMap = new SparseArray<ChannelProgramBlock>();
+      SparseArray<ChannelProgramBlock> currentProgramMap = new SparseArray<ChannelProgramBlock>();
+      boolean showDontWantToSee = PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(getResources().getStringArray(R.array.pref_simple_string_value_array2)[1]);
       
-      if(index >= 0) {
-        markingColumnsMap.put(column, Integer.valueOf(index));
+      mProgramBlockList.clear();
+      mCurrentViewList.clear();
+      mMarkingsMap.clear();
+      mTitleMap.clear();
+      
+      mProgramIDColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+      mStartTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      mEndTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+      mTitleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+      mPictureColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
+      mPictureCopyrightColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT);
+      mCategoryColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
+      mGenreColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE);
+      mEpsiodeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
+      mChannelNameColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+      mChannelIDColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+      int channelOrderColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+      int dontWantToSeeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE);
+      
+      HashMap<String, Integer> markingColumnsMap = new HashMap<String, Integer>();
+      
+      c.moveToPosition(-1);
+      
+      for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
+        int index = c.getColumnIndex(column);
+        
+        if(index >= 0) {
+          markingColumnsMap.put(column, Integer.valueOf(index));
+        }
       }
-    }
-    
-    if(c.getCount() > 0) {
-      try {
-        while(!c.isClosed() && c.moveToNext()) {
-          int channelID = c.getInt(mChannelIDColumn);
-          
-          ChannelProgramBlock block = channelProgramMap.get(channelID);
-          ArrayList<String> markedColumsList = new ArrayList<String>();
-          
-          if(block == null) {
-            block = new ChannelProgramBlock();
+      
+      if(c.getCount() > 0) {
+        try {
+          while(!c.isClosed() && c.moveToNext()) {
+            int channelID = c.getInt(mChannelIDColumn);
             
-            channelProgramMap.put(channelID, block);
-            mProgramBlockList.add(block);
-          }
-          
-          if(!block.mIsComplete) {
-            long startTime = c.getLong(mStartTimeColumn);
-            long endTime = c.getLong(mEndTimeColumn);
-            long programID = c.getLong(mProgramIDColumn);
-            String title = c.getString(mTitleColumn);
-            String episode = c.getString(mEpsiodeColumn);
+            ChannelProgramBlock block = channelProgramMap.get(channelID);
+            ArrayList<String> markedColumsList = new ArrayList<String>();
             
-            for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
-              Integer value = markingColumnsMap.get(column);
+            if(block == null) {
+              block = new ChannelProgramBlock();
               
-              if(value != null && c.getInt(value.intValue()) >= 1) {
-                markedColumsList.add(column);
-              }
-              else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && ProgramUtils.isMarkedWithIcon(getActivity(), programID)) {
-                markedColumsList.add(column);
-              }
+              channelProgramMap.put(channelID, block);
+              mProgramBlockList.add(block);
             }
             
-            String channelName = c.getString(mChannelNameColumn);
-            int channelOrderNumber = c.getInt(channelOrderColumn);
-    
-            String genre = null;
-            Spannable category = null;
-            String pictureCopyright = null;
-            byte[] picture = null;
-            
-            if(showInfo) {
-              category = IOUtils.getInfoString(c.getInt(mCategoryColumn), getResources());
-            }
-                        
-            if(showDontWantToSee || c.getInt(dontWantToSeeColumn) == 0) {
-              block.mChannelID = channelID;
-              block.mChannelName = channelName;
-              block.mChannelOrderNumber = channelOrderNumber;
+            if(!block.mIsComplete) {
+              long startTime = c.getLong(mStartTimeColumn);
+              long endTime = c.getLong(mEndTimeColumn);
+              long programID = c.getLong(mProgramIDColumn);
+              String title = c.getString(mTitleColumn);
+              String episode = c.getString(mEpsiodeColumn);
               
-              if(startTime <= mCurrentTime) {
-                if(endTime <= mCurrentTime) {
-                  block.mPreviousPosition = c.getPosition();
-                  block.mPreviousProgramID = programID;
-                  block.mPreviousStart = startTime;
-                  block.mPreviousEnd = endTime;
-                  mTitleMap.put(programID, title);
-                  block.mPreviousEpisode = episode;
-                  block.mPreviousGenre = genre;
-                  block.mPreviousPicture = picture;
-                  block.mPreviousPictureCopyright = pictureCopyright;
-                  block.mPreviousCategory = category;
+              for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
+                Integer value = markingColumnsMap.get(column);
+                
+                if(value != null && c.getInt(value.intValue()) >= 1) {
+                  markedColumsList.add(column);
                 }
-                else if(startTime <= mCurrentTime && mCurrentTime < endTime) {
-                  block.mNowPosition = c.getPosition();
-                  block.mNowProgramID = programID;
-                  block.mNowStart = startTime;
-                  block.mNowEnd = endTime;
+                else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && ProgramUtils.isMarkedWithIcon(getActivity(), programID)) {
+                  markedColumsList.add(column);
+                }
+              }
+              
+              String channelName = c.getString(mChannelNameColumn);
+              int channelOrderNumber = c.getInt(channelOrderColumn);
+      
+              String genre = null;
+              Spannable category = null;
+              String pictureCopyright = null;
+              byte[] picture = null;
+              
+              if(showInfo) {
+                category = IOUtils.getInfoString(c.getInt(mCategoryColumn), getResources());
+              }
+                          
+              if(showDontWantToSee || c.getInt(dontWantToSeeColumn) == 0) {
+                block.mChannelID = channelID;
+                block.mChannelName = channelName;
+                block.mChannelOrderNumber = channelOrderNumber;
+                
+                if(startTime <= mCurrentTime) {
+                  if(endTime <= mCurrentTime) {
+                    block.mPreviousPosition = c.getPosition();
+                    block.mPreviousProgramID = programID;
+                    block.mPreviousStart = startTime;
+                    block.mPreviousEnd = endTime;
+                    mTitleMap.put(programID, title);
+                    block.mPreviousEpisode = episode;
+                    block.mPreviousGenre = genre;
+                    block.mPreviousPicture = picture;
+                    block.mPreviousPictureCopyright = pictureCopyright;
+                    block.mPreviousCategory = category;
+                  }
+                  else if(startTime <= mCurrentTime && mCurrentTime < endTime) {
+                    block.mNowPosition = c.getPosition();
+                    block.mNowProgramID = programID;
+                    block.mNowStart = startTime;
+                    block.mNowEnd = endTime;
+                    mTitleMap.put(programID, title);
+                    block.mNowEpisode = episode;
+                    block.mNowGenre = genre;
+                    block.mNowPicture = picture;
+                    block.mNowPictureCopyright = pictureCopyright;
+                    block.mNowCategory = category;
+                    
+                    if(currentProgramMap.indexOfKey(channelID) < 0) { 
+                      currentProgramMap.put(channelID, block);
+                      mCurrentViewList.add(block);
+                    }
+                  }
+                }
+                else {
+                  block.mNextPosition = c.getPosition();
+                  block.mNextStart = startTime;
+                  block.mNextEnd = endTime;
+                  block.mNextProgramID = programID;
                   mTitleMap.put(programID, title);
-                  block.mNowEpisode = episode;
-                  block.mNowGenre = genre;
-                  block.mNowPicture = picture;
-                  block.mNowPictureCopyright = pictureCopyright;
-                  block.mNowCategory = category;
+                  block.mNextEpisode = episode;
+                  block.mNextGenre = genre;
+                  block.mNextPicture = picture;
+                  block.mNextPictureCopyright = pictureCopyright;
+                  block.mNextCategory = category;
+                  
+                  block.mIsComplete = true;
                   
                   if(currentProgramMap.indexOfKey(channelID) < 0) { 
                     currentProgramMap.put(channelID, block);
                     mCurrentViewList.add(block);
                   }
                 }
-              }
-              else {
-                block.mNextPosition = c.getPosition();
-                block.mNextStart = startTime;
-                block.mNextEnd = endTime;
-                block.mNextProgramID = programID;
-                mTitleMap.put(programID, title);
-                block.mNextEpisode = episode;
-                block.mNextGenre = genre;
-                block.mNextPicture = picture;
-                block.mNextPictureCopyright = pictureCopyright;
-                block.mNextCategory = category;
                 
-                block.mIsComplete = true;
-                
-                if(currentProgramMap.indexOfKey(channelID) < 0) { 
-                  currentProgramMap.put(channelID, block);
-                  mCurrentViewList.add(block);
-                }
+                mMarkingsMap.put(programID, IOUtils.getStringArrayFromList(markedColumsList));
+                markedColumsList.clear();
+                markedColumsList = null;
               }
-              
-              mMarkingsMap.put(programID, IOUtils.getStringArrayFromList(markedColumsList));
-              markedColumsList.clear();
-              markedColumsList = null;
             }
           }
-        }
-      }catch(IllegalStateException e1) {}
+        }catch(IllegalStateException e1) {}
+      }
+      
+      c.close();
+      currentProgramMap.clear();
+      channelProgramMap.clear();
     }
-    
-    c.close();
-    currentProgramMap.clear();
-    channelProgramMap.clear();
     
     mRunningProgramListAdapter.notifyDataSetChanged();
   }
