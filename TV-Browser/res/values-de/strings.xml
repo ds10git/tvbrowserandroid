@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.8.7</h2>
+        <h2>0.5.8.8</h2>
+        	&bull; mit Swipe Sendungen eines Senders im Detailfenster wechseln<br>
+        	&bull; Häufigkeit des automatischen Senderupdates einstellbar<br>
+       	<br>
+       	<h3>0.5.8.7</h3>
         	&bull; doppelte Sender werden entfernt<br>
         	&bull; Fehler beseitigt, die zum Absturz führen konnten<br>
 			&bull; Erinnerungen ab Android 4.4 auch exakt zur gesetzten Zeit<br>
@@ -801,6 +805,13 @@
         <item>Alle zwei Tage</item>
         <item>Alle drei Tage</item>
         <item>Jede Woche</item>
+    </string-array>
+    <string name="pref_auto_channel_update_category">Automatisches Senderupdate</string>
+    <string-array name="pref_auto_channel_update_frequency">
+        <item>Nie</item>
+        <item>Alle zwei Wochen</item>
+        <item>Alle zwei Monate</item>
+        <item>Alle sechs Monate</item>
     </string-array>
     <string name="you_like_it">Gefällt Ihnen TV-Browser?</string>
     <string name="not_now">Jetzt nicht{0}</string>

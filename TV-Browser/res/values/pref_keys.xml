@@ -27,6 +27,9 @@
 	    <string name="PREF_AUTO_UPDATE_START_TIME">PREF_AUTO_UPDATE_START_TIME</string>
 	    <item name="pref_auto_update_start_time_default" type="integer" format="integer">0</item>
 	    
+	    <string name="PREF_AUTO_CHANNEL_UPDATE_FREQUENCY">PREF_AUTO_CHANNEL_UPDATE_FREQUENCY</string>
+	    <item name="pref_auto_channel_update_frequency_default" type="string" format="string">14</item>
+	    
 	    <string name="PREF_AUTO_CHANNEL_UPDATE_LAST">PREF_AUTO_CHANNEL_UPDATE_LAST</string>
 	    
 	    <string name="PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED">PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED</string>

@@ -46,4 +46,13 @@
 		    	android:defaultValue="@integer/pref_auto_update_start_time_default"
 		     	android:summary="@string/pref_auto_update_time_range_summary"/>
 	    </PreferenceCategory>
+	    <PreferenceCategory android:title="@string/pref_auto_channel_update_category">
+	        <ListPreference
+	            android:key="@string/PREF_AUTO_CHANNEL_UPDATE_FREQUENCY"
+	            android:title="@string/pref_auto_update_frequency"
+	            android:defaultValue="@string/pref_auto_channel_update_frequency_default"
+	            android:entries="@array/pref_auto_channel_update_frequency"
+	            android:entryValues="@array/pref_auto_channel_update_frequency_values"
+	            android:summary="%s"/>
+	    </PreferenceCategory>
 </PreferenceScreen>
