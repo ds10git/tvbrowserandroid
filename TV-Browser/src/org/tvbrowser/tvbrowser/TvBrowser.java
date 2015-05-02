@@ -140,6 +140,7 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -4470,10 +4471,16 @@ public class TvBrowser extends ActionBarActivity implements
           handler.post(new Runnable() {
             @Override
             public void run() {
-              AlertDialog d = builder.create();
-              d.show();
+              Window w = getWindow();
               
-              ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+              if(w != null && w.isActive()) {
+                try {
+                  AlertDialog d = builder.create();
+                  d.show();
+                
+                  ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+                }catch(BadTokenException e) {}
+              }
             }
           });
           

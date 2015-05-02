@@ -908,7 +908,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
         Cursor test = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_ENDTIME}, getWhereClause(true) + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME +">0", null, TvBrowserContentProvider.DATA_KEY_ENDTIME + " ASC LIMIT 1");
         
         try {
-          if(test.moveToFirst()) {
+          if(test != null && test.moveToFirst()) {
             mNextUpdate = test.getLong(test.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
           }
         }finally {

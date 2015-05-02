@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.8.7</h2>
+		<h2>0.5.8.8</h2>
+			&bull; swipe trough programs of channel in detail view<br>
+        	&bull; configurable frequency of automatically channel update<br>
+       	<br>
+		<h3>0.5.8.7</h3>
 			&bull; remove duplicate channels<br>
 			&bull; fixed bugs that could lead to crash<br>
 			&bull; make sure Reminders are shown at scheduled time in Android since 4.4<br>
@@ -810,6 +814,13 @@
         <item>Every 2 days</item>
         <item>Every 3 days</item>
         <item>Every week</item>
+    </string-array>
+    <string name="pref_auto_channel_update_category">Automatically channel update</string>
+    <string-array name="pref_auto_channel_update_frequency">
+        <item>Never</item>
+        <item>Every 2 weeks</item>
+        <item>Every 2 month</item>
+        <item>Every 6 month</item>
     </string-array>
     <string name="you_like_it">Do you like TV-Browser?</string>
     <string name="not_now">Not now{0}</string>

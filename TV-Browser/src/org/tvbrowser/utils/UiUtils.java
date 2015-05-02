@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicReference;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.Plugin;
@@ -45,6 +44,7 @@ import org.tvbrowser.tvbrowser.Logging;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.ReminderBroadcastReceiver;
 import org.tvbrowser.tvbrowser.TvBrowser;
+import org.tvbrowser.view.SwipeScrollView;
 import org.tvbrowser.widgets.ImportantProgramsListWidget;
 import org.tvbrowser.widgets.RunningProgramsListWidget;
 
@@ -118,6 +118,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnPreDrawListener;
@@ -180,7 +181,7 @@ public class UiUtils {
     showProgramInfo(context, id, null, parent, handler);
   }
   
-  public static void showProgramInfo(final Context context, final long id, final Activity finish, final View parent, Handler handler) {
+  public static void showProgramInfo(final Context context, final long id, final Activity finish, final View parent, final Handler handler) {
     handler.post(new Runnable() {
       @Override
       public void run() {
@@ -192,8 +193,14 @@ public class UiUtils {
           private boolean mShowWaitingDialog;
           private boolean mHasSpannableActors;
           
+          private long mPreviousId;
+          private long mNextId;
+          
           @Override
           protected void onPreExecute() {
+            mPreviousId = -1;
+            mNextId = -1;
+            
             mShowWaitingDialog = true;
             mHandler = new Handler();
             mShowWaiting = new Runnable() {
@@ -217,10 +224,10 @@ public class UiUtils {
             
             SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
             
-            Cursor c = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), null, null, null, null);
+            Cursor c = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), null, null, null, TvBrowserContentProvider.KEY_ID + " ASC LIMIT 1");
             
             try {
-              if(c.moveToFirst()) {
+              if(c != null && c.moveToFirst()) {
                 mHasSpannableActors = false;
                 result = Boolean.valueOf(true);
                 float textScale = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_TEXT_SCALE, R.string.detail_text_scale_default));
@@ -745,6 +752,28 @@ public class UiUtils {
                     textView.setVisibility(View.GONE);
                   }
                 }
+                
+                final String[] projection = {TvBrowserContentProvider.KEY_ID};
+                
+                Cursor prev = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + startTime + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + channelID + " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " DESC LIMIT 1");
+                
+                try {
+                  if(prev != null && prev.moveToFirst()) {
+                    mPreviousId = prev.getLong(prev.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                  }
+                }finally {
+                  IOUtils.closeCursor(prev);
+                }
+                
+                Cursor next = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + startTime + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + channelID + " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC LIMIT 1");
+                
+                try {
+                  if(next != null && next.moveToFirst()) {
+                    mNextId = next.getLong(next.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                  }
+                }finally {
+                  IOUtils.closeCursor(next);
+                }
               }
             }finally {
               IOUtils.closeCursor(c);
@@ -797,6 +826,34 @@ public class UiUtils {
                 };
                 mLayout.getViewTreeObserver().addOnPreDrawListener(preDrawListener);
               }
+              
+              mLayout.setOnTouchListener(new View.OnTouchListener() {
+                @Override
+                public boolean onTouch(View v, MotionEvent event) {
+                  boolean result = false;
+                  
+                  if(((SwipeScrollView)mLayout).isSwipeLeft()) {
+                    ((SwipeScrollView)mLayout).resetSwipe();
+                    
+                    if(mNextId != -1) {
+                      test.dismiss();
+                      UiUtils.showProgramInfo(context, mNextId, finish, parent, handler);
+                      result = true;
+                    }
+                  }
+                  else if(((SwipeScrollView)mLayout).isSwipeRight()) {
+                    ((SwipeScrollView)mLayout).resetSwipe();
+                    
+                    if(mPreviousId != -1) {
+                      test.dismiss();
+                      UiUtils.showProgramInfo(context, mPreviousId, finish, parent, handler);
+                      result = true;
+                    }
+                  }
+                  
+                  return result;
+                }
+              });
               
               test.show();
             }

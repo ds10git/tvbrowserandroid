@@ -2372,8 +2372,10 @@ public class TvDataUpdateService extends Service {
       UiUtils.updateImportantProgramsWidget(getApplicationContext());
       UiUtils.updateRunningProgramsWidget(getApplicationContext());
     }
+    
+    int autoChannelUpdateFrequency = PrefUtils.getStringValueAsInt(R.string.PREF_AUTO_CHANNEL_UPDATE_FREQUENCY, R.string.pref_auto_channel_update_frequency_default);
         
-    if(PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0) + (14 * 24 * 60 * 60000L) < System.currentTimeMillis()) {
+    if(autoChannelUpdateFrequency != -1 && PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0) + (autoChannelUpdateFrequency * 24 * 60 * 60000L) < System.currentTimeMillis()) {
       updateChannels(true);
     }
     else {
