@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.8.8</h2>
+		<h2>0.5.8.9</h2>
+			&bull; new time values for reminder<br>
+        	&bull; fixed some bugs<br>
+       	<br>
+		<h3>0.5.8.8</h3>
 			&bull; swipe trough programs of channel in detail view<br>
         	&bull; configurable frequency of automatically channel update<br>
        	<br>
@@ -746,8 +750,13 @@
 	    <item>30 minutes before</item>
 	    <item>1 hour before</item>
 	    <item>2 hours before</item>
+	    <item>3 hours before</item>
+	    <item>4 hours before</item>
 	    <item>6 hours before</item>
+	    <item>8 hours before</item>
+	    <item>10 hours before</item>
 	    <item>12 hours before</item>
+	    <item>18 hours before</item>
 	    <item>24 hours before</item>
 	</string-array>
 	<string-array name="pref_category_reminder_names_second">

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.8.8</h2>
+        <h2>0.5.8.9</h2>
+			&bull; zusätzliche Zeiten für den Erinnerer<br>
+        	&bull; einige Fehler beseitigt<br>
+       	<br>
+        <h3>0.5.8.8</h3>
         	&bull; mit Swipe Sendungen eines Senders im Detailfenster wechseln<br>
         	&bull; Häufigkeit des automatischen Senderupdates einstellbar<br>
        	<br>
@@ -737,8 +741,13 @@
 	    <item>30 Minuten vorher</item>
 	    <item>1 Stunde vorher</item>
 	    <item>2 Stunden vorher</item>
+	    <item>3 Stunden vorher</item>
+	    <item>4 Stunden vorher</item>
 	    <item>6 Stunden vorher</item>
+	    <item>8 Stunden vorher</item>
+	    <item>10 Stunden vorher</item>
 	    <item>12 Stunden vorher</item>
+	    <item>18 Stunden vorher</item>
 	    <item>24 Stunden vorher</item>
 	</string-array>
 	<string-array name="pref_category_reminder_names_second">
