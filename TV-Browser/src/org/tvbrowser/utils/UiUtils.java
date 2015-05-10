@@ -122,6 +122,7 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnPreDrawListener;
+import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -855,7 +856,9 @@ public class UiUtils {
                 }
               });
               
-              test.show();
+              try {
+                test.show();
+              }catch(BadTokenException e) {}
             }
           }
         };

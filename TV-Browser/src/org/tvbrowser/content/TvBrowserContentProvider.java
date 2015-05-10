@@ -37,6 +37,7 @@ import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
+import android.database.sqlite.SQLiteDatabaseLockedException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
@@ -392,53 +393,55 @@ public class TvBrowserContentProvider extends ContentProvider {
       throws OperationApplicationException {
     ArrayList<ContentProviderResult> result = new ArrayList<ContentProviderResult>(0);
     
-    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
-    database.beginTransaction();
-    
-    HashMap<Uri, Uri> updateUris = new HashMap<Uri, Uri>();
-    
-    for(ContentProviderOperation op : operations) {
-      Uri uri = op.getUri();
+    try {
+      SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+      database.beginTransaction();
       
-      String table = TvBrowserDataBaseHelper.DATA_TABLE;
+      HashMap<Uri, Uri> updateUris = new HashMap<Uri, Uri>();
       
-      switch(uriMatcher.match(uri)) {
-        case DATA_VERSION: table = TvBrowserDataBaseHelper.VERSION_TABLE;break;
-        case DATA_VERSION_ID: table = TvBrowserDataBaseHelper.VERSION_TABLE;break;
-        case CHANNELS: table = CHANNEL_TABLE;break;
-        case CHANNEL_ID: table = CHANNEL_TABLE;break;
-      }
-      
-      ContentValues values = op.resolveValueBackReferences(null, 0);
-      
-      String segment = uri.getPathSegments().get(1);
-      
-      int count = database.update(table, values, KEY_ID + "=" + segment, null);
-      
-      if(count > 0) {
-        updateUris.put(uri, uri);
-      }
-      
-      result.add(new ContentProviderResult(count));
-    }
-    
-    database.setTransactionSuccessful();
-    database.endTransaction();
-    
-    Set<Uri> uris = updateUris.keySet();
-    
-    if(INFORM_FOR_CHANGES) {
-      for(Uri uri : uris) {
-        getContext().getContentResolver().notifyChange(uri, null);
+      for(ContentProviderOperation op : operations) {
+        Uri uri = op.getUri();
         
-        switch (uriMatcher.match(uri)) {
-          case DATA: getContext().getContentResolver().notifyChange(uri, null);break;
-          case DATA_ID: String segment = uri.getPathSegments().get(1);
-          getContext().getContentResolver().notifyChange(ContentUris.withAppendedId(CONTENT_URI_DATA_WITH_CHANNEL,Integer.parseInt(segment)),null);
-            break;
+        String table = TvBrowserDataBaseHelper.DATA_TABLE;
+        
+        switch(uriMatcher.match(uri)) {
+          case DATA_VERSION: table = TvBrowserDataBaseHelper.VERSION_TABLE;break;
+          case DATA_VERSION_ID: table = TvBrowserDataBaseHelper.VERSION_TABLE;break;
+          case CHANNELS: table = CHANNEL_TABLE;break;
+          case CHANNEL_ID: table = CHANNEL_TABLE;break;
+        }
+        
+        ContentValues values = op.resolveValueBackReferences(null, 0);
+        
+        String segment = uri.getPathSegments().get(1);
+        
+        int count = database.update(table, values, KEY_ID + "=" + segment, null);
+        
+        if(count > 0) {
+          updateUris.put(uri, uri);
+        }
+        
+        result.add(new ContentProviderResult(count));
+      }
+      
+      database.setTransactionSuccessful();
+      database.endTransaction();
+      
+      Set<Uri> uris = updateUris.keySet();
+      
+      if(INFORM_FOR_CHANGES) {
+        for(Uri uri : uris) {
+          getContext().getContentResolver().notifyChange(uri, null);
+          
+          switch (uriMatcher.match(uri)) {
+            case DATA: getContext().getContentResolver().notifyChange(uri, null);break;
+            case DATA_ID: String segment = uri.getPathSegments().get(1);
+            getContext().getContentResolver().notifyChange(ContentUris.withAppendedId(CONTENT_URI_DATA_WITH_CHANNEL,Integer.parseInt(segment)),null);
+              break;
+          }
         }
       }
-    }
+    }catch(SQLiteDatabaseLockedException e) {}
     
     return result.toArray(new ContentProviderResult[result.size()]);
   }
