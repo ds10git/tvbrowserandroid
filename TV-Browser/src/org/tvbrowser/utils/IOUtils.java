@@ -30,6 +30,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -45,11 +46,14 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.Channel;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.AutoDataUpdateReceiver;
+import org.tvbrowser.tvbrowser.Logging;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.tvbrowser.ReminderBroadcastReceiver;
 import org.tvbrowser.tvbrowser.ServiceUpdateDataTable;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -980,5 +984,24 @@ public class IOUtils {
     }
     
     return result;
+  }
+  
+  public static void removeReminder(Context context, long programID) {
+    AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+    
+    Intent remind = new Intent(context,ReminderBroadcastReceiver.class);
+    remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
+    
+    PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_NO_CREATE);
+    Logging.log(ReminderBroadcastReceiver.tag, " Delete reminder for programID '" + programID + "' with pending intent '" + pending + "'", Logging.TYPE_REMINDER, context);
+    if(pending != null) {
+      alarmManager.cancel(pending);
+    }
+    
+    pending = PendingIntent.getBroadcast(context, (int)-programID, remind, PendingIntent.FLAG_NO_CREATE);
+    Logging.log(ReminderBroadcastReceiver.tag, " Delete reminder for programID '-" + programID + "' with pending intent '" + pending + "'", Logging.TYPE_REMINDER, context);
+    if(pending != null) {
+      alarmManager.cancel(pending);
+    }
   }
 }

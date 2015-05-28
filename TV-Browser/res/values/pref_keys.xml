@@ -425,6 +425,9 @@
 	    <string name="SHOW_INFO_IN_DETAILS">SHOW_INFO_IN_DETAILS</string>
 	    <item name="show_info_in_details_default" type="bool" format="boolean">true</item>
 	    
+	    <string name="PREF_DETAIL_ALLOW_SWIPE">PREF_DETAIL_ALLOW_SWIPE</string>
+	    <item name="pref_detail_allow_swipe" type="bool" format="boolean">true</item>
+	    
 	    <!-- DETAIL OTHER INFORMATION PREFERENCES -->
 	    
 		    <string name="SHOW_LINK_IN_DETAILS">SHOW_LINK_IN_DETAILS</string>

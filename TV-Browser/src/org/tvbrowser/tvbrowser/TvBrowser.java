@@ -1636,7 +1636,12 @@ public class TvBrowser extends ActionBarActivity implements
         for(int i = mSectionsPagerAdapter.getCount()-1; i >= 0; i--) {
           mSectionsPagerAdapter.destroyItem(mViewPager, i, mSectionsPagerAdapter.getRegisteredFragment(i));
           mSectionsPagerAdapter.notifyDataSetChanged();
-          actionBar.removeTabAt(i);
+          
+          try {
+            actionBar.removeTabAt(i);
+          }catch(NullPointerException npe) {
+            
+          }
         }
         
         actionBar.addTab(actionBar.newTab().setText(getString(R.string.tab_restoring_name)).setTabListener(new ActionBar.TabListener() {
@@ -5120,18 +5125,20 @@ public class TvBrowser extends ActionBarActivity implements
   public void updateProgressIcon(final boolean progress) {
     handler.post(new Runnable() {
       @Override
-      public void run() {        
-        if(progress) {
-          mUpdateItem.setActionView(R.layout.progressbar);
-          mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-        }
-        else {
-          if(!PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
-            mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-            invalidateOptionsMenu();
+      public void run() {
+        if(mUpdateItem != null) {
+          if(progress) {
+            mUpdateItem.setActionView(R.layout.progressbar);
+            mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
           }
-          
-          mUpdateItem.setActionView(null);
+          else {
+            if(!PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+              mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+              invalidateOptionsMenu();
+            }
+            
+            mUpdateItem.setActionView(null);
+          }
         }
       }
     });

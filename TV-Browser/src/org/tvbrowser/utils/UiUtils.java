@@ -40,9 +40,8 @@ import org.tvbrowser.tvbrowser.ActivityTvBrowserSearchResults;
 import org.tvbrowser.tvbrowser.DontWantToSeeExclusion;
 import org.tvbrowser.tvbrowser.Favorite;
 import org.tvbrowser.tvbrowser.InfoActivity;
-import org.tvbrowser.tvbrowser.Logging;
 import org.tvbrowser.tvbrowser.R;
-import org.tvbrowser.tvbrowser.ReminderBroadcastReceiver;
+import org.tvbrowser.tvbrowser.ServiceUpdateReminders;
 import org.tvbrowser.tvbrowser.TvBrowser;
 import org.tvbrowser.view.SwipeScrollView;
 import org.tvbrowser.widgets.ImportantProgramsListWidget;
@@ -50,11 +49,9 @@ import org.tvbrowser.widgets.RunningProgramsListWidget;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.NotificationManager;
-import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.appwidget.AppWidgetManager;
@@ -182,690 +179,717 @@ public class UiUtils {
     showProgramInfo(context, id, null, parent, handler);
   }
   
-  public static void showProgramInfo(final Context context, final long id, final Activity finish, final View parent, final Handler handler) {
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        AsyncTask<Void, Void, Boolean> createInfoTask = new AsyncTask<Void, Void, Boolean>() {
-          private View mLayout;
-          private ProgressDialog mProgress;
-          private Handler mHandler;
-          private Runnable mShowWaiting;
-          private boolean mShowWaitingDialog;
-          private boolean mHasSpannableActors;
-          
-          private long mPreviousId;
-          private long mNextId;
-          
-          @Override
-          protected void onPreExecute() {
-            mPreviousId = -1;
-            mNextId = -1;
+  private static boolean mShowingProgramInfo = false;
+  
+  public static synchronized void showProgramInfo(final Context context, final long id, final Activity finish, final View parent, final Handler handler) {
+    if(!mShowingProgramInfo) {
+      mShowingProgramInfo = true;
+      
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          AsyncTask<Void, Void, Boolean> createInfoTask = new AsyncTask<Void, Void, Boolean>() {
+            private View mLayout;
+            private ProgressDialog mProgress;
+            private Handler mHandler;
+            private Runnable mShowWaiting;
+            private boolean mShowWaitingDialog;
+            private boolean mHasSpannableActors;
             
-            mShowWaitingDialog = true;
-            mHandler = new Handler();
-            mShowWaiting = new Runnable() {
-              @Override
-              public void run() {
-                mProgress = new ProgressDialog(context);
-                mProgress.setMessage(context.getString(R.string.waiting_detail_show));
-                
-                if(mShowWaitingDialog) {
-                  mProgress.show();
-                }
-              }
-            };
-            mLayout = ((LayoutInflater)context.getSystemService( Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.detail_layout, parent instanceof ViewGroup ? (ViewGroup)parent : null, false);
-            mHandler.postDelayed(mShowWaiting, 700);
-          }
-          
-          @Override
-          protected Boolean doInBackground(Void... params) {
-            Boolean result = Boolean.valueOf(false);
+            private long mPreviousId;
+            private long mNextId;
             
-            SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
-            
-            Cursor c = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), null, null, null, TvBrowserContentProvider.KEY_ID + " ASC LIMIT 1");
-            
-            try {
-              if(c != null && c.moveToFirst()) {
-                mHasSpannableActors = false;
-                result = Boolean.valueOf(true);
-                float textScale = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_TEXT_SCALE, R.string.detail_text_scale_default));
-                
-                final long startTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-                final ImageButton handleReminder = (ImageButton)mLayout.findViewById(R.id.detail_handle_reminder);
-                
-                if(startTime <= System.currentTimeMillis()) {
-                  handleReminder.setVisibility(View.GONE);
-                }
-                else {
-                  final AtomicBoolean userRemind = new AtomicBoolean(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER)) == 1);
-                  final AtomicBoolean favoriteRemind = new AtomicBoolean(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) == 1);
+            @Override
+            protected void onPreExecute() {
+              mPreviousId = -1;
+              mNextId = -1;
+              
+              mShowWaitingDialog = true;
+              mHandler = new Handler();
+              mShowWaiting = new Runnable() {
+                @Override
+                public void run() {
+                  mProgress = new ProgressDialog(context);
+                  mProgress.setMessage(context.getString(R.string.waiting_detail_show));
                   
-                  if(userRemind.get() || favoriteRemind.get()) {
-                    handleReminder.setImageResource(R.drawable.ic_action_remove_alarm);
-                    CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_remove));
+                  if(mShowWaitingDialog) {
+                    try {
+                      mProgress.show();
+                    }catch(BadTokenException e) {}
+                  }
+                }
+              };
+              
+              int layout = PrefUtils.getBooleanValue(R.string.PREF_DETAIL_ALLOW_SWIPE, R.bool.pref_detail_allow_swipe) ? R.layout.detail_layout_swipe : R.layout.detail_layout;
+              
+              mLayout = ((LayoutInflater)context.getSystemService( Context.LAYOUT_INFLATER_SERVICE)).inflate(layout, parent instanceof ViewGroup ? (ViewGroup)parent : null, false);
+              mHandler.postDelayed(mShowWaiting, 700);
+            }
+            
+            @Override
+            protected Boolean doInBackground(Void... params) {
+              Boolean result = Boolean.valueOf(false);
+              
+              SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+              
+              Cursor c = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), null, null, null, TvBrowserContentProvider.KEY_ID + " ASC LIMIT 1");
+              
+              try {
+                if(c != null && c.moveToFirst()) {
+                  mHasSpannableActors = false;
+                  result = Boolean.valueOf(true);
+                  float textScale = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_TEXT_SCALE, R.string.detail_text_scale_default));
+                  
+                  final long startTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+                  final ImageButton handleReminder = (ImageButton)mLayout.findViewById(R.id.detail_handle_reminder);
+                  
+                  if(startTime <= System.currentTimeMillis()) {
+                    handleReminder.setVisibility(View.GONE);
                   }
                   else {
-                    handleReminder.setImageResource(R.drawable.ic_action_add_alarm);
-                    CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_add));
-                  }
-                  
-                  handleReminder.setOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View v) {
-                      ContentValues values = new ContentValues();
-                      boolean add = true;
-                      
-                      if(userRemind.get() || favoriteRemind.get()) {
-                        add = false;
-                        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, false);
-                        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, false);
-                        
-                      }
-                      else {
-                        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, true);
-                      }
-                      
-                      if(context.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), values, null, null) == 1) {
-                        if(add) {
-                          userRemind.set(true);
-                          
-                          UiUtils.addReminder(context, id, startTime, UiUtils.class, true);
-                          ProgramUtils.addReminderId(context, id);
-                          
-                          mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                              handleReminder.setImageResource(R.drawable.ic_action_remove_alarm);
-                              CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_remove));
-                              handleReminder.invalidate();
-                            }
-                          });
-                        }
-                        else {
-                          userRemind.set(false);
-                          favoriteRemind.set(false);
-                          
-                          UiUtils.removeReminder(context, id);
-                          ProgramUtils.removeReminderId(context, id);
-                          
-                          mHandler.post(new Runnable() {
-                            @Override
-                            public void run() {
-                              handleReminder.setImageResource(R.drawable.ic_action_add_alarm);
-                              CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_add));
-                              handleReminder.invalidate();
-                            }
-                          });
-                        }
-                        
-                        Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-                        intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, id);
-                        
-                        LocalBroadcastManager.getInstance(context).sendBroadcastSync(intent);
-                        
-                        UiUtils.updateImportantProgramsWidget(context);
-                        UiUtils.updateRunningProgramsWidget(context);
-                      }
-                    }
-                  });
-                }
-                
-                TextView date = (TextView)mLayout.findViewById(R.id.detail_date_channel);
-                TextView title = (TextView)mLayout.findViewById(R.id.detail_title);
-                TextView genre = (TextView)mLayout.findViewById(R.id.detail_genre);
-                TextView info = (TextView)mLayout.findViewById(R.id.detail_info);
-                TextView episode = (TextView)mLayout.findViewById(R.id.detail_episode_title);
-                TextView shortDescription = (TextView)mLayout.findViewById(R.id.detail_short_description);
-                TextView description = (TextView)mLayout.findViewById(R.id.detail_description);
-                TextView link = (TextView)mLayout.findViewById(R.id.detail_link);
+                    final AtomicBoolean userRemind = new AtomicBoolean(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER)) == 1);
+                    final AtomicBoolean favoriteRemind = new AtomicBoolean(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) == 1);
                     
-                TextView pictureDescription = (TextView)mLayout.findViewById(R.id.detail_picture_description);
-                TextView pictureCopyright = (TextView)mLayout.findViewById(R.id.detail_picture_copyright);
-                
-                date.setTextSize(TypedValue.COMPLEX_UNIT_PX, date.getTextSize() * textScale);
-                title.setTextSize(TypedValue.COMPLEX_UNIT_PX, date.getTextSize() * textScale);
-                genre.setTextSize(TypedValue.COMPLEX_UNIT_PX, genre.getTextSize() * textScale);
-                info.setTextSize(TypedValue.COMPLEX_UNIT_PX, info.getTextSize() * textScale);
-                episode.setTextSize(TypedValue.COMPLEX_UNIT_PX, episode.getTextSize() * textScale);
-                shortDescription.setTextSize(TypedValue.COMPLEX_UNIT_PX, shortDescription.getTextSize() * textScale);
-                description.setTextSize(TypedValue.COMPLEX_UNIT_PX, description.getTextSize() * textScale);
-                link.setTextSize(TypedValue.COMPLEX_UNIT_PX, link.getTextSize() * textScale);
-                pictureDescription.setTextSize(TypedValue.COMPLEX_UNIT_PX, pictureDescription.getTextSize() * textScale);
-                pictureCopyright.setTextSize(TypedValue.COMPLEX_UNIT_PX, pictureCopyright.getTextSize() * textScale);
-                
-                if(!SettingConstants.IS_DARK_THEME && !(finish instanceof InfoActivity)) {
-                  date.setTextColor(context.getResources().getColor(R.color.detail_date_channel_color_light));
-                }
-                
-                Date start = new Date(startTime);
-                SimpleDateFormat day = new SimpleDateFormat("EEE",Locale.getDefault());
-                
-                int channelID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
-                
-                Cursor channel = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelID), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, null, null, null);
-                
-                channel.moveToFirst();
-                
-                String channelName = "";
-                
-                if(PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_DETAILS, R.bool.show_sort_number_in_details_default)) {
-                  channelName = channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ";
-                }
-                
-                channelName += channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-                
-                date.setText(day.format(start) + " " + java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT).format(start) + " " + DateFormat.getTimeFormat(context).format(start) + " - " + DateFormat.getTimeFormat(context)/*.getTimeInstance(java.text.DateFormat.SHORT)*/.format(new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)))) + ", " + channelName);
-                   
-                Bitmap logo = UiUtils.createBitmapFromByteArray(channel.getBlob(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
-                
-                if(logo != null) {
-                  float scale = context.getResources().getDisplayMetrics().density;
-                  
-                  int width = (int)(logo.getWidth() * scale);
-                  int height = (int)(logo.getHeight() * scale);
-      
-                  BitmapDrawable l = new BitmapDrawable(context.getResources(), logo);
-                  
-                  int color = PrefUtils.getIntValue(R.string.PREF_LOGO_BACKGROUND_COLOR, context.getResources().getColor(R.color.pref_logo_background_color_default));
-                  
-                  GradientDrawable background = new GradientDrawable(Orientation.BOTTOM_TOP,new int[] {color,color});
-                  
-                  int add = 2;
-                  
-                  if(PrefUtils.getBooleanValue(R.string.PREF_LOGO_BORDER, R.bool.pref_logo_border_default)) {
-                    add = 3;
-                    background.setStroke(1, PrefUtils.getIntValue(R.string.PREF_LOGO_BORDER_COLOR, context.getResources().getColor(R.color.pref_logo_border_color_default)));
-                  }
-                  
-                  background.setBounds(0, 0, width + add, height + add);
-                  
-                  LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
-                  logoDrawable.setBounds(0, 0, width + add, height + add);
-                  
-                  l.setBounds(2, 2, width, height);
-                  
-                  date.setCompoundDrawables(logoDrawable, null, null, null);
-                }
-                
-                channel.close();
-                
-                String year = "";
-                    
-                if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN))) {
-                  year = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN));
-                }
-                
-                if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR))) {
-                  if(year.length() > 0) {
-                    year += " ";
-                  }
-                  
-                  year += c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR));
-                }
-                
-                String originalTitle = null;
-                String titleTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
-                
-                if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL))) {
-                  originalTitle = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL));
-                }
-                
-                if(originalTitle == null || originalTitle.equals(titleTest)) {
-                  title.setText(titleTest);
-                }
-                else {
-                  title.setText(titleTest + "/" + originalTitle);
-                }
-                
-                if(!PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_DETAILS, R.bool.show_picture_in_details_default) ||  c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)) || c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT))) {
-                  pictureCopyright.setVisibility(View.GONE);
-                  pictureDescription.setVisibility(View.GONE);
-                }
-                else {
-                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION))) {
-                    pictureDescription.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION)));
-                  }
-                  
-                  pictureCopyright.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)));
-                  
-                  Bitmap image = UiUtils.createBitmapFromByteArray(c.getBlob(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)));
-                  
-                  if(image != null) {        
-                    BitmapDrawable b = new BitmapDrawable(context.getResources(),image);
-                    
-                    float zoom = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_PICTURE_ZOOM, R.string.detail_picture_zoom_default)) * context.getResources().getDisplayMetrics().density;
-                    
-                    b.setBounds(0, 0, (int)(image.getWidth() * zoom), (int)(image.getHeight() * zoom));
-                    
-                    if(PrefUtils.getStringValue(R.string.DETAIL_PICTURE_DESCRIPTION_POSITION, R.string.detail_picture_description_position_default).equals("0")) {
-                      pictureDescription.setCompoundDrawables(b, null, null, null);
+                    if(userRemind.get() || favoriteRemind.get()) {
+                      handleReminder.setImageResource(R.drawable.ic_action_remove_alarm);
+                      CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_remove));
                     }
                     else {
-                      pictureDescription.setCompoundDrawables(null, b, null, null);
+                      handleReminder.setImageResource(R.drawable.ic_action_add_alarm);
+                      CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_add));
                     }
+                    
+                    handleReminder.setOnClickListener(new View.OnClickListener() {
+                      @Override
+                      public void onClick(View v) {
+                        ContentValues values = new ContentValues();
+                        boolean add = true;
+                        
+                        if(userRemind.get() || favoriteRemind.get()) {
+                          add = false;
+                          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, false);
+                          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, false);
+                          
+                        }
+                        else {
+                          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, true);
+                        }
+                        
+                        if(context.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), values, null, null) == 1) {
+                          if(add) {
+                            userRemind.set(true);
+                            
+                            ServiceUpdateReminders.startReminderUpdate(context);
+                            ProgramUtils.addReminderId(context, id);
+                            
+                            mHandler.post(new Runnable() {
+                              @Override
+                              public void run() {
+                                handleReminder.setImageResource(R.drawable.ic_action_remove_alarm);
+                                CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_remove));
+                                handleReminder.invalidate();
+                              }
+                            });
+                          }
+                          else {
+                            userRemind.set(false);
+                            favoriteRemind.set(false);
+                            
+                            IOUtils.removeReminder(context, id);
+                            ProgramUtils.removeReminderId(context, id);
+                            ServiceUpdateReminders.startReminderUpdate(context);
+                            
+                            mHandler.post(new Runnable() {
+                              @Override
+                              public void run() {
+                                handleReminder.setImageResource(R.drawable.ic_action_add_alarm);
+                                CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_add));
+                                handleReminder.invalidate();
+                              }
+                            });
+                          }
+                          
+                          Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
+                          intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, id);
+                          
+                          LocalBroadcastManager.getInstance(context).sendBroadcastSync(intent);
+                          
+                          UiUtils.updateImportantProgramsWidget(context);
+                          UiUtils.updateRunningProgramsWidget(context);
+                        }
+                      }
+                    });
                   }
-                }
-                
-                if(PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_DETAILS, R.bool.show_genre_in_details_default) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
-                  genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) + (year.length() > 0 ? " - " + year : ""));
-                }
-                else if(year.length() > 0) {
-                  genre.setText(year);
-                }
-                else {
-                  genre.setVisibility(View.GONE);
-                }
-                
-                Spannable infoValue = IOUtils.getInfoString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)), context.getResources());
-                
-                if(PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_DETAILS, R.bool.show_info_in_details_default) && infoValue != null) {
-                  info.setText(infoValue);
-                }
-                else {
-                  info.setVisibility(View.GONE);
-                }
-                
-                String number = "";
-                
-                if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER))) {
-                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT))) {
-                    number = IOUtils.decodeSingleFieldValueToMultipleEpisodeString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER))) + "/" + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT)) + " ";
-                  }
-                  else {
-                    number = IOUtils.decodeSingleFieldValueToMultipleEpisodeString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER))) + " ";
-                  }
-                }
-                
-                String originalEpisode = null;
-                
-                if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL))) {
-                  originalEpisode = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL));
-                }
-                
-                if(PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_DETAILS, R.bool.show_episode_in_details_default) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
-                  String episodeTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
                   
-                  if(originalEpisode == null || episodeTest.equals(originalEpisode)) {
-                    episode.setText(number + episodeTest);
-                  }
-                  else {
-                    episode.setText(number + episodeTest + "/" + originalEpisode);
-                  }
-                }
-                else if(PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_DETAILS, R.bool.show_episode_in_details_default) && number.trim().length() > 0) {
-                  episode.setText(number);
-                }
-                else {
-                  episode.setVisibility(View.GONE);
-                }
-                
-                String shortDescriptionValue = null;
-                String descriptionValue = null;
-                boolean showShortDescription = true;
-                    
-                if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
-                  shortDescriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION)).trim();
-                }
-                
-                if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION))) {
-                  descriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
-                  
-                  if(shortDescriptionValue != null) {
-                    String test = shortDescriptionValue;
-                    
-                    if(test.endsWith("...")) {
-                      test = test.substring(0,test.length()-3);
-                    }
-                    else if(test.endsWith("\u2026")) {
-                      test = test.substring(0,test.length()-1);
-                    }
-                    
-                    test = test.replaceAll("\\s+", " ").trim();
-                    
-                    showShortDescription = !descriptionValue.replaceAll("\\s+", " ").trim().startsWith(test);
-                    
-                    String[] paragraphs = descriptionValue.split("\n+");
-                    
-                    if(paragraphs.length > 1) {
-                      String para0 = paragraphs[0].replaceAll("\\s+", " ").trim();
-                      String para1 = paragraphs[1].replaceAll("\\s+", " ").trim();
+                  TextView date = (TextView)mLayout.findViewById(R.id.detail_date_channel);
+                  TextView title = (TextView)mLayout.findViewById(R.id.detail_title);
+                  TextView genre = (TextView)mLayout.findViewById(R.id.detail_genre);
+                  TextView info = (TextView)mLayout.findViewById(R.id.detail_info);
+                  TextView episode = (TextView)mLayout.findViewById(R.id.detail_episode_title);
+                  TextView shortDescription = (TextView)mLayout.findViewById(R.id.detail_short_description);
+                  TextView description = (TextView)mLayout.findViewById(R.id.detail_description);
+                  TextView link = (TextView)mLayout.findViewById(R.id.detail_link);
                       
-                      if(para1.startsWith(para0) || para0.startsWith(para1)) {
-                        descriptionValue = descriptionValue.substring(paragraphs[0].length()+1).trim();
+                  TextView pictureDescription = (TextView)mLayout.findViewById(R.id.detail_picture_description);
+                  TextView pictureCopyright = (TextView)mLayout.findViewById(R.id.detail_picture_copyright);
+                  
+                  date.setTextSize(TypedValue.COMPLEX_UNIT_PX, date.getTextSize() * textScale);
+                  title.setTextSize(TypedValue.COMPLEX_UNIT_PX, date.getTextSize() * textScale);
+                  genre.setTextSize(TypedValue.COMPLEX_UNIT_PX, genre.getTextSize() * textScale);
+                  info.setTextSize(TypedValue.COMPLEX_UNIT_PX, info.getTextSize() * textScale);
+                  episode.setTextSize(TypedValue.COMPLEX_UNIT_PX, episode.getTextSize() * textScale);
+                  shortDescription.setTextSize(TypedValue.COMPLEX_UNIT_PX, shortDescription.getTextSize() * textScale);
+                  description.setTextSize(TypedValue.COMPLEX_UNIT_PX, description.getTextSize() * textScale);
+                  link.setTextSize(TypedValue.COMPLEX_UNIT_PX, link.getTextSize() * textScale);
+                  pictureDescription.setTextSize(TypedValue.COMPLEX_UNIT_PX, pictureDescription.getTextSize() * textScale);
+                  pictureCopyright.setTextSize(TypedValue.COMPLEX_UNIT_PX, pictureCopyright.getTextSize() * textScale);
+                  
+                  if(!SettingConstants.IS_DARK_THEME && !(finish instanceof InfoActivity)) {
+                    date.setTextColor(context.getResources().getColor(R.color.detail_date_channel_color_light));
+                  }
+                  
+                  Date start = new Date(startTime);
+                  SimpleDateFormat day = new SimpleDateFormat("EEE",Locale.getDefault());
+                  
+                  int channelID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+                  
+                  Cursor channel = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelID), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, null, null, null);
+                  
+                  channel.moveToFirst();
+                  
+                  String channelName = "";
+                  
+                  if(PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_DETAILS, R.bool.show_sort_number_in_details_default)) {
+                    channelName = channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ";
+                  }
+                  
+                  channelName += channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+                  
+                  date.setText(day.format(start) + " " + java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT).format(start) + " " + DateFormat.getTimeFormat(context).format(start) + " - " + DateFormat.getTimeFormat(context)/*.getTimeInstance(java.text.DateFormat.SHORT)*/.format(new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)))) + ", " + channelName);
+                     
+                  Bitmap logo = UiUtils.createBitmapFromByteArray(channel.getBlob(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+                  
+                  if(logo != null) {
+                    float scale = context.getResources().getDisplayMetrics().density;
+                    
+                    int width = (int)(logo.getWidth() * scale);
+                    int height = (int)(logo.getHeight() * scale);
+        
+                    BitmapDrawable l = new BitmapDrawable(context.getResources(), logo);
+                    
+                    int color = PrefUtils.getIntValue(R.string.PREF_LOGO_BACKGROUND_COLOR, context.getResources().getColor(R.color.pref_logo_background_color_default));
+                    
+                    GradientDrawable background = new GradientDrawable(Orientation.BOTTOM_TOP,new int[] {color,color});
+                    
+                    int add = 2;
+                    
+                    if(PrefUtils.getBooleanValue(R.string.PREF_LOGO_BORDER, R.bool.pref_logo_border_default)) {
+                      add = 3;
+                      background.setStroke(1, PrefUtils.getIntValue(R.string.PREF_LOGO_BORDER_COLOR, context.getResources().getColor(R.color.pref_logo_border_color_default)));
+                    }
+                    
+                    background.setBounds(0, 0, width + add, height + add);
+                    
+                    LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+                    logoDrawable.setBounds(0, 0, width + add, height + add);
+                    
+                    l.setBounds(2, 2, width, height);
+                    
+                    date.setCompoundDrawables(logoDrawable, null, null, null);
+                  }
+                  
+                  channel.close();
+                  
+                  String year = "";
+                      
+                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN))) {
+                    year = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN));
+                  }
+                  
+                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR))) {
+                    if(year.length() > 0) {
+                      year += " ";
+                    }
+                    
+                    year += c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR));
+                  }
+                  
+                  String originalTitle = null;
+                  String titleTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
+                  
+                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL))) {
+                    originalTitle = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL));
+                  }
+                  
+                  if(originalTitle == null || originalTitle.equals(titleTest)) {
+                    title.setText(titleTest);
+                  }
+                  else {
+                    title.setText(titleTest + "/" + originalTitle);
+                  }
+                  
+                  if(!PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_DETAILS, R.bool.show_picture_in_details_default) ||  c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)) || c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT))) {
+                    pictureCopyright.setVisibility(View.GONE);
+                    pictureDescription.setVisibility(View.GONE);
+                  }
+                  else {
+                    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION))) {
+                      pictureDescription.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION)));
+                    }
+                    
+                    pictureCopyright.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)));
+                    
+                    Bitmap image = UiUtils.createBitmapFromByteArray(c.getBlob(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)));
+                    
+                    if(image != null) {        
+                      BitmapDrawable b = new BitmapDrawable(context.getResources(),image);
+                      
+                      float zoom = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_PICTURE_ZOOM, R.string.detail_picture_zoom_default)) * context.getResources().getDisplayMetrics().density;
+                      
+                      b.setBounds(0, 0, (int)(image.getWidth() * zoom), (int)(image.getHeight() * zoom));
+                      
+                      if(PrefUtils.getStringValue(R.string.DETAIL_PICTURE_DESCRIPTION_POSITION, R.string.detail_picture_description_position_default).equals("0")) {
+                        pictureDescription.setCompoundDrawables(b, null, null, null);
                       }
                       else {
-                        int testIndex = para0.indexOf(".");
+                        pictureDescription.setCompoundDrawables(null, b, null, null);
+                      }
+                    }
+                  }
+                  
+                  if(PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_DETAILS, R.bool.show_genre_in_details_default) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
+                    genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) + (year.length() > 0 ? " - " + year : ""));
+                  }
+                  else if(year.length() > 0) {
+                    genre.setText(year);
+                  }
+                  else {
+                    genre.setVisibility(View.GONE);
+                  }
+                  
+                  Spannable infoValue = IOUtils.getInfoString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)), context.getResources());
+                  
+                  if(PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_DETAILS, R.bool.show_info_in_details_default) && infoValue != null) {
+                    info.setText(infoValue);
+                  }
+                  else {
+                    info.setVisibility(View.GONE);
+                  }
+                  
+                  String number = "";
+                  
+                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER))) {
+                    if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT))) {
+                      number = IOUtils.decodeSingleFieldValueToMultipleEpisodeString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER))) + "/" + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT)) + " ";
+                    }
+                    else {
+                      number = IOUtils.decodeSingleFieldValueToMultipleEpisodeString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER))) + " ";
+                    }
+                  }
+                  
+                  String originalEpisode = null;
+                  
+                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL))) {
+                    originalEpisode = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL));
+                  }
+                  
+                  if(PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_DETAILS, R.bool.show_episode_in_details_default) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE))) {
+                    String episodeTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
+                    
+                    if(originalEpisode == null || episodeTest.equals(originalEpisode)) {
+                      episode.setText(number + episodeTest);
+                    }
+                    else {
+                      episode.setText(number + episodeTest + "/" + originalEpisode);
+                    }
+                  }
+                  else if(PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_DETAILS, R.bool.show_episode_in_details_default) && number.trim().length() > 0) {
+                    episode.setText(number);
+                  }
+                  else {
+                    episode.setVisibility(View.GONE);
+                  }
+                  
+                  String shortDescriptionValue = null;
+                  String descriptionValue = null;
+                  boolean showShortDescription = true;
+                      
+                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
+                    shortDescriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION)).trim();
+                  }
+                  
+                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION))) {
+                    descriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
+                    
+                    if(shortDescriptionValue != null) {
+                      String test = shortDescriptionValue;
+                      
+                      if(test.endsWith("...")) {
+                        test = test.substring(0,test.length()-3);
+                      }
+                      else if(test.endsWith("\u2026")) {
+                        test = test.substring(0,test.length()-1);
+                      }
+                      
+                      test = test.replaceAll("\\s+", " ").trim();
+                      
+                      showShortDescription = !descriptionValue.replaceAll("\\s+", " ").trim().startsWith(test);
+                      
+                      String[] paragraphs = descriptionValue.split("\n+");
+                      
+                      if(paragraphs.length > 1) {
+                        String para0 = paragraphs[0].replaceAll("\\s+", " ").trim();
+                        String para1 = paragraphs[1].replaceAll("\\s+", " ").trim();
                         
-                        if(testIndex > 0) {
-                          para0 = para0.substring(testIndex+1).trim();
+                        if(para1.startsWith(para0) || para0.startsWith(para1)) {
+                          descriptionValue = descriptionValue.substring(paragraphs[0].length()+1).trim();
+                        }
+                        else {
+                          int testIndex = para0.indexOf(".");
                           
-                          if(para1.endsWith(para0)) {
-                            descriptionValue = descriptionValue.substring(paragraphs[0].length()+1).trim();
+                          if(testIndex > 0) {
+                            para0 = para0.substring(testIndex+1).trim();
+                            
+                            if(para1.endsWith(para0)) {
+                              descriptionValue = descriptionValue.substring(paragraphs[0].length()+1).trim();
+                            }
                           }
                         }
                       }
                     }
                   }
-                }
-                
-                if(shortDescriptionValue == null || !showShortDescription) {
-                  shortDescription.setVisibility(View.GONE);
-                }
-                else {
-                  shortDescription.setText(shortDescriptionValue.replaceAll("\\s{4,}", "\n\n").replaceAll("\\r", "").replaceAll("\\n{2,}", "\n\n"));
-                }
-                
-                if(descriptionValue != null) {
-                  description.setText(descriptionValue.replaceAll("\\s{4,}", "\n\n").replaceAll("\\r", "").replaceAll("\\n{2,}", "\n\n"));
-                }
-                else {
-                  description.setVisibility(View.GONE);
-                }
-                
-                if(PrefUtils.getBooleanValue(R.string.SHOW_LINK_IN_DETAILS, R.bool.show_link_in_details_default) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK))) {
-                  String linkText = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK));
-                  link.setText(linkText);
-                  link.setMovementMethod(LinkMovementMethod.getInstance());
-                }
-                else {
-                  link.setVisibility(View.GONE);
-                }
-                                
-                Set<String> keys = VALUE_MAP.keySet();
-                
-                for(String key : keys) {
-                  boolean enabled = pref.getBoolean("details_" + key, true);
-                  TextView textView = (TextView)mLayout.findViewById(VALUE_MAP.get(key));
-                  textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textView.getTextSize() * textScale);
                   
-                  if(textView != null && enabled && !c.isNull(c.getColumnIndex(key))) {
-                    String text = c.getString(c.getColumnIndex(key));
+                  if(shortDescriptionValue == null || !showShortDescription) {
+                    shortDescription.setVisibility(View.GONE);
+                  }
+                  else {
+                    shortDescription.setText(shortDescriptionValue.replaceAll("\\s{4,}", "\n\n").replaceAll("\\r", "").replaceAll("\\n{2,}", "\n\n"));
+                  }
+                  
+                  if(descriptionValue != null) {
+                    description.setText(descriptionValue.replaceAll("\\s{4,}", "\n\n").replaceAll("\\r", "").replaceAll("\\n{2,}", "\n\n"));
+                  }
+                  else {
+                    description.setVisibility(View.GONE);
+                  }
+                  
+                  if(PrefUtils.getBooleanValue(R.string.SHOW_LINK_IN_DETAILS, R.bool.show_link_in_details_default) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK))) {
+                    String linkText = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK));
+                    link.setText(linkText);
+                    link.setMovementMethod(LinkMovementMethod.getInstance());
+                  }
+                  else {
+                    link.setVisibility(View.GONE);
+                  }
+                                  
+                  Set<String> keys = VALUE_MAP.keySet();
+                  
+                  for(String key : keys) {
+                    boolean enabled = pref.getBoolean("details_" + key, true);
+                    TextView textView = (TextView)mLayout.findViewById(VALUE_MAP.get(key));
+                    textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textView.getTextSize() * textScale);
                     
-                    if(text.trim().length() > 0) {
-                      try {
-                        String name = context.getResources().getString((Integer)R.string.class.getField(key).get(null));
-                        
-                        boolean endWith = false;
-                        
-                        if(name.endsWith(":")) {
-                          endWith = true;
-                        }
-                        
-                        if(key.equals(TvBrowserContentProvider.DATA_KEY_ACTORS)){
-                          String separator = null;
+                    if(textView != null && enabled && !c.isNull(c.getColumnIndex(key))) {
+                      String text = c.getString(c.getColumnIndex(key));
+                      
+                      if(text.trim().length() > 0) {
+                        try {
+                          String name = context.getResources().getString((Integer)R.string.class.getField(key).get(null));
                           
-                          if(text.contains("\n")) {
-                            separator = "\n+";
-                          }
-                          else if(text.contains(",")) {
-                            separator = ",\\s*";
+                          boolean endWith = false;
+                          
+                          if(name.endsWith(":")) {
+                            endWith = true;
                           }
                           
-                          SpannableStringBuilder actors = new SpannableStringBuilder(name);
-                          actors.setSpan(new StyleSpan(Typeface.BOLD), 0, name.length()-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                          actors.setSpan(new UnderlineSpan(), 0, name.length()-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                          
-                          int screenSizeHalf = CompatUtils.getScreenSize(context).x/2;
-                          
-                          if(separator != null) {
-                            String[] lines = text.split(separator);
+                          if(key.equals(TvBrowserContentProvider.DATA_KEY_ACTORS)){
+                            String separator = null;
                             
-                            float maxLength = 0;
-                            TextPaint actorPaint = textView.getPaint();
-                            
-                            for(int i = 0; i < lines.length; i++) {
-                              if(lines[i].contains("\t\t-\t\t")) {
-                                separator = "\t\t-\t\t";
-                              }
-                              else if(lines[i].contains("(")) {
-                                separator = "\\s*\\(";
-                              }
-                              else {
-                                separator = null;
-                              }
-                              
-                              if(separator != null) {
-                                String[] parts = lines[i].split(separator);
-                                
-                                if(parts.length > 1) {
-                                  float test = actorPaint.measureText(parts[0]);
-                                  
-                                  if(test > screenSizeHalf) {
-                                    String secondSeparator = null;
-                                    
-                                    if(parts[0].contains("(")) {
-                                      secondSeparator = "(";
-                                    }
-                                    else if(parts[0].contains(" ")) {
-                                      secondSeparator = " ";
-                                    }
-                                    else if(parts[0].contains("-")) {
-                                      secondSeparator = "-";
-                                    }
-                                    
-                                    if(secondSeparator != null) {
-                                      int index = parts[0].indexOf(secondSeparator);
-                                      
-                                      String firstPart = parts[0].substring(0, index).trim();
-                                      String secondPart = parts[0].substring(index).trim();
-                                      
-                                      float firstLength = actorPaint.measureText(firstPart);
-                                      float secondLength = actorPaint.measureText(secondPart);
-                                      
-                                      if(secondLength > screenSizeHalf) {
-                                        int whiteSpaceIndex = secondPart.indexOf(" ");
-                                        
-                                        if(whiteSpaceIndex >= 0) {
-                                          String thirdPart = secondPart.substring(0, whiteSpaceIndex).trim();
-                                          String fifthPart = secondPart.substring(whiteSpaceIndex).trim();
-                                          
-                                          secondLength = Math.max(actorPaint.measureText(thirdPart), actorPaint.measureText(fifthPart));
-                                          
-                                          if(secondLength < screenSizeHalf) {
-                                            secondPart = thirdPart + "\n" + fifthPart;
-                                          }
-                                        }
-                                      }
-                                      
-                                      test = Math.max(firstLength, secondLength);
-                                      
-                                      if(test < screenSizeHalf) {
-                                        lines[i] = lines[i].replace(parts[0], firstPart + "\n" + secondPart);
-                                      }
-                                    }
-                                  }
-                                  
-                                  maxLength = Math.max(maxLength,test); 
-                                }
-                              }
+                            if(text.contains("\n")) {
+                              separator = "\n+";
+                            }
+                            else if(text.contains(",")) {
+                              separator = ",\\s*";
                             }
                             
-                            if(maxLength > 0 && maxLength <= screenSizeHalf) {
+                            SpannableStringBuilder actors = new SpannableStringBuilder(name);
+                            actors.setSpan(new StyleSpan(Typeface.BOLD), 0, name.length()-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            actors.setSpan(new UnderlineSpan(), 0, name.length()-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                            
+                            int screenSizeHalf = CompatUtils.getScreenSize(context).x/2;
+                            
+                            if(separator != null) {
+                              String[] lines = text.split(separator);
+                              
+                              float maxLength = 0;
+                              TextPaint actorPaint = textView.getPaint();
+                              
                               for(int i = 0; i < lines.length; i++) {
-                                String[] parts = lines[i].split(separator);
-                                
-                                if(i > 0) {
-                                  actors.append("\n");
+                                if(lines[i].contains("\t\t-\t\t")) {
+                                  separator = "\t\t-\t\t";
                                 }
-                                
-                                if(parts.length > 1) {
-                                  if(parts[1].trim().endsWith(")") || parts[1].trim().endsWith(",")) {
-                                    parts[1] = parts[1].substring(0,parts[1].length()-1);
-                                  }
-                                  
-                                  if(parts[0].contains("\n")) {
-                                    if(parts[0].indexOf("\n") != parts[0].lastIndexOf("\n")) {
-                                      parts[1] += "\n\n";
-                                    }
-                                    else {
-                                      parts[1] += "\n";
-                                    }
-                                  }
-                                  
-                                  actors.append(parts[1]);
-                                  
-                                  actors.setSpan(new ActorColumnSpan(parts[0],(int)maxLength+10), actors.length()-parts[1].length(), actors.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
-                                  
-                                  mHasSpannableActors = true;
+                                else if(lines[i].contains("(")) {
+                                  separator = "\\s*\\(";
                                 }
                                 else {
-                                  actors.append(lines[i]);
+                                  separator = null;
                                 }
+                                
+                                if(separator != null) {
+                                  String[] parts = lines[i].split(separator);
+                                  
+                                  if(parts.length > 1) {
+                                    float test = actorPaint.measureText(parts[0]);
+                                    
+                                    if(test > screenSizeHalf) {
+                                      String secondSeparator = null;
+                                      
+                                      if(parts[0].contains("(")) {
+                                        secondSeparator = "(";
+                                      }
+                                      else if(parts[0].contains(" ")) {
+                                        secondSeparator = " ";
+                                      }
+                                      else if(parts[0].contains("-")) {
+                                        secondSeparator = "-";
+                                      }
+                                      
+                                      if(secondSeparator != null) {
+                                        int index = parts[0].indexOf(secondSeparator);
+                                        
+                                        String firstPart = parts[0].substring(0, index).trim();
+                                        String secondPart = parts[0].substring(index).trim();
+                                        
+                                        float firstLength = actorPaint.measureText(firstPart);
+                                        float secondLength = actorPaint.measureText(secondPart);
+                                        
+                                        if(secondLength > screenSizeHalf) {
+                                          int whiteSpaceIndex = secondPart.indexOf(" ");
+                                          
+                                          if(whiteSpaceIndex >= 0) {
+                                            String thirdPart = secondPart.substring(0, whiteSpaceIndex).trim();
+                                            String fifthPart = secondPart.substring(whiteSpaceIndex).trim();
+                                            
+                                            secondLength = Math.max(actorPaint.measureText(thirdPart), actorPaint.measureText(fifthPart));
+                                            
+                                            if(secondLength < screenSizeHalf) {
+                                              secondPart = thirdPart + "\n" + fifthPart;
+                                            }
+                                          }
+                                        }
+                                        
+                                        test = Math.max(firstLength, secondLength);
+                                        
+                                        if(test < screenSizeHalf) {
+                                          lines[i] = lines[i].replace(parts[0], firstPart + "\n" + secondPart);
+                                        }
+                                      }
+                                    }
+                                    
+                                    maxLength = Math.max(maxLength,test); 
+                                  }
+                                }
+                              }
+                              
+                              if(maxLength > 0 && maxLength <= screenSizeHalf) {
+                                for(int i = 0; i < lines.length; i++) {
+                                  String[] parts = lines[i].split(separator);
+                                  
+                                  if(i > 0) {
+                                    actors.append("\n");
+                                  }
+                                  
+                                  if(parts.length > 1) {
+                                    if(parts[1].trim().endsWith(")") || parts[1].trim().endsWith(",")) {
+                                      parts[1] = parts[1].substring(0,parts[1].length()-1);
+                                    }
+                                    
+                                    if(parts[0].contains("\n")) {
+                                      if(parts[0].indexOf("\n") != parts[0].lastIndexOf("\n")) {
+                                        parts[1] += "\n\n";
+                                      }
+                                      else {
+                                        parts[1] += "\n";
+                                      }
+                                    }
+                                    
+                                    actors.append(parts[1]);
+                                    
+                                    actors.setSpan(new ActorColumnSpan(parts[0],(int)maxLength+10), actors.length()-parts[1].length(), actors.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    
+                                    mHasSpannableActors = true;
+                                  }
+                                  else {
+                                    actors.append(lines[i]);
+                                  }
+                                }
+                              }
+                              else {
+                                actors.append(text);
                               }
                             }
                             else {
                               actors.append(text);
                             }
+                            
+                            textView.setText(actors);
                           }
                           else {
-                            actors.append(text);
-                          }
-                          
-                          textView.setText(actors);
-                        }
-                        else {
-                          if(key.equals(TvBrowserContentProvider.DATA_KEY_VPS)) {
-                            Calendar temp = Calendar.getInstance();
-                            temp.set(Calendar.HOUR_OF_DAY, Integer.parseInt(text) / 60);
-                            temp.set(Calendar.MINUTE, Integer.parseInt(text) % 60);
+                            if(key.equals(TvBrowserContentProvider.DATA_KEY_VPS)) {
+                              Calendar temp = Calendar.getInstance();
+                              temp.set(Calendar.HOUR_OF_DAY, Integer.parseInt(text) / 60);
+                              temp.set(Calendar.MINUTE, Integer.parseInt(text) % 60);
+                              
+                              text = DateFormat.getTimeFormat(context).format(temp.getTime());
+                            }
                             
-                            text = DateFormat.getTimeFormat(context).format(temp.getTime());
+                            text = text.replace("\n", "<br>");
+                            
+                            name = "<b><u>" + name.replace("\n", "<br>") + "</u></b>" + (endWith ? " " : "");
+                            
+                            textView.setText(Html.fromHtml(name + text));
                           }
-                          
-                          text = text.replace("\n", "<br>");
-                          
-                          name = "<b><u>" + name.replace("\n", "<br>") + "</u></b>" + (endWith ? " " : "");
-                          
-                          textView.setText(Html.fromHtml(name + text));
+                        } catch (Exception e) {
+                          textView.setVisibility(View.GONE);
                         }
-                      } catch (Exception e) {
+                      }
+                      else {
                         textView.setVisibility(View.GONE);
                       }
                     }
-                    else {
+                    else if(textView != null) {
                       textView.setVisibility(View.GONE);
                     }
                   }
-                  else if(textView != null) {
-                    textView.setVisibility(View.GONE);
+                  
+                  final String[] projection = {TvBrowserContentProvider.KEY_ID};
+                  
+                  Cursor prev = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + startTime + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + channelID + " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " DESC LIMIT 1");
+                  
+                  try {
+                    if(prev != null && prev.moveToFirst()) {
+                      mPreviousId = prev.getLong(prev.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                    }
+                  }finally {
+                    IOUtils.closeCursor(prev);
+                  }
+                  
+                  Cursor next = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + startTime + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + channelID + " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC LIMIT 1");
+                  
+                  try {
+                    if(next != null && next.moveToFirst()) {
+                      mNextId = next.getLong(next.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                    }
+                  }finally {
+                    IOUtils.closeCursor(next);
                   }
                 }
-                
-                final String[] projection = {TvBrowserContentProvider.KEY_ID};
-                
-                Cursor prev = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + startTime + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + channelID + " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " DESC LIMIT 1");
-                
-                try {
-                  if(prev != null && prev.moveToFirst()) {
-                    mPreviousId = prev.getLong(prev.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-                  }
-                }finally {
-                  IOUtils.closeCursor(prev);
-                }
-                
-                Cursor next = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + startTime + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + channelID + " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC LIMIT 1");
-                
-                try {
-                  if(next != null && next.moveToFirst()) {
-                    mNextId = next.getLong(next.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-                  }
-                }finally {
-                  IOUtils.closeCursor(next);
-                }
-              }
-            }finally {
-              IOUtils.closeCursor(c);
-            }
-            
-            return result;
-          }
-          
-          @Override
-          protected void onPostExecute(Boolean result) {
-            mHandler.removeCallbacks(mShowWaiting);
-            mShowWaitingDialog = false;
-            
-            if(mProgress != null) {
-              mProgress.dismiss();
-            }
-            
-            if(result.booleanValue()) {
-              AlertDialog.Builder builder = new AlertDialog.Builder(context);
-              
-              if(finish != null) {
-                builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-                  @Override
-                  public void onCancel(DialogInterface dialog) {
-                    finish.finish();
-                  }
-                });
+              }finally {
+                IOUtils.closeCursor(c);
               }
               
-              builder.setView(mLayout);
+              return result;
+            }
+            
+            @Override
+            protected void onPostExecute(Boolean result) {
+              mHandler.removeCallbacks(mShowWaiting);
+              mShowWaitingDialog = false;
               
-
-              final AlertDialog test = builder.create();
+              if(mProgress != null) {
+                mProgress.dismiss();
+              }
               
-              /* Stupid hack for wrong measured dialog size */
-              if(mHasSpannableActors && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-                final OnPreDrawListener preDrawListener = new OnPreDrawListener() {
-                  @Override
-                  public boolean onPreDraw() {
-                      mLayout.getViewTreeObserver().removeOnPreDrawListener(this);
+              if(result.booleanValue()) {
+                AlertDialog.Builder builder = new AlertDialog.Builder(context);
+                
+                if(finish != null) {
+                  builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
+                    @Override
+                    public void onCancel(DialogInterface dialog) {
+                      finish.finish();
+                    }
+                  });
+                }
+                
+                builder.setView(mLayout);
+                
+  
+                final AlertDialog test = builder.create();
+                
+                /* Stupid hack for wrong measured dialog size */
+                if(mHasSpannableActors && Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
+                  final OnPreDrawListener preDrawListener = new OnPreDrawListener() {
+                    @Override
+                    public boolean onPreDraw() {
+                        mLayout.getViewTreeObserver().removeOnPreDrawListener(this);
+                        
+                        int scrollHeight = mLayout.findViewById(R.id.test_test_test).getMeasuredHeight();
+                        
+                        if(scrollHeight < mLayout.getMeasuredHeight()) {
+                          test.getWindow().setLayout(mLayout.getMeasuredWidth()+40, scrollHeight+100);
+                        }
+                        
+                        return true;
+                    }
+                  };
+                  mLayout.getViewTreeObserver().addOnPreDrawListener(preDrawListener);
+                }
+                
+                if(mLayout instanceof SwipeScrollView) {
+                  mLayout.setOnTouchListener(new View.OnTouchListener() {
+                    @Override
+                    public boolean onTouch(View v, MotionEvent event) {
+                      boolean result = false;
                       
-                      int scrollHeight = mLayout.findViewById(R.id.test_test_test).getMeasuredHeight();
-                      
-                      if(scrollHeight < mLayout.getMeasuredHeight()) {
-                        test.getWindow().setLayout(mLayout.getMeasuredWidth()+40, scrollHeight+100);
+                      if(((SwipeScrollView)mLayout).isSwipeLeft()) {
+                        ((SwipeScrollView)mLayout).resetSwipe();
+                        
+                        if(mNextId != -1) {
+                          test.dismiss();
+                          UiUtils.showProgramInfo(context, mNextId, finish, parent, handler);
+                          result = true;
+                        }
+                      }
+                      else if(((SwipeScrollView)mLayout).isSwipeRight()) {
+                        ((SwipeScrollView)mLayout).resetSwipe();
+                        
+                        if(mPreviousId != -1) {
+                          test.dismiss();
+                          UiUtils.showProgramInfo(context, mPreviousId, finish, parent, handler);
+                          result = true;
+                        }
                       }
                       
-                      return true;
-                  }
-                };
-                mLayout.getViewTreeObserver().addOnPreDrawListener(preDrawListener);
+                      return result;
+                    }
+                  });
+                }
+                
+                try {
+                  test.show();
+                }catch(BadTokenException e) {}
               }
               
-              mLayout.setOnTouchListener(new View.OnTouchListener() {
+              new Thread("SHOW PROGRAM INFO ALLOWING THREAD") {
                 @Override
-                public boolean onTouch(View v, MotionEvent event) {
-                  boolean result = false;
-                  
-                  if(((SwipeScrollView)mLayout).isSwipeLeft()) {
-                    ((SwipeScrollView)mLayout).resetSwipe();
-                    
-                    if(mNextId != -1) {
-                      test.dismiss();
-                      UiUtils.showProgramInfo(context, mNextId, finish, parent, handler);
-                      result = true;
-                    }
+                public void run() {
+                  try {
+                    sleep(500);
+                  } catch (InterruptedException e) {
+                    // TODO Auto-generated catch block
+                    e.printStackTrace();
                   }
-                  else if(((SwipeScrollView)mLayout).isSwipeRight()) {
-                    ((SwipeScrollView)mLayout).resetSwipe();
-                    
-                    if(mPreviousId != -1) {
-                      test.dismiss();
-                      UiUtils.showProgramInfo(context, mPreviousId, finish, parent, handler);
-                      result = true;
-                    }
-                  }
-                  
-                  return result;
-                }
-              });
-              
-              try {
-                test.show();
-              }catch(BadTokenException e) {}
+                  mShowingProgramInfo = false;
+                };
+              }.start();
             }
-          }
-        };
-        
-        createInfoTask.execute();
-      }
-    });
+          };
+          
+          createInfoTask.execute();
+        }
+      });
+    }
   }
   
   public static void createContextMenu(final Context context, ContextMenu menu, final long id) {
@@ -1058,8 +1082,7 @@ public class UiUtils {
       }
       
       ProgramUtils.addReminderId(activity, programID);
-      
-      addReminder(activity.getApplicationContext(),programID,0,UiUtils.class,true);
+      //addReminder(activity.getApplicationContext(),programID,0,UiUtils.class,true);
     }
     else if(item.getItemId() == R.id.prog_remove_reminder) {
       if(!(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) || markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER))) {
@@ -1084,7 +1107,7 @@ public class UiUtils {
         }
       }
       
-      removeReminder(activity.getApplicationContext(),programID);
+      IOUtils.removeReminder(activity.getApplicationContext(),programID);
     }
     else if(item.getItemId() == R.id.program_popup_dont_want_to_see) {
       if(title != null) {
@@ -1361,6 +1384,7 @@ public class UiUtils {
       activity.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), values, null, null);
       
       sendMarkingChangedBroadcast(activity, programID, true);
+      ServiceUpdateReminders.startReminderUpdate(activity);
     }
     
     return true;
@@ -1384,74 +1408,7 @@ public class UiUtils {
     LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
     updateImportantProgramsWidget(context.getApplicationContext());
   }
-  
-  public static void addReminder(Context context, long programID, long startTime, Class<?> caller, boolean firstCreation) {try {
-    Logging.log(ReminderBroadcastReceiver.tag, "addReminder called from: " + caller + " for programID: '" + programID + "' with start time: " + new Date(startTime), Logging.TYPE_REMINDER, context);
     
-    AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-    
-    int reminderTime = PrefUtils.getStringValueAsInt(R.string.PREF_REMINDER_TIME, R.string.pref_reminder_time_default) * 60000;
-    int reminderTimeSecond = PrefUtils.getStringValueAsInt(R.string.PREF_REMINDER_TIME_SECOND, R.string.pref_reminder_time_default) * 60000;
-    
-    boolean remindAgain = reminderTimeSecond >= 0 && reminderTime != reminderTimeSecond;
-    
-    Intent remind = new Intent(context,ReminderBroadcastReceiver.class);
-    remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
-    
-    if(startTime <= 0) {
-      Cursor time = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, null);
-      
-      if(time.moveToFirst()) {
-        startTime = time.getLong(0);
-      }
-      
-      time.close();
-    }
-    
-    if(startTime >= System.currentTimeMillis()) {
-      PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
-      
-      if(startTime-reminderTime > System.currentTimeMillis()) {
-        Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime-reminderTime) + " with programID: '" + programID + "' " + pending.toString(), Logging.TYPE_REMINDER, context);
-        CompatUtils.setAlarm(alarmManager,AlarmManager.RTC_WAKEUP, startTime-reminderTime, pending);
-      }
-      else if(firstCreation) {
-        Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(System.currentTimeMillis()) + " with programID: '" + programID + "' " + pending.toString(), Logging.TYPE_REMINDER, context);
-        CompatUtils.setAlarm(alarmManager,AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pending);
-      }
-      
-      if(remindAgain && startTime-reminderTimeSecond > System.currentTimeMillis()) {
-        pending = PendingIntent.getBroadcast(context, (int)-programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
-        
-        Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime-reminderTimeSecond) + " with programID: '-" + programID + "' " + pending.toString(), Logging.TYPE_REMINDER, context);
-        CompatUtils.setAlarm(alarmManager,AlarmManager.RTC_WAKEUP, startTime-reminderTimeSecond, pending);
-      }
-    }
-    else {
-      Logging.log(ReminderBroadcastReceiver.tag, "Reminder for programID: '" + programID + "' not created, starttime in past: " + new Date(startTime) + " of now: " + new Date(System.currentTimeMillis()), Logging.TYPE_REMINDER, context);
-    }
-  }catch(Throwable t) {t.printStackTrace();}
-  }
-  
-  public static void removeReminder(Context context, long programID) {
-    AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
-    
-    Intent remind = new Intent(context,ReminderBroadcastReceiver.class);
-    remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
-    
-    PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_NO_CREATE);
-    Logging.log(ReminderBroadcastReceiver.tag, " Delete reminder for programID '" + programID + "' with pending intent '" + pending + "'", Logging.TYPE_REMINDER, context);
-    if(pending != null) {
-      alarmManager.cancel(pending);
-    }
-    
-    pending = PendingIntent.getBroadcast(context, (int)-programID, remind, PendingIntent.FLAG_NO_CREATE);
-    Logging.log(ReminderBroadcastReceiver.tag, " Delete reminder for programID '-" + programID + "' with pending intent '" + pending + "'", Logging.TYPE_REMINDER, context);
-    if(pending != null) {
-      alarmManager.cancel(pending);
-    }
-  }
-  
   private static class RunningDrawable extends Drawable {
     private Paint mBase;
     private Paint mSecond;

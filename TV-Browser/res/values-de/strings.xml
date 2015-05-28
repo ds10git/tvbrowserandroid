@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.8.9</h2>
+		<h2>0.5.8.10</h2>
+		    &bull; Swipe im Detailfenster kann deaktiviert werden<br>
+			&bull; möglicher Absturz mit zu vielen Erinnerungen unter Android Lollipop beseitigt<br>
+        	&bull; weitere Fehler beseitigt<br>
+       	<br>
+       	<h2>0.5.8.9</h2>
 			&bull; zusätzliche Zeiten für den Erinnerer<br>
         	&bull; einige Fehler beseitigt<br>
        	<br>
@@ -542,6 +547,9 @@
 	<string name="pref_list_category">Listen mit Sendungen</string>
 	<string name="pref_list_category_summary">Welche Informationen sollen in den Listen mit Sendungen angezeigt werden?</string>
 	<string name="pref_show_pictures">Bilder anzeigen</string>
+	<string name="pref_detail_allow_swipe">Swipe durch Senderprogramm</string>
+	<string name="pref_detail_allow_swipe_summary_on">Es kann mit Swipe die angzeigte Sendung des Senders gewechseln werden.</string>
+	<string name="pref_detail_allow_swipe_summary_off">Swipe durch die Sendungen des angezeigten Senders ist nicht möglich.</string>
 	<string name="pref_detail_picture_description_position">Position der Bildbeschreibung</string>
 	<string-array name="pref_detail_picture_description_entries">
 	    <item>Rechts neben dem Bild</item>

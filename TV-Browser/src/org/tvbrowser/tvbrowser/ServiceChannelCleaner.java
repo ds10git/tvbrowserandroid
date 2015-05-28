@@ -1,7 +1,6 @@
 package org.tvbrowser.tvbrowser;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 
 import org.tvbrowser.content.TvBrowserContentProvider;

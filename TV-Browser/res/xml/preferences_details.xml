@@ -24,6 +24,11 @@
 		android:entries="@array/picture_zoom_values_names"
 		android:entryValues="@array/picture_zoom_values"
 		android:summary="%s"/>
+	<CheckBoxPreference android:key="@string/PREF_DETAIL_ALLOW_SWIPE" 
+		android:title="@string/pref_detail_allow_swipe"
+		android:summaryOn="@string/pref_detail_allow_swipe_summary_on"
+		android:summaryOff="@string/pref_detail_allow_swipe_summary_off"
+		android:defaultValue="@bool/pref_detail_allow_swipe"/>
 	<CheckBoxPreference android:key="@string/SHOW_GENRE_IN_DETAILS" 
 		android:title="@string/pref_show_genre"
 		android:defaultValue="@bool/show_genre_in_details_default"/>

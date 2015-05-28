@@ -1035,8 +1035,7 @@ public class TvDataUpdateService extends Service {
                         markingIntentList.add(intent);
                         
                         reminderIdList.add(String.valueOf(programID));
-                        
-                        UiUtils.addReminder(TvDataUpdateService.this, programID, time, TvBrowser.class, true);
+                        //UiUtils.addReminder(TvDataUpdateService.this, programID, time, TvBrowser.class, true);
                       }
                     }
                   }finally {
@@ -1050,6 +1049,7 @@ public class TvDataUpdateService extends Service {
           if(!updateValuesList.isEmpty()) {
             if(!reminderIdList.isEmpty()) {
               ProgramUtils.addReminderIds(getApplicationContext(), reminderIdList);
+              ServiceUpdateReminders.startReminderUpdate(TvDataUpdateService.this, true); 
             }
             
             try {
