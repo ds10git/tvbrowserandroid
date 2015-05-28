@@ -433,9 +433,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
 
     @Override
     public long getItemId(int position) {
-      if(mCursor != null && !mCursor.isClosed() && mCursor.getCount() > position) {
-        mCursor.moveToPosition(position);
-        
+      if(mCursor != null && !mCursor.isClosed() && mCursor.moveToPosition(position)) {
         return mCursor.getLong(mIdIndex);
       }
       

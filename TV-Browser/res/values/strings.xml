@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+		<h2>0.5.8.10</h2>
+		    &bull; swipe through in detail view can be disabled<br>
+			&bull; fixed possible crash with too many reminders and Android Lollipop<br>
+        	&bull; fixed some minor bugs<br>
+       	<br>
 		<h2>0.5.8.9</h2>
 			&bull; new time values for reminder<br>
         	&bull; fixed some bugs<br>
@@ -545,6 +550,9 @@
 	<string name="pref_list_category">Lists with programs</string>
 	<string name="pref_list_category_summary">Which information should be shown in the lists with programs?</string>
 	<string name="pref_show_pictures">Show pictures</string>
+	<string name="pref_detail_allow_swipe">Swipe through channel programs</string>
+	<string name="pref_detail_allow_swipe_summary_on">Allows to swipe through the programs of the shown channel.</string>
+	<string name="pref_detail_allow_swipe_summary_off">Swipe through the programs of the shown channel is not possible.</string>
 	<string name="pref_detail_picture_description_position">Position of picture description</string>
 	<string-array name="pref_detail_picture_description_entries">
 	    <item>To right of picture</item>

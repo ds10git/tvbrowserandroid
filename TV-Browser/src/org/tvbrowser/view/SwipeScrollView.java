@@ -32,7 +32,7 @@ public class SwipeScrollView extends ScrollView {
   public boolean onInterceptTouchEvent(MotionEvent ev) {
     boolean intercept = false;
     boolean inRange = false;
-        
+    
     if(ev.getAction() == MotionEvent.ACTION_DOWN) {
       mSwipe = SWIPE_NONE;
       mXStart = ev.getX();

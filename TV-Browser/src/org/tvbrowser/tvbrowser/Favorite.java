@@ -472,20 +472,22 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     String[] selectionArgs = null;
     
     if(mUniqueProgramIds != null && mUniqueProgramIds.length > 0 &&  mUniqueProgramIds.length < 500) {
-      selectionArgs = new String[mUniqueProgramIds.length];
-      
-      where.append(" ");
-      where.append(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER);
-      where.append(" ");
-      where.append(TvBrowserContentProvider.KEY_ID);
-      where.append(" IN ( ");
-      
-      for(int i = 0; i < mUniqueProgramIds.length-1; i++) {
-        where.append("?, ");
-        selectionArgs[i] = String.valueOf(mUniqueProgramIds[i]);
+      synchronized (mUniqueProgramIds) {
+        selectionArgs = new String[mUniqueProgramIds.length];
+        
+        where.append(" ");
+        where.append(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER);
+        where.append(" ");
+        where.append(TvBrowserContentProvider.KEY_ID);
+        where.append(" IN ( ");
+        
+        for(int i = 0; i < mUniqueProgramIds.length-1; i++) {
+          where.append("?, ");
+          selectionArgs[i] = String.valueOf(mUniqueProgramIds[i]);
+        }
+        
+        selectionArgs[mUniqueProgramIds.length-1] = String.valueOf(mUniqueProgramIds[mUniqueProgramIds.length-1]);
       }
-      
-      selectionArgs[mUniqueProgramIds.length-1] = String.valueOf(mUniqueProgramIds[mUniqueProgramIds.length-1]);
       
       where.append("? ) ");
     }
@@ -965,7 +967,6 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
             
             if(favoriteReminderMarkingCount == 0 && !remind) {
               reminderIdList.add(String.valueOf(id));
-              UiUtils.addReminder(context, id, cursor.getLong(startTimeIndex), Favorite.class, true);
               updateMarking = true;
             }
           }
@@ -975,7 +976,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           
           if(favoriteReminderMarkingCount == 1 && !remind) {
             reminderIdList.add(String.valueOf(id));
-            UiUtils.removeReminder(context, id);
+            IOUtils.removeReminder(context, id);
             updateMarking = true;
           }
         }
@@ -991,6 +992,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
             intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, id);
             
             markingIntentList.add(intent);
+            
+            ServiceUpdateReminders.startReminderUpdate(context);
           }
         }
       }
@@ -1088,7 +1091,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
             
             if(favoriteReminderCount == 1 && cursor.getInt(reminderColumnIndex) == 0) {
               removedReminderIdList.add(String.valueOf(id));
-              UiUtils.removeReminder(context, id);
+              IOUtils.removeReminder(context, id);
               updateMarking = true;
             }
           }
@@ -1263,7 +1266,6 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
             if(favoriteReminderCount == 0 && cursor.getInt(reminderColumn) == 0) {
               reminderIdList.add(String.valueOf(id));
               markingsChanged = true;
-              UiUtils.addReminder(context, id, startTime, Favorite.class, true);
             }
           }
           
@@ -1277,6 +1279,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
             intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, id);
             
             markingIntentList.add(intent);
+            
+            ServiceUpdateReminders.startReminderUpdate(context);
           }
         }while(cursor.moveToNext());
         

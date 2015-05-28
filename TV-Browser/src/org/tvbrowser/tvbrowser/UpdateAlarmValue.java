@@ -16,48 +16,30 @@
  */
 package org.tvbrowser.tvbrowser;
 
-import java.util.concurrent.atomic.AtomicBoolean;
-
-import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
-import org.tvbrowser.utils.UiUtils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.database.Cursor;
 
 public class UpdateAlarmValue extends BroadcastReceiver {
   @Override
   public void onReceive(final Context context, Intent intent) {
-    final AtomicBoolean firstStart = new AtomicBoolean(false);
+    boolean firstStart = false;
     
     if(intent != null && intent.getAction() != null && (intent.getAction().equals("android.intent.action.BOOT_COMPLETED") || intent.getAction().equals("android.intent.action.QUICKBOOT_POWERON"))) {
       SettingConstants.setReminderPaused(context, false);
-      firstStart.set(true);
+      firstStart = true;
     }
     
-    new Thread() {
-      public void run() {
-        PrefUtils.initialize(context);
-        IOUtils.handleDataUpdatePreferences(context);
-        IOUtils.setDataTableRefreshTime(context);
-        
-        Cursor alarms = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.DATA_KEY_STARTTIME}, " ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " OR " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis() + " ) ", null, TvBrowserContentProvider.KEY_ID);
-        alarms.moveToPosition(-1);
-        
-        while(alarms.moveToNext()) {
-          long id = alarms.getLong(alarms.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-          long startTime = alarms.getLong(alarms.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-          
-          UiUtils.removeReminder(context, id);
-          UiUtils.addReminder(context, id, startTime, UpdateAlarmValue.class, firstStart.get());
-        }
-        
-        alarms.close();
-      }
-    }.start();
+    PrefUtils.initialize(context);
+    IOUtils.handleDataUpdatePreferences(context);
+    IOUtils.setDataTableRefreshTime(context);
+    
+    Intent updateAlarms = new Intent(context, ServiceUpdateReminders.class);
+    updateAlarms.putExtra(ServiceUpdateReminders.EXTRA_FIRST_STARTUP, firstStart);
+    context.startService(updateAlarms);
   }
 }

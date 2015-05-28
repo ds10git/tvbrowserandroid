@@ -2,12 +2,12 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.tvbrowser.tvbrowser"
     android:installLocation="auto"
-    android:versionCode="343"
-    android:versionName="0.5.8.9" >
+    android:versionCode="344"
+    android:versionName="0.5.8.10" >
 
     <uses-sdk
         android:minSdkVersion="11"
-        android:targetSdkVersion="21" />
+        android:targetSdkVersion="22" />
 
     <permission
         android:name="org.tvbrowser.permission.BIND_PLUGIN"
@@ -175,6 +175,11 @@
         </service>
         <service
             android:name=".ServiceChannelCleaner"
+            android:enabled="true"
+            android:exported="false" >
+        </service>
+        <service
+            android:name=".ServiceUpdateReminders"
             android:enabled="true"
             android:exported="false" >
         </service>

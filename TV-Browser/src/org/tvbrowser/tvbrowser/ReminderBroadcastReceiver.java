@@ -49,7 +49,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
   public static final String tag = null;
 
   @Override
-  public void onReceive(Context context, Intent intent) {
+  public void onReceive(final Context context, Intent intent) {
     PrefUtils.initialize(context);
     
     Logging.log(tag, "ReminderBroadcastReceiver.onReceive " + intent + " " + context, Logging.TYPE_REMINDER, context);
@@ -275,6 +275,19 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
         values.close();
       }
     }
+    
+    new Thread("UPDATE REMINDER FROM BROADCAST THREAD") {
+      @Override
+      public void run() {
+        try {
+          Thread.sleep(400);
+        } catch (InterruptedException e) {
+          e.printStackTrace();
+        }
+        
+        ServiceUpdateReminders.startReminderUpdate(context.getApplicationContext());
+      }
+    }.start();
   }
   
   private int[] getValuesForDay(int day) {
