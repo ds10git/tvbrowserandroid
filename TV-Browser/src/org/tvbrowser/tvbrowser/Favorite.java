@@ -339,7 +339,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   }
   
   public void setSearchValue(String search) {
-    mSearch = search.replace("\"", "");
+    mSearch = search;
   }
   
   public String getSearchValue() {
@@ -588,7 +588,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       }
       
       builder.append(" LIKE \"%");
-      builder.append(mSearch);
+      builder.append(mSearch.replace("\"", "\"\""));
       builder.append("%\")");
       
       addAnd = true;

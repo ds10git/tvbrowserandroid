@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.8.10</h2>
+		<h2>0.5.8.11</h2>
+			&bull; Möglichkeit TV-Browser auf die SD-Karte zu verschieben entfernt<br>
+		    &bull; Datumsauswahl in der Programmtabelle auch mit Android Lollipop<br>
+		    &bull; weitere Fehler beseitigt<br>
+       	<br>
+       	<h3>0.5.8.10</h3>
 		    &bull; Swipe im Detailfenster kann deaktiviert werden<br>
 			&bull; möglicher Absturz mit zu vielen Erinnerungen unter Android Lollipop beseitigt<br>
         	&bull; weitere Fehler beseitigt<br>
        	<br>
-       	<h2>0.5.8.9</h2>
+       	<h3>0.5.8.9</h3>
 			&bull; zusätzliche Zeiten für den Erinnerer<br>
         	&bull; einige Fehler beseitigt<br>
        	<br>

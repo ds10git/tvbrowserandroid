@@ -796,7 +796,7 @@ public class UiUtils {
               mHandler.removeCallbacks(mShowWaiting);
               mShowWaitingDialog = false;
               
-              if(mProgress != null) {
+              if(mProgress != null && mProgress.isShowing()) {
                 mProgress.dismiss();
               }
               

@@ -1084,7 +1084,8 @@ public class ProgramTableFragment extends Fragment {
     
     final DatePicker select = new DatePicker(getActivity());
     
-    if (Build.VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB_MR1) {
+    if (Build.VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB_MR1 && 
+        Build.VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
       select.getCalendarView().setFirstDayOfWeek(Calendar.MONDAY);
     }
     

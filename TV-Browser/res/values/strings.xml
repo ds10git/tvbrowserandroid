@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.8.10</h2>
+		<h2>0.5.8.11</h2>
+			&bull; removed ability to move TV-Browser to SD card<br>
+		    &bull; fixed not working date selection in program table with Android Lollipop<br>
+		    &bull; fixed more minor bugs<br>
+       	<br>
+       	<h3>0.5.8.10</h3>
 		    &bull; swipe through in detail view can be disabled<br>
 			&bull; fixed possible crash with too many reminders and Android Lollipop<br>
         	&bull; fixed some minor bugs<br>
        	<br>
-		<h2>0.5.8.9</h2>
+		<h3>0.5.8.9</h3>
 			&bull; new time values for reminder<br>
         	&bull; fixed some bugs<br>
        	<br>
