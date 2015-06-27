@@ -920,16 +920,18 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           mFavoriteList.remove(mCurrentSelection);
           updateFavorites();
           
-          final Favorite current = mCurrentSelection.getFavorite();
-          mCurrentSelection = null;
-          final Context context = getActivity().getApplicationContext();
-          
-          new Thread("DELETE FAVORITE REMOVE MARKING THREAD") {
-            public void run() {
-              Favorite.deleteFavorite(context, current);
-              mCurrentSelection = null;
-            }
-          }.start();
+          if(mCurrentSelection != null) {
+            final Favorite current = mCurrentSelection.getFavorite();
+            mCurrentSelection = null;
+            final Context context = getActivity().getApplicationContext();
+            
+            new Thread("DELETE FAVORITE REMOVE MARKING THREAD") {
+              public void run() {
+                Favorite.deleteFavorite(context, current);
+                mCurrentSelection = null;
+              }
+            }.start();
+          }
         }
       });
       
