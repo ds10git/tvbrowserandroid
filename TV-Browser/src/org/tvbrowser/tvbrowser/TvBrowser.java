@@ -1610,7 +1610,7 @@ public class TvBrowser extends ActionBarActivity implements
             backup.append("favorite:");
             backup.append(favorite.getFavoriteId());
             backup.append("=");
-            backup.append(favorite.getSaveString(TvBrowser.this));
+            backup.append(favorite.getSaveString(TvBrowser.this).replace("\n", "\\n"));
             backup.append("\n");
           }
           
@@ -1745,7 +1745,7 @@ public class TvBrowser extends ActionBarActivity implements
                         }
                       }
                       else if(type.equals("favorite")) {
-                        Favorite favorite = new Favorite(Long.parseLong(parts[0]),parts[1]);
+                        Favorite favorite = new Favorite(Long.parseLong(parts[0]),parts[1].replace("\\n", "\n"));
                         
                         for(Favorite test : existingFavorites) {
                           if(test.getFavoriteId() == favorite.getFavoriteId()) {
@@ -1776,6 +1776,7 @@ public class TvBrowser extends ActionBarActivity implements
                 }
               }
             }catch(Exception e) {
+              Log.d("info22", "", e);
               restored = false;
             }
             finally {
