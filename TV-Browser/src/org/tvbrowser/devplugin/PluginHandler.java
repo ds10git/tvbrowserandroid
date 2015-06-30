@@ -371,7 +371,7 @@ public final class PluginHandler {
   }
   
   public static boolean firstAndLastProgramIdAlreadyHandled() {
-    return Calendar.getInstance().get(Calendar.DAY_OF_YEAR) == PrefUtils.getLongValue(R.string.PLUGIN_LAST_ID_INFO_DATE, 0);
+    return Calendar.getInstance().get(Calendar.DAY_OF_YEAR) == PrefUtils.getIntValue(R.string.PLUGIN_LAST_ID_INFO_DATE, 0);
   }
   
   public static PluginServiceConnection getConnectionForId(String id) {
