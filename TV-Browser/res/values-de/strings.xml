@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+		<h2>0.5.8.12</h2>
+			&bull; Fehler beim Abruf von Sendungen über den PluginManager beseitigt<br>
+       	<br>
 		<h2>0.5.8.11</h2>
 			&bull; Möglichkeit TV-Browser auf die SD-Karte zu verschieben entfernt<br>
 		    &bull; Datumsauswahl in der Programmtabelle auch mit Android Lollipop<br>

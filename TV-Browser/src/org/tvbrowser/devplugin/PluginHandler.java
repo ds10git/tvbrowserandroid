@@ -42,7 +42,6 @@ import android.database.Cursor;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.RemoteException;
-
 /**
  * A class that handles TV-Browser Plugins.
  * 
@@ -154,10 +153,14 @@ public final class PluginHandler {
         
         final long token = Binder.clearCallingIdentity();
         
-        Cursor programs = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, ProgramUtils.DATA_CHANNEL_PROJECTION, null, null, null);
+        Cursor programs = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, ProgramUtils.DATA_CHANNEL_PROJECTION, where.toString(), null, null);
         
         try {
           result = ProgramUtils.createProgramsFromDataCursor(context, programs);
+        }catch(Throwable t) {
+          RemoteException re = new RemoteException();
+          re.initCause(t);
+          throw re;
         }finally {
           IOUtils.closeCursor(programs);
           Binder.restoreCallingIdentity(token);

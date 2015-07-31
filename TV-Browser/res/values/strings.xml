@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+		<h2>0.5.8.12</h2>
+			&bull; fixed bug at requesting programs from PluginManager<br>
+       	<br>
 		<h2>0.5.8.11</h2>
 			&bull; removed ability to move TV-Browser to SD card<br>
 		    &bull; fixed not working date selection in program table with Android Lollipop<br>
