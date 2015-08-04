@@ -173,6 +173,35 @@ public final class PluginHandler {
       public void setRatingForProgram(Program program, int rating) throws RemoteException {
         // TODO Create rating function.
       }
+
+      @Override
+      public Program[] getRunningProgramsForChannel(int channelId, long timeInUTC) throws RemoteException {
+        Program[] result = null;
+        StringBuilder where = new StringBuilder();
+        
+        where.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID).append(" IS ").append(channelId);
+        where.append(" AND ");
+        where.append(TvBrowserContentProvider.DATA_KEY_STARTTIME).append("<=").append(timeInUTC);
+        where.append(" AND ");
+        where.append(TvBrowserContentProvider.DATA_KEY_ENDTIME).append(">=").append(timeInUTC);
+        
+        final long token = Binder.clearCallingIdentity();
+        
+        Cursor programs = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, ProgramUtils.DATA_CHANNEL_PROJECTION, where.toString(), null, null);
+        
+        try {
+          result = ProgramUtils.createProgramsFromDataCursor(context, programs);
+        }catch(Throwable t) {
+          RemoteException re = new RemoteException();
+          re.initCause(t);
+          throw re;
+        }finally {
+          IOUtils.closeCursor(programs);
+          Binder.restoreCallingIdentity(token);
+        }
+        
+        return result;
+      }
     };
   }
   
