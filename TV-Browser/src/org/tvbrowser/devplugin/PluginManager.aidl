@@ -134,4 +134,18 @@ interface PluginManager {
 	 * @since 0.5.7.2
 	 */
 	void setRatingForProgram(in Program program, in int rating);
+	
+	/**
+     * Gets the programs of the channel that are running at the given time
+     * in milliseconds since 1970 in UTC timezone.
+     * <p>
+     * @param channelId The unique id of the channel of the program to get
+     * @param timeInUTC Time in milliseconds since 1970 in UTC timezone
+     *                  to get the running program for.
+     * @return The Programs that are running on the given time on that channel or
+     *         <code>null</code> if there are no running programs on that channel.
+     * @since 0.5.8.12
+     */
+	Program[] getRunningProgramsForChannel(in int channelId, in long timeInUTC);
+	
 }
