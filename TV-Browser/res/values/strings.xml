@@ -3,6 +3,8 @@
     <string name="info_version_new"><![CDATA[
 		<h2>0.5.8.12</h2>
 			&bull; fixed bug at requesting programs from PluginManager<br>
+			&bull; added new function to Plugin interface<br>
+			&bull; fixed more minor bugs<br>
        	<br>
 		<h2>0.5.8.11</h2>
 			&bull; removed ability to move TV-Browser to SD card<br>

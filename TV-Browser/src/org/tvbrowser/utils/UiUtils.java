@@ -797,7 +797,9 @@ public class UiUtils {
               mShowWaitingDialog = false;
               
               if(mProgress != null && mProgress.isShowing()) {
-                mProgress.dismiss();
+                try {
+                  mProgress.dismiss();
+                }catch(IllegalArgumentException e) {}
               }
               
               if(result.booleanValue()) {
