@@ -338,6 +338,7 @@ public class TvDataUpdateService extends Service {
     mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBUPDATE_LOCK");
     mWakeLock.setReferenceCounted(false);
     mWakeLock.acquire(120*60000L);
+    doLog("TVBUPDATE_LOCK acquired for 2h.");
     
     final NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
     
@@ -622,27 +623,34 @@ public class TvDataUpdateService extends Service {
     mDataDatabaseOperation = null;
     mVersionDatabaseOperation = null;
     
+    realeaseWakeLock();
+    
     stopForeground(true);
     ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFY_ID);
     
     Favorite.handleDataUpdateFinished();
-    
-    if(mWakeLock != null && mWakeLock.isHeld()) {
-      mWakeLock.release();
-    }
     
     Logging.closeLogForDataUpdate();
         
     super.onDestroy();
   }
   
+  private void realeaseWakeLock() {
+    if(mWakeLock != null) {
+      doLog("TVBUPDATE_LOCK isHeld: " + mWakeLock.isHeld());
+    }
+    
+    if(mWakeLock != null && mWakeLock.isHeld()) {
+      mWakeLock.release();
+      doLog("TVBUPDATE_LOCK released");
+    }
+  }
+  
   private void stopSelfInternal() {
     mDataDatabaseOperation = null;
     mVersionDatabaseOperation = null;
     
-    if(mWakeLock != null && mWakeLock.isHeld()) {
-      mWakeLock.release();
-    }
+    realeaseWakeLock();
     
     if(mCurrentChannelData != null) {
       long lastChannelUpdate = PrefUtils.getLongValue(R.string.PREF_LAST_CHANNEL_UPDATE, 0);

@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+		<h2>0.5.8.13</h2>
+			&bull; neue Logging-Informationen zum Datenupdate hinzugefügt<br>
+       	<br>
 		<h2>0.5.8.12</h2>
 			&bull; Fehler beim Abruf von Sendungen über den PluginManager beseitigt<br>
 			&bull; neue Funtion zur Plugin-Schnittstelle hinzugefügt<br>
