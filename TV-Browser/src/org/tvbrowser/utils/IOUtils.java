@@ -17,8 +17,10 @@
 package org.tvbrowser.utils;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +32,6 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.TimeoutException;
@@ -50,10 +51,10 @@ import org.tvbrowser.tvbrowser.Logging;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.ReminderBroadcastReceiver;
 import org.tvbrowser.tvbrowser.ServiceUpdateDataTable;
+import org.tvbrowser.tvbrowser.TvBrowser;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
-import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -774,26 +775,27 @@ public class IOUtils {
   public static List<Channel> getChannelList(Context context) {
     ArrayList<Channel> channelList = new ArrayList<Channel>();
     
-    final long token = Binder.clearCallingIdentity();
-    Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.CHANNEL_KEY_NAME, TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.KEY_ID);
-    
-    try {
-      if(channels != null) {
-        channels.moveToPosition(-1);
-        
-        int keyColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-        int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-        int iconColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
-        
-        while(channels.moveToNext()) {
-          channelList.add(new Channel(channels.getInt(keyColumn), channels.getString(nameColumn), channels.getBlob(iconColumn)));
+    if(IOUtils.isDatabaseAccessible(context)) {
+      final long token = Binder.clearCallingIdentity();
+      Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.CHANNEL_KEY_NAME, TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.KEY_ID);
+      
+      try {
+        if(channels != null) {
+          channels.moveToPosition(-1);
+          
+          int keyColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+          int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+          int iconColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
+          
+          while(channels.moveToNext()) {
+            channelList.add(new Channel(channels.getInt(keyColumn), channels.getString(nameColumn), channels.getBlob(iconColumn)));
+          }
         }
+      }finally {
+        IOUtils.closeCursor(channels);
+        Binder.restoreCallingIdentity(token);
       }
-    }finally {
-      IOUtils.closeCursor(channels);
-      Binder.restoreCallingIdentity(token);
     }
-    
     return channelList;
   }
   
@@ -1003,5 +1005,79 @@ public class IOUtils {
     if(pending != null) {
       alarmManager.cancel(pending);
     }
+  }
+  
+  public static final boolean isDatabaseAccessible(Context context) {
+    boolean result = true;
+    
+    if(context != null) {
+      String path = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).getString(context.getString(R.string.PREF_DATABASE_PATH), context.getString(R.string.pref_database_path_default));
+      
+      if(!path.equals(context.getString(R.string.pref_database_path_default))) {
+        result = new File(path).canWrite();
+      }
+    }
+    
+    return result;
+  }
+  
+  /**
+   * Copies the source file to the target. An existing target file
+   * will be overwritten.
+   * 
+   * @param source The source file to copy
+   * @param target The target file.
+   * @return <code>true</code> if the file could be copied, <code>false</code> otherwise.
+   */
+  public static final boolean copyFile(File source, File target) {
+    boolean result = false;
+    
+    if(source.isFile()) {
+      BufferedInputStream in = null;
+      BufferedOutputStream out = null;
+      
+      try {
+        in = new BufferedInputStream(new FileInputStream(source));
+        
+        FileOutputStream fOut = new FileOutputStream(target);
+        fOut.getChannel().truncate(0);
+        
+        out = new BufferedOutputStream(fOut);
+        
+        byte temp[] = new byte[1024];
+        int count;
+        
+        while ((count = in.read(temp, 0, 1024)) != -1) {
+          if(temp != null && count > 0) {
+            out.write(temp, 0, count);
+          }
+        }
+        
+        out.flush();
+        
+        result = target.length() == source.length();
+      } catch(IOException ioe) {
+        Log.d("info12", "", ioe);
+      } finally {
+        if(in != null) {
+          try {
+            in.close();
+          } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }
+        }
+        if(out != null) {
+          try {
+            out.close();
+          } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }
+        }
+      }
+    }
+    
+    return result;
   }
 }

@@ -97,6 +97,11 @@ import android.widget.Toast;
 public class TvDataUpdateService extends Service {
   public static final String TAG = "TV_DATA_UPDATE_SERVICE";
   
+  public static final int UPDATE_TYPE_MANUELL = 1;
+  public static final int UPDATE_TYPE_AUTO = 2;
+  
+  private WakeLock mWakeLock;
+  
   public static final String TYPE = "TYPE";
   public static final int TV_DATA_TYPE = 1;
   public static final int CHANNEL_TYPE = 2;
@@ -121,17 +126,9 @@ public class TvDataUpdateService extends Service {
   
   private Hashtable<String, Hashtable<String, CurrentDataHolder>> mCurrentData;
   private Hashtable<String, int[]> mCurrentVersionIDs;
-
-//  private static final int TABLE_OPERATION_MIN_SIZE = Math.max(100, (int)(Runtime.getRuntime().maxMemory()/1000000));
-  
-  /*private ArrayList<ContentValues> mDataInsertList;
-  private ArrayList<ContentProviderOperation> mDataUpdateList;*/
   
   private MemorySizeConstrictedDatabaseOperation mDataDatabaseOperation;
   private MemorySizeConstrictedDatabaseOperation mVersionDatabaseOperation;
-/*
-  private ArrayList<ContentValues> mVersionInsertList;
-  private ArrayList<ContentProviderOperation> mVersionUpdateList;*/
   
   private ArrayList<String> mSyncFavorites;
     
@@ -250,7 +247,7 @@ public class TvDataUpdateService extends Service {
   
   @Override
   public synchronized int onStartCommand(final Intent intent, int flags, int startId) {
-    if(!isRunning()) {
+    if(!isRunning() && IOUtils.isDatabaseAccessible(this)) {
       ON_START_COMMAND_THEAD = new Thread("DATA UPDATE ON START COMMOAND THREAD") {
         public void run() {
           setPriority(NORM_PRIORITY);
@@ -263,11 +260,14 @@ public class TvDataUpdateService extends Service {
           }
           
           boolean isConnected = false;
-          boolean onlyWifi = false;
+          boolean onlyWifi = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvDataUpdateService.this).getBoolean(getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI), getResources().getBoolean(R.bool.pref_auto_update_only_wifi_default));
           boolean isInternetConnectionAutoUpdate = false;
           
-          if(intent != null) {
-            onlyWifi = intent.getBooleanExtra(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA, false);
+          if(intent != null) { 
+            if(intent.getIntExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, UPDATE_TYPE_AUTO) == UPDATE_TYPE_MANUELL) {
+              onlyWifi = false;
+            }
+            
             isInternetConnectionAutoUpdate = intent.getBooleanExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE_INTERNET_CONNECTION, false);
           }
           
@@ -319,7 +319,7 @@ public class TvDataUpdateService extends Service {
             mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
             startForeground(NOTIFY_ID, mBuilder.build());
             doLog("NO UPDATE DONE, NO INTERNET CONNECTION OR NO INTENT, PROCESS EXISTING DATA");
-            handleStoredDataFromKilledUpdate();
+            handleStoredDataFromKilledUpdate(isConnected);
           }
         }
       };
@@ -333,12 +333,40 @@ public class TvDataUpdateService extends Service {
     return ON_START_COMMAND_THEAD != null && ON_START_COMMAND_THEAD.isAlive();
   }
   
-  private void handleStoredDataFromKilledUpdate() {
-    PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-    mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBUPDATE_LOCK");
-    mWakeLock.setReferenceCounted(false);
-    mWakeLock.acquire(120*60000L);
-    doLog("TVBUPDATE_LOCK acquired for 2h.");
+  private void acquireWakeLock() {
+    handleWakeLock(true);
+  }
+  
+  private void releaseWakeLock() {
+    handleWakeLock(false);
+  }
+  
+  private synchronized void handleWakeLock(boolean acquire) {
+    if(mWakeLock != null) {
+      doLog("TVBUPDATE_LOCK isHeld: " + mWakeLock.isHeld());
+      
+      if(mWakeLock.isHeld()) {
+        mWakeLock.release();
+        doLog("TVBUPDATE_LOCK released");
+        doLog("TVBUPDATE_LOCK isHeld: " + mWakeLock.isHeld());
+      }
+    }
+    
+    if(acquire) {
+      final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
+      
+      if(pm != null) {
+        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBUPDATE_LOCK");
+        mWakeLock.setReferenceCounted(false);
+        mWakeLock.acquire(10*60000L);
+        doLog("TVBUPDATE_LOCK acquired for 2h.");
+      }
+    }
+  }
+  
+  private void handleStoredDataFromKilledUpdate(boolean syncAllowed) {
+    doLog("handleStoredDataFromKilledUpdate()");
+    acquireWakeLock();
     
     final NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
     
@@ -549,19 +577,6 @@ public class TvDataUpdateService extends Service {
           if(mVersionDatabaseOperation != null) {
             mVersionDatabaseOperation.finish();
           }
-          
-          
-         // insert(mDataInsertList);
-          //insertVersion(mVersionInsertList);
-          
-         // update(mDataUpdateList);      
-          //update(mVersionUpdateList);
-          
-          /*mDataInsertList = null;
-          mDataUpdateList = null;*/
-          /*
-          mVersionInsertList = null;      
-          mVersionUpdateList = null;*/
 
           mBuilder.setProgress(100, 0, true);
           notification.notify(NOTIFY_ID, mBuilder.build());
@@ -581,7 +596,7 @@ public class TvDataUpdateService extends Service {
       }
     }
     
-    calculateMissingEnds(notification, true);
+    calculateMissingEnds(notification, true, syncAllowed);
   }
   
   private void deleteFile(File file) {
@@ -604,6 +619,7 @@ public class TvDataUpdateService extends Service {
   @Override
   public void onDestroy() {
     doLog("onDestroy() called");
+    releaseWakeLock();
     
     if(mThreadPool != null && !mThreadPool.isTerminated()) {
       int notDownloadedSize = mThreadPool.shutdownNow().size();
@@ -622,9 +638,7 @@ public class TvDataUpdateService extends Service {
     
     mDataDatabaseOperation = null;
     mVersionDatabaseOperation = null;
-    
-    realeaseWakeLock();
-    
+        
     stopForeground(true);
     ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFY_ID);
     
@@ -634,23 +648,12 @@ public class TvDataUpdateService extends Service {
         
     super.onDestroy();
   }
-  
-  private void realeaseWakeLock() {
-    if(mWakeLock != null) {
-      doLog("TVBUPDATE_LOCK isHeld: " + mWakeLock.isHeld());
-    }
     
-    if(mWakeLock != null && mWakeLock.isHeld()) {
-      mWakeLock.release();
-      doLog("TVBUPDATE_LOCK released");
-    }
-  }
-  
   private void stopSelfInternal() {
     mDataDatabaseOperation = null;
     mVersionDatabaseOperation = null;
     
-    realeaseWakeLock();
+    releaseWakeLock();
     
     if(mCurrentChannelData != null) {
       long lastChannelUpdate = PrefUtils.getLongValue(R.string.PREF_LAST_CHANNEL_UPDATE, 0);
@@ -1236,10 +1239,7 @@ public class TvDataUpdateService extends Service {
   private boolean mHadChannels;
   
   private void updateChannels(final boolean autoUpdate) {
-    final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-    mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBUPDATE_LOCK");
-    mWakeLock.setReferenceCounted(false);
-    mWakeLock.acquire(10*60000L);
+    acquireWakeLock();
     
     mBuilder.setProgress(100, 0, true);
     mBuilder.setContentTitle(getResources().getText(R.string.channel_notification_title));
@@ -2195,7 +2195,7 @@ public class TvDataUpdateService extends Service {
   /**
    * Calculate the end times of programs that are missing end time in the data.
    */
-  private void calculateMissingEnds(NotificationManager notification, boolean updateFavorites) {
+  private void calculateMissingEnds(NotificationManager notification, boolean updateFavorites, boolean syncAllowed) {
     try {
       mBuilder.setProgress(100, 0, true);
       mBuilder.setContentText(getResources().getText(R.string.update_notification_calculate));
@@ -2303,10 +2303,10 @@ public class TvDataUpdateService extends Service {
       Log.d("info13", "", t);
     }
     
-    finishUpdate(notification,updateFavorites);
+    finishUpdate(notification,updateFavorites,syncAllowed);
   }
     
-  private void finishUpdate(NotificationManager notification, boolean updateFavorites) {
+  private void finishUpdate(NotificationManager notification, boolean updateFavorites, boolean syncAllowed) {
     doLog("FINISH DATA UPDATE");
     TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
     getContentResolver().notifyChange(TvBrowserContentProvider.CONTENT_URI_DATA, null);
@@ -2315,29 +2315,31 @@ public class TvDataUpdateService extends Service {
       updateFavorites(notification);
     }
     
-    syncFavorites(notification);
-    
-    boolean fromRemider = PrefUtils.getBooleanValue(R.string.PREF_SYNC_REMINDERS_FROM_DESKTOP, R.bool.pref_sync_reminders_from_desktop_default);
-    boolean toRemider = PrefUtils.getBooleanValue(R.string.PREF_SYNC_REMINDERS_TO_DESKTOP, R.bool.pref_sync_reminders_to_desktop_default);
-    
-    if(fromRemider) {
-      synchronizeRemindersDown(false, notification);
-    }
-    
-    if(toRemider) {
-      synchronizeUp(false, null, "http://android.tvbrowser.org/data/scripts/syncUp.php?type=reminderFromApp", notification);
-    }
-    
-    if(PrefUtils.getBooleanValue(R.string.PREF_NEWS_SHOW, R.bool.pref_news_show_default)) {
-      long lastNewsUpdate = PrefUtils.getLongValue(R.string.NEWS_DATE_LAST_DOWNLOAD, 0);
-      long daysSinceLastNewsUpdate = (System.currentTimeMillis() - lastNewsUpdate) / (24 * 60 * 60000L);
+    if(syncAllowed) {
+      syncFavorites(notification);
+          
+      boolean fromRemider = PrefUtils.getBooleanValue(R.string.PREF_SYNC_REMINDERS_FROM_DESKTOP, R.bool.pref_sync_reminders_from_desktop_default);
+      boolean toRemider = PrefUtils.getBooleanValue(R.string.PREF_SYNC_REMINDERS_TO_DESKTOP, R.bool.pref_sync_reminders_to_desktop_default);
       
-      if(daysSinceLastNewsUpdate > 3 && (Math.random() * 7 < daysSinceLastNewsUpdate)) {
-        mBuilder.setProgress(100, 0, true);
-        mBuilder.setContentText(getResources().getText(R.string.update_data_notification_load_news));
-        notification.notify(NOTIFY_ID, mBuilder.build());
+      if(fromRemider) {
+        synchronizeRemindersDown(false, notification);
+      }
+      
+      if(toRemider) {
+        synchronizeUp(false, null, "http://android.tvbrowser.org/data/scripts/syncUp.php?type=reminderFromApp", notification);
+      }
+      
+      if(PrefUtils.getBooleanValue(R.string.PREF_NEWS_SHOW, R.bool.pref_news_show_default)) {
+        long lastNewsUpdate = PrefUtils.getLongValue(R.string.NEWS_DATE_LAST_DOWNLOAD, 0);
+        long daysSinceLastNewsUpdate = (System.currentTimeMillis() - lastNewsUpdate) / (24 * 60 * 60000L);
         
-        NewsReader.readNews(TvDataUpdateService.this, mHandler);
+        if(daysSinceLastNewsUpdate > 3 && (Math.random() * 7 < daysSinceLastNewsUpdate)) {
+          mBuilder.setProgress(100, 0, true);
+          mBuilder.setContentText(getResources().getText(R.string.update_data_notification_load_news));
+          notification.notify(NOTIFY_ID, mBuilder.build());
+          
+          NewsReader.readNews(TvDataUpdateService.this, mHandler);
+        }
       }
     }
     
@@ -2483,9 +2485,7 @@ public class TvDataUpdateService extends Service {
     
     return mirrorLine;
   }
-  
-  private WakeLock mWakeLock;
-  
+    
   private static final class MirrorDownload {
     private String mDownloadURL;
     private String mFileName;
@@ -2512,10 +2512,7 @@ public class TvDataUpdateService extends Service {
       }
     };
     
-    PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
-    mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBUPDATE_LOCK");
-    mWakeLock.setReferenceCounted(false);
-    mWakeLock.acquire(120*60000L);
+    acquireWakeLock();
     
     mShowNotification = true;
     mUnsuccessfulDownloads = 0;
@@ -2628,105 +2625,108 @@ public class TvDataUpdateService extends Service {
             doLog("Content URI for data update " + ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey));
             Cursor group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
             doLog("Cursor size for groupKey: " + group.getCount());
-            if(group.getCount() > 0) {
-              group.moveToFirst();
-              
-              groupId = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
-              String mirrorURL = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS));
-              Log.d("info21", "GROUPID " + groupId + " " + mirrorURL);
-              doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
-              doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
-              
-              if(!mirrorURL.toLowerCase().startsWith("http://") && !mirrorURL.toLowerCase().startsWith("https://")) {
-                doLog("RELOAD MIRRORS FOR '" + groupId);
-                mirrorURL = reloadMirrors(groupId, path);
+            
+            try {
+              if(group != null && group.getCount() > 0) {
+                group.moveToFirst();
                 
+                groupId = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
+                String mirrorURL = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS));
+                Log.d("info21", "GROUPID " + groupId + " " + mirrorURL);
                 doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
                 doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
-              }
-              
-              boolean checkOnlyConnection = false;
-              
-              if(groupId.equals(SettingConstants.EPG_DONATE_GROUP_KEY)) {
-                checkOnlyConnection = true;
-              }
-              
-              Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL);
-              Log.d("info21", "MIRRORS AVAILABLE " + mirrors);
-              mirror = Mirror.getMirrorToUseForGroup(mirrors, groupId, this, checkOnlyConnection);                
-              doLog("Choosen mirror for group '" + groupId + "': " + mirror);
-              
-              Log.d("info21", "MIRROR CHOOSEN " + mirror);
-              if(mirror != null) {
-                String url = mirror.getUrl() + groupId + "_mirrorlist.gz";
-                String fileName = groupId + "_mirrorlist.gz";
                 
-                String summaryUrl = mirror.getUrl() + groupId + "_summary.gz";
-                String summaryFileName = groupId + "_summary.gz";
-                
-                if(checkOnlyConnection) {
-                  if(!donationInfoLoaded) {
-                    Editor edit = PreferenceManager.getDefaultSharedPreferences(TvDataUpdateService.this).edit();
-                    edit.putLong(getString(R.string.EPG_DONATE_LAST_DATA_DOWNLOAD), System.currentTimeMillis());
-                    
-                    if(PrefUtils.getLongValue(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD, -1) == -1) {
-                      edit.putLong(getString(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD), System.currentTimeMillis());
-                    }
-                    
-                    File donationInfo = new File(path,groupId+"_donationinfo.gz");
-                    
-                    IOUtils.saveUrl(donationInfo.getAbsolutePath(), mirror.getUrl() + "donationinfo.gz");
-                    
-                    if(donationInfo.isFile()) {
-                      Properties donationProp = new Properties();
-                      
-                      GZIPInputStream in = null;
-                      try {
-                        in = new GZIPInputStream(new FileInputStream(donationInfo));
-                        
-                        donationProp.load(in);
-                      } catch(IOException e) {
-                        // ignore just load the info next time
-                      } finally {
-                        IOUtils.closeInputStream(in);
-                      }
-                      
-                      edit.putString(getString(R.string.EPG_DONATE_CURRENT_DONATION_PERCENT), donationProp.getProperty(SettingConstants.EPG_DONATE_DONATION_INFO_PERCENT_KEY,"-1"));
-                      
-                      String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
-                      
-                      String donationAmount = donationProp.getProperty(SettingConstants.EPG_DONATE_DONATION_INFO_AMOUNT_KEY_PREFIX+year, null);
-                      
-                      if(donationAmount != null) {
-                        edit.putString(getString(R.string.EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX)+"_"+year, donationAmount);
-                      }
-                      
-                      if(!donationInfo.delete()) {
-                        donationInfo.deleteOnExit();
-                      }
-                    }
-                    
-                    edit.commit();
-                    donationInfoLoaded = true;
-                  }
+                if(!mirrorURL.toLowerCase().startsWith("http://") && !mirrorURL.toLowerCase().startsWith("https://")) {
+                  doLog("RELOAD MIRRORS FOR '" + groupId);
+                  mirrorURL = reloadMirrors(groupId, path);
                   
-                  url = mirror.getUrl() + "mirrors.gz";
-                  fileName = groupId + "_mirrors.gz";
-                  
-                  summaryUrl = mirror.getUrl() + "summary.gz";
-                  
-                  Log.d("info21", "SUMMARY " + summaryUrl);
+                  doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
+                  doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
                 }
                 
-                doLog("Download summary from: " + summaryUrl);
-                summary = readSummary(new File(path,summaryFileName),summaryUrl, groupId);
+                boolean checkOnlyConnection = false;
                 
-                doLog("To download: " + url);
-                downloadMirrorList.add(new MirrorDownload(url, fileName));
+                if(groupId.equals(SettingConstants.EPG_DONATE_GROUP_KEY)) {
+                  checkOnlyConnection = true;
+                }
+                
+                Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL);
+                Log.d("info21", "MIRRORS AVAILABLE " + mirrors);
+                mirror = Mirror.getMirrorToUseForGroup(mirrors, groupId, this, checkOnlyConnection);                
+                doLog("Choosen mirror for group '" + groupId + "': " + mirror);
+                
+                Log.d("info21", "MIRROR CHOOSEN " + mirror);
+                if(mirror != null) {
+                  String url = mirror.getUrl() + groupId + "_mirrorlist.gz";
+                  String fileName = groupId + "_mirrorlist.gz";
+                  
+                  String summaryUrl = mirror.getUrl() + groupId + "_summary.gz";
+                  String summaryFileName = groupId + "_summary.gz";
+                  
+                  if(checkOnlyConnection) {
+                    if(!donationInfoLoaded) {
+                      Editor edit = PreferenceManager.getDefaultSharedPreferences(TvDataUpdateService.this).edit();
+                      edit.putLong(getString(R.string.EPG_DONATE_LAST_DATA_DOWNLOAD), System.currentTimeMillis());
+                      
+                      if(PrefUtils.getLongValue(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD, -1) == -1) {
+                        edit.putLong(getString(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD), System.currentTimeMillis());
+                      }
+                      
+                      File donationInfo = new File(path,groupId+"_donationinfo.gz");
+                      
+                      IOUtils.saveUrl(donationInfo.getAbsolutePath(), mirror.getUrl() + "donationinfo.gz");
+                      
+                      if(donationInfo.isFile()) {
+                        Properties donationProp = new Properties();
+                        
+                        GZIPInputStream in = null;
+                        try {
+                          in = new GZIPInputStream(new FileInputStream(donationInfo));
+                          
+                          donationProp.load(in);
+                        } catch(IOException e) {
+                          // ignore just load the info next time
+                        } finally {
+                          IOUtils.closeInputStream(in);
+                        }
+                        
+                        edit.putString(getString(R.string.EPG_DONATE_CURRENT_DONATION_PERCENT), donationProp.getProperty(SettingConstants.EPG_DONATE_DONATION_INFO_PERCENT_KEY,"-1"));
+                        
+                        String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
+                        
+                        String donationAmount = donationProp.getProperty(SettingConstants.EPG_DONATE_DONATION_INFO_AMOUNT_KEY_PREFIX+year, null);
+                        
+                        if(donationAmount != null) {
+                          edit.putString(getString(R.string.EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX)+"_"+year, donationAmount);
+                        }
+                        
+                        if(!donationInfo.delete()) {
+                          donationInfo.deleteOnExit();
+                        }
+                      }
+                      
+                      edit.commit();
+                      donationInfoLoaded = true;
+                    }
+                    
+                    url = mirror.getUrl() + "mirrors.gz";
+                    fileName = groupId + "_mirrors.gz";
+                    
+                    summaryUrl = mirror.getUrl() + "summary.gz";
+                    
+                    Log.d("info21", "SUMMARY " + summaryUrl);
+                  }
+                  
+                  doLog("Download summary from: " + summaryUrl);
+                  summary = readSummary(new File(path,summaryFileName),summaryUrl, groupId);
+                  
+                  doLog("To download: " + url);
+                  downloadMirrorList.add(new MirrorDownload(url, fileName));
+                }
               }
+            }finally {
+              IOUtils.closeCursor(group);
             }
-            
-            group.close();
           }
           
           doLog("Summary downloaded: " + (summary != null));
@@ -3020,10 +3020,10 @@ public class TvDataUpdateService extends Service {
     }
     
     if(updateList.size() > 0) {
-      calculateMissingEnds(notification,true);
+      calculateMissingEnds(notification,true,true);
     }
     else {
-      finishUpdate(notification,false);
+      finishUpdate(notification,false,true);
     }
   }
   

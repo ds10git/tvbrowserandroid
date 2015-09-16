@@ -104,117 +104,119 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       
       removeAlarm();
       
-      int currentTime = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(mAppWidgetId + "_" + mContext.getString(R.string.WIDGET_CONFIG_RUNNING_TIME), getResources().getInteger(R.integer.widget_config_running_time_default));
-      
-      String startTimeColumn = TvBrowserContentProvider.DATA_KEY_STARTTIME;
-      
-      if(currentTime == -2) {
-        startTimeColumn = "MIN( "+TvBrowserContentProvider.DATA_KEY_STARTTIME+" ) AS " +TvBrowserContentProvider.DATA_KEY_STARTTIME;        
-      }
-      
-      final String[] projection = new String[] {
-        TvBrowserContentProvider.KEY_ID,
-        startTimeColumn,
-        TvBrowserContentProvider.DATA_KEY_ENDTIME,
-        TvBrowserContentProvider.DATA_KEY_TITLE,
-        TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
-        TvBrowserContentProvider.DATA_KEY_CATEGORIES,
-        TvBrowserContentProvider.DATA_KEY_MARKING_MARKING,
-        TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE,
-        TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER,
-        TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER,
-        TvBrowserContentProvider.DATA_KEY_MARKING_SYNC,
-        TvBrowserContentProvider.CHANNEL_KEY_NAME,
-        TvBrowserContentProvider.CHANNEL_KEY_LOGO,
-        TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
-        TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID
-      };
-            
-      long time = System.currentTimeMillis();
-      
-      if(currentTime > -1) {
-        Calendar now = Calendar.getInstance();
+      if(IOUtils.isDatabaseAccessible(mContext)) {
+        int currentTime = PreferenceManager.getDefaultSharedPreferences(mContext).getInt(mAppWidgetId + "_" + mContext.getString(R.string.WIDGET_CONFIG_RUNNING_TIME), getResources().getInteger(R.integer.widget_config_running_time_default));
         
-        if(PrefUtils.getBooleanValue(R.string.RUNNING_PROGRAMS_NEXT_DAY, R.bool.running_programs_next_day_default)) {
-          int test1 = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+        String startTimeColumn = TvBrowserContentProvider.DATA_KEY_STARTTIME;
         
-          if((test1 - currentTime) > 180) {
-            now.add(Calendar.DAY_OF_YEAR, 1);
+        if(currentTime == -2) {
+          startTimeColumn = "MIN( "+TvBrowserContentProvider.DATA_KEY_STARTTIME+" ) AS " +TvBrowserContentProvider.DATA_KEY_STARTTIME;        
+        }
+        
+        final String[] projection = new String[] {
+          TvBrowserContentProvider.KEY_ID,
+          startTimeColumn,
+          TvBrowserContentProvider.DATA_KEY_ENDTIME,
+          TvBrowserContentProvider.DATA_KEY_TITLE,
+          TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
+          TvBrowserContentProvider.DATA_KEY_CATEGORIES,
+          TvBrowserContentProvider.DATA_KEY_MARKING_MARKING,
+          TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE,
+          TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER,
+          TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER,
+          TvBrowserContentProvider.DATA_KEY_MARKING_SYNC,
+          TvBrowserContentProvider.CHANNEL_KEY_NAME,
+          TvBrowserContentProvider.CHANNEL_KEY_LOGO,
+          TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
+          TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID
+        };
+              
+        long time = System.currentTimeMillis();
+        
+        if(currentTime > -1) {
+          Calendar now = Calendar.getInstance();
+          
+          if(PrefUtils.getBooleanValue(R.string.RUNNING_PROGRAMS_NEXT_DAY, R.bool.running_programs_next_day_default)) {
+            int test1 = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
+          
+            if((test1 - currentTime) > 180) {
+              now.add(Calendar.DAY_OF_YEAR, 1);
+            }
           }
+          
+          now.set(Calendar.HOUR_OF_DAY, currentTime / 60);
+          now.set(Calendar.MINUTE, currentTime % 60);
+          now.set(Calendar.SECOND, 0);
+          now.set(Calendar.MILLISECOND, 0);
+          
+          time = now.getTimeInMillis();
         }
         
-        now.set(Calendar.HOUR_OF_DAY, currentTime / 60);
-        now.set(Calendar.MINUTE, currentTime % 60);
-        now.set(Calendar.SECOND, 0);
-        now.set(Calendar.MILLISECOND, 0);
+        String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + time + " AND " +
+        TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " {0} ";
         
-        time = now.getTimeInMillis();
-      }
-      
-      String where = " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + time + " AND " +
-      TvBrowserContentProvider.DATA_KEY_ENDTIME + ">" + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " {0} ";
-      
-      if(currentTime == -2) {
-        where = " ( " +TvBrowserContentProvider.DATA_KEY_STARTTIME+ ">=" + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " {0} ) GROUP BY ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " ";
-      }
-      
-      String mCurrentChannelFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, SettingConstants.ALL_FILTER_ID);
-      
-      mUserDefindedColorChannel = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_CHANNEL, null));
-      mUserDefindedColorTime = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_TIME, R.string.pref_widget_color_time_default));
-      mUserDefindedColorTitel = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_TITLE, R.string.pref_widget_color_title_default));
-      mUserDefindedColorCategoryDefault = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_CATEGORY, null));
-      mUserDefindedColorEpisode = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_EPISODE, null));
-      
-      SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, mContext);
-      
-      String values = pref.getString(mCurrentChannelFilterId, null);
-      
-      if(mCurrentChannelFilterId != null && values != null) {
-        where = where.replace("{0}", FilterValues.load(mCurrentChannelFilterId, values).getWhereClause(mContext).getWhere());
-      }
-      else {
-        where = where.replace("{0}", "");
-      }
-      
-      final long token = Binder.clearCallingIdentity();
-      try {
-        mCursor = getApplicationContext().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
-        
-        mIdIndex = mCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-        mStartTimeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-        mEndTimeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
-        mTitleIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-        mChannelNameIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-        mOrderNumberIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
-        mLogoIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-        mEpisodeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
-        mCategoryIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
-        
-        mMarkingPluginsIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING);
-        mMarkingFavoriteIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE);
-        mMarkingReminderIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
-        mMarkingFavoriteReminderIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
-        mMarkingSyncIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC);
-        
-        final String logoNamePref = PrefUtils.getStringValue(R.string.PREF_WIDGET_CHANNEL_LOGO_NAME, R.string.pref_widget_channel_logo_name_default);
-        
-        mShowEpisode = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_EPISODE, R.bool.pref_widget_show_episode_default);
-        mShowCategories = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_CATEGORIES, R.bool.pref_widget_show_categories_default);
-        mShowMarkings = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_MARKINGS, R.bool.pref_widget_show_markings_default);
-        mShowChannelName = (logoNamePref.equals("0") || logoNamePref.equals("2"));
-        mShowChannelLogo = (logoNamePref.equals("0") || logoNamePref.equals("1") || logoNamePref.equals("3"));
-        mShowBigChannelLogo = logoNamePref.equals("3");
-        mShowOrderNumber = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_SORT_NUMBER, R.bool.pref_widget_show_sort_number_default);
-        mChannelClickToProgramsList = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_widget_click_to_channel_to_list_default);
-        mTextScale = Float.valueOf(PrefUtils.getStringValue(R.string.PREF_WIDGET_TEXT_SCALE, R.string.pref_widget_text_scale_default));
-        mVerticalPadding = UiUtils.convertDpToPixel((int)(Float.parseFloat(PrefUtils.getStringValue(R.string.PREF_WIDGET_VERTICAL_PADDING_SIZE, R.string.pref_widget_vertical_padding_size_default))/2),mContext.getResources());
-        
-        if(mCursor.getCount() > 0) {
-          startAlarm();
+        if(currentTime == -2) {
+          where = " ( " +TvBrowserContentProvider.DATA_KEY_STARTTIME+ ">=" + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " {0} ) GROUP BY ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " ";
         }
-      } finally {
-          Binder.restoreCallingIdentity(token);
+        
+        String mCurrentChannelFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, SettingConstants.ALL_FILTER_ID);
+        
+        mUserDefindedColorChannel = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_CHANNEL, null));
+        mUserDefindedColorTime = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_TIME, R.string.pref_widget_color_time_default));
+        mUserDefindedColorTitel = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_TITLE, R.string.pref_widget_color_title_default));
+        mUserDefindedColorCategoryDefault = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_CATEGORY, null));
+        mUserDefindedColorEpisode = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_EPISODE, null));
+        
+        SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, mContext);
+        
+        String values = pref.getString(mCurrentChannelFilterId, null);
+        
+        if(mCurrentChannelFilterId != null && values != null) {
+          where = where.replace("{0}", FilterValues.load(mCurrentChannelFilterId, values).getWhereClause(mContext).getWhere());
+        }
+        else {
+          where = where.replace("{0}", "");
+        }
+        
+        final long token = Binder.clearCallingIdentity();
+        try {
+          mCursor = getApplicationContext().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.DATA_KEY_STARTTIME);
+          
+          mIdIndex = mCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+          mStartTimeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+          mEndTimeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+          mTitleIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+          mChannelNameIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+          mOrderNumberIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+          mLogoIndex = mCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+          mEpisodeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
+          mCategoryIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
+          
+          mMarkingPluginsIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING);
+          mMarkingFavoriteIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE);
+          mMarkingReminderIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
+          mMarkingFavoriteReminderIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
+          mMarkingSyncIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC);
+          
+          final String logoNamePref = PrefUtils.getStringValue(R.string.PREF_WIDGET_CHANNEL_LOGO_NAME, R.string.pref_widget_channel_logo_name_default);
+          
+          mShowEpisode = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_EPISODE, R.bool.pref_widget_show_episode_default);
+          mShowCategories = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_CATEGORIES, R.bool.pref_widget_show_categories_default);
+          mShowMarkings = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_MARKINGS, R.bool.pref_widget_show_markings_default);
+          mShowChannelName = (logoNamePref.equals("0") || logoNamePref.equals("2"));
+          mShowChannelLogo = (logoNamePref.equals("0") || logoNamePref.equals("1") || logoNamePref.equals("3"));
+          mShowBigChannelLogo = logoNamePref.equals("3");
+          mShowOrderNumber = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_SHOW_SORT_NUMBER, R.bool.pref_widget_show_sort_number_default);
+          mChannelClickToProgramsList = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_widget_click_to_channel_to_list_default);
+          mTextScale = Float.valueOf(PrefUtils.getStringValue(R.string.PREF_WIDGET_TEXT_SCALE, R.string.pref_widget_text_scale_default));
+          mVerticalPadding = UiUtils.convertDpToPixel((int)(Float.parseFloat(PrefUtils.getStringValue(R.string.PREF_WIDGET_VERTICAL_PADDING_SIZE, R.string.pref_widget_vertical_padding_size_default))/2),mContext.getResources());
+          
+          if(mCursor.getCount() > 0) {
+            startAlarm();
+          }
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
       }
     }
     

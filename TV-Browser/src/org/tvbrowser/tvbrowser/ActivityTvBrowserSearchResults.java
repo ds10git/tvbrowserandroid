@@ -42,6 +42,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBarActivity;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
@@ -60,7 +61,10 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   
   private ListView mListView;
-  private Handler handler;
+  private Handler mHandler;
+  
+  private String mSearchString;
+  private String mEpisodeString;
   
   @Override
   protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
@@ -109,11 +113,11 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
     
     // Create a new Adapter an bind it to the List View
     
-    handler = new Handler();
+    mHandler = new Handler();
     
-    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(this,this,handler);
+    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(this,this,mHandler);
     mProgramsListAdapter = new OrientationHandlingCursorAdapter(this,/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
-        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0,false,handler);
+        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0,false,mHandler);
     mProgramsListAdapter.setViewBinder(mViewAndClickHandler);
     
     getListView().setAdapter(mProgramsListAdapter);
@@ -174,16 +178,16 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
   private void parseIntent(Intent intent) {
     // If the Activity was started to service a Search request, extract the search query.
     if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
-      String searchQuery = intent.getStringExtra(SearchManager.QUERY);
+      mSearchString = intent.getStringExtra(SearchManager.QUERY);
       
       // Perfom the search, passing in the search query as an argument to the Cursor Loader
       Bundle args = new Bundle();
-      args.putString(QUERY_EXTRA_KEY, searchQuery);
+      args.putString(QUERY_EXTRA_KEY, mSearchString);
       
       if(intent.hasExtra(QUERY_EXTRA_EPISODE_KEY)) {
-        String episodeQuery = intent.getStringExtra(QUERY_EXTRA_EPISODE_KEY);
+        mEpisodeString = intent.getStringExtra(QUERY_EXTRA_EPISODE_KEY);
         
-        args.putString(QUERY_EXTRA_EPISODE_KEY, episodeQuery);
+        args.putString(QUERY_EXTRA_EPISODE_KEY, mEpisodeString);
       }
       
       // Restart the Cursor Loader to execute the new query
@@ -203,12 +207,13 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
     }
     else if(intent.hasExtra(SearchManager.QUERY)) {
       Bundle args = new Bundle();
-      args.putString(QUERY_EXTRA_KEY, intent.getStringExtra(SearchManager.QUERY));
+      mSearchString = intent.getStringExtra(SearchManager.QUERY);
+      args.putString(QUERY_EXTRA_KEY, mSearchString);
       
       if(intent.hasExtra(QUERY_EXTRA_EPISODE_KEY)) {
-        String episodeQuery = intent.getStringExtra(QUERY_EXTRA_EPISODE_KEY);
+        mEpisodeString = intent.getStringExtra(QUERY_EXTRA_EPISODE_KEY);
         
-        args.putString(QUERY_EXTRA_EPISODE_KEY, episodeQuery);
+        args.putString(QUERY_EXTRA_EPISODE_KEY, mEpisodeString);
       }
       
       // Restart the Cursor Loader to execute the new query
@@ -302,7 +307,21 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
       info.setTitle(R.string.search_no_result_title);
       info.setMessage(R.string.search_no_result_text);
       
-      info.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+      info.setPositiveButton(R.string.dialog_search_create_favorite, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          mHandler.post(new Runnable() {
+            @Override
+            public void run() {
+              UiUtils.editFavorite(null, getApplicationContext(), mSearchString + (mEpisodeString != null ? " AND " + mEpisodeString : ""));
+            }
+          });
+          
+          finish();
+        }
+      });
+      
+      info.setNegativeButton(R.string.dialog_close, new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
           finish();
@@ -356,7 +375,7 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
 
   @Override
   public void refreshMarkings() {
-    handler.post(new Runnable() {
+    mHandler.post(new Runnable() {
       @Override
       public void run() {
         getListView().invalidateViews();

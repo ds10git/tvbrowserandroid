@@ -114,7 +114,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
               Intent startDownload = new Intent(context, TvDataUpdateService.class);
               startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
               startDownload.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-              startDownload.putExtra(SettingConstants.INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA, onlyWifi);
+              startDownload.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_AUTO);
               startDownload.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE_INTERNET_CONNECTION, internetConnectionType);
               
               int daysToDownload = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_RANGE, R.string.pref_auto_update_range_default));

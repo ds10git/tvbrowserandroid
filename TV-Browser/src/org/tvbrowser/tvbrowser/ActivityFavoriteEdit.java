@@ -137,6 +137,11 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
       if(search != null) {
         mFavorite.setSearchValue(search);
         mSearchValue.setText(search);
+        
+        if(search.contains(" AND ")) {
+          mFavorite.setType(Favorite.KEYWORD_TYPE);
+          mTypeSelection.setSelection(mFavorite.getType());
+        }
       }
     }
     
@@ -598,21 +603,23 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
       
       where.append(ids[ids.length-1]).append(" ) ");
       
-      Cursor channelNames = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.CHANNEL_KEY_NAME);
-      
-      channelNames.moveToPosition(-1);
-      
-      ArrayList<String> nameList = new ArrayList<String>();
-      
-      int nameColumn = channelNames.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-      
-      while(channelNames.moveToNext()) {
-        nameList.add(channelNames.getString(nameColumn));
+      if(IOUtils.isDatabaseAccessible(this)) {
+        Cursor channelNames = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.CHANNEL_KEY_NAME);
+        
+        if(IOUtils.prepareAccess(channelNames)) {
+          ArrayList<String> nameList = new ArrayList<String>();
+          
+          int nameColumn = channelNames.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+          
+          while(channelNames.moveToNext()) {
+            nameList.add(channelNames.getString(nameColumn));
+          }
+          
+          mChannels.setText(TextUtils.join(", ", nameList));
+        }
+        
+        IOUtils.closeCursor(channelNames); 
       }
-      
-      channelNames.close();
-      
-      mChannels.setText(TextUtils.join(", ", nameList));
     }
     else {
       mChannels.setText(R.string.activity_edit_favorite_input_text_all_value);

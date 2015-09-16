@@ -239,39 +239,43 @@ public class PrefUtils {
   }
   
   private static void setMetaDataLongValue(Context context, int value) {
-    String sort = null;
-    String column = null;
-    
-    switch (value) {
-      case R.string.META_DATA_DATE_FIRST_KNOWN: column = TvBrowserContentProvider.DATA_KEY_STARTTIME; sort =  column + " ASC LIMIT 1";break;
-      case R.string.META_DATA_DATE_LAST_KNOWN: column = TvBrowserContentProvider.DATA_KEY_STARTTIME; sort =  column + " DESC LIMIT 1";break;
-      case R.string.META_DATA_ID_FIRST_KNOWN: column = TvBrowserContentProvider.KEY_ID; sort =  column + " ASC LIMIT 1";break;
-      case R.string.META_DATA_ID_LAST_KNOWN: column = TvBrowserContentProvider.KEY_ID; sort =  column + " DESC LIMIT 1";break;
-    }
-    
-    Cursor valueCursor = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {column}, null, null, sort);
-    
-    try {
-      if(valueCursor != null && valueCursor.moveToFirst()) {
-        long last = valueCursor.getLong(valueCursor.getColumnIndex(column));
-        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(value), last).commit();
+    if(IOUtils.isDatabaseAccessible(context)) {
+      String sort = null;
+      String column = null;
+      
+      switch (value) {
+        case R.string.META_DATA_DATE_FIRST_KNOWN: column = TvBrowserContentProvider.DATA_KEY_STARTTIME; sort =  column + " ASC LIMIT 1";break;
+        case R.string.META_DATA_DATE_LAST_KNOWN: column = TvBrowserContentProvider.DATA_KEY_STARTTIME; sort =  column + " DESC LIMIT 1";break;
+        case R.string.META_DATA_ID_FIRST_KNOWN: column = TvBrowserContentProvider.KEY_ID; sort =  column + " ASC LIMIT 1";break;
+        case R.string.META_DATA_ID_LAST_KNOWN: column = TvBrowserContentProvider.KEY_ID; sort =  column + " DESC LIMIT 1";break;
       }
-    }finally {
-      IOUtils.closeCursor(valueCursor);
+      
+      Cursor valueCursor = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {column}, null, null, sort);
+      
+      try {
+        if(valueCursor != null && valueCursor.moveToFirst()) {
+          long last = valueCursor.getLong(valueCursor.getColumnIndex(column));
+          PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(value), last).commit();
+        }
+      }finally {
+        IOUtils.closeCursor(valueCursor);
+      }
     }
   }
   
   public static void updateChannelSelectionState(Context context) {
-    boolean value = false;
-    Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, TvBrowserContentProvider.KEY_ID + " ASC LIMIT 1");
-    
-    try {
-      value = channels != null && channels.getCount() > 0;
-    }finally {
-      IOUtils.closeCursor(channels);
+    if(IOUtils.isDatabaseAccessible(context)) {
+      boolean value = false;
+      Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, TvBrowserContentProvider.KEY_ID + " ASC LIMIT 1");
+      
+      try {
+        value = channels != null && channels.getCount() > 0;
+      }finally {
+        IOUtils.closeCursor(channels);
+      }
+      
+      getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putBoolean(context.getString(R.string.CHANNELS_SELECTED), value).commit();
     }
-    
-    getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putBoolean(context.getString(R.string.CHANNELS_SELECTED), value).commit();
   }
   
   public static boolean getChannelsSelected(Context context) {

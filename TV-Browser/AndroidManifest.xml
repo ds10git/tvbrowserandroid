@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.tvbrowser.tvbrowser"
     android:installLocation="internalOnly"
-    android:versionCode="349"
-    android:versionName="0.5.8.13 Beta1" >
+    android:versionCode="350"
+    android:versionName="0.5.9 Beta1" >
 
     <uses-sdk
         android:minSdkVersion="11"
@@ -128,6 +128,17 @@
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
+        <receiver android:enabled="true" android:exported="false"
+		  android:name=".SDCardStateChangeListener">
+		  <intent-filter>
+		    <action android:name="android.intent.action.MEDIA_UNMOUNTED" />
+		    <action android:name="android.intent.action.MEDIA_REMOVED" />
+		    <action android:name="android.intent.action.MEDIA_EJECT" />
+		    <action android:name="android.intent.action.MEDIA_BAD_REMOVAL" />
+		    <action android:name="android.intent.action.MEDIA_MOUNTED" />
+		    <data android:scheme="file" />
+		  </intent-filter>
+		</receiver>
         <receiver android:name=".AutoDataUpdateReceiver" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />

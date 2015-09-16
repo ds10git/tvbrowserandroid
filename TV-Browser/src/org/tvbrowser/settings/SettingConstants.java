@@ -21,6 +21,7 @@ import java.util.HashMap;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.UiUtils;
 
@@ -81,8 +82,8 @@ public class SettingConstants {
   public static final String START_TIME_EXTRA = "START_TIME_EXTRA";
   public static final String SCROLL_POSITION_EXTRA = "SCROLL_POSITION_EXTRA";
   public static final String TIME_DATA_UPDATE_EXTRA = "TIME_DATA_UPDATE_EXTRA";
-  public static final String INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA = "INTERNET_CONNECTION_RESTRICTED_DATA_UPDATE_EXTRA";
   public static final String EXTRA_DATA_UPDATE_TYPE_INTERNET_CONNECTION = "internetConnectionType";
+  public static final String EXTRA_DATA_UPDATE_TYPE = "dataUpdateType";
   
   public static final String EXTRA_DATA_DATE_LAST_KNOWN = "dataDateLastKnown";
   public static final String EXTRA_REMINDED_PROGRAM = "remindedProgram";
@@ -226,28 +227,30 @@ public class SettingConstants {
     if(SMALL_LOGO_MAP.size() == 0 || MEDIUM_LOGO_MAP.size() == 0 || reload) {
       PrefUtils.initialize(context.getApplicationContext());
       
-      Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, null);
-      
-      SMALL_LOGO_MAP.clear();
-      MEDIUM_LOGO_MAP.clear();
-      
-      if(channels != null) {
-        if(channels.getCount() > 0 ) {
-          channels.moveToPosition(-1);
-          int keyIndex = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-          int logoIndex = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
-          
-          while(channels.moveToNext()) {
-            Bitmap logoBitmap = UiUtils.createBitmapFromByteArray(channels.getBlob(logoIndex));
+      if(IOUtils.isDatabaseAccessible(context)) {
+        Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, null);
+        
+        SMALL_LOGO_MAP.clear();
+        MEDIUM_LOGO_MAP.clear();
+        
+        if(channels != null) {
+          if(channels.getCount() > 0 ) {
+            channels.moveToPosition(-1);
+            int keyIndex = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+            int logoIndex = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
             
-            if(logoBitmap != null) {
-              SMALL_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(17,context,logoBitmap));
-              MEDIUM_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(25,context,logoBitmap));
+            while(channels.moveToNext()) {
+              Bitmap logoBitmap = UiUtils.createBitmapFromByteArray(channels.getBlob(logoIndex));
+              
+              if(logoBitmap != null) {
+                SMALL_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(17,context,logoBitmap));
+                MEDIUM_LOGO_MAP.put(channels.getInt(keyIndex), createDrawable(25,context,logoBitmap));
+              }
             }
           }
+          
+          channels.close();
         }
-        
-        channels.close();
       }
     }
   }
