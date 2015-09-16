@@ -24,6 +24,7 @@ import java.util.Locale;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.Program;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
@@ -173,7 +174,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
       
       Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' showReminder '" + showReminder + "' sound '" + sound + "' vibrate '" + vibrate + "' led '" + led + "'", Logging.TYPE_REMINDER, context);
       
-      if(showReminder) {
+      if(showReminder && IOUtils.isDatabaseAccessible(context)) {
         Logging.log(tag,  new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' CONTEXT: " + context + " contentResolver: " + context.getContentResolver(), Logging.TYPE_REMINDER, context);
         Cursor values = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), SettingConstants.REMINDER_PROJECTION, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
         Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Tried to load program with given ID, cursor size: " + values.getCount(), Logging.TYPE_REMINDER, context);

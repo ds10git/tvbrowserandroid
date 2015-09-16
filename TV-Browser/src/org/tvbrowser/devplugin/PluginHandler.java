@@ -75,13 +75,16 @@ public final class PluginHandler {
         Program result = null;
         
         final long token = Binder.clearCallingIdentity();
-        Cursor programs = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL,programId), ProgramUtils.DATA_CHANNEL_PROJECTION, null, null, null);
         
-        try {
-          result = ProgramUtils.createProgramFromDataCursor(context, programs);
-        }finally {
-          IOUtils.closeCursor(programs);
-          Binder.restoreCallingIdentity(token);
+        if(IOUtils.isDatabaseAccessible(context)) {
+          Cursor programs = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL,programId), ProgramUtils.DATA_CHANNEL_PROJECTION, null, null, null);
+          
+          try {
+            result = ProgramUtils.createProgramFromDataCursor(context, programs);
+          }finally {
+            IOUtils.closeCursor(programs);
+            Binder.restoreCallingIdentity(token);
+          }
         }
         
         return result;
@@ -94,13 +97,16 @@ public final class PluginHandler {
         String where = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + channelId + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "=" + startTimeInUTC;
         
         final long token = Binder.clearCallingIdentity();
-        Cursor programs = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, ProgramUtils.DATA_CHANNEL_PROJECTION, where, null, null);
         
-        try {
-          result = ProgramUtils.createProgramFromDataCursor(context, programs);
-        }finally {
-          IOUtils.closeCursor(programs);
-          Binder.restoreCallingIdentity(token);
+        if(IOUtils.isDatabaseAccessible(context)) {
+          Cursor programs = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, ProgramUtils.DATA_CHANNEL_PROJECTION, where, null, null);
+          
+          try {
+            result = ProgramUtils.createProgramFromDataCursor(context, programs);
+          }finally {
+            IOUtils.closeCursor(programs);
+            Binder.restoreCallingIdentity(token);
+          }
         }
         
         return result;
@@ -153,17 +159,19 @@ public final class PluginHandler {
         
         final long token = Binder.clearCallingIdentity();
         
-        Cursor programs = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, ProgramUtils.DATA_CHANNEL_PROJECTION, where.toString(), null, null);
-        
-        try {
-          result = ProgramUtils.createProgramsFromDataCursor(context, programs);
-        }catch(Throwable t) {
-          RemoteException re = new RemoteException();
-          re.initCause(t);
-          throw re;
-        }finally {
-          IOUtils.closeCursor(programs);
-          Binder.restoreCallingIdentity(token);
+        if(IOUtils.isDatabaseAccessible(context)) {
+          Cursor programs = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, ProgramUtils.DATA_CHANNEL_PROJECTION, where.toString(), null, null);
+          
+          try {
+            result = ProgramUtils.createProgramsFromDataCursor(context, programs);
+          }catch(Throwable t) {
+            RemoteException re = new RemoteException();
+            re.initCause(t);
+            throw re;
+          }finally {
+            IOUtils.closeCursor(programs);
+            Binder.restoreCallingIdentity(token);
+          }
         }
         
         return result;
@@ -187,17 +195,19 @@ public final class PluginHandler {
         
         final long token = Binder.clearCallingIdentity();
         
-        Cursor programs = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, ProgramUtils.DATA_CHANNEL_PROJECTION, where.toString(), null, null);
-        
-        try {
-          result = ProgramUtils.createProgramsFromDataCursor(context, programs);
-        }catch(Throwable t) {
-          RemoteException re = new RemoteException();
-          re.initCause(t);
-          throw re;
-        }finally {
-          IOUtils.closeCursor(programs);
-          Binder.restoreCallingIdentity(token);
+        if(IOUtils.isDatabaseAccessible(context)) {
+          Cursor programs = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, ProgramUtils.DATA_CHANNEL_PROJECTION, where.toString(), null, null);
+          
+          try {
+            result = ProgramUtils.createProgramsFromDataCursor(context, programs);
+          }catch(Throwable t) {
+            RemoteException re = new RemoteException();
+            re.initCause(t);
+            throw re;
+          }finally {
+            IOUtils.closeCursor(programs);
+            Binder.restoreCallingIdentity(token);
+          }
         }
         
         return result;
@@ -212,60 +222,7 @@ public final class PluginHandler {
     
     return PLUGIN_MANAGER;
   }
-  /*
-  public static final void loadFirstAndLastProgramId(Context context) {
-    PrefUtils.initialize(context);
-    long lastInfo = PrefUtils.getLongValue(org.tvbrowser.tvbrowser.R.string.PLUGIN_LAST_ID_INFO_DATE, 0);
     
-    Calendar test = Calendar.getInstance();
-    test.add(Calendar.DAY_OF_YEAR, -1);
-    test.set(Calendar.HOUR_OF_DAY, 0);
-    test.set(Calendar.MINUTE, 0);
-    test.set(Calendar.SECOND, 0);
-    test.set(Calendar.MILLISECOND, 0);
-    
-    PROGRAM_ID_LAST = PROGRAM_ID_FIRST = PROGRAM_IDS_ALREADY_HANDLED_ID;
-    
-    if(lastInfo != test.getTimeInMillis()) {
-      Cursor firstProgram = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_TITLE}, TvBrowserContentProvider.DATA_KEY_STARTTIME +">="+test.getTimeInMillis(), null, TvBrowserContentProvider.KEY_ID + " LIMIT 1");
-      long firstStart = 0;
-      String firstTitle = "";
-      try {
-        if(firstProgram.moveToFirst()) {
-          PROGRAM_ID_FIRST = firstProgram.getLong(firstProgram.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-          firstStart = firstProgram.getLong(firstProgram.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-          firstTitle = firstProgram.getString(firstProgram.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
-        }
-        else {
-          PROGRAM_ID_FIRST = -1;
-        }
-      }finally {
-        IOUtils.closeCursor(firstProgram);
-      }
-      
-      if(PROGRAM_ID_FIRST != -1 && PROGRAM_ID_FIRST != PROGRAM_IDS_ALREADY_HANDLED_ID) {
-        Cursor lastProgram = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME}, TvBrowserContentProvider.DATA_KEY_STARTTIME +">="+test.getTimeInMillis(), null, TvBrowserContentProvider.KEY_ID + " DESC LIMIT 1");
-        
-        try {
-          if(lastProgram.moveToFirst()) {
-            PROGRAM_ID_LAST = lastProgram.getLong(lastProgram.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-          }
-          else {
-            PROGRAM_ID_LAST = -1;
-          }
-        }finally {
-          IOUtils.closeCursor(lastProgram);
-        }
-      }
-      
-      Log.d("info2", "FIRST KNOWN ID: " + PROGRAM_ID_FIRST + new Date(firstStart) + " " + firstTitle + " LAST KNOWN ID " + " " + PROGRAM_ID_LAST);
-      
-      Editor edit = PreferenceManager.getDefaultSharedPreferences(context).edit();
-      edit.putLong(context.getString(R.string.PLUGIN_LAST_ID_INFO_DATE), test.getTimeInMillis());
-      edit.commit();
-    }
-  }*/
-  
   private static void doLog(Context context, String message) {
     Logging.log(null, message, Logging.TYPE_PLUGIN, context);
   }

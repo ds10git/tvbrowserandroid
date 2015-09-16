@@ -269,114 +269,116 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   }
   
   public void scrollToTime() {    Log.d("info2", "scrollToTime");
-    handler.post(new Thread("SCROLL TO TIME THREAD") {
-      @Override
-      public void run() {
-        if(mScrollTime > 0) {
-          int testIndex = -1;
-          
-          if(mScrollTime <= 1441) {
-            mScrollTime--;
+    if(IOUtils.isDatabaseAccessible(getActivity())) {
+      handler.post(new Thread("SCROLL TO TIME THREAD") {
+        @Override
+        public void run() {
+          if(mScrollTime > 0) {
+            int testIndex = -1;
             
-            if(mDayStart > 0) {
-              mScrollTime = mDayStart + mScrollTime * 60000;
-            }
-            else {
-              Calendar now = Calendar.getInstance();
-              now.set(Calendar.HOUR_OF_DAY,(int)(mScrollTime / 60));
-              now.set(Calendar.MINUTE,(int)(mScrollTime % 60));
-              now.set(Calendar.SECOND, 0);
-              now.set(Calendar.MILLISECOND, 0);
+            if(mScrollTime <= 1441) {
+              mScrollTime--;
               
-              mScrollTime = now.getTimeInMillis();
-              
-              if(mScrollTime < System.currentTimeMillis()) {
-                mScrollTime += 1440 * 60000;
+              if(mDayStart > 0) {
+                mScrollTime = mDayStart + mScrollTime * 60000;
+              }
+              else {
+                Calendar now = Calendar.getInstance();
+                now.set(Calendar.HOUR_OF_DAY,(int)(mScrollTime / 60));
+                now.set(Calendar.MINUTE,(int)(mScrollTime % 60));
+                now.set(Calendar.SECOND, 0);
+                now.set(Calendar.MILLISECOND, 0);
+                
+                mScrollTime = now.getTimeInMillis();
+                
+                if(mScrollTime < System.currentTimeMillis()) {
+                  mScrollTime += 1440 * 60000;
+                }
               }
             }
-          }
-        
-          Cursor c = mProgramListAdapter.getCursor();
           
-          if(c != null && c.moveToFirst()) {
-            try {
-              int index = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-              int endIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
-              int count = 0;
-              
-              if(c != null && !c.isClosed()) {
-                do {
-                  long startTime = c.getLong(index);
-                  long endTime = c.getLong(endIndex);
-                  
-                  if(startTime < mScrollTime && endTime > mScrollTime) {
-                    testIndex = count++;
-                  }
-                  else if(startTime == mScrollTime) {
-                    testIndex = count;
-                    break;
-                  }
-                  else if(startTime > mScrollTime) {
-                    if(testIndex == -1) {
-                      testIndex = count;
+            Cursor c = mProgramListAdapter.getCursor();
+            
+            if(c != null && c.moveToFirst()) {
+              try {
+                int index = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+                int endIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+                int count = 0;
+                
+                if(c != null && !c.isClosed()) {
+                  do {
+                    long startTime = c.getLong(index);
+                    long endTime = c.getLong(endIndex);
+                    
+                    if(startTime < mScrollTime && endTime > mScrollTime) {
+                      testIndex = count++;
                     }
-                    
-                    break;
-                  }
-                  else {
-                    count++;
-                  }
-                }while(c.moveToNext());
-              }
-            }catch(IllegalStateException e) {}
-          }
-          
-          mScrollTime = -1;
-          
-          if(testIndex == -1) {
-            testIndex = 0;
-          }
-          
-          final int scollIndex = testIndex;
-          
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              if(mListView != null) {
-                mListView.setSelection(scollIndex);
-                handler.post(new Runnable() {
-                  @Override
-                  public void run() {
-                    Log.d("info2", "scrollIndex " + scollIndex);
-                    
-                    mListView.setSelection(scollIndex);
-                  }
-                });
-              }
+                    else if(startTime == mScrollTime) {
+                      testIndex = count;
+                      break;
+                    }
+                    else if(startTime > mScrollTime) {
+                      if(testIndex == -1) {
+                        testIndex = count;
+                      }
+                      
+                      break;
+                    }
+                    else {
+                      count++;
+                    }
+                  }while(c.moveToNext());
+                }
+              }catch(IllegalStateException e) {}
             }
-          });
-        }
-        else if(mScrollTime == 0) {
-          Spinner test = (Spinner)((ViewGroup)getView().getParent()).findViewById(R.id.date_selection);
-          
-          if(test != null && test.getSelectedItemPosition() > 0) {
-            test.setSelection(0);
-          }
-          else {
+            
             mScrollTime = -1;
-      
+            
+            if(testIndex == -1) {
+              testIndex = 0;
+            }
+            
+            final int scollIndex = testIndex;
+            
             handler.post(new Runnable() {
               @Override
               public void run() {
-                if(getView() != null) {
-                  mListView.setSelection(0);
+                if(mListView != null) {
+                  mListView.setSelection(scollIndex);
+                  handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      Log.d("info2", "scrollIndex " + scollIndex);
+                      
+                      mListView.setSelection(scollIndex);
+                    }
+                  });
                 }
               }
             });
           }
+          else if(mScrollTime == 0) {
+            Spinner test = (Spinner)((ViewGroup)getView().getParent()).findViewById(R.id.date_selection);
+            
+            if(test != null && test.getSelectedItemPosition() > 0) {
+              test.setSelection(0);
+            }
+            else {
+              mScrollTime = -1;
+        
+              handler.post(new Runnable() {
+                @Override
+                public void run() {
+                  if(getView() != null) {
+                    mListView.setSelection(0);
+                  }
+                }
+              });
+            }
+          }
         }
-      }
-    });
+      });
+    }
   }
   
   public void setChannelID(long id) {
@@ -604,7 +606,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mChannelUpdateReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        if(getActivity() != null && mKeepRunning) {
+        if(getActivity() != null && mKeepRunning && IOUtils.isDatabaseAccessible(context)) {
           channelAdapter.clear();
           
           channelAdapter.add(new ChannelSelection(-1, "0", getResources().getString(R.string.all_channels), null));
@@ -905,14 +907,16 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     new Thread("FIND PROGRAMLIST NEXT UPDATE") {
       @Override
       public void run() {
-        Cursor test = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_ENDTIME}, getWhereClause(true) + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME +">0", null, TvBrowserContentProvider.DATA_KEY_ENDTIME + " ASC LIMIT 1");
-        
-        try {
-          if(test != null && test.moveToFirst()) {
-            mNextUpdate = test.getLong(test.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+        if(IOUtils.isDatabaseAccessible(getActivity())) {
+          Cursor test = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_ENDTIME}, getWhereClause(true) + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME +">0", null, TvBrowserContentProvider.DATA_KEY_ENDTIME + " ASC LIMIT 1");
+          
+          try {
+            if(test != null && test.moveToFirst()) {
+              mNextUpdate = test.getLong(test.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+            }
+          }finally {
+            IOUtils.closeCursor(test);
           }
-        }finally {
-          IOUtils.closeCursor(test);
         }
       }
     }.start();

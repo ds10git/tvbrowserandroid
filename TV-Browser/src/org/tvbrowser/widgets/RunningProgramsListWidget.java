@@ -48,7 +48,7 @@ import android.widget.RemoteViews;
 public class RunningProgramsListWidget extends AppWidgetProvider {
   @Override
   public void onReceive(Context context, Intent intent) {
-    Log.d("info2", "" + IOUtils.isInteractive(context) + " " +intent);
+    Log.d("info2", "RunningProgramsListWidget " + IOUtils.isInteractive(context) + " " +intent);
     if(intent != null && Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
       UiUtils.updateRunningProgramsWidget(context);
     }

@@ -16,8 +16,15 @@
  */
 package org.tvbrowser.settings;
 
+import java.io.File;
+import java.io.FileFilter;
+import java.util.ArrayList;
+import java.util.Arrays;
+
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.tvbrowser.TvDataUpdateService;
 import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.UiUtils;
 import org.tvbrowser.widgets.ImportantProgramsListWidget;
 import org.tvbrowser.widgets.RunningProgramsListWidget;
 
@@ -33,6 +40,7 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
 import android.preference.CheckBoxPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
@@ -53,6 +61,61 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       addPreferencesFromResource(R.xml.preferences_download);
       
       onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_AUTO_UPDATE_TYPE));
+    }
+    else if(getString(R.string.category_database).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_database);
+      
+      ListPreference path = (ListPreference)findPreference(getString(R.string.PREF_DATABASE_PATH));
+      
+      path.setEnabled(!TvDataUpdateService.isRunning());
+      
+      File external = Environment.getExternalStorageDirectory();
+      
+      final ArrayList<String> entries = new ArrayList<String>();
+      final ArrayList<String> entryValues = new ArrayList<String>();
+      
+      String defaultValue = getString(R.string.pref_database_path_default);
+      
+      entries.add(getString(R.string.pref_database_selection_internal));
+      entryValues.add(defaultValue);
+      
+      String currentValue = pref.getString(getString(R.string.PREF_DATABASE_PATH), defaultValue);
+      String summary = getString(R.string.pref_database_selection_unavailable);
+      
+      if(currentValue.equals(defaultValue)) {
+        summary = entries.get(0);
+      }
+      
+      if(external != null && external.isDirectory()) {
+        File[] sdcards = new File(external.getAbsolutePath().toString().substring(0, external.getAbsolutePath().indexOf(File.separator, 1))).listFiles(new FileFilter() {
+          @Override
+          public boolean accept(File pathname) {
+            return pathname.isDirectory() && pathname.getName().toLowerCase().contains("sdcard");
+          }
+        });
+        
+        File appExternal = getActivity().getExternalFilesDir(null);
+        String appFilePathPart = appExternal.getAbsolutePath().replace(external.getAbsolutePath(), "") + File.separator;
+        
+        Arrays.sort(sdcards);
+        
+        for(File sdcard : sdcards) {
+          File test = new File(sdcard,appFilePathPart);
+          
+          if(test.isDirectory() || test.mkdirs()) {
+            entries.add(sdcard.getAbsolutePath());
+            entryValues.add(test.getAbsolutePath());
+            
+            if(test.getAbsolutePath().equals(currentValue)) {
+              summary = sdcard.getAbsolutePath();
+            }
+          }
+        }
+      }
+      
+      path.setEntries(entries.toArray(new String[entries.size()]));
+      path.setEntryValues(entryValues.toArray(new String[entryValues.size()]));
+      path.setSummary(summary);
     }
     else if(getString(R.string.category_start).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_start);
@@ -206,7 +269,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         }
       }
       else if(key.equals(getString(R.string.PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS)) || key.equals(getString(R.string.PREF_WIDGET_SIMPLE_ICON))) {
-        updateWidgets();
+        UiUtils.reloadWidgets(getActivity().getApplicationContext());
       }
       else if(key.equals(getString(R.string.PREF_REMINDER_SOUND_VALUE)) || key.equals(getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE))
           || key.equals(getString(R.string.PREF_REMINDER_WORK_MODE_SOUND_VALUE))) {
@@ -275,6 +338,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.PREF_NEWS_TYPE))
           || key.equals(getResources().getString(R.string.DETAIL_PICTURE_DESCRIPTION_POSITION))
           || key.equals(getResources().getString(R.string.PREF_AUTO_CHANNEL_UPDATE_FREQUENCY))
+          || key.equals(getResources().getString(R.string.PREF_DATABASE_PATH))
           ) {
         ListPreference lp = (ListPreference) findPreference(key);
         
@@ -294,7 +358,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
             key.equals(getResources().getString(R.string.PREF_WIDGET_VERTICAL_PADDING_SIZE)) ||
             key.equals(getResources().getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_HEADER)) || 
             key.equals(getResources().getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST))) {
-          updateWidgets();
+          UiUtils.reloadWidgets(getActivity());
         }
         if(key.equals(getResources().getString(R.string.PREF_COLOR_STYLE))) {
           ListPreference currentStyle = (ListPreference)findPreference(key);
@@ -705,29 +769,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     }
   }
   
-  private void updateWidgets() {
-    AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getActivity().getApplicationContext());
-
-    ComponentName programsWidget = new ComponentName(getActivity().getApplicationContext(), ImportantProgramsListWidget.class);
-    int[] appWidgetIds = appWidgetManager.getAppWidgetIds(programsWidget);
-    
-    for(int appWidgetId : appWidgetIds) {
-      Intent update = new Intent(SettingConstants.UPDATE_IMPORTANT_APP_WIDGET);
-      update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-      
-      getActivity().sendBroadcast(update);
-    }
-    
-    programsWidget = new ComponentName(getActivity().getApplicationContext(), RunningProgramsListWidget.class);
-    appWidgetIds = appWidgetManager.getAppWidgetIds(programsWidget);
-    
-    for(int appWidgetId : appWidgetIds) {
-      Intent update = new Intent(SettingConstants.UPDATE_RUNNING_APP_WIDGET);
-      update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-      
-      getActivity().sendBroadcast(update);
-    }
-  }
+  
   
   private void setUserColorValue(SharedPreferences pref, String key, int valueKey) {
     ListPreference currentStyle = (ListPreference)findPreference(getString(R.string.PREF_COLOR_STYLE));

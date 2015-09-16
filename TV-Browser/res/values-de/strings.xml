@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.8.13</h2>
+		<h2>0.5.9</h2>
+			&bull; Lieblingssendungen können direkt aus einer nicht erfolgreichen Suche erstellt werden<br>
+        	&bull; Datenbank kann auf SD-Karte verschoben werden<br>
+        	&bull; mögliche ungewünschte Nutzung des mobilen Datenvolumens beim automatischen Synchronisieren beseitigt<br>
+        	&bull; fehlende Freigabe des WakeLocks beim automatischen Update der Sender korrigiert<br>
 			&bull; neue Logging-Informationen zum Datenupdate hinzugefügt<br>
        	<br>
-		<h2>0.5.8.12</h2>
+		<h3>0.5.8.12</h3>
 			&bull; Fehler beim Abruf von Sendungen über den PluginManager beseitigt<br>
 			&bull; neue Funtion zur Plugin-Schnittstelle hinzugefügt<br>
 			&bull; weitere Fehler beseitigt<br>
        	<br>
-		<h2>0.5.8.11</h2>
+		<h3>0.5.8.11</h3>
 			&bull; Möglichkeit TV-Browser auf die SD-Karte zu verschieben entfernt<br>
 		    &bull; Datumsauswahl in der Programmtabelle auch mit Android Lollipop<br>
 		    &bull; weitere Fehler beseitigt<br>
@@ -286,7 +290,7 @@
     <string name="app_name">TV-Browser</string>
     <string name="search_activity_name">TV-Browser-Suche</string>
     <string name="search_no_result_title">Keine Sendung gefunden</string>
-    <string name="search_no_result_text">Es wurde keine Sendung für die Suche gefunden.</string>
+    <string name="search_no_result_text">Es wurde keine Sendung für die Suche gefunden.\n\nMöchten Sie für diese Suche eine Lieblingssendung anlegen?\n\n(Lieblingssendungen finden oft mehr Sendungen als eine Schnellsuche.)</string>
     <string name="action_preferences_channels">Sender</string>
     <string name="action_load_channels_again">Sender neu laden</string>
     <string name="action_select_channels">Sender auswählen</string>
@@ -338,6 +342,8 @@
     <string name="dialog_warning_timezone_title">Zeitzone fehlerhaft?</string>
     <string name="dialog_warning_timezone_message">Das System verwendet Deutsch als Sprache, die eingestellte Zeitzone entspricht jedoch nicht der mitteleuropäischen Zeit.\n\nSollten die Zeiten der Sendungen nicht stimmen, muss die Zeitzoneneinstellung im System geändert werden.</string>
     <string name="dialog_warning_timezone_change">Zeitzoneneinstellung\nöffnen</string>
+	<string name="dialog_search_create_favorite">Lieblingssendung\njetzt anlegen</string>
+    <string name="dialog_close">Schließen</string>
     <string name="tv">Fernsehen</string>
     <string name="radio">Radio</string>
     <string name="cinema">Kino</string>
@@ -540,6 +546,16 @@
 	<string name="menu_tvbrowser_title_settings_plugins">Plugin-Einstellungen</string>
 	<string name="pref_summary">Einstellungen für TV-Browser</string>
 	<string name="pref_download_category">Datendownload</string>
+	<string name="pref_database_category">Datenbank</string>
+	<string name="pref_database_selection_title">Speicherort</string>
+	<string name="pref_database_selection_unavailable">NICHT VERFÜGBAR</string>
+	<string name="pref_database_selection_warning_unavailable">Die Datenbank ist zur Zeit nicht verfügbar, wenn Sie diese Einstellung jetzt ändern, werden Sie Daten verlieren.</string>
+	<string name="pref_database_selection_warning_unavailable_ok">Trotzdem\nändern</string>
+	<string name="pref_database_selection_warning_move">Sie verschieben die Datenbank auf ein externes Laufwerk.\n\nDas sollten Sie nicht machen.\n\nES WIRD KEIN SUPPORT FÜR INSTALLATIONEN VON TV-BROWSER GELEISTET DEREN DATENBANK AUF EINEM EXTERNEN LAUFWERK GESPEICHERT IST.\n\nTV-Browser wird womöglich einmal nach dem Verschieben der Datenbank abstürzen.</string>
+	<string name="pref_database_selection_warning_move_ok">Trotzdem\nextern speichern</string>
+	<string name="pref_database_selection_internal">Intern</string>
+	<string name="pref_database_copy_title">Datenbank kopieren</string>
+	<string name="pref_database_copy_wait">Bitte warten&#8230;</string>
 	<string name="pref_programs_list_category">Datendownload</string>
 	<string name="pref_summary_data_download">Einstellungen für den Datendownload</string>
 	<string name="pref_load_full_data">Vollständige Daten herunterladen</string>

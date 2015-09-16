@@ -238,7 +238,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
           public void run() {
             final long programID = intent.getLongExtra(SettingConstants.EXTRA_MARKINGS_ID, -1);
             
-            if(mMarkingsMap.indexOfKey(programID) >= 0) {
+            if(mMarkingsMap.indexOfKey(programID) >= 0 && IOUtils.isDatabaseAccessible(getActivity())) {
               String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
               
               Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), projection, null, null, null);

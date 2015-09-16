@@ -1,15 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.8.13</h2>
+        <h2>0.5.9</h2>
+        	&bull; create Favorites directly from unsuccessful search<br>
+        	&bull; database can be moved to sd card<br>
+        	&bull; fixed possible unwanted synchronizing with usage of mobile connection at auto update<br>
+        	&bull; fixed unreleased wake lock at auto update of channels<br>
 			&bull; added new logging values to data update log<br>
        	<br>
-		<h2>0.5.8.12</h2>
+		<h3>0.5.8.12</h3>
 			&bull; fixed bug at requesting programs from PluginManager<br>
 			&bull; added new function to Plugin interface<br>
 			&bull; fixed more minor bugs<br>
        	<br>
-		<h2>0.5.8.11</h2>
+		<h3>0.5.8.11</h3>
 			&bull; removed ability to move TV-Browser to SD card<br>
 		    &bull; fixed not working date selection in program table with Android Lollipop<br>
 		    &bull; fixed more minor bugs<br>
@@ -283,7 +287,7 @@
     <string name="app_name">TV-Browser</string>
     <string name="search_activity_name">TV-Browser Search</string>
     <string name="search_no_result_title">No program found</string>
-    <string name="search_no_result_text">No program was found for the search.</string>
+    <string name="search_no_result_text">No program was found for the search.\n\nDo you want to create a Favorite from this search now?\n\n(Favorites might find more programs than a quick search.)</string>
     <string name="action_preferences_channels">Channels</string>
     <string name="action_load_channels_again">Load channels again</string>
     <string name="action_select_channels">Select channels</string>
@@ -340,6 +344,8 @@
     <string name="dialog_warning_timezone_title">Wrong timezone?</string>
     <string name="dialog_warning_timezone_message">The system uses German as language but the timezone is not Central European Time.\n\nIf the start time of the programs is wrong, you need to change the timezone setting in the system.</string>
     <string name="dialog_warning_timezone_change">Open timezone\nsetting</string>
+    <string name="dialog_search_create_favorite">Create\nFavorite now</string>
+    <string name="dialog_close">Close</string>
     <string name="tv">TV</string>
     <string name="radio">Radio</string>
     <string name="cinema">Cinema</string>
@@ -544,6 +550,16 @@
 	<string name="menu_tvbrowser_title_settings_plugins">Plugin settings</string>
 	<string name="pref_summary">Settings for TV-Browser</string>
 	<string name="pref_download_category">Data Download</string>
+	<string name="pref_database_category">Database</string>
+	<string name="pref_database_selection_title">Storage location</string>
+	<string name="pref_database_selection_unavailable">UNAVAILABLE</string>
+	<string name="pref_database_selection_warning_unavailable">The database is currently not available, if you change this setting now, you will lose all data.</string>
+	<string name="pref_database_selection_warning_unavailable_ok">Change it\nanyway</string>
+	<string name="pref_database_selection_warning_move">You are storing the database on an external drive.\n\nYou shouldn\'t do that.\n\nTHERE WILL BE NO SUPPORT FOR INSTALLATIONS WITH DATABASE ON EXTERNAL DRIVE.\n\nYou also might expierience a crash of TV-Browser once after moving the database.</string>
+	<string name="pref_database_selection_warning_move_ok">Store external\nanyway</string>
+	<string name="pref_database_selection_internal">Internal</string>
+	<string name="pref_database_copy_title">Copying database</string>
+	<string name="pref_database_copy_wait">Please wait&#8230;</string>
 	<string name="pref_summary_data_download">Settings for data download</string>
     <string name="pref_load_full_data">Download full data</string>
     <string name="pref_load_picture_data">Download pictures</string>

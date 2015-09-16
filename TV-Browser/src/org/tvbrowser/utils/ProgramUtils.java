@@ -151,7 +151,7 @@ public class ProgramUtils {
   public static final Channel createChannelFromCursor(Context context, Cursor cursor) {
     Channel result = null;
     
-    if(cursor != null && !cursor.isClosed() && cursor.moveToFirst()) {
+    if(IOUtils.isDatabaseAccessible(context) && cursor != null && !cursor.isClosed() && cursor.moveToFirst()) {
       int nameColumn = cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
       
       if(nameColumn == -1) {
@@ -188,39 +188,41 @@ public class ProgramUtils {
   public static final boolean markProgram(Context context, Program program, String pluginId) {
     boolean result = false;
     
-    final long token = Binder.clearCallingIdentity();
-    Cursor programs = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, program.getId()), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_MARKING}, null, null, null);
-    
-    try {
-      if(programs != null && programs.moveToFirst()) {
-        if(programs.getInt(programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) == 0) {
-          ContentValues mark = new ContentValues();
-          mark.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, true);
-          
-          if(pluginId == null) {
-            pluginId = "#unknownID";
-          }
+    if(IOUtils.isDatabaseAccessible(context)) {
+      final long token = Binder.clearCallingIdentity();
+      Cursor programs = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, program.getId()), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_MARKING}, null, null, null);
+      
+      try {
+        if(programs != null && programs.moveToFirst()) {
+          if(programs.getInt(programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) == 0) {
+            ContentValues mark = new ContentValues();
+            mark.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, true);
             
-          result = markProgram(context, program.getId(), pluginId);
-                    
-          UiUtils.sendMarkingChangedBroadcast(context, program.getId(), false);
-        }
-        else {
-          if(pluginId != null) {
-            result = markProgram(context, program.getId(), pluginId);
-            
-            if(result) {
-              UiUtils.sendMarkingChangedBroadcast(context, program.getId(), true);
+            if(pluginId == null) {
+              pluginId = "#unknownID";
             }
+              
+            result = markProgram(context, program.getId(), pluginId);
+                      
+            UiUtils.sendMarkingChangedBroadcast(context, program.getId(), false);
           }
           else {
-            result = true;
+            if(pluginId != null) {
+              result = markProgram(context, program.getId(), pluginId);
+              
+              if(result) {
+                UiUtils.sendMarkingChangedBroadcast(context, program.getId(), true);
+              }
+            }
+            else {
+              result = true;
+            }
           }
         }
+      }finally {
+        IOUtils.closeCursor(programs);
+        Binder.restoreCallingIdentity(token);
       }
-    }finally {
-      IOUtils.closeCursor(programs);
-      Binder.restoreCallingIdentity(token);
     }
     
     return result;
@@ -229,39 +231,41 @@ public class ProgramUtils {
   public static final boolean unmarkProgram(Context context, Program program, String pluginId) {
     boolean result = false;
     
-    final long token = Binder.clearCallingIdentity();
-    Cursor programs = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, program.getId()), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_MARKING}, null, null, null);
-    
-    try {
-      if(programs != null && programs.moveToFirst()) {
-        if(programs.getInt(programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) == 1 && !PluginHandler.isMarkedByPlugins(program.getId())) {
-          ContentValues mark = new ContentValues();
-          mark.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, false);
-          
-          if(pluginId == null) {
-            pluginId = "#unknownID";
-          }
+    if(IOUtils.isDatabaseAccessible(context)) {
+      final long token = Binder.clearCallingIdentity();
+      Cursor programs = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, program.getId()), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_MARKING}, null, null, null);
+      
+      try {
+        if(programs != null && programs.moveToFirst()) {
+          if(programs.getInt(programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) == 1 && !PluginHandler.isMarkedByPlugins(program.getId())) {
+            ContentValues mark = new ContentValues();
+            mark.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, false);
             
-          result = unmarkProgram(context, program.getId(), pluginId);
-          
-          UiUtils.sendMarkingChangedBroadcast(context, program.getId(), false);
-        }
-        else {
-          if(pluginId != null) {
+            if(pluginId == null) {
+              pluginId = "#unknownID";
+            }
+              
             result = unmarkProgram(context, program.getId(), pluginId);
             
-            if(result) {
-              UiUtils.sendMarkingChangedBroadcast(context, program.getId(), true);
-            }
+            UiUtils.sendMarkingChangedBroadcast(context, program.getId(), false);
           }
           else {
-            result = true;
+            if(pluginId != null) {
+              result = unmarkProgram(context, program.getId(), pluginId);
+              
+              if(result) {
+                UiUtils.sendMarkingChangedBroadcast(context, program.getId(), true);
+              }
+            }
+            else {
+              result = true;
+            }
           }
         }
+      }finally {
+        IOUtils.closeCursor(programs);
+        Binder.restoreCallingIdentity(token);
       }
-    }finally {
-      IOUtils.closeCursor(programs);
-      Binder.restoreCallingIdentity(token);
     }
     
     return result;

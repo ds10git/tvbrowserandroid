@@ -1,6 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     
+    <!--  Database settings -->
+    
+    	<string name="PREF_DATABASE_OLD_PATH">PREF_DATABASE_OLD_PATH</string>
+    	<string name="PREF_DATABASE_PATH">PREF_DATABASE_PATH</string>
+	    <item name="pref_database_path_default" type="string" format="string">internal</item>
+    
     <!-- Download settings -->
     
 	    <string name="DAYS_TO_DOWNLOAD">DAYS_TO_DOWNLOAD</string>

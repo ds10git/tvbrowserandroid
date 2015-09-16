@@ -16,13 +16,17 @@
  */
 package org.tvbrowser.content;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.TimeZone;
 
+import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
 
 import android.app.SearchManager;
 import android.content.ContentProvider;
@@ -32,6 +36,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
+import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
@@ -42,8 +47,11 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
 import android.text.TextUtils;
+import android.util.Log;
 
 public class TvBrowserContentProvider extends ContentProvider {
+  public static final String DATABASE_TVB_NAME = "tvbrowser.db";
+  
   public static final String AUTHORITY = "org.tvbrowser.tvbrowsercontentprovider";
   public static final Uri CONTENT_URI_GROUPS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/groups");
   public static final Uri CONTENT_URI_CHANNELS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/channels");
@@ -298,45 +306,47 @@ public class TvBrowserContentProvider extends ContentProvider {
 
   @Override
   public int delete(Uri uri, String where, String[] whereArgs) {
-    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+    int count = 0;
     
-    int count;
-    
-    boolean data_with_channel = false;
-    
-    switch(uriMatcher.match(uri)) {
-      case GROUPS: count = database.delete(TvBrowserDataBaseHelper.GROUPS_TABLE, where, whereArgs);break;
-      case GROUP_ID: {String segment = uri.getPathSegments().get(1);
+    if(IOUtils.isDatabaseAccessible(getContext())) {
+      SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
       
-      count = database.delete(TvBrowserDataBaseHelper.GROUPS_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
-      }break;
-      case CHANNELS: count = database.delete(CHANNEL_TABLE, where, whereArgs);break;
-      case CHANNEL_ID: {String segment = uri.getPathSegments().get(1);
-      data_with_channel = true;
-      count = database.delete(CHANNEL_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
-      }break;
-      case DATA: count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, where, whereArgs);break;
-      case DATA_ID: {String segment = uri.getPathSegments().get(1);
-      data_with_channel = true;
-      count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
-      }break;
-      case DATA_UPDATE: count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, where, whereArgs);break;
-      case DATA_UPDATE_ID: {String segment = uri.getPathSegments().get(1);
-      data_with_channel = true;
-      count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
-      }break;
-      case DATA_VERSION: count = database.delete(TvBrowserDataBaseHelper.VERSION_TABLE, where, whereArgs);break;
-      case DATA_VERSION_ID: {String segment = uri.getPathSegments().get(1);
-      data_with_channel = true;
-      count = database.delete(TvBrowserDataBaseHelper.VERSION_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
-      }break;
-      default: throw new IllegalArgumentException("Unsupported URI: " + uri);
-    }
-    
-    getContext().getContentResolver().notifyChange(uri, null);
-    
-    if(data_with_channel) {
-      getContext().getContentResolver().notifyChange(CONTENT_URI_DATA_WITH_CHANNEL, null);
+      boolean data_with_channel = false;
+      
+      switch(uriMatcher.match(uri)) {
+        case GROUPS: count = database.delete(TvBrowserDataBaseHelper.GROUPS_TABLE, where, whereArgs);break;
+        case GROUP_ID: {String segment = uri.getPathSegments().get(1);
+        
+        count = database.delete(TvBrowserDataBaseHelper.GROUPS_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+        }break;
+        case CHANNELS: count = database.delete(CHANNEL_TABLE, where, whereArgs);break;
+        case CHANNEL_ID: {String segment = uri.getPathSegments().get(1);
+        data_with_channel = true;
+        count = database.delete(CHANNEL_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+        }break;
+        case DATA: count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, where, whereArgs);break;
+        case DATA_ID: {String segment = uri.getPathSegments().get(1);
+        data_with_channel = true;
+        count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+        }break;
+        case DATA_UPDATE: count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, where, whereArgs);break;
+        case DATA_UPDATE_ID: {String segment = uri.getPathSegments().get(1);
+        data_with_channel = true;
+        count = database.delete(TvBrowserDataBaseHelper.DATA_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+        }break;
+        case DATA_VERSION: count = database.delete(TvBrowserDataBaseHelper.VERSION_TABLE, where, whereArgs);break;
+        case DATA_VERSION_ID: {String segment = uri.getPathSegments().get(1);
+        data_with_channel = true;
+        count = database.delete(TvBrowserDataBaseHelper.VERSION_TABLE, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+        }break;
+        default: throw new IllegalArgumentException("Unsupported URI: " + uri);
+      }
+      
+      getContext().getContentResolver().notifyChange(uri, null);
+      
+      if(data_with_channel) {
+        getContext().getContentResolver().notifyChange(CONTENT_URI_DATA_WITH_CHANNEL, null);
+      }
     }
     
     return count;
@@ -365,12 +375,14 @@ public class TvBrowserContentProvider extends ContentProvider {
 
   @Override
   public Uri insert(Uri uri, ContentValues values) {
-    switch(uriMatcher.match(uri)) {
-      case GROUPS: return insertGroup(uri, values);
-      case CHANNELS: return insertChannel(uri, values);
-      case DATA: return insertData(uri, values);
-      case DATA_UPDATE: return insertData(uri, values);
-      case DATA_VERSION: return insertVersion(uri, values);
+    if(IOUtils.isDatabaseAccessible(getContext())) {
+      switch(uriMatcher.match(uri)) {
+        case GROUPS: return insertGroup(uri, values);
+        case CHANNELS: return insertChannel(uri, values);
+        case DATA: return insertData(uri, values);
+        case DATA_UPDATE: return insertData(uri, values);
+        case DATA_VERSION: return insertVersion(uri, values);
+      }
     }
     
     throw new SQLException("Failed to insert row into " + uri);
@@ -378,13 +390,15 @@ public class TvBrowserContentProvider extends ContentProvider {
   
   @Override
   public int bulkInsert(Uri uri, ContentValues[] values) {
-    switch(uriMatcher.match(uri)) {
-      case DATA: return bulkInsertData(uri, values);
-      case DATA_UPDATE: return bulkInsertData(uri, values);
-      case DATA_VERSION: return bulkInsertVersion(uri, values);
-      case CHANNELS: return bulkInsertChannels(uri, values);
+    if(IOUtils.isDatabaseAccessible(getContext())) {
+      switch(uriMatcher.match(uri)) {
+        case DATA: return bulkInsertData(uri, values);
+        case DATA_UPDATE: return bulkInsertData(uri, values);
+        case DATA_VERSION: return bulkInsertVersion(uri, values);
+        case CHANNELS: return bulkInsertChannels(uri, values);
+      }
     }
-  
+    
     throw new SQLException("Failed to insert row into " + uri);
   }
   
@@ -393,55 +407,57 @@ public class TvBrowserContentProvider extends ContentProvider {
       throws OperationApplicationException {
     ArrayList<ContentProviderResult> result = new ArrayList<ContentProviderResult>(0);
     
-    try {
-      SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
-      database.beginTransaction();
-      
-      HashMap<Uri, Uri> updateUris = new HashMap<Uri, Uri>();
-      
-      for(ContentProviderOperation op : operations) {
-        Uri uri = op.getUri();
+    if(IOUtils.isDatabaseAccessible(getContext())) {
+      try {
+        SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+        database.beginTransaction();
         
-        String table = TvBrowserDataBaseHelper.DATA_TABLE;
+        HashMap<Uri, Uri> updateUris = new HashMap<Uri, Uri>();
         
-        switch(uriMatcher.match(uri)) {
-          case DATA_VERSION: table = TvBrowserDataBaseHelper.VERSION_TABLE;break;
-          case DATA_VERSION_ID: table = TvBrowserDataBaseHelper.VERSION_TABLE;break;
-          case CHANNELS: table = CHANNEL_TABLE;break;
-          case CHANNEL_ID: table = CHANNEL_TABLE;break;
-        }
-        
-        ContentValues values = op.resolveValueBackReferences(null, 0);
-        
-        String segment = uri.getPathSegments().get(1);
-        
-        int count = database.update(table, values, KEY_ID + "=" + segment, null);
-        
-        if(count > 0) {
-          updateUris.put(uri, uri);
-        }
-        
-        result.add(new ContentProviderResult(count));
-      }
-      
-      database.setTransactionSuccessful();
-      database.endTransaction();
-      
-      Set<Uri> uris = updateUris.keySet();
-      
-      if(INFORM_FOR_CHANGES) {
-        for(Uri uri : uris) {
-          getContext().getContentResolver().notifyChange(uri, null);
+        for(ContentProviderOperation op : operations) {
+          Uri uri = op.getUri();
           
-          switch (uriMatcher.match(uri)) {
-            case DATA: getContext().getContentResolver().notifyChange(uri, null);break;
-            case DATA_ID: String segment = uri.getPathSegments().get(1);
-            getContext().getContentResolver().notifyChange(ContentUris.withAppendedId(CONTENT_URI_DATA_WITH_CHANNEL,Integer.parseInt(segment)),null);
-              break;
+          String table = TvBrowserDataBaseHelper.DATA_TABLE;
+          
+          switch(uriMatcher.match(uri)) {
+            case DATA_VERSION: table = TvBrowserDataBaseHelper.VERSION_TABLE;break;
+            case DATA_VERSION_ID: table = TvBrowserDataBaseHelper.VERSION_TABLE;break;
+            case CHANNELS: table = CHANNEL_TABLE;break;
+            case CHANNEL_ID: table = CHANNEL_TABLE;break;
+          }
+          
+          ContentValues values = op.resolveValueBackReferences(null, 0);
+          
+          String segment = uri.getPathSegments().get(1);
+          
+          int count = database.update(table, values, KEY_ID + "=" + segment, null);
+          
+          if(count > 0) {
+            updateUris.put(uri, uri);
+          }
+          
+          result.add(new ContentProviderResult(count));
+        }
+        
+        database.setTransactionSuccessful();
+        database.endTransaction();
+        
+        Set<Uri> uris = updateUris.keySet();
+        
+        if(INFORM_FOR_CHANGES) {
+          for(Uri uri : uris) {
+            getContext().getContentResolver().notifyChange(uri, null);
+            
+            switch (uriMatcher.match(uri)) {
+              case DATA: getContext().getContentResolver().notifyChange(uri, null);break;
+              case DATA_ID: String segment = uri.getPathSegments().get(1);
+              getContext().getContentResolver().notifyChange(ContentUris.withAppendedId(CONTENT_URI_DATA_WITH_CHANNEL,Integer.parseInt(segment)),null);
+                break;
+            }
           }
         }
-      }
-    }catch(SQLiteDatabaseLockedException e) {}
+      }catch(SQLiteDatabaseLockedException e) {}
+    }
     
     return result.toArray(new ContentProviderResult[result.size()]);
   }
@@ -624,292 +640,317 @@ public class TvBrowserContentProvider extends ContentProvider {
     throw new SQLException("Failed to insert row into " + uri + " " + rowID);
   }
 
+  public void updateDatabasePath() {
+    mDataBaseHelper.close();
+    createDataBaseHelper(PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getContext()).getString(getContext().getString(R.string.PREF_DATABASE_PATH), getContext().getString(R.string.pref_database_path_default)));
+  }
+  
+  private void createDataBaseHelper(String path) {
+    if(path.equals(getContext().getString(R.string.pref_database_path_default))) {
+      path = "";
+    }
+    else if(!path.endsWith(File.separator)) {
+      path += File.separator;
+    }
+    Log.d("info11", "DATABASEPATH " + path);
+    //path = "";
+    mDataBaseHelper = new TvBrowserDataBaseHelper(getContext(), path + DATABASE_TVB_NAME, null, TvBrowserDataBaseHelper.DATABASE_VERSION);
+  }
+  
   @Override
   public boolean onCreate() {
-    mDataBaseHelper = new TvBrowserDataBaseHelper(getContext(), TvBrowserDataBaseHelper.DATABASE_NAME, null, TvBrowserDataBaseHelper.DATABASE_VERSION);
+    createDataBaseHelper(PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getContext()).getString(getContext().getString(R.string.PREF_DATABASE_PATH), getContext().getString(R.string.pref_database_path_default)));
     
     return true;
   }
 
   private Cursor rawQueryData(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
-    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+    Cursor result = null;
     
-    if(projection != null) {
-      for(int i = 0; i < projection.length; i++) {
-        if(projection[i].equals(KEY_ID) || projection[i].equals(CHANNEL_KEY_CHANNEL_ID)) {
-          projection[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + projection[i]+ " AS " + projection[i];
+    if(IOUtils.isDatabaseAccessible(getContext())) {
+      SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+      
+      if(projection != null) {
+        for(int i = 0; i < projection.length; i++) {
+          if(projection[i].equals(KEY_ID) || projection[i].equals(CHANNEL_KEY_CHANNEL_ID)) {
+            projection[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + projection[i]+ " AS " + projection[i];
+          }
         }
+      }
+      
+      if(selectionArgs != null) {
+        for(int i = 0; i < selectionArgs.length; i++) {
+          if(selectionArgs[i].equals(KEY_ID)) {
+            selectionArgs[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + selectionArgs[i];
+          }
+        }
+      }
+      
+      StringBuilder sql = new StringBuilder();
+      
+      sql.append("SELECT ");
+      
+      if(projection == null) {
+        sql.append("*, ");
+      }
+      else {
+        for(int i = 0; i < projection.length; i++) {
+          if(i > 0) {
+            sql.append(", ");
+          }
+          
+          sql.append(projection[i]);
+        }
+      }
+      
+      if(selection != null && selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
+        selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+KEY_ID);
+      }
+      if(selection != null && selection.contains(CHANNEL_KEY_CHANNEL_ID) && !selection.contains("."+CHANNEL_KEY_CHANNEL_ID)) {
+        selection = selection.replace(CHANNEL_KEY_CHANNEL_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+CHANNEL_KEY_CHANNEL_ID);
+      }
+      
+      String sel = selection.replace(CONCAT_TABLE_PLACE_HOLDER, " FROM " + TvBrowserDataBaseHelper.DATA_TABLE + ", " + CHANNEL_TABLE + " WHERE ");
+      
+      sql.append(sel);
+      
+      sql.append(" AND " + CHANNEL_TABLE + "." + KEY_ID + "=" + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID);
+      
+      String orderBy = CHANNEL_KEY_CHANNEL_ID;
+      
+      if(sortOrder != null && sortOrder.trim().length() > 0) {
+        orderBy = sortOrder;
+      }
+      
+      if(orderBy != null && !orderBy.contains("NOCASE") && !orderBy.contains("COLLATE")) {
+        orderBy += " COLLATE NOCASE";
+      }
+      
+      if(orderBy != null) {
+        sql.append(" ORDER BY ").append(orderBy);
+      }
+      
+      // Apply the query to the underling database.
+      result = database.rawQuery(sql.toString(), selectionArgs);
+      
+      // Register the contexts ContentResolver to be notified if the cursor result set changes.
+      
+      if(INFORM_FOR_CHANGES) {
+        result.setNotificationUri(getContext().getContentResolver(), uri);
       }
     }
     
-    if(selectionArgs != null) {
-      for(int i = 0; i < selectionArgs.length; i++) {
-        if(selectionArgs[i].equals(KEY_ID)) {
-          selectionArgs[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + selectionArgs[i];
-        }
-      }
-    }
-    
-    StringBuilder sql = new StringBuilder();
-    
-    sql.append("SELECT ");
-    
-    if(projection == null) {
-      sql.append("*, ");
-    }
-    else {
-      for(int i = 0; i < projection.length; i++) {
-        if(i > 0) {
-          sql.append(", ");
-        }
-        
-        sql.append(projection[i]);
-      }
-    }
-    
-    if(selection != null && selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
-      selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+KEY_ID);
-    }
-    if(selection != null && selection.contains(CHANNEL_KEY_CHANNEL_ID) && !selection.contains("."+CHANNEL_KEY_CHANNEL_ID)) {
-      selection = selection.replace(CHANNEL_KEY_CHANNEL_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+CHANNEL_KEY_CHANNEL_ID);
-    }
-    
-    String sel = selection.replace(CONCAT_TABLE_PLACE_HOLDER, " FROM " + TvBrowserDataBaseHelper.DATA_TABLE + ", " + CHANNEL_TABLE + " WHERE ");
-    
-    sql.append(sel);
-    
-    sql.append(" AND " + CHANNEL_TABLE + "." + KEY_ID + "=" + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID);
-    
-    String orderBy = CHANNEL_KEY_CHANNEL_ID;
-    
-    if(sortOrder != null && sortOrder.trim().length() > 0) {
-      orderBy = sortOrder;
-    }
-    
-    if(orderBy != null && !orderBy.contains("NOCASE") && !orderBy.contains("COLLATE")) {
-      orderBy += " COLLATE NOCASE";
-    }
-    
-    if(orderBy != null) {
-      sql.append(" ORDER BY ").append(orderBy);
-    }
-    
-    // Apply the query to the underling database.
-    Cursor c = database.rawQuery(sql.toString(), selectionArgs);
-    
-    // Register the contexts ContentResolver to be notified if the cursor result set changes.
-    
-    if(INFORM_FOR_CHANGES) {
-      c.setNotificationUri(getContext().getContentResolver(), uri);
-    }
-    
-    return c;
+    return result;
   }
   
   @Override
-  public Cursor query(Uri uri, String[] projection, String selection,
-      String[] selectionArgs, String sortOrder) {
-    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+  public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+    Cursor result = null;
     
-    SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-    
-    // If no sort order is specified, sort by date / time
-    String orderBy = null;
-    
-    // If this is a row query, limit the result set to teh pased in row.
-    switch(uriMatcher.match(uri)) {
-      case SEARCH: String search = uri.getPathSegments().get(1).replace("\"", "");
-                   qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE \"%" + search + "%\" OR " + DATA_KEY_EPISODE_TITLE + " LIKE \"%" +  search + "%\") AND " + DATA_KEY_STARTTIME + ">=" + System.currentTimeMillis() + " AND NOT " + DATA_KEY_DONT_WANT_TO_SEE);
-                   qb.setProjectionMap(SEARCH_PROJECTION_MAP);
-                   qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
-                   orderBy = DATA_KEY_STARTTIME;
-                   break;
-      case GROUP_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-      case GROUPS: qb.setTables(TvBrowserDataBaseHelper.GROUPS_TABLE);
-                   orderBy = GROUP_KEY_GROUP_ID;break;
-      case CHANNEL_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-      case CHANNELS: qb.setTables(CHANNEL_TABLE);
-                    orderBy = CHANNEL_KEY_NAME;break;
-      case CHANNELGROUPS_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-      case CHANNELGROUPS: 
-        {
-          qb.setTables(TvBrowserDataBaseHelper.GROUPS_TABLE + ", " + CHANNEL_TABLE);
-          orderBy = CHANNEL_KEY_ORDER_NUMBER + ", " + CHANNEL_KEY_NAME;
-          
-          qb.appendWhere(TvBrowserDataBaseHelper.GROUPS_TABLE + "." + KEY_ID + "=" + CHANNEL_TABLE + "." + GROUP_KEY_GROUP_ID);
-          
-          if(projection != null) {
-            for(int i = 0; i < projection.length; i++) {
-              if(projection[i] != null) {
-                if((projection[i].equals(KEY_ID) || projection[i].equals(GROUP_KEY_GROUP_ID))) {
-                  projection[i] = TvBrowserDataBaseHelper.GROUPS_TABLE + "." + projection[i]+ " AS " + projection[i];
+    if(IOUtils.isDatabaseAccessible(getContext())) {
+      SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+      
+      SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+      
+      // If no sort order is specified, sort by date / time
+      String orderBy = null;
+      
+      // If this is a row query, limit the result set to teh pased in row.
+      switch(uriMatcher.match(uri)) {
+        case SEARCH: String search = uri.getPathSegments().get(1).replace("\"", "");
+                     qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE \"%" + search + "%\" OR " + DATA_KEY_EPISODE_TITLE + " LIKE \"%" +  search + "%\") AND " + DATA_KEY_STARTTIME + ">=" + System.currentTimeMillis() + " AND NOT " + DATA_KEY_DONT_WANT_TO_SEE);
+                     qb.setProjectionMap(SEARCH_PROJECTION_MAP);
+                     qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
+                     orderBy = DATA_KEY_STARTTIME;
+                     break;
+        case GROUP_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+        case GROUPS: qb.setTables(TvBrowserDataBaseHelper.GROUPS_TABLE);
+                     orderBy = GROUP_KEY_GROUP_ID;break;
+        case CHANNEL_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+        case CHANNELS: qb.setTables(CHANNEL_TABLE);
+                      orderBy = CHANNEL_KEY_NAME;break;
+        case CHANNELGROUPS_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+        case CHANNELGROUPS: 
+          {
+            qb.setTables(TvBrowserDataBaseHelper.GROUPS_TABLE + ", " + CHANNEL_TABLE);
+            orderBy = CHANNEL_KEY_ORDER_NUMBER + ", " + CHANNEL_KEY_NAME;
+            
+            qb.appendWhere(TvBrowserDataBaseHelper.GROUPS_TABLE + "." + KEY_ID + "=" + CHANNEL_TABLE + "." + GROUP_KEY_GROUP_ID);
+            
+            if(projection != null) {
+              for(int i = 0; i < projection.length; i++) {
+                if(projection[i] != null) {
+                  if((projection[i].equals(KEY_ID) || projection[i].equals(GROUP_KEY_GROUP_ID))) {
+                    projection[i] = TvBrowserDataBaseHelper.GROUPS_TABLE + "." + projection[i]+ " AS " + projection[i];
+                  }
                 }
               }
             }
-          }
-          
-          if(selectionArgs != null) {
-            for(int i = 0; i < selectionArgs.length; i++) {
-              if(selectionArgs[i].equals(KEY_ID)) {
-                selectionArgs[i] = TvBrowserDataBaseHelper.GROUPS_TABLE + "." + selectionArgs[i];
+            
+            if(selectionArgs != null) {
+              for(int i = 0; i < selectionArgs.length; i++) {
+                if(selectionArgs[i].equals(KEY_ID)) {
+                  selectionArgs[i] = TvBrowserDataBaseHelper.GROUPS_TABLE + "." + selectionArgs[i];
+                }
               }
             }
-          }
-          
-          if(selection != null) {
-            if(selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
-              selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.GROUPS_TABLE + "."+KEY_ID);
+            
+            if(selection != null) {
+              if(selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
+                selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.GROUPS_TABLE + "."+KEY_ID);
+              }
+              if(selection.contains(GROUP_KEY_GROUP_ID) && !selection.contains("."+GROUP_KEY_GROUP_ID)) {
+                selection = selection.replace(GROUP_KEY_GROUP_ID, TvBrowserDataBaseHelper.GROUPS_TABLE + "."+GROUP_KEY_GROUP_ID);
+              }
             }
-            if(selection.contains(GROUP_KEY_GROUP_ID) && !selection.contains("."+GROUP_KEY_GROUP_ID)) {
-              selection = selection.replace(GROUP_KEY_GROUP_ID, TvBrowserDataBaseHelper.GROUPS_TABLE + "."+GROUP_KEY_GROUP_ID);
-            }
-          }
-        }break;
-      case DATA_VERSION_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-      case DATA_VERSION: qb.setTables(TvBrowserDataBaseHelper.VERSION_TABLE);
-                    orderBy = VERSION_KEY_DAYS_SINCE_1970;break;
-      case DATA_UPDATE_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-      case DATA_UPDATE: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
-                    orderBy = CHANNEL_KEY_CHANNEL_ID;break;
-      case DATA_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-      case DATA: {qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
-                    orderBy = CHANNEL_KEY_CHANNEL_ID;
-                    
-                    boolean containsStartDayColumn = false;
-                    
-                    if(projection != null) {
-                      for(int i = 0; i < projection.length; i++) {
-                        if(projection[i] != null && projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
-                          containsStartDayColumn = true;
-                          projection[i] = "(strftime('%w', " + DATA_KEY_STARTTIME +
-                              "/1000, 'unixepoch', 'localtime')+1) AS " + DATA_KEY_START_DAY_LOCAL;
-                        }
-                      }
-                    }
-                    
-                    if(!containsStartDayColumn && selection != null && selection.contains(DATA_KEY_START_DAY_LOCAL)) {
-                      selection = selection.replace(DATA_KEY_START_DAY_LOCAL, "(strftime('%w', " + DATA_KEY_STARTTIME +
-                              "/1000, 'unixepoch', 'localtime')+1)");
-                    }
-                  } break;
-      case RAW_DATA_ID: selection += " " + KEY_ID + "=" + uri.getPathSegments().get(1);
-      case RAW_DATA: return rawQueryData(CONTENT_URI_DATA, projection, selection, selectionArgs, sortOrder);
-      case DATA_CHANNEL_ID: qb.appendWhere(TvBrowserDataBaseHelper.DATA_TABLE + "." + KEY_ID + "=" + uri.getPathSegments().get(1) + " AND ");
-      case DATA_CHANNELS: { qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + CHANNEL_TABLE);
-                    orderBy = CHANNEL_KEY_ORDER_NUMBER + " , " + CHANNEL_KEY_CHANNEL_ID;
-                    qb.appendWhere(CHANNEL_TABLE + "." + KEY_ID + "=" + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID);
-
-                    boolean containsStartDayColumn = false;
-                    
-                    if(projection != null) {
-                      for(int i = 0; i < projection.length; i++) {
-                        if(projection[i] != null) {
-                          if((projection[i].equals(KEY_ID) || projection[i].equals(CHANNEL_KEY_CHANNEL_ID))) {
-                            projection[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + projection[i]+ " AS " + projection[i];
-                          }
-                          else if(projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
+          }break;
+        case DATA_VERSION_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+        case DATA_VERSION: qb.setTables(TvBrowserDataBaseHelper.VERSION_TABLE);
+                      orderBy = VERSION_KEY_DAYS_SINCE_1970;break;
+        case DATA_UPDATE_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+        case DATA_UPDATE: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
+                      orderBy = CHANNEL_KEY_CHANNEL_ID;break;
+        case DATA_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+        case DATA: {qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
+                      orderBy = CHANNEL_KEY_CHANNEL_ID;
+                      
+                      boolean containsStartDayColumn = false;
+                      
+                      if(projection != null) {
+                        for(int i = 0; i < projection.length; i++) {
+                          if(projection[i] != null && projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
+                            containsStartDayColumn = true;
                             projection[i] = "(strftime('%w', " + DATA_KEY_STARTTIME +
                                 "/1000, 'unixepoch', 'localtime')+1) AS " + DATA_KEY_START_DAY_LOCAL;
                           }
                         }
                       }
-                    }
-                    
-                    if(selectionArgs != null) {
-                      for(int i = 0; i < selectionArgs.length; i++) {
-                        if(selectionArgs[i].equals(KEY_ID)) {
-                          selectionArgs[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + selectionArgs[i];
+                      
+                      if(!containsStartDayColumn && selection != null && selection.contains(DATA_KEY_START_DAY_LOCAL)) {
+                        selection = selection.replace(DATA_KEY_START_DAY_LOCAL, "(strftime('%w', " + DATA_KEY_STARTTIME +
+                                "/1000, 'unixepoch', 'localtime')+1)");
+                      }
+                    } break;
+        case RAW_DATA_ID: selection += " " + KEY_ID + "=" + uri.getPathSegments().get(1);
+        case RAW_DATA: return rawQueryData(CONTENT_URI_DATA, projection, selection, selectionArgs, sortOrder);
+        case DATA_CHANNEL_ID: qb.appendWhere(TvBrowserDataBaseHelper.DATA_TABLE + "." + KEY_ID + "=" + uri.getPathSegments().get(1) + " AND ");
+        case DATA_CHANNELS: { qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + CHANNEL_TABLE);
+                      orderBy = CHANNEL_KEY_ORDER_NUMBER + " , " + CHANNEL_KEY_CHANNEL_ID;
+                      qb.appendWhere(CHANNEL_TABLE + "." + KEY_ID + "=" + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID);
+  
+                      boolean containsStartDayColumn = false;
+                      
+                      if(projection != null) {
+                        for(int i = 0; i < projection.length; i++) {
+                          if(projection[i] != null) {
+                            if((projection[i].equals(KEY_ID) || projection[i].equals(CHANNEL_KEY_CHANNEL_ID))) {
+                              projection[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + projection[i]+ " AS " + projection[i];
+                            }
+                            else if(projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
+                              projection[i] = "(strftime('%w', " + DATA_KEY_STARTTIME +
+                                  "/1000, 'unixepoch', 'localtime')+1) AS " + DATA_KEY_START_DAY_LOCAL;
+                            }
+                          }
                         }
                       }
-                    }
-                    
-                    if(selection != null) {
-                      if(selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
-                        selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+KEY_ID);
+                      
+                      if(selectionArgs != null) {
+                        for(int i = 0; i < selectionArgs.length; i++) {
+                          if(selectionArgs[i].equals(KEY_ID)) {
+                            selectionArgs[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + selectionArgs[i];
+                          }
+                        }
                       }
-                      if(selection.contains(CHANNEL_KEY_CHANNEL_ID) && !selection.contains("."+CHANNEL_KEY_CHANNEL_ID)) {
-                        selection = selection.replace(CHANNEL_KEY_CHANNEL_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+CHANNEL_KEY_CHANNEL_ID);
+                      
+                      if(selection != null) {
+                        if(selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
+                          selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+KEY_ID);
+                        }
+                        if(selection.contains(CHANNEL_KEY_CHANNEL_ID) && !selection.contains("."+CHANNEL_KEY_CHANNEL_ID)) {
+                          selection = selection.replace(CHANNEL_KEY_CHANNEL_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+CHANNEL_KEY_CHANNEL_ID);
+                        }
+                        if(!containsStartDayColumn && selection.contains(DATA_KEY_START_DAY_LOCAL)) {
+                          selection = selection.replace(DATA_KEY_START_DAY_LOCAL, "(strftime('%w', " + DATA_KEY_STARTTIME +
+                              "/1000, 'unixepoch', 'localtime')+1)");
+                        }
                       }
-                      if(!containsStartDayColumn && selection.contains(DATA_KEY_START_DAY_LOCAL)) {
-                        selection = selection.replace(DATA_KEY_START_DAY_LOCAL, "(strftime('%w', " + DATA_KEY_STARTTIME +
-                            "/1000, 'unixepoch', 'localtime')+1)");
-                      }
-                    }
-                  }break;
-
-      default: break;
-    }
-    
-    if(sortOrder != null && sortOrder.trim().length() > 0) {
-      orderBy = sortOrder;
-    }
-    
-    if(orderBy != null && !orderBy.contains("NOCASE") && !orderBy.contains("COLLATE") && !orderBy.contains("DESC") && !orderBy.contains("ASC")) {
-      orderBy += " COLLATE NOCASE";
-    }
-    
-    // Apply the query to the underling database.
-    Cursor c = qb.query(database, projection, selection, selectionArgs, null, null, orderBy);
-    
-    // Register the contexts ContentResolver to be notified if the cursor result set changes.
-    
-    if(INFORM_FOR_CHANGES) {
-      c.setNotificationUri(getContext().getContentResolver(), uri);
+                    }break;
+  
+        default: break;
+      }
       
-      switch (uriMatcher.match(uri)) {
-        case DATA: c.setNotificationUri(getContext().getContentResolver(), CONTENT_URI_DATA_WITH_CHANNEL);break;
-        case DATA_ID: String segment = uri.getPathSegments().get(1);
-          c.setNotificationUri(getContext().getContentResolver(), ContentUris.withAppendedId(CONTENT_URI_DATA_WITH_CHANNEL,Integer.parseInt(segment)));
-          break;
+      if(sortOrder != null && sortOrder.trim().length() > 0) {
+        orderBy = sortOrder;
+      }
+      
+      if(orderBy != null && !orderBy.contains("NOCASE") && !orderBy.contains("COLLATE") && !orderBy.contains("DESC") && !orderBy.contains("ASC")) {
+        orderBy += " COLLATE NOCASE";
+      }
+      
+      // Apply the query to the underling database.
+      result = qb.query(database, projection, selection, selectionArgs, null, null, orderBy);
+      
+      // Register the contexts ContentResolver to be notified if the cursor result set changes.
+      
+      if(INFORM_FOR_CHANGES) {
+        result.setNotificationUri(getContext().getContentResolver(), uri);
+        
+        switch (uriMatcher.match(uri)) {
+          case DATA: result.setNotificationUri(getContext().getContentResolver(), CONTENT_URI_DATA_WITH_CHANNEL);break;
+          case DATA_ID: String segment = uri.getPathSegments().get(1);
+            result.setNotificationUri(getContext().getContentResolver(), ContentUris.withAppendedId(CONTENT_URI_DATA_WITH_CHANNEL,Integer.parseInt(segment)));
+            break;
+        }
       }
     }
     
-    return c;
+    return result;
   }
   
   @Override
-  public int update(Uri uri, ContentValues values, String where,
-      String[] whereArgs) {
-    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+  public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+    int count = 0;
     
-    int count;
-    
-    boolean data_with_channel = false;
-    
-    switch(uriMatcher.match(uri)) {
-      case GROUPS: count = database.update(TvBrowserDataBaseHelper.GROUPS_TABLE, values, where, whereArgs);break;
-      case GROUP_ID: {String segment = uri.getPathSegments().get(1);
+    if(IOUtils.isDatabaseAccessible(getContext())) {
+      SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
       
-      count = database.update(TvBrowserDataBaseHelper.GROUPS_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
-      }break;
-      case CHANNELS: count = database.update(CHANNEL_TABLE, values, where, whereArgs);break;
-      case CHANNEL_ID: {String segment = uri.getPathSegments().get(1);
-      data_with_channel = true;
-      count = database.update(CHANNEL_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
-      }break;
-      case DATA_VERSION: count = database.update(TvBrowserDataBaseHelper.VERSION_TABLE, values, where, whereArgs);break;
-      case DATA_VERSION_ID: {String segment = uri.getPathSegments().get(1);
-      data_with_channel = true;
-      count = database.update(TvBrowserDataBaseHelper.VERSION_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
-      }break;
-      case DATA_UPDATE: count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, where, whereArgs);break;
-      case DATA_UPDATE_ID: {String segment = uri.getPathSegments().get(1);
-      data_with_channel = true;
-      count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
-      }break;
-      case DATA: count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, where, whereArgs);break;
-      case DATA_ID: {String segment = uri.getPathSegments().get(1);
-      data_with_channel = true;
-      count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
-      }break;
-      default: throw new IllegalArgumentException("Unknown URI: " + uri);
-    }
-    
-    if(INFORM_FOR_CHANGES) {
-      getContext().getContentResolver().notifyChange(uri, null);
+      boolean data_with_channel = false;
       
-      if(data_with_channel) {
-        getContext().getContentResolver().notifyChange(CONTENT_URI_DATA_WITH_CHANNEL, null);
+      switch(uriMatcher.match(uri)) {
+        case GROUPS: count = database.update(TvBrowserDataBaseHelper.GROUPS_TABLE, values, where, whereArgs);break;
+        case GROUP_ID: {String segment = uri.getPathSegments().get(1);
+        
+        count = database.update(TvBrowserDataBaseHelper.GROUPS_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+        }break;
+        case CHANNELS: count = database.update(CHANNEL_TABLE, values, where, whereArgs);break;
+        case CHANNEL_ID: {String segment = uri.getPathSegments().get(1);
+        data_with_channel = true;
+        count = database.update(CHANNEL_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+        }break;
+        case DATA_VERSION: count = database.update(TvBrowserDataBaseHelper.VERSION_TABLE, values, where, whereArgs);break;
+        case DATA_VERSION_ID: {String segment = uri.getPathSegments().get(1);
+        data_with_channel = true;
+        count = database.update(TvBrowserDataBaseHelper.VERSION_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+        }break;
+        case DATA_UPDATE: count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, where, whereArgs);break;
+        case DATA_UPDATE_ID: {String segment = uri.getPathSegments().get(1);
+        data_with_channel = true;
+        count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+        }break;
+        case DATA: count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, where, whereArgs);break;
+        case DATA_ID: {String segment = uri.getPathSegments().get(1);
+        data_with_channel = true;
+        count = database.update(TvBrowserDataBaseHelper.DATA_TABLE, values, KEY_ID + "=" + segment + (!TextUtils.isEmpty(where) ? " AND (" + where + ")" : ""), whereArgs);
+        }break;
+        default: throw new IllegalArgumentException("Unknown URI: " + uri);
+      }
+      
+      if(INFORM_FOR_CHANGES) {
+        getContext().getContentResolver().notifyChange(uri, null);
+        
+        if(data_with_channel) {
+          getContext().getContentResolver().notifyChange(CONTENT_URI_DATA_WITH_CHANNEL, null);
+        }
       }
     }
     
@@ -920,8 +961,6 @@ public class TvBrowserContentProvider extends ContentProvider {
   
   // Helper class for opneing, creating, and managing database version control
   private static class TvBrowserDataBaseHelper extends SQLiteOpenHelper {
-    private static final String DATABASE_NAME = "tvbrowser.db";
-    
     private static final String GROUPS_TABLE = "channelGroups";
     
     private static final String DATA_TABLE = "data";
@@ -1050,7 +1089,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     public TvBrowserDataBaseHelper(Context context, String name,
         CursorFactory factory, int version) {
-      super(context, name, factory, version);
+      super(context,name, factory, version);
     }
 
     @Override

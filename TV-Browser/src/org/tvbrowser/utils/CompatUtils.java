@@ -28,6 +28,7 @@ import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.Environment;
 import android.os.PowerManager;
 import android.view.Display;
 import android.view.View;
@@ -135,6 +136,15 @@ public class CompatUtils {
     }
     else {
       alarm.set(type, triggerAtMillis, operation);
+    }
+  }
+  
+  public static String getExternalDocumentsDir() {
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+      return Environment.DIRECTORY_DOCUMENTS;
+    }
+    else {
+      return Environment.DIRECTORY_DOWNLOADS;
     }
   }
 }

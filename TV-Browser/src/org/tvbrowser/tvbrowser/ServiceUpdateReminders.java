@@ -38,7 +38,7 @@ public class ServiceUpdateReminders extends Service {
   
   @Override
   public int onStartCommand(final Intent intent, int flags, int startId) {
-    if(mUpdateRemindersThread == null || !mUpdateRemindersThread.isAlive()) {
+    if(IOUtils.isDatabaseAccessible(ServiceUpdateReminders.this) && (mUpdateRemindersThread == null || !mUpdateRemindersThread.isAlive())) {
       mUpdateRemindersThread = new Thread("UPDATE REMINDERS THREAD") {
         @Override
         public void run() {
@@ -50,20 +50,24 @@ public class ServiceUpdateReminders extends Service {
             where.append(" AND ( ").append(TvBrowserContentProvider.DATA_KEY_STARTTIME).append(" >= ").append((System.currentTimeMillis()-200)).append(" ) ");
           }
           
-          Cursor alarms = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, PROJECTION, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC LIMIT " + MAX_REMINDERS);
-          
           try {
-            if(IOUtils.prepareAccess(alarms)) {
-              while(alarms.moveToNext()) {
-                long id = alarms.getLong(alarms.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-                long startTime = alarms.getLong(alarms.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-                
-                IOUtils.removeReminder(getApplicationContext(), id);
-                addReminder(getApplicationContext(), id, startTime, UpdateAlarmValue.class, firstStart);
+            Cursor alarms = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, PROJECTION, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC LIMIT " + MAX_REMINDERS);
+            
+            try {
+              if(IOUtils.prepareAccess(alarms)) {
+                while(alarms.moveToNext()) {
+                  long id = alarms.getLong(alarms.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                  long startTime = alarms.getLong(alarms.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+                  
+                  IOUtils.removeReminder(getApplicationContext(), id);
+                  addReminder(getApplicationContext(), id, startTime, UpdateAlarmValue.class, firstStart);
+                }
               }
+            }finally {
+              IOUtils.closeCursor(alarms);
             }
-          }finally {
-            IOUtils.closeCursor(alarms);
+          }catch(IllegalStateException ise) {
+            //Ignore, only make sure TV-Browser didn't crash after moving of database
           }
         };
       };
@@ -86,7 +90,7 @@ public class ServiceUpdateReminders extends Service {
     Intent remind = new Intent(context,ReminderBroadcastReceiver.class);
     remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
     
-    if(startTime <= 0) {
+    if(startTime <= 0 && IOUtils.isDatabaseAccessible(context)) {
       Cursor time = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, null);
       
       if(time.moveToFirst()) {

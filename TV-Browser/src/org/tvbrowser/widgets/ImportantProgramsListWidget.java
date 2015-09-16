@@ -33,6 +33,7 @@ import android.content.Intent;
 import android.content.SharedPreferences.Editor;
 import android.net.Uri;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.widget.RemoteViews;
 
 /**
@@ -43,6 +44,7 @@ import android.widget.RemoteViews;
 public class ImportantProgramsListWidget extends AppWidgetProvider {
   @Override
   public void onReceive(Context context, Intent intent) {
+    Log.d("info2", "ImportantProgramsListWidget " + IOUtils.isInteractive(context) + " " +intent);
     if(intent != null && Intent.ACTION_USER_PRESENT.equals(intent.getAction())) {
       UiUtils.updateImportantProgramsWidget(context);
     }
