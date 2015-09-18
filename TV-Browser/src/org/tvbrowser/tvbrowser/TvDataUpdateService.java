@@ -257,6 +257,7 @@ public class TvDataUpdateService extends Service {
           
           if(intent != null) {
             doLog("Extra Type: " + intent.getIntExtra(TYPE, TV_DATA_TYPE));
+            doLog("Extra Data Update Type: " + intent.getIntExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, UPDATE_TYPE_AUTO));
           }
           
           boolean isConnected = false;
@@ -2385,7 +2386,7 @@ public class TvDataUpdateService extends Service {
     
     int autoChannelUpdateFrequency = PrefUtils.getStringValueAsInt(R.string.PREF_AUTO_CHANNEL_UPDATE_FREQUENCY, R.string.pref_auto_channel_update_frequency_default);
         
-    if(autoChannelUpdateFrequency != -1 && PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0) + (autoChannelUpdateFrequency * 24 * 60 * 60000L) < System.currentTimeMillis()) {
+    if(syncAllowed && autoChannelUpdateFrequency != -1 && PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0) + (autoChannelUpdateFrequency * 24 * 60 * 60000L) < System.currentTimeMillis()) {
       updateChannels(true);
     }
     else {

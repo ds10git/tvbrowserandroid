@@ -227,6 +227,7 @@ public class PrefUtils {
     edit.putLong(context.getString(R.string.META_DATA_DATE_LAST_KNOWN), context.getResources().getInteger(R.integer.meta_data_date_known_default));
     edit.putLong(context.getString(R.string.META_DATA_ID_FIRST_KNOWN), context.getResources().getInteger(R.integer.meta_data_id_default));
     edit.putLong(context.getString(R.string.META_DATA_ID_LAST_KNOWN), context.getResources().getInteger(R.integer.meta_data_id_default));
+    edit.putLong(context.getString(R.string.LAST_DATA_UPDATE), 0);
     
     edit.commit();
   }

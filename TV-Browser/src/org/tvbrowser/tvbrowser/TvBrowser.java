@@ -1924,7 +1924,7 @@ public class TvBrowser extends ActionBarActivity implements
   
   private void startSynchronizeUp(boolean info, String value, String address, String receiveDone, final String userInfo) {
     Intent synchronizeUp = new Intent(TvBrowser.this, TvDataUpdateService.class);
-    synchronizeUp.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_AUTO);
+    synchronizeUp.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_MANUELL);
     synchronizeUp.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.SYNCHRONIZE_UP_TYPE);
     synchronizeUp.putExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, info);
     synchronizeUp.putExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA, address);
@@ -1964,7 +1964,7 @@ public class TvBrowser extends ActionBarActivity implements
     updateProgressIcon(true);
     
     Intent synchronizeRemindersDown = new Intent(TvBrowser.this, TvDataUpdateService.class);
-    synchronizeRemindersDown.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_AUTO);
+    synchronizeRemindersDown.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_MANUELL);
     synchronizeRemindersDown.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.REMINDER_DOWN_TYPE);
     synchronizeRemindersDown.putExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true);
     
@@ -2620,7 +2620,7 @@ public class TvBrowser extends ActionBarActivity implements
   private void runChannelDownload() {
     if(!TvDataUpdateService.isRunning()) {
       Intent updateChannels = new Intent(TvBrowser.this, TvDataUpdateService.class);
-      updateChannels.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_AUTO);
+      updateChannels.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_MANUELL);
       updateChannels.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.CHANNEL_TYPE);
       
       final IntentFilter filter = new IntentFilter(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
@@ -3179,7 +3179,7 @@ public class TvBrowser extends ActionBarActivity implements
             IOUtils.handleDataUpdatePreferences(TvBrowser.this);
             
             Intent startDownload = new Intent(TvBrowser.this, TvDataUpdateService.class);
-            startDownload.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_AUTO);
+            startDownload.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_MANUELL);
             startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
             startDownload.putExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(value));
             
