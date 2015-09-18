@@ -38,42 +38,51 @@ public class ServiceUpdateReminders extends Service {
   
   @Override
   public int onStartCommand(final Intent intent, int flags, int startId) {
-    if(IOUtils.isDatabaseAccessible(ServiceUpdateReminders.this) && (mUpdateRemindersThread == null || !mUpdateRemindersThread.isAlive())) {
+    if(mUpdateRemindersThread == null || !mUpdateRemindersThread.isAlive()) {
       mUpdateRemindersThread = new Thread("UPDATE REMINDERS THREAD") {
         @Override
         public void run() {
-          boolean firstStart = intent != null ? intent.getBooleanExtra(EXTRA_FIRST_STARTUP, false) : false;
-          
-          StringBuilder where = new StringBuilder(" ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " OR " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis() + " ) ");
-          
-          if(!firstStart) {
-            where.append(" AND ( ").append(TvBrowserContentProvider.DATA_KEY_STARTTIME).append(" >= ").append((System.currentTimeMillis()-200)).append(" ) ");
-          }
-          
-          try {
-            Cursor alarms = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, PROJECTION, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC LIMIT " + MAX_REMINDERS);
+          if(IOUtils.isDatabaseAccessible(ServiceUpdateReminders.this)) {
+            boolean firstStart = intent != null ? intent.getBooleanExtra(EXTRA_FIRST_STARTUP, false) : false;
+            
+            StringBuilder where = new StringBuilder(" ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " OR " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis() + " ) ");
+            
+            if(!firstStart) {
+              where.append(" AND ( ").append(TvBrowserContentProvider.DATA_KEY_STARTTIME).append(" >= ").append((System.currentTimeMillis()-200)).append(" ) ");
+            }
             
             try {
-              if(IOUtils.prepareAccess(alarms)) {
-                while(alarms.moveToNext()) {
-                  long id = alarms.getLong(alarms.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-                  long startTime = alarms.getLong(alarms.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-                  
-                  IOUtils.removeReminder(getApplicationContext(), id);
-                  addReminder(getApplicationContext(), id, startTime, UpdateAlarmValue.class, firstStart);
+              Cursor alarms = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, PROJECTION, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC LIMIT " + MAX_REMINDERS);
+              
+              try {
+                if(IOUtils.prepareAccess(alarms)) {
+                  while(alarms.moveToNext()) {
+                    long id = alarms.getLong(alarms.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                    long startTime = alarms.getLong(alarms.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+                    
+                    IOUtils.removeReminder(getApplicationContext(), id);
+                    addReminder(getApplicationContext(), id, startTime, UpdateAlarmValue.class, firstStart);
+                  }
                 }
+              }finally {
+                IOUtils.closeCursor(alarms);
               }
-            }finally {
-              IOUtils.closeCursor(alarms);
+            }catch(IllegalStateException ise) {
+              //Ignore, only make sure TV-Browser didn't crash after moving of database
             }
-          }catch(IllegalStateException ise) {
-            //Ignore, only make sure TV-Browser didn't crash after moving of database
           }
+          else {
+            try {
+              sleep(500);
+            } catch (InterruptedException e) {}
+          }
+          
+          stopSelf();
         };
       };
       mUpdateRemindersThread.start();
     }
-    
+        
     return Service.START_NOT_STICKY;
   }
   

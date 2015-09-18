@@ -621,169 +621,172 @@ public class ProgramTableFragment extends Fragment {
     
     if(IOUtils.isDatabaseAccessible(getActivity())) {
       Cursor channels = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, where3.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
-      channels.moveToPosition(-1);
       
-      String[] projection = null;
-      
-      mPictureShown = PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE, R.bool.prog_table_show_pictures_default);
-      mShowGenre = PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_PROGRAM_TABLE, R.bool.prog_table_show_genre_default);
-      mShowEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_PROGRAM_TABLE, R.bool.prog_table_show_episode_default);
-      mShowInfo = PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_PROGRAM_TABLE, R.bool.prog_table_show_infos_default);
-      
-      int orderNumberColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
-      mShowOrderNumbers = ProgramTableLayoutConstants.getShowOrderNumber();
-      
-      String[] infoCategories = TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY;
-      
-      if(mPictureShown) {
-        projection = new String[10 + TvBrowserContentProvider.MARKING_COLUMNS.length + infoCategories.length];
-        
-        projection[projection.length-2] = TvBrowserContentProvider.DATA_KEY_PICTURE;
-        projection[projection.length-1] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
-      }
-      else {
-        projection = new String[8 + TvBrowserContentProvider.MARKING_COLUMNS.length + infoCategories.length];
-      }
-      
-      mTimeBlockSize = Integer.parseInt(PrefUtils.getStringValue(R.string.PROG_PANEL_TIME_BLOCK_SIZE, R.string.prog_panel_time_block_size));
-      
-      projection[0] = TvBrowserContentProvider.KEY_ID;
-      projection[1] = TvBrowserContentProvider.DATA_KEY_STARTTIME;
-      projection[2] = TvBrowserContentProvider.DATA_KEY_ENDTIME;
-      projection[3] = TvBrowserContentProvider.DATA_KEY_TITLE;
-      projection[4] = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE;
-      projection[5] = TvBrowserContentProvider.DATA_KEY_GENRE;
-      projection[6] = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID;
-      projection[7] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
-      
-      for(int i = 0; i < infoCategories.length; i++) {
-        projection[8+i] = infoCategories[i];
-      }
-      
-      int startIndex = 8 + infoCategories.length;
-        
-      for(int i = startIndex; i < (startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length); i++) {
-        projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
-      }
-      
-      LinearLayout channelBar = (LinearLayout)programTable.findViewById(R.id.program_table_channel_bar);
-      ArrayList<Integer> channelIDsOrdered = new ArrayList<Integer>();
-      
-      while(channels.moveToNext()) {
-        channelIDsOrdered.add(Integer.valueOf(channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.KEY_ID))));
-        
-        String name = channels.getString(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-        
-        String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
-        
-        if(shortName != null) {
-          name = shortName;
-        }
-        
-        int orderNumber = channels.getInt(orderNumberColumn);
-        
-        Bitmap logo = UiUtils.createBitmapFromByteArray(channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
-  
-        if(logo != null) {
-          int height = ProgramTableLayoutConstants.getChannelMaxFontHeight();
+      try {
+        if(IOUtils.prepareAccess(channels)) {
+          String[] projection = null;
           
-          float percent = height / (float)logo.getHeight();         
+          mPictureShown = PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_PROGRAM_TABLE, R.bool.prog_table_show_pictures_default);
+          mShowGenre = PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_PROGRAM_TABLE, R.bool.prog_table_show_genre_default);
+          mShowEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_PROGRAM_TABLE, R.bool.prog_table_show_episode_default);
+          mShowInfo = PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_PROGRAM_TABLE, R.bool.prog_table_show_infos_default);
           
-          if(percent < 1) {
-            logo = Bitmap.createScaledBitmap(logo, (int)(logo.getWidth() * percent), height, true);
-          }
-        }
-        
-        ChannelLabel channelLabel = new ChannelLabel(getActivity(), name, logo, orderNumber);
-        
-        channelBar.addView(channelLabel);
-      }
+          int orderNumberColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+          mShowOrderNumbers = ProgramTableLayoutConstants.getShowOrderNumber();
           
-      if(channels.getCount() > 0) {
-        mGrowPanels = PrefUtils.getBooleanValue(R.string.PROG_PANEL_GROW, R.bool.prog_panel_grow_default);
-        
-        if(PrefUtils.getStringValue(R.string.PROG_TABLE_LAYOUT, R.string.prog_table_layout_default).equals("0")) {
-          mProgramPanelLayout = new TimeBlockProgramTableLayout(getActivity(), channelIDsOrdered, mTimeBlockSize, value, mGrowPanels);
-        }
-        else {
-          mProgramPanelLayout = new CompactProgramTableLayout(getActivity(), channelIDsOrdered);
-        }
-        
-        ViewGroup test = (ViewGroup)programTable.findViewById(R.id.vertical_program_table_scroll);
-        test.addView(mProgramPanelLayout);
-        
-        where += UiUtils.getDontWantToSeeFilterString(getActivity());
-        where += ((TvBrowser)getActivity()).getCategoryFilterSelection();
-        
-        Cursor cursor = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
-        cursor.moveToPosition(-1);
-        
-        mStartTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-        mEndTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
-        mTitleIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-        mChannelIndex = cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-        mGenreIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE);
-        mEpisodeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
-        mKeyIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-        mPictureIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
-        mPictureCopyrightIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT);
-        
-        mMarkingsMap.clear();
-        
-        for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
-          int index = cursor.getColumnIndex(column);
+          String[] infoCategories = TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY;
           
-          if(index >= 0) {
-            mMarkingsMap.put(column, Integer.valueOf(index));
-          }
-        }
-        
-        mCategoryIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
-        
-        while(cursor.moveToNext()) {
-          addPanel(cursor, mProgramPanelLayout);
-        }
-        
-        cursor.close();
-      }
-      
-      if(mProgramPanelLayout instanceof CompactProgramTableLayout) {
-        channelBar.removeViewAt(0);
-        channelBar.removeViewAt(0);
-      }
-      
-      Calendar test = Calendar.getInstance();
-      
-      if(test.get(Calendar.DAY_OF_YEAR) == mCurrentDate.get(Calendar.DAY_OF_YEAR) || test.get(Calendar.DAY_OF_YEAR) - 2 == mCurrentDate.get(Calendar.DAY_OF_YEAR)) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            scrollToTime(0,null);
-          }
-        });
-      }
-      
-      handler.post(new Runnable() {
-        @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-        @Override
-        public void run() {
-          if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-            View view = getView();
+          if(mPictureShown) {
+            projection = new String[10 + TvBrowserContentProvider.MARKING_COLUMNS.length + infoCategories.length];
             
-            if(view != null) {
-              View scroll = view.findViewById(R.id.horizontal_program_table_scroll);
+            projection[projection.length-2] = TvBrowserContentProvider.DATA_KEY_PICTURE;
+            projection[projection.length-1] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
+          }
+          else {
+            projection = new String[8 + TvBrowserContentProvider.MARKING_COLUMNS.length + infoCategories.length];
+          }
+          
+          mTimeBlockSize = Integer.parseInt(PrefUtils.getStringValue(R.string.PROG_PANEL_TIME_BLOCK_SIZE, R.string.prog_panel_time_block_size));
+          
+          projection[0] = TvBrowserContentProvider.KEY_ID;
+          projection[1] = TvBrowserContentProvider.DATA_KEY_STARTTIME;
+          projection[2] = TvBrowserContentProvider.DATA_KEY_ENDTIME;
+          projection[3] = TvBrowserContentProvider.DATA_KEY_TITLE;
+          projection[4] = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE;
+          projection[5] = TvBrowserContentProvider.DATA_KEY_GENRE;
+          projection[6] = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID;
+          projection[7] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
+          
+          for(int i = 0; i < infoCategories.length; i++) {
+            projection[8+i] = infoCategories[i];
+          }
+          
+          int startIndex = 8 + infoCategories.length;
+            
+          for(int i = startIndex; i < (startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length); i++) {
+            projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
+          }
+          
+          LinearLayout channelBar = (LinearLayout)programTable.findViewById(R.id.program_table_channel_bar);
+          ArrayList<Integer> channelIDsOrdered = new ArrayList<Integer>();
+          
+          while(channels.moveToNext()) {
+            channelIDsOrdered.add(Integer.valueOf(channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.KEY_ID))));
+            
+            String name = channels.getString(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+            
+            String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
+            
+            if(shortName != null) {
+              name = shortName;
+            }
+            
+            int orderNumber = channels.getInt(orderNumberColumn);
+            
+            Bitmap logo = UiUtils.createBitmapFromByteArray(channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+      
+            if(logo != null) {
+              int height = ProgramTableLayoutConstants.getChannelMaxFontHeight();
               
-              if(scroll != null) {
-                scroll.setScrollX(mOldScrollX);
+              float percent = height / (float)logo.getHeight();         
+              
+              if(percent < 1) {
+                logo = Bitmap.createScaledBitmap(logo, (int)(logo.getWidth() * percent), height, true);
               }
             }
+            
+            ChannelLabel channelLabel = new ChannelLabel(getActivity(), name, logo, orderNumber);
+            
+            channelBar.addView(channelLabel);
+          }
+              
+          if(channels.getCount() > 0) {
+            mGrowPanels = PrefUtils.getBooleanValue(R.string.PROG_PANEL_GROW, R.bool.prog_panel_grow_default);
+            
+            if(PrefUtils.getStringValue(R.string.PROG_TABLE_LAYOUT, R.string.prog_table_layout_default).equals("0")) {
+              mProgramPanelLayout = new TimeBlockProgramTableLayout(getActivity(), channelIDsOrdered, mTimeBlockSize, value, mGrowPanels);
+            }
+            else {
+              mProgramPanelLayout = new CompactProgramTableLayout(getActivity(), channelIDsOrdered);
+            }
+            
+            ViewGroup test = (ViewGroup)programTable.findViewById(R.id.vertical_program_table_scroll);
+            test.addView(mProgramPanelLayout);
+            
+            where += UiUtils.getDontWantToSeeFilterString(getActivity());
+            where += ((TvBrowser)getActivity()).getCategoryFilterSelection();
+            
+            Cursor cursor = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+            cursor.moveToPosition(-1);
+            
+            mStartTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+            mEndTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+            mTitleIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+            mChannelIndex = cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+            mGenreIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE);
+            mEpisodeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
+            mKeyIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+            mPictureIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
+            mPictureCopyrightIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT);
+            
+            mMarkingsMap.clear();
+            
+            for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
+              int index = cursor.getColumnIndex(column);
+              
+              if(index >= 0) {
+                mMarkingsMap.put(column, Integer.valueOf(index));
+              }
+            }
+            
+            mCategoryIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
+            
+            while(cursor.moveToNext()) {
+              addPanel(cursor, mProgramPanelLayout);
+            }
+            
+            cursor.close();
           }
           
-          mOldScrollX = 0;
+          if(mProgramPanelLayout instanceof CompactProgramTableLayout) {
+            channelBar.removeViewAt(0);
+            channelBar.removeViewAt(0);
+          }
+          
+          Calendar test = Calendar.getInstance();
+          
+          if(test.get(Calendar.DAY_OF_YEAR) == mCurrentDate.get(Calendar.DAY_OF_YEAR) || test.get(Calendar.DAY_OF_YEAR) - 2 == mCurrentDate.get(Calendar.DAY_OF_YEAR)) {
+            handler.post(new Runnable() {
+              @Override
+              public void run() {
+                scrollToTime(0,null);
+              }
+            });
+          }
+          
+          handler.post(new Runnable() {
+            @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
+            @Override
+            public void run() {
+              if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+                View view = getView();
+                
+                if(view != null) {
+                  View scroll = view.findViewById(R.id.horizontal_program_table_scroll);
+                  
+                  if(scroll != null) {
+                    scroll.setScrollX(mOldScrollX);
+                  }
+                }
+              }
+              
+              mOldScrollX = 0;
+            }
+          });
         }
-      });
-      
-      channels.close();
+      }finally {
+        IOUtils.closeCursor(channels);
+      }
     }
     
     mUpdatingLayout = false;

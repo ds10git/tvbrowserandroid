@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.9</h2>
+        <h2>0.5.9.1</h2>
+        	&bull; fixed bug in manual data download<br>
+       	<br>
+        <h3>0.5.9</h3>
         	&bull; create Favorites directly from unsuccessful search<br>
         	&bull; database can be moved to sd card<br>
+        	&bull; stop reminder update service after update is done<br>
         	&bull; fixed possible unwanted synchronizing with usage of mobile connection at auto update<br>
         	&bull; fixed unreleased wake lock at auto update of channels<br>
 			&bull; added new logging values to data update log<br>

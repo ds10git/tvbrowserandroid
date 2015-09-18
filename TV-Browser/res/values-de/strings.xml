@@ -1,9 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.9</h2>
+        <h2>0.5.9.1</h2>
+        	&bull; Fehler im manuellen Datendownload beseitigt<br>
+       	<br>
+		<h3>0.5.9</h3>
 			&bull; Lieblingssendungen können direkt aus einer nicht erfolgreichen Suche erstellt werden<br>
         	&bull; Datenbank kann auf SD-Karte verschoben werden<br>
+        	&bull; Service für das Erinnerungsupdate wird nach Abschluss beendet<br>
         	&bull; mögliche ungewünschte Nutzung des mobilen Datenvolumens beim automatischen Synchronisieren beseitigt<br>
         	&bull; fehlende Freigabe des WakeLocks beim automatischen Update der Sender korrigiert<br>
 			&bull; neue Logging-Informationen zum Datenupdate hinzugefügt<br>
