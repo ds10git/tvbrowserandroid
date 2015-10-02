@@ -418,6 +418,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       rv.setFloat(R.id.running_programs_widget_row_channel_name, "setTextSize", titleFontSize);
       rv.setFloat(R.id.running_programs_widget_row_title, "setTextSize", titleFontSize);
       rv.setFloat(R.id.running_programs_widget_row_start_time, "setTextSize", titleFontSize);
+      rv.setFloat(R.id.running_programs_widget_row_categories, "setTextSize", mTextScale * UiUtils.convertPixelsToSp(mContext.getResources().getDimension(R.dimen.prog_list_categories_font_size),mContext));
       rv.setFloat(R.id.running_programs_widget_row_episode, "setTextSize", mTextScale * UiUtils.convertPixelsToSp(mContext.getResources().getDimension(R.dimen.episode_font_size),mContext));
       
       return rv;

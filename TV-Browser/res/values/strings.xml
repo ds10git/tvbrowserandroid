@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.9.1</h2>
+        <h2>0.5.9.2</h2>
+        	&bull; fixed missing text scaling in widgets for program info<br>
+       	<br>
+        <h3>0.5.9.1</h3>
         	&bull; fixed bug in manual data download<br>
        	<br>
         <h3>0.5.9</h3>

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.9.1</h2>
+        <h2>0.5.9.2</h2>
+        	&bull; Fehlende Textskalierung der Sendungsinfos in den Widgets behoben<br>
+       	<br>
+        <h3>0.5.9.1</h3>
         	&bull; Fehler im manuellen Datendownload beseitigt<br>
        	<br>
 		<h3>0.5.9</h3>
