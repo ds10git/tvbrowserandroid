@@ -73,7 +73,7 @@ import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
 
-public class ProgramTableFragment extends Fragment {
+public class FragmentProgramTable extends Fragment {
   private boolean mKeepRunning;
   private boolean mUpdatingLayout;
   private boolean mUpdatingRunningPrograms;

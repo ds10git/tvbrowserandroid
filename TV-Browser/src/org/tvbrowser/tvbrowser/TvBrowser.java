@@ -564,9 +564,9 @@ public class TvBrowser extends ActionBarActivity implements
             
             Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(position);
             
-            if(fragment instanceof ProgramTableFragment) {
-              ((ProgramTableFragment)fragment).firstLoad(getLayoutInflater());
-              ((ProgramTableFragment)fragment).scrollToTime(0, mScrollTimeItem);
+            if(fragment instanceof FragmentProgramTable) {
+              ((FragmentProgramTable)fragment).firstLoad(getLayoutInflater());
+              ((FragmentProgramTable)fragment).scrollToTime(0, mScrollTimeItem);
             }
             
             if(mFilterItem != null) {
@@ -3734,22 +3734,22 @@ public class TvBrowser extends ActionBarActivity implements
     boolean programTableActivated = PrefUtils.getBooleanValue(R.string.PROG_TABLE_ACTIVATED, R.bool.prog_table_activated_default);
     Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
     
-    if(!programTableActivated && test instanceof ProgramTableFragment) {
-      ((ProgramTableFragment)test).removed();
+    if(!programTableActivated && test instanceof FragmentProgramTable) {
+      ((FragmentProgramTable)test).removed();
       mSectionsPagerAdapter.destroyItem(mViewPager, 3, mSectionsPagerAdapter.getRegisteredFragment(3));
       mSectionsPagerAdapter.notifyDataSetChanged();
       actionBar.removeTabAt(3);
     }
-    else if(!(test instanceof ProgramTableFragment) && programTableActivated) {
+    else if(!(test instanceof FragmentProgramTable) && programTableActivated) {
       actionBar.addTab(actionBar.newTab()
           .setText(mSectionsPagerAdapter.getPageTitle(3)).setTabListener(this));
       mSectionsPagerAdapter.notifyDataSetChanged();
       mSectionsPagerAdapter.instantiateItem(mViewPager, 3);
     }
-    else if(test instanceof ProgramTableFragment) {
-      if(!((ProgramTableFragment)test).checkTimeBlockSize() && !((ProgramTableFragment)test).updateTable()) {
-        ((ProgramTableFragment)test).updateChannelBar();
-        ((ProgramTableFragment)test).updateMarkings();
+    else if(test instanceof FragmentProgramTable) {
+      if(!((FragmentProgramTable)test).checkTimeBlockSize() && !((FragmentProgramTable)test).updateTable()) {
+        ((FragmentProgramTable)test).updateChannelBar();
+        ((FragmentProgramTable)test).updateMarkings();
       }
     }
     
@@ -4914,8 +4914,8 @@ public class TvBrowser extends ActionBarActivity implements
     else if(mViewPager.getCurrentItem() == 3) {
       Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
       
-      if(test instanceof ProgramTableFragment) {
-        ((ProgramTableFragment)test).scrollToTime(time, mScrollTimeItem);
+      if(test instanceof FragmentProgramTable) {
+        ((FragmentProgramTable)test).scrollToTime(time, mScrollTimeItem);
       }
     }
   }
@@ -5198,7 +5198,7 @@ public class TvBrowser extends ActionBarActivity implements
         fragment = new FragmentFavorites();
       }
       else if(position == 3) {
-        fragment = new ProgramTableFragment();
+        fragment = new FragmentProgramTable();
       }
       
       return fragment;
