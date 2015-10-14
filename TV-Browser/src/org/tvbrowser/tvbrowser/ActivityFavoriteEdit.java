@@ -802,13 +802,14 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
         intent.putExtra(Favorite.OLD_NAME_KEY, mOldFavorite.getName());
       }
       
+      mFavorite.clearUniqueIds();
       mFavorite.save(getApplicationContext());
       
       intent.putExtra(Favorite.FAVORITE_EXTRA, mFavorite);
       
       final Context context = getApplicationContext();
       
-      Log.d("info2", "hier4");
+      Log.d("info2", "hier4 " + mOldFavorite);
       new Thread() {
         @Override
         public void run() {

@@ -660,7 +660,9 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
         mFavoriteList.add(sync);
       }
       
-      mFavoriteAdapter.notifyDataSetChanged();
+      if(mFavoriteAdapter != null) {
+        mFavoriteAdapter.notifyDataSetChanged();
+      }
     }
     else {
       handler.post(new Runnable() {

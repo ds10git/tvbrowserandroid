@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.9.3</h2>
+		<h2>0.5.9.4</h2>
+        	&bull; möglichen Absturz beim Start beseitigt<br>
+        	&bull; fehlerhafte Sendungsanzeige bei veränderten Lieblingssendungen korrigiert<br>
+       	<br>
+        <h3>0.5.9.3</h3>
         	&bull; Einstellung für LED-Farbe der Erinnerungen hinzugefügt<br>
        	<br>
         <h3>0.5.9.2</h3>
