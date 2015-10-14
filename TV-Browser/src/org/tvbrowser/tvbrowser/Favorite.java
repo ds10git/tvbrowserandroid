@@ -815,6 +815,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     
     saveString.append(";;");
     
+    Log.d("info2", "SAVE UNIQUE " + mUniqueProgramIds);
+    
     saveString = appendSaveStringWithArray(mUniqueProgramIds, saveString);
     
     return saveString.toString();
@@ -1059,6 +1061,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   }
   
   private static void removeFavoriteMarkingInternal(Context context, ContentResolver resolver, Favorite favorite, boolean save) {
+    Log.d("info2", "hier6a " + IOUtils.isDatabaseAccessible(context));
     String[] projection = {
         TvBrowserContentProvider.KEY_ID,
         TvBrowserContentProvider.DATA_KEY_UNIX_DATE,
@@ -1163,9 +1166,10 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         }
       }
       finally {
+        Log.d("info2", "hier7 ");
         IOUtils.closeCursor(cursor);
         favorite.mUniqueProgramIds = null;
-        
+        Log.d("info2", "hier8 " + favorite.mUniqueProgramIds);
         if(save) {
           favorite.save(context);
         }
@@ -1420,5 +1424,9 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     }
     
     return result;
+  }
+  
+  public void clearUniqueIds() {
+    mUniqueProgramIds = null;
   }
 }

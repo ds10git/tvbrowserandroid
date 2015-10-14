@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.9.3</h2>
+        <h2>0.5.9.4</h2>
+        	&bull; fixed possible crash at startup<br>
+        	&bull; fixed wrong shown program entries in changed Favorite<br>
+       	<br>
+        <h3>0.5.9.3</h3>
         	&bull; added LED color preference for reminders<br>
        	<br>
        	<h3>0.5.9.2</h3>
