@@ -659,6 +659,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       if(sync != null) {
         mFavoriteList.add(sync);
       }
+      
+      mFavoriteAdapter.notifyDataSetChanged();
     }
     else {
       handler.post(new Runnable() {

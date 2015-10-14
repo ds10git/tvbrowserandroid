@@ -45,6 +45,7 @@ import android.media.RingtoneManager;
 import android.net.Uri;
 import android.support.v4.app.NotificationCompat;
 import android.text.format.DateFormat;
+import android.util.Log;
 
 public class ReminderBroadcastReceiver extends BroadcastReceiver {
   public static final String tag = null;
@@ -236,7 +237,9 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
             builder.setContentInfo(channelName);
             
             if(led) {
-              builder.setLights(Color.GREEN, 1000, 2000);
+              Log.d("info11", PrefUtils.getIntValue(R.string.PREF_REMINDER_COLOR_LED, context.getResources().getColor(R.color.pref_reminder_color_led_default)) + " " + Color.GREEN + " " + Color.RED + " " + Color.YELLOW);
+              
+              builder.setLights(PrefUtils.getIntValue(R.string.PREF_REMINDER_COLOR_LED, context.getResources().getColor(R.color.pref_reminder_color_led_default)), 1000, 2000);
             }
             
             java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(context);

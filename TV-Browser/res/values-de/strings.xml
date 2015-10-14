@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.9.2</h2>
+        <h2>0.5.9.3</h2>
+        	&bull; Einstellung für LED-Farbe der Erinnerungen hinzugefügt<br>
+       	<br>
+        <h3>0.5.9.2</h3>
         	&bull; Fehlende Textskalierung der Sendungsinfos in den Widgets behoben<br>
        	<br>
         <h3>0.5.9.1</h3>
@@ -774,6 +777,7 @@
 	<string name="pref_reminder_work_end">Ende</string>
 	<string name="pref_reminder_time_first">Erster Erinnerungszeitpunkt:</string>
 	<string name="pref_reminder_time_second">Zweiter Erinnerungszeitpunkt:</string>
+	<string name="pref_reminder_color_led">LED-Farbe</string>
 	<string-array name="pref_category_reminder_names">
 	    <item>Zu Beginn</item>
 	    <item>1 Minute vorher</item>

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.9.2</h2>
+        <h2>0.5.9.3</h2>
+        	&bull; added LED color preference for reminders<br>
+       	<br>
+       	<h3>0.5.9.2</h3>
         	&bull; fixed missing text scaling in widgets for program info<br>
        	<br>
         <h3>0.5.9.1</h3>
@@ -783,6 +786,7 @@
 	<string name="pref_reminder_work_end">End</string>
 	<string name="pref_reminder_time_first">First time of reminder:</string>
 	<string name="pref_reminder_time_second">Second time of reminder:</string>
+	<string name="pref_reminder_color_led">LED color</string>
 	<string-array name="pref_category_reminder_names">
 	    <item>At start of program</item>
 	    <item>1 minute before</item>

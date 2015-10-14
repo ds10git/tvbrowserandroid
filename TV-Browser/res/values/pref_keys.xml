@@ -172,6 +172,8 @@
 	    <string name="PREF_REMINDER_VIBRATE">PREF_REMINDER_VIBRATE</string>
 	    <item name="pref_reminder_vibrate_default" type="bool" format="boolean">true</item>
 	    
+	    <string name="PREF_REMINDER_COLOR_LED">PREF_REMINDER_COLOR_LED</string>
+	    
 	    <string name="PREF_REMINDER_LED">PREF_REMINDER_LED</string>
 	    <item name="pref_reminder_led_default" type="bool" format="boolean">true</item>
 	    

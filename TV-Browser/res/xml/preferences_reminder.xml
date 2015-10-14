@@ -14,6 +14,10 @@
 		android:entries="@array/pref_category_reminder_names_second"
 		android:entryValues="@array/pref_category_reminder_values_second"
 		android:summary="%s"/>
+	<org.tvbrowser.settings.ColorPreference
+	        android:key="@string/PREF_REMINDER_COLOR_LED"
+	        android:title="@string/pref_reminder_color_led"
+	        android:defaultValue="@color/pref_reminder_color_led_default"/>
 	<PreferenceCategory android:title="@string/pref_reminder_type">
 		<RingtonePreference android:key="@string/PREF_REMINDER_SOUND_VALUE"
 		    android:summary="@string/pref_reminder_sound_value_summary"
