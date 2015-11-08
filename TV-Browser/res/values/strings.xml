@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.9.4</h2>
+        <h2>0.5.9.5</h2>
+            &bull; configurable priority of reminder notifications<br>
+        	&bull; prevent auto data update with low battery state<br>
+        	&bull; show warning for manual data update for low battery state<br>
+       	<br>
+        <h3>0.5.9.4</h3>
         	&bull; fixed possible crash at startup<br>
         	&bull; fixed wrong shown program entries in changed Favorite<br>
        	<br>
@@ -458,6 +463,9 @@
     <string name="no_network_info_data_sync_reminder">the synchronization of the Reminders</string>
     <string name="no_network_info_data_sync_dont_want_to_see">the synchronization of I don\'t want to see!</string>
     <string name="no_network_info_data_sync_channels">the synchronization of the channels</string>
+    <string name="data_update_battery_insufficient_title">Battery critical for data update</string>
+    <string name="data_update_battery_insufficient_message">The battery state is critical for data update.\n\nDo you want to start it anyway?</string>
+    <string name="data_update_battery_insufficient_ok">Start data update</string>
     <string name="update_notification_title">TV data update</string>
     <string name="update_notification_text">A TV-Browser data update is running</string>
     <string name="update_notification_calculate">Calculate TV data&#8230;</string>
@@ -765,6 +773,14 @@
 	    <item>Big</item>
 	</string-array>
 	<string name="pref_reminder_category">Reminder</string>
+	<string name="pref_reminder_priority">Priority</string>
+	<string-array name="pref_reminder_priority_values_names">
+	    <item>Default</item>
+	    <item>Minimum</item>
+	    <item>Low</item>
+	    <item>High</item>
+	    <item>Maximum</item>
+	</string-array>
 	<string name="pref_reminder_type">Day mode</string>
 	<string name="pref_reminder_sound">Sound</string>
 	<string name="pref_reminder_no_sound">No sound</string>

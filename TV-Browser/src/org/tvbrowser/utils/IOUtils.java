@@ -51,16 +51,17 @@ import org.tvbrowser.tvbrowser.Logging;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.ReminderBroadcastReceiver;
 import org.tvbrowser.tvbrowser.ServiceUpdateDataTable;
-import org.tvbrowser.tvbrowser.TvBrowser;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.os.BatteryManager;
 import android.os.Binder;
 import android.os.Environment;
 import android.os.PowerManager;
@@ -78,6 +79,7 @@ import android.util.Log;
 public class IOUtils {
   private static final int DATA_UPDATE_KEY = 1234;
   private static final int REQUEST_CODE_DATA_TABLE_UPDATE = 1235;
+  private static final float MIN_BATTERIE_LEVEL = 0.1f;
   
   /**
    * Creates an integer value from the given byte array.
@@ -1076,6 +1078,26 @@ public class IOUtils {
           }
         }
       }
+    }
+    
+    return result;
+  }
+  
+  public static final boolean isBatterySufficient(Context context) {
+    boolean result = false;
+    
+    IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+    Intent batteryStatus = context.registerReceiver(null, filter);
+    
+    int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+    result = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                         status == BatteryManager.BATTERY_STATUS_FULL;
+    
+    if(!result) {
+      int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+      int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+      
+      result = MIN_BATTERIE_LEVEL <= (level / (float)scale);
     }
     
     return result;

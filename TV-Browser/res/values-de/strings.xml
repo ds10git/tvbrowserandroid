@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.9.4</h2>
+        <h2>0.5.9.5</h2>
+            &bull; einstellbare Priorität für Erinnerungsbenachrichtigungen<br>
+        	&bull; kein automatisches Datenupdate bei kritischem Akkustand<br>
+        	&bull; zeige Warnung bei manuellem Datenupdate bei kritischem Akkustand<br>
+       	<br>
+		<h3>0.5.9.4</h3>
         	&bull; möglichen Absturz beim Start beseitigt<br>
         	&bull; fehlerhafte Sendungsanzeige bei veränderten Lieblingssendungen korrigiert<br>
        	<br>
@@ -455,6 +460,9 @@
     <string name="no_network_info_data_sync_reminder">die Synchronisierung der Erinnerungen</string>
     <string name="no_network_info_data_sync_dont_want_to_see">die Synchronisierung von Will ich nicht sehen!</string>
     <string name="no_network_info_data_sync_channels">die Synchronisierung der Sender</string>
+    <string name="data_update_battery_insufficient_title">Akkustand kritisch für Datenupdate</string>
+    <string name="data_update_battery_insufficient_message">Der aktuelle Akkustand ist kritisch für das Datenupdate.\n\nMöchten Sie es trotzdem starten?</string>
+    <string name="data_update_battery_insufficient_ok">Datenupdate\nstarten</string>
     <string name="update_notification_title">TV-Daten Update</string>
     <string name="update_notification_text">Ein TV-Browser Datenupdate läuft</string>
     <string name="update_notification_calculate">TV-Daten verarbeiten&#8230;</string>
@@ -756,6 +764,14 @@
 	    <item>Groß</item>
 	</string-array>
 	<string name="pref_reminder_category">Erinnerungen</string>
+	<string name="pref_reminder_priority">Priorität</string>
+	<string-array name="pref_reminder_priority_values_names">
+	    <item>Standard</item>
+	    <item>Minimum</item>
+	    <item>Niedrig</item>
+	    <item>Hoch</item>
+	    <item>Maximum</item>
+	</string-array>
 	<string name="pref_reminder_type">Tages-Modus</string>
 	<string name="pref_reminder_sound">Sound</string>
 	<string name="pref_reminder_no_sound">Kein Sound</string>

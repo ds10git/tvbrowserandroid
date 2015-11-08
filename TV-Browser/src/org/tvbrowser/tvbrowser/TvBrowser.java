@@ -2997,8 +2997,23 @@ public class TvBrowser extends ActionBarActivity implements
     return false;
   }
   
-  private void updateTvData() {
-    if(!TvDataUpdateService.isRunning() && IOUtils.isDatabaseAccessible(TvBrowser.this)) {
+  private void updateTvData(boolean checkBatterie) {
+    if(checkBatterie && !IOUtils.isBatterySufficient(TvBrowser.this)) {
+      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+      
+      builder.setTitle(R.string.data_update_battery_insufficient_title);
+      builder.setMessage(R.string.data_update_battery_insufficient_message);
+      builder.setPositiveButton(R.string.data_update_battery_insufficient_ok, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          updateTvData(false);
+        }
+      });
+      builder.setNegativeButton(android.R.string.cancel, null);
+      
+      builder.show();
+    }
+    else if(!TvDataUpdateService.isRunning() && IOUtils.isDatabaseAccessible(TvBrowser.this)) {
       Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, null);
       
       if(test.getCount() > 0) {
@@ -3367,7 +3382,7 @@ public class TvBrowser extends ActionBarActivity implements
     String terms = pref.getString(SettingConstants.TERMS_ACCEPTED, "");
     
     if(terms.contains("EPG_FREE")) {
-      updateTvData();
+      updateTvData(true);
     }
     else {
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -3384,7 +3399,7 @@ public class TvBrowser extends ActionBarActivity implements
           
           edit.commit();
           
-          updateTvData();
+          updateTvData(true);
         }
       });
       

@@ -339,6 +339,9 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.DETAIL_PICTURE_DESCRIPTION_POSITION))
           || key.equals(getResources().getString(R.string.PREF_AUTO_CHANNEL_UPDATE_FREQUENCY))
           || key.equals(getResources().getString(R.string.PREF_DATABASE_PATH))
+          || key.equals(getResources().getString(R.string.PREF_REMINDER_PRIORITY_VALUE))
+          || key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_PRIORITY_VALUE))
+          || key.equals(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE))
           ) {
         ListPreference lp = (ListPreference) findPreference(key);
         
@@ -620,6 +623,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       else if(key.equals(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED)) || key.equals(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER))) {
         CheckBoxPreference nightModeActivatedPref = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED));
         CheckBoxPreference noReminder = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER));
+        ListPreference priority = (ListPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE));
         
         RingtonePreference sound = (RingtonePreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE));
         CheckBoxPreference vibrate = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_VIBRATE));
@@ -636,6 +640,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           start.setEnabled(nightMode);
           end.setEnabled(nightMode);
           
+          priority.setEnabled(nightMode && !onlyStatus);
           sound.setEnabled(nightMode && !onlyStatus);
           vibrate.setEnabled(nightMode && !onlyStatus);
           led.setEnabled(nightMode && !onlyStatus);
@@ -644,6 +649,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       else if(key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_ACTIVATED)) || key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_NO_REMINDER))) {
         CheckBoxPreference nightModeActivatedPref = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_ACTIVATED));
         CheckBoxPreference noReminder = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_NO_REMINDER));
+        ListPreference priority = (ListPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_PRIORITY_VALUE));
         
         RingtonePreference sound = (RingtonePreference) findPreference(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SOUND_VALUE));
         CheckBoxPreference vibrate = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_VIBRATE));
@@ -658,6 +664,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           noReminder.setEnabled(nightMode);
           days.setEnabled(nightMode);
           
+          priority.setEnabled(nightMode && !onlyStatus);
           sound.setEnabled(nightMode && !onlyStatus);
           vibrate.setEnabled(nightMode && !onlyStatus);
           led.setEnabled(nightMode && !onlyStatus);
