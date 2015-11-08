@@ -5,6 +5,7 @@
             &bull; configurable priority of reminder notifications<br>
         	&bull; prevent auto data update with low battery state<br>
         	&bull; show warning for manual data update for low battery state<br>
+        	&bull; fixed wrong label for channel name only in settings<br>
        	<br>
         <h3>0.5.9.4</h3>
         	&bull; fixed possible crash at startup<br>
@@ -591,7 +592,7 @@
 	<string name="show_logo_and_name">Show channel icon and name</string>
 	<string name="show_logo_medium_only">Show only bigger channel icon</string>
 	<string name="show_logo_only">Show only channel icon</string>
-	<string name="show_name_only">Show channel icon and name</string>
+	<string name="show_name_only">Show only channel name</string>
 	<string name="pref_activated">Activated</string>
 	<string name="pref_open">Open preferences</string>
 	<string name="pref_detail_category">Detail window</string>
