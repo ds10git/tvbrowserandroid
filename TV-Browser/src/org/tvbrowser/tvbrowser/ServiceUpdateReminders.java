@@ -96,7 +96,7 @@ public class ServiceUpdateReminders extends Service {
     
     boolean remindAgain = reminderTimeSecond >= 0 && reminderTime != reminderTimeSecond;
     
-    Intent remind = new Intent(context,ReminderBroadcastReceiver.class);
+    Intent remind = new Intent(context.getApplicationContext(),ReminderBroadcastReceiver.class);
     remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
     
     if(startTime <= 0 && IOUtils.isDatabaseAccessible(context)) {

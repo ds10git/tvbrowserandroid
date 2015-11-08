@@ -166,7 +166,10 @@
 	    <item name="pref_reminder_time_default" type="string" format="string">0</item>
 	    <string name="PREF_REMINDER_TIME_SECOND">PREF_REMINDER_TIME_SECOND</string>
 	    <item name="pref_reminder_time_second_default" type="string" format="string">-1</item>
-	        
+	    
+	    <string name="PREF_REMINDER_PRIORITY_VALUE">PREF_REMINDER_PRIORITY_VALUE</string>
+	    <item name="pref_reminder_priority_default" type="string" format="string">0</item>
+	    
 	    <string name="PREF_REMINDER_SOUND_VALUE">PREF_REMINDER_SOUND_VALUE</string>
 	    
 	    <string name="PREF_REMINDER_VIBRATE">PREF_REMINDER_VIBRATE</string>
@@ -184,7 +187,9 @@
 	        
 	    <string name="PREF_REMINDER_WORK_MODE_NO_REMINDER">PREF_REMINDER_WORK_MODE_NO_REMINDER</string>
 	    <item name="pref_reminder_work_mode_no_reminder_default" type="bool" format="boolean">true</item>
-	    
+
+	    <string name="PREF_REMINDER_WORK_MODE_PRIORITY_VALUE">PREF_REMINDER_WORK_MODE_PRIORITY_VALUE</string>
+	    	    
 	    <string name="PREF_REMINDER_WORK_MODE_SOUND_VALUE">PREF_REMINDER_WORK_MODE_SOUND_VALUE</string>
 	    <item name="pref_reminder_work_mode_sound_value_default" type="string" format="string"></item>
 	    
@@ -254,6 +259,8 @@
 	    
 	    <string name="PREF_REMINDER_NIGHT_MODE_NO_REMINDER">PREF_REMINDER_NIGHT_MODE_NO_REMINDER</string>
 	    <item name="pref_reminder_night_mode_no_reminder_default" type="bool" format="boolean">true</item>
+	    
+	    <string name="PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE">PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE</string>
 	    
 	    <string name="PREF_REMINDER_NIGHT_MODE_SOUND_VALUE">PREF_REMINDER_NIGHT_MODE_SOUND_VALUE</string>
 	    <item name="pref_reminder_night_mode_sound_value_default" type="string" format="string"></item>

@@ -14,6 +14,13 @@
 		android:entries="@array/pref_category_reminder_names_second"
 		android:entryValues="@array/pref_category_reminder_values_second"
 		android:summary="%s"/>
+	<ListPreference
+		android:key="@string/PREF_REMINDER_PRIORITY_VALUE"
+		android:title="@string/pref_reminder_priority"
+		android:defaultValue="@string/pref_reminder_priority_default"
+		android:entries="@array/pref_reminder_priority_values_names"
+		android:entryValues="@array/pref_simple_string_value_array5"
+		android:summary="%s"/>
 	<org.tvbrowser.settings.ColorPreference
 	        android:key="@string/PREF_REMINDER_COLOR_LED"
 	        android:title="@string/pref_reminder_color_led"
@@ -41,6 +48,13 @@
 			android:title="@string/pref_reminder_night_no_reminder"
 			android:defaultValue="@bool/pref_reminder_work_mode_no_reminder_default"
 			/>
+		<ListPreference
+			android:key="@string/PREF_REMINDER_WORK_MODE_PRIORITY_VALUE"
+			android:title="@string/pref_reminder_priority"
+			android:defaultValue="@string/pref_reminder_priority_default"
+			android:entries="@array/pref_reminder_priority_values_names"
+			android:entryValues="@array/pref_simple_string_value_array5"
+			android:summary="%s"/>
 		<RingtonePreference android:key="@string/PREF_REMINDER_WORK_MODE_SOUND_VALUE"
 		    android:summary="@string/pref_reminder_sound_value_summary"
 		    android:ringtoneType="notification"
@@ -182,6 +196,13 @@
 			android:title="@string/pref_reminder_night_no_reminder"
 			android:defaultValue="@bool/pref_reminder_night_mode_no_reminder_default"
 			/>
+		<ListPreference
+			android:key="@string/PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE"
+			android:title="@string/pref_reminder_priority"
+			android:defaultValue="@string/pref_reminder_priority_default"
+			android:entries="@array/pref_reminder_priority_values_names"
+			android:entryValues="@array/pref_simple_string_value_array5"
+			android:summary="%s"/>
 		<RingtonePreference android:key="@string/PREF_REMINDER_NIGHT_MODE_SOUND_VALUE"
 		    android:summary="@string/pref_reminder_sound_value_summary"
 		    android:ringtoneType="notification"
