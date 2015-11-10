@@ -401,6 +401,7 @@ public class UiUtils {
                   channel.close();
                   
                   String year = "";
+                  boolean hasYear = false;
                       
                   if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN))) {
                     year = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN));
@@ -412,6 +413,20 @@ public class UiUtils {
                     }
                     
                     year += c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR));
+                    hasYear = true;
+                  }
+                  
+                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR))) {
+                    if(year.length() > 0) {
+                      if(hasYear) {
+                        year += "-";
+                      }
+                      else {
+                        year += " ";
+                      }
+                    }
+                    
+                    year += c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR));
                   }
                   
                   String originalTitle = null;

@@ -24,7 +24,6 @@ import java.util.Set;
 import java.util.TimeZone;
 
 import org.tvbrowser.tvbrowser.R;
-import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 
@@ -36,13 +35,13 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
-import android.content.SharedPreferences;
 import android.content.UriMatcher;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteDatabase.CursorFactory;
 import android.database.sqlite.SQLiteDatabaseLockedException;
+import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
@@ -308,9 +307,9 @@ public class TvBrowserContentProvider extends ContentProvider {
   public int delete(Uri uri, String where, String[] whereArgs) {
     int count = 0;
     
-    if(IOUtils.isDatabaseAccessible(getContext())) {
-      SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
-      
+    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+    
+    if(database != null) {
       boolean data_with_channel = false;
       
       switch(uriMatcher.match(uri)) {
@@ -407,9 +406,10 @@ public class TvBrowserContentProvider extends ContentProvider {
       throws OperationApplicationException {
     ArrayList<ContentProviderResult> result = new ArrayList<ContentProviderResult>(0);
     
-    if(IOUtils.isDatabaseAccessible(getContext())) {
+    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+    
+    if(database != null) {
       try {
-        SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
         database.beginTransaction();
         
         HashMap<Uri, Uri> updateUris = new HashMap<Uri, Uri>();
@@ -464,180 +464,206 @@ public class TvBrowserContentProvider extends ContentProvider {
   
   private int bulkInsertData(Uri uri, ContentValues[] values) {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
-    database.beginTransaction();
     
     int count = 0;
     
-    for(ContentValues value : values) {
-      long rowID = database.insert(TvBrowserDataBaseHelper.DATA_TABLE, "channel", value);
+    if(database != null) {
+      database.beginTransaction();
       
-      if(rowID != -1) {
-        Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA, rowID);
+      for(ContentValues value : values) {
+        long rowID = database.insert(TvBrowserDataBaseHelper.DATA_TABLE, "channel", value);
         
-        if(INFORM_FOR_CHANGES) {
-          getContext().getContentResolver().notifyChange(newUri, null);
+        if(rowID != -1) {
+          Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA, rowID);
+          
+          if(INFORM_FOR_CHANGES) {
+            getContext().getContentResolver().notifyChange(newUri, null);
+          }
+        
+          count++;
         }
+      }
       
-        count++;
+      database.setTransactionSuccessful();
+      database.endTransaction();
+      
+
+      if(count == 0) {
+        throw new SQLException("Failed to insert row into " + uri + " " + count);
       }
     }
     
-    database.setTransactionSuccessful();
-    database.endTransaction();
-    
-    // Return a URI to the newly inserted row on success.
-    if(count >= 0) {
-      return count;
-    }
-    
-    throw new SQLException("Failed to insert row into " + uri + " " + count);
+    // Return a count of inserted rows    
+    return count;
   }
   
   private int bulkInsertChannels(Uri uri, ContentValues[] values) {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
-    database.beginTransaction();
     
     int count = 0;
     
-    for(ContentValues value : values) {
-      long rowID = database.insert(CHANNEL_TABLE, "channel", value);
+    if(database != null) {
+      database.beginTransaction();
       
-      if(rowID != -1) {
-        Uri newUri = ContentUris.withAppendedId(CONTENT_URI_CHANNELS, rowID);
+      for(ContentValues value : values) {
+        long rowID = database.insert(CHANNEL_TABLE, "channel", value);
         
-        if(INFORM_FOR_CHANGES) {
-          getContext().getContentResolver().notifyChange(newUri, null);
+        if(rowID != -1) {
+          Uri newUri = ContentUris.withAppendedId(CONTENT_URI_CHANNELS, rowID);
+          
+          if(INFORM_FOR_CHANGES) {
+            getContext().getContentResolver().notifyChange(newUri, null);
+          }
+        
+          count++;
         }
+      }
       
-        count++;
+      database.setTransactionSuccessful();
+      database.endTransaction();
+      
+      if(count == 0) {
+        throw new SQLException("Failed to insert row into " + uri + " " + count);
       }
     }
     
-    database.setTransactionSuccessful();
-    database.endTransaction();
-    
-    // Return a URI to the newly inserted row on success.
-    if(count >= 0) {
-      return count;
-    }
-    
-    throw new SQLException("Failed to insert row into " + uri + " " + count);
+    // Return count of inserted rows    
+    return count;
   }
   
   private int bulkInsertVersion(Uri uri, ContentValues[] values) {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
-    database.beginTransaction();
     
     int count = 0;
     
-    for(ContentValues value : values) {
-      long rowID = database.insert(TvBrowserDataBaseHelper.VERSION_TABLE, "channel", value);
+    if(database != null) {
+      database.beginTransaction();
       
-      if(rowID != -1) {
-        Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA_VERSION, rowID);
+      for(ContentValues value : values) {
+        long rowID = database.insert(TvBrowserDataBaseHelper.VERSION_TABLE, "channel", value);
         
-        if(INFORM_FOR_CHANGES) {
-          getContext().getContentResolver().notifyChange(newUri, null);
+        if(rowID != -1) {
+          Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA_VERSION, rowID);
+          
+          if(INFORM_FOR_CHANGES) {
+            getContext().getContentResolver().notifyChange(newUri, null);
+          }
+        
+          count++;
         }
+      }
       
-        count++;
+      database.setTransactionSuccessful();
+      database.endTransaction();
+      
+      if(count == 0) {
+        throw new SQLException("Failed to insert row into " + uri + " " + count);
       }
     }
     
-    database.setTransactionSuccessful();
-    database.endTransaction();
-    
-    // Return a URI to the newly inserted row on success.
-    if(count >= 0) {
-      return count;
-    }
-    
-    throw new SQLException("Failed to insert row into " + uri + " " + count);
+    // Return number of inserted rows.
+    return count;
   }
   
   private Uri insertVersion(Uri uri, ContentValues values) {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
-    // Insert the new row. The call to databse.insert will return the row number if it is successfull.
-    long rowID = database.insert(TvBrowserDataBaseHelper.VERSION_TABLE, "version", values);
-    
-    // Return a URI to the newly inserted row on success.
-    
-    if(rowID >= 0) {
-      Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA_VERSION, rowID);
+    if(database != null) {
+      // Insert the new row. The call to databse.insert will return the row number if it is successfull.
+      long rowID = database.insert(TvBrowserDataBaseHelper.VERSION_TABLE, "version", values);
       
-      if(INFORM_FOR_CHANGES) {
-        getContext().getContentResolver().notifyChange(newUri, null);
+      // Return a URI to the newly inserted row on success.
+      
+      if(rowID >= 0) {
+        Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA_VERSION, rowID);
+        
+        if(INFORM_FOR_CHANGES) {
+          getContext().getContentResolver().notifyChange(newUri, null);
+        }
+        
+        return newUri;
       }
       
-      return newUri;
+      throw new SQLException("Failed to insert row into " + uri + " " + rowID);
     }
     
-    throw new SQLException("Failed to insert row into " + uri + " " + rowID);
+    throw new SQLException("Database not accessible");
   }
 
   
   private Uri insertData(Uri uri, ContentValues values) {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
-    // Insert the new row. The call to databse.insert will return the row number if it is successfull.
-    long rowID = database.insert(TvBrowserDataBaseHelper.DATA_TABLE, "channel", values);
-    
-    // Return a URI to the newly inserted row on success.
-    
-    if(rowID >= 0) {
-      Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA, rowID);
+    if(database != null) {
+      // Insert the new row. The call to databse.insert will return the row number if it is successfull.
+      long rowID = database.insert(TvBrowserDataBaseHelper.DATA_TABLE, "channel", values);
       
-      if(INFORM_FOR_CHANGES) {
-        getContext().getContentResolver().notifyChange(newUri, null);
+      // Return a URI to the newly inserted row on success.
+      
+      if(rowID >= 0) {
+        Uri newUri = ContentUris.withAppendedId(CONTENT_URI_DATA, rowID);
+        
+        if(INFORM_FOR_CHANGES) {
+          getContext().getContentResolver().notifyChange(newUri, null);
+        }
+        
+        return newUri;
       }
       
-      return newUri;
+      throw new SQLException("Failed to insert row into " + uri + " " + rowID);
     }
     
-    throw new SQLException("Failed to insert row into " + uri + " " + rowID);
+    throw new SQLException("Database not accessible.");
   }
   
   private Uri insertChannel(Uri uri, ContentValues values) {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
-    // Insert the new row. The call to databse.insert will return the row number if it is successfull.
-    long rowID = database.insert(CHANNEL_TABLE, "channel", values);
-    
-    // Return a URI to the newly inserted row on success.
-    
-    if(rowID >= 0) {
-      Uri newUri = ContentUris.withAppendedId(CONTENT_URI_CHANNELS, rowID);
+    if(database != null) {
+      // Insert the new row. The call to databse.insert will return the row number if it is successfull.
+      long rowID = database.insert(CHANNEL_TABLE, "channel", values);
       
-      if(INFORM_FOR_CHANGES) {
-        getContext().getContentResolver().notifyChange(newUri, null);
+      // Return a URI to the newly inserted row on success.
+      
+      if(rowID >= 0) {
+        Uri newUri = ContentUris.withAppendedId(CONTENT_URI_CHANNELS, rowID);
+        
+        if(INFORM_FOR_CHANGES) {
+          getContext().getContentResolver().notifyChange(newUri, null);
+        }
+        
+        return newUri;
       }
       
-      return newUri;
+      throw new SQLException("Failed to insert row into " + uri + " " + rowID);
     }
     
-    throw new SQLException("Failed to insert row into " + uri + " " + rowID);
+    throw new SQLException("Database not accessible.");
   }
   
   private Uri insertGroup(Uri uri, ContentValues values) {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
-    // Insert the new row. The call to databse.insert will return the row number if it is successfull.
-    long rowID = database.insert(TvBrowserDataBaseHelper.GROUPS_TABLE, "group", values);
-    
-    // Return a URI to the newly inserted row on success.
-    
-    if(rowID > 0) {
-      Uri newUri = ContentUris.withAppendedId(CONTENT_URI_GROUPS, rowID);
+    if(database != null) {
+      // Insert the new row. The call to databse.insert will return the row number if it is successfull.
+      long rowID = database.insert(TvBrowserDataBaseHelper.GROUPS_TABLE, "group", values);
       
-      if(INFORM_FOR_CHANGES) {
-        getContext().getContentResolver().notifyChange(newUri, null);
+      // Return a URI to the newly inserted row on success.
+      
+      if(rowID > 0) {
+        Uri newUri = ContentUris.withAppendedId(CONTENT_URI_GROUPS, rowID);
+        
+        if(INFORM_FOR_CHANGES) {
+          getContext().getContentResolver().notifyChange(newUri, null);
+        }
+        
+        return newUri;
       }
       
-      return newUri;
+      throw new SQLException("Failed to insert row into " + uri + " " + rowID);
     }
     
-    throw new SQLException("Failed to insert row into " + uri + " " + rowID);
+    throw new SQLException("Database not accessible.");
   }
 
   public void updateDatabasePath() {
@@ -666,10 +692,9 @@ public class TvBrowserContentProvider extends ContentProvider {
 
   private Cursor rawQueryData(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
     Cursor result = null;
+    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
-    if(IOUtils.isDatabaseAccessible(getContext())) {
-      SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
-      
+    if(database != null) {
       if(projection != null) {
         for(int i = 0; i < projection.length; i++) {
           if(projection[i].equals(KEY_ID) || projection[i].equals(CHANNEL_KEY_CHANNEL_ID)) {
@@ -747,9 +772,9 @@ public class TvBrowserContentProvider extends ContentProvider {
   public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
     Cursor result = null;
     
-    if(IOUtils.isDatabaseAccessible(getContext())) {
-      SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
-      
+    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
+    
+    if(database != null) {
       SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
       
       // If no sort order is specified, sort by date / time
@@ -910,10 +935,9 @@ public class TvBrowserContentProvider extends ContentProvider {
   @Override
   public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
     int count = 0;
+    SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
-    if(IOUtils.isDatabaseAccessible(getContext())) {
-      SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
-      
+    if(database != null) {
       boolean data_with_channel = false;
       
       switch(uriMatcher.match(uri)) {
@@ -1087,9 +1111,12 @@ public class TvBrowserContentProvider extends ContentProvider {
         + VERSION_KEY_PICTURE0016_VERSION + " INTEGER, "
         + VERSION_KEY_PICTURE1600_VERSION + " INTEGER);";
     
+    private Context mContext;
+    
     public TvBrowserDataBaseHelper(Context context, String name,
         CursorFactory factory, int version) {
       super(context,name, factory, version);
+      mContext = context.getApplicationContext();
     }
 
     @Override
@@ -1434,6 +1461,19 @@ public class TvBrowserContentProvider extends ContentProvider {
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_REMOVED_SYNC + " INTEGER DEFAULT 0");
         }
       }
+    }
+  
+    @Override
+    public SQLiteDatabase getWritableDatabase() {
+      SQLiteDatabase db = null;
+      
+      if(IOUtils.isDatabaseAccessible(mContext)) {
+        try {
+          db = super.getWritableDatabase();
+        }catch(SQLiteException sqle) {}
+      }
+      
+      return db;
     }
   }
   

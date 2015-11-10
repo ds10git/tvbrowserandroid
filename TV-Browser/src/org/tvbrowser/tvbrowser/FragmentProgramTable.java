@@ -1108,7 +1108,11 @@ public class FragmentProgramTable extends Fragment {
 
         setDayString((TextView)getView().findViewById(R.id.show_current_day));
         
-        mOldScrollX = getView().findViewById(R.id.horizontal_program_table_scroll).getScrollX();
+        View view = getView().findViewById(R.id.horizontal_program_table_scroll);
+        
+        if(view != null) {
+          mOldScrollX = view.getScrollX();
+        }
         
         updateView(getActivity().getLayoutInflater(), (RelativeLayout)getView().findViewWithTag("LAYOUT"));
       }
