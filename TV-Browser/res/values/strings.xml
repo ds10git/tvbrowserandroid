@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.9.5</h2>
+        	&bull; new TV-Browser icon<br>
             &bull; configurable priority of reminder notifications<br>
         	&bull; prevent auto data update with low battery state<br>
         	&bull; show warning for manual data update for low battery state<br>
