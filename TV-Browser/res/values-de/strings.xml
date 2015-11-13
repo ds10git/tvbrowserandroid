@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.5.9.5</h2>
+        	&bull; neues TV-Browser-Symbol<br>
             &bull; einstellbare Priorität für Erinnerungsbenachrichtigungen<br>
         	&bull; kein automatisches Datenupdate bei kritischem Akkustand<br>
         	&bull; zeige Warnung bei manuellem Datenupdate bei kritischem Akkustand<br>
