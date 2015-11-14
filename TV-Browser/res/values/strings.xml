@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.9.5</h2>
+		<h2>0.5.9.6</h2>
+        	&bull; slightly smaller TV-Browser icon<br>
+        	&bull; fixed possible crash at auto data update<br>
+       	<br>
+        <h3>0.5.9.5</h3>
         	&bull; new TV-Browser icon<br>
             &bull; configurable priority of reminder notifications<br>
         	&bull; prevent auto data update with low battery state<br>
