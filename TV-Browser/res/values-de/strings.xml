@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.9.5</h2>
+        <h2>0.5.9.6</h2>
+        	&bull; leicht kleineres TV-Browser Symbol<br>
+        	&bull; möglichen Absturz beim automatischen Datenupdate beseitigt<br>
+       	<br>
+        <h3>0.5.9.5</h3>
         	&bull; neues TV-Browser-Symbol<br>
             &bull; einstellbare Priorität für Erinnerungsbenachrichtigungen<br>
         	&bull; kein automatisches Datenupdate bei kritischem Akkustand<br>

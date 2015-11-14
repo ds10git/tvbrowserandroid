@@ -1086,18 +1086,20 @@ public class IOUtils {
   public static final boolean isBatterySufficient(Context context) {
     boolean result = false;
     
-    IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
-    Intent batteryStatus = context.registerReceiver(null, filter);
-    
-    int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
-    result = status == BatteryManager.BATTERY_STATUS_CHARGING ||
-                         status == BatteryManager.BATTERY_STATUS_FULL;
-    
-    if(!result) {
-      int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
-      int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+    if(context != null && context.getApplicationContext() != null) {
+      IntentFilter filter = new IntentFilter(Intent.ACTION_BATTERY_CHANGED);
+      Intent batteryStatus = context.getApplicationContext().registerReceiver(null, filter);
       
-      result = MIN_BATTERIE_LEVEL <= (level / (float)scale);
+      int status = batteryStatus.getIntExtra(BatteryManager.EXTRA_STATUS, -1);
+      result = status == BatteryManager.BATTERY_STATUS_CHARGING ||
+                           status == BatteryManager.BATTERY_STATUS_FULL;
+      
+      if(!result) {
+        int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
+        int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
+        
+        result = MIN_BATTERIE_LEVEL <= (level / (float)scale);
+      }
     }
     
     return result;
