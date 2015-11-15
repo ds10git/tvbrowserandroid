@@ -304,7 +304,7 @@
         <br>
         ]]></string>
     <string name="info_version">What is new in this version?</string>
-    <string name="info_version_dont_show_again">Don\'t show this\ninfo again</string>
+    <string name="info_version_dont_show_again">Don\'t show\nagain</string>
     <string name="info_version_show">Show changes</string>
     <string name="pref_info_version_title">Änderungen bei Versionsupdate anzeigen</string>
     
@@ -368,7 +368,7 @@
     </string-array>
     <string name="dialog_warning_timezone_title">Wrong timezone?</string>
     <string name="dialog_warning_timezone_message">The system uses German as language but the timezone is not Central European Time.\n\nIf the start time of the programs is wrong, you need to change the timezone setting in the system.</string>
-    <string name="dialog_warning_timezone_change">Open timezone\nsetting</string>
+    <string name="dialog_warning_timezone_change">Timezone\nsetting</string>
     <string name="dialog_search_create_favorite">Create\nFavorite now</string>
     <string name="dialog_close">Close</string>
     <string name="tv">TV</string>

@@ -307,7 +307,7 @@
         <br>
         ]]></string>
     <string name="info_version">Was ist neu in dieser Version?</string>
-    <string name="info_version_dont_show_again">Diese Information\nnicht mehr anzeigen</string>
+    <string name="info_version_dont_show_again">Nicht wieder\nanzeigen</string>
     <string name="info_version_show">Änderungen anzeigen</string>
     
     <string name="tab_restoring_name">EINSTELLUNGEN WIEDERHERSTELLEN</string>
@@ -364,8 +364,8 @@
         <item>ODER</item>
     </string-array>
     <string name="dialog_warning_timezone_title">Zeitzone fehlerhaft?</string>
-    <string name="dialog_warning_timezone_message">Das System verwendet Deutsch als Sprache, die eingestellte Zeitzone entspricht jedoch nicht der mitteleuropäischen Zeit.\n\nSollten die Zeiten der Sendungen nicht stimmen, muss die Zeitzoneneinstellung im System geändert werden.</string>
-    <string name="dialog_warning_timezone_change">Zeitzoneneinstellung\nöffnen</string>
+    <string name="dialog_warning_timezone_message">Das System verwendet Deutsch als Sprache, die eingestellte Zeitzone entspricht jedoch nicht der mitteleuropäischen Zeit.\n\nSollten die Zeiten der Sendungen nicht stimmen, muss die neneinstellung im System geändert werden.</string>
+    <string name="dialog_warning_timezone_change">Zeitzonen-\neinstellung</string>
 	<string name="dialog_search_create_favorite">Lieblingssendung\njetzt anlegen</string>
     <string name="dialog_close">Schließen</string>
     <string name="tv">Fernsehen</string>
