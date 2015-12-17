@@ -254,7 +254,7 @@ public class TvBrowser extends ActionBarActivity implements
   static {
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2016);
-    mRundate.set(Calendar.MONTH, Calendar.FEBRUARY);
+    mRundate.set(Calendar.MONTH, Calendar.SEPTEMBER);
     mRundate.set(Calendar.DAY_OF_MONTH, 1);
   }
   

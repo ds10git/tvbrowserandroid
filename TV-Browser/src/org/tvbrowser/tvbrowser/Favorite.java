@@ -39,7 +39,6 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
-import android.database.DatabaseUtils;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
@@ -52,6 +51,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   public static final int KEYWORD_ONLY_TITLE_TYPE = 0;
   public static final int KEYWORD_TYPE = 1;
   public static final int RESTRICTION_RULES_TYPE = 2;
+  
+  public static final int VALUE_RESTRICTION_TIME_DEFAULT = -1;
   
   public static final String FAVORITE_EXTRA = "FAVORITE_EXTRA";
   public static final String SEARCH_EXTRA = "SEARCH_EXTRA";
@@ -104,7 +105,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   private long mFavoriteId;
   
   public Favorite() {
-    this(null, "", KEYWORD_ONLY_TITLE_TYPE, true, -1, -1, null, null, null, -1, -1, null, null);
+    this(null, "", KEYWORD_ONLY_TITLE_TYPE, true, VALUE_RESTRICTION_TIME_DEFAULT, VALUE_RESTRICTION_TIME_DEFAULT, null, null, null, VALUE_RESTRICTION_TIME_DEFAULT, VALUE_RESTRICTION_TIME_DEFAULT, null, null);
   }
   
   public Favorite(long id, String saveLine) {
@@ -134,8 +135,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     
     if(values.length > 4) {
       if(values[4].equals("null")) {
-        mTimeRestrictionStart = -1;
-        mTimeRestrictionEnd = -1;
+        mTimeRestrictionStart = VALUE_RESTRICTION_TIME_DEFAULT;
+        mTimeRestrictionEnd = VALUE_RESTRICTION_TIME_DEFAULT;
       }
       else {
         String[] parts = values[4].split(",");
@@ -144,8 +145,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           mTimeRestrictionStart = Integer.parseInt(parts[0]);
           mTimeRestrictionEnd = Integer.parseInt(parts[1]);
         }catch(NumberFormatException nfe) {
-          mTimeRestrictionStart = -1;
-          mTimeRestrictionEnd = -1;
+          mTimeRestrictionStart = VALUE_RESTRICTION_TIME_DEFAULT;
+          mTimeRestrictionEnd = VALUE_RESTRICTION_TIME_DEFAULT;
         }
       }
       
@@ -153,8 +154,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       parseArray(CHANNEL_RESTRICTION_TYPE, values[6]);
     }
     else {
-      mTimeRestrictionStart = -1;
-      mTimeRestrictionEnd = -1;
+      mTimeRestrictionStart = VALUE_RESTRICTION_TIME_DEFAULT;
+      mTimeRestrictionEnd = VALUE_RESTRICTION_TIME_DEFAULT;
       mDayRestriction = null;
       mChannelRestrictionIDs = null;
     }
@@ -177,8 +178,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     
     if(values.length > 8) {
       if(values[8].equals("null")) {
-        mDurationRestrictionMinimum = -1;
-        mDurationRestrictionMaximum = -1;
+        mDurationRestrictionMinimum = VALUE_RESTRICTION_TIME_DEFAULT;
+        mDurationRestrictionMaximum = VALUE_RESTRICTION_TIME_DEFAULT;
       }
       else {
         String[] parts = values[8].split(",");
@@ -187,14 +188,14 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           mDurationRestrictionMinimum = Integer.parseInt(parts[0]);
           mDurationRestrictionMaximum = Integer.parseInt(parts[1]);
         }catch(NumberFormatException nfe) {
-          mDurationRestrictionMinimum = -1;
-          mDurationRestrictionMaximum = -1;
+          mDurationRestrictionMinimum = VALUE_RESTRICTION_TIME_DEFAULT;
+          mDurationRestrictionMaximum = VALUE_RESTRICTION_TIME_DEFAULT;
         }
       }
     }
     else {
-      mDurationRestrictionMinimum = -1;
-      mDurationRestrictionMaximum = -1;
+      mDurationRestrictionMinimum = VALUE_RESTRICTION_TIME_DEFAULT;
+      mDurationRestrictionMaximum = VALUE_RESTRICTION_TIME_DEFAULT;
     }
     
     if(values.length > 9) {
@@ -428,7 +429,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     
   public void setValues(String name, String search, int type, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions, int durationRestrictionMinimum, int durationRestrictionMaximum, int[] attributeRestriction, long[] uniqueProgramIds) {
     mName = name;
-    mSearch = search.replace("\"", "");
+    mSearch = search;//.replace("\"", "");
     mType = type;
     mRemind = remind;
     mTimeRestrictionStart = timeRestrictionStart;
@@ -487,7 +488,10 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         
         for(int i = 0; i < mUniqueProgramIds.length-1; i++) {
           where.append("?, ");
-          selectionArgs[i] = String.valueOf(mUniqueProgramIds[i]);
+          
+          if(mUniqueProgramIds.length > i) {
+            selectionArgs[i] = String.valueOf(mUniqueProgramIds[i]);
+          }
         }
         
         selectionArgs[mUniqueProgramIds.length-1] = String.valueOf(mUniqueProgramIds[mUniqueProgramIds.length-1]);
@@ -594,24 +598,24 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         String[] andParts = mSearch.split("AND");
         
         builder.append(column);
-        builder.append(" LIKE \"%");
+        builder.append(" LIKE '%");
         
         for(int i = 0; i < andParts.length-1; i++) {
-          builder.append(andParts[i].trim().replace("\"", "\"\""));
-          builder.append("%\"");
+          builder.append(andParts[i].trim().replace("'", "''"));
+          builder.append("%'");
           builder.append(" AND ");
         }
         
         builder.append(column);
-        builder.append(" LIKE \"%");
-        builder.append(andParts[andParts.length-1].trim().replace("\"", "\"\""));
-        builder.append("%\" )");
+        builder.append(" LIKE '%");
+        builder.append(andParts[andParts.length-1].trim().replace("'", "''"));
+        builder.append("%' )");
       }
       else {
         builder.append(column);
-        builder.append(" LIKE \"%");
-        builder.append(mSearch.trim().replace("\"", "\"\""));
-        builder.append("%\" )");
+        builder.append(" LIKE '%");
+        builder.append(mSearch.trim().replace("'", "''"));
+        builder.append("%' )");
       }
       
       addAnd = true;
@@ -706,16 +710,16 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       for(int i = 0; i < mExclusions.length - 1; i++) {
         builder.append(" ( ");
         builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
-        builder.append(" LIKE \"%");
-        builder.append(mExclusions[i]);
-        builder.append("%\" ) OR ");
+        builder.append(" LIKE '%");
+        builder.append(mExclusions[i].replace("'", "''"));
+        builder.append("%' ) OR ");
       }
       
       builder.append(" ( ");
       builder.append(TvBrowserContentProvider.CONCAT_RAW_KEY);
-      builder.append(" LIKE \"%");
-      builder.append(mExclusions[mExclusions.length-1]);
-      builder.append("%\" ) ");
+      builder.append(" LIKE '%");
+      builder.append(mExclusions[mExclusions.length-1].replace("'", "''"));
+      builder.append("%' ) ");
       
       builder.append(")");
       
@@ -818,7 +822,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     Log.d("info2", "SAVE UNIQUE " + mUniqueProgramIds);
     
     saveString = appendSaveStringWithArray(mUniqueProgramIds, saveString);
-    
+            
     return saveString.toString();
   }
   
@@ -1229,7 +1233,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           
           do {
             long id = cursor.getLong(idColumn);
-            long startTime = cursor.getLong(startTimeColumn);
+           // long startTime = cursor.getLong(startTimeColumn);
             int markingCount = cursor.getInt(favoriteMarkingColumn);
             boolean markingsChanged = markingCount == 0;
             
@@ -1265,7 +1269,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
               ServiceUpdateReminders.startReminderUpdate(context);
             }
           }while(cursor.moveToNext());
-          
+                    
           if(!updateValuesList.isEmpty()) {
             if(!reminderIdList.isEmpty()) {
               ProgramUtils.addReminderIds(context, reminderIdList);

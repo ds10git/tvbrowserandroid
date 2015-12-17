@@ -256,9 +256,6 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
       projection = new String[13 + TvBrowserContentProvider.MARKING_COLUMNS.length];
     }
     
-    String titleEscape = query.contains("'") ? "\"" : "'";
-    String episodeEscape = episodeQuery.contains("'") ? "\"" : "'";
-    
     projection[0] = TvBrowserContentProvider.KEY_ID;
     projection[1] = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID;
     projection[2] = TvBrowserContentProvider.DATA_KEY_STARTTIME;
@@ -279,7 +276,7 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
       projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
     }
         
-    String where = "(" + TvBrowserContentProvider.DATA_KEY_TITLE + " LIKE " + titleEscape + "%" + query + "%" + titleEscape + operation + TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE + " LIKE " + episodeEscape + "%" + episodeQuery + "%" + episodeEscape + ") AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">=" + System.currentTimeMillis();
+    String where = "(" + TvBrowserContentProvider.DATA_KEY_TITLE + " LIKE '%" + query.replace("'", "''") + "%' " + operation + TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE + " LIKE '%" + episodeQuery.replace("'", "''") + "%') AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
     String[] whereArgs = null;
     String sortOrder = TvBrowserContentProvider.DATA_KEY_STARTTIME;
     
