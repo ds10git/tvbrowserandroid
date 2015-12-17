@@ -35,7 +35,9 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.OperationApplicationException;
+import android.content.SharedPreferences;
 import android.content.UriMatcher;
+import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
 import android.database.SQLException;
 import android.database.sqlite.SQLiteDatabase;
@@ -685,7 +687,15 @@ public class TvBrowserContentProvider extends ContentProvider {
   
   @Override
   public boolean onCreate() {
-    createDataBaseHelper(PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getContext()).getString(getContext().getString(R.string.PREF_DATABASE_PATH), getContext().getString(R.string.pref_database_path_default)));
+    final SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getContext());
+    
+    String databasePath = "internal";
+    
+    try {
+      databasePath = pref.getString(getContext().getString(R.string.PREF_DATABASE_PATH), getContext().getString(R.string.pref_database_path_default));
+    }catch(NotFoundException nfe) {}
+    
+    createDataBaseHelper(databasePath);
     
     return true;
   }
@@ -782,8 +792,8 @@ public class TvBrowserContentProvider extends ContentProvider {
       
       // If this is a row query, limit the result set to teh pased in row.
       switch(uriMatcher.match(uri)) {
-        case SEARCH: String search = uri.getPathSegments().get(1).replace("\"", "");
-                     qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE \"%" + search + "%\" OR " + DATA_KEY_EPISODE_TITLE + " LIKE \"%" +  search + "%\") AND " + DATA_KEY_STARTTIME + ">=" + System.currentTimeMillis() + " AND NOT " + DATA_KEY_DONT_WANT_TO_SEE);
+        case SEARCH: String search = uri.getPathSegments().get(1).replace("'", "''");
+                     qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE '%" + search + "%' OR " + DATA_KEY_EPISODE_TITLE + " LIKE '%" +  search + "%') AND " + DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis() + " AND NOT " + DATA_KEY_DONT_WANT_TO_SEE);
                      qb.setProjectionMap(SEARCH_PROJECTION_MAP);
                      qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
                      orderBy = DATA_KEY_STARTTIME;

@@ -154,9 +154,15 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
         
         if(position == Favorite.RESTRICTION_RULES_TYPE) {
           mSearchValue.setText(getString(R.string.activity_edit_favorite_input_text_all_value));
+          mOkButton.setEnabled(mFavorite.isHavingRestriction());
         }
         else if(mSearchValue.getText().toString().trim().length() == 0 || mSearchValue.getText().toString().equals(getString(R.string.activity_edit_favorite_input_text_all_value))) {
-          mSearchValue.setText(mFavorite.getSearchValue());
+          if(mFavorite.getSearchValue() != null && mFavorite.getSearchValue().equals(getString(R.string.activity_edit_favorite_input_text_all_value))) {
+            mSearchValue.setText("");
+          }
+          else {
+            mSearchValue.setText(mFavorite.getSearchValue());
+          }
         }
       }
 
@@ -276,8 +282,8 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
     builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
       @Override
       public void onClick(DialogInterface dialog, int which) {
-        int minimumValue = -1;
-        int maximumValue = -1;
+        int minimumValue = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
+        int maximumValue = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
         
         if(minimumSelected.isChecked()) {
           minimumValue = minimum.getCurrentHour() * 60 + minimum.getCurrentMinute();
@@ -287,14 +293,14 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
           maximumValue = maximum.getCurrentHour() * 60 + maximum.getCurrentMinute();
           
           if(maximumValue == 0) {
-            maximumValue = -1;
+            maximumValue = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
           }
         }
         
-        if(minimumValue > maximumValue && maximumValue != -1) {
-          maximumValue = -1;
+        if(minimumValue > maximumValue && maximumValue != Favorite.VALUE_RESTRICTION_TIME_DEFAULT) {
+          maximumValue = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
         }
-                
+        
         mFavorite.setDurationRestrictionMinimum(minimumValue);
         mFavorite.setDurationRestrictionMaximum(maximumValue);
         
@@ -371,9 +377,12 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
         
         int end = utc.get(Calendar.HOUR_OF_DAY) * 60 + utc.get(Calendar.MINUTE);
         
-        if((start == end) || (start == 0 && end == 23*60 + 59)) {
-          start = -1;
-          end = -1;
+        final int unNormalizedFromTime = from.getCurrentHour() * 60 + from.getCurrentMinute();
+        final int unNormalizedToTime = to.getCurrentHour() * 60 + to.getCurrentMinute();
+        
+        if((unNormalizedToTime == unNormalizedFromTime) || (unNormalizedFromTime == 0 && unNormalizedToTime == 1439)) {
+          start = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
+          end = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
         }
         
         mFavorite.setTimeRestrictionStart(start);
@@ -481,7 +490,7 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
       String minutes = getString(R.string.activity_edit_favorite_input_text_duration_minutes);
       String max = getString(R.string.activity_edit_favorite_input_text_duration_maximum);
       
-      if(minimum != -1) {
+      if(minimum != Favorite.VALUE_RESTRICTION_TIME_DEFAULT) {
         max = max.toLowerCase(Locale.getDefault());
         
         timeString.append(getString(R.string.activity_edit_favorite_input_text_duration_minimum));
@@ -490,13 +499,13 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
         timeString.append(" ");
         timeString.append(minutes);
         
-        if(maximum != -1) {
+        if(maximum != Favorite.VALUE_RESTRICTION_TIME_DEFAULT) {
           timeString.append(" ");
           timeString.append(getString(R.string.activity_edit_favorite_input_text_duration_and));
           timeString.append(" ");
         }
       }
-      if(maximum != -1) {
+      if(maximum != Favorite.VALUE_RESTRICTION_TIME_DEFAULT) {
         timeString.append(max);
         timeString.append(" ");
         timeString.append(maximum);
@@ -689,6 +698,9 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
     
     if(notChanged) {
       notChanged = mOriginal.getDurationRestrictionMinimum() == mFavorite.getDurationRestrictionMinimum() && mOriginal.getDurationRestrictionMaximum() == mFavorite.getDurationRestrictionMaximum();
+    }
+    
+    if(notChanged) {
       notChanged = mOriginal.getTimeRestrictionStart() == mFavorite.getTimeRestrictionStart() && mOriginal.getTimeRestrictionEnd() == mFavorite.getTimeRestrictionEnd();
     }
     
@@ -858,9 +870,9 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
 
   @Override
   public void setFilterValues(String name, String operation, int[] categoryIndicies) {
-    if(categoryIndicies != null) {
-      mFavorite.setAttributeRestrictionIndices(categoryIndicies);
-    }
+    mFavorite.setAttributeRestrictionIndices(categoryIndicies);
+    
+    updateOkButton();
     
     handleAttributeView();
   }
