@@ -7,7 +7,7 @@
         	&bull; laufende Sendungen werden bei der Schnellsuche berücksichtigt<br>
         	&bull; Laufzeit verlängert bis zum 01.09.2016<br>
        	<br>
-        <h3>0.5.9.3</h2>
+        <h3>0.5.9.6</h3>
         	&bull; leicht kleineres TV-Browser Symbol<br>
         	&bull; möglichen Absturz beim automatischen Datenupdate beseitigt<br>
        	<br>
@@ -370,7 +370,7 @@
         <item>ODER</item>
     </string-array>
     <string name="dialog_warning_timezone_title">Zeitzone fehlerhaft?</string>
-    <string name="dialog_warning_timezone_message">Das System verwendet Deutsch als Sprache, die eingestellte Zeitzone entspricht jedoch nicht der mitteleuropäischen Zeit.\n\nSollten die Zeiten der Sendungen nicht stimmen, muss die neneinstellung im System geändert werden.</string>
+    <string name="dialog_warning_timezone_message">Das System verwendet Deutsch als Sprache, die eingestellte Zeitzone entspricht jedoch nicht der mitteleuropäischen Zeit.\n\nSollten die Zeiten der Sendungen nicht stimmen, muss die Zeitzoneneinstellung im System geändert werden.</string>
     <string name="dialog_warning_timezone_change">Zeitzonen-\neinstellung</string>
 	<string name="dialog_search_create_favorite">Lieblingssendung\njetzt anlegen</string>
     <string name="dialog_close">Schließen</string>
