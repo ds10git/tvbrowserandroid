@@ -13,7 +13,7 @@
 	         android:layout_height="wrap_content"
 	         android:contentDescription="button"
 	         android:layout_centerVertical="true"
-	         android:src="@android:drawable/ic_menu_preferences"
+	         android:src="@drawable/ic_action_settings"
 	         android:layout_alignParentRight="true"
 	         android:background="@drawable/shape_button_background_corners_straight_transparency_high"/>
          <LinearLayout

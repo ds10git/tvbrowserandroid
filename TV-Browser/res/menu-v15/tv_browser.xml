@@ -2,7 +2,7 @@
       xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/search"
           android:title="@string/search_title"
-          android:icon="@android:drawable/ic_menu_search"
+          android:icon="@drawable/ic_action_search"
           app:showAsAction="collapseActionView|always"
           app:actionViewClass="android.support.v7.widget.SearchView" />
     <item android:id="@+id/action_filter_channels"
@@ -22,7 +22,7 @@
         android:orderInCategory="90"
         app:showAsAction="always"
         android:title="@string/action_scroll_time"
-        android:icon="@android:drawable/ic_menu_recent_history" >
+        android:icon="@drawable/ic_action_schedule">
         <menu>
             <item 
                 android:id="@+id/action_scroll_now"
@@ -34,9 +34,9 @@
     <item
         android:id="@+id/menu_tvbrowser_action_update_data"
         android:orderInCategory="90"
-        app:showAsAction="always"
+        app:showAsAction="ifRoom"
         android:title="@string/menu_tvbrowser_title_update_data"
-        android:icon="@android:drawable/stat_sys_download"
+        android:icon="@drawable/ic_action_file_download"
         />
     <item
         android:id="@+id/menu_tvbrowser_action_create_favorite"
