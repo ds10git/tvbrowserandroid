@@ -613,7 +613,6 @@ public class TvBrowser extends ActionBarActivity implements
   
   @Override
   protected void onPause() {
-    super.onPause();
     
     long timeDiff = System.currentTimeMillis() - mResumeTime + PrefUtils.getLongValueWithDefaultKey(R.string.PREF_RUNNING_TIME, R.integer.pref_running_time_default);
     
@@ -633,6 +632,7 @@ public class TvBrowser extends ActionBarActivity implements
         TvBrowser.this.unregisterReceiver(mUpdateDoneBroadcastReceiver);
       }catch(IllegalArgumentException e) {}
     }
+    super.onPause();
   }
   
   private void showTerms() {
@@ -2060,7 +2060,7 @@ public class TvBrowser extends ActionBarActivity implements
    * @author René Mach
    */
   private static class ArrayListWrapper extends ArrayList<ChannelSelection> {
-    Integer[] mValueMap = null;
+	Integer[] mValueMap = null;
     
     @Override
     public ChannelSelection get(int index) {
@@ -5425,7 +5425,6 @@ public class TvBrowser extends ActionBarActivity implements
   
   @Override
   public void onDestroy() {
-     super.onDestroy();
      
      PluginHandler.shutdownPlugins(getApplicationContext());
      
@@ -5434,6 +5433,7 @@ public class TvBrowser extends ActionBarActivity implements
      }
      
      mHelper = null;
+     super.onDestroy();
   }
   
   private void showInAppError(String error) {

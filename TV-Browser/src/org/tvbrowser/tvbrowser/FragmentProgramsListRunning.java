@@ -53,12 +53,12 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.text.Spannable;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -152,9 +152,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   @Override
   public void onPause() {
-    super.onPause();
     
     mKeepRunning = false;
+    super.onPause();
   }
   
   @Override
@@ -665,7 +665,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         }.start();
       }
       else {
-        CompatUtils.setBackground(layout, getResources().getDrawable(android.R.drawable.list_selector_background));
+        CompatUtils.setBackground(layout, ContextCompat.getDrawable(getActivity(), android.R.drawable.list_selector_background));
       }
     }
     else {
@@ -881,7 +881,6 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   @Override
   public void onDetach() {
-    super.onDetach();
     
     if(mDataUpdateReceiver != null) {
       getActivity().unregisterReceiver(mDataUpdateReceiver);
@@ -900,6 +899,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     }
     
     mKeepRunning = false;
+    super.onDetach();
   }
     
   private synchronized void startUpdateThread() {
