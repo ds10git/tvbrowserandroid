@@ -44,6 +44,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
@@ -126,11 +127,11 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   
   @Override
   public void onPause() {
-    super.onPause();
     
     ProgramUtils.unregisterMarkingsListener(getActivity(), this);
     
     mKeepRunning = false;
+    super.onPause();
   }
   
   @Override
@@ -208,7 +209,6 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   
   @Override
   public void onDetach() {
-    super.onDetach();
     
     if(mDataUpdateReceiver != null) {
       getActivity().unregisterReceiver(mDataUpdateReceiver);
@@ -222,6 +222,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     if(mMarkingsChangedReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mMarkingsChangedReceiver);
     }
+    super.onDetach();
   }
   
   public void setDay(long dayStart) {
@@ -430,10 +431,10 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mChannelSelection = (Spinner)rootView.findViewById(R.id.channel_selection);
     
     final Button minus = (Button)rootView.findViewById(R.id.channel_minus);
-    CompatUtils.setBackground(minus, getResources().getDrawable(android.R.drawable.list_selector_background));
+    CompatUtils.setBackground(minus, ContextCompat.getDrawable(getActivity(),android.R.drawable.list_selector_background));
     
     final Button plus = (Button)rootView.findViewById(R.id.channel_plus);
-    CompatUtils.setBackground(plus, getResources().getDrawable(android.R.drawable.list_selector_background));
+    CompatUtils.setBackground(plus, ContextCompat.getDrawable(getActivity(),android.R.drawable.list_selector_background));
             
     final ArrayList<ChannelSelection> channelEntries = new ArrayList<ChannelSelection>();
     
@@ -564,12 +565,12 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
         text.setText(sel);
         
         switch(position) {
-          case 0: CompatUtils.setBackground(convertView,getResources().getDrawable(android.R.drawable.list_selector_background));break;
+          case 0: CompatUtils.setBackground(convertView,ContextCompat.getDrawable(getContext(), android.R.drawable.list_selector_background));break;
           case 1: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_FAVORITE_COLOR_KEY, getContext()));break;
           case 2: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_COLOR_KEY, getContext()));break;
           case 3: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_REMINDER_COLOR_KEY, getContext()));break;
           case 4: convertView.setBackgroundColor(UiUtils.getColor(UiUtils.MARKED_SYNC_COLOR_KEY, getContext()));break;
-          case 5: CompatUtils.setBackground(convertView,getResources().getDrawable(android.R.drawable.list_selector_background));break;
+          case 5: CompatUtils.setBackground(convertView,ContextCompat.getDrawable(getContext(), android.R.drawable.list_selector_background));break;
         }
         
         return convertView;
