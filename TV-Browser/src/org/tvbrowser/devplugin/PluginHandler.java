@@ -82,7 +82,7 @@ public final class PluginHandler {
           try {
             result = ProgramUtils.createProgramFromDataCursor(context, programs);
           }finally {
-            IOUtils.closeCursor(programs);
+            IOUtils.close(programs);
             Binder.restoreCallingIdentity(token);
           }
         }
@@ -104,7 +104,7 @@ public final class PluginHandler {
           try {
             result = ProgramUtils.createProgramFromDataCursor(context, programs);
           }finally {
-            IOUtils.closeCursor(programs);
+            IOUtils.close(programs);
             Binder.restoreCallingIdentity(token);
           }
         }
@@ -169,7 +169,7 @@ public final class PluginHandler {
             re.initCause(t);
             throw re;
           }finally {
-            IOUtils.closeCursor(programs);
+            IOUtils.close(programs);
             Binder.restoreCallingIdentity(token);
           }
         }
@@ -205,7 +205,7 @@ public final class PluginHandler {
             re.initCause(t);
             throw re;
           }finally {
-            IOUtils.closeCursor(programs);
+            IOUtils.close(programs);
             Binder.restoreCallingIdentity(token);
           }
         }
