@@ -650,7 +650,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
               }while(channelCursor.moveToNext());
             }
           }finally {
-            IOUtils.closeCursor(channelCursor);
+            IOUtils.close(channelCursor);
           }
         }
       }
@@ -916,7 +916,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
               mNextUpdate = test.getLong(test.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
             }
           }finally {
-            IOUtils.closeCursor(test);
+            IOUtils.close(test);
           }
         }
       }
