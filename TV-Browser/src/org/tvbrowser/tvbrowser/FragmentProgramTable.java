@@ -219,7 +219,7 @@ public class FragmentProgramTable extends Fragment {
             }
           }
           
-          IOUtils.closeCursor(c);
+          IOUtils.close(c);
         }
       }
     }
@@ -785,7 +785,7 @@ public class FragmentProgramTable extends Fragment {
           });
         }
       }finally {
-        IOUtils.closeCursor(channels);
+        IOUtils.close(channels);
       }
     }
     

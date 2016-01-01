@@ -627,7 +627,7 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
           mChannels.setText(TextUtils.join(", ", nameList));
         }
         
-        IOUtils.closeCursor(channelNames); 
+        IOUtils.close(channelNames); 
       }
     }
     else {

@@ -19,12 +19,12 @@ package org.tvbrowser.utils;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.PushbackInputStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
@@ -34,6 +34,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -339,11 +340,7 @@ public class IOUtils {
         catch(IOException e) {
         }
         finally {
-          if (fout != null) {
-            try {
-              fout.close();
-            } catch (IOException e) {}
-          }
+          close(fout);
         }
       };
     }.start();
@@ -374,13 +371,12 @@ public class IOUtils {
     BufferedInputStream in = null;
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     
+    URLConnection connection = null;
     try {
-      URLConnection connection;
-      
       connection = new URL(urlString).openConnection();
       connection.setConnectTimeout(15000);
       
-      if(urlString.toLowerCase().endsWith(".gz")) {
+      if(urlString.toLowerCase(Locale.US).endsWith(".gz")) {
         connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
       }
       
@@ -400,9 +396,8 @@ public class IOUtils {
       }
     } 
     finally {
-      if (in != null) {
-        in.close();
-      }
+      close(in);
+      disconnect(connection);
     }
 
     return out.toByteArray();
@@ -444,18 +439,13 @@ public class IOUtils {
           fout.getChannel().truncate(0);
           fout.write(byteArr, 0, byteArr.length);
           fout.flush();
-          fout.close();
           
           wasSaved.set(true);
         }
         catch(IOException e) {
         }
         finally {
-          if (fout != null) {
-            try {
-              fout.close();
-            } catch (IOException e) {}
-          }
+          close(fout);
         }
       };
     }.start();
@@ -507,9 +497,9 @@ public class IOUtils {
   
   public static byte[] getCompressedData(byte[] uncompressed) {
     ByteArrayOutputStream bytesOut = new ByteArrayOutputStream();
-    
+    GZIPOutputStream out = null;
     try {
-      GZIPOutputStream out = new GZIPOutputStream(bytesOut);
+      out = new GZIPOutputStream(bytesOut);
       
       // SEND THE IMAGE
       int index = 0;
@@ -523,10 +513,12 @@ public class IOUtils {
       } while (index < uncompressed.length);
       
       out.flush();
-      out.close();
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+    }
+    finally {
+    	close(out);
     }
     
     return bytesOut.toByteArray();
@@ -654,10 +646,10 @@ public class IOUtils {
     
     new Thread("NETWORK CONNECTION CHECK THREAD") {
       public void run() {
+    	  URLConnection connection = null;
         try {
           URL myUrl = new URL(url);
           
-          URLConnection connection;
           connection = myUrl.openConnection();
           connection.setConnectTimeout(timeout);
           
@@ -671,6 +663,9 @@ public class IOUtils {
           }
         } catch (IOException e) {
           e.printStackTrace();
+        }
+        finally  {
+        	// FIXME disconnect(connection);
         }
       };
     }.start();
@@ -731,49 +726,44 @@ public class IOUtils {
     
     return cal;
   }
-  
+
   /**
-   * Closes the given cursor.
-   * Checks for <code>null</code> and already closed before closing.
+   * Closes the given object and releases assigned resources.
+   * Calls are <code>null</code>-safe and idempotent.
    * 
-   * @param cursor The cursor to close.
+   * @param closeable the object to close.
+   * @see Closeable
    */
-  public static void closeCursor(Cursor cursor) {
-    if(cursor != null) {
-      cursor.close();
-    }
-  }
-  
-  /**
-   * Closes the given input stream, checks for <code>null</code> prehand.
-   * <p>
-   * @param in The stream to close
-   */
-  public static void closeInputStream(InputStream in) {
-    if(in != null) {
+  public static void close(final Closeable closeable) {
+    if (closeable != null) {
       try {
-        in.close();
-      } catch (IOException e) {
-        // Igonore, nothing to do here
+        closeable.close();
+      }
+      catch (final Exception ignored) {
+        // intentionally ignored
       }
     }
   }
-  
+
   /**
-   * Closes the given output stream, checks for <code>null</code> prehand.
-   * <p>
-   * @param out The stream to close
+   * Disconnects the given connection and releases or reuses associated resources.
+   * Calls are <code>null</code>-safe and idempotent.
+   * <p/>
+   * Note: the underlying connection must be inherited from {@link HttpURLConnection}.
+   * 
+   * @param connection the connection to release.
+   * @see HttpURLConnection#disconnect()
    */
-  public static void closeOutpuStream(OutputStream out) {
-    if(out != null) {
+  public static void disconnect(final URLConnection connection) {
+    if (connection instanceof HttpURLConnection) {
       try {
-        out.close();
-      } catch (IOException e) {
-        // Igonore, nothing to do here
+        ((HttpURLConnection) connection).disconnect();
+      } catch (final Exception ignored) {
+        // intentionally ignored
       }
     }
   }
-  
+
   public static List<Channel> getChannelList(Context context) {
     ArrayList<Channel> channelList = new ArrayList<Channel>();
     
@@ -794,7 +784,7 @@ public class IOUtils {
           }
         }
       }finally {
-        IOUtils.closeCursor(channels);
+        IOUtils.close(channels);
         Binder.restoreCallingIdentity(token);
       }
     }
@@ -1061,22 +1051,8 @@ public class IOUtils {
       } catch(IOException ioe) {
         Log.d("info12", "", ioe);
       } finally {
-        if(in != null) {
-          try {
-            in.close();
-          } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-        }
-        if(out != null) {
-          try {
-            out.close();
-          } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-        }
+        close(in);
+        close(out);
       }
     }
     
