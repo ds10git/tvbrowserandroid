@@ -785,7 +785,7 @@ public class UiUtils {
                       mPreviousId = prev.getLong(prev.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                     }
                   }finally {
-                    IOUtils.closeCursor(prev);
+                    IOUtils.close(prev);
                   }
                   
                   Cursor next = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + startTime + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + channelID + " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC LIMIT 1");
@@ -795,11 +795,11 @@ public class UiUtils {
                       mNextId = next.getLong(next.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                     }
                   }finally {
-                    IOUtils.closeCursor(next);
+                    IOUtils.close(next);
                   }
                 }
               }finally {
-                IOUtils.closeCursor(c);
+                IOUtils.close(c);
               }
               
               return result;

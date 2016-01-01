@@ -768,7 +768,7 @@ public class TvDataUpdateService extends Service {
           
           conn.setDoOutput(true);
           
-          String postData = "";
+          //String postData = "";
           
           byte[] xmlData = value == null ? getBytesForReminders() : IOUtils.getCompressedData(value.getBytes("UTF-8"));
           
@@ -847,18 +847,9 @@ public class TvDataUpdateService extends Service {
           Log.d("info8", "" ,e);
       } finally {
         Log.d("info8","Close connection");
-          try {
-              os.close();
-          } catch (Exception e) {
-          }
-          try {
-              is.close();
-          } catch (Exception e) {
-          }
-          try {
-  
-          } catch (Exception e) {
-          }
+          IOUtils.close(os);
+          IOUtils.close(is);
+          IOUtils.disconnect(conn);
       }
     }
     
@@ -951,11 +942,11 @@ public class TvDataUpdateService extends Service {
       mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize_remiders));
       notification.notify(NOTIFY_ID, mBuilder.build());
       
-      URL documentUrl;
-      
+      URLConnection connection = null;
+      BufferedReader read = null;
       try {
-        documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=reminderFromDesktop");
-        URLConnection connection = documentUrl.openConnection();
+        URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=reminderFromDesktop");
+        connection = documentUrl.openConnection();
         
         SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_TRANSPORTATION, TvDataUpdateService.this);
         
@@ -968,7 +959,7 @@ public class TvDataUpdateService extends Service {
           
           connection.setRequestProperty ("Authorization", basicAuth);
           
-          BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+          read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
           
           String reminder = null;
           
@@ -1018,7 +1009,7 @@ public class TvDataUpdateService extends Service {
                       knownChannels.put(groupChannelKey, channelId);
                     }
                   }finally {
-                    IOUtils.closeCursor(channel);
+                    IOUtils.close(channel);
                   }
                 }
                 
@@ -1051,7 +1042,7 @@ public class TvDataUpdateService extends Service {
                       }
                     }
                   }finally {
-                    IOUtils.closeCursor(program);
+                    IOUtils.close(program);
                   }
                 }
               }
@@ -1104,7 +1095,9 @@ public class TvDataUpdateService extends Service {
         }
       }catch(Exception e) {
         Log.d("info", "", e);
-        
+      } finally {
+    	  IOUtils.close(read);
+    	  IOUtils.disconnect(connection);
       }
       
       SettingConstants.UPDATING_REMINDERS = false;
@@ -1169,7 +1162,7 @@ public class TvDataUpdateService extends Service {
                   knownChannels.put(groupChannelKey, channelId);
                 }
               }finally {
-                IOUtils.closeCursor(channel);
+                IOUtils.close(channel);
               }
             }
             
@@ -1201,7 +1194,7 @@ public class TvDataUpdateService extends Service {
                   }
                 }
               }finally {
-                IOUtils.closeCursor(program);
+                IOUtils.close(program);
               }
             }
           }
@@ -1674,7 +1667,7 @@ public class TvDataUpdateService extends Service {
             updatedIdsList.add(Integer.valueOf(c.getInt(c.getColumnIndex(TvBrowserContentProvider.KEY_ID))));
           }
         }finally {
-          IOUtils.closeCursor(c);
+          IOUtils.close(c);
         }
       }
       
@@ -2138,18 +2131,9 @@ public class TvDataUpdateService extends Service {
           Log.d("info8", "" ,e);
       } finally {
         Log.d("info8","Close connection");
-          try {
-              os.close();
-          } catch (Exception e) {
-          }
-          try {
-              is.close();
-          } catch (Exception e) {
-          }
-          try {
-
-          } catch (Exception e) {
-          }
+          IOUtils.close(os);
+          IOUtils.close(is);
+          IOUtils.disconnect(conn);
       }
     }
     
@@ -2157,9 +2141,11 @@ public class TvDataUpdateService extends Service {
   }
   
   private void loadAccessAndFavoriteSync() {
-    try {
+	URLConnection connection = null;
+	BufferedReader read = null;
+	try {
       URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=favoritesFromDesktop");
-      URLConnection connection = documentUrl.openConnection();
+      connection = documentUrl.openConnection();
       
       SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
       
@@ -2172,7 +2158,7 @@ public class TvDataUpdateService extends Service {
         
         connection.setRequestProperty ("Authorization", basicAuth);
         
-        BufferedReader read = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(connection.getInputStream()),"UTF-8"));
+        read = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(connection.getInputStream()),"UTF-8"));
         
         String dateValue = read.readLine();
         
@@ -2188,10 +2174,12 @@ public class TvDataUpdateService extends Service {
             mSyncFavorites.add(line);
           }
         }
-        
-        read.close();
       }
-    }catch(Throwable t) {}
+    }catch(Throwable t) {
+    }finally {
+		IOUtils.close(read);
+		IOUtils.disconnect(connection);
+	}
   }
   /**
    * Calculate the end times of programs that are missing end time in the data.
@@ -2290,7 +2278,7 @@ public class TvDataUpdateService extends Service {
           }
         }
       }finally {
-        IOUtils.closeCursor(c);
+        IOUtils.close(c);
       }
       
       if(!updateValuesList.isEmpty()) {
@@ -2688,7 +2676,7 @@ public class TvDataUpdateService extends Service {
                         } catch(IOException e) {
                           // ignore just load the info next time
                         } finally {
-                          IOUtils.closeInputStream(in);
+                          IOUtils.close(in);
                         }
                         
                         edit.putString(getString(R.string.EPG_DONATE_CURRENT_DONATION_PERCENT), donationProp.getProperty(SettingConstants.EPG_DONATE_DONATION_INFO_PERCENT_KEY,"-1"));
@@ -2726,7 +2714,7 @@ public class TvDataUpdateService extends Service {
                 }
               }
             }finally {
-              IOUtils.closeCursor(group);
+              IOUtils.close(group);
             }
           }
           
@@ -3148,7 +3136,7 @@ public class TvDataUpdateService extends Service {
         }catch(NullPointerException e) {}
       }
     }finally {
-      IOUtils.closeCursor(data);
+      IOUtils.close(data);
     }
   }
   

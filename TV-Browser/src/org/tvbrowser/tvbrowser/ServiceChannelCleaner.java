@@ -62,7 +62,7 @@ public class ServiceChannelCleaner extends Service {
               }
             }
           }finally{
-            IOUtils.closeCursor(channels);
+            IOUtils.close(channels);
           }
           
           if(!toDelete.isEmpty()) {
