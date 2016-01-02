@@ -165,7 +165,7 @@ public class ProgramUtils {
               result = new Channel(channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)), channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
             }
           }finally {
-            IOUtils.closeCursor(channelCursor);
+            IOUtils.close(channelCursor);
           }
         }
       }
@@ -220,7 +220,7 @@ public class ProgramUtils {
           }
         }
       }finally {
-        IOUtils.closeCursor(programs);
+        IOUtils.close(programs);
         Binder.restoreCallingIdentity(token);
       }
     }
@@ -263,7 +263,7 @@ public class ProgramUtils {
           }
         }
       }finally {
-        IOUtils.closeCursor(programs);
+        IOUtils.close(programs);
         Binder.restoreCallingIdentity(token);
       }
     }

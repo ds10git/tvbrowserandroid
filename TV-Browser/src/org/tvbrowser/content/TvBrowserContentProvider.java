@@ -1501,7 +1501,7 @@ public class TvBrowserContentProvider extends ContentProvider {
         }
       }
     }finally {
-      IOUtils.closeCursor(c);
+      IOUtils.close(c);
     }
     
     return result;
