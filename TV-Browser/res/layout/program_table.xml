@@ -6,7 +6,7 @@
 	<HorizontalScrollView 
 	    android:layout_width="wrap_content"
 	    android:layout_height="match_parent"
-	    android:id="@+id/horizontal_program_table_scroll"
+	    android:id="@id/horizontal_program_table_scroll"
 	     >
 	
 	    <LinearLayout
@@ -14,7 +14,7 @@
 	        android:layout_height="wrap_content"
 	        android:orientation="vertical" >
 	        <LinearLayout
-	            android:id="@+id/program_table_channel_bar"
+	            android:id="@id/program_table_channel_bar"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content" 
 	            android:orientation="horizontal">
@@ -29,7 +29,7 @@
 	            <include layout="@layout/separator_line"/>
 	        </LinearLayout>
 	        <ScrollView
-	            android:id="@+id/vertical_program_table_scroll"
+	            android:id="@id/vertical_program_table_scroll"
 	            android:layout_width="wrap_content"
 	            android:layout_height="wrap_content"
 	            >

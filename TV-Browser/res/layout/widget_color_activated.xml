@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent" >
     <CheckBox
-        android:id="@+id/widget_color_activated_selection"
+        android:id="@id/widget_color_activated_selection"
         android:layout_centerInParent="true"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -11,7 +11,7 @@
         android:focusable="false"
         />
     <org.tvbrowser.view.ColorView
-        android:id="@+id/widget_color_activated_color"
+        android:id="@id/widget_color_activated_color"
         android:visibility="gone"
         android:layout_centerInParent="true"
     	android:layout_width="40dp"

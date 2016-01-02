@@ -28,6 +28,7 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
@@ -150,7 +151,11 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
           mPlugin.onActivation(PluginHandler.getPluginManager());
           
           if(!PluginHandler.firstAndLastProgramIdAlreadyHandled()) {
-            mPlugin.handleFirstKnownProgramId(PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_FIRST_KNOWN, R.integer.meta_data_id_default));
+            try {
+              SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, mContext);
+              long value = pref.getLong(mContext.getString(R.string.META_DATA_ID_FIRST_KNOWN), mContext.getResources().getInteger(R.integer.meta_data_id_default));
+              mPlugin.handleFirstKnownProgramId(value);
+            }catch(Throwable iae) {}
           }
         }
         

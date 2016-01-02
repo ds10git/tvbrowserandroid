@@ -8,7 +8,7 @@
 	    android:layout_height="wrap_content"
 	    android:layout_margin="5dp" >
 	    <TextView
-	        android:id="@+id/favorite_time_selection_from_label"
+	        android:id="@id/favorite_time_selection_from_label"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:textSize="@dimen/edit_favorite_font_size"
@@ -16,14 +16,14 @@
 	        android:text="@string/favorite_time_from"
 	        android:layout_marginRight="5dp"/>
 	    <TimePicker
-	        android:id="@+id/favorite_time_selection_from"
+	        android:id="@id/favorite_time_selection_from"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_alignParentTop="true"
-	        android:layout_toRightOf="@+id/favorite_time_selection_from_label"
+	        android:layout_toRightOf="@id/favorite_time_selection_from_label"
 	        />
 	    <TextView
-	        android:id="@+id/favorite_time_selection_to_label"
+	        android:id="@id/favorite_time_selection_to_label"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:textSize="@dimen/edit_favorite_font_size"
@@ -31,13 +31,13 @@
 	        android:layout_marginTop="15dp"
 	        android:layout_marginRight="5dp"
 	        android:layout_alignParentLeft="true"
-	        android:layout_below="@+id/favorite_time_selection_from"/>
+	        android:layout_below="@id/favorite_time_selection_from"/>
 	    <TimePicker
-	        android:id="@+id/favorite_time_selection_to"
+	        android:id="@id/favorite_time_selection_to"
 	        android:layout_width="wrap_content"
 	        android:layout_height="wrap_content"
 	        android:layout_marginTop="15dp"
-	        android:layout_toRightOf="@+id/favorite_time_selection_to_label"
-	        android:layout_below="@+id/favorite_time_selection_from"/>
+	        android:layout_toRightOf="@id/favorite_time_selection_to_label"
+	        android:layout_below="@id/favorite_time_selection_from"/>
 	</RelativeLayout>
 </ScrollView>

@@ -5,7 +5,7 @@
     android:orientation="vertical" >
     <TimePicker
         android:layout_gravity="center_horizontal"
-        android:id="@+id/dialog_data_update_selection_auto_update_selection_time"
+        android:id="@id/dialog_data_update_selection_auto_update_selection_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 </LinearLayout>

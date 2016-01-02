@@ -9,27 +9,27 @@
 	    android:orientation="vertical"
 	    android:padding="15dp">
 	    <TextView
-	        android:id="@+id/dialog_epg_donate_message"
+	        android:id="@id/dialog_epg_donate_message"
 	        android:textSize="@dimen/epg_donate_info_font_size"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"/>
 	    <TextView
-	        android:id="@+id/dialog_epg_donate_percent_info"
+	        android:id="@id/dialog_epg_donate_percent_info"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"/>
 	    <SeekBar
-	        android:id="@+id/dialog_epg_donate_percent"
+	        android:id="@id/dialog_epg_donate_percent"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:layout_marginBottom="10dp"
 	        android:max="100"/>
 	    <CheckBox
-	        android:id="@+id/dialog_epg_donate_dont_show_again"
+	        android:id="@id/dialog_epg_donate_dont_show_again"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:text="@string/epg_donate_dont_show_again"/>
 		<Spinner
-		    android:id="@+id/dialog_epg_donate_reason_selection"
+		    android:id="@id/dialog_epg_donate_reason_selection"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:layout_marginLeft="25dp"

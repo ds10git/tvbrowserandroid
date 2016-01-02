@@ -3,12 +3,12 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 	<LinearLayout
-	    android:id="@+id/donation_in_app_layout"
+	    android:id="@id/donation_in_app_layout"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:orientation="vertical" >
 	    <TextView
-	        android:id="@+id/donation_thanks"
+	        android:id="@id/donation_thanks"
 	        android:text="@string/donation_thanks_text"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"

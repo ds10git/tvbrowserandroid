@@ -3,17 +3,17 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical" >
-    <TextView android:id="@+id/channel_sort_help"
+    <TextView android:id="@id/channel_sort_help"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/channel_selection_help"
         android:gravity="center_horizontal"/>
-	<Button android:id="@+id/channel_sort_alpabetically"
+	<Button android:id="@id/channel_sort_alpabetically"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:text="@string/sort_alphabetically"/>
     <com.example.android.listviewdragginganimation.DynamicListView 
-    	android:id="@+id/channel_sort"
+    	android:id="@id/channel_sort"
     	android:layout_width="match_parent"
     	android:layout_height="match_parent">
 	</com.example.android.listviewdragginganimation.DynamicListView>

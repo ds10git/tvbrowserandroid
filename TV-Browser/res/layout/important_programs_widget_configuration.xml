@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <LinearLayout
-        android:id="@+id/favorite_button_bar"
+        android:id="@id/important_favorite_button_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -12,7 +12,7 @@
         android:focusableInTouchMode="true">
         <Button
            	style="?android:attr/buttonBarButtonStyle" 
-            android:id="@+id/important_programs_widget_config_cancel"
+            android:id="@id/important_programs_widget_config_cancel"
             android:layout_width="0dp"
             android:layout_weight="0.5"
             android:layout_height="wrap_content"
@@ -21,7 +21,7 @@
             android:onClick="cancel"/>
         <Button
             style="?android:attr/buttonBarButtonStyle"
-            android:id="@+id/important_programs_widget_config_save"
+            android:id="@id/important_programs_widget_config_save"
             android:layout_width="0dp"
             android:layout_weight="0.5"
             android:layout_height="wrap_content"
@@ -34,13 +34,13 @@
         android:layout_height="match_parent"
         android:layout_width="match_parent"
         android:layout_alignParentTop="true"
-        android:layout_above="@+id/favorite_button_bar">
+        android:layout_above="@id/favorite_button_bar">
 	    <RelativeLayout 
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:layout_margin="5dp" >
 		    <TextView
-		        android:id="@+id/important_programs_widget_config_selection_label"
+		        android:id="@id/important_programs_widget_config_selection_label"
 		        android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
 			    android:layout_marginRight="3dp"
@@ -49,9 +49,9 @@
 			    android:layout_alignParentStart="true"
 			    android:text="@string/widget_important_config_type_label"
 			    android:layout_alignParentLeft="true"
-			    android:layout_alignBaseline="@+id/important_programs_widget_config_selection_type"/>
+			    android:layout_alignBaseline="@id/important_programs_widget_config_selection_type"/>
 		    <Spinner
-		        android:id="@+id/important_programs_widget_config_selection_type"
+		        android:id="@id/important_programs_widget_config_selection_type"
 		        android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
 			    android:layout_marginRight="3dp"
@@ -62,7 +62,7 @@
 			    android:entries="@array/widget_important_config_selection_type_entries"
 		        />
 			<TextView
-			    android:id="@+id/important_programs_widget_config_name_label"
+			    android:id="@id/important_programs_widget_config_name_label"
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
 			    android:layout_marginRight="3dp"
@@ -72,9 +72,9 @@
 			    android:text="@string/widget_important_config_name_label"
 			    android:layout_alignParentLeft="true"
 			    android:layout_below="@id/important_programs_widget_config_selection_type"
-			    android:layout_alignBaseline="@+id/important_programs_widget_config_name_value"/>
+			    android:layout_alignBaseline="@id/important_programs_widget_config_name_value"/>
 			<EditText
-			    android:id="@+id/important_programs_widget_config_name_value"
+			    android:id="@id/important_programs_widget_config_name_value"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
 			    android:textSize="@dimen/widget_config_font_size"
@@ -87,7 +87,7 @@
 			    />
 			<TextView
 			    android:layout_marginTop="15dp"
-			    android:id="@+id/important_programs_widget_config_shown_selection_label"
+			    android:id="@id/important_programs_widget_config_shown_selection_label"
 			    android:layout_below="@id/important_programs_widget_config_name_value"
 			    android:textSize="@dimen/widget_config_devider_font_size"
 			    android:textStyle="bold"
@@ -97,14 +97,14 @@
 			    android:layout_height="wrap_content"
 			    android:text="@string/widget_important_config_shown_selection_label"/>
 			<View
-			    android:id="@+id/important_programs_widget_config_shown_selection_label_devider"
+			    android:id="@id/important_programs_widget_config_shown_selection_label_devider"
 			    android:layout_below="@id/important_programs_widget_config_shown_selection_label"
 			    android:layout_alignParentStart="true"
 			    android:layout_alignParentLeft="true"
 			    android:layout_marginBottom="10dp"
 			    style="@style/Divider"/>
 			<CheckBox
-			    android:id="@+id/important_programs_widget_config_show_marked"
+			    android:id="@id/important_programs_widget_config_show_marked"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
 			    android:textSize="@dimen/widget_config_font_size"
@@ -116,7 +116,7 @@
 			    android:text="@string/widget_important_config_show_marked"
 			    android:layout_below="@id/important_programs_widget_config_shown_selection_label_devider"/>
 			<CheckBox
-			    android:id="@+id/important_programs_widget_config_show_favorite"
+			    android:id="@id/important_programs_widget_config_show_favorite"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
 			    android:textSize="@dimen/widget_config_font_size"
@@ -128,7 +128,7 @@
 			    android:text="@string/widget_important_config_show_favorite"
 			    android:layout_below="@id/important_programs_widget_config_show_marked"/>
 			<CheckBox
-			    android:id="@+id/important_programs_widget_config_show_reminder"
+			    android:id="@id/important_programs_widget_config_show_reminder"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
 			    android:textSize="@dimen/widget_config_font_size"
@@ -140,7 +140,7 @@
 			    android:text="@string/widget_important_config_show_reminder"
 			    android:layout_below="@id/important_programs_widget_config_show_favorite"/>
 			<CheckBox
-			    android:id="@+id/important_programs_widget_config_show_synchronized"
+			    android:id="@id/important_programs_widget_config_show_synchronized"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
 			    android:textSize="@dimen/widget_config_font_size"
@@ -152,7 +152,7 @@
 			    android:text="@string/widget_important_config_show_sync"
 			    android:layout_below="@id/important_programs_widget_config_show_reminder"/>
 			<CheckBox
-			    android:id="@+id/important_programs_widget_config_limit_selection"
+			    android:id="@id/important_programs_widget_config_limit_selection"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
 			    android:textSize="@dimen/widget_config_font_size"
@@ -165,7 +165,7 @@
 			    android:text="@string/widget_important_config_limit_selection"
 			    android:layout_below="@id/important_programs_widget_config_show_synchronized"/>
 			<EditText
-			    android:id="@+id/important_programs_widget_config_limit_selection_edit"
+			    android:id="@id/important_programs_widget_config_limit_selection_edit"
 			    android:layout_width="80dp"
 			    android:layout_height="wrap_content"
 			    android:layout_marginLeft="30dp"

@@ -2,21 +2,21 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android" 
     android:layout_width="match_parent"
     android:layout_height="match_parent">
- <LinearLayout android:id="@+id/program_list_channel_info"
+ <LinearLayout android:id="@id/program_list_channel_info"
      android:layout_width="100dp"
      android:layout_height="match_parent"
      android:orientation="vertical"
      android:layout_alignParentLeft="true"
      android:layout_centerVertical="true">
      <ImageView 
-     	android:id="@+id/program_list_channel_logo"
+     	android:id="@id/program_list_channel_logo"
     	android:layout_width="100dp"
     	android:scaleType="center"
     	android:layout_height="wrap_content"
     	android:layout_marginTop="2dp"
      	/>
      <TextView
-	        android:id="@+id/channelLabelPL"
+	        android:id="@id/channelLabelPL"
 	        android:layout_width="100dp"
 	        android:layout_height="wrap_content"
 	        android:textSize="@dimen/title_font_size"
@@ -25,13 +25,13 @@
 	        />
  	</LinearLayout>
 <RelativeLayout
-    android:id="@+id/programs_list_row" 
+    android:id="@id/programs_list_row" 
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_toRightOf="@id/program_list_channel_info"
     >
    
-    <TextView android:id="@+id/startDayLabelPL"
+    <TextView android:id="@id/startDayLabelPL"
         android:textSize="@dimen/title_font_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -40,7 +40,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentTop="true"
         />
-    <TextView android:id="@+id/startDateLabelPL"
+    <TextView android:id="@id/startDateLabelPL"
         android:textSize="@dimen/title_font_size"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -48,18 +48,18 @@
         android:layout_alignParentTop="true"
         />
     
-    <TextView android:id="@+id/startTimeLabelPL"
+    <TextView android:id="@id/startTimeLabelPL"
         android:textSize="@dimen/title_font_size"
         android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginRight="5dp"
         android:layout_marginLeft="3dp"
-        android:layout_below="@+id/startDateLabelPL"
+        android:layout_below="@id/startDateLabelPL"
         android:layout_alignParentLeft="true"
         />
     <TextView 
-        android:id="@+id/untilLabelPL"
+        android:id="@id/untilLabelPL"
         android:text="@string/running_until"
         android:textSize="@dimen/title_font_size"
         android:layout_width="wrap_content"
@@ -68,16 +68,16 @@
         android:layout_toRightOf="@id/startDateLabelPL"
         android:layout_alignParentTop="true"
         />
-<!--    <TextView android:id="@+id/channelLabelPL"
+<!--    <TextView android:id="@id/channelLabelPL"
         android:textSize="@dimen/title_font_size"
         android:textStyle="italic"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
-        android:layout_toRightOf="@+id/endTimeLabelPL"
+        android:layout_toRightOf="@id/endTimeLabelPL"
         /> --> 
 
-    <TextView android:id="@+id/endTimeLabelPL"
+    <TextView android:id="@id/endTimeLabelPL"
        android:textSize="@dimen/title_font_size"
        android:layout_width="wrap_content"
        android:layout_height="wrap_content"
@@ -85,34 +85,34 @@
        android:layout_toRightOf="@id/untilLabelPL"
        android:layout_alignParentTop="true"
        /> 
-    <TextView android:id="@+id/titleLabelPL"
+    <TextView android:id="@id/titleLabelPL"
         android:textSize="@dimen/title_font_size"
         android:textStyle="bold"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/startTimeLabelPL"
         android:layout_below="@id/startDateLabelPL"/>
-    <ImageView android:id="@+id/picture_pl"
+    <ImageView android:id="@id/picture_pl"
         android:contentDescription="picture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/startTimeLabelPL"
     	android:layout_below="@id/titleLabelPL"
     	android:gravity="bottom" />
-    <TextView android:id="@+id/picture_copyright_pl"
+    <TextView android:id="@id/picture_copyright_pl"
         android:textSize="@dimen/picture_copyright_font_size"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/startTimeLabelPL"
     	android:layout_below="@id/picture_pl"
     	android:gravity="bottom" />
-    <TextView android:id="@+id/info_label_pl"
+    <TextView android:id="@id/info_label_pl"
         android:textSize="12sp"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/startTimeLabelPL"
         android:layout_below="@id/picture_copyright_pl"/>
-    <TextView android:id="@+id/genre_label_pl"
+    <TextView android:id="@id/genre_label_pl"
         android:textSize="@dimen/genre_font_size"
         android:textStyle="italic"
         android:layout_width="fill_parent"
@@ -120,7 +120,7 @@
         android:layout_toRightOf="@id/startTimeLabelPL"
         android:layout_below="@id/info_label_pl"
         />
-    <TextView android:id="@+id/episodeLabelPL"
+    <TextView android:id="@id/episodeLabelPL"
         android:textSize="@dimen/episode_font_size"
         android:textStyle="italic"
         android:layout_width="fill_parent"

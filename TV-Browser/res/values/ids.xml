@@ -1,0 +1,570 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+<!-- IDs for layout files -->
+    
+    <!-- activity_favorites_edit -->
+    
+	    <item type="id" name="activity_favorite_edit_favorite_button_bar" />
+	    <item type="id" name="favorite_cancel" />
+	    <item type="id" name="favorite_ok" />
+	    <item type="id" name="favorite_name_label" />
+	    <item type="id" name="activity_edit_favorite_input_id_name" />
+	    <item type="id" name="activity_edit_favorite_label_id_type" />
+	    <item type="id" name="activity_edit_favorite_input_id_type" />
+	    <item type="id" name="favorite_search_label" />
+	    <item type="id" name="activity_edit_favorite_input_id_search_value" />
+	    <item type="id" name="activity_edit_favorite_label_id_duration" />
+	    <item type="id" name="activity_edit_favorite_input_id_restriction_duration" />
+	    <item type="id" name="favorite_time_restriction_label" />
+	    <item type="id" name="activity_edit_favorite_input_id_restriction_time" />
+	    <item type="id" name="favorite_day_restriction_label" />
+	    <item type="id" name="activity_edit_favorite_input_id_restriction_day" />
+	    <item type="id" name="activity_edit_favorite_label_id_channels" />
+	    <item type="id" name="activity_edit_favorite_input_id_restriction_channel" />
+	    <item type="id" name="activity_edit_favorite_label_id_attributes" />
+	    <item type="id" name="activity_edit_favorite_input_id_restriction_attributes" />
+	    <item type="id" name="favorite_exclusion_label" />
+	    <item type="id" name="activity_edit_favorite_input_id_restriction_exclusion" />
+	    <item type="id" name="activity_edit_favorite_input_id_remind" />
+	    
+	<!-- activity_filter_list_edit -->
+	
+		<item type="id" name="activity_filter_list_edit_close" />
+		<item type="id" name="activity_edit_filter_list_list" />
+		
+	<!-- activity_pref -->
+		
+		<item type="id" name="toolbar" />
+		
+    <!-- activity_tv_browser -->
+    	
+		<item type="id" name="pager" />
+		
+	<!--  channel_label -->
+		
+		<item type="id" name="channel_label" />
+		
+	<!--  channel_row -->
+		
+		<item type="id" name="row_of_channel_icon" />
+		<item type="id" name="row_of_channel_text" />
+		<item type="id" name="row_of_channel_selection" />
+	
+	<!--  channel_sort_list -->
+		
+		<item type="id" name="channel_sort_help" />
+		<item type="id" name="channel_sort_alpabetically" />
+		<item type="id" name="channel_sort" />
+				
+	<!--  channel_sort_row -->
+		
+		<item type="id" name="row_of_channel_sort_number" />
+		<item type="id" name="row_of_channel_sort_icon" />
+		<item type="id" name="row_of_channel_sort_text" />
+		
+	<!--  color_preference_dialog -->
+		
+		<item type="id" name="color_pref_color_activated" />
+		<item type="id" name="color_pref_color_view" />
+		<item type="id" name="color_pref_reset" />
+		<item type="id" name="color_pref_red_label" />
+		<item type="id" name="color_pref_green_label" />
+		<item type="id" name="color_pref_blue_label" />
+	    <item type="id" name="color_pref_alpha_label" />
+		<item type="id" name="color_pref_red1" />
+		<item type="id" name="color_pref_green1" />
+		<item type="id" name="color_pref_blue1" />
+		<item type="id" name="color_pref_alpha1" />
+		
+	<!--  color_widget -->
+		
+		<item type="id" name="color_view" />
+		
+	<!--  compact_program_panel -->
+		
+		<item type="id" name="running_list_channel_info" />
+		<item type="id" name="running_list_channel_logo" />
+		<item type="id" name="running_compact_channel_label" />
+		<item type="id" name="running_compact_previous" />
+		<item type="id" name="running_compact_previous_start" />
+		<item type="id" name="running_compact_previous_title" />
+		<item type="id" name="running_compact_previous_infos" />
+		<item type="id" name="running_compact_previous_episode" />
+		<item type="id" name="running_compact_now" />
+		<item type="id" name="running_compact_now_start" />
+		<item type="id" name="running_compact_now_title" />
+		<item type="id" name="running_compact_now_infos" />
+		<item type="id" name="running_compact_now_episode" />
+		<item type="id" name="running_compact_next" />
+		<item type="id" name="running_compact_next_start" />
+		<item type="id" name="running_compact_next_title" />
+		<item type="id" name="running_compact_next_infos" />
+		<item type="id" name="running_compact_next_episode" />
+		
+	<!--  detail_layout_swipe -->
+		
+		<item type="id" name="test_test_test" />
+		<item type="id" name="detail_date_channel" />
+		<item type="id" name="detail_handle_reminder" />
+		<item type="id" name="detail_title" />
+		<item type="id" name="detail_picture_description" />
+		<item type="id" name="detail_picture_copyright" />
+		<item type="id" name="detail_genre" />
+		<item type="id" name="detail_info" />
+		<item type="id" name="detail_episode_title" />
+		<item type="id" name="detail_short_description" />
+		<item type="id" name="detail_description" />
+		<item type="id" name="detail_link" />
+		<item type="id" name="detail_actors" />
+		<item type="id" name="detail_regie" />
+		<item type="id" name="detail_custom" />
+		<item type="id" name="detail_age_limit" />
+		<item type="id" name="detail_netto_playtime" />
+		<item type="id" name="detail_vps" />
+		<item type="id" name="detail_script" />
+		<item type="id" name="detail_repetition_from" />
+		<item type="id" name="detail_music" />
+		<item type="id" name="detail_moderation" />
+		<item type="id" name="detail_repetition_on" />
+		<item type="id" name="detail_season" />
+		<item type="id" name="detail_producer" />
+		<item type="id" name="detail_camera" />
+		<item type="id" name="detail_cut" />
+		<item type="id" name="detail_other_persons" />
+		<item type="id" name="detail_rating" />
+		<item type="id" name="detail_production_firm" />
+		<item type="id" name="detail_age_limit_string" />
+		<item type="id" name="detail_last_production_year" />
+		<item type="id" name="detail_additional_info" />
+		<item type="id" name="detail_series" />
+		
+	<!--  detail_layout -->
+	<!--  same ids like detail_layout_swipe -->
+		
+    <!--  dialog_about -->
+		
+		<item type="id" name="app_name" />
+		<item type="id" name="version_label" />
+		<item type="id" name="version" />
+		<item type="id" name="rundate_label" />
+		<item type="id" name="rundate_value" />
+		<item type="id" name="android_label" />
+		<item type="id" name="android_version" />
+		<item type="id" name="data_update_label" />
+		<item type="id" name="data_update" />
+		<item type="id" name="next_data_update_label" />
+		<item type="id" name="next_data_update" />
+		<item type="id" name="data_range_label" />
+		<item type="id" name="data_range" />
+        <item type="id" name="copyright" />
+		<item type="id" name="license" />
+		
+    <!--  dialog_channel_selection_list.xml -->
+
+        <item type="id" name="channel_selection_label_id_name" />
+        <item type="id" name="channel_selection_input_id_name" />
+        <item type="id" name="channel_country_label" />
+        <item type="id" name="channel_country_value" />
+        <item type="id" name="channel_category_label" />
+        <item type="id" name="channel_category_value" />
+        <item type="id" name="channel_selection_selection_buttons" />
+        <item type="id" name="channel_selection_select_all" />
+        <item type="id" name="channel_selection_remove_selection" />
+        <item type="id" name="channel_selection_list" />
+
+    <!--  dialog_data_update_selection.xml -->
+
+        <item type="id" name="dialog_data_update_selection_download_days_label" />
+        <item type="id" name="dialog_data_update_selection_download_days_label_divider" />
+        <item type="id" name="dialog_data_update_selection_download_days" />
+        <item type="id" name="dialog_data_update_selection_download_picture" />
+        <item type="id" name="dialog_data_update_preferences_auto_update_label" />
+        <item type="id" name="dialog_data_update_preferences_auto_update_label_devider" />
+        <item type="id" name="dialog_data_update_preferences_auto_update_selection_type" />
+        <item type="id" name="dialog_data_update_preferences_auto_update_selection_time_label" />
+        <item type="id" name="dialog_data_update_preferences_auto_update_selection_time" />
+        <item type="id" name="dialog_data_update_preferences_auto_update_selection_frequency" />
+        <item type="id" name="dialog_data_update_preferences_auto_update_selection_type_connection" />
+
+    <!--  dialog_data_update_selection_auto_update_time.xml -->
+
+        <item type="id" name="dialog_data_update_selection_auto_update_selection_time" />
+
+    <!--  dialog_epg_donate_info.xml -->
+
+        <item type="id" name="dialog_epg_donate_message" />
+        <item type="id" name="dialog_epg_donate_percent_info" />
+        <item type="id" name="dialog_epg_donate_percent" />
+        <item type="id" name="dialog_epg_donate_dont_show_again" />
+        <item type="id" name="dialog_epg_donate_reason_selection" />
+
+    <!--  dialog_favorite_selection_duration.xml -->
+
+        <item type="id" name="dialog_favorite_selection_id_selection_duration_minimum" />
+        <item type="id" name="dialog_favorite_selection_id_input_duration_minimum" />
+        <item type="id" name="dialog_favorite_selection_id_selection_duration_maximum" />
+        <item type="id" name="dialog_favorite_selection_id_input_duration_maximum" />
+
+    <!--  dialog_filter_categories.xml -->
+
+        <item type="id" name="dialog_filter_categories_label_name" />
+        <item type="id" name="dialog_filter_categories_input_name" />
+        <item type="id" name="dialog_filter_categories_label_operation" />
+        <item type="id" name="dialog_filter_categories_selection_operation" />
+        <item type="id" name="dialog_filter_categories_list" />
+
+    <!--  donations.xml -->
+
+        <item type="id" name="donation_in_app_text" />
+        <item type="id" name="donation_in_app_button" />
+        <item type="id" name="donation_show_ways" />
+        <item type="id" name="donation_website_button" />
+
+    <!--  dont_want_to_see_edit.xml -->
+
+        <item type="id" name="dont_want_to_see_value_label" />
+        <item type="id" name="dont_want_to_see_value" />
+        <item type="id" name="dont_want_to_see_case_sensitve" />
+
+    <!--  dont_want_to_see_exclusion_edit_list.xml -->
+
+        <item type="id" name="dont_want_to_see_exclusion_list" />
+
+    <!--  favorite_fragment_layout.xml -->
+
+        <item type="id" name="favorite_fragment_selection" />
+        <item type="id" name="favorite_fragment_help" />
+        <item type="id" name="favorite_program_list" />
+
+    <!--  favorite_time_selection.xml -->
+
+        <item type="id" name="favorite_time_selection_from_label" />
+        <item type="id" name="favorite_time_selection_from" />
+        <item type="id" name="favorite_time_selection_to_label" />
+        <item type="id" name="favorite_time_selection_to" />
+
+    <!--  fragment_favorite_selection_list_layout.xml -->
+
+        <item type="id" name="favorite_fragment_selection_header" />
+        <item type="id" name="favorite_fragment_selection_markings" />
+        <!-- other ids like favorite_fragment_layout.xml -->
+        
+    <!--  fragment_tv_browser_dummy.xml -->
+
+        <item type="id" name="programList" />
+
+    <!--  important_programs_widget_configuration.xml -->
+
+        <item type="id" name="important_favorite_button_bar" />
+        <item type="id" name="important_programs_widget_config_cancel" />
+        <item type="id" name="important_programs_widget_config_save" />
+        <item type="id" name="important_programs_widget_config_selection_label" />
+        <item type="id" name="important_programs_widget_config_selection_type" />
+        <item type="id" name="important_programs_widget_config_name_label" />
+        <item type="id" name="important_programs_widget_config_name_value" />
+        <item type="id" name="important_programs_widget_config_shown_selection_label" />
+        <item type="id" name="important_programs_widget_config_shown_selection_label_devider" />
+        <item type="id" name="important_programs_widget_config_show_marked" />
+        <item type="id" name="important_programs_widget_config_show_favorite" />
+        <item type="id" name="important_programs_widget_config_show_reminder" />
+        <item type="id" name="important_programs_widget_config_show_synchronized" />
+        <item type="id" name="important_programs_widget_config_limit_selection" />
+        <item type="id" name="important_programs_widget_config_limit_selection_edit" />
+
+    <!--  important_programs_widget_divider_big.xml -->
+
+        <item type="id" name="important_widget_header_wrapper" />
+        <item type="id" name="important_widget_config" />
+        <item type="id" name="important_widget_header_info_wrapper" />
+        <item type="id" name="important_widget_header_icon" />
+        <item type="id" name="important_widget_header" />
+        <item type="id" name="important_widget_list_view" />
+        <item type="id" name="important_widget_empty_text" />
+
+    <!--  important_programs_widget_divider_medium.xml -->
+    <!--  ids like important_programs_widget_divider_big.xml -->
+
+    <!--  important_programs_widget_divider_small.xml -->
+	<!--  ids like important_programs_widget_divider_big.xml -->
+
+    <!--  important_programs_widget_divider_tiny.xml -->
+	<!--  ids like important_programs_widget_divider_big.xml -->
+
+    <!--  important_programs_widget_row.xml -->
+
+        <item type="id" name="important_programs_widget_row" />
+        <item type="id" name="important_programs_widget_row_channel" />
+        <item type="id" name="important_programs_widget_row_channel_logo1" />
+        <item type="id" name="important_programs_widget_row_channel_name1" />
+        <item type="id" name="important_programs_widget_row_program" />
+        <item type="id" name="important_programs_widget_row_progress" />
+        <item type="id" name="important_programs_widget_row_start_date1" />
+        <item type="id" name="important_programs_widget_row_start_time1" />
+        <item type="id" name="important_programs_widget_row_title1" />
+        <item type="id" name="important_programs_widget_row_categories" />
+        <item type="id" name="important_programs_widget_row_episode" />
+
+    <!--  in_app_donations.xml -->
+
+        <item type="id" name="donation_in_app_layout" />
+        <item type="id" name="donation_thanks" />
+
+    <!--  list_row_selection.xml -->
+
+        <item type="id" name="row_selection_text" />
+        <item type="id" name="row_selection_selection" />
+
+    <!--  list_view.xml -->
+
+        <item type="id" name="list_view" />
+
+    <!--  open_donation.xml -->
+
+        <item type="id" name="donation_open_info" />
+
+    <!--  program_block.xml -->
+
+
+    <!--  program_list_fragment.xml -->
+
+        <item type="id" name="date_selection" />
+        <item type="id" name="channel_minus" />
+        <item type="id" name="channel_selection" />
+        <item type="id" name="channel_plus" />
+        <item type="id" name="program_selection" />
+        <item type="id" name="program_list_fragment_list_view" />
+
+    <!--  program_lists_entries.xml -->
+
+        <item type="id" name="program_list_channel_info" />
+        <item type="id" name="program_list_channel_logo" />
+        <item type="id" name="channelLabelPL" />
+        <item type="id" name="programs_list_row" />
+        <item type="id" name="startDayLabelPL" />
+        <item type="id" name="startDateLabelPL" />
+        <item type="id" name="startTimeLabelPL" />
+        <item type="id" name="untilLabelPL" />
+        <item type="id" name="endTimeLabelPL" />
+        <item type="id" name="titleLabelPL" />
+        <item type="id" name="picture_pl" />
+        <item type="id" name="picture_copyright_pl" />
+        <item type="id" name="info_label_pl" />
+        <item type="id" name="genre_label_pl" />
+        <item type="id" name="episodeLabelPL" />
+
+    <!--  program_panel.xml -->
+
+        <item type="id" name="prog_panel_start_time" />
+        <item type="id" name="prog_panel_title" />
+        <item type="id" name="prog_panel_genre" />
+        <item type="id" name="prog_panel_episode" />
+
+    <!--  program_table.xml -->
+
+        <item type="id" name="horizontal_program_table_scroll" />
+        <item type="id" name="program_table_channel_bar" />
+        <item type="id" name="vertical_program_table_scroll" />
+
+    <!--  program_table_layout.xml -->
+
+        <item type="id" name="button_panel" />
+        <item type="id" name="switch_to_previous_day" />
+        <item type="id" name="show_current_day" />
+        <item type="id" name="switch_to_next_day" />
+        <item type="id" name="program_table_base" />
+
+    <!--  progressbar.xml -->
+
+        <item type="id" name="progressBar2" />
+
+    <!--  rating_and_donation.xml -->
+
+        <item type="id" name="rating_info" />
+        <item type="id" name="rating_button" />
+        <item type="id" name="donation_info" />
+        <item type="id" name="donation_button" />
+        <item type="id" name="rating_donation_cancel" />
+
+    <!--  running_list_entries.xml -->
+
+        <item type="id" name="running_layout" />
+        <item type="id" name="channelLabel" />
+        <item type="id" name="endTimeLabel" />
+        <item type="id" name="startTimeLabel" />
+        <item type="id" name="titleLabel" />
+        <item type="id" name="picture" />
+        <item type="id" name="picture_copyright" />
+        <item type="id" name="info_label" />
+        <item type="id" name="genre_label" />
+        <item type="id" name="episodeLabel" />
+
+    <!--  running_program_fragment.xml -->
+
+        <item type="id" name="running_date_selection" />
+        <item type="id" name="runnning_time_bar" />
+        <item type="id" name="button_before1" />
+        <item type="id" name="now_button" />
+        <item type="id" name="button_after1" />
+        <item type="id" name="running_list_fragment_list_view" />
+
+    <!--  running_programs_widget_divider_big.xml -->
+
+        <item type="id" name="running_widget_header_wrapper" />
+        <item type="id" name="running_widget_time" />
+        <item type="id" name="running_widget_header_info_wrapper" />
+        <item type="id" name="running_widget_header_icon" />
+        <item type="id" name="running_widget_header" />
+        <item type="id" name="running_widget_list_view" />
+        <item type="id" name="running_widget_empty_text" />
+
+    <!--  running_programs_widget_divider_medium.xml -->
+    <!--  ids like running_programs_widget_divider_big -->
+
+    <!--  running_programs_widget_divider_small.xml -->
+    <!--  ids like running_programs_widget_divider_big -->
+
+    <!--  running_programs_widget_divider_tiny.xml -->
+    <!--  ids like running_programs_widget_divider_big -->
+
+    <!--  running_programs_widget_row.xml -->
+
+        <item type="id" name="running_programs_widget_row" />
+        <item type="id" name="running_programs_widget_row_channel" />
+        <item type="id" name="running_programs_widget_row_channel_logo" />
+        <item type="id" name="running_programs_widget_row_channel_name" />
+        <item type="id" name="running_programs_widget_row_program" />
+        <item type="id" name="running_programs_widget_row_progress" />
+        <item type="id" name="running_programs_widget_row_start_time" />
+        <item type="id" name="running_programs_widget_row_title" />
+        <item type="id" name="running_programs_widget_row_categories" />
+        <item type="id" name="running_programs_widget_row_episode" />
+
+    <!--  search_repetition_layout.xml -->
+
+        <item type="id" name="search_repetition_title_label" />
+        <item type="id" name="search_repetition_episode_label" />
+        <item type="id" name="search_repetition_title" />
+        <item type="id" name="search_repetition_episode" />
+
+    <!--  separator_line.xml -->
+
+
+    <!--  sort_number_selection.xml -->
+
+        <item type="id" name="sort_picker_channel_name" />
+        <item type="id" name="sort_picker" />
+        <item type="id" name="sort_entered_number" />
+
+    <!--  terms_layout.xml -->
+
+        <item type="id" name="terms_terms" />
+        <item type="id" name="terms_license" />
+
+    <!--  time_button.xml -->
+
+        <item type="id" name="time_button" />
+
+    <!--  username_password_setup.xml -->
+
+        <item type="id" name="user_pw_sync_info" />
+        <item type="id" name="username_label" />
+        <item type="id" name="password_label" />
+        <item type="id" name="username_entry" />
+        <item type="id" name="password_entry" />
+
+    <!--  widget_color_activated.xml -->
+
+        <item type="id" name="widget_color_activated_selection" />
+        <item type="id" name="widget_color_activated_color" />
+        
+    <!--  compact_program_panel.xml -->
+
+        <item type="id" name="running_separator_0" />
+        <item type="id" name="running_separator_1" />
+        <item type="id" name="running_separator_2" />
+        
+<!-- IDs for menu files -->
+
+<!--  activity_edit_filter_list_context.xml -->
+
+        <item type="id" name="activity_edit_filter_list_action_edit" />
+        <item type="id" name="activity_edit_filter_list_action_delete" />
+
+    <!--  activity_filter_list_edit_menu.xml -->
+
+        <item type="id" name="activity_edit_filter_list_action_add" />
+        <item type="id" name="activity_edit_filter_list_action_channel_add" />
+        <item type="id" name="activity_edit_filter_list_action_categories_add" />
+
+    <!--  don_want_to_see_context.xml -->
+
+        <item type="id" name="dont_want_to_see_delete" />
+
+    <!--  favorite_context.xml -->
+
+        <item type="id" name="program_popup_menu" />
+        <item type="id" name="edit_favorite" />
+        <item type="id" name="delete_favorite" />
+
+    <!--  program_context.xml -->
+
+        <item type="id" name="prog_program_popup_menu" />
+        <item type="id" name="create_favorite_item" />
+        <item type="id" name="prog_add_reminder" />
+        <item type="id" name="prog_remove_reminder" />
+        <item type="id" name="program_popup_search_repetition" />
+        <item type="id" name="program_popup_dont_want_to_see" />
+        <item type="id" name="program_popup_want_to_see" />
+        <item type="id" name="program_popup_remove_sync" />
+
+    <!--  tv_browser.xml -->
+
+        <item type="id" name="search" />
+        <item type="id" name="action_filter_channels" />
+        <item type="id" name="action_activity_filter_list_edit_open" />
+        <item type="id" name="action_scroll" />
+        <item type="id" name="action_scroll_now" />
+        <item type="id" name="menu_tvbrowser_action_update_data" />
+        <item type="id" name="menu_tvbrowser_action_create_favorite" />
+        <item type="id" name="menu_tvbrowser_action_favorite_add" />
+        <item type="id" name="menu_tvbrowser_action_favorite_edit" />
+        <item type="id" name="menu_tvbrowser_action_favorite_delete" />
+        <item type="id" name="action_pause_reminder" />
+        <item type="id" name="action_continue_reminder" />
+        <item type="id" name="action_load_channels_again" />
+        <item type="id" name="action_select_channels" />
+        <item type="id" name="action_sort_channels" />
+        <item type="id" name="action_synchronize" />
+        <item type="id" name="action_username_password" />
+        <item type="id" name="action_synchronize_channels_up" />
+        <item type="id" name="action_synchronize_channels" />
+        <item type="id" name="action_synchronize_favorites" />
+        <item type="id" name="action_synchronize_reminders_down" />
+        <item type="id" name="action_synchronize_reminders_up" />
+        <item type="id" name="action_synchronize_dont_want_to_see" />
+        <item type="id" name="action_backup_preferences_save" />
+        <item type="id" name="action_backup_preferences_restore" />
+        <item type="id" name="menu_tvbrowser_action_settings" />
+        <item type="id" name="menu_tvbrowser_action_settings_basic" />
+        <item type="id" name="menu_tvbrowser_action_settings_plugins" />
+        <item type="id" name="action_delete_all_data" />
+        <item type="id" name="action_dont_want_to_see_edit" />
+        <item type="id" name="action_donation" />
+        <item type="id" name="action_search_plugins" />
+        <item type="id" name="action_about" />
+        <item type="id" name="action_debug" />
+        <item type="id" name="action_delete_data_update_log" />
+        <item type="id" name="action_send_data_update_log" />
+        <item type="id" name="action_delete_reminder_log" />
+        <item type="id" name="action_send_reminder_log" />
+        <item type="id" name="action_delete_plugin_log" />
+        <item type="id" name="action_send_plugin_log" />
+        <item type="id" name="action_reset" />
+        <item type="id" name="action_show_markings" />
+        
+        <!--  menu-v15/tv_browser.xml -->
+        
+        <item type="id" name="action_preferences_channels" />
+        
+</resources>
