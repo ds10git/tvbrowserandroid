@@ -259,7 +259,7 @@ public class PrefUtils {
           PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(value), last).commit();
         }
       }finally {
-        IOUtils.closeCursor(valueCursor);
+        IOUtils.close(valueCursor);
       }
     }
   }
@@ -272,7 +272,7 @@ public class PrefUtils {
       try {
         value = channels != null && channels.getCount() > 0;
       }finally {
-        IOUtils.closeCursor(channels);
+        IOUtils.close(channels);
       }
       
       getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putBoolean(context.getString(R.string.CHANNELS_SELECTED), value).commit();
