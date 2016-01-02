@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content" >
-    <LinearLayout android:id="@+id/running_list_channel_info"
+    <LinearLayout android:id="@id/running_list_channel_info"
      android:layout_width="92dp"
      android:layout_height="match_parent"
      android:orientation="vertical"
@@ -11,37 +11,25 @@
      android:layout_marginTop="2dp"
      android:layout_marginBottom="2dp">
      <ImageView 
-     	android:id="@+id/running_list_channel_logo"
+     	android:id="@id/running_list_channel_logo"
     	android:layout_width="92dp"
     	android:scaleType="center"
     	android:layout_height="wrap_content"
      	/>
      <TextView
-	        android:id="@+id/running_compact_channel_label"
+	        android:id="@id/running_compact_channel_label"
 	        android:layout_width="92dp"
 	        android:layout_height="wrap_content"
 	        android:textSize="@dimen/title_font_size"
 	        android:gravity="center_horizontal"
 	        />
  	</LinearLayout>
-    <!-- <TextView
-        android:id="@+id/running_compact_channel_label"
-        android:layout_width="100dp"
-        android:layout_height="fill_parent"
-        android:textSize="@dimen/title_font_size"
-        android:layout_marginRight="5dp"
-        android:layout_alignParentLeft="true"
-        android:layout_centerVertical="true"
-        android:gravity="center_horizontal"
-	    android:layout_marginTop="3dp"
-	    android:layout_marginBottom="3dp"
-        />-->
-    <RelativeLayout android:id="@+id/running_compact_previous"
+    <RelativeLayout android:id="@id/running_compact_previous"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/running_list_channel_info">
 		<TextView 
-		    android:id="@+id/running_compact_previous_start"
+		    android:id="@id/running_compact_previous_start"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/title_font_size"
@@ -49,7 +37,7 @@
 		    android:layout_alignParentLeft="true"
 		    android:layout_alignParentTop="true"/>
 		<TextView 
-		    android:id="@+id/running_compact_previous_title"
+		    android:id="@id/running_compact_previous_title"
 		    android:layout_width="wrap_content"
 		    android:layout_height="match_parent"
 		    android:textSize="@dimen/title_font_size"
@@ -57,7 +45,7 @@
 		    android:layout_toRightOf="@id/running_compact_previous_start"
 		    android:layout_alignParentTop="true"/>
 		<TextView 
-		    android:id="@+id/running_compact_previous_infos"
+		    android:id="@id/running_compact_previous_infos"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/info_font_size"
@@ -67,7 +55,7 @@
 		    android:layout_below="@id/running_compact_previous_title"
 	        />
 		<TextView 
-		    android:id="@+id/running_compact_previous_episode"
+		    android:id="@id/running_compact_previous_episode"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/episode_font_size"
@@ -78,13 +66,13 @@
 	        />
 	</RelativeLayout>
 	
-    <RelativeLayout android:id="@+id/running_compact_now"
+    <RelativeLayout android:id="@id/running_compact_now"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_toRightOf="@id/running_list_channel_info"
 	    android:layout_below="@id/running_compact_previous">
 		<TextView 
-		    android:id="@+id/running_compact_now_start"
+		    android:id="@id/running_compact_now_start"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:textStyle="bold"
@@ -94,7 +82,7 @@
 		    android:layout_alignParentTop="true"
 		    />
 		<TextView 
-		    android:id="@+id/running_compact_now_title"
+		    android:id="@id/running_compact_now_title"
 		    android:layout_width="wrap_content"
 		    android:layout_height="match_parent"
 		    android:textStyle="bold"
@@ -104,7 +92,7 @@
 		    android:layout_alignParentTop="true"
 			/>
 		<TextView 
-		    android:id="@+id/running_compact_now_infos"
+		    android:id="@id/running_compact_now_infos"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/info_font_size"
@@ -114,7 +102,7 @@
 		    android:layout_below="@id/running_compact_now_title"
 	        />
 		<TextView 
-		    android:id="@+id/running_compact_now_episode"
+		    android:id="@id/running_compact_now_episode"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/episode_font_size"
@@ -125,13 +113,13 @@
 		    />
 	</RelativeLayout>
 	
-    <RelativeLayout android:id="@+id/running_compact_next"
+    <RelativeLayout android:id="@id/running_compact_next"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_toRightOf="@id/running_list_channel_info"
 	    android:layout_below="@id/running_compact_now">
 		<TextView 
-		    android:id="@+id/running_compact_next_start"
+		    android:id="@id/running_compact_next_start"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/title_font_size"
@@ -140,7 +128,7 @@
 		    android:layout_alignParentTop="true"
 		    />
 		<TextView 
-		    android:id="@+id/running_compact_next_title"
+		    android:id="@id/running_compact_next_title"
 		    android:layout_width="wrap_content"
 		    android:layout_height="match_parent"
 		    android:textSize="@dimen/title_font_size"
@@ -149,7 +137,7 @@
 			android:layout_toRightOf="@id/running_compact_next_start"
 			/>
 		<TextView 
-		    android:id="@+id/running_compact_next_infos"
+		    android:id="@id/running_compact_next_infos"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/info_font_size"
@@ -159,7 +147,7 @@
 		    android:layout_below="@id/running_compact_next_title"
 	        />
 		<TextView 
-		    android:id="@+id/running_compact_next_episode"
+		    android:id="@id/running_compact_next_episode"
 		    android:layout_width="wrap_content"
 		    android:layout_height="wrap_content"
 		    android:textSize="@dimen/episode_font_size"

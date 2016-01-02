@@ -4,13 +4,13 @@
      xmlns:android="http://schemas.android.com/apk/res/android"
      >
      
-    <RelativeLayout android:id="@+id/button_panel"
+    <RelativeLayout android:id="@id/button_panel"
         android:layout_width="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_height="50dip"
         android:background="#DDDDDD">
     <Button
-	    android:id="@+id/switch_to_previous_day"
+	    android:id="@id/switch_to_previous_day"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentBottom="true"
@@ -20,29 +20,29 @@
 	    android:text="@string/previous_day" />
     
     <TextView
-	    android:id="@+id/show_current_day"
+	    android:id="@id/show_current_day"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
-	    android:layout_alignBottom="@+id/switch_to_previous_day"
-	    android:layout_alignTop="@+id/switch_to_previous_day"
-	    android:layout_toLeftOf="@+id/switch_to_next_day"
-	    android:layout_toRightOf="@+id/switch_to_previous_day"
+	    android:layout_alignBottom="@id/switch_to_previous_day"
+	    android:layout_alignTop="@id/switch_to_previous_day"
+	    android:layout_toLeftOf="@id/switch_to_next_day"
+	    android:layout_toRightOf="@id/switch_to_previous_day"
 	    android:gravity="center_horizontal|center_vertical"
 	    android:text="Sonntag\n20. November"
 	    android:clickable="true" />
     
      <Button
-	    android:id="@+id/switch_to_next_day"
+	    android:id="@id/switch_to_next_day"
 	    android:layout_width="wrap_content"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentRight="true"
-	    android:layout_alignTop="@+id/show_current_day"
+	    android:layout_alignTop="@id/show_current_day"
 	    android:drawableRight="?attr/ic_forward_icon"
 	    android:gravity="right|center_vertical"
 	    android:text="@string/next_day"
 	     />
      </RelativeLayout>
-	 <RelativeLayout android:id="@+id/program_table_base"
+	 <RelativeLayout android:id="@id/program_table_base"
 	     android:layout_width="wrap_content"
 	     android:layout_height="match_parent"
 	     android:layout_above="@id/button_panel"/>

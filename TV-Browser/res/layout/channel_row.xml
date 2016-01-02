@@ -6,7 +6,7 @@
 	android:orientation="horizontal"
 	android:clickable="false"
     > 
-    <ImageView android:id="@+id/row_of_channel_icon"
+    <ImageView android:id="@id/row_of_channel_icon"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:gravity="left"
@@ -18,7 +18,7 @@
         android:layout_marginLeft="10dp"
         />
     <TextView
-        android:id="@+id/row_of_channel_text"
+        android:id="@id/row_of_channel_text"
          android:layout_width="wrap_content"
          android:layout_height="fill_parent"
          android:textSize="20sp"
@@ -30,7 +30,7 @@
         />
     
 	<CheckBox 
-	    android:id="@+id/row_of_channel_selection"
+	    android:id="@id/row_of_channel_selection"
 	    android:layout_width="wrap_content"
 	    android:layout_height="fill_parent"
 	    android:textSize="20sp"

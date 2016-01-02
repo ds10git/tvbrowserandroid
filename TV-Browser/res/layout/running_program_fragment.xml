@@ -9,31 +9,31 @@
             android:layout_width="wrap_content"
             android:layout_height="@dimen/running_bar_height"
             style="?android:attr/buttonBarStyle">
-        <Spinner android:id="@+id/running_date_selection"
+        <Spinner android:id="@id/running_date_selection"
 			            android:layout_width="wrap_content"
 			            android:layout_height="match_parent"/>
 	    <HorizontalScrollView 
 	        android:layout_height="wrap_content"
 	        android:layout_width="wrap_content">
 	        <LinearLayout
-	            android:id="@+id/runnning_time_bar" 
+	            android:id="@id/runnning_time_bar" 
 	            android:orientation="horizontal"
 	            android:layout_width="wrap_content"
 	            android:layout_height="@dimen/running_bar_height"
 	            style="?android:attr/buttonBarStyle">
-		        <Button android:id="@+id/button_before1"
+		        <Button android:id="@id/button_before1"
 		                android:text="@string/button_before"
 		                style="?android:attr/buttonBarButtonStyle"
 		                android:layout_width="wrap_content"
 		                android:layout_height="wrap_content"
 		                android:layout_marginLeft="15px"
 		                android:layout_marginRight="15px"/>
-	            <Button android:id="@+id/now_button"
+	            <Button android:id="@id/now_button"
 	                android:text="@string/button_now"
 	                style="?android:attr/buttonBarButtonStyle"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"/>
-	            <Button android:id="@+id/button_after1"
+	            <Button android:id="@id/button_after1"
 	                android:text="@string/button_after"
 	                style="?android:attr/buttonBarButtonStyle"
 	                android:layout_width="wrap_content"
@@ -44,14 +44,14 @@
 	    </HorizontalScrollView>
     </LinearLayout>
     <ListView 
-        android:id="@+id/running_list_fragment_list_view"
+        android:id="@id/running_list_fragment_list_view"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
         />
  <!--    <fragment 
         android:name="org.tvbrowser.tvbrowser.RunningProgramsListFragment"
-        android:id="@+id/runningListFragment"
+        android:id="@id/runningListFragment"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"

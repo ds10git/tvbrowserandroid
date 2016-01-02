@@ -5,7 +5,7 @@
     android:orientation="vertical"
     >
     <TextView
-        android:id="@+id/sort_picker_channel_name"
+        android:id="@id/sort_picker_channel_name"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textSize="20sp"
@@ -14,7 +14,7 @@
         android:gravity="center_horizontal"
         />
 	<NumberPicker
-	    android:id="@+id/sort_picker"
+	    android:id="@id/sort_picker"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content" >
 	</NumberPicker>
@@ -23,7 +23,7 @@
 	    android:layout_marginTop="5dp"
 	    android:layout_marginBottom="5dp"
 	    android:text="@string/sort_enter"/>
-	<EditText android:id="@+id/sort_entered_number"
+	<EditText android:id="@id/sort_entered_number"
 	    android:layout_width="match_parent"
 	    android:inputType="number"
 	    android:layout_height="match_parent"/>

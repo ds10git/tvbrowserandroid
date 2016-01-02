@@ -5,14 +5,14 @@
     android:orientation="horizontal"
     android:baselineAligned="false" >
     <RelativeLayout
-        android:id="@+id/favorite_fragment_selection_header"
+        android:id="@id/favorite_fragment_selection_header"
         android:layout_width="250dp"
 	    android:layout_alignParentTop="true"
 	    android:layout_alignParentLeft="true"
 	    android:layout_alignParentStart="true"
         android:layout_height="match_parent">  
         <ListView
-		    android:id="@+id/favorite_fragment_selection_markings"
+		    android:id="@id/favorite_fragment_selection_markings"
 		    android:layout_width="250dp"
 		    android:layout_height="wrap_content"
 		    android:layout_marginRight="5dp"
@@ -21,7 +21,7 @@
 		    android:layout_alignParentLeft="true"
 		    android:layout_alignParentStart="true"/>
 		<ListView
-		    android:id="@+id/favorite_fragment_selection"
+		    android:id="@id/favorite_fragment_selection"
 		    android:layout_width="250dp"
 		    android:layout_height="match_parent"
 		    android:layout_marginRight="5dp"
@@ -32,7 +32,7 @@
 		    android:layout_alignParentStart="true"/>        
     </RelativeLayout>
     <TextView
-        android:id="@+id/favorite_fragment_help"
+        android:id="@id/favorite_fragment_help"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
@@ -43,7 +43,7 @@
         android:layout_toRightOf="@id/favorite_fragment_selection_header"
         android:layout_toEndOf="@id/favorite_fragment_selection_header"/>
     <ListView
-        android:id="@+id/favorite_program_list"
+        android:id="@id/favorite_program_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"

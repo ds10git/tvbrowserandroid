@@ -5,7 +5,7 @@
     android:orientation="horizontal"
     android:baselineAligned="false" >
 	<org.tvbrowser.view.NDSpinner
-	    android:id="@+id/favorite_fragment_selection"
+	    android:id="@id/favorite_fragment_selection"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:padding="1dp"
@@ -14,7 +14,7 @@
 	    android:layout_alignParentLeft="true"
 	    android:layout_alignParentStart="true"/>
     <TextView
-        android:id="@+id/favorite_fragment_help"
+        android:id="@id/favorite_fragment_help"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"
@@ -25,7 +25,7 @@
         android:text="@string/favorite_fragment_help"
         android:layout_below="@id/favorite_fragment_selection"/>
     <ListView
-        android:id="@+id/favorite_program_list"
+        android:id="@id/favorite_program_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentLeft="true"

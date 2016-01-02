@@ -8,7 +8,7 @@
 	android:clickable="false"
     >
     <TextView
-        android:id="@+id/row_of_channel_sort_number"
+        android:id="@id/row_of_channel_sort_number"
          android:layout_width="50dp"
          android:layout_height="fill_parent"
          android:textSize="20sp"
@@ -18,7 +18,7 @@
          android:clickable="false"
          android:focusable="false"
     />
-    <ImageView android:id="@+id/row_of_channel_sort_icon"
+    <ImageView android:id="@id/row_of_channel_sort_icon"
         android:layout_width="60dp"
         android:layout_height="60dp"
         android:gravity="left"
@@ -30,7 +30,7 @@
         android:layout_marginLeft="5dp"
     />
     <TextView
-        android:id="@+id/row_of_channel_sort_text"
+        android:id="@id/row_of_channel_sort_text"
          android:layout_width="wrap_content"
          android:layout_height="fill_parent"
          android:textSize="20sp"

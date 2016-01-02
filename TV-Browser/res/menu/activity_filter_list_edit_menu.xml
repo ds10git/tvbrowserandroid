@@ -2,17 +2,17 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto" >
 	<item
-	    android:id="@+id/activity_edit_filter_list_action_add"
+	    android:id="@id/activity_edit_filter_list_action_add"
 	  	android:title="@string/activity_edit_filter_list_text_add"
 	  	android:icon="@drawable/ic_filter_add"
 	  	app:showAsAction="always">
 	  	<menu>
 	  	    <item
-	  	        android:id="@+id/activity_edit_filter_list_action_channel_add"
+	  	        android:id="@id/activity_edit_filter_list_action_channel_add"
 	  	        android:title="@string/activity_edit_filter_list_text_channels_add"
 	  	        android:orderInCategory="90"/>
 	  	    <item
-	  	        android:id="@+id/activity_edit_filter_list_action_categories_add"
+	  	        android:id="@id/activity_edit_filter_list_action_categories_add"
 	  	        android:title="@string/activity_edit_filter_list_text_categories_add"
 	  	        android:orderInCategory="90"/>
 	  	</menu>

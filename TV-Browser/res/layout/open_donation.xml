@@ -4,7 +4,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical" >
     <TextView
-        android:id="@+id/donation_open_info"
+        android:id="@id/donation_open_info"
         android:layout_margin="5dp"
         android:textSize="18sp"
         android:layout_width="match_parent"

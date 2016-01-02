@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-   <group android:id="@+id/prog_program_popup_menu">
-       <item android:id="@+id/create_favorite_item"
+   <group android:id="@id/prog_program_popup_menu">
+       <item android:id="@id/create_favorite_item"
            android:title="@string/create_favorite_item"/>
-       <item android:id="@+id/prog_add_reminder"
+       <item android:id="@id/prog_add_reminder"
            android:title="@string/program_popup_reminder"/>
-       <item android:id="@+id/prog_remove_reminder"
+       <item android:id="@id/prog_remove_reminder"
            android:title="@string/program_popup_reminder_remove"/>
-       <item android:id="@+id/program_popup_search_repetition"
+       <item android:id="@id/program_popup_search_repetition"
            android:title="@string/program_popup_search_repetition"/>
-       <item android:id="@+id/program_popup_dont_want_to_see"
+       <item android:id="@id/program_popup_dont_want_to_see"
            android:title="@string/action_dont_want_to_see"/>
-       <item android:id="@+id/program_popup_want_to_see"
+       <item android:id="@id/program_popup_want_to_see"
            android:title="@string/action_want_to_see"/>
-        <item android:id="@+id/program_popup_remove_sync"
+        <item android:id="@id/program_popup_remove_sync"
            android:title="@string/program_popup_remove_sync"/>
    </group>
 </menu>

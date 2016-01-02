@@ -4,7 +4,7 @@
     android:layout_height="match_parent" >
     <Button
 	    style="?android:attr/buttonBarButtonStyle"
-	    android:id="@+id/activity_filter_list_edit_close"
+	    android:id="@id/activity_filter_list_edit_close"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_alignParentStart="true"
@@ -15,7 +15,7 @@
 	    android:onClick="ok"/>
 	<ListView
 	    android:padding="5dp"
-	    android:id="@+id/activity_edit_filter_list_list"
+	    android:id="@id/activity_edit_filter_list_list"
 	    android:layout_width="match_parent"
 	    android:layout_height="match_parent"
 	    android:layout_alignParentStart="true"

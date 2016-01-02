@@ -2,7 +2,7 @@
 <org.tvbrowser.view.GrowingRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content">
-    <LinearLayout android:id="@+id/running_list_channel_info"
+    <LinearLayout android:id="@id/running_list_channel_info"
      android:layout_width="100dp"
      android:layout_height="match_parent"
      android:orientation="vertical"
@@ -12,13 +12,13 @@
      android:paddingTop="2dp"
      android:paddingBottom="2dp">
 	<ImageView 
-     	android:id="@+id/running_list_channel_logo"
+     	android:id="@id/running_list_channel_logo"
     	android:layout_width="100dp"
     	android:scaleType="center"
     	android:layout_height="wrap_content"
      	/>
      <TextView
-	        android:id="@+id/running_compact_channel_label"
+	        android:id="@id/running_compact_channel_label"
 	        android:layout_width="100dp"
 	        android:layout_height="wrap_content"
 	        android:textSize="@dimen/title_font_size"
@@ -26,7 +26,7 @@
 	        />
  	</LinearLayout>
     <!-- <TextView
-        android:id="@+id/running_compact_channel_label"
+        android:id="@id/running_compact_channel_label"
         android:layout_width="100dp"
         android:layout_height="match_parent"
         android:textSize="@dimen/title_font_size"
@@ -44,19 +44,19 @@
 	    android:orientation="horizontal"
 	    android:baselineAligned="false"
 	    >
-    	<View android:id="@+id/running_separator_0"
+    	<View android:id="@id/running_separator_0"
 	    android:layout_width="1dp"
 	    android:layout_height="match_parent"
 	    android:background="@color/running_separator_color"
 	    />
-	    <RelativeLayout android:id="@+id/running_compact_previous"
+	    <RelativeLayout android:id="@id/running_compact_previous"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:layout_marginRight="5dp"
 		    android:layout_weight="0.33"
 	        >
 			<TextView 
-			    android:id="@+id/running_compact_previous_start"
+			    android:id="@id/running_compact_previous_start"
 			    android:layout_width="wrap_content"
 			    android:layout_height="match_parent"
 			    android:textSize="@dimen/title_font_size"
@@ -65,7 +65,7 @@
 			    android:layout_alignParentLeft="true"
 			    android:layout_alignParentTop="true"/>
 			<TextView 
-			    android:id="@+id/running_compact_previous_title"
+			    android:id="@id/running_compact_previous_title"
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
 			    android:textSize="@dimen/title_font_size"
@@ -73,7 +73,7 @@
 			    android:layout_toRightOf="@id/running_compact_previous_start"
 			    android:layout_alignParentTop="true"/>
 			<TextView 
-			    android:id="@+id/running_compact_previous_infos"
+			    android:id="@id/running_compact_previous_infos"
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
 			    android:textSize="@dimen/info_font_size"
@@ -83,7 +83,7 @@
 			    android:layout_below="@id/running_compact_previous_title"
 		        />
 			<TextView 
-			    android:id="@+id/running_compact_previous_episode"
+			    android:id="@id/running_compact_previous_episode"
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
 			    android:textSize="@dimen/episode_font_size"
@@ -93,12 +93,12 @@
 			    android:layout_below="@id/running_compact_previous_infos"
 		        />
 		</RelativeLayout>
-		<View android:id="@+id/running_separator_1"
+		<View android:id="@id/running_separator_1"
 		    android:layout_width="1dp"
 		    android:layout_height="match_parent"
 		    android:background="@color/running_separator_color"
 		    />
-	    <RelativeLayout android:id="@+id/running_compact_now"
+	    <RelativeLayout android:id="@id/running_compact_now"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:layout_marginRight="5dp"
@@ -106,7 +106,7 @@
 		    >
 			
 			<TextView 
-			    android:id="@+id/running_compact_now_start"
+			    android:id="@id/running_compact_now_start"
 			    android:layout_width="wrap_content"
 			    android:layout_height="match_parent"
 			    android:textStyle="bold"
@@ -116,7 +116,7 @@
 			    android:layout_alignParentTop="true"
 			    />
 			<TextView 
-			    android:id="@+id/running_compact_now_title"
+			    android:id="@id/running_compact_now_title"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
 			    android:textStyle="bold"
@@ -126,7 +126,7 @@
 			    android:layout_alignParentTop="true"
 				/>
 			<TextView 
-			    android:id="@+id/running_compact_now_infos"
+			    android:id="@id/running_compact_now_infos"
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
 			    android:textSize="@dimen/info_font_size"
@@ -136,7 +136,7 @@
 			    android:layout_below="@id/running_compact_now_title"
 		        />
 			<TextView 
-			    android:id="@+id/running_compact_now_episode"
+			    android:id="@id/running_compact_now_episode"
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
 			    android:textSize="@dimen/episode_font_size"
@@ -146,18 +146,18 @@
 			    android:layout_below="@id/running_compact_now_infos"
 			    />
 		</RelativeLayout>
-		<View android:id="@+id/running_separator_2"
+		<View android:id="@id/running_separator_2"
 		    android:layout_width="1dp"
 		    android:layout_height="match_parent"
 		    android:background="@color/running_separator_color"
 		    />
-	    <RelativeLayout android:id="@+id/running_compact_next"
+	    <RelativeLayout android:id="@id/running_compact_next"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:layout_weight="0.33"
 		    >
 			<TextView 
-			    android:id="@+id/running_compact_next_start"
+			    android:id="@id/running_compact_next_start"
 			    android:layout_width="wrap_content"
 			    android:layout_height="match_parent"
 			    android:textSize="@dimen/title_font_size"
@@ -167,7 +167,7 @@
 			    android:layout_alignParentTop="true"
 			    />
 			<TextView 
-			    android:id="@+id/running_compact_next_title"
+			    android:id="@id/running_compact_next_title"
 			    android:layout_width="match_parent"
 			    android:layout_height="wrap_content"
 			    android:textSize="@dimen/title_font_size"
@@ -176,7 +176,7 @@
 				android:layout_toRightOf="@id/running_compact_next_start"
 				/>
 			<TextView 
-			    android:id="@+id/running_compact_next_infos"
+			    android:id="@id/running_compact_next_infos"
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
 			    android:textSize="@dimen/info_font_size"
@@ -186,7 +186,7 @@
 			    android:layout_below="@id/running_compact_next_title"
 		        />
 			<TextView 
-			    android:id="@+id/running_compact_next_episode"
+			    android:id="@id/running_compact_next_episode"
 			    android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
 			    android:textSize="@dimen/episode_font_size"

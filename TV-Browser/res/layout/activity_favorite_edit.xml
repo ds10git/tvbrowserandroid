@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
     <LinearLayout
-        android:id="@+id/favorite_button_bar"
+        android:id="@id/activity_favorite_edit_favorite_button_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_alignParentBottom="true"
@@ -11,7 +11,7 @@
         >
         <Button
            	style="?android:attr/buttonBarButtonStyle" 
-            android:id="@+id/favorite_cancel"
+            android:id="@id/favorite_cancel"
             android:layout_width="0dp"
             android:layout_weight="0.5"
             android:layout_height="wrap_content"
@@ -20,7 +20,7 @@
             android:onClick="cancel"/>
         <Button
             style="?android:attr/buttonBarButtonStyle"
-            android:id="@+id/favorite_ok"
+            android:id="@id/favorite_ok"
             android:layout_width="0dp"
             android:layout_weight="0.5"
             android:layout_height="wrap_content"
@@ -38,7 +38,7 @@
 		    android:layout_height="wrap_content"
 		    android:layout_margin="5dp" >
 			<TextView
-		        android:id="@+id/favorite_name_label" 
+		        android:id="@id/favorite_name_label" 
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:text="@string/favorite_name"
@@ -48,7 +48,7 @@
 		        android:layout_alignBaseline="@+id/activity_edit_favorite_input_id_name"
 		        android:layout_marginBottom="5dp"
 		        />
-		    <EditText android:id="@+id/activity_edit_favorite_input_id_name"
+		    <EditText android:id="@id/activity_edit_favorite_input_id_name"
 		        android:layout_height="wrap_content"
 		        android:layout_width="match_parent"
 		        android:layout_toRightOf="@+id/activity_edit_favorite_label_id_channels"
@@ -58,7 +58,7 @@
 		        android:hint="@string/favorite_name_hint"
 		        android:layout_marginBottom="5dp"/>
 		    <TextView
-		        android:id="@+id/activity_edit_favorite_label_id_type" 
+		        android:id="@id/activity_edit_favorite_label_id_type" 
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:text="@string/activity_edit_favorite_label_text_type"
@@ -68,7 +68,7 @@
 		        android:layout_alignBaseline="@+id/activity_edit_favorite_input_id_type"
 		        android:layout_below="@+id/activity_edit_favorite_input_id_name"/>
 		    <Spinner
-		        android:id="@+id/activity_edit_favorite_input_id_type"
+		        android:id="@id/activity_edit_favorite_input_id_type"
 		        android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
 		        android:layout_toRightOf="@+id/activity_edit_favorite_label_id_channels"
@@ -76,7 +76,7 @@
 		        android:layout_below="@id/activity_edit_favorite_input_id_name"
 		        android:entries="@array/activity_edit_favorite_input_text_type"/>
 		    <TextView
-		        android:id="@+id/favorite_search_label" 
+		        android:id="@id/favorite_search_label" 
 		        android:layout_width="wrap_content"
 		        android:layout_height="wrap_content"
 		        android:text="@string/favorite_search"
@@ -85,7 +85,7 @@
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:layout_alignBaseline="@+id/activity_edit_favorite_input_id_search_value"
 		        android:layout_below="@+id/activity_edit_favorite_input_id_type"/>
-		    <EditText android:id="@+id/activity_edit_favorite_input_id_search_value"
+		    <EditText android:id="@id/activity_edit_favorite_input_id_search_value"
 		        android:layout_height="wrap_content"
 		        android:layout_width="match_parent"
 		        android:layout_toRightOf="@id/activity_edit_favorite_label_id_channels"
@@ -95,7 +95,7 @@
 		        android:hint="@string/favorite_search_hint"
 		        android:layout_below="@+id/activity_edit_favorite_input_id_type"/>
 			<TextView
-		        android:id="@+id/activity_edit_favorite_label_id_duration"
+		        android:id="@id/activity_edit_favorite_label_id_duration"
 		        android:layout_height="wrap_content"
 		        android:layout_width="wrap_content"
 		        android:layout_marginRight="5dp"
@@ -105,7 +105,7 @@
 		        android:text="@string/activity_edit_favorite_label_text_duration"
 		        android:layout_marginBottom="5dp"/>
 		    <TextView
-		        android:id="@+id/activity_edit_favorite_input_id_restriction_duration"
+		        android:id="@id/activity_edit_favorite_input_id_restriction_duration"
 		        android:layout_height="wrap_content"
 		        android:layout_width="match_parent"
 		        android:text="@string/activity_edit_favorite_input_text_duration_unrestricted"
@@ -118,7 +118,7 @@
 		        android:onClick="changeDuration"
 		        android:layout_marginBottom="5dp"/>
 		    <TextView
-		        android:id="@+id/favorite_time_restriction_label"
+		        android:id="@id/favorite_time_restriction_label"
 		        android:layout_height="wrap_content"
 		        android:layout_width="wrap_content"
 		        android:layout_marginRight="5dp"
@@ -128,7 +128,7 @@
 		        android:text="@string/favorite_time"
 		        android:layout_marginBottom="5dp"/>
 		    <TextView
-		        android:id="@+id/activity_edit_favorite_input_id_restriction_time"
+		        android:id="@id/activity_edit_favorite_input_id_restriction_time"
 		        android:layout_height="wrap_content"
 		        android:layout_width="match_parent"
 		        android:text="00:00 to 23:59"
@@ -141,7 +141,7 @@
 		        android:onClick="changeTime"
 		        android:layout_marginBottom="5dp"/>
 		    <TextView
-		        android:id="@+id/favorite_day_restriction_label"
+		        android:id="@id/favorite_day_restriction_label"
 		        android:layout_height="wrap_content"
 		        android:layout_marginRight="5dp"
 		        android:layout_marginEnd="5dp"
@@ -152,7 +152,7 @@
 		        android:layout_marginBottom="5dp"
 		        />
 		    <TextView
-		        android:id="@+id/activity_edit_favorite_input_id_restriction_day"
+		        android:id="@id/activity_edit_favorite_input_id_restriction_day"
 		        android:layout_height="wrap_content"
 		        android:layout_width="match_parent"
 		        android:textSize="@dimen/edit_favorite_font_size"
@@ -165,7 +165,7 @@
 		        android:layout_marginBottom="5dp"
 		        android:background="@android:drawable/list_selector_background"/>
 		    <TextView
-		        android:id="@+id/activity_edit_favorite_label_id_channels"
+		        android:id="@id/activity_edit_favorite_label_id_channels"
 		        android:layout_height="wrap_content"
 		        android:layout_width="wrap_content"
 		        android:layout_marginRight="5dp"
@@ -175,7 +175,7 @@
 		        android:layout_below="@+id/activity_edit_favorite_input_id_restriction_day"
 		        android:layout_marginBottom="5dp"/>
 		    <TextView
-		        android:id="@+id/activity_edit_favorite_input_id_restriction_channel"
+		        android:id="@id/activity_edit_favorite_input_id_restriction_channel"
 		        android:layout_height="wrap_content"
 		        android:layout_width="match_parent"
 		        android:textSize="@dimen/edit_favorite_font_size"
@@ -189,7 +189,7 @@
 		        android:background="@android:drawable/list_selector_background"
 		        />
 		    <TextView
-		        android:id="@+id/activity_edit_favorite_label_id_attributes"
+		        android:id="@id/activity_edit_favorite_label_id_attributes"
 		        android:layout_height="wrap_content"
 		        android:layout_width="wrap_content"
 		        android:layout_marginRight="5dp"
@@ -199,7 +199,7 @@
 		        android:layout_below="@+id/activity_edit_favorite_input_id_restriction_channel"
 		        android:layout_marginBottom="5dp"/>
 		    <TextView
-		        android:id="@+id/activity_edit_favorite_input_id_restriction_attributes"
+		        android:id="@id/activity_edit_favorite_input_id_restriction_attributes"
 		        android:layout_height="wrap_content"
 		        android:layout_width="match_parent"
 		        android:textSize="@dimen/edit_favorite_font_size"
@@ -213,7 +213,7 @@
 		        android:background="@android:drawable/list_selector_background"
 		        />
 		    <TextView
-		        android:id="@+id/favorite_exclusion_label"
+		        android:id="@id/favorite_exclusion_label"
 		        android:layout_height="wrap_content"
 		        android:layout_width="wrap_content"
 		        android:layout_marginRight="5dp"
@@ -224,7 +224,7 @@
 		        android:layout_alignBaseline="@+id/activity_edit_favorite_input_id_restriction_exclusion"
 		        android:layout_marginBottom="5dp"/>
 		    <EditText
-		        android:id="@+id/activity_edit_favorite_input_id_restriction_exclusion"
+		        android:id="@id/activity_edit_favorite_input_id_restriction_exclusion"
 		        android:layout_height="wrap_content"
 		        android:layout_width="match_parent"
 		        android:textSize="@dimen/edit_favorite_font_size"
@@ -236,7 +236,7 @@
 		        android:layout_marginBottom="5dp"
 		        />
 		    <CheckBox
-		        android:id="@+id/activity_edit_favorite_input_id_remind"
+		        android:id="@id/activity_edit_favorite_input_id_remind"
 		        android:layout_height="wrap_content"
 		        android:layout_width="match_parent"
 		        android:layout_marginTop="5dp"
