@@ -34,7 +34,7 @@
     <item
         android:id="@id/menu_tvbrowser_action_update_data"
         android:orderInCategory="90"
-        app:showAsAction="ifRoom"
+        app:showAsAction="always"
         android:title="@string/menu_tvbrowser_title_update_data"
         android:icon="@drawable/ic_action_file_download"
         />
