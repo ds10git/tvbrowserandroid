@@ -20,7 +20,6 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -142,22 +141,19 @@ public class Mirror implements Comparable<Mirror> {
   
   private static boolean useMirror(Mirror mirror, String group, int timeout, TvDataUpdateService update) {
     boolean success = false;
-    
+    HttpURLConnection connection  = null;
+    BufferedReader read = null;
     try{
       URL myUrl = new URL(mirror.getUrl() + group + "_lastupdate");
-      
-      
-      URLConnection connection;
-      connection = myUrl.openConnection();
+
+      connection = (HttpURLConnection) myUrl.openConnection();
       connection.setConnectTimeout(timeout);
-      
-      HttpURLConnection httpConnection = (HttpURLConnection)connection;
-      int responseCode = httpConnection.getResponseCode();
+
+      int responseCode = connection.getResponseCode();
       update.doLog("HTTP-Response for group: '" + group + "' from URL: " + myUrl);
       if(responseCode == HttpURLConnection.HTTP_OK) {
-        BufferedReader read = new BufferedReader(new InputStreamReader(httpConnection.getInputStream()));
+        read = new BufferedReader(new InputStreamReader(connection.getInputStream()));
         String date = read.readLine();
-        read.close();
         
         Date serverDate = DATE_FORMAT.parse(date);
         update.doLog("Date of data for: '" + group + "' from URL '" + myUrl + "' " + serverDate + " diff to now: " + (((System.currentTimeMillis() - serverDate.getTime()) / 1000 / 60 / 60 / 24)));
@@ -176,6 +172,9 @@ public class Mirror implements Comparable<Mirror> {
       update.doLog("Exception for mirror check for '" + group + "' from URL: " + mirror.getUrl() + " ERROR: " + message.toString());
         // Handle your exceptions
       success = false;
+    } finally {
+    	IOUtils.close(read);
+    	IOUtils.disconnect(connection);
     }
       
     return success;

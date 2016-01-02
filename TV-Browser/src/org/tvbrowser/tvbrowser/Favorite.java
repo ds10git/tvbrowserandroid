@@ -294,7 +294,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
                 parsed.add(Integer.valueOf(channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID))));
               }
             }finally {
-              IOUtils.closeCursor(channel);
+              IOUtils.close(channel);
             }
           }
         }
@@ -871,7 +871,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
             }
           }
         }finally {
-          IOUtils.closeCursor(uniqueChannelIds);
+          IOUtils.close(uniqueChannelIds);
         }
         
         if(idBuilder.length() > 0) {
@@ -1059,7 +1059,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           }
         }
       }finally {
-        IOUtils.closeCursor(cursor);
+        IOUtils.close(cursor);
       }
     }
   }
@@ -1171,7 +1171,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       }
       finally {
         Log.d("info2", "hier7 ");
-        IOUtils.closeCursor(cursor);
+        IOUtils.close(cursor);
         favorite.mUniqueProgramIds = null;
         Log.d("info2", "hier8 " + favorite.mUniqueProgramIds);
         if(save) {
@@ -1295,7 +1295,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           }
         }
       }finally {
-        IOUtils.closeCursor(cursor);
+        IOUtils.close(cursor);
         
         if(save) {
           favorite.save(context);

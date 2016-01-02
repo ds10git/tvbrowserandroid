@@ -48,6 +48,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.util.TypedValue;
@@ -242,8 +243,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       backgroundRef.set(Integer.valueOf(a.data));
     } else {
         // windowBackground is not a color, probably a drawable
-        ///Drawable d = activity.getResources().getDrawable(a.resourceId);
-      backgroundRef.set(getActivity().getResources().getDrawable(a.resourceId));
+        ///Drawable d = ContextCompat.getDrawable(getActivity(),a.resourceId);
+      backgroundRef.set(ContextCompat.getDrawable(getActivity(),a.resourceId));
     }
     
     mFavoriteAdapter = new ArrayAdapter<FavoriteSpinnerEntry>(getActivity(), rowLayout.get(), mFavoriteList){
@@ -273,7 +274,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           }
           
           if(!mContainsListViewFavoriteSelection) {
-            Drawable draw = getResources().getDrawable(android.R.drawable.list_selector_background);
+            Drawable draw = ContextCompat.getDrawable(getContext(),android.R.drawable.list_selector_background);
             
             if(!entry.containsFavorite()) {
               if(name.equals(getString(R.string.marking_value_marked))) {
@@ -683,7 +684,6 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   
   @Override
   public void onDetach() {
-    super.onDetach();
     mIsRunning = false;
     
     if(mFavoriteChangedReceiver != null) {
@@ -698,6 +698,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     if(mDontWantToSeeReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDontWantToSeeReceiver);
     }
+    super.onDetach();
   }
   
   @Override

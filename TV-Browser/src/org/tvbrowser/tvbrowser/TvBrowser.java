@@ -375,7 +375,7 @@ public class TvBrowser extends ActionBarActivity implements
                 
                 ProgramUtils.addSyncIds(getApplicationContext(), syncIdList);
               }finally {
-                IOUtils.closeCursor(synced);
+                IOUtils.close(synced);
               }
             }
           };
@@ -400,7 +400,7 @@ public class TvBrowser extends ActionBarActivity implements
                 
                 ProgramUtils.addReminderIds(getApplicationContext(), reminderIdList);
               }finally {
-                IOUtils.closeCursor(reminders);
+                IOUtils.close(reminders);
               }
             }
           };
@@ -613,7 +613,6 @@ public class TvBrowser extends ActionBarActivity implements
   
   @Override
   protected void onPause() {
-    super.onPause();
     
     long timeDiff = System.currentTimeMillis() - mResumeTime + PrefUtils.getLongValueWithDefaultKey(R.string.PREF_RUNNING_TIME, R.integer.pref_running_time_default);
     
@@ -633,6 +632,7 @@ public class TvBrowser extends ActionBarActivity implements
         TvBrowser.this.unregisterReceiver(mUpdateDoneBroadcastReceiver);
       }catch(IllegalArgumentException e) {}
     }
+    super.onPause();
   }
   
   private void showTerms() {
@@ -904,7 +904,7 @@ public class TvBrowser extends ActionBarActivity implements
       
       result = c != null && c.getCount() > 0;
       
-      IOUtils.closeCursor(c);
+      IOUtils.close(c);
     }
     
     return result;
@@ -923,7 +923,7 @@ public class TvBrowser extends ActionBarActivity implements
           epgDonateKey = groups.getInt(groups.getColumnIndex(TvBrowserContentProvider.KEY_ID));
         }
       } finally {
-        IOUtils.closeCursor(groups);
+        IOUtils.close(groups);
       }
       
       if(epgDonateKey != -1 && IOUtils.isDatabaseAccessible(TvBrowser.this)) {
@@ -932,7 +932,7 @@ public class TvBrowser extends ActionBarActivity implements
         try {
           result = epgDonateSubscribedChannels.getCount() > 0;
         } finally {
-          IOUtils.closeCursor(epgDonateSubscribedChannels);
+          IOUtils.close(epgDonateSubscribedChannels);
         }
       }
     }
@@ -1188,10 +1188,10 @@ public class TvBrowser extends ActionBarActivity implements
             }
           }
           
-          URL documentUrl;
+          URLConnection connection = null;
           try {
-            documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=channelsFromDesktop");
-            URLConnection connection = documentUrl.openConnection();
+            URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=channelsFromDesktop");
+            connection = documentUrl.openConnection();
             
             SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
             
@@ -1232,7 +1232,7 @@ public class TvBrowser extends ActionBarActivity implements
                   }
                 }
               }finally {
-                group.close();
+                IOUtils.close(group);
               }
               
               ArrayList<ContentProviderOperation> updateList = new ArrayList<ContentProviderOperation>(); 
@@ -1292,7 +1292,7 @@ public class TvBrowser extends ActionBarActivity implements
                             updateList.add(ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS,id)).withValues(values).build());
                           }
                         }finally {
-                          IOUtils.closeCursor(channelIdCursor);
+                          IOUtils.close(channelIdCursor);
                         }
                       }
                       
@@ -1345,6 +1345,8 @@ public class TvBrowser extends ActionBarActivity implements
                 showChannelSelectionInternal();
               }
             });
+          } finally {
+        	  IOUtils.disconnect(connection);
           }
           
           selectingChannels = false;
@@ -1387,11 +1389,11 @@ public class TvBrowser extends ActionBarActivity implements
           
           updateProgressIcon(true);
                   
-          URL documentUrl;
+          URLConnection connection = null;
           
           try {
-            documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=dontWantToSee");
-            URLConnection connection = documentUrl.openConnection();
+            URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=dontWantToSee");
+            connection = documentUrl.openConnection();
             
             SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
             
@@ -1495,7 +1497,7 @@ public class TvBrowser extends ActionBarActivity implements
                       //updateValuesList.add(opBuilder.build());
                     }
                   }finally {
-                    IOUtils.closeCursor(c);
+                    IOUtils.close(c);
                   }
                   
                   builder.setProgress(0, 0, true);
@@ -1553,6 +1555,8 @@ public class TvBrowser extends ActionBarActivity implements
                 Toast.makeText(getApplicationContext(), R.string.no_dont_want_to_see_sync, Toast.LENGTH_LONG).show();
               }
             });
+          } finally {
+        	  IOUtils.disconnect(connection);
           }
           
           notification.cancel(notifyID);
@@ -1672,14 +1676,13 @@ public class TvBrowser extends ActionBarActivity implements
           public void run() {
             updateProgressIcon(true);
             
-            URL documentUrl;
-            
+            URLConnection connection = null;
             BufferedReader read = null;
             boolean restored = false;
             
             try {
-              documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=preferencesBackup");
-              URLConnection connection = documentUrl.openConnection();
+              URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=preferencesBackup");
+              connection = documentUrl.openConnection();
               
               SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
               
@@ -1792,11 +1795,8 @@ public class TvBrowser extends ActionBarActivity implements
               restored = false;
             }
             finally {
-              if(read != null) {
-                try {
-                  read.close();
-                } catch (IOException e) {}
-              }
+              IOUtils.close(read);
+              IOUtils.disconnect(connection);
             }
             
             if(restored) {
@@ -2060,7 +2060,7 @@ public class TvBrowser extends ActionBarActivity implements
    * @author René Mach
    */
   private static class ArrayListWrapper extends ArrayList<ChannelSelection> {
-    Integer[] mValueMap = null;
+	Integer[] mValueMap = null;
     
     @Override
     public ChannelSelection get(int index) {
@@ -2691,7 +2691,7 @@ public class TvBrowser extends ActionBarActivity implements
           showChannelSelection();
         }
       }finally {
-        IOUtils.closeCursor(channels);
+        IOUtils.close(channels);
       }
     }
   }
@@ -3278,10 +3278,10 @@ public class TvBrowser extends ActionBarActivity implements
     if(userName != null && password != null) {
       new Thread() {
         public void run() {
-          URL documentUrl;
+          URLConnection connection = null;
           try {
-            documentUrl = new URL("http://android.tvbrowser.org/data/scripts/testMyAccount.php");
-            URLConnection connection = documentUrl.openConnection();
+            URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/testMyAccount.php");
+            connection = documentUrl.openConnection();
             
             String userpass = userName + ":" + password;
             String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
@@ -3302,6 +3302,8 @@ public class TvBrowser extends ActionBarActivity implements
           
           }catch(Throwable t) {
             showUserError(userName,password,syncChannels);
+          } finally {
+        	  IOUtils.disconnect(connection);
           }
         }
       }.start();
@@ -3595,7 +3597,7 @@ public class TvBrowser extends ActionBarActivity implements
                   
                   notification.cancel(notifyID);
                 }finally {
-                  IOUtils.closeCursor(programs);
+                  IOUtils.close(programs);
                 }
                 
                 if(dontWantToSeeUpdate.operationsAvailable()) {
@@ -4342,7 +4344,7 @@ public class TvBrowser extends ActionBarActivity implements
                 askToDelete.append(deleted);
               }
             }finally {
-              IOUtils.closeCursor(test);
+              IOUtils.close(test);
             }
           }
           
@@ -5425,7 +5427,6 @@ public class TvBrowser extends ActionBarActivity implements
   
   @Override
   public void onDestroy() {
-     super.onDestroy();
      
      PluginHandler.shutdownPlugins(getApplicationContext());
      
@@ -5434,6 +5435,7 @@ public class TvBrowser extends ActionBarActivity implements
      }
      
      mHelper = null;
+     super.onDestroy();
   }
   
   private void showInAppError(String error) {

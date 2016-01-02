@@ -50,7 +50,6 @@ import org.tvbrowser.widgets.RunningProgramsListWidget;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Dialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
@@ -87,11 +86,11 @@ import android.graphics.drawable.GradientDrawable.Orientation;
 import android.graphics.drawable.LayerDrawable;
 import android.os.AsyncTask;
 import android.os.Build;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Editable;
 import android.text.Html;
@@ -252,11 +251,11 @@ public class UiUtils {
                     
                     if(userRemind.get() || favoriteRemind.get()) {
                       handleReminder.setImageResource(R.drawable.ic_action_remove_alarm);
-                      CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_remove));
+                      CompatUtils.setBackground(handleReminder, ContextCompat.getDrawable(context, R.drawable.button_selector_remove));
                     }
                     else {
                       handleReminder.setImageResource(R.drawable.ic_action_add_alarm);
-                      CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_add));
+                      CompatUtils.setBackground(handleReminder, ContextCompat.getDrawable(context, R.drawable.button_selector_add));
                     }
                     
                     handleReminder.setOnClickListener(new View.OnClickListener() {
@@ -286,7 +285,7 @@ public class UiUtils {
                               @Override
                               public void run() {
                                 handleReminder.setImageResource(R.drawable.ic_action_remove_alarm);
-                                CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_remove));
+                                CompatUtils.setBackground(handleReminder, ContextCompat.getDrawable(context, R.drawable.button_selector_remove));
                                 handleReminder.invalidate();
                               }
                             });
@@ -303,7 +302,7 @@ public class UiUtils {
                               @Override
                               public void run() {
                                 handleReminder.setImageResource(R.drawable.ic_action_add_alarm);
-                                CompatUtils.setBackground(handleReminder, context.getResources().getDrawable(R.drawable.button_selector_add));
+                                CompatUtils.setBackground(handleReminder, ContextCompat.getDrawable(context, R.drawable.button_selector_add));
                                 handleReminder.invalidate();
                               }
                             });
@@ -786,7 +785,7 @@ public class UiUtils {
                       mPreviousId = prev.getLong(prev.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                     }
                   }finally {
-                    IOUtils.closeCursor(prev);
+                    IOUtils.close(prev);
                   }
                   
                   Cursor next = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + startTime + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + channelID + " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC LIMIT 1");
@@ -796,11 +795,11 @@ public class UiUtils {
                       mNextId = next.getLong(next.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                     }
                   }finally {
-                    IOUtils.closeCursor(next);
+                    IOUtils.close(next);
                   }
                 }
               }finally {
-                IOUtils.closeCursor(c);
+                IOUtils.close(c);
               }
               
               return result;
@@ -1588,7 +1587,7 @@ public class UiUtils {
       }
     }
     
-    draw.add(context.getResources().getDrawable(android.R.drawable.list_selector_background));
+    draw.add(ContextCompat.getDrawable(context, android.R.drawable.list_selector_background));
     
     return new LayerDrawable(draw.toArray(new Drawable[draw.size()]));
   }
@@ -2427,7 +2426,7 @@ public class UiUtils {
   }
   
   public static final ImageSpan createImageSpan(Context context, int drawable) {
-    Drawable icon = context.getResources().getDrawable(drawable);
+    Drawable icon = ContextCompat.getDrawable(context, drawable); 
     
     float zoom = 16f/icon.getIntrinsicHeight() * context.getResources().getDisplayMetrics().density;
     
@@ -2477,7 +2476,7 @@ public class UiUtils {
     }
   }
   
-  private static final class CustomDialogClass extends Dialog {
+  /*private static final class CustomDialogClass extends Dialog {
     private View mView;
     public CustomDialogClass(Context context, View layout) {
       super(context);
@@ -2491,5 +2490,5 @@ public class UiUtils {
       
       setContentView(mView);
     }
-  }
+  }*/
 }

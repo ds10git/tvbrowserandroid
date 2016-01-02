@@ -219,7 +219,7 @@ public class FragmentProgramTable extends Fragment {
             }
           }
           
-          IOUtils.closeCursor(c);
+          IOUtils.close(c);
         }
       }
     }
@@ -264,9 +264,9 @@ public class FragmentProgramTable extends Fragment {
   
   @Override
   public void onPause() {
-    super.onPause();
     
     mKeepRunning = false;
+    super.onPause();
   }
   
   @Override
@@ -395,7 +395,6 @@ public class FragmentProgramTable extends Fragment {
   
   @Override
   public void onDetach() {
-    super.onDetach();
     
     mKeepRunning = false;
     
@@ -414,6 +413,7 @@ public class FragmentProgramTable extends Fragment {
     if(mDontWantToSeeReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mDontWantToSeeReceiver);
     }
+    super.onDetach();
   }
   
   private void startUpdateThread() {
@@ -785,7 +785,7 @@ public class FragmentProgramTable extends Fragment {
           });
         }
       }finally {
-        IOUtils.closeCursor(channels);
+        IOUtils.close(channels);
       }
     }
     
