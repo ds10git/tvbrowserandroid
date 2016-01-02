@@ -103,7 +103,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
     private int[] mUserDefindedColorEpisode;
     
     private void executeQuery() {
-      IOUtils.closeCursor(mCursor);
+      IOUtils.close(mCursor);
       
       cancelAlarms();
       
@@ -462,7 +462,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
 
     @Override
     public void onDestroy() {
-      IOUtils.closeCursor(mCursor);
+      IOUtils.close(mCursor);
       
       cancelAlarms();
     }
