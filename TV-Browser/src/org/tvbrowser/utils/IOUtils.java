@@ -26,6 +26,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PushbackInputStream;
+import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -691,7 +692,7 @@ public class IOUtils {
   }
   
   /**
-   * Normale time of given Calendar to 2014-12-31 with the given time.
+   * Normalize time of given Calendar to 2014-12-31 with the given time.
    * <p>
    * @param cal The Calendar to normalize.
    * @param minutesAfterMidnight The minutes after midnight to use.
@@ -702,7 +703,7 @@ public class IOUtils {
   }
   
   /**
-   * Normale time of given Calendar to 2014-12-31 with the given time.
+   * Normalize time of given Calendar to 2014-12-31 with the given time.
    * <p>
    * @param cal The Calendar to normalize.
    * @param minutesAfterMidnight The minutes after midnight to use.
@@ -714,7 +715,7 @@ public class IOUtils {
   }
   
   /**
-   * Normale time of given Calendar to 2014-12-31 with the hourOfDay and minutes.
+   * Normalize time of given Calendar to 2014-12-31 with the hourOfDay and minutes.
    * <p>
    * @param cal The Calendar to normalize.
    * @param hourOfDay The hour of day to use.
@@ -737,7 +738,12 @@ public class IOUtils {
   public static void close(final Closeable closeable) {
     if (closeable != null) {
       try {
-        closeable.close();
+        // Needs reflection to be compatible with Android 4.0
+        Method close = closeable.getClass().getMethod("close");
+        
+        if(close != null) {
+          close.invoke(closeable);
+        }
       }
       catch (final Exception ignored) {
         // intentionally ignored
