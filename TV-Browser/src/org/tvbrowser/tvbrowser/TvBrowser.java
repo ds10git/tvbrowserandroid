@@ -364,16 +364,16 @@ public class TvBrowser extends ActionBarActivity implements
               Cursor synced = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, null, TvBrowserContentProvider.KEY_ID);
               
               try {
-                synced.moveToPosition(-1);
-                
-                int idColumn = synced.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-                ArrayList<String> syncIdList = new ArrayList<String>();
-                
-                while(synced.moveToNext()) {
-                  syncIdList.add(String.valueOf(synced.getLong(idColumn)));
+                if(IOUtils.prepareAccess(synced)) {
+                  int idColumn = synced.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                  ArrayList<String> syncIdList = new ArrayList<String>();
+                  
+                  while(synced.moveToNext()) {
+                    syncIdList.add(String.valueOf(synced.getLong(idColumn)));
+                  }
+                  
+                  ProgramUtils.addSyncIds(getApplicationContext(), syncIdList);
                 }
-                
-                ProgramUtils.addSyncIds(getApplicationContext(), syncIdList);
               }finally {
                 IOUtils.close(synced);
               }
@@ -389,16 +389,16 @@ public class TvBrowser extends ActionBarActivity implements
               Cursor reminders = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " OR " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, null, TvBrowserContentProvider.KEY_ID);
               
               try {
-                reminders.moveToPosition(-1);
-                
-                int idColumn = reminders.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-                ArrayList<String> reminderIdList = new ArrayList<String>();
-                
-                while(reminders.moveToNext()) {
-                  reminderIdList.add(String.valueOf(reminders.getLong(idColumn)));
-                }
-                
+                if(IOUtils.prepareAccess(reminders)) {
+                  int idColumn = reminders.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                  ArrayList<String> reminderIdList = new ArrayList<String>();
+                  
+                  while(reminders.moveToNext()) {
+                    reminderIdList.add(String.valueOf(reminders.getLong(idColumn)));
+                  }
+                  
                 ProgramUtils.addReminderIds(getApplicationContext(), reminderIdList);
+                }
               }finally {
                 IOUtils.close(reminders);
               }
@@ -902,9 +902,11 @@ public class TvBrowser extends ActionBarActivity implements
     if(IOUtils.isDatabaseAccessible(TvBrowser.this)) {
       Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID}, null, null, null);
       
-      result = c != null && c.getCount() > 0;
-      
-      IOUtils.close(c);
+      try {
+        result = c != null && c.getCount() > 0;
+      }finally {
+        IOUtils.close(c);
+      }
     }
     
     return result;
@@ -919,7 +921,7 @@ public class TvBrowser extends ActionBarActivity implements
       Cursor groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, projection, TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + "=\"" + SettingConstants.EPG_DONATE_KEY +"\"", null, null);
       
       try {
-        if(groups.moveToFirst()) {
+        if(IOUtils.prepareAccessFirst(groups)) {
           epgDonateKey = groups.getInt(groups.getColumnIndex(TvBrowserContentProvider.KEY_ID));
         }
       } finally {
@@ -930,7 +932,7 @@ public class TvBrowser extends ActionBarActivity implements
         Cursor epgDonateSubscribedChannels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=" + epgDonateKey + " ) AND " + TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, null);
         
         try {
-          result = epgDonateSubscribedChannels.getCount() > 0;
+          result = epgDonateSubscribedChannels != null && epgDonateSubscribedChannels.getCount() > 0;
         } finally {
           IOUtils.close(epgDonateSubscribedChannels);
         }
@@ -1128,9 +1130,15 @@ public class TvBrowser extends ActionBarActivity implements
     if(IOUtils.isDatabaseAccessible(TvBrowser.this)) {
       Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.CHANNEL_KEY_SELECTION}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1 ", null, null);
       
-      int count = test.getCount();
+      int count = 0;
       
-      test.close();
+      try {
+        if(test != null) {
+          count = test.getCount();
+        }
+      }finally {
+        IOUtils.close(test);
+      }
       
       if(count > 0) {
         AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -1286,7 +1294,7 @@ public class TvBrowser extends ActionBarActivity implements
                         Cursor channelIdCursor = resolver.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where, null, TvBrowserContentProvider.KEY_ID + " ASC LIMIT 1");
                         
                         try {
-                          if(IOUtils.prepareAccess(channelIdCursor) && channelIdCursor.moveToFirst()) {
+                          if(IOUtils.prepareAccessFirst(channelIdCursor)) {
                             int id = channelIdCursor.getInt(channelIdCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                             
                             updateList.add(ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS,id)).withValues(values).build());
@@ -1465,36 +1473,39 @@ public class TvBrowser extends ActionBarActivity implements
                   Cursor c = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, where, null, TvBrowserContentProvider.KEY_ID);
                   
                   try {
-                    int count = c.getCount()/10;
-                    c.moveToPosition(-1);
-                  
-                    builder.setProgress(count, 0, false);
-                    notification.notify(notifyID, builder.build());
+                    int count = 0;
                     
-                    int keyColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-                    int titleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-                    
-                    while(c.moveToNext()) {
-                      int position = c.getPosition();
+                    if(IOUtils.prepareAccess(c)) {
+                      count = c.getCount()/10;
                       
-                      if(position % 10 == 0) {
-                        builder.setProgress(count, position/10, false);
-                        notification.notify(notifyID, builder.build());
+                      builder.setProgress(count, 0, false);
+                      notification.notify(notifyID, builder.build());
+                      
+                      int keyColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                      int titleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+                      
+                      while(c.moveToNext()) {
+                        int position = c.getPosition();
+                        
+                        if(position % 10 == 0) {
+                          builder.setProgress(count, position/10, false);
+                          notification.notify(notifyID, builder.build());
+                        }
+                        
+                        String title = c.getString(titleColumn);
+                        
+                        boolean filter = UiUtils.filter(getApplicationContext(), title, exclusionArr);
+                        long progID = c.getLong(keyColumn);
+                        
+                        ContentValues values = new ContentValues();
+                        values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, filter ? 1 : 0);
+                        
+                        ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
+                        opBuilder.withValues(values);
+                        
+                        dontWantToSeeUpdate.addUpdate(opBuilder.build());
+                        //updateValuesList.add(opBuilder.build());
                       }
-                      
-                      String title = c.getString(titleColumn);
-                      
-                      boolean filter = UiUtils.filter(getApplicationContext(), title, exclusionArr);
-                      long progID = c.getLong(keyColumn);
-                      
-                      ContentValues values = new ContentValues();
-                      values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, filter ? 1 : 0);
-                      
-                      ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
-                      opBuilder.withValues(values);
-                      
-                      dontWantToSeeUpdate.addUpdate(opBuilder.build());
-                      //updateValuesList.add(opBuilder.build());
                     }
                   }finally {
                     IOUtils.close(c);
@@ -1854,63 +1865,62 @@ public class TvBrowser extends ActionBarActivity implements
           TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER
       };
       
-      Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
-      
       SparseArray<String> groupKeys = new SparseArray<String>();
-      
       StringBuilder uploadChannels = new StringBuilder();
       
+      Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+      
       try {
-        channels.moveToPosition(-1);
-        
-        int groupKeyColumn = channels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-        int channelKeyColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-        int channelKeyOrderNumberColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
-        
-        while(channels.moveToNext()) {
-          int groupKey = channels.getInt(groupKeyColumn);
-          String channelId = channels.getString(channelKeyColumn);
-          int orderNumber = channels.getInt(channelKeyOrderNumberColumn);
+        if(IOUtils.prepareAccess(channels)) {
+          int groupKeyColumn = channels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+          int channelKeyColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+          int channelKeyOrderNumberColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
           
-          String groupId = groupKeys.get(groupKey);
-          
-          if(groupId == null) {
-            String[] groupProjection = {
-                TvBrowserContentProvider.GROUP_KEY_GROUP_ID,
-                TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID
-            };
+          while(channels.moveToNext()) {
+            int groupKey = channels.getInt(groupKeyColumn);
+            String channelId = channels.getString(channelKeyColumn);
+            int orderNumber = channels.getInt(channelKeyOrderNumberColumn);
             
-            Cursor groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, TvBrowserContentProvider.KEY_ID + "=" + groupKey, null, null);
+            String groupId = groupKeys.get(groupKey);
             
-            try {
-              if(groups.moveToFirst()) {
-                String dataServiceId = groups.getString(groups.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID));
-                String goupIdValue = groups.getString(groups.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
-                
-                String dataServiceIdNumber = SettingConstants.getNumberForDataServiceKey(dataServiceId);
-                
-                if(dataServiceIdNumber != null) {
-                  if(dataServiceId.equals(SettingConstants.EPG_FREE_KEY)) {
-                    groupId = dataServiceIdNumber + ":"+goupIdValue+":";
+            if(groupId == null) {
+              String[] groupProjection = {
+                  TvBrowserContentProvider.GROUP_KEY_GROUP_ID,
+                  TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID
+              };
+              
+              Cursor groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, TvBrowserContentProvider.KEY_ID + "=" + groupKey, null, null);
+              
+              try {
+                if(IOUtils.prepareAccessFirst(groups)) {
+                  String dataServiceId = groups.getString(groups.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID));
+                  String goupIdValue = groups.getString(groups.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
+                  
+                  String dataServiceIdNumber = SettingConstants.getNumberForDataServiceKey(dataServiceId);
+                  
+                  if(dataServiceIdNumber != null) {
+                    if(dataServiceId.equals(SettingConstants.EPG_FREE_KEY)) {
+                      groupId = dataServiceIdNumber + ":"+goupIdValue+":";
+                    }
+                    else if(dataServiceId.equals(SettingConstants.EPG_DONATE_KEY)) {
+                      groupId = dataServiceIdNumber + ":";
+                    }
+                    groupKeys.put(groupKey, groupId);
                   }
-                  else if(dataServiceId.equals(SettingConstants.EPG_DONATE_KEY)) {
-                    groupId = dataServiceIdNumber + ":";
-                  }
-                  groupKeys.put(groupKey, groupId);
                 }
+              }finally {
+                groups.close();
               }
-            }finally {
-              groups.close();
             }
+            
+            uploadChannels.append(groupId).append(channelId);
+            
+            if(orderNumber > 0) {
+              uploadChannels.append(":").append(orderNumber);
+            }
+            
+            uploadChannels.append("\n");
           }
-          
-          uploadChannels.append(groupId).append(channelId);
-          
-          if(orderNumber > 0) {
-            uploadChannels.append(":").append(orderNumber);
-          }
-          
-          uploadChannels.append("\n");
         }
       }finally {
         channels.close();
@@ -2208,78 +2218,81 @@ public class TvBrowser extends ActionBarActivity implements
       
       ContentResolver cr = getContentResolver();
       Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, selection, null, TvBrowserContentProvider.CHANNEL_KEY_NAME);
-      channels.moveToPosition(-1);
       
-      // populate array list with all available channels
       final ArrayListWrapper channelSelectionList = new ArrayListWrapper();
       ArrayList<Country> countryList = new ArrayList<Country>();
       
-      int channelIdColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-      int categoryColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CATEGORY);
-      int logoColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
-      int dataServiceColumn = channels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID);
-      int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-      int countyColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ALL_COUNTRIES);
-      int selectionColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
-      ;
-      while(channels.moveToNext()) {
-        int channelID = channels.getInt(channelIdColumn);
-        int category = channels.getInt(categoryColumn);
-        byte[] logo = channels.getBlob(logoColumn);
-        String dataService = channels.getString(dataServiceColumn);
-        String name = channels.getString(nameColumn);
-        String countries = channels.getString(countyColumn);
-        boolean isSelected = channels.getInt(selectionColumn) == 1 && !delete;
-        
-        if(countries.contains("$")) {
-          String[] values = countries.split("\\$");
+      try {        
+        if(IOUtils.prepareAccess(channels)) {
+          // populate array list with all available channels
+          int channelIdColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+          int categoryColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CATEGORY);
+          int logoColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
+          int dataServiceColumn = channels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID);
+          int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+          int countyColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ALL_COUNTRIES);
+          int selectionColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
           
-          for(String country : values) {
-            Country test = new Country(new Locale(country, country));
+          while(channels.moveToNext()) {
+            int channelID = channels.getInt(channelIdColumn);
+            int category = channels.getInt(categoryColumn);
+            byte[] logo = channels.getBlob(logoColumn);
+            String dataService = channels.getString(dataServiceColumn);
+            String name = channels.getString(nameColumn);
+            String countries = channels.getString(countyColumn);
+            boolean isSelected = channels.getInt(selectionColumn) == 1 && !delete;
             
-            if(!countryList.contains(test) && test.mLocale.getDisplayCountry().trim().length() > 0) {
-              countryList.add(test);
+            if(countries.contains("$")) {
+              String[] values = countries.split("\\$");
+              
+              for(String country : values) {
+                Country test = new Country(new Locale(country, country));
+                
+                if(!countryList.contains(test) && test.mLocale.getDisplayCountry().trim().length() > 0) {
+                  countryList.add(test);
+                }
+              }
             }
+            else {
+              Country test = new Country(new Locale(countries, countries));
+              
+              if(!countryList.contains(test) && test.mLocale.getDisplayCountry().trim().length() > 0) {
+                countryList.add(test);
+              }
+            }
+            
+            Bitmap channelLogo = UiUtils.createBitmapFromByteArray(logo);
+            
+            if(channelLogo != null) {
+              BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
+              
+              ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+              background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
+              
+              LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+              logoDrawable.setBounds(background.getBounds());
+              
+              l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
+              
+              channelLogo = UiUtils.drawableToBitmap(logoDrawable);
+            }
+            
+            channelSelectionList.add(new ChannelSelection(channelID, name, category, countries, channelLogo, isSelected, SettingConstants.EPG_DONATE_KEY.equals(dataService)));
           }
+          
+          // sort countries for filtering
+          Collections.sort(countryList, new Comparator<Country>() {
+            @Override
+            public int compare(Country lhs, Country rhs) {
+              return lhs.toString().compareToIgnoreCase(rhs.toString());
+            }
+          });
+          
+          countryList.add(0,new Country(null));
         }
-        else {
-          Country test = new Country(new Locale(countries, countries));
-          
-          if(!countryList.contains(test) && test.mLocale.getDisplayCountry().trim().length() > 0) {
-            countryList.add(test);
-          }
-        }
-        
-        Bitmap channelLogo = UiUtils.createBitmapFromByteArray(logo);
-        
-        if(channelLogo != null) {
-          BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
-          
-          ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
-          background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
-          
-          LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
-          logoDrawable.setBounds(background.getBounds());
-          
-          l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
-          
-          channelLogo = UiUtils.drawableToBitmap(logoDrawable);
-        }
-        
-        channelSelectionList.add(new ChannelSelection(channelID, name, category, countries, channelLogo, isSelected, SettingConstants.EPG_DONATE_KEY.equals(dataService)));
+      }finally {
+        IOUtils.close(channels);
       }
-      
-      // sort countries for filtering
-      Collections.sort(countryList, new Comparator<Country>() {
-        @Override
-        public int compare(Country lhs, Country rhs) {
-          return lhs.toString().compareToIgnoreCase(rhs.toString());
-        }
-      });
-      
-      countryList.add(0,new Country(null));
-      
-      channels.close();
       
       // create filter for filtering of category and country
       final ChannelFilter filter = new ChannelFilter(SettingConstants.TV_CATEGORY, null);
@@ -2717,271 +2730,273 @@ public class TvBrowser extends ActionBarActivity implements
           TvBrowserContentProvider.CHANNEL_KEY_LOGO
           };
       
+      final ArrayList<SortInterface> channelSource = new ArrayList<SortInterface>();
+      
       Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
       
-      final ArrayList<SortInterface> channelSource = new ArrayList<SortInterface>();
-        
-      if(channels.moveToFirst()) {
-        do {
-          int key = channels.getInt(0);
-          String name = channels.getString(1);
-          
-          int order = 0;
-          
-          if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER))) {
-            order = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
-          }
-          
-          Bitmap channelLogo = UiUtils.createBitmapFromByteArray(channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
-          
-          if(channelLogo != null) {
-            BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
+      try {
+        if(IOUtils.prepareAccessFirst(channels)) {
+          do {
+            int key = channels.getInt(0);
+            String name = channels.getString(1);
             
-            ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
-            background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
+            int order = 0;
             
-            LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
-            logoDrawable.setBounds(background.getBounds());
+            if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER))) {
+              order = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
+            }
             
-            l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
+            Bitmap channelLogo = UiUtils.createBitmapFromByteArray(channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
             
-            channelLogo = UiUtils.drawableToBitmap(logoDrawable);
-          }
+            if(channelLogo != null) {
+              BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
+              
+              ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+              background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
+              
+              LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+              logoDrawable.setBounds(background.getBounds());
+              
+              l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
+              
+              channelLogo = UiUtils.drawableToBitmap(logoDrawable);
+            }
+                      
+            channelSource.add(new ChannelSort(key, name, order, channelLogo));
+          } while(channels.moveToNext());
                     
-          channelSource.add(new ChannelSort(key, name, order, channelLogo));
-        }while(channels.moveToNext());
-        
-        channels.close();
-        
-        final Comparator<SortInterface> sortComparator = new Comparator<SortInterface>() {
-          @Override
-          public int compare(SortInterface lhs, SortInterface rhs) {
-            if(lhs.getSortNumber() < rhs.getSortNumber()) {
-              return -1;
-            }
-            else if(lhs.getSortNumber() > rhs.getSortNumber()) {
-              return 1;
-            }
-            
-            return 0;
-          }
-        };
-        
-        Collections.sort(channelSource, sortComparator);
-  
-        // create default logo for channels without logo
-        final Bitmap defaultLogo = BitmapFactory.decodeResource( getResources(), R.drawable.ic_launcher);
-        
-        final StableArrayAdapter<SortInterface> aa = new StableArrayAdapter<SortInterface>(TvBrowser.this, R.layout.channel_sort_row, channelSource) {
-          public View getView(int position, View convertView, ViewGroup parent) {
-            ChannelSort value = (ChannelSort)getItem(position);
-            ViewHolder holder = null;
-            
-            if (convertView == null) {
-              LayoutInflater mInflater = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+          final Comparator<SortInterface> sortComparator = new Comparator<SortInterface>() {
+            @Override
+            public int compare(SortInterface lhs, SortInterface rhs) {
+              if(lhs.getSortNumber() < rhs.getSortNumber()) {
+                return -1;
+              }
+              else if(lhs.getSortNumber() > rhs.getSortNumber()) {
+                return 1;
+              }
               
-              holder = new ViewHolder();
+              return 0;
+            }
+          };
+          
+          Collections.sort(channelSource, sortComparator);
+    
+          // create default logo for channels without logo
+          final Bitmap defaultLogo = BitmapFactory.decodeResource( getResources(), R.drawable.ic_launcher);
+          
+          final StableArrayAdapter<SortInterface> aa = new StableArrayAdapter<SortInterface>(TvBrowser.this, R.layout.channel_sort_row, channelSource) {
+            public View getView(int position, View convertView, ViewGroup parent) {
+              ChannelSort value = (ChannelSort)getItem(position);
+              ViewHolder holder = null;
               
-              convertView = mInflater.inflate(R.layout.channel_sort_row, getParentViewGroup(), false);
-              
-              holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_sort_text);
-              holder.mSortNumber = (TextView)convertView.findViewById(R.id.row_of_channel_sort_number);
-              holder.mLogo = (ImageView)convertView.findViewById(R.id.row_of_channel_sort_icon);
-              
-              convertView.setTag(holder);
-              
-            }
-            else {
-              holder = (ViewHolder)convertView.getTag();
-            }
-            
-            holder.mTextView.setText(value.getName());
-            
-            String sortNumber = String.valueOf(value.getSortNumber());
-            
-            if(value.getSortNumber() == 0) {
-              sortNumber = "-";
-            }
-            
-            sortNumber += ".";
-            
-            holder.mSortNumber.setText(sortNumber);
-            
-            Bitmap logo = value.getLogo();
-            
-            if(logo != null) {
-              holder.mLogo.setImageBitmap(logo);
-            }
-            else {
-              holder.mLogo.setImageBitmap(defaultLogo);
-            }
-            
-            return convertView;
-          }
-        };
-        channelSort.setAdapter(aa);
-        channelSort.setArrayList(channelSource);
-        channelSort.setSortDropListener(new SortDropListener() {
-          @Override
-          public void dropped(int originalPosition, int position) {
-            int startIndex = originalPosition;
-            int endIndex = position;
-            
-            int droppedPos = position;
-            
-            if(originalPosition > position) {
-              startIndex = position;
-              endIndex = originalPosition;
-            }
-            
-            int previousNumber = 0;
-            
-            if(startIndex > 0) {
-              previousNumber = aa.getItem(startIndex-1).getSortNumber();
-            }
-            
-            int firstVisible = channelSort.getFirstVisiblePosition();
-            
-            for(int i = startIndex; i <= endIndex; i++) {
-              if(i == droppedPos || aa.getItem(i).getSortNumber() != 0) {
-                aa.getItem(i).setSortNumber(++previousNumber);
+              if (convertView == null) {
+                LayoutInflater mInflater = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
                 
-                if(i >= firstVisible) {
-                  View line = channelSort.getChildAt(i-firstVisible);
+                holder = new ViewHolder();
+                
+                convertView = mInflater.inflate(R.layout.channel_sort_row, getParentViewGroup(), false);
+                
+                holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_sort_text);
+                holder.mSortNumber = (TextView)convertView.findViewById(R.id.row_of_channel_sort_number);
+                holder.mLogo = (ImageView)convertView.findViewById(R.id.row_of_channel_sort_icon);
+                
+                convertView.setTag(holder);
+                
+              }
+              else {
+                holder = (ViewHolder)convertView.getTag();
+              }
+              
+              holder.mTextView.setText(value.getName());
+              
+              String sortNumber = String.valueOf(value.getSortNumber());
+              
+              if(value.getSortNumber() == 0) {
+                sortNumber = "-";
+              }
+              
+              sortNumber += ".";
+              
+              holder.mSortNumber.setText(sortNumber);
+              
+              Bitmap logo = value.getLogo();
+              
+              if(logo != null) {
+                holder.mLogo.setImageBitmap(logo);
+              }
+              else {
+                holder.mLogo.setImageBitmap(defaultLogo);
+              }
+              
+              return convertView;
+            }
+          };
+          channelSort.setAdapter(aa);
+          channelSort.setArrayList(channelSource);
+          channelSort.setSortDropListener(new SortDropListener() {
+            @Override
+            public void dropped(int originalPosition, int position) {
+              int startIndex = originalPosition;
+              int endIndex = position;
+              
+              int droppedPos = position;
+              
+              if(originalPosition > position) {
+                startIndex = position;
+                endIndex = originalPosition;
+              }
+              
+              int previousNumber = 0;
+              
+              if(startIndex > 0) {
+                previousNumber = aa.getItem(startIndex-1).getSortNumber();
+              }
+              
+              int firstVisible = channelSort.getFirstVisiblePosition();
+              
+              for(int i = startIndex; i <= endIndex; i++) {
+                if(i == droppedPos || aa.getItem(i).getSortNumber() != 0) {
+                  aa.getItem(i).setSortNumber(++previousNumber);
                   
-                  if(line != null) {
-                    ((TextView)line.findViewById(R.id.row_of_channel_sort_number)).setText(String.valueOf(previousNumber)+".");
+                  if(i >= firstVisible) {
+                    View line = channelSort.getChildAt(i-firstVisible);
+                    
+                    if(line != null) {
+                      ((TextView)line.findViewById(R.id.row_of_channel_sort_number)).setText(String.valueOf(previousNumber)+".");
+                    }
                   }
                 }
               }
+            
             }
+          });
           
-          }
-        });
-        
-        channelSort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-          @Override
-          public void onItemClick(final AdapterView<?> adapterView, final View view, final int position,
-              long id) {
-            AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-            
-            LinearLayout numberSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.sort_number_selection, getParentViewGroup(), false);
-            
-            mSelectionNumberChanged = false;
-            
-            final NumberPicker number = (NumberPicker)numberSelection.findViewById(R.id.sort_picker);
-            number.setMinValue(1);
-            number.setMaxValue(channelSource.size());
-            number.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-            number.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-              @Override
-              public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                mSelectionNumberChanged = true;
-              }
-            });
-            
-            final EditText numberAlternative = (EditText)numberSelection.findViewById(R.id.sort_entered_number);
-            
-            builder.setView(numberSelection);
-            
-            final ChannelSort selection = (ChannelSort)channelSource.get(position);
-            
-            TextView name = (TextView)numberSelection.findViewById(R.id.sort_picker_channel_name);
-            name.setText(selection.getName());
-            
-            if(selection.getSortNumber() > 0) {
-              if(selection.getSortNumber() < channelSource.size()+1) {
-                number.setValue(selection.getSortNumber());
-              }
-              else {
-                numberAlternative.setText(String.valueOf(selection.getSortNumber()));
-              }
-            }
-            
-            builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                String test = numberAlternative.getText().toString().trim();
-                
-                if(test.length() == 0 || mSelectionNumberChanged) {
-                  selection.setSortNumber(number.getValue());
+          channelSort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(final AdapterView<?> adapterView, final View view, final int position,
+                long id) {
+              AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+              
+              LinearLayout numberSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.sort_number_selection, getParentViewGroup(), false);
+              
+              mSelectionNumberChanged = false;
+              
+              final NumberPicker number = (NumberPicker)numberSelection.findViewById(R.id.sort_picker);
+              number.setMinValue(1);
+              number.setMaxValue(channelSource.size());
+              number.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+              number.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
+                @Override
+                public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
+                  mSelectionNumberChanged = true;
+                }
+              });
+              
+              final EditText numberAlternative = (EditText)numberSelection.findViewById(R.id.sort_entered_number);
+              
+              builder.setView(numberSelection);
+              
+              final ChannelSort selection = (ChannelSort)channelSource.get(position);
+              
+              TextView name = (TextView)numberSelection.findViewById(R.id.sort_picker_channel_name);
+              name.setText(selection.getName());
+              
+              if(selection.getSortNumber() > 0) {
+                if(selection.getSortNumber() < channelSource.size()+1) {
+                  number.setValue(selection.getSortNumber());
                 }
                 else {
-                  try {
-                    selection.setSortNumber(Integer.parseInt(test));
-                  }catch(NumberFormatException e1) {}
+                  numberAlternative.setText(String.valueOf(selection.getSortNumber()));
                 }
-                
-                Collections.sort(channelSource, sortComparator);
-                aa.notifyDataSetChanged();
               }
-            });
-            
-            builder.setNegativeButton(android.R.string.cancel, null);
-            
-            builder.show();
-          }
-        });
-        
-        sortAlphabetically.setOnClickListener(new View.OnClickListener() {
-          @Override
-          public void onClick(View v) {
-            Collections.sort(channelSource, new Comparator<SortInterface>() {
-              @Override
-              public int compare(SortInterface lhs, SortInterface rhs) {
-                return lhs.getName().compareToIgnoreCase(rhs.getName());
+              
+              builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                  String test = numberAlternative.getText().toString().trim();
+                  
+                  if(test.length() == 0 || mSelectionNumberChanged) {
+                    selection.setSortNumber(number.getValue());
+                  }
+                  else {
+                    try {
+                      selection.setSortNumber(Integer.parseInt(test));
+                    }catch(NumberFormatException e1) {}
+                  }
+                  
+                  Collections.sort(channelSource, sortComparator);
+                  aa.notifyDataSetChanged();
+                }
+              });
+              
+              builder.setNegativeButton(android.R.string.cancel, null);
+              
+              builder.show();
+            }
+          });
+          
+          sortAlphabetically.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              Collections.sort(channelSource, new Comparator<SortInterface>() {
+                @Override
+                public int compare(SortInterface lhs, SortInterface rhs) {
+                  return lhs.getName().compareToIgnoreCase(rhs.getName());
+                }
+              });
+              
+              for(int i = 0; i < channelSource.size(); i++) {
+                channelSource.get(i).setSortNumber(i+1);
               }
-            });
-            
-            for(int i = 0; i < channelSource.size(); i++) {
-              channelSource.get(i).setSortNumber(i+1);
+              
+              aa.notifyDataSetChanged();
             }
-            
-            aa.notifyDataSetChanged();
-          }
-        });
-        
-        AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-        
-        builder.setTitle(R.string.action_sort_channels);
-        builder.setView(main);
-        
-        builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            boolean somethingChanged = false;
-            
-            for(SortInterface selection : channelSource) {
-              if(((ChannelSort)selection).wasChanged()) {
-                somethingChanged = true;
-                
-                ContentValues values = new ContentValues();
-                values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, selection.getSortNumber());
-                
-                getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, ((ChannelSort)selection).getKey()), values, null, null);
+          });
+          
+          AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+          
+          builder.setTitle(R.string.action_sort_channels);
+          builder.setView(main);
+          
+          builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              boolean somethingChanged = false;
+              
+              for(SortInterface selection : channelSource) {
+                if(((ChannelSort)selection).wasChanged()) {
+                  somethingChanged = true;
+                  
+                  ContentValues values = new ContentValues();
+                  values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, selection.getSortNumber());
+                  
+                  getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, ((ChannelSort)selection).getKey()), values, null, null);
+                }
+              }
+              
+              if(somethingChanged) {
+                updateProgramListChannelBar();
+              }
+              
+              if(showDownload) {
+                checkTermsAccepted();
               }
             }
-            
-            if(somethingChanged) {
-              updateProgramListChannelBar();
+          });
+          builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              if(showDownload) {
+                checkTermsAccepted();
+              }
             }
-            
-            if(showDownload) {
-              checkTermsAccepted();
-            }
-          }
-        });
-        builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            if(showDownload) {
-              checkTermsAccepted();
-            }
-          }
-        });
-        
-        
-        builder.show();
+          });
+          
+          
+          builder.show();
+        }
+      }finally {
+        IOUtils.close(channels);
       }
     }
   }
@@ -3016,207 +3031,213 @@ public class TvBrowser extends ActionBarActivity implements
     else if(!TvDataUpdateService.isRunning() && IOUtils.isDatabaseAccessible(TvBrowser.this)) {
       Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, null);
       
-      if(test.getCount() > 0) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-        
-        RelativeLayout dataDownload = (RelativeLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection, getParentViewGroup(), false);
-        
-        final Spinner days = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_selection_download_days);
-        final CheckBox pictures = (CheckBox)dataDownload.findViewById(R.id.dialog_data_update_selection_download_picture);
-        
-        final Spinner autoUpdate = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_type);
-        final Spinner frequency = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_frequency);
-        final CheckBox onlyWiFi = (CheckBox)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_type_connection);
-        final TextView timeLabel = (TextView)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time_label);
-        final TextView time = (TextView)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time);
-        time.setTextColor(onlyWiFi.getTextColors());
-        
-        String currentDownloadDays = PrefUtils.getStringValue(R.string.DAYS_TO_DOWNLOAD, R.string.days_to_download_default);
-        
-        final String[] possibleDownloadDays = getResources().getStringArray(R.array.download_days);
-        
-        for(int i = 0; i < possibleDownloadDays.length; i++) {
-          if(currentDownloadDays.equals(possibleDownloadDays[i])) {
-            days.setSelection(i);
-            break;
-          }
-        }
-        
-        pictures.setChecked(PrefUtils.getBooleanValue(R.string.LOAD_PICTURE_DATA, R.bool.load_picture_data_default));
-                
-        String currentAutoUpdateValue = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
-        String currentAutoUpdateFrequency = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default);
-        
-        if(currentAutoUpdateValue.equals("0")) {
-          frequency.setEnabled(false);
-          onlyWiFi.setEnabled(false);
-          timeLabel.setEnabled(false);
-          time.setEnabled(false);
-          frequency.setVisibility(View.GONE);
-          onlyWiFi.setVisibility(View.GONE);
-          timeLabel.setVisibility(View.GONE);
-          time.setVisibility(View.GONE);
-        }
-        else if(currentAutoUpdateValue.equals("1")) {
-          autoUpdate.setSelection(1);
-          timeLabel.setEnabled(false);
-          time.setEnabled(false);
-          timeLabel.setVisibility(View.GONE);
-          time.setVisibility(View.GONE);
-        }
-        else if(currentAutoUpdateValue.equals("2")) {
-          autoUpdate.setSelection(2);
-        }
-        
-        final String[] autoFrequencyPossibleValues = getResources().getStringArray(R.array.pref_auto_update_frequency_values);
-        
-        for(int i = 0; i < autoFrequencyPossibleValues.length; i++) {
-          if(autoFrequencyPossibleValues[i].equals(currentAutoUpdateFrequency)) {
-            frequency.setSelection(i);
-            break;
-          }
-        }
-        
-        onlyWiFi.setChecked(PrefUtils.getBooleanValue(R.string.PREF_AUTO_UPDATE_ONLY_WIFI, R.bool.pref_auto_update_only_wifi_default));
-        
-        final AtomicInteger currentAutoUpdateTime = new AtomicInteger(PrefUtils.getIntValue(R.string.PREF_AUTO_UPDATE_START_TIME, R.integer.pref_auto_update_start_time_default));
-        
-        Calendar now = Calendar.getInstance();
-        
-        now.set(Calendar.HOUR_OF_DAY, currentAutoUpdateTime.get()/60);
-        now.set(Calendar.MINUTE, currentAutoUpdateTime.get()%60);
-        now.set(Calendar.SECOND, 0);
-        now.set(Calendar.MILLISECOND, 0);
-        
-        time.setText(DateFormat.getTimeFormat(TvBrowser.this).format(now.getTime()));
-        
-        autoUpdate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
-          @Override
-          public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-            frequency.setEnabled(position != 0);
-            onlyWiFi.setEnabled(position != 0);
-            
-            if(position != 0) {
-              frequency.setVisibility(View.VISIBLE);
-              onlyWiFi.setVisibility(View.VISIBLE);
-            }
-            else {
-              frequency.setVisibility(View.GONE);
-              onlyWiFi.setVisibility(View.GONE);
-            }
-            
-            timeLabel.setEnabled(position == 2);
-            time.setEnabled(position == 2);
-            
-            if(position == 2) {
-              timeLabel.setVisibility(View.VISIBLE);
-              time.setVisibility(View.VISIBLE);
-            }
-            else {
-              timeLabel.setVisibility(View.GONE);
-              time.setVisibility(View.GONE);
+      try {
+        if(IOUtils.prepareAccess(test)) {
+          AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+          
+          RelativeLayout dataDownload = (RelativeLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection, getParentViewGroup(), false);
+          
+          final Spinner days = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_selection_download_days);
+          final CheckBox pictures = (CheckBox)dataDownload.findViewById(R.id.dialog_data_update_selection_download_picture);
+          
+          final Spinner autoUpdate = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_type);
+          final Spinner frequency = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_frequency);
+          final CheckBox onlyWiFi = (CheckBox)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_type_connection);
+          final TextView timeLabel = (TextView)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time_label);
+          final TextView time = (TextView)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time);
+          time.setTextColor(onlyWiFi.getTextColors());
+          
+          String currentDownloadDays = PrefUtils.getStringValue(R.string.DAYS_TO_DOWNLOAD, R.string.days_to_download_default);
+          
+          final String[] possibleDownloadDays = getResources().getStringArray(R.array.download_days);
+          
+          for(int i = 0; i < possibleDownloadDays.length; i++) {
+            if(currentDownloadDays.equals(possibleDownloadDays[i])) {
+              days.setSelection(i);
+              break;
             }
           }
-
-          @Override
-          public void onNothingSelected(AdapterView<?> parent) {
-            
+          
+          pictures.setChecked(PrefUtils.getBooleanValue(R.string.LOAD_PICTURE_DATA, R.bool.load_picture_data_default));
+                  
+          String currentAutoUpdateValue = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
+          String currentAutoUpdateFrequency = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default);
+          
+          if(currentAutoUpdateValue.equals("0")) {
+            frequency.setEnabled(false);
+            onlyWiFi.setEnabled(false);
+            timeLabel.setEnabled(false);
+            time.setEnabled(false);
+            frequency.setVisibility(View.GONE);
+            onlyWiFi.setVisibility(View.GONE);
+            timeLabel.setVisibility(View.GONE);
+            time.setVisibility(View.GONE);
           }
-        });
-        
-        View.OnClickListener onClickListener = new View.OnClickListener() {
-          @Override
-          public void onClick(View v) {
-            AlertDialog.Builder b2 = new AlertDialog.Builder(TvBrowser.this);
-            
-            LinearLayout timeSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection_auto_update_time, getParentViewGroup(), false);
-            
-            final TimePicker timePick = (TimePicker)timeSelection.findViewById(R.id.dialog_data_update_selection_auto_update_selection_time);
-            timePick.setIs24HourView(DateFormat.is24HourFormat(TvBrowser.this));
-            timePick.setCurrentHour(currentAutoUpdateTime.get()/60);
-            timePick.setCurrentMinute(currentAutoUpdateTime.get()%60);
-            
-            b2.setView(timeSelection);
-            
-            b2.setPositiveButton(android.R.string.ok, new OnClickListener() {
-              @Override
-              public void onClick(DialogInterface dialog, int which) {
-                currentAutoUpdateTime.set(timePick.getCurrentHour() * 60 + timePick.getCurrentMinute());
-                
-                Calendar now = Calendar.getInstance();
-                
-                now.set(Calendar.HOUR_OF_DAY, currentAutoUpdateTime.get()/60);
-                now.set(Calendar.MINUTE, currentAutoUpdateTime.get()%60);
-                now.set(Calendar.SECOND, 0);
-                now.set(Calendar.MILLISECOND, 0);
-                
-                time.setText(DateFormat.getTimeFormat(TvBrowser.this).format(now.getTime()));
-              }
-            });
-            b2.setNegativeButton(android.R.string.cancel, null);
-            
-            b2.show();
+          else if(currentAutoUpdateValue.equals("1")) {
+            autoUpdate.setSelection(1);
+            timeLabel.setEnabled(false);
+            time.setEnabled(false);
+            timeLabel.setVisibility(View.GONE);
+            time.setVisibility(View.GONE);
           }
-        };
-        
-        time.setOnClickListener(onClickListener);
-        timeLabel.setOnClickListener(onClickListener);
-        
-        builder.setTitle(R.string.download_data);
-        builder.setView(dataDownload);
-        
-        builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            String value = possibleDownloadDays[days.getSelectedItemPosition()];
-            
-            Editor settings = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
-            
-            if(PrefUtils.getStringValueAsInt(R.string.PREF_AUTO_UPDATE_RANGE, R.string.pref_auto_update_range_default) < Integer.parseInt(value)) {
-              settings.putString(getString(R.string.PREF_AUTO_UPDATE_RANGE), value);
+          else if(currentAutoUpdateValue.equals("2")) {
+            autoUpdate.setSelection(2);
+          }
+          
+          final String[] autoFrequencyPossibleValues = getResources().getStringArray(R.array.pref_auto_update_frequency_values);
+          
+          for(int i = 0; i < autoFrequencyPossibleValues.length; i++) {
+            if(autoFrequencyPossibleValues[i].equals(currentAutoUpdateFrequency)) {
+              frequency.setSelection(i);
+              break;
             }
-            
-            settings.putString(getString(R.string.DAYS_TO_DOWNLOAD), value);
-            settings.putBoolean(getString(R.string.LOAD_PICTURE_DATA), pictures.isChecked());
-            settings.putString(getString(R.string.PREF_AUTO_UPDATE_TYPE), String.valueOf(autoUpdate.getSelectedItemPosition()));
-            
-            if(autoUpdate.getSelectedItemPosition() == 1 || autoUpdate.getSelectedItemPosition() == 2) {
-              settings.putString(getString(R.string.PREF_AUTO_UPDATE_FREQUENCY), autoFrequencyPossibleValues[frequency.getSelectedItemPosition()]);
-              settings.putBoolean(getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI), onlyWiFi.isChecked());
+          }
+          
+          onlyWiFi.setChecked(PrefUtils.getBooleanValue(R.string.PREF_AUTO_UPDATE_ONLY_WIFI, R.bool.pref_auto_update_only_wifi_default));
+          
+          final AtomicInteger currentAutoUpdateTime = new AtomicInteger(PrefUtils.getIntValue(R.string.PREF_AUTO_UPDATE_START_TIME, R.integer.pref_auto_update_start_time_default));
+          
+          Calendar now = Calendar.getInstance();
+          
+          now.set(Calendar.HOUR_OF_DAY, currentAutoUpdateTime.get()/60);
+          now.set(Calendar.MINUTE, currentAutoUpdateTime.get()%60);
+          now.set(Calendar.SECOND, 0);
+          now.set(Calendar.MILLISECOND, 0);
+          
+          time.setText(DateFormat.getTimeFormat(TvBrowser.this).format(now.getTime()));
+          
+          autoUpdate.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+            @Override
+            public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+              frequency.setEnabled(position != 0);
+              onlyWiFi.setEnabled(position != 0);
               
-              if(autoUpdate.getSelectedItemPosition() == 2) {
-                settings.putInt(getString(R.string.PREF_AUTO_UPDATE_START_TIME), currentAutoUpdateTime.get());
+              if(position != 0) {
+                frequency.setVisibility(View.VISIBLE);
+                onlyWiFi.setVisibility(View.VISIBLE);
+              }
+              else {
+                frequency.setVisibility(View.GONE);
+                onlyWiFi.setVisibility(View.GONE);
+              }
+              
+              timeLabel.setEnabled(position == 2);
+              time.setEnabled(position == 2);
+              
+              if(position == 2) {
+                timeLabel.setVisibility(View.VISIBLE);
+                time.setVisibility(View.VISIBLE);
+              }
+              else {
+                timeLabel.setVisibility(View.GONE);
+                time.setVisibility(View.GONE);
               }
             }
-            
-            settings.commit();
-            
-            IOUtils.handleDataUpdatePreferences(TvBrowser.this);
-            
-            Intent startDownload = new Intent(TvBrowser.this, TvDataUpdateService.class);
-            startDownload.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_MANUELL);
-            startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
-            startDownload.putExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(value));
-            
-            startService(startDownload);
-            
-            updateProgressIcon(true);
+  
+            @Override
+            public void onNothingSelected(AdapterView<?> parent) {
+              
+            }
+          });
+          
+          View.OnClickListener onClickListener = new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              AlertDialog.Builder b2 = new AlertDialog.Builder(TvBrowser.this);
+              
+              LinearLayout timeSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection_auto_update_time, getParentViewGroup(), false);
+              
+              final TimePicker timePick = (TimePicker)timeSelection.findViewById(R.id.dialog_data_update_selection_auto_update_selection_time);
+              timePick.setIs24HourView(DateFormat.is24HourFormat(TvBrowser.this));
+              timePick.setCurrentHour(currentAutoUpdateTime.get()/60);
+              timePick.setCurrentMinute(currentAutoUpdateTime.get()%60);
+              
+              b2.setView(timeSelection);
+              
+              b2.setPositiveButton(android.R.string.ok, new OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                  currentAutoUpdateTime.set(timePick.getCurrentHour() * 60 + timePick.getCurrentMinute());
+                  
+                  Calendar now = Calendar.getInstance();
+                  
+                  now.set(Calendar.HOUR_OF_DAY, currentAutoUpdateTime.get()/60);
+                  now.set(Calendar.MINUTE, currentAutoUpdateTime.get()%60);
+                  now.set(Calendar.SECOND, 0);
+                  now.set(Calendar.MILLISECOND, 0);
+                  
+                  time.setText(DateFormat.getTimeFormat(TvBrowser.this).format(now.getTime()));
+                }
+              });
+              b2.setNegativeButton(android.R.string.cancel, null);
+              
+              b2.show();
+            }
+          };
+          
+          time.setOnClickListener(onClickListener);
+          timeLabel.setOnClickListener(onClickListener);
+          
+          builder.setTitle(R.string.download_data);
+          builder.setView(dataDownload);
+          
+          builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              String value = possibleDownloadDays[days.getSelectedItemPosition()];
+              
+              Editor settings = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+              
+              if(PrefUtils.getStringValueAsInt(R.string.PREF_AUTO_UPDATE_RANGE, R.string.pref_auto_update_range_default) < Integer.parseInt(value)) {
+                settings.putString(getString(R.string.PREF_AUTO_UPDATE_RANGE), value);
+              }
+              
+              settings.putString(getString(R.string.DAYS_TO_DOWNLOAD), value);
+              settings.putBoolean(getString(R.string.LOAD_PICTURE_DATA), pictures.isChecked());
+              settings.putString(getString(R.string.PREF_AUTO_UPDATE_TYPE), String.valueOf(autoUpdate.getSelectedItemPosition()));
+              
+              if(autoUpdate.getSelectedItemPosition() == 1 || autoUpdate.getSelectedItemPosition() == 2) {
+                settings.putString(getString(R.string.PREF_AUTO_UPDATE_FREQUENCY), autoFrequencyPossibleValues[frequency.getSelectedItemPosition()]);
+                settings.putBoolean(getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI), onlyWiFi.isChecked());
+                
+                if(autoUpdate.getSelectedItemPosition() == 2) {
+                  settings.putInt(getString(R.string.PREF_AUTO_UPDATE_START_TIME), currentAutoUpdateTime.get());
+                }
+              }
+              
+              settings.commit();
+              
+              IOUtils.handleDataUpdatePreferences(TvBrowser.this);
+              
+              Intent startDownload = new Intent(TvBrowser.this, TvDataUpdateService.class);
+              startDownload.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_MANUELL);
+              startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
+              startDownload.putExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(value));
+              
+              startService(startDownload);
+              
+              updateProgressIcon(true);
+            }
+          });
+          builder.setNegativeButton(android.R.string.cancel, null);
+          builder.show();
+        }
+        else {
+          Cursor test2 = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null);
+          
+          boolean loadAgain = true;
+          
+          try {
+            loadAgain = (test2 == null || test2.getCount() < 1);
+          }finally {
+            IOUtils.close(test2);
           }
-        });
-        builder.setNegativeButton(android.R.string.cancel, null);
-        builder.show();
+          
+          selectChannels(loadAgain);
+        }
+      }finally {
+        IOUtils.close(test);
       }
-      else {
-        Cursor test2 = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null);
-        
-        boolean loadAgain = test2.getCount() < 1;
-        
-        test2.close();
-        
-        selectChannels(loadAgain);
-      }
-      
-      test.close();
     }
   }
   
@@ -3560,42 +3581,42 @@ public class TvBrowser extends ActionBarActivity implements
                 Cursor programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.KEY_ID);
                 
                 try {
-                  programs.moveToPosition(-1);
-                  
-                  int count = programs.getCount()/10;
-                  
-                  builder.setProgress(count, 0, false);
-                  notification.notify(notifyID, builder.build());
-                  
-                  int keyColumn = programs.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-                  int titleColumn = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-                  
-                  DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
-                  
-                  while(programs.moveToNext()) {
-                    int position = programs.getPosition();
+                  if(IOUtils.prepareAccess(programs)) {
+                    int count = programs.getCount()/10;
                     
-                    if(position % 10 == 0) {
-                      builder.setProgress(count, position/10, false);
-                      notification.notify(notifyID, builder.build());
+                    builder.setProgress(count, 0, false);
+                    notification.notify(notifyID, builder.build());
+                    
+                    int keyColumn = programs.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                    int titleColumn = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+                    
+                    DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
+                    
+                    while(programs.moveToNext()) {
+                      int position = programs.getPosition();
+                      
+                      if(position % 10 == 0) {
+                        builder.setProgress(count, position/10, false);
+                        notification.notify(notifyID, builder.build());
+                      }
+                      
+                      String title = programs.getString(titleColumn);
+                      
+                      boolean filter = UiUtils.filter(getApplicationContext(), title, exclusionArr);
+                      long progID = programs.getLong(keyColumn);
+                      
+                      ContentValues values = new ContentValues();
+                      values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, filter ? 1 : 0);
+                      
+                      ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
+                      opBuilder.withValues(values);
+                      
+                      dontWantToSeeUpdate.addUpdate(opBuilder.build());
+                      //updateValuesList.add(opBuilder.build());
                     }
                     
-                    String title = programs.getString(titleColumn);
-                    
-                    boolean filter = UiUtils.filter(getApplicationContext(), title, exclusionArr);
-                    long progID = programs.getLong(keyColumn);
-                    
-                    ContentValues values = new ContentValues();
-                    values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, filter ? 1 : 0);
-                    
-                    ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
-                    opBuilder.withValues(values);
-                    
-                    dontWantToSeeUpdate.addUpdate(opBuilder.build());
-                    //updateValuesList.add(opBuilder.build());
+                    notification.cancel(notifyID);
                   }
-                  
-                  notification.cancel(notifyID);
                 }finally {
                   IOUtils.close(programs);
                 }
@@ -4336,7 +4357,7 @@ public class TvBrowser extends ActionBarActivity implements
             Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + deleted, null, null);
             
             try {
-              if(test.getCount() == 0) {
+              if(test == null || test.getCount() == 0) {
                 if(askToDelete.length() > 0) {
                   askToDelete.append(", ");
                 }

@@ -975,6 +975,17 @@ public class IOUtils {
     }
   }
   
+  public static final boolean prepareAccessFirst(Cursor cursor) {
+    boolean result = false;
+    
+    if(cursor != null && cursor.getCount() > 0) {
+      cursor.moveToFirst();
+      result = true;
+    }
+    
+    return result;
+  }
+  
   public static final boolean prepareAccess(Cursor cursor) {
     boolean result = false;
     

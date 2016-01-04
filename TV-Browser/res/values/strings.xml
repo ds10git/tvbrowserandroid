@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.9.7</h2>
+        <h2>0.5.9.8</h2>
+        	&bull; new material icons for action bar<br>
+            &bull; fixed bugs<br>
+       	<br>
+        <h3>0.5.9.7</h3>
         	&bull; fixed bugs in edit favorites activity<br>
             &bull; fixed bugs at favorite search and quotes in search<br>
         	&bull; include running programs in quick search results<br>
