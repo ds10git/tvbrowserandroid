@@ -1376,7 +1376,7 @@ public class TvBrowser extends ActionBarActivity implements
           NotificationCompat.Builder builder;
           
           builder = new NotificationCompat.Builder(TvBrowser.this);
-          builder.setSmallIcon(R.drawable.ic_stat_notify);
+          builder.setSmallIcon(R.drawable.ic_widget_simple);
           builder.setOngoing(true);
           builder.setContentTitle(getResources().getText(R.string.action_dont_want_to_see));
           builder.setContentText(getResources().getText(R.string.dont_want_to_see_notification_text));
@@ -3529,7 +3529,7 @@ public class TvBrowser extends ActionBarActivity implements
           SettingConstants.UPDATING_FILTER = true;
           
           final NotificationCompat.Builder builder = new NotificationCompat.Builder(TvBrowser.this);
-          builder.setSmallIcon(R.drawable.ic_stat_notify);
+          builder.setSmallIcon(R.drawable.ic_widget_simple);
           builder.setOngoing(true);
           builder.setContentTitle(getResources().getText(R.string.action_dont_want_to_see));
           builder.setContentText(getResources().getText(R.string.dont_want_to_see_refresh_notification_text));

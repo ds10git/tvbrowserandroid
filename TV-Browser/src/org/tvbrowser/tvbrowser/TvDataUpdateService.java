@@ -234,7 +234,7 @@ public class TvDataUpdateService extends Service {
     mDaysToLoad = 2;
     
     mBuilder = new NotificationCompat.Builder(this);
-    mBuilder.setSmallIcon(R.drawable.ic_stat_notify);
+    mBuilder.setSmallIcon(R.drawable.ic_widget_simple);
     mBuilder.setOngoing(true);
     
     mHandler = new Handler();
