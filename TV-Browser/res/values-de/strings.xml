@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-       	<h2>0.5.9.7</h2>
+		<h2>0.5.9.8</h2>
+        	&bull; neue Material-Symbole für Werkzeugleiste<br>
+            &bull; Fehler beseitigt<br>
+       	<br>
+       	<h3>0.5.9.7</h3>
         	&bull; Fehler in der Aktivität zum Bearbeiten der Lieblingssendungen beseitigt<br>
             &bull; Fehler bei Anführungszeichen in der Suche der Lieblingssendungen beseitigt<br>
         	&bull; laufende Sendungen werden bei der Schnellsuche berücksichtigt<br>
