@@ -1173,7 +1173,7 @@ public class UiUtils {
                       NotificationCompat.Builder builder;
                       
                       builder = new NotificationCompat.Builder(activity);
-                      builder.setSmallIcon(R.drawable.ic_widget_simple);
+                      builder.setSmallIcon(R.drawable.ic_stat_notify);
                       builder.setOngoing(true);
                       builder.setContentTitle(activity.getResources().getText(R.string.action_dont_want_to_see));
                       builder.setContentText(activity.getResources().getText(R.string.dont_want_to_see_refresh_notification_text));
@@ -1300,7 +1300,7 @@ public class UiUtils {
               NotificationCompat.Builder builder;
               
               builder = new NotificationCompat.Builder(activity);
-              builder.setSmallIcon(R.drawable.ic_widget_simple);
+              builder.setSmallIcon(R.drawable.ic_stat_notify);
               builder.setOngoing(true);
               builder.setContentTitle(activity.getResources().getText(R.string.action_dont_want_to_see));
               builder.setContentText(activity.getResources().getText(R.string.dont_want_to_see_refresh_notification_text));
