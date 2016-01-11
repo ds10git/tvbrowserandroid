@@ -112,6 +112,9 @@ public class TvDataUpdateService extends Service {
   private static final int MORE_LEVEL = 1;
   private static final int PICTURE_LEVEL = 2;
   
+  // max size of a data field that can be accepted in bytes
+  private static final int MAX_DATA_SIZE = 25 * 1024;
+  
   private ExecutorService mThreadPool;
   private ExecutorService mDataUpdatePool;
   private Handler mHandler;
@@ -3520,123 +3523,146 @@ public class TvDataUpdateService extends Service {
         
         int dataCount = ((fieldInfoBuffer[1] & 0xFF) << 16) | ((fieldInfoBuffer[2] & 0xFF) << 8) | (fieldInfoBuffer[3] & 0xFF);//((in.read() & 0xFF) << 16) | ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
         
-        byte[] data = new byte[dataCount];
+        byte[] data = null;
         
-        in.read(data);
+        /* only read data fields with maximum size of MAX_DATA_SIZE
+         * into memory for usage to prevent OutOfMemoryErrors
+         */
+        if(dataCount <= MAX_DATA_SIZE) {
+          data = new byte[dataCount];
         
-        String columnName = null;
-                  
-        switch(fieldType) {
-          case 1: {
-                          int startTime = IOUtils.getIntForBytes(data);
-                          utc.setTimeInMillis(update.getDate());
-                          
-                          cal.set(Calendar.DAY_OF_MONTH, utc.get(Calendar.DAY_OF_MONTH));
-                          cal.set(Calendar.MONTH, utc.get(Calendar.MONTH));
-                          cal.set(Calendar.YEAR, utc.get(Calendar.YEAR));
-                          
-                          cal.set(Calendar.HOUR_OF_DAY, startTime / 60);
-                          cal.set(Calendar.MINUTE, startTime % 60);
-                          cal.set(Calendar.SECOND, 30);
-                          
-                          long time = (((long)(cal.getTimeInMillis() / 60000)) * 60000);
-                          
-                          utc.setTimeInMillis(time);
-                          
-                          values.put(columnName = TvBrowserContentProvider.DATA_KEY_STARTTIME, time);
-                          
-                          // Normalize start hour and minute to 2014-12-31 to have the same time base on all occasions
-                          utc.setTimeInMillis((((long)(IOUtils.normalizeTime(cal, startTime, 30).getTimeInMillis() / 60000)) * 60000));
-                          
-                          values.put(TvBrowserContentProvider.DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT, utc.get(Calendar.HOUR_OF_DAY)*60 + utc.get(Calendar.MINUTE));
-                          
-                          columnList.remove(TvBrowserContentProvider.DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT);
-                       }break;
-          case 2: {
-            int endTime = IOUtils.getIntForBytes(data);
-            
-            utc.setTimeInMillis(update.getDate());
-            
-            cal.set(Calendar.DAY_OF_MONTH, utc.get(Calendar.DAY_OF_MONTH));
-            cal.set(Calendar.MONTH, utc.get(Calendar.MONTH));
-            cal.set(Calendar.YEAR, utc.get(Calendar.YEAR));
-            
-            cal.set(Calendar.HOUR_OF_DAY, endTime / 60);
-            cal.set(Calendar.MINUTE, endTime % 60);
-            cal.set(Calendar.SECOND, 30);
-            
-            Long o = values.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-            
-            if(o instanceof Long) {
-              if(o > cal.getTimeInMillis()) {
-                cal.add(Calendar.DAY_OF_YEAR, 1);
-              }
-            }
-            
-            long time =  (((long)(cal.getTimeInMillis() / 60000)) * 60000);
-            
-            utc.setTimeInMillis(time);
-            
-            values.put(columnName = TvBrowserContentProvider.DATA_KEY_ENDTIME, time);
-            
-            // Normalize start hour and minute to 2014-12-31 to have the same time base on all occasions
-            utc.setTimeInMillis((((long)(IOUtils.normalizeTime(cal, endTime, 30).getTimeInMillis() / 60000)) * 60000));
-            
-            values.put(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT, utc.get(Calendar.HOUR_OF_DAY)*60 + utc.get(Calendar.MINUTE));
-            
-            columnList.remove(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT);
-         }break;
-          case 3: values.put(columnName = TvBrowserContentProvider.DATA_KEY_TITLE, new String(data));break;
-          case 4: values.put(columnName = TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL, new String(data));break;
-          case 5: values.put(columnName = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE, new String(data));break;
-          case 6: values.put(columnName = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL, new String(data));break;
-          case 7: values.put(columnName = TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION, new String(data));break;
-          case 8: values.put(columnName = TvBrowserContentProvider.DATA_KEY_DESCRIPTION, new String(data));break;
-          case 0xA: values.put(columnName = TvBrowserContentProvider.DATA_KEY_ACTORS, new String(data));break;
-          case 0xB: values.put(columnName = TvBrowserContentProvider.DATA_KEY_REGIE, new String(data));break;
-          case 0xC: values.put(columnName = TvBrowserContentProvider.DATA_KEY_CUSTOM_INFO, new String(data));break;
-          case 0xD: {
-              int categories = IOUtils.getIntForBytes(data);
-              
-              values.put(columnName = TvBrowserContentProvider.DATA_KEY_CATEGORIES, categories);
-              
-              for(int i = 0; i < IOUtils.INFO_CATEGORIES_ARRAY.length; i++) {
-                values.put(TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY[i], IOUtils.infoSet(categories, IOUtils.INFO_CATEGORIES_ARRAY[i]));
-                columnList.remove(TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY[i]);
-              }
-            }break;
-          case 0xE: values.put(columnName = TvBrowserContentProvider.DATA_KEY_AGE_LIMIT, IOUtils.getIntForBytes(data));break;
-          case 0xF: values.put(columnName = TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK, new String(data));break;
-          case 0x10: values.put(columnName = TvBrowserContentProvider.DATA_KEY_GENRE, new String(data));break;
-          case 0x11: values.put(columnName = TvBrowserContentProvider.DATA_KEY_ORIGIN, new String(data));break;
-          case 0x12: values.put(columnName = TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME, IOUtils.getIntForBytes(data));break;
-          case 0x13: values.put(columnName = TvBrowserContentProvider.DATA_KEY_VPS, IOUtils.getIntForBytes(data));break;
-          case 0x14: values.put(columnName = TvBrowserContentProvider.DATA_KEY_SCRIPT, new String(data));break;
-          case 0x15: values.put(columnName = TvBrowserContentProvider.DATA_KEY_REPETITION_FROM, new String(data));break;
-          case 0x16: values.put(columnName = TvBrowserContentProvider.DATA_KEY_MUSIC, new String(data));break;
-          case 0x17: values.put(columnName = TvBrowserContentProvider.DATA_KEY_MODERATION, new String(data));break;
-          case 0x18: values.put(columnName = TvBrowserContentProvider.DATA_KEY_YEAR, IOUtils.getIntForBytes(data));break;
-          case 0x19: values.put(columnName = TvBrowserContentProvider.DATA_KEY_REPETITION_ON, new String(data));break;
-          case 0x1A: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PICTURE, data);break;
-          case 0x1B: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT, new String(data));break;
-          case 0x1C: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION, new String(data));break;
-          case 0x1D: values.put(columnName = TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER, IOUtils.getIntForBytes(data));break;
-          case 0x1E: values.put(columnName = TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT, IOUtils.getIntForBytes(data));break;
-          case 0x1F: values.put(columnName = TvBrowserContentProvider.DATA_KEY_SEASON_NUMBER, IOUtils.getIntForBytes(data));break;
-          case 0x20: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PRODUCER, new String(data));break;
-          case 0x21: values.put(columnName = TvBrowserContentProvider.DATA_KEY_CAMERA, new String(data));break;
-          case 0x22: values.put(columnName = TvBrowserContentProvider.DATA_KEY_CUT, new String(data));break;
-          case 0x23: values.put(columnName = TvBrowserContentProvider.DATA_KEY_OTHER_PERSONS, new String(data));break;
-          case 0x24: values.put(columnName = TvBrowserContentProvider.DATA_KEY_RATING, IOUtils.getIntForBytes(data));break;
-          case 0x25: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PRODUCTION_FIRM, new String(data));break;
-          case 0x26: values.put(columnName = TvBrowserContentProvider.DATA_KEY_AGE_LIMIT_STRING, new String(data));break;
-          case 0x27: values.put(columnName = TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR, IOUtils.getIntForBytes(data));break;
-          case 0x28: values.put(columnName = TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO, new String(data));break;
-          case 0x29: values.put(columnName = TvBrowserContentProvider.DATA_KEY_SERIES, new String(data));break;
+          int read = 0;
+          
+          while(read < dataCount) {    
+            read += in.read(data, read, dataCount-read);
+          }
+        }
+        else {
+          fieldType = Byte.MAX_VALUE;
+          
+          /* read all bytes from stream of too big data
+           * field to set right start of next field
+           */
+          while(dataCount > 0 && in.read() != -1) {
+            dataCount--;
+          }
         }
         
-        if(columnName != null) {
-          columnList.remove(columnName);
+        String columnName = null;
+        
+        if(data != null) {
+          switch(fieldType) {
+            case 1: {
+                            int startTime = IOUtils.getIntForBytes(data);
+                            utc.setTimeInMillis(update.getDate());
+                            
+                            cal.set(Calendar.DAY_OF_MONTH, utc.get(Calendar.DAY_OF_MONTH));
+                            cal.set(Calendar.MONTH, utc.get(Calendar.MONTH));
+                            cal.set(Calendar.YEAR, utc.get(Calendar.YEAR));
+                            
+                            cal.set(Calendar.HOUR_OF_DAY, startTime / 60);
+                            cal.set(Calendar.MINUTE, startTime % 60);
+                            cal.set(Calendar.SECOND, 30);
+                            
+                            long time = (((long)(cal.getTimeInMillis() / 60000)) * 60000);
+                            
+                            utc.setTimeInMillis(time);
+                            
+                            values.put(columnName = TvBrowserContentProvider.DATA_KEY_STARTTIME, time);
+                            
+                            // Normalize start hour and minute to 2014-12-31 to have the same time base on all occasions
+                            utc.setTimeInMillis((((long)(IOUtils.normalizeTime(cal, startTime, 30).getTimeInMillis() / 60000)) * 60000));
+                            
+                            values.put(TvBrowserContentProvider.DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT, utc.get(Calendar.HOUR_OF_DAY)*60 + utc.get(Calendar.MINUTE));
+                            
+                            columnList.remove(TvBrowserContentProvider.DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT);
+                         }break;
+            case 2: {
+              int endTime = IOUtils.getIntForBytes(data);
+              
+              utc.setTimeInMillis(update.getDate());
+              
+              cal.set(Calendar.DAY_OF_MONTH, utc.get(Calendar.DAY_OF_MONTH));
+              cal.set(Calendar.MONTH, utc.get(Calendar.MONTH));
+              cal.set(Calendar.YEAR, utc.get(Calendar.YEAR));
+              
+              cal.set(Calendar.HOUR_OF_DAY, endTime / 60);
+              cal.set(Calendar.MINUTE, endTime % 60);
+              cal.set(Calendar.SECOND, 30);
+              
+              Long o = values.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+              
+              if(o instanceof Long) {
+                if(o > cal.getTimeInMillis()) {
+                  cal.add(Calendar.DAY_OF_YEAR, 1);
+                }
+              }
+              
+              long time =  (((long)(cal.getTimeInMillis() / 60000)) * 60000);
+              
+              utc.setTimeInMillis(time);
+              
+              values.put(columnName = TvBrowserContentProvider.DATA_KEY_ENDTIME, time);
+              
+              // Normalize start hour and minute to 2014-12-31 to have the same time base on all occasions
+              utc.setTimeInMillis((((long)(IOUtils.normalizeTime(cal, endTime, 30).getTimeInMillis() / 60000)) * 60000));
+              
+              values.put(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT, utc.get(Calendar.HOUR_OF_DAY)*60 + utc.get(Calendar.MINUTE));
+              
+              columnList.remove(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT);
+           }break;
+            case 3: values.put(columnName = TvBrowserContentProvider.DATA_KEY_TITLE, new String(data));break;
+            case 4: values.put(columnName = TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL, new String(data));break;
+            case 5: values.put(columnName = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE, new String(data));break;
+            case 6: values.put(columnName = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL, new String(data));break;
+            case 7: values.put(columnName = TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION, new String(data));break;
+            case 8: values.put(columnName = TvBrowserContentProvider.DATA_KEY_DESCRIPTION, new String(data));break;
+            case 0xA: values.put(columnName = TvBrowserContentProvider.DATA_KEY_ACTORS, new String(data));break;
+            case 0xB: values.put(columnName = TvBrowserContentProvider.DATA_KEY_REGIE, new String(data));break;
+            case 0xC: values.put(columnName = TvBrowserContentProvider.DATA_KEY_CUSTOM_INFO, new String(data));break;
+            case 0xD: {
+                int categories = IOUtils.getIntForBytes(data);
+                
+                values.put(columnName = TvBrowserContentProvider.DATA_KEY_CATEGORIES, categories);
+                
+                for(int i = 0; i < IOUtils.INFO_CATEGORIES_ARRAY.length; i++) {
+                  values.put(TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY[i], IOUtils.infoSet(categories, IOUtils.INFO_CATEGORIES_ARRAY[i]));
+                  columnList.remove(TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY[i]);
+                }
+              }break;
+            case 0xE: values.put(columnName = TvBrowserContentProvider.DATA_KEY_AGE_LIMIT, IOUtils.getIntForBytes(data));break;
+            case 0xF: values.put(columnName = TvBrowserContentProvider.DATA_KEY_WEBSITE_LINK, new String(data));break;
+            case 0x10: values.put(columnName = TvBrowserContentProvider.DATA_KEY_GENRE, new String(data));break;
+            case 0x11: values.put(columnName = TvBrowserContentProvider.DATA_KEY_ORIGIN, new String(data));break;
+            case 0x12: values.put(columnName = TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME, IOUtils.getIntForBytes(data));break;
+            case 0x13: values.put(columnName = TvBrowserContentProvider.DATA_KEY_VPS, IOUtils.getIntForBytes(data));break;
+            case 0x14: values.put(columnName = TvBrowserContentProvider.DATA_KEY_SCRIPT, new String(data));break;
+            case 0x15: values.put(columnName = TvBrowserContentProvider.DATA_KEY_REPETITION_FROM, new String(data));break;
+            case 0x16: values.put(columnName = TvBrowserContentProvider.DATA_KEY_MUSIC, new String(data));break;
+            case 0x17: values.put(columnName = TvBrowserContentProvider.DATA_KEY_MODERATION, new String(data));break;
+            case 0x18: values.put(columnName = TvBrowserContentProvider.DATA_KEY_YEAR, IOUtils.getIntForBytes(data));break;
+            case 0x19: values.put(columnName = TvBrowserContentProvider.DATA_KEY_REPETITION_ON, new String(data));break;
+            case 0x1A: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PICTURE, data);break;
+            case 0x1B: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT, new String(data));break;
+            case 0x1C: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION, new String(data));break;
+            case 0x1D: values.put(columnName = TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER, IOUtils.getIntForBytes(data));break;
+            case 0x1E: values.put(columnName = TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT, IOUtils.getIntForBytes(data));break;
+            case 0x1F: values.put(columnName = TvBrowserContentProvider.DATA_KEY_SEASON_NUMBER, IOUtils.getIntForBytes(data));break;
+            case 0x20: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PRODUCER, new String(data));break;
+            case 0x21: values.put(columnName = TvBrowserContentProvider.DATA_KEY_CAMERA, new String(data));break;
+            case 0x22: values.put(columnName = TvBrowserContentProvider.DATA_KEY_CUT, new String(data));break;
+            case 0x23: values.put(columnName = TvBrowserContentProvider.DATA_KEY_OTHER_PERSONS, new String(data));break;
+            case 0x24: values.put(columnName = TvBrowserContentProvider.DATA_KEY_RATING, IOUtils.getIntForBytes(data));break;
+            case 0x25: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PRODUCTION_FIRM, new String(data));break;
+            case 0x26: values.put(columnName = TvBrowserContentProvider.DATA_KEY_AGE_LIMIT_STRING, new String(data));break;
+            case 0x27: values.put(columnName = TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR, IOUtils.getIntForBytes(data));break;
+            case 0x28: values.put(columnName = TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO, new String(data));break;
+            case 0x29: values.put(columnName = TvBrowserContentProvider.DATA_KEY_SERIES, new String(data));break;
+          }
+          
+          if(columnName != null) {
+            columnList.remove(columnName);
+          }
         }
         
         data = null;
@@ -3845,10 +3871,35 @@ public class TvDataUpdateService extends Service {
           case 0x17: values.put(columnName = TvBrowserContentProvider.DATA_KEY_MODERATION, in.readUTF());break;
           case 0x18: values.put(columnName = TvBrowserContentProvider.DATA_KEY_YEAR, in.readShort());break;
           case 0x19: values.put(columnName = TvBrowserContentProvider.DATA_KEY_REPETITION_ON, in.readUTF());break;
-          case 0x1A: {
-                        byte[] data = new byte[in.readInt()];
-                        in.read(data);
-                        values.put(columnName = TvBrowserContentProvider.DATA_KEY_PICTURE, data);
+          case 0x1A: {  byte[] data = null;
+                        int dataCount = in.readInt();
+                        
+                        /* only read data fields with maximum size of MAX_DATA_SIZE
+                         * into memory for usage to prevent OutOfMemoryErrors
+                         */
+                        if(dataCount <= MAX_DATA_SIZE) {
+                          data = new byte[dataCount];
+                        
+                          int read = 0;
+                          
+                          while(read < dataCount) {    
+                            read += in.read(data, read, dataCount-read);
+                          }
+                        }
+                        else {
+                          fieldType = Byte.MAX_VALUE;
+                          
+                          /* read all bytes from stream of too big data
+                           * field to set right start of next field
+                           */
+                          while(dataCount > 0 && in.read() != -1) {
+                            dataCount--;
+                          }
+                        }
+                        
+                        if(data != null) {
+                          values.put(columnName = TvBrowserContentProvider.DATA_KEY_PICTURE, data);
+                        }
                      }break;
           case 0x1B: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT, in.readUTF());break;
           case 0x1C: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION, in.readUTF());break;
