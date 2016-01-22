@@ -42,11 +42,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.CheckBoxPreference;
+import android.preference.EditTextPreference;
 import android.preference.ListPreference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
+import android.util.Log;
 
 public class TvbPreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
   @Override
@@ -56,11 +58,18 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     String category = getArguments().getString(getString(R.string.pref_category_key));
         
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-    
+    Log.d("info6", ""+category);
     if(getString(R.string.category_download).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_download);
       
       onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_AUTO_UPDATE_TYPE));
+    }
+    else if(getString(R.string.category_epgpaid).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_epgpaid);
+      
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_EPGPAID_DOWNLOAD_MAX));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_EPGPAID_USER));
+      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_EPGPAID_PASSWORD));
     }
     else if(getString(R.string.category_database).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_database);
@@ -209,6 +218,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
 
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
+    Log.d("info6", ""+key);
     if(getActivity() != null) {
       if(key.equals(getString(R.string.PREF_LOGO_BORDER))) {
         CheckBoxPreference transparent = (CheckBoxPreference)findPreference(key);
@@ -216,6 +226,30 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         
         if(transparent != null && borderColor != null) {
           borderColor.setEnabled(transparent.isChecked());
+        }
+      }
+      else if(key.equals(getString(R.string.PREF_EPGPAID_USER))) {
+        String userName = sharedPreferences.getString(key, null);
+        
+        EditTextPreference textPref = (EditTextPreference)findPreference(key);
+        
+        if(textPref != null && userName != null && userName.trim().length() > 0) {
+          textPref.setSummary(userName);
+        }
+        else if(textPref != null) {
+          textPref.setSummary(getString(R.string.pref_epgpaid_user_empty_summary));
+        }
+      }
+      else if(key.equals(getString(R.string.PREF_EPGPAID_PASSWORD))) {
+        String password = sharedPreferences.getString(key, null);
+        
+        EditTextPreference textPref = (EditTextPreference)findPreference(key);
+        
+        if(textPref != null && password != null && password.trim().length() > 0) {
+          textPref.setSummary(getString(R.string.pref_epgpaid_user_password_set_summary));
+        }
+        else if(textPref != null) {
+          textPref.setSummary(getString(R.string.pref_epgpaid_user_empty_summary));
         }
       }
       else if(key.equals(getString(R.string.PREF_AUTO_UPDATE_START_TIME))) {
@@ -342,6 +376,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           || key.equals(getResources().getString(R.string.PREF_REMINDER_PRIORITY_VALUE))
           || key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_PRIORITY_VALUE))
           || key.equals(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE))
+          || key.equals(getResources().getString(R.string.PREF_EPGPAID_DOWNLOAD_MAX))
           ) {
         ListPreference lp = (ListPreference) findPreference(key);
         

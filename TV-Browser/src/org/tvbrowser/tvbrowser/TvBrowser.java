@@ -19,7 +19,6 @@ package org.tvbrowser.tvbrowser;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStreamReader;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
@@ -119,6 +118,7 @@ import android.text.Html;
 import android.text.Html.TagHandler;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
+import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
@@ -169,6 +169,8 @@ import billing.util.SkuDetails;
 
 import com.example.android.listviewdragginganimation.DynamicListView;
 import com.example.android.listviewdragginganimation.StableArrayAdapter;
+
+import de.epgpaid.EPGpaidDataConnection;
 
 public class TvBrowser extends ActionBarActivity implements
     ActionBar.TabListener {
@@ -744,8 +746,9 @@ public class TvBrowser extends ActionBarActivity implements
   
   @Override
   public void onAttachedToWindow() {
+    Log.d("info6", "onAttachedToWindow()");
     super.onAttachedToWindow();
-    
+    Log.d("info6", "AFTER super.onAttachedToWindow()");
     final int infoType = mInfoType;
     mInfoType = INFO_TYPE_NOTHING;
     
@@ -753,6 +756,8 @@ public class TvBrowser extends ActionBarActivity implements
       @Override
       public void run() {
         try {
+          Log.d("info6", "infoType " + infoType);
+          
           if(infoType == INFO_TYPE_NOTHING) {
             showEpgDonateInfo();
           }
@@ -796,8 +801,54 @@ public class TvBrowser extends ActionBarActivity implements
       }, 1000);
     }
   }
-  
+
+  private static boolean SHOWING_EPGPAID_INFO = false;
   private static boolean SHOWING_DONATION_INFO = false;
+  
+  private void showEpgPaidInfo() {
+    final long firstStart = PrefUtils.getLongValue(R.string.PREF_EPGPAID_FIRST_START, -1);
+    
+    if(firstStart == -1) {
+      final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
+      edit.putLong(getString(R.string.PREF_EPGPAID_FIRST_START), System.currentTimeMillis());
+      edit.commit();
+    } else if(!SHOWING_EPGPAID_INFO && !PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_INFO_SHOWN, R.bool.pref_epgpaid_info_shown_default) && (System.currentTimeMillis() - (9 * 24 * 60 * 60000L)) > firstStart) {
+      final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+      builder.setTitle(R.string.dialog_epgpaid_info_title);
+      
+      String info = getString(R.string.pref_epgpaid_info);
+      
+      info = "<html><p>" + info.substring(0, info.lastIndexOf("\n\n")).replace("\n\n", "</p><p>").replace("https://www.epgpaid.de", "<a href=\"https://www.epgpaid.de\">https://www.epgpaid.de</a>") + "</p></html>";
+      
+      Spanned text = Html.fromHtml(info);
+      
+      builder.setMessage(text);
+      builder.setCancelable(false);
+      builder.setPositiveButton(R.string.update_website, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          SHOWING_EPGPAID_INFO = false;
+          
+          startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://www.epgpaid.de")));
+        }
+      });
+      builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          SHOWING_EPGPAID_INFO = false;
+        }
+      });
+      
+      AlertDialog d = builder.show();
+      ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+      
+      SHOWING_EPGPAID_INFO = true;
+      
+      final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
+      edit.putBoolean(getString(R.string.PREF_EPGPAID_INFO_SHOWN), true);
+      edit.commit();
+    }
+  }
   
   private void showEpgDonateInfo() {
     if(!SHOWING_DONATION_INFO && hasEpgDonateChannelsSubscribed()) {
@@ -893,6 +944,12 @@ public class TvBrowser extends ActionBarActivity implements
         builder.show();
         SHOWING_DONATION_INFO = true;
       }
+      else {
+        showEpgPaidInfo();
+      }
+    }
+    else if(!SHOWING_DONATION_INFO) {
+      showEpgPaidInfo();
     }
   }
   
@@ -1600,7 +1657,7 @@ public class TvBrowser extends ActionBarActivity implements
             Object value = preferences.get(key);
             
             if(value instanceof Boolean) {
-              if(!getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(key) || ((Boolean)value).booleanValue()) {
+              if(!getString(R.string.PREF_EPGPAID_INFO_SHOWN).equals(key) || !getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(key) || ((Boolean)value).booleanValue()) {
                 backup.append("boolean:").append(key).append("=").append(value).append("\n");
               }
             }
@@ -1615,7 +1672,8 @@ public class TvBrowser extends ActionBarActivity implements
             else if(value instanceof Long) {
               backup.append("long:").append(key).append("=").append(value).append("\n");
             }
-            else if(value instanceof String && value != null && ((String)value).trim().length() > 0) {
+            else if(value instanceof String && value != null && ((String)value).trim().length() > 0
+                && !getString(R.string.PREF_EPGPAID_USER).equals(key) && !getString(R.string.PREF_EPGPAID_PASSWORD).equals(key)) {
               backup.append("string:").append(key).append("=").append(value).append("\n");
             }
             else if(value instanceof Set<?>){
@@ -3930,13 +3988,41 @@ public class TvBrowser extends ActionBarActivity implements
     else if(finish) {
       finish();
     }
+    else {
+      new Thread("CHECK EPGPAID CREDENTIALS") {
+        public void run() {
+          final String userName = PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, null);
+          final String password = PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, null);
+          
+          if(userName != null && password != null && userName.trim().length() > 0 && password.trim().length() > 0) {
+            final EPGpaidDataConnection epgPaidTest = new EPGpaidDataConnection();
+            
+            if(epgPaidTest.login(userName, password)) {
+              epgPaidTest.logout();
+            }
+            else {
+              handler.post(new Runnable() {
+                @Override
+                public void run() {
+                  final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+                  builder.setTitle(R.string.dialog_epgpaid_invalid_title);
+                  builder.setMessage(R.string.dialog_epgpaid_invalid_message);
+                  builder.setPositiveButton(android.R.string.ok, null);
+                  builder.show();
+                }
+              });
+            }
+          }    
+        };
+      }.start();
+    }
   }
-  
+  /*
   private boolean updateTheme(boolean finish) {
     
     
     return finish;
-  }
+  }*/
   
   private void showVersionInfo(boolean showDisable) {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -4381,6 +4467,9 @@ public class TvBrowser extends ActionBarActivity implements
             testTimeZone();
           }
         }
+        else {
+          showEpgDonateInfo();
+        }
       }
     });
 
@@ -4413,6 +4502,9 @@ public class TvBrowser extends ActionBarActivity implements
       });
       
       builder.show();
+    }
+    else {
+      showEpgDonateInfo();
     }
   }
   

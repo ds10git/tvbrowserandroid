@@ -511,6 +511,7 @@
 
         <item type="id" name="prog_program_popup_menu" />
         <item type="id" name="create_favorite_item" />
+        <item type="id" name="edit_favorite_item" />
         <item type="id" name="prog_add_reminder" />
         <item type="id" name="prog_remove_reminder" />
         <item type="id" name="program_popup_search_repetition" />

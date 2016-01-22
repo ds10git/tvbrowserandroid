@@ -29,6 +29,10 @@
 		android:summaryOn="@string/pref_detail_allow_swipe_summary_on"
 		android:summaryOff="@string/pref_detail_allow_swipe_summary_off"
 		android:defaultValue="@bool/pref_detail_allow_swipe"/>
+	<org.tvbrowser.settings.ColorPreference
+        android:key="@string/PREF_DETAIL_HIGHLIGHT_COLOR"
+        android:title="@string/pref_detail_highlight_color"
+        android:defaultValue="@color/pref_color_mark_favorite_tvb_style_default"/>
 	<CheckBoxPreference android:key="@string/SHOW_GENRE_IN_DETAILS" 
 		android:title="@string/pref_show_genre"
 		android:defaultValue="@bool/show_genre_in_details_default"/>
@@ -38,8 +42,8 @@
 	<CheckBoxPreference android:key="@string/SHOW_INFO_IN_DETAILS" 
 		android:title="@string/pref_show_program_categories"
 		android:defaultValue="@bool/show_info_in_details_default"/>
-	<PreferenceScreen android:title="@string/pref_title_program_categories_selection"
-		android:summary="@string/pref_summary_program_categories_selection">
+	<PreferenceScreen android:title="@string/pref_title_program_information_selection"
+		android:summary="@string/pref_summary_program_information_selection">
 		<CheckBoxPreference android:key="@string/SHOW_LINK_IN_DETAILS"
 			android:title="@string/pref_show_link"
 			android:defaultValue="@bool/show_link_in_details_default"/>
@@ -100,14 +104,14 @@
 		<CheckBoxPreference android:key="details_lastProductionYear"
 			android:title="@string/lastProductionYear"
 			android:defaultValue="true"/>
-		<CheckBoxPreference android:key="details_additionalInfo"
-			android:title="@string/programCategories"
-			android:defaultValue="true"/>
 		<CheckBoxPreference android:key="details_series"
 			android:title="@string/series"
 			android:defaultValue="true"/>
 		<CheckBoxPreference android:key="details_rating"
 			android:title="@string/rating"
+			android:defaultValue="true"/>
+		<CheckBoxPreference android:key="details_additionalInfo"
+			android:title="@string/additionalInfo"
 			android:defaultValue="true"/>
 	</PreferenceScreen>
 </PreferenceScreen>

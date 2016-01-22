@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+    <org.tvbrowser.view.InfoPreference
+        android:key="info"
+        android:title="@string/pref_plugins_description"
+        android:summary="@string/pref_epgpaid_info" >
+        <intent
+	    	android:action="android.intent.action.VIEW"
+	   		android:data="https://www.epgpaid.de/index.php" />
+    </org.tvbrowser.view.InfoPreference>
+	<Preference  
+ 		android:title="@string/pref_epgpaid_purchase_title"
+ 		android:summary="@string/pref_epgpaid_purchase_summary"
+ 		android:key="info">
+
+	    <intent
+	    	android:action="android.intent.action.VIEW"
+	   		android:data="https://www.epgpaid.de/index.php?id=order" />
+	</Preference>
+	<PreferenceCategory android:title="@string/pref_epgpaid_settings_category">
+	    <EditTextPreference
+	    	android:key="@string/PREF_EPGPAID_USER"
+	    	android:summary="@string/pref_epgpaid_user_empty_summary"
+	    	android:title="@string/pref_epgpaid_user_name_title" />
+	    <EditTextPreference
+	    	android:key="@string/PREF_EPGPAID_PASSWORD"
+	    	android:summary="@string/pref_epgpaid_user_empty_summary"
+	    	android:title="@string/pref_epgpaid_user_password_title"
+	    	android:inputType="textPassword" />
+	    <ListPreference
+		    android:key="@string/PREF_EPGPAID_DOWNLOAD_MAX"
+		    android:title="@string/pref_epgpaid_max_download_title"
+		    android:defaultValue="@string/pref_epgpaid_download_max_default"
+		    android:entries="@array/download_selections"
+		    android:entryValues="@array/download_days"
+		    android:summary="%s"/>
+    </PreferenceCategory>
+</PreferenceScreen>

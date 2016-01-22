@@ -46,6 +46,19 @@
 	    <string name="PREF_FIRST_DELETED_CHANNELS">PREF_FIRST_DELETED_CHANNELS</string>
 	    <string name="PREF_SECOND_DELETED_CHANNELS">PREF_SECOND_DELETED_CHANNELS</string>
 	    <string name="PREF_KEPT_DELETED_CHANNELS">PREF_KEPT_DELETED_CHANNELS</string>
+    
+    <!-- EPGpaid settings -->
+    
+	    <string name="PREF_EPGPAID_USER">PREF_EPGPAID_USER</string>
+	    <string name="PREF_EPGPAID_FIRST_START">PREF_EPGPAID_FIRST_START</string>
+	    <string name="PREF_EPGPAID_FIRST_DOWNLOAD_DONE">PREF_EPGPAID_FIRST_DOWNLOAD_DONE</string>
+	    
+	    <string name="PREF_EPGPAID_PASSWORD">PREF_EPGPAID_PASSWORD</string>
+	    <string name="PREF_EPGPAID_DOWNLOAD_MAX">PREF_EPGPAID_DOWNLOAD_MAX</string>
+	    <item name="pref_epgpaid_download_max_default" type="string" format="string">3</item>
+	    
+	    <string name="PREF_EPGPAID_INFO_SHOWN">PREF_EPGPAID_INFO_SHOWN</string>
+	    <item name="pref_epgpaid_info_shown_default" type="bool" format="boolean">false</item>
 	    
     <!-- Start settings -->
     
@@ -439,10 +452,17 @@
 	    
 	    <string name="SHOW_INFO_IN_DETAILS">SHOW_INFO_IN_DETAILS</string>
 	    <item name="show_info_in_details_default" type="bool" format="boolean">true</item>
-	    
+
+	    <string name="PREF_SHOW_ADDITIONAL_INFO_IN_DETAILS">PREF_SHOW_ADDITIONAL_INFO_IN_DETAILS</string>
+	    <item name="pref_show_additional_info_in_details_default" type="bool" format="boolean">true</item>
+	    	    
 	    <string name="PREF_DETAIL_ALLOW_SWIPE">PREF_DETAIL_ALLOW_SWIPE</string>
 	    <item name="pref_detail_allow_swipe" type="bool" format="boolean">true</item>
+
+	    <string name="PREF_DETAIL_HIGHLIGHT_COLOR">PREF_DETAIL_HIGHLIGHT_COLOR</string>
+	    <item name="pref_detail_highlight_color_default" type="color" format="color">#73FF0000</item>
 	    
+	    	    
 	    <!-- DETAIL OTHER INFORMATION PREFERENCES -->
 	    
 		    <string name="SHOW_LINK_IN_DETAILS">SHOW_LINK_IN_DETAILS</string>

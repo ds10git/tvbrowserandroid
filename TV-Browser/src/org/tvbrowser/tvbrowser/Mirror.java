@@ -117,21 +117,29 @@ public class Mirror implements Comparable<Mirror> {
       
       int limit = new Random().nextInt(weightSum + 1);
       update.doLog("Mirror weight limit for group '" + group + "': " + limit);
+      
+      final ArrayList<Mirror> mirrorsWithAcceptedWeight = new ArrayList<Mirror>();
+      
       for(int i = toChooseFrom.size()-1; i >= 0; i--) {
         if(toChooseFrom.get(i).getWeight() >= limit) {
-          update.doLog("Accepted weight for group '" + group + "': " + toChooseFrom.get(i).getWeight() + " URL: " + toChooseFrom.get(i).getUrl());
-          if((!checkOnlyConnection && useMirror(toChooseFrom.get(i),group,5000,update)) || IOUtils.isConnectedToServer(toChooseFrom.get(i).getUrl(), 5000)) {
-            update.doLog("Accepted miror for group '" + group + "': " + toChooseFrom.get(i).getUrl());
-            choosen = toChooseFrom.get(i);
-            break;
-          }
-          else {
-            update.doLog("NOT accepted miror for group '" + group + "': " + toChooseFrom.get(i).getUrl());
-            toChooseFrom.remove(i);
-          }
+          mirrorsWithAcceptedWeight.add(toChooseFrom.get(i));
         }
         else {
           update.doLog("NOT accepted miror for group (weigth to low) '" + group + "': " + toChooseFrom.get(i).getUrl());
+        }
+      }
+      
+      while(choosen == null && !mirrorsWithAcceptedWeight.isEmpty()) {
+        final Mirror test = mirrorsWithAcceptedWeight.remove((int)(Math.random() * mirrorsWithAcceptedWeight.size()));
+        
+        update.doLog("Accepted weight for group '" + group + "': " + test.getWeight() + " URL: " + test.getUrl());
+        if((!checkOnlyConnection && useMirror(test,group,5000,update)) || IOUtils.isConnectedToServer(test.getUrl(), 5000)) {
+          update.doLog("Accepted miror for group '" + group + "': " + test.getUrl());
+          choosen = test;
+        }
+        else {
+          toChooseFrom.remove(test);
+          update.doLog("NOT accepted miror for group '" + group + "': " + test.getUrl());
         }
       }
     }
