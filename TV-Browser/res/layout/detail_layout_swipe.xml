@@ -234,14 +234,14 @@
 	        android:autoLink="web"
 	        android:textSize="16sp"
 	        android:layout_marginTop="3dp"/>
-	    <TextView android:id="@id/detail_additional_info"
+	    <TextView android:id="@id/detail_series"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:textIsSelectable="true"
 	        android:autoLink="web"
 	        android:textSize="16sp"
 	        android:layout_marginTop="3dp"/>
-	    <TextView android:id="@id/detail_series"
+	    <TextView android:id="@id/detail_additional_info"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:textIsSelectable="true"

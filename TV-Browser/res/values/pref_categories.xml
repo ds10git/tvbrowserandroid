@@ -2,6 +2,7 @@
 <resources>
     <string name="pref_category_key">PREF_CATEGORY</string>
     <string name="category_download">DOWNLOAD</string>
+    <string name="category_epgpaid">EPGPAID</string>
     <string name="category_database">DATABASE</string>
     <string name="category_start">START</string>
     <string name="category_theme">THEME</string>

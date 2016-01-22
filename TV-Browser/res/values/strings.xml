@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.5.9.8</h2>
+        <h2>0.6</h2>
+            &bull; edit favorites from program context menu<br>
+            &bull; highlighting of matches of Favorites in detail view<br>
+            &bull; added support for descriptions and pictures from EPGpaid<br>
         	&bull; new material icons for action bar<br>
         	&bull; new notification icons<br>
             &bull; fixed bugs<br>
@@ -464,6 +467,12 @@
     <string name="favorite_remind">Remind on found programs</string>
     <string name="favorite_exclusion">Exclusions:</string>
     <string name="favorite_exclusion_hint">Comma separated list (optional)</string>
+    <string name="dialog_epgpaid_info_title">Miss descriptions and pictures?</string>
+    <string name="dialog_epgpaid_invalid_title">EPGpaid username/password not valid?</string>
+    <string name="dialog_epgpaid_invalid_message">The EPGpaid username/password could not be validated.\n\nPlease check the entered credentials.</string>
+    <string name="update_data_notification_epgpaid_prepare">EPGpaid: Prepare download&#8230;</string>
+    <string name="update_data_notification_epgpaid_download">EPGpaid: Download data&#8230;</string>
+    <string name="update_data_notification_epgpaid_process">EPGpaid: Process data&#8230;</string>
     <string name="update_data_notification_load_news">Loading news&#8230;</string>
     <string name="update_data_notification_reload_file">Reload downloaded files</string>
     <string name="update_data_notification_favorites">Update Favorites</string>
@@ -530,6 +539,7 @@
     <string name="action_about">About TV-Browser</string>
     <string name="action_search_plugins">Search for Plugins</string>
     <string name="create_favorite_item">Create Favorite</string>
+    <string name="dialog_edit_favorite_select_title">Select Favorite for edit</string>
     <string name="show_sync">Show synced</string>
     <string name="terms_of_use">Terms of Use</string>
     <string name="terms_of_use_data">Terms of Use of Data</string>
@@ -589,6 +599,16 @@
 	<string name="menu_tvbrowser_title_settings_plugins">Plugin settings</string>
 	<string name="pref_summary">Settings for TV-Browser</string>
 	<string name="pref_download_category">Data Download</string>
+	<string name="pref_epgpaid_category">EPGpaid</string>
+	<string name="pref_epgpaid_settings_category">EPGpaid settings</string>
+	<string name="pref_epgpaid_user_name_title">Username:</string>
+	<string name="pref_epgpaid_user_empty_summary">Not entered</string>
+	<string name="pref_epgpaid_user_password_set_summary">********</string>
+	<string name="pref_epgpaid_user_password_title">Password</string>
+	<string name="pref_epgpaid_max_download_title">Download maximum:</string>
+	<string name="pref_epgpaid_purchase_title">Purchase access</string>
+	<string name="pref_epgpaid_purchase_summary">(Opens web site: https://www.epgpaid.de)</string>
+	<string name="pref_epgpaid_info">Since 2008 many private TV and radio stations are request a fee for the display of descriptions and pictures in electronic program guides like TV-Browser.\n\nThat is the reason why that information cannot be provided for free. But it is possible to get descriptions and most times also pictures with EPGpaid for a small amount every year.\n\nHow much yu need to pay and how it works you can read at: https://www.epgpaid.de\n\n(Click here to open the site.)</string>
 	<string name="pref_database_category">Database</string>
 	<string name="pref_database_selection_title">Storage location</string>
 	<string name="pref_database_selection_unavailable">UNAVAILABLE</string>
@@ -621,6 +641,7 @@
 	<string name="pref_detail_allow_swipe">Swipe through channel programs</string>
 	<string name="pref_detail_allow_swipe_summary_on">Allows to swipe through the programs of the shown channel.</string>
 	<string name="pref_detail_allow_swipe_summary_off">Swipe through the programs of the shown channel is not possible.</string>
+	<string name="pref_detail_highlight_color">Favorite hightlight color</string>
 	<string name="pref_detail_picture_description_position">Position of picture description</string>
 	<string-array name="pref_detail_picture_description_entries">
 	    <item>To right of picture</item>
@@ -629,8 +650,8 @@
 	<string name="pref_show_genre">Show genre</string>
 	<string name="pref_show_episode">Show episode title</string>
 	<string name="pref_show_program_categories">Show program categories</string>
-	<string name="pref_title_program_categories_selection">Select program categories</string>
-	<string name="pref_summary_program_categories_selection">Which program categories should be shown if available?</string>
+	<string name="pref_title_program_information_selection">Select program information</string>
+	<string name="pref_summary_program_information_selection">Which program information should be shown if available?</string>
 	<string name="pref_start_category">Startup</string>
 	<string name="pref_start_tab">With following tab:</string>
 	<string-array name="start_labels">
@@ -664,6 +685,7 @@
 	<string name="ageLimitString">Age Limit:</string>
 	<string name="lastProductionYear">Last Production:</string>
 	<string name="programCategories">Program categories:\n</string>
+	<string name="additionalInfo">Additional info:\n</string>
 	<string name="series">Series:</string>
 	<string name="rundate">Usable until:</string>
 	<string name="pref_prog_table_summary">The program table needs a lot of memory. The more channels and details you\'ve selected the more memory wil be consumed. That can lead to a crash of the TV-Browser app. So make sure not to select to many channels and details or disable the program table.</string>

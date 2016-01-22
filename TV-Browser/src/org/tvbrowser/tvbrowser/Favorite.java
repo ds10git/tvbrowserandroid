@@ -459,6 +459,21 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     return mUniqueProgramIds;
   }
   
+  public boolean containsUniqueProgramId(long uniqueId) {
+    boolean result = false;
+    
+    if(mUniqueProgramIds != null) {
+      for(long test : mUniqueProgramIds) {
+        if(test == uniqueId) {
+          result = true;
+          break;
+        }
+      }
+    }
+    
+    return result;
+  }
+  
   public void setExclusions(String[] exclusions) {
     mExclusions = exclusions;
   }
@@ -529,6 +544,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       builder.append(TvBrowserContentProvider.DATA_KEY_DESCRIPTION);
       builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_ACTORS);
+      builder.append(",\"\") || ' ' || ifnull(");
+      builder.append(TvBrowserContentProvider.DATA_KEY_SERIES);
       builder.append(",\"\") || ' ' || ifnull(");
       builder.append(TvBrowserContentProvider.DATA_KEY_REGIE);
       builder.append(",\"\") || ' ' || ifnull(");
@@ -977,7 +994,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           int idColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
           int favoriteReminderIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
           int reminderIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
-          int startTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+        //  int startTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
           int removedReminderIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER);
           
           ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
@@ -1217,7 +1234,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       try {
         if(cursor.moveToFirst()) {
           int idColumn = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-          int startTimeColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+        //  int startTimeColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
           int favoriteMarkingColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE);
           int reminderColumnFav = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
           int reminderColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
@@ -1428,6 +1445,19 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     }
     
     return result;
+  }
+  
+  public static Favorite[] getFavoritesForUniqueId(Context context, long uniqueId) {
+    final Favorite[] allFavorites = getAllFavorites(context);
+    final ArrayList<Favorite> uniqueIdFavoriteList = new ArrayList<Favorite>(); 
+    
+    for(Favorite test : allFavorites) {
+      if(test.containsUniqueProgramId(uniqueId)) {
+        uniqueIdFavoriteList.add(test);
+      }
+    }
+    
+    return uniqueIdFavoriteList.toArray(new Favorite[uniqueIdFavoriteList.size()]);
   }
   
   public void clearUniqueIds() {

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.5.9.8</h2>
+		<h2>0.6</h2>
+		    &bull; Lieblingssendungen über das Kontextmenü einer Sendung editierbar<br>
+		    &bull; Hervorhebung von gefundenen Suchbegriffen der Lieblingssendungen im Detail-Fenster<br>
+		    &bull; Unterstützung für Beschreibungen und Bilder von EPGpaid hinzugefügt<br>
         	&bull; neue Material-Symbole für Werkzeugleiste<br>
         	&bull; neue Symbole für Benachrichtigungen<br>
             &bull; Fehler beseitigt<br>
@@ -460,6 +463,12 @@
 	<string name="favorite_remind">An gefundene Sendungen erinnern</string>
     <string name="favorite_exclusion">Ausschlüsse:</string>
     <string name="favorite_exclusion_hint">Kommagetrennte Liste (optional)</string>
+    <string name="dialog_epgpaid_info_title">Vermissen Sie Beschreibungen und Bilder?</string>
+    <string name="dialog_epgpaid_invalid_title">EPGpaid Benutzername/Passwort nicht korrekt?</string>
+    <string name="dialog_epgpaid_invalid_message">EPGpaid-Benutzername/Passwort konnte nicht erfolgreich validiert werden.\n\nBitte prüfen Sie Ihre Eingaben.</string>
+    <string name="update_data_notification_epgpaid_prepare">EPGpaid: Download vorbereiten&#8230;</string>
+    <string name="update_data_notification_epgpaid_download">EPGpaid: Daten herunterladen&#8230;</string>
+    <string name="update_data_notification_epgpaid_process">EPGpaid: Daten verarbeiten&#8230;</string>
     <string name="update_data_notification_load_news">Nachrichten herunterladen&#8230;</string>
     <string name="update_data_notification_reload_file">Heruntergeladene Daten neu laden</string>
     <string name="update_data_notification_favorites">Lieblingssendungen aktualisieren</string>
@@ -526,6 +535,7 @@
     <string name="action_about">Über TV-Browser</string>
     <string name="action_search_plugins">Nach Plugins suchen</string>
     <string name="create_favorite_item">Lieblingssendung erstellen</string>
+    <string name="dialog_edit_favorite_select_title">Lieblingssendung zum Bearbeiten auswählen</string>
     <string name="show_sync">Synchronisierte</string>
     <string name="terms_of_use">Nutzungsbestimmungen</string>
     <string name="terms_of_use_data">Nutzungsbestimmungen der Daten</string>
@@ -584,6 +594,15 @@
 	<string name="menu_tvbrowser_title_settings_plugins">Plugin-Einstellungen</string>
 	<string name="pref_summary">Einstellungen für TV-Browser</string>
 	<string name="pref_download_category">Datendownload</string>
+	<string name="pref_epgpaid_settings_category">EPGpaid-Einstellungen</string>
+	<string name="pref_epgpaid_user_name_title">Benutzername</string>
+	<string name="pref_epgpaid_user_empty_summary">Nicht eingegeben</string>
+	<string name="pref_epgpaid_user_password_set_summary">********</string>
+	<string name="pref_epgpaid_user_password_title">Passwort</string>
+	<string name="pref_epgpaid_max_download_title">Maximal herunterladen für:</string>
+	<string name="pref_epgpaid_purchase_title">Zugang erwerben</string>
+	<string name="pref_epgpaid_purchase_summary">(Öffnet Internetseite: https://www.epgpaid.de)</string>
+	<string name="pref_epgpaid_info">Seit 2008 verlangen viele Privatsender eine Gebühr für die Darstellung von Beschreibungen und Bildern in elektronischen Programmzeitschriften wie TV-Browser.\n\nDeshalb können diese Informationen nicht kostenlos angeboten werden, es gibt aber die Möglichkeit mit EPGpaid für einen geringen jährlichen Betrag auch für diese Sender Beschreibungen und meistens auch Bilder zu erhalten.\n\nWie hoch genau der Betrag ist und wie es funktioniert lesen Sie unter: https://www.epgpaid.de\n\n(Hier klicken um diese Seite zu öffnen.)</string>
 	<string name="pref_database_category">Datenbank</string>
 	<string name="pref_database_selection_title">Speicherort</string>
 	<string name="pref_database_selection_unavailable">NICHT VERFÜGBAR</string>
@@ -617,6 +636,7 @@
 	<string name="pref_detail_allow_swipe">Swipe durch Senderprogramm</string>
 	<string name="pref_detail_allow_swipe_summary_on">Es kann mit Swipe die angzeigte Sendung des Senders gewechseln werden.</string>
 	<string name="pref_detail_allow_swipe_summary_off">Swipe durch die Sendungen des angezeigten Senders ist nicht möglich.</string>
+	<string name="pref_detail_highlight_color">Hervorhebungsfarbe Lieblingssendungen</string>
 	<string name="pref_detail_picture_description_position">Position der Bildbeschreibung</string>
 	<string-array name="pref_detail_picture_description_entries">
 	    <item>Rechts neben dem Bild</item>
@@ -625,8 +645,8 @@
 	<string name="pref_show_genre">Genre anzeigen</string>
 	<string name="pref_show_episode">Episodentitel anzeigen</string>
 	<string name="pref_show_program_categories">Sendungskategorien anzeigen</string>
-	<string name="pref_title_program_categories_selection">Sendungskategorien auswählen</string>
-	<string name="pref_summary_program_categories_selection">Welche Sendungskategorien sollen angezeigt werden, wenn sie vorhanden sind?</string>
+	<string name="pref_title_program_information_selection">Angezeigte Informationen auswählen</string>
+	<string name="pref_summary_program_categories_selection">Welche Informationen sollen angezeigt werden, wenn sie vorhanden sind?</string>
 	<string name="pref_start_category">Starten</string>
 	<string name="pref_start_tab">Mit folgenden Tab:</string>
 	<string name="pref_show_link">Link zur Webseite:</string>
@@ -654,6 +674,7 @@
 	<string name="ageLimitString">Alterbeschränkung:</string>
 	<string name="lastProductionYear">Letztes Produktionsjahr:</string>
 	<string name="programCategories">Sendungskategorien:\n</string>
+	<string name="additionalInfo">Zusätzliche Informationen:\n</string>
 	<string name="series">Serie:</string>
 	<string name="rundate">Lauffähig bis:</string>
 	<string name="pref_prog_table_summary">Die Programmtabelle benötigt sehr viel Speicher. Sind zu viele Sender und Details ausgewählt, kann das zum Absturz der TV-Browser App führen. Achten Sie daher auf die Anzahl der ausgewählten Sender oder deaktivieren Sie die Programmtabelle.</string>

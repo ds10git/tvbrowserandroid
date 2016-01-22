@@ -25,6 +25,8 @@ import java.util.HashSet;
 import java.util.Locale;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.Plugin;
@@ -61,6 +63,7 @@ import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
@@ -102,6 +105,7 @@ import android.text.TextPaint;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
+import android.text.style.BackgroundColorSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.ImageSpan;
 import android.text.style.LeadingMarginSpan;
@@ -320,6 +324,18 @@ public class UiUtils {
                     });
                   }
                   
+                  final Favorite[] markedFromFavorites = Favorite.getFavoritesForUniqueId(context, id);
+                  final ArrayList<FavoriteTypePattern> patternList = new ArrayList<FavoriteTypePattern>();
+                  final BackgroundColorSpan backgroundColorSpan = new BackgroundColorSpan(PrefUtils.getIntValue(R.string.PREF_DETAIL_HIGHLIGHT_COLOR, context.getResources().getColor(R.color.pref_detail_highlight_color_default)));
+                  
+                  if(markedFromFavorites.length > 0) {
+                    for(Favorite favorite : markedFromFavorites) {
+                      if(favorite.getType() != Favorite.RESTRICTION_RULES_TYPE) {
+                        patternList.add(new FavoriteTypePattern(favorite.getType(), Pattern.compile(".*?("+favorite.getSearchValue().replace("%", ".*?")+").*?", Pattern.CASE_INSENSITIVE | Pattern.UNICODE_CASE)));
+                      }
+                    }
+                  }
+                  
                   TextView date = (TextView)mLayout.findViewById(R.id.detail_date_channel);
                   TextView title = (TextView)mLayout.findViewById(R.id.detail_title);
                   TextView genre = (TextView)mLayout.findViewById(R.id.detail_genre);
@@ -436,10 +452,12 @@ public class UiUtils {
                   }
                   
                   if(originalTitle == null || originalTitle.equals(titleTest)) {
-                    title.setText(titleTest);
+                    checkAndAddHiglightingForFavorites(title, titleTest, patternList, true, backgroundColorSpan);
+                    //title.setText(titleTest);
                   }
                   else {
-                    title.setText(titleTest + "/" + originalTitle);
+                    checkAndAddHiglightingForFavorites(title, titleTest + "/" + originalTitle, patternList, true, backgroundColorSpan);
+                    //title.setText(titleTest + "/" + originalTitle);
                   }
                   
                   if(!PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_DETAILS, R.bool.show_picture_in_details_default) ||  c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)) || c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT))) {
@@ -472,10 +490,12 @@ public class UiUtils {
                   }
                   
                   if(PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_DETAILS, R.bool.show_genre_in_details_default) && !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE))) {
-                    genre.setText(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) + (year.length() > 0 ? " - " + year : ""));
+                    checkAndAddHiglightingForFavorites(genre, c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) + (year.length() > 0 ? " - " + year : ""), patternList, false, backgroundColorSpan);
+//                    genre.setText();
                   }
                   else if(year.length() > 0) {
-                    genre.setText(year);
+                    checkAndAddHiglightingForFavorites(genre, year, patternList, false, backgroundColorSpan);
+                    //genre.setText(year);
                   }
                   else {
                     genre.setVisibility(View.GONE);
@@ -511,14 +531,17 @@ public class UiUtils {
                     String episodeTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
                     
                     if(originalEpisode == null || episodeTest.equals(originalEpisode)) {
-                      episode.setText(number + episodeTest);
+                      checkAndAddHiglightingForFavorites(episode, number + episodeTest, patternList, false, backgroundColorSpan);
+                      //episode.setText(number + episodeTest);
                     }
                     else {
-                      episode.setText(number + episodeTest + "/" + originalEpisode);
+                      checkAndAddHiglightingForFavorites(episode, number + episodeTest + "/" + originalEpisode, patternList, false, backgroundColorSpan);
+                      //episode.setText(number + episodeTest + "/" + originalEpisode);
                     }
                   }
                   else if(PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_DETAILS, R.bool.show_episode_in_details_default) && number.trim().length() > 0) {
-                    episode.setText(number);
+                    checkAndAddHiglightingForFavorites(episode, number, patternList, false, backgroundColorSpan);
+                    //episode.setText(number);
                   }
                   else {
                     episode.setVisibility(View.GONE);
@@ -532,8 +555,15 @@ public class UiUtils {
                     shortDescriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION)).trim();
                   }
                   
-                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION))) {
+                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION)) || !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO))) {
                     descriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
+                    
+                    if(descriptionValue == null) {
+                      descriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO));
+                    }
+                    else if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO))) {
+                      descriptionValue += "\n\n" + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO));
+                    }
                     
                     if(shortDescriptionValue != null) {
                       String test = shortDescriptionValue;
@@ -577,11 +607,11 @@ public class UiUtils {
                     shortDescription.setVisibility(View.GONE);
                   }
                   else {
-                    shortDescription.setText(shortDescriptionValue.replaceAll("\\s{4,}", "\n\n").replaceAll("\\r", "").replaceAll("\\n{2,}", "\n\n"));
+                    checkAndAddHiglightingForFavorites(description, shortDescriptionValue.replaceAll("\\s{4,}", "\n\n").replaceAll("\\r", "").replaceAll("\\n{2,}", "\n\n"), patternList, false, backgroundColorSpan);
                   }
                   
                   if(descriptionValue != null) {
-                    description.setText(descriptionValue.replaceAll("\\s{4,}", "\n\n").replaceAll("\\r", "").replaceAll("\\n{2,}", "\n\n"));
+                    checkAndAddHiglightingForFavorites(description, descriptionValue.replaceAll("\\s{4,}", "\n\n").replaceAll("\\r", "").replaceAll("\\n{2,}", "\n\n"), patternList, false, backgroundColorSpan);
                   }
                   else {
                     description.setVisibility(View.GONE);
@@ -605,6 +635,10 @@ public class UiUtils {
                     
                     if(textView != null && enabled && !c.isNull(c.getColumnIndex(key))) {
                       String text = c.getString(c.getColumnIndex(key));
+                      
+                      if(key.equals(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO) && descriptionValue != null && text.equals(descriptionValue)) {
+                        text = "";
+                      }
                       
                       if(text.trim().length() > 0) {
                         try {
@@ -746,7 +780,8 @@ public class UiUtils {
                               actors.append(text);
                             }
                             
-                            textView.setText(actors);
+                            checkAndAddHiglightingForFavorites(textView, actors, patternList, false, backgroundColorSpan);
+                            //textView.setText(actors);
                           }
                           else {
                             if(key.equals(TvBrowserContentProvider.DATA_KEY_VPS)) {
@@ -761,7 +796,11 @@ public class UiUtils {
                             
                             name = "<b><u>" + name.replace("\n", "<br>") + "</u></b>" + (endWith ? " " : "");
                             
-                            textView.setText(Html.fromHtml(name + text));
+                            //SpannableStringBuilder textSpan = new SpannableStringBuilder(Html.fromHtml(name + text));
+                            
+                            checkAndAddHiglightingForFavorites(textView, Html.fromHtml(name + text), patternList, false, backgroundColorSpan);
+                            
+                            //textView.setText(textSpan);
                           }
                         } catch (Exception e) {
                           textView.setVisibility(View.GONE);
@@ -951,6 +990,7 @@ public class UiUtils {
         menu.findItem(R.id.prog_add_reminder).setVisible(showReminder && isFutureReminder);
         menu.findItem(R.id.prog_remove_reminder).setVisible(!showReminder);
         menu.findItem(R.id.create_favorite_item).setVisible(createFavorite);
+        menu.findItem(R.id.edit_favorite_item).setVisible(!createFavorite);
         
         menu.findItem(R.id.program_popup_dont_want_to_see).setVisible(showDontWantToSee && !SettingConstants.UPDATING_FILTER);
         menu.findItem(R.id.program_popup_want_to_see).setVisible(!showDontWantToSee && !SettingConstants.UPDATING_FILTER);
@@ -1086,6 +1126,37 @@ public class UiUtils {
       
       if(item.getItemId() == R.id.create_favorite_item) {
         UiUtils.editFavorite(null, activity, title);
+        return true;
+      }
+      else if(item.getItemId() == R.id.edit_favorite_item) {
+        final Favorite[] exludeFavorites = Favorite.getFavoritesForUniqueId(activity, programID);
+        
+        if(exludeFavorites.length == 1) {
+          UiUtils.editFavorite(exludeFavorites[0], activity, null);
+        }
+        else if(exludeFavorites.length > 1) {
+          final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+          builder.setTitle(R.string.dialog_edit_favorite_select_title);
+          
+          final ArrayList<String> items = new ArrayList<String>();
+          
+          for(Favorite favorite : exludeFavorites) {
+            items.add(favorite.getName());
+          }
+          
+          builder.setItems(items.toArray(new String[items.size()]), new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {              
+              UiUtils.editFavorite(exludeFavorites[which], activity, null);
+            }
+          });
+                    
+          builder.setNegativeButton(android.R.string.cancel, null);
+          
+          final AlertDialog d = builder.create();
+          d.show();
+        }
+        
         return true;
       }
       else if(item.getItemId() == R.id.program_popup_search_repetition) {
@@ -2476,19 +2547,44 @@ public class UiUtils {
     }
   }
   
-  /*private static final class CustomDialogClass extends Dialog {
-    private View mView;
-    public CustomDialogClass(Context context, View layout) {
-      super(context);
-      mView = layout;
-      // TODO Auto-generated constructor stub
+  private static void checkAndAddHiglightingForFavorites(TextView view, CharSequence text, ArrayList<FavoriteTypePattern> patternList, boolean allPatterns, BackgroundColorSpan backgroundColorSpan) {
+    SpannableStringBuilder string = new SpannableStringBuilder(text);
+    
+    for(FavoriteTypePattern typePattern : patternList) {
+      if(allPatterns || !typePattern.isTitleOnlyType()) {
+        string = typePattern.addHighlighting(string, backgroundColorSpan);
+      }
     }
     
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-      super.onCreate(savedInstanceState);
-      
-      setContentView(mView);
+    view.setText(string);
+  }
+  
+  public static final class FavoriteTypePattern {
+    private int mType;
+    private Pattern mPattern;
+    
+    public FavoriteTypePattern(int type, Pattern pattern) {
+      mType = type;
+      mPattern = pattern;
     }
-  }*/
+    
+    public SpannableStringBuilder addHighlighting(SpannableStringBuilder text, BackgroundColorSpan backgroundColorSpan) {
+      final Matcher m = mPattern.matcher(text);
+      
+      int pos = 0;
+      
+      while(m.find(pos)) {
+        text.setSpan(backgroundColorSpan, m.start(1), m.end(1), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        
+        pos = m.end();
+      }
+      
+      return text;
+    }
+    
+    public boolean isTitleOnlyType() {
+      return mType == Favorite.KEYWORD_ONLY_TITLE_TYPE;
+    }
+  }
+  
 }

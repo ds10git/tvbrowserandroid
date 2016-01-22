@@ -26,6 +26,7 @@ import android.content.Context;
 import android.content.OperationApplicationException;
 import android.net.Uri;
 import android.os.RemoteException;
+import android.util.Log;
 
 /**
  * A class with bulk data base operations that takes the
@@ -132,7 +133,9 @@ public class MemorySizeConstrictedDatabaseOperation {
   }
   
   private synchronized void update() {
+    Log.d("info9", "update()");
     if(mUpdateList != null && !mUpdateList.isEmpty() && mContext != null) {
+      Log.d("info9", " " + mUpdateList.size());
       try {
         mContext.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, mUpdateList);
       } catch (RemoteException e) {

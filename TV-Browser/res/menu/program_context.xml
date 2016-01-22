@@ -3,6 +3,8 @@
    <group android:id="@id/prog_program_popup_menu">
        <item android:id="@id/create_favorite_item"
            android:title="@string/create_favorite_item"/>
+       <item android:id="@id/edit_favorite_item"
+           android:title="@string/favorite_edit"/>
        <item android:id="@id/prog_add_reminder"
            android:title="@string/program_popup_reminder"/>
        <item android:id="@id/prog_remove_reminder"

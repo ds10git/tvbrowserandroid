@@ -22,6 +22,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -36,6 +37,7 @@ import java.util.Calendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Properties;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -439,6 +441,78 @@ public class IOUtils {
           fout = new FileOutputStream(filename);
           fout.getChannel().truncate(0);
           fout.write(byteArr, 0, byteArr.length);
+          fout.flush();
+          
+          wasSaved.set(true);
+        }
+        catch(IOException e) {
+        }
+        finally {
+          close(fout);
+        }
+      };
+    }.start();
+    
+    Thread wait = new Thread("SAVE URL WAITING THREAD") {
+      public void run() {
+        while(!wasSaved.get() && count.getAndIncrement() < (timeout / 100)) {
+          try {
+            sleep(100);
+          } catch (InterruptedException e) {}
+        }
+      };
+    };
+    wait.start();
+        
+    try {
+      wait.join();
+    } catch (InterruptedException e) {
+      Log.d("info51", "INTERRUPTED", e);
+    }
+    
+    return wasSaved.get();
+  }
+  
+  /**
+   * Save given URL to filename with a default timeout of 30 seconds.
+   * <p>
+   * @param filename The file to save to.
+   * @param in The input stream to load from.
+   * <p> 
+   * @return <code>true</code> if the file was downloaded successfully, <code>false</code> otherwise.
+   */
+  public static boolean saveStream(final String filename, final InputStream in) {
+    return saveStream(filename, in, 30000);
+  }
+  
+  /**
+   * Save given URL to filename.
+   * <p>
+   * @param filename The file to save to.
+   * @param in The input stream to load from.
+   * @param timeout The timeout of the download in milliseconds.
+   * <p> 
+   * @return <code>true</code> if the file was downloaded successfully, <code>false</code> otherwise.
+   */
+  public static boolean saveStream(final String filename, final InputStream in, final int timeout) {
+    final AtomicBoolean wasSaved = new AtomicBoolean(false);
+    final AtomicInteger count = new AtomicInteger(0);
+    
+    new Thread("SAVE URL THREAD") {
+      public void run() {
+        FileOutputStream fout = null;
+        
+        try {
+          fout = new FileOutputStream(filename);
+          fout.getChannel().truncate(0);
+          
+          byte[] buffer = new byte[10240];
+          int len = 0;
+          
+          while((len = in.read(buffer)) >= 0) {
+            fout.write(buffer, 0, len);
+          }
+          
           fout.flush();
           
           wasSaved.set(true);
@@ -1096,5 +1170,53 @@ public class IOUtils {
     }
     
     return result;
+  }
+  
+  public static void storeProperties(Properties prop, File propertiesFile, String comment) {
+    if(propertiesFile.getParentFile().isDirectory()) {
+      GZIPOutputStream out = null;
+      
+      try {
+        out = new GZIPOutputStream(new FileOutputStream(propertiesFile));
+        prop.store(out, comment);
+      } catch (FileNotFoundException e) {
+        e.printStackTrace();
+      } catch (IOException e) {
+        e.printStackTrace();
+      } finally {
+        if(out != null) {
+          try {
+            out.close();
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    }
+  }
+  
+  public static Properties readPropertiesFile(File propertiesFile) {
+    final Properties properties = new Properties();
+    
+    if(propertiesFile.isFile()) {
+      GZIPInputStream in = null;
+      
+      try {
+        in = new GZIPInputStream(new FileInputStream(propertiesFile));
+        properties.load(in);
+      } catch(IOException e) {
+        
+      } finally {
+        if(in != null) {
+          try {
+            in.close();
+          } catch (IOException e) {
+            e.printStackTrace();
+          }
+        }
+      }
+    }
+    
+    return properties;
   }
 }
