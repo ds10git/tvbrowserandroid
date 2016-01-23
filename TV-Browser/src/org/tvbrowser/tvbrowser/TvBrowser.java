@@ -509,8 +509,13 @@ public class TvBrowser extends ActionBarActivity implements
         }, 2000);*/
         
       }
-      else if(oldVersion != getResources().getInteger(R.integer.old_version_default)) {
-        mInfoType = INFO_TYPE_NEWS;
+      else if(oldVersion != getResources().getInteger(R.integer.old_version_default) && PrefUtils.getBooleanValue(R.string.PREF_NEWS_SHOW, R.bool.pref_news_show_default)) {
+        long lastShown = PrefUtils.getLongValue(R.string.NEWS_DATE_LAST_SHOWN, 0);
+        long lastKnown = PrefUtils.getLongValue(R.string.NEWS_DATE_LAST_KNOWN, 0);
+        
+        if(lastShown < lastKnown) {
+          mInfoType = INFO_TYPE_NEWS;
+        }
         /*handler.postDelayed(new Runnable() {
           @Override
           public void run() {
@@ -746,9 +751,8 @@ public class TvBrowser extends ActionBarActivity implements
   
   @Override
   public void onAttachedToWindow() {
-    Log.d("info6", "onAttachedToWindow()");
     super.onAttachedToWindow();
-    Log.d("info6", "AFTER super.onAttachedToWindow()");
+    
     final int infoType = mInfoType;
     mInfoType = INFO_TYPE_NOTHING;
     
@@ -812,7 +816,9 @@ public class TvBrowser extends ActionBarActivity implements
       final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
       edit.putLong(getString(R.string.PREF_EPGPAID_FIRST_START), System.currentTimeMillis());
       edit.commit();
-    } else if(!SHOWING_EPGPAID_INFO && !PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_INFO_SHOWN, R.bool.pref_epgpaid_info_shown_default) && (System.currentTimeMillis() - (9 * 24 * 60 * 60000L)) > firstStart) {
+    } else if(!SHOWING_EPGPAID_INFO && !PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_INFO_SHOWN, R.bool.pref_epgpaid_info_shown_default) && (System.currentTimeMillis() - (9 * 24 * 60 * 60000L)) > firstStart
+        && PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, "").trim().length() == 0 && PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, "").trim().length() == 0) {
+      
       final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
       builder.setTitle(R.string.dialog_epgpaid_info_title);
       
@@ -1992,8 +1998,8 @@ public class TvBrowser extends ActionBarActivity implements
   
   private void startSynchronizeUp(boolean info, String value, String address, String receiveDone, final String userInfo) {
     Intent synchronizeUp = new Intent(TvBrowser.this, TvDataUpdateService.class);
-    synchronizeUp.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_MANUELL);
-    synchronizeUp.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.SYNCHRONIZE_UP_TYPE);
+    synchronizeUp.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.TYPE_UPDATE_MANUELL);
+    synchronizeUp.putExtra(TvDataUpdateService.KEY_TYPE, TvDataUpdateService.TYPE_SYNCHRONIZE_UP);
     synchronizeUp.putExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, info);
     synchronizeUp.putExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA, address);
     
@@ -2032,8 +2038,8 @@ public class TvBrowser extends ActionBarActivity implements
     updateProgressIcon(true);
     
     Intent synchronizeRemindersDown = new Intent(TvBrowser.this, TvDataUpdateService.class);
-    synchronizeRemindersDown.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_MANUELL);
-    synchronizeRemindersDown.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.REMINDER_DOWN_TYPE);
+    synchronizeRemindersDown.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.TYPE_UPDATE_MANUELL);
+    synchronizeRemindersDown.putExtra(TvDataUpdateService.KEY_TYPE, TvDataUpdateService.TYPE_REMINDER_DOWN);
     synchronizeRemindersDown.putExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true);
     
     IntentFilter remindersDownFilter = new IntentFilter(SettingConstants.REMINDER_DOWN_DONE);
@@ -2691,8 +2697,8 @@ public class TvBrowser extends ActionBarActivity implements
   private void runChannelDownload() {
     if(!TvDataUpdateService.isRunning()) {
       Intent updateChannels = new Intent(TvBrowser.this, TvDataUpdateService.class);
-      updateChannels.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_MANUELL);
-      updateChannels.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.CHANNEL_TYPE);
+      updateChannels.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.TYPE_UPDATE_MANUELL);
+      updateChannels.putExtra(TvDataUpdateService.KEY_TYPE, TvDataUpdateService.TYPE_CHANNEL);
       
       final IntentFilter filter = new IntentFilter(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
       
@@ -3268,8 +3274,8 @@ public class TvBrowser extends ActionBarActivity implements
               IOUtils.handleDataUpdatePreferences(TvBrowser.this);
               
               Intent startDownload = new Intent(TvBrowser.this, TvDataUpdateService.class);
-              startDownload.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.UPDATE_TYPE_MANUELL);
-              startDownload.putExtra(TvDataUpdateService.TYPE, TvDataUpdateService.TV_DATA_TYPE);
+              startDownload.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.TYPE_UPDATE_MANUELL);
+              startDownload.putExtra(TvDataUpdateService.KEY_TYPE, TvDataUpdateService.TYPE_TV_DATA);
               startDownload.putExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(value));
               
               startService(startDownload);
