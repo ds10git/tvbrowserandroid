@@ -98,18 +98,18 @@ import de.epgpaid.EPGpaidDataConnection;
 public class TvDataUpdateService extends Service {
   public static final String TAG = "TV_DATA_UPDATE_SERVICE";
   
-  public static final int UPDATE_TYPE_MANUELL = 1;
-  public static final int UPDATE_TYPE_AUTO = 2;
+  public static final int TYPE_UPDATE_MANUELL = 1;
+  public static final int TYPE_UPDATE_AUTO = 2;
   
   private WakeLock mWakeLock;
   
-  public static final String TYPE = "TYPE";
-  public static final int TV_DATA_TYPE = 1;
-  public static final int CHANNEL_TYPE = 2;
-  public static final int REMINDER_DOWN_TYPE = 3;
-  public static final int SYNCHRONIZE_UP_TYPE = 4;
+  public static final String KEY_TYPE = "TYPE";
   
-  private static final int LEVEL_NONE = -1;
+  public static final int TYPE_TV_DATA = 1;
+  public static final int TYPE_CHANNEL = 2;
+  public static final int TYPE_REMINDER_DOWN = 3;
+  public static final int TYPE_SYNCHRONIZE_UP = 4;
+  
   private static final int LEVEL_BASE = 0;
   private static final int LEVEL_MORE = 1;
   private static final int LEVEL_PICTURE = 2;
@@ -121,7 +121,7 @@ public class TvDataUpdateService extends Service {
   private ExecutorService mDataUpdatePool;
   private Handler mHandler;
   
-  private static final int NOTIFY_ID = 511;
+  private static final int ID_NOTIFY = 511;
   private NotificationCompat.Builder mBuilder;
   private int mCurrentDownloadCount;
   private int mUnsuccessfulDownloads;
@@ -153,7 +153,7 @@ public class TvDataUpdateService extends Service {
       "http://tvbrowser.nicht-langweilig.de/data/"
   };
   
-  private static final String[] BASE_LEVEL_FIELDS = {
+  private static final String[] FIELDS_LEVEL_BASE = {
     TvBrowserContentProvider.DATA_KEY_STARTTIME,
     TvBrowserContentProvider.DATA_KEY_ENDTIME,
     TvBrowserContentProvider.DATA_KEY_TITLE,
@@ -219,12 +219,12 @@ public class TvDataUpdateService extends Service {
     TvBrowserContentProvider.DATA_KEY_INFO_SIGN_LANGUAGE
   };
   
-  private static final String[] MORE_LEVEL_FIELDS = {
+  private static final String[] FIELDS_LEVEL_MORE = {
     TvBrowserContentProvider.DATA_KEY_DESCRIPTION,
     TvBrowserContentProvider.DATA_KEY_ACTORS
   };
   
-  private static final String[] PICTURE_LEVEL_FIELDS = {
+  private static final String[] FIELDS_LEVEL_PICTURE = {
     TvBrowserContentProvider.DATA_KEY_PICTURE,
     TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT,
     TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION
@@ -261,8 +261,8 @@ public class TvDataUpdateService extends Service {
           doLog("Received intent: " + intent);
           
           if(intent != null) {
-            doLog("Extra Type: " + intent.getIntExtra(TYPE, TV_DATA_TYPE));
-            doLog("Extra Data Update Type: " + intent.getIntExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, UPDATE_TYPE_AUTO));
+            doLog("Extra Type: " + intent.getIntExtra(KEY_TYPE, TYPE_TV_DATA));
+            doLog("Extra Data Update Type: " + intent.getIntExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TYPE_UPDATE_AUTO));
           }
           
           boolean isConnected = false;
@@ -270,7 +270,7 @@ public class TvDataUpdateService extends Service {
           boolean isInternetConnectionAutoUpdate = false;
           
           if(intent != null) { 
-            if(intent.getIntExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, UPDATE_TYPE_AUTO) == UPDATE_TYPE_MANUELL) {
+            if(intent.getIntExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TYPE_UPDATE_AUTO) == TYPE_UPDATE_MANUELL) {
               onlyWifi = false;
             }
             
@@ -298,17 +298,17 @@ public class TvDataUpdateService extends Service {
           }
           
           if(isConnected && intent != null) {
-            if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == TV_DATA_TYPE) {
+            if(intent.getIntExtra(KEY_TYPE, TYPE_TV_DATA) == TYPE_TV_DATA) {
               mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(getResources().getString(R.string.days_to_download_default)));
               updateTvData();
             }
-            else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == CHANNEL_TYPE) {
+            else if(intent.getIntExtra(KEY_TYPE, TYPE_TV_DATA) == TYPE_CHANNEL) {
               updateChannels(false);
             }
-            else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == REMINDER_DOWN_TYPE) {
+            else if(intent.getIntExtra(KEY_TYPE, TYPE_TV_DATA) == TYPE_REMINDER_DOWN) {
               startSynchronizeRemindersDown(intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true));
             }
-            else if(intent.getIntExtra(TYPE, TV_DATA_TYPE) == SYNCHRONIZE_UP_TYPE) {
+            else if(intent.getIntExtra(KEY_TYPE, TYPE_TV_DATA) == TYPE_SYNCHRONIZE_UP) {
               if(intent.hasExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA)) {
                 String address = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA);
                 String value = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_VALUE_EXTRA);
@@ -323,7 +323,7 @@ public class TvDataUpdateService extends Service {
           }
           else {
             mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
-            startForeground(NOTIFY_ID, mBuilder.build());
+            startForeground(ID_NOTIFY, mBuilder.build());
             doLog("NO UPDATE DONE, NO INTERNET CONNECTION OR NO INTENT, PROCESS EXISTING DATA");
             handleStoredDataFromKilledUpdate(isConnected);
           }
@@ -395,7 +395,7 @@ public class TvDataUpdateService extends Service {
       if(oldDataFiles != null && oldDataFiles.length > 0) {
         mBuilder.setContentText(getString(R.string.update_data_notification_reload_file));
         mBuilder.setProgress(oldDataFiles.length, 0, false);
-        notification.notify(NOTIFY_ID, mBuilder.build());
+        notification.notify(ID_NOTIFY, mBuilder.build());
         
         final HashMap<String, ChannelUpdate> updateMap = new HashMap<String, TvDataUpdateService.ChannelUpdate>();
         
@@ -429,7 +429,7 @@ public class TvDataUpdateService extends Service {
         
         for(int i = 0; i < oldDataFiles.length; i++) {
           mBuilder.setProgress(oldDataFiles.length, i+1, false);
-          notification.notify(NOTIFY_ID, mBuilder.build());
+          notification.notify(ID_NOTIFY, mBuilder.build());
 
           File file = oldDataFiles[i];
           
@@ -553,7 +553,7 @@ public class TvDataUpdateService extends Service {
           
           mBuilder.setContentText(getString(R.string.update_notification_text));
           mBuilder.setProgress(updateMap.size(), 0, false);
-          notification.notify(NOTIFY_ID, mBuilder.build());
+          notification.notify(ID_NOTIFY, mBuilder.build());
           
           for(String key : updateMap.keySet()) {
             updateMap.get(key).startUpdate(notification, updateMap.size(), handleExc);
@@ -585,7 +585,7 @@ public class TvDataUpdateService extends Service {
           }
 
           mBuilder.setProgress(100, 0, true);
-          notification.notify(NOTIFY_ID, mBuilder.build());
+          notification.notify(ID_NOTIFY, mBuilder.build());
           
           if(mCurrentVersionIDs != null) {
             mCurrentVersionIDs.clear();
@@ -646,7 +646,7 @@ public class TvDataUpdateService extends Service {
     mVersionDatabaseOperation = null;
         
     stopForeground(true);
-    ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFY_ID);
+    ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(ID_NOTIFY);
     
     Favorite.handleDataUpdateFinished();
     
@@ -729,7 +729,7 @@ public class TvDataUpdateService extends Service {
     }
     
     Logging.closeLogForDataUpdate();
-    ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(NOTIFY_ID);
+    ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(ID_NOTIFY);
     stopSelf();
   }
   
@@ -747,7 +747,7 @@ public class TvDataUpdateService extends Service {
   private void synchronizeUp(boolean info, final String value, final String address, final NotificationManager notification) {
     mBuilder.setProgress(100, 0, true);
     mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize));
-    notification.notify(NOTIFY_ID, mBuilder.build());
+    notification.notify(ID_NOTIFY, mBuilder.build());
     
     final String CrLf = "\r\n";
     
@@ -858,7 +858,7 @@ public class TvDataUpdateService extends Service {
       }
     }
     
-    notification.cancel(NOTIFY_ID);
+    notification.cancel(ID_NOTIFY);
   }
   
   private byte[] getBytesForReminders() {
@@ -945,7 +945,7 @@ public class TvDataUpdateService extends Service {
       
       mBuilder.setProgress(100, 0, true);
       mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize_remiders));
-      notification.notify(NOTIFY_ID, mBuilder.build());
+      notification.notify(ID_NOTIFY, mBuilder.build());
       
       URLConnection connection = null;
       BufferedReader read = null;
@@ -1107,7 +1107,7 @@ public class TvDataUpdateService extends Service {
       
       SettingConstants.UPDATING_REMINDERS = false;
       
-      notification.cancel(NOTIFY_ID);
+      notification.cancel(ID_NOTIFY);
     }
   }
   
@@ -1119,7 +1119,7 @@ public class TvDataUpdateService extends Service {
     if(mSyncFavorites != null) {
       mBuilder.setProgress(100, 0, true);
       mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize_favorites));
-      notification.notify(NOTIFY_ID, mBuilder.build());
+      notification.notify(ID_NOTIFY, mBuilder.build());
       
       ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
       ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
@@ -1228,7 +1228,7 @@ public class TvDataUpdateService extends Service {
         UiUtils.updateImportantProgramsWidget(TvDataUpdateService.this);
       }
       
-      notification.cancel(NOTIFY_ID);
+      notification.cancel(ID_NOTIFY);
     }
     
     mSyncFavorites = null;
@@ -1243,7 +1243,7 @@ public class TvDataUpdateService extends Service {
     mBuilder.setProgress(100, 0, true);
     mBuilder.setContentTitle(getResources().getText(R.string.channel_notification_title));
     mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
-    startForeground(NOTIFY_ID, mBuilder.build());
+    startForeground(ID_NOTIFY, mBuilder.build());
     
     mCurrentChannelData = new Hashtable<String, Object>();
     
@@ -1562,7 +1562,7 @@ public class TvDataUpdateService extends Service {
         mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
         mCurrentDownloadCount = 0;
         mBuilder.setProgress(channelMirrors.size(), 0, false);
-        notification.notify(NOTIFY_ID, mBuilder.build());
+        notification.notify(ID_NOTIFY, mBuilder.build());
         
         for(final GroupInfo info : channelMirrors) {
           mThreadPool.execute(new Thread("DATA UPDATE GROUP CHANNEL ADDING THREAD") {
@@ -1589,7 +1589,7 @@ public class TvDataUpdateService extends Service {
                     groupSucces = addChannels(group,info);
                     
                     mBuilder.setProgress(channelMirrors.size(), mCurrentDownloadCount++, false);
-                    notification.notify(NOTIFY_ID, mBuilder.build());
+                    notification.notify(ID_NOTIFY, mBuilder.build());
                     
                     if(groupSucces) {
                       doLog("Load channels for group '" + info.getFileName() + "' successfull from: " + url);
@@ -2041,7 +2041,7 @@ public class TvDataUpdateService extends Service {
   public void backSyncPrograms(final NotificationManager notification) {
     mBuilder.setProgress(100, 0, true);
     mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize));
-    notification.notify(NOTIFY_ID, mBuilder.build());
+    notification.notify(ID_NOTIFY, mBuilder.build());
     
     final String CrLf = "\r\n";
     
@@ -2142,7 +2142,7 @@ public class TvDataUpdateService extends Service {
       }
     }
     
-    notification.cancel(NOTIFY_ID);
+    notification.cancel(ID_NOTIFY);
   }
   
   private void loadAccessAndFavoriteSync() {
@@ -2193,7 +2193,7 @@ public class TvDataUpdateService extends Service {
     try {
       mBuilder.setProgress(100, 0, true);
       mBuilder.setContentText(getResources().getText(R.string.update_notification_calculate));
-      notification.notify(NOTIFY_ID, mBuilder.build());
+      notification.notify(ID_NOTIFY, mBuilder.build());
       
       // Only ID, channel ID, start and end time are needed for update, so use only these columns
       String[] projection = {
@@ -2330,7 +2330,7 @@ public class TvDataUpdateService extends Service {
         if(daysSinceLastNewsUpdate > 3 && (Math.random() * 7 < daysSinceLastNewsUpdate)) {
           mBuilder.setProgress(100, 0, true);
           mBuilder.setContentText(getResources().getText(R.string.update_data_notification_load_news));
-          notification.notify(NOTIFY_ID, mBuilder.build());
+          notification.notify(ID_NOTIFY, mBuilder.build());
           
           NewsReader.readNews(TvDataUpdateService.this, mHandler);
         }
@@ -2394,7 +2394,7 @@ public class TvDataUpdateService extends Service {
     
     mBuilder.setProgress(favorites.length, 0, false);
     mBuilder.setContentText(getResources().getText(R.string.update_data_notification_favorites));
-    notification.notify(NOTIFY_ID, mBuilder.build());
+    notification.notify(ID_NOTIFY, mBuilder.build());
     
     ExecutorService updateFavorites = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
     
@@ -2408,7 +2408,7 @@ public class TvDataUpdateService extends Service {
             Favorite.handleFavoriteMarking(TvDataUpdateService.this, favorite, Favorite.TYPE_MARK_REMOVE);
             Favorite.handleFavoriteMarking(TvDataUpdateService.this, favorite, Favorite.TYPE_MARK_ADD);
             mBuilder.setProgress(favorites.length, mFavoriteUpdateCount.getAndIncrement(), false);
-            notification.notify(NOTIFY_ID, mBuilder.build());
+            notification.notify(ID_NOTIFY, mBuilder.build());
           }
         });
       }
@@ -2420,7 +2420,7 @@ public class TvDataUpdateService extends Service {
       updateFavorites.awaitTermination(favorites.length, TimeUnit.MINUTES);
     } catch (InterruptedException e) {}
     
-    notification.cancel(NOTIFY_ID);
+    notification.cancel(ID_NOTIFY);
     
     backSyncPrograms(notification);
   }
@@ -2570,7 +2570,7 @@ public class TvDataUpdateService extends Service {
     mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
     mBuilder.setContentText(getResources().getText(R.string.update_notification_text));
     
-    startForeground(NOTIFY_ID, mBuilder.build());
+    startForeground(ID_NOTIFY, mBuilder.build());
     final NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
     //notification.notify(NOTIFY_ID, mBuilder.build());*/
     doLog("loadAccessAndFavoriteSync()");
@@ -2904,7 +2904,7 @@ public class TvDataUpdateService extends Service {
     mDataUpdatePool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
     
     mBuilder.setProgress(downloadCount, 0, false);
-    notification.notify(NOTIFY_ID, mBuilder.build());
+    notification.notify(ID_NOTIFY, mBuilder.build());
     
     for(final MirrorDownload mirror : downloadMirrorList) {
       final File mirrorFile = new File(path,mirror.getFileName());
@@ -2921,7 +2921,7 @@ public class TvDataUpdateService extends Service {
               
               if(mShowNotification) {
                 mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-                notification.notify(NOTIFY_ID, mBuilder.build());
+                notification.notify(ID_NOTIFY, mBuilder.build());
               }
             } catch (Exception e) {
               mUnsuccessfulDownloads++;
@@ -3002,7 +3002,7 @@ public class TvDataUpdateService extends Service {
     mVersionUpdateList = null;*/
 
     mBuilder.setProgress(100, 0, true);
-    notification.notify(NOTIFY_ID, mBuilder.build());
+    notification.notify(ID_NOTIFY, mBuilder.build());
     
     if(mCurrentVersionIDs != null) {
       mCurrentVersionIDs.clear();
@@ -3059,7 +3059,7 @@ public class TvDataUpdateService extends Service {
     
     mBuilder.setProgress(100, 0, true);
     mBuilder.setContentText(getResources().getText(R.string.update_data_notification_epgpaid_prepare));
-    notification.notify(NOTIFY_ID, mBuilder.build());
+    notification.notify(ID_NOTIFY, mBuilder.build());
     
     final EPGpaidDataConnection epgPaidConnection = new EPGpaidDataConnection();
     
@@ -3196,7 +3196,7 @@ public class TvDataUpdateService extends Service {
             
             mBuilder.setProgress(downloadFiles.size(), 0, false);
             mBuilder.setContentText(getResources().getText(R.string.update_data_notification_epgpaid_download));
-            notification.notify(NOTIFY_ID, mBuilder.build());
+            notification.notify(ID_NOTIFY, mBuilder.build());
 
             int count = 0;
             
@@ -3221,7 +3221,7 @@ public class TvDataUpdateService extends Service {
               
               if(count % 2 == 0) {
                 mBuilder.setProgress(downloadFiles.size(), count, false);
-                notification.notify(NOTIFY_ID, mBuilder.build());
+                notification.notify(ID_NOTIFY, mBuilder.build());
               }
             }
             
@@ -3284,7 +3284,7 @@ public class TvDataUpdateService extends Service {
       
       mBuilder.setProgress(dataFiles.length, 0, false);
       mBuilder.setContentText(getResources().getText(R.string.update_data_notification_epgpaid_process));
-      notification.notify(NOTIFY_ID, mBuilder.build());
+      notification.notify(ID_NOTIFY, mBuilder.build());
       
       for(File dataFile : dataFiles) {
         byte version = handler.readContentValues(dataFile, currentDataIds);
@@ -3295,7 +3295,7 @@ public class TvDataUpdateService extends Service {
         
         if(count % 2 == 0) {
           mBuilder.setProgress(dataFiles.length, count, false);
-          notification.notify(NOTIFY_ID, mBuilder.build());
+          notification.notify(ID_NOTIFY, mBuilder.build());
         }
       }
       
@@ -3769,17 +3769,17 @@ public class TvDataUpdateService extends Service {
       
       switch(level)  {
         case LEVEL_BASE: {
-          addArrayToList(columnList,BASE_LEVEL_FIELDS);
+          addArrayToList(columnList,FIELDS_LEVEL_BASE);
           
           if(update.mContainsDescription) {
-            addArrayToList(columnList,MORE_LEVEL_FIELDS);
+            addArrayToList(columnList,FIELDS_LEVEL_MORE);
           }
           if(update.mContainsPicture) {
-            addArrayToList(columnList,PICTURE_LEVEL_FIELDS);
+            addArrayToList(columnList,FIELDS_LEVEL_PICTURE);
           }
         }break;
-        case LEVEL_MORE: addArrayToList(columnList,MORE_LEVEL_FIELDS);break;
-        case LEVEL_PICTURE: addArrayToList(columnList,PICTURE_LEVEL_FIELDS);break;
+        case LEVEL_MORE: addArrayToList(columnList,FIELDS_LEVEL_MORE);break;
+        case LEVEL_PICTURE: addArrayToList(columnList,FIELDS_LEVEL_PICTURE);break;
       }
       
       ContentValues values = update.mContentValueList.get(String.valueOf(id));
@@ -4231,17 +4231,17 @@ public class TvDataUpdateService extends Service {
       
       switch(level)  {
         case LEVEL_BASE: {
-          addArrayToList(columnList,BASE_LEVEL_FIELDS);
+          addArrayToList(columnList,FIELDS_LEVEL_BASE);
           
           if(update.mContainsDescription) {
-            addArrayToList(columnList,MORE_LEVEL_FIELDS);
+            addArrayToList(columnList,FIELDS_LEVEL_MORE);
           }
           if(update.mContainsPicture) {
-            addArrayToList(columnList,PICTURE_LEVEL_FIELDS);
+            addArrayToList(columnList,FIELDS_LEVEL_PICTURE);
           }
         }break;
-        case LEVEL_MORE: addArrayToList(columnList,MORE_LEVEL_FIELDS);break;
-        case LEVEL_PICTURE: addArrayToList(columnList,PICTURE_LEVEL_FIELDS);break;
+        case LEVEL_MORE: addArrayToList(columnList,FIELDS_LEVEL_MORE);break;
+        case LEVEL_PICTURE: addArrayToList(columnList,FIELDS_LEVEL_PICTURE);break;
       }
       
       ContentValues values = update.mContentValueList.get(id);
@@ -4567,7 +4567,7 @@ public class TvDataUpdateService extends Service {
             if(mShowNotification) {
               mCurrentDownloadCount++;
               mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-              notification.notify(NOTIFY_ID, mBuilder.build());
+              notification.notify(ID_NOTIFY, mBuilder.build());
             }
           }
         });
@@ -4598,7 +4598,7 @@ public class TvDataUpdateService extends Service {
               if(mShowNotification) {
                 mCurrentDownloadCount++;
                 mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-                notification.notify(NOTIFY_ID, mBuilder.build());
+                notification.notify(ID_NOTIFY, mBuilder.build());
               }
             }
             

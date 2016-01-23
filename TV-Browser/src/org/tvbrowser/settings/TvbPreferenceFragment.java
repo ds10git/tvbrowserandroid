@@ -58,7 +58,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     String category = getArguments().getString(getString(R.string.pref_category_key));
         
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-    Log.d("info6", ""+category);
+    
     if(getString(R.string.category_download).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_download);
       
@@ -218,7 +218,6 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
 
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    Log.d("info6", ""+key);
     if(getActivity() != null) {
       if(key.equals(getString(R.string.PREF_LOGO_BORDER))) {
         CheckBoxPreference transparent = (CheckBoxPreference)findPreference(key);

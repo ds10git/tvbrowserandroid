@@ -599,7 +599,7 @@
 	<string name="menu_tvbrowser_title_settings_plugins">Plugin settings</string>
 	<string name="pref_summary">Settings for TV-Browser</string>
 	<string name="pref_download_category">Data Download</string>
-	<string name="pref_epgpaid_category">EPGpaid</string>
+	<string name="pref_epgpaid_category">EPGpaid data</string>
 	<string name="pref_epgpaid_settings_category">EPGpaid settings</string>
 	<string name="pref_epgpaid_user_name_title">Username:</string>
 	<string name="pref_epgpaid_user_empty_summary">Not entered</string>
