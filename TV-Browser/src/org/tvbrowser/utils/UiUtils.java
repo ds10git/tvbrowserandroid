@@ -555,15 +555,8 @@ public class UiUtils {
                     shortDescriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION)).trim();
                   }
                   
-                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION)) || !c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO))) {
+                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION))) {
                     descriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
-                    
-                    if(descriptionValue == null) {
-                      descriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO));
-                    }
-                    else if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO))) {
-                      descriptionValue += "\n\n" + c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO));
-                    }
                     
                     if(shortDescriptionValue != null) {
                       String test = shortDescriptionValue;
@@ -578,6 +571,10 @@ public class UiUtils {
                       test = test.replaceAll("\\s+", " ").trim();
                       
                       showShortDescription = !descriptionValue.replaceAll("\\s+", " ").trim().startsWith(test);
+                      
+                      if(showShortDescription) {
+                        shortDescriptionValue = shortDescriptionValue.trim() + "\n";
+                      }
                       
                       String[] paragraphs = descriptionValue.split("\n+");
                       
@@ -607,7 +604,7 @@ public class UiUtils {
                     shortDescription.setVisibility(View.GONE);
                   }
                   else {
-                    checkAndAddHiglightingForFavorites(description, shortDescriptionValue.replaceAll("\\s{4,}", "\n\n").replaceAll("\\r", "").replaceAll("\\n{2,}", "\n\n"), patternList, false, backgroundColorSpan);
+                    checkAndAddHiglightingForFavorites(shortDescription, shortDescriptionValue.replaceAll("\\s{4,}", "\n\n").replaceAll("\\r", "").replaceAll("\\n{2,}", "\n\n"), patternList, false, backgroundColorSpan);
                   }
                   
                   if(descriptionValue != null) {
