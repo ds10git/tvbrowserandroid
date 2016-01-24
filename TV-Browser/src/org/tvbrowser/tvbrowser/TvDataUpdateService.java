@@ -3184,7 +3184,7 @@ public class TvDataUpdateService extends Service {
                   
                   String newVersion = propertiesNew.getProperty(key.toString(),"0,0,0");
                   newVersion = newVersion.substring(0,newVersion.indexOf(","));
-                  
+                  doLog(keyString + " currentVersion " + currentVersion + " newVersion " + newVersion);
                   if(Integer.parseInt(newVersion) > Integer.parseInt(currentVersion)) {
                     downloadFiles.add(key.toString()+"base.gz");
                   }
@@ -3287,8 +3287,9 @@ public class TvDataUpdateService extends Service {
       notification.notify(ID_NOTIFY, mBuilder.build());
       
       for(File dataFile : dataFiles) {
+        doLog("updateDataFromFile " + dataFile.getAbsolutePath());
         byte version = handler.readContentValues(dataFile, currentDataIds);
-        
+        doLog("loadVersion " + version);
         propertiesCurrent.setProperty(dataFile.getName(), version+",0,0");
         
         count++;
