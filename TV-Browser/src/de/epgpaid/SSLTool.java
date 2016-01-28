@@ -16,6 +16,7 @@
  */
 package de.epgpaid;
 
+import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 
@@ -23,11 +24,17 @@ import javax.net.ssl.HostnameVerifier;
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
+import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-public class SSLTool {
+import android.test.MoreAsserts;
+import android.util.Log;
 
+public class SSLTool {
+  private static SSLSocketFactory mOriginalSSLSocketFactory;
+  private static HostnameVerifier mOriginalHostnameVerifier;
+  
   public static void disableCertificateValidation() {
     // Create a trust manager that does not validate certificate chains
     TrustManager[] trustAllCerts = new TrustManager[] { 
@@ -49,10 +56,26 @@ public class SSLTool {
     
     // Install the all-trusting trust manager
     try {
+      if(mOriginalSSLSocketFactory == null) {
+        mOriginalSSLSocketFactory = HttpsURLConnection.getDefaultSSLSocketFactory();
+      }
+      if(mOriginalHostnameVerifier == null) {
+        mOriginalHostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
+      }
+      
       SSLContext sc = SSLContext.getInstance("SSL");
       sc.init(null, trustAllCerts, new SecureRandom());
       HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
       HttpsURLConnection.setDefaultHostnameVerifier(hv);
     } catch (Exception e) {}
+  }
+  
+  public static void resetCertificateValidation() {
+    if(mOriginalSSLSocketFactory != null) {
+      HttpsURLConnection.setDefaultSSLSocketFactory(mOriginalSSLSocketFactory);
+    }
+    if(mOriginalHostnameVerifier != null) {
+      HttpsURLConnection.setDefaultHostnameVerifier(mOriginalHostnameVerifier);
+    }
   }
 }

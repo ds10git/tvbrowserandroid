@@ -193,33 +193,35 @@ public class FragmentProgramTable extends Fragment {
         if(IOUtils.isDatabaseAccessible(getActivity())) {
           Cursor c = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
           
-          if(c.moveToFirst()) {
-            long id = -1;
-            
-            do {
-              id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-            }while(((getView().findViewWithTag(Long.valueOf(id)) == null) || (value - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1.25 * 60 * 60000))) && c.moveToNext());
-            
-            if(id != -1 && getView() != null) {
-              final View view = getView().findViewWithTag(Long.valueOf(id));
+          try {
+            if(IOUtils.prepareAccessFirst(c)) {
+              long id = -1;
               
-              if(view != null) {
-                final ScrollView scroll = (ScrollView)getView().findViewById(R.id.vertical_program_table_scroll);
+              do {
+                id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+              }while(((getView().findViewWithTag(Long.valueOf(id)) == null) || (value - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1.25 * 60 * 60000))) && c.moveToNext());
+              
+              if(id != -1 && getView() != null) {
+                final View view = getView().findViewWithTag(Long.valueOf(id));
                 
-                scroll.post(new Runnable() {
-                  @Override
-                  public void run() {
-                    int location[] = new int[2];
-                    view.getLocationInWindow(location);
-                                        
-                    scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]);
-                  }
-                });
+                if(view != null) {
+                  final ScrollView scroll = (ScrollView)getView().findViewById(R.id.vertical_program_table_scroll);
+                  
+                  scroll.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      int location[] = new int[2];
+                      view.getLocationInWindow(location);
+                                          
+                      scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]);
+                    }
+                  });
+                }
               }
             }
+          }finally {
+            IOUtils.close(c);
           }
-          
-          IOUtils.close(c);
         }
       }
     }
@@ -286,13 +288,14 @@ public class FragmentProgramTable extends Fragment {
             
             Cursor cursor = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, id), projection, null, null, null);
             Log.d("info2", "CURSOR " + cursor);
-            if(cursor.getCount() > 0) {
-              cursor.moveToFirst();
-              Log.d("info2", "SIZE " + cursor.getCount());
-              UiUtils.handleMarkings(getActivity(), cursor, view, null, null, true);
+            try {
+              if(IOUtils.prepareAccessFirst(cursor)) {
+                Log.d("info2", "SIZE " + cursor.getCount());
+                UiUtils.handleMarkings(getActivity(), cursor, view, null, null, true);
+              }
+            }finally {
+              IOUtils.close(cursor);
             }
-            
-            cursor.close();
           }
         }
       }
@@ -356,15 +359,16 @@ public class FragmentProgramTable extends Fragment {
                 long programID = (Long)child.getTag();
                 
                 Cursor test = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA,programID), new String[] {TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE}, null, null, null);
-                test.moveToPosition(-1);
                 
-                if(test.moveToNext()) {
-                  if(test.getInt(0) == 1) {
-                    child.setVisibility(View.GONE);
+                try {
+                  if(IOUtils.prepareAccessFirst(test)) {
+                    if(test.getInt(0) == 1) {
+                      child.setVisibility(View.GONE);
+                    }
                   }
+                }finally {
+                  IOUtils.close(test);
                 }
-                
-                test.close();
               }
             }
           }
@@ -439,12 +443,13 @@ public class FragmentProgramTable extends Fragment {
                           
                           Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), projection, null, null, null);
                           
-                          if(c.getCount() > 0) {
-                            c.moveToFirst();
-                            UiUtils.handleMarkings(getActivity(), c, progPanel, null, null, true);
+                          try {
+                            if(IOUtils.prepareAccessFirst(c)) {
+                              UiUtils.handleMarkings(getActivity(), c, progPanel, null, null, true);
+                            }
+                          }finally {
+                            IOUtils.close(c);
                           }
-                          
-                          c.close();
                         }
                       }
                     });
@@ -492,46 +497,49 @@ public class FragmentProgramTable extends Fragment {
             String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
             
             Cursor c = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.KEY_ID);
-            c.moveToPosition(-1);
             
-            int keyColumnIndex = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-            int statTimeColumnIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-            int endTimeColumnIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
-            
-            HashMap<String, Integer> markingColumsIndexMap = new HashMap<String, Integer>();
-            
-            for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
-              int index = c.getColumnIndex(column);
-              
-              if(index >= 0) {
-                markingColumsIndexMap.put(column, Integer.valueOf(index));
-              }
-            }
-            
-            while(c.moveToNext()) {
-              long key = c.getLong(keyColumnIndex);
-              
-              View view = mProgramPanelLayout.findViewWithTag(Long.valueOf(key));
-              
-              if(view != null) {
-                long startTime = c.getLong(statTimeColumnIndex);
-                long endTime = c.getLong(endTimeColumnIndex);
+            try {
+              if(IOUtils.prepareAccess(c)) {
+                int keyColumnIndex = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                int statTimeColumnIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+                int endTimeColumnIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
                 
-                ArrayList<String> markedColumns = new ArrayList<String>();
+                HashMap<String, Integer> markingColumsIndexMap = new HashMap<String, Integer>();
                 
                 for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
-                  Integer index = markingColumsIndexMap.get(column);
+                  int index = c.getColumnIndex(column);
                   
-                  if(index != null && c.getInt(index.intValue()) == 1) {
-                    markedColumns.add(column);
+                  if(index >= 0) {
+                    markingColumsIndexMap.put(column, Integer.valueOf(index));
                   }
                 }
                 
-                UiUtils.handleMarkings(getActivity(), null, startTime, endTime, view, IOUtils.getStringArrayFromList(markedColumns), handler, true);
+                while(c.moveToNext()) {
+                  long key = c.getLong(keyColumnIndex);
+                  
+                  View view = mProgramPanelLayout.findViewWithTag(Long.valueOf(key));
+                  
+                  if(view != null) {
+                    long startTime = c.getLong(statTimeColumnIndex);
+                    long endTime = c.getLong(endTimeColumnIndex);
+                    
+                    ArrayList<String> markedColumns = new ArrayList<String>();
+                    
+                    for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
+                      Integer index = markingColumsIndexMap.get(column);
+                      
+                      if(index != null && c.getInt(index.intValue()) == 1) {
+                        markedColumns.add(column);
+                      }
+                    }
+                    
+                    UiUtils.handleMarkings(getActivity(), null, startTime, endTime, view, IOUtils.getStringArrayFromList(markedColumns), handler, true);
+                  }
+                }
               }
+            }finally {
+              IOUtils.close(c);
             }
-            
-            c.close();
           }
         }
       };
@@ -717,35 +725,38 @@ public class FragmentProgramTable extends Fragment {
             where += ((TvBrowser)getActivity()).getCategoryFilterSelection();
             
             Cursor cursor = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
-            cursor.moveToPosition(-1);
             
-            mStartTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-            mEndTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
-            mTitleIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-            mChannelIndex = cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-            mGenreIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE);
-            mEpisodeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
-            mKeyIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-            mPictureIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
-            mPictureCopyrightIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT);
-            
-            mMarkingsMap.clear();
-            
-            for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
-              int index = cursor.getColumnIndex(column);
-              
-              if(index >= 0) {
-                mMarkingsMap.put(column, Integer.valueOf(index));
+            try {
+              if(IOUtils.prepareAccess(cursor)) {
+                mStartTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+                mEndTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+                mTitleIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+                mChannelIndex = cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+                mGenreIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE);
+                mEpisodeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
+                mKeyIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                mPictureIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
+                mPictureCopyrightIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT);
+                
+                mMarkingsMap.clear();
+                
+                for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
+                  int index = cursor.getColumnIndex(column);
+                  
+                  if(index >= 0) {
+                    mMarkingsMap.put(column, Integer.valueOf(index));
+                  }
+                }
+                
+                mCategoryIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
+                
+                while(cursor.moveToNext()) {
+                  addPanel(cursor, mProgramPanelLayout);
+                }
               }
+            }finally {
+              IOUtils.close(cursor);
             }
-            
-            mCategoryIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
-            
-            while(cursor.moveToNext()) {
-              addPanel(cursor, mProgramPanelLayout);
-            }
-            
-            cursor.close();
           }
           
           if(mProgramPanelLayout instanceof CompactProgramTableLayout) {

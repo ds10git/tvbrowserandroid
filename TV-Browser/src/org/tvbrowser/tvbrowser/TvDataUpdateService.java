@@ -4087,6 +4087,9 @@ public class TvDataUpdateService extends Service {
           
           ContentValues values = new ContentValues();
           
+          String shortDescription = null;
+          String description = null;
+          
           for(byte field = 0; field < count; field++) {
             byte fieldType = (byte)in.read();
             
@@ -4122,8 +4125,8 @@ public class TvDataUpdateService extends Service {
               case 4: values.put(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL, in.readUTF());break;
               case 5: values.put(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE, in.readUTF());break;
               case 6: values.put(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL, in.readUTF());break;
-              case 7: values.put(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION, in.readUTF());break;
-              case 8: values.put(TvBrowserContentProvider.DATA_KEY_DESCRIPTION, in.readUTF());break;
+              case 7: shortDescription = in.readUTF();break;
+              case 8: description = in.readUTF();break;
               case 0xA: values.put(TvBrowserContentProvider.DATA_KEY_ACTORS, in.readUTF());break;
               case 0xB: values.put(TvBrowserContentProvider.DATA_KEY_REGIE, in.readUTF());break;
               case 0xC: values.put(TvBrowserContentProvider.DATA_KEY_CUSTOM_INFO, in.readUTF());break;
@@ -4193,6 +4196,18 @@ public class TvDataUpdateService extends Service {
               case 0x27: values.put(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR, in.readShort());break;
               case 0x28: values.put(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO, in.readUTF());break;
               case 0x29: values.put(TvBrowserContentProvider.DATA_KEY_SERIES, in.readUTF());break;
+            }
+          }
+          
+          if(shortDescription != null) {
+            values.put(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION, shortDescription);
+          }
+          
+          if(description != null) {
+            values.put(TvBrowserContentProvider.DATA_KEY_DESCRIPTION, description);
+            
+            if(shortDescription == null) {
+              values.put(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION, "");
             }
           }
           
