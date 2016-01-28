@@ -647,7 +647,7 @@ public class TvBrowser extends ActionBarActivity implements
       AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
       builder.setTitle(R.string.terms_of_use);
       
-      ScrollView layout = (ScrollView)getLayoutInflater().inflate(R.layout.terms_layout, getParentViewGroup(), false);
+      ScrollView layout = (ScrollView)getLayoutInflater().inflate(R.layout.dialog_terms, getParentViewGroup(), false);
       
       ((TextView)layout.findViewById(R.id.terms_license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
       
@@ -5713,7 +5713,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     alert.setTitle(R.string.donation);
     
-    View view = getLayoutInflater().inflate(R.layout.donations, getParentViewGroup(), false);
+    View view = getLayoutInflater().inflate(R.layout.dialog_donations, getParentViewGroup(), false);
     
     alert.setView(view);
     

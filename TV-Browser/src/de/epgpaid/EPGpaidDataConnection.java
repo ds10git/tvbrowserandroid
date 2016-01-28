@@ -34,7 +34,9 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
 
 import android.util.Log;
 
@@ -67,9 +69,9 @@ public class EPGpaidDataConnection {
     
     Authenticator.setDefault(mAuthenticator);
     
-    //if("Oracle Corporation".equals(System.getProperty("java.vm.vendor", ""))) {
-    //	SSLTool.disableCertificateValidation();
-    //}
+    if(!PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_CHECK_SSL, R.bool.pref_epgpaid_check_ssl_default)) {
+      SSLTool.disableCertificateValidation();
+    }
     
     try {
       if(openGetConnection(DOMAIN+"login_android.php") == HttpURLConnection.HTTP_OK) {
@@ -199,6 +201,7 @@ public class EPGpaidDataConnection {
     closeHttpConnection();
     
     Authenticator.setDefault(null);
+    SSLTool.resetCertificateValidation();
   }
   
   private int openPostConnection(String url, String parameter) throws Exception {

@@ -57,6 +57,9 @@
 	    <string name="PREF_EPGPAID_DOWNLOAD_MAX">PREF_EPGPAID_DOWNLOAD_MAX</string>
 	    <item name="pref_epgpaid_download_max_default" type="string" format="string">3</item>
 	    
+	    <string name="PREF_EPGPAID_CHECK_SSL">PREF_EPGPAID_CHECK_SSL</string>
+	    <item name="pref_epgpaid_check_ssl_default" type="bool" format="boolean">true</item>
+	    
 	    <string name="PREF_EPGPAID_INFO_SHOWN">PREF_EPGPAID_INFO_SHOWN</string>
 	    <item name="pref_epgpaid_info_shown_default" type="bool" format="boolean">false</item>
 	    

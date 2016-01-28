@@ -223,7 +223,7 @@ public class UiUtils {
                 }
               };
               
-              int layout = PrefUtils.getBooleanValue(R.string.PREF_DETAIL_ALLOW_SWIPE, R.bool.pref_detail_allow_swipe) ? R.layout.detail_layout_swipe : R.layout.detail_layout;
+              int layout = PrefUtils.getBooleanValue(R.string.PREF_DETAIL_ALLOW_SWIPE, R.bool.pref_detail_allow_swipe) ? R.layout.dialog_detail_swipe : R.layout.dialog_detail;
               
               mLayout = ((LayoutInflater)context.getSystemService( Context.LAYOUT_INFLATER_SERVICE)).inflate(layout, parent instanceof ViewGroup ? (ViewGroup)parent : null, false);
               mHandler.postDelayed(mShowWaiting, 700);
@@ -416,7 +416,7 @@ public class UiUtils {
                   channel.close();
                   
                   String year = "";
-                  boolean hasYear = false;
+                  int yearInt = -1;
                       
                   if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN))) {
                     year = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN));
@@ -427,21 +427,25 @@ public class UiUtils {
                       year += " ";
                     }
                     
-                    year += c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR));
-                    hasYear = true;
+                    yearInt = c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR));
+                    year += yearInt;
                   }
                   
                   if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR))) {
-                    if(year.length() > 0) {
-                      if(hasYear) {
-                        year += "-";
-                      }
-                      else {
-                        year += " ";
-                      }
-                    }
+                    int test = c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR));
                     
-                    year += c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR));
+                    if(yearInt < test) {
+                      if(year.length() > 0) {
+                        if(yearInt != -1) {
+                          year += "-";
+                        }
+                        else {
+                          year += " ";
+                        }
+                      }
+                      
+                      year += test;
+                    }
                   }
                   
                   String originalTitle = null;

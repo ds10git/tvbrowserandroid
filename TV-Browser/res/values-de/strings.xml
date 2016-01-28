@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+        <h2>0.6.0.1</h2>
+        	&bull; SSL-Prüfung für EPGpaid kann deaktiviert werden<br>
+        	&bull; WirSchauen-Info aus Sendungen entfernen, für die eine EPGpaid-Beschreibung vorhanden ist<br>
+        	&bull; Fehler beseitigt<br>
 		<h2>0.6</h2>
 		    &bull; Lieblingssendungen über das Kontextmenü einer Sendung editierbar<br>
 		    &bull; Hervorhebung von gefundenen Suchbegriffen der Lieblingssendungen im Detail-Fenster<br>
@@ -465,7 +469,7 @@
     <string name="favorite_exclusion_hint">Kommagetrennte Liste (optional)</string>
     <string name="dialog_epgpaid_info_title">Vermissen Sie Beschreibungen und Bilder?</string>
     <string name="dialog_epgpaid_invalid_title">EPGpaid Benutzername/Passwort nicht korrekt?</string>
-    <string name="dialog_epgpaid_invalid_message">EPGpaid-Benutzername/Passwort konnte nicht erfolgreich validiert werden.\n\nBitte prüfen Sie Ihre Eingaben.</string>
+    <string name="dialog_epgpaid_invalid_message">EPGpaid-Benutzername/Passwort konnte nicht erfolgreich validiert werden.\n\nDies muss nicht bedeuten, dass die Zugangsdaten falsch sind, es könnte auch sein, dass keine Internetverbindung besteht oder kein Kontakt zum Server aufgenommen werden konnte.\n\nBitte prüfen Sie Ihre Eingaben und Ihre Internetverbindung.</string>
     <string name="update_data_notification_epgpaid_prepare">EPGpaid: Download vorbereiten&#8230;</string>
     <string name="update_data_notification_epgpaid_download">EPGpaid: Daten herunterladen&#8230;</string>
     <string name="update_data_notification_epgpaid_process">EPGpaid: Daten verarbeiten&#8230;</string>
@@ -601,6 +605,8 @@
 	<string name="pref_epgpaid_user_password_set_summary">********</string>
 	<string name="pref_epgpaid_user_password_title">Passwort</string>
 	<string name="pref_epgpaid_max_download_title">Maximal herunterladen für:</string>
+	<string name="pref_epgpaid_ssl_check_title">SSL-Zertifikat prüfen</string>
+	<string name="pref_epgpaid_ssl_check_summary">Sollten Ihre Zugangsdaten nicht erfolgreich validiert werden können, obwohl alle Eingaben korrekt sind und eine Internetverbindung besteht, können Sie hier die Prüfung des SSL-Zertifikats abschalten, um mögliche Probleme zu umgehen.</string>
 	<string name="pref_epgpaid_purchase_title">Zugang erwerben</string>
 	<string name="pref_epgpaid_purchase_summary">(Öffnet Internetseite: https://www.epgpaid.de)</string>
 	<string name="pref_epgpaid_info">Seit 2008 verlangen viele Privatsender eine Gebühr für die Darstellung von Beschreibungen und Bildern in elektronischen Programmzeitschriften wie TV-Browser.\n\nDeshalb können diese Informationen nicht kostenlos angeboten werden, es gibt aber die Möglichkeit mit EPGpaid für einen geringen jährlichen Betrag auch für diese Sender Beschreibungen und meistens auch Bilder zu erhalten.\n\nWie hoch genau der Betrag ist und wie es funktioniert lesen Sie unter: https://www.epgpaid.de\n\n(Hier klicken um diese Seite zu öffnen.)</string>

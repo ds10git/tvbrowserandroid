@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6</h2>
+        <h2>0.6.0.1</h2>
+        	&bull; allow to disable SSL check for EPGpaid download<br>
+        	&bull; remove WirSchauen info from programs if EPGpaid description is available<br>
+        	&bull; fixed bugs<br>
+        <h3>0.6</h3>
             &bull; edit favorites from program context menu<br>
             &bull; highlighting of matches of Favorites in detail view<br>
             &bull; added support for descriptions and pictures from EPGpaid<br>
@@ -469,7 +473,7 @@
     <string name="favorite_exclusion_hint">Comma separated list (optional)</string>
     <string name="dialog_epgpaid_info_title">Miss descriptions and pictures?</string>
     <string name="dialog_epgpaid_invalid_title">EPGpaid username/password not valid?</string>
-    <string name="dialog_epgpaid_invalid_message">The EPGpaid username/password could not be validated.\n\nPlease check the entered credentials.</string>
+    <string name="dialog_epgpaid_invalid_message">The EPGpaid username/password could not be validated.\n\nPlease check the entered credentials and your Internet connection.</string>
     <string name="update_data_notification_epgpaid_prepare">EPGpaid: Prepare download&#8230;</string>
     <string name="update_data_notification_epgpaid_download">EPGpaid: Download data&#8230;</string>
     <string name="update_data_notification_epgpaid_process">EPGpaid: Process data&#8230;</string>
@@ -606,6 +610,8 @@
 	<string name="pref_epgpaid_user_password_set_summary">********</string>
 	<string name="pref_epgpaid_user_password_title">Password</string>
 	<string name="pref_epgpaid_max_download_title">Download maximum:</string>
+    <string name="pref_epgpaid_ssl_check_title">Ceck SSL certificate</string>
+	<string name="pref_epgpaid_ssl_check_summary">If your credentials cannot be validated and you are sure to have entered correct credentials and an Internet connection is available for validation, you can disable the check of the SSL certificate to circumvent possible problems.</string>
 	<string name="pref_epgpaid_purchase_title">Purchase access</string>
 	<string name="pref_epgpaid_purchase_summary">(Opens web site: https://www.epgpaid.de)</string>
 	<string name="pref_epgpaid_info">Since 2008 many private TV and radio stations are request a fee for the display of descriptions and pictures in electronic program guides like TV-Browser.\n\nThat is the reason why that information cannot be provided for free. But it is possible to get descriptions and most times also pictures with EPGpaid for a small amount every year.\n\nHow much yu need to pay and how it works you can read at: https://www.epgpaid.de\n\n(Click here to open the site.)</string>
