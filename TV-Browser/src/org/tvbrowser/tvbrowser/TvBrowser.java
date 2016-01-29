@@ -486,17 +486,22 @@ public class TvBrowser extends ActionBarActivity implements
       if(oldVersion < 284 && PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.pref_program_lists_divider_size_default).equals(getString(R.string.divider_small))) {
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
         
-        Editor edit = pref.edit();
+        final Editor edit = pref.edit();
         edit.remove(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE));
         edit.commit();
       }
       if(oldVersion < 287 && PrefUtils.getBooleanValue(R.string.PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS, true)) {
-        Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+        final Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
         edit.remove(getString(R.string.PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS));
         edit.commit();
         
         UiUtils.updateImportantProgramsWidget(getApplicationContext());
         UiUtils.updateRunningProgramsWidget(getApplicationContext());
+      }
+      if(oldVersion < 369) {
+        final Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+        edit.putBoolean(getString(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE), false);
+        edit.commit();
       }
       
       if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < pInfo.versionCode && PrefUtils.getBooleanValue(R.string.PREF_INFO_VERSION_UPDATE_SHOW, R.bool.pref_info_version_update_show_default)) {
@@ -857,59 +862,62 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void showEpgDonateInfo() {
-    if(!SHOWING_DONATION_INFO && hasEpgDonateChannelsSubscribed()) {
+    int count = getEpgDonateChannelsCount();
+    
+    if(!SHOWING_DONATION_INFO && count > 0) {
       final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
       
       final String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
-      int month = Calendar.getInstance().get(Calendar.MONTH);
+      final int month = Calendar.getInstance().get(Calendar.MONTH);
       
       final long now = System.currentTimeMillis();
-      long firstDownload = pref.getLong(getString(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD), now);
-      long lastDownload = pref.getLong(getString(R.string.EPG_DONATE_LAST_DATA_DOWNLOAD), now);
-      long lastShown = pref.getLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), (now - (60 * 24 * 60 * 60000L)));
+      final long firstDownload = pref.getLong(getString(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD), now);
+      final long lastDownload = pref.getLong(getString(R.string.EPG_DONATE_LAST_DATA_DOWNLOAD), now);
+      final long lastShown = pref.getLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), (now - (60 * 24 * 60 * 60000L)));
       
-      Calendar monthTest = Calendar.getInstance();
+      final Calendar monthTest = Calendar.getInstance();
       monthTest.setTimeInMillis(lastShown);
-      int shownMonth = monthTest.get(Calendar.MONTH);
+      final int shownMonth = monthTest.get(Calendar.MONTH);
       
-      boolean firstTimeoutReached = (firstDownload + (14 * 24 * 60 * 60000L)) < now;
-      boolean lastTimoutReached = lastDownload > (now - ((42 * 24 * 60 * 60000L)));
-      boolean alreadyShowTimeoutReached = (lastShown + (14 * 24 * 60 * 60000L) < now);
-      boolean alreadyShownThisMonth = shownMonth == month;
-      boolean dontShowAgainThisYear = year.equals(pref.getString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), "0"));
-      boolean radomShow = Math.random() > 0.33;
+      final boolean firstTimeoutReached = (firstDownload + (14 * 24 * 60 * 60000L)) < now;
+      final boolean lastTimoutReached = lastDownload > (now - ((42 * 24 * 60 * 60000L)));
+      final boolean alreadyShowTimeoutReached = (lastShown + (14 * 24 * 60 * 60000L) < now);
+      final boolean alreadyShownThisMonth = shownMonth == month;
+      final boolean dontShowAgainThisYear = year.equals(pref.getString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), "0"));
+      final boolean radomShow = Math.random() > 0.33;
       
       boolean show = firstTimeoutReached && lastTimoutReached && alreadyShowTimeoutReached && !alreadyShownThisMonth && !dontShowAgainThisYear && radomShow;
       
       //Log.d("info21", "firstTimeoutReached (" + ((now - firstDownload)/(24 * 60 * 60000L)) + "): " + firstTimeoutReached + " lastTimoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " randomShow: " + radomShow + " SHOW: " + show);
       
       if(show) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+        final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
         
+        final String title = getString(R.string.epg_donate_name).replace("{0}", String.valueOf(count));
         String info = getString(R.string.epg_donate_info);
         String amount = getString(R.string.epg_donate_amount);
-        String percentInfo = getString(R.string.epg_donate_percent_info);
+        final String percentInfo = getString(R.string.epg_donate_percent_info);
         
-        String amountValue = pref.getString(getString(R.string.EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX)+"_"+year, getString(R.string.epg_donate_current_donation_amount_default));
+        final String amountValue = pref.getString(getString(R.string.EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX)+"_"+year, getString(R.string.epg_donate_current_donation_amount_default));
         int percentValue = Integer.parseInt(pref.getString(getString(R.string.EPG_DONATE_CURRENT_DONATION_PERCENT), "-1"));
         
         amount = amount.replace("{0}", year).replace("{1}", amountValue);
         
         info = info.replace("{0}", "<h2>"+amount+"</h2>");
         
-        builder.setTitle(R.string.epg_donate_name);
+        builder.setTitle(title);
         builder.setCancelable(false);
         
-        View view = getLayoutInflater().inflate(R.layout.dialog_epg_donate_info, getParentViewGroup(), false);
+        final View view = getLayoutInflater().inflate(R.layout.dialog_epg_donate_info, getParentViewGroup(), false);
         
-        TextView message = (TextView)view.findViewById(R.id.dialog_epg_donate_message);
+        final TextView message = (TextView)view.findViewById(R.id.dialog_epg_donate_message);
         message.setText(Html.fromHtml(info));
         message.setMovementMethod(LinkMovementMethod.getInstance());
         
-        TextView percentInfoView = (TextView)view.findViewById(R.id.dialog_epg_donate_percent_info);
+        final TextView percentInfoView = (TextView)view.findViewById(R.id.dialog_epg_donate_percent_info);
         percentInfoView.setText(Html.fromHtml(percentInfo, null, new NewsTagHandler()));
         
-        SeekBar percent = (SeekBar)view.findViewById(R.id.dialog_epg_donate_percent);
+        final SeekBar percent = (SeekBar)view.findViewById(R.id.dialog_epg_donate_percent);
         percent.setEnabled(false);
         
         if(percentValue >= 0) {
@@ -936,7 +944,7 @@ public class TvBrowser extends ActionBarActivity implements
           @Override
           public void onClick(DialogInterface dialog, int which) {
             SHOWING_DONATION_INFO = false;
-            Editor edit = pref.edit();
+            final Editor edit = pref.edit();
             edit.putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now);
             
             if(dontShowAgain.isChecked()) {
@@ -975,9 +983,9 @@ public class TvBrowser extends ActionBarActivity implements
     return result;
   }
   
-  private boolean hasEpgDonateChannelsSubscribed() {
+  private int getEpgDonateChannelsCount() {
     final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID};
-    boolean result = false;
+    int result = 0;
     int epgDonateKey = -1;
     
     if(IOUtils.isDatabaseAccessible(TvBrowser.this)) {
@@ -995,7 +1003,7 @@ public class TvBrowser extends ActionBarActivity implements
         Cursor epgDonateSubscribedChannels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=" + epgDonateKey + " ) AND " + TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, null);
         
         try {
-          result = epgDonateSubscribedChannels != null && epgDonateSubscribedChannels.getCount() > 0;
+          result = epgDonateSubscribedChannels != null ? epgDonateSubscribedChannels.getCount() : 0;
         } finally {
           IOUtils.close(epgDonateSubscribedChannels);
         }
@@ -1003,6 +1011,10 @@ public class TvBrowser extends ActionBarActivity implements
     }
     
     return result;
+  }
+  
+  private boolean hasEpgDonateChannelsSubscribed() {
+    return getEpgDonateChannelsCount() > 0;
   }
   
   private void handleResume() {
@@ -2270,7 +2282,7 @@ public class TvBrowser extends ActionBarActivity implements
   
   private void showChannelSelectionInternal(final String selection, final String title, final String help, final boolean delete) {
     if(IOUtils.isDatabaseAccessible(TvBrowser.this)) {
-      String[] projection = {
+      final String[] projection = {
           TvBrowserContentProvider.CHANNEL_TABLE+"."+TvBrowserContentProvider.KEY_ID +" AS "+TvBrowserContentProvider.KEY_ID,
           TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID,
           TvBrowserContentProvider.CHANNEL_KEY_NAME,
@@ -2654,12 +2666,14 @@ public class TvBrowser extends ActionBarActivity implements
     private int mSortNumber;
     private int mOldSortNumber;
     private Bitmap mChannelLogo;
+    private boolean mIsEpgDonateChannel;
     
-    public ChannelSort(int key, String name, int sortNumber, Bitmap channelLogo) {
+    public ChannelSort(int key, String name, int sortNumber, Bitmap channelLogo, String dataServiceId) {
       mKey = key;
       mName = name;
       mOldSortNumber = mSortNumber = sortNumber;
       mChannelLogo = channelLogo;
+      mIsEpgDonateChannel = SettingConstants.EPG_DONATE_KEY.equals(dataServiceId);
     }
     
     public int getKey() {
@@ -2691,6 +2705,10 @@ public class TvBrowser extends ActionBarActivity implements
     
     public boolean wasChanged() {
       return mOldSortNumber != mSortNumber;
+    }
+    
+    public boolean isEpgDonateChannel() {
+      return mIsEpgDonateChannel;
     }
   }
   
@@ -2786,31 +2804,38 @@ public class TvBrowser extends ActionBarActivity implements
       
       final DynamicListView channelSort = (DynamicListView)main.findViewById(R.id.channel_sort);
       
-      String[] projection = {
-          TvBrowserContentProvider.KEY_ID,
+      final String[] projection = {
+          TvBrowserContentProvider.CHANNEL_TABLE+"."+TvBrowserContentProvider.KEY_ID +" AS "+TvBrowserContentProvider.KEY_ID,
+          TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID,
           TvBrowserContentProvider.CHANNEL_KEY_NAME,
-          TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
           TvBrowserContentProvider.CHANNEL_KEY_SELECTION,
-          TvBrowserContentProvider.CHANNEL_KEY_LOGO
+          TvBrowserContentProvider.CHANNEL_KEY_LOGO,
+          TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER
           };
       
       final ArrayList<SortInterface> channelSource = new ArrayList<SortInterface>();
       
-      Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+      Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
       
       try {
         if(IOUtils.prepareAccessFirst(channels)) {
+          final int indexIndex = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+          final int indexName = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+          final int indexOrder = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+          final int indexLogo = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
+          final int indexDataService = channels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID);
+          
           do {
-            int key = channels.getInt(0);
-            String name = channels.getString(1);
+            final int key = channels.getInt(indexIndex);
+            final String name = channels.getString(indexName);
             
             int order = 0;
             
-            if(!channels.isNull(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER))) {
-              order = channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
+            if(!channels.isNull(indexOrder)) {
+              order = channels.getInt(indexOrder);
             }
             
-            Bitmap channelLogo = UiUtils.createBitmapFromByteArray(channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+            Bitmap channelLogo = UiUtils.createBitmapFromByteArray(channels.getBlob(indexLogo));
             
             if(channelLogo != null) {
               BitmapDrawable l = new BitmapDrawable(getResources(), channelLogo);
@@ -2826,7 +2851,7 @@ public class TvBrowser extends ActionBarActivity implements
               channelLogo = UiUtils.drawableToBitmap(logoDrawable);
             }
                       
-            channelSource.add(new ChannelSort(key, name, order, channelLogo));
+            channelSource.add(new ChannelSort(key, name, order, channelLogo, channels.getString(indexDataService)));
           } while(channels.moveToNext());
                     
           final Comparator<SortInterface> sortComparator = new Comparator<SortInterface>() {
@@ -2850,11 +2875,11 @@ public class TvBrowser extends ActionBarActivity implements
           
           final StableArrayAdapter<SortInterface> aa = new StableArrayAdapter<SortInterface>(TvBrowser.this, R.layout.channel_sort_row, channelSource) {
             public View getView(int position, View convertView, ViewGroup parent) {
-              ChannelSort value = (ChannelSort)getItem(position);
+              final ChannelSort value = (ChannelSort)getItem(position);
               ViewHolder holder = null;
               
               if (convertView == null) {
-                LayoutInflater mInflater = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
+                final LayoutInflater mInflater = (LayoutInflater) getContext().getSystemService(Activity.LAYOUT_INFLATER_SERVICE);
                 
                 holder = new ViewHolder();
                 
@@ -2865,13 +2890,19 @@ public class TvBrowser extends ActionBarActivity implements
                 holder.mLogo = (ImageView)convertView.findViewById(R.id.row_of_channel_sort_icon);
                 
                 convertView.setTag(holder);
-                
               }
               else {
                 holder = (ViewHolder)convertView.getTag();
               }
               
-              holder.mTextView.setText(value.getName());
+              final SpannableStringBuilder nameBuilder = new SpannableStringBuilder(value.getName());
+              
+              if(value.isEpgDonateChannel()) {
+                nameBuilder.append("\n(EPGdonate)");
+                nameBuilder.setSpan(new RelativeSizeSpan(0.65f), value.getName().length(), nameBuilder.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);          
+              }
+              
+              holder.mTextView.setText(nameBuilder);
               
               String sortNumber = String.valueOf(value.getSortNumber());
               
@@ -2883,7 +2914,7 @@ public class TvBrowser extends ActionBarActivity implements
               
               holder.mSortNumber.setText(sortNumber);
               
-              Bitmap logo = value.getLogo();
+              final Bitmap logo = value.getLogo();
               
               if(logo != null) {
                 holder.mLogo.setImageBitmap(logo);
