@@ -3032,13 +3032,7 @@ public class TvDataUpdateService extends Service {
     }
   }
   
-  private void updateEpgPaidData(File pathBase, NotificationManager notification, long endDateTime) {
-    if(!PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE, false)) {
-      final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit();
-      edit.putBoolean(getString(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE), true);
-      edit.commit();
-    }
-    
+  private void updateEpgPaidData(File pathBase, NotificationManager notification, long endDateTime) {    
     final Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     utc.set(Calendar.HOUR_OF_DAY, 0);
     utc.set(Calendar.MINUTE, 0);
@@ -3051,7 +3045,7 @@ public class TvDataUpdateService extends Service {
     
     doLog("UPDATE EPGpaidData");
     
-    File epgPaidPath = new File(pathBase, "epgPaidData");
+    final File epgPaidPath = new File(pathBase, "epgPaidData");
     
     if(!epgPaidPath.isFile()) {
       epgPaidPath.mkdirs();
@@ -3070,12 +3064,18 @@ public class TvDataUpdateService extends Service {
     
     doLog("EPGpaidData endDate: " + new Date(endDateTime));
     
-    String userName = PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, null);
-    String password = PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, null);
+    final String userName = PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, null);
+    final String password = PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, null);
     
     if(userName != null && password != null 
         && userName.trim().length() > 0 && password.trim().length() > 0 
         && epgPaidConnection.login(userName, password)) {
+      if(!PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE, false)) {
+        final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit();
+        edit.putBoolean(getString(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE), true);
+        edit.commit();
+      }
+
       doLog("EPGpaid login successfull");
       
       final File channels = new File(epgPaidPath,"channels.gz");

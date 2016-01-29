@@ -1071,7 +1071,7 @@
         <item>Webseite</item>
     </string-array>
      
-    <string name="epg_donate_name">In Ihrer Senderliste befinden sich Sender aus EPGdonate-Daten</string>
+    <string name="epg_donate_name">In Ihrer Senderliste befinden sich {0} Sender aus EPGdonate-Daten</string>
     <string name="epg_donate_info"><![CDATA[
         <p>Die Daten, die mit EPGdonate-Daten verfügbar gemacht werden sind grundsätzlich frei verfügbar. Damit dieser Service auch weiterhin angeboten werden kann sollte jeder, der es sich wirtschaftlich leisten kann einen jährlichen Betrag zu spenden (und wenigstens volljährig ist), diesen auch spenden.</p>
         <p>Wie hoch dieser jährliche Betrag ausfällt hängt zum einen von der Anzahl der Nutzer und zum anderen von der Anzahl der Spender für EPGdonate-Daten ab. Je mehr Nutzer bzw. Spender, desto geringer kann dieser ausfallen.</p>

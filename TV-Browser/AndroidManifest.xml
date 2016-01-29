@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.tvbrowser.tvbrowser"
     android:installLocation="internalOnly"
-    android:versionCode="367"
+    android:versionCode="369"
     android:versionName="0.6.0.1" >
 
     <uses-sdk
