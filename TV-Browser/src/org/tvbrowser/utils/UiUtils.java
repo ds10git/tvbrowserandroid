@@ -324,9 +324,11 @@ public class UiUtils {
                     });
                   }
                   
+                  final int favoriteMatchHighlightColor = PrefUtils.getIntValue(R.string.PREF_DETAIL_HIGHLIGHT_COLOR, context.getResources().getColor(R.color.pref_detail_highlight_color_default));
+                  
                   final Favorite[] markedFromFavorites = Favorite.getFavoritesForUniqueId(context, id);
                   final ArrayList<FavoriteTypePattern> patternList = new ArrayList<FavoriteTypePattern>();
-                  final BackgroundColorSpan backgroundColorSpan = new BackgroundColorSpan(PrefUtils.getIntValue(R.string.PREF_DETAIL_HIGHLIGHT_COLOR, context.getResources().getColor(R.color.pref_detail_highlight_color_default)));
+                  final BackgroundColorSpan backgroundColorSpan = new BackgroundColorSpan(favoriteMatchHighlightColor);
                   
                   if(markedFromFavorites.length > 0) {
                     for(Favorite favorite : markedFromFavorites) {
@@ -764,7 +766,7 @@ public class UiUtils {
                                     
                                     actors.append(parts[1]);
                                     
-                                    actors.setSpan(new ActorColumnSpan(parts[0],(int)maxLength+10), actors.length()-parts[1].length(), actors.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+                                    actors.setSpan(new ActorColumnSpan(parts[0],(int)maxLength+10, patternList, favoriteMatchHighlightColor), actors.length()-parts[1].length(), actors.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                                     
                                     mHasSpannableActors = true;
                                   }
@@ -2518,11 +2520,23 @@ public class UiUtils {
     private String[] mActorParts;
     private int mMargin;
     private int mFirstBaseline;
+    private boolean mHighlight;
+    private int mHighlightColor;
     
-    public ActorColumnSpan(String actor, int leadingMargin) {
+    public ActorColumnSpan(String actor, int leadingMargin, ArrayList<FavoriteTypePattern> patternList, int color) {
+      mHighlight = false;
+      
+      for(FavoriteTypePattern pattern : patternList) {
+        if(!pattern.isTitleOnlyType() && pattern.mPattern.matcher(actor.replaceAll("\\n+", " ")).find()) {
+          mHighlight = true;
+          break;
+        }
+      }
+      
       mActorParts = actor.split("\n");
       mMargin = leadingMargin;
       mFirstBaseline = -1;
+      mHighlightColor = color;
     }
     
     @Override
@@ -2531,12 +2545,34 @@ public class UiUtils {
         boolean first, Layout layout) {
       if(first && (mFirstBaseline == -1 || mFirstBaseline == baseline)) {
         mFirstBaseline = baseline;
+        
+        if(mHighlight) {
+          c.save();
+          c.clipRect(x+dir, top, x+dir+p.measureText(mActorParts[0]), bottom);
+          c.drawColor(mHighlightColor);
+          c.restore();
+        }
+        
         c.drawText(mActorParts[0], x + dir, baseline, p);
         
         if(mActorParts.length > 1) {
+          if(mHighlight) {
+            c.save();
+            c.clipRect(x+dir, 2*bottom-top, x+dir+p.measureText(mActorParts[1]), bottom);
+            c.drawColor(mHighlightColor);
+            c.restore();
+          }
+          
           c.drawText(mActorParts[1], x + dir, baseline + (bottom-top), p);
         }
         if(mActorParts.length > 2) {
+          if(mHighlight) {
+            c.save();
+            c.clipRect(x+dir, 3*bottom-top, x+dir+p.measureText(mActorParts[2]), bottom);
+            c.drawColor(mHighlightColor);
+            c.restore();
+          }
+          
           c.drawText(mActorParts[2], x + dir, baseline + 2*(bottom-top), p);
         }
       }

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.0.1</h2>
+		<h2>0.6.0.2</h2>
+            &bull; highlighting also actor matches of Favorites in detail view<br>
+        	&bull; fixed bugs<br>
+        <h3>0.6.0.1</h3>
         	&bull; allow to disable SSL check for EPGpaid download<br>
         	&bull; remove WirSchauen info from programs if EPGpaid description is available<br>
         	&bull; fixed bugs<br>
@@ -535,7 +538,7 @@
   OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
   LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
   IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.</p>
-  <p>Parts of libraries and source code files used in TV-Browser for Android are licensed under the Licensed under the Apache License, Version 2.0.<br>
+  <p>Parts of libraries and source code files used in TV-Browser for Android are licensed under the Apache License, Version 2.0.<br>
   You may obtain a copy of these License at<br><br>
   http://www.apache.org/licenses/LICENSE-2.0</p></html>]]></string>
     <string name="terms">The usage time of TV-Browser for Android can be limited. You can see the limit on the about page. It is guaranteed that an update is available free of charge after the limit is reached, as long as the developers of TV-Browser for Android are able and willing to release updates.</string>

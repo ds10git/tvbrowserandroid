@@ -212,6 +212,94 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_INFO_OTHER = "infoOther";
   public static final String DATA_KEY_INFO_SIGN_LANGUAGE = "infoSingLanguage";
   
+  private static final HashMap<String, String> MAP_DATA_KEY_TYPE = createDataKeyTypeMap();
+  
+  private static HashMap<String, String> createDataKeyTypeMap () {
+    final HashMap<String, String> mapDataKeyType = new HashMap<String, String>();
+    
+    mapDataKeyType.put(DATA_KEY_STARTTIME ," INTEGER NOT NULL");
+    mapDataKeyType.put(DATA_KEY_ENDTIME ," INTEGER NOT NULL");
+    mapDataKeyType.put(DATA_KEY_TITLE ," TEXT NOT NULL");
+    mapDataKeyType.put(DATA_KEY_SHORT_DESCRIPTION ," TEXT");
+    mapDataKeyType.put(DATA_KEY_DESCRIPTION ," TEXT");
+    mapDataKeyType.put(DATA_KEY_TITLE_ORIGINAL ," TEXT");
+    mapDataKeyType.put(DATA_KEY_EPISODE_TITLE ," TEXT");
+    mapDataKeyType.put(DATA_KEY_EPISODE_TITLE_ORIGINAL ," TEXT");
+    mapDataKeyType.put(DATA_KEY_ACTORS ," TEXT");
+    mapDataKeyType.put(DATA_KEY_REGIE ," TEXT");
+    mapDataKeyType.put(DATA_KEY_CUSTOM_INFO ," TEXT");
+    mapDataKeyType.put(DATA_KEY_CATEGORIES ," INTEGER");
+    mapDataKeyType.put(DATA_KEY_AGE_LIMIT ," INTEGER");
+    mapDataKeyType.put(DATA_KEY_WEBSITE_LINK," TEXT");
+    mapDataKeyType.put(DATA_KEY_GENRE ," TEXT");
+    mapDataKeyType.put(DATA_KEY_ORIGIN ," TEXT");
+    mapDataKeyType.put(DATA_KEY_NETTO_PLAY_TIME ," INTEGER");
+    mapDataKeyType.put(DATA_KEY_VPS ," INTEGER");
+    mapDataKeyType.put(DATA_KEY_SCRIPT ," TEXT");
+    mapDataKeyType.put(DATA_KEY_REPETITION_FROM ," TEXT");
+    mapDataKeyType.put(DATA_KEY_REPETITION_ON ," TEXT");
+    mapDataKeyType.put(DATA_KEY_MUSIC ," TEXT");
+    mapDataKeyType.put(DATA_KEY_MODERATION ," TEXT");
+    mapDataKeyType.put(DATA_KEY_YEAR ," INTEGER");
+    mapDataKeyType.put(DATA_KEY_PICTURE ," BLOB");
+    mapDataKeyType.put(DATA_KEY_PICTURE_COPYRIGHT ," TEXT");
+    mapDataKeyType.put(DATA_KEY_PICTURE_DESCRIPTION ," TEXT");
+    mapDataKeyType.put(DATA_KEY_EPISODE_NUMBER ," INTEGER");
+    mapDataKeyType.put(DATA_KEY_EPISODE_COUNT ," INTEGER");
+    mapDataKeyType.put(DATA_KEY_SEASON_NUMBER ," INTEGER");
+    mapDataKeyType.put(DATA_KEY_PRODUCER ," TEXT");
+    mapDataKeyType.put(DATA_KEY_CAMERA ," TEXT");
+    mapDataKeyType.put(DATA_KEY_CUT ," TEXT");
+    mapDataKeyType.put(DATA_KEY_OTHER_PERSONS ," TEXT");
+    mapDataKeyType.put(DATA_KEY_RATING ," INTEGER");
+    mapDataKeyType.put(DATA_KEY_PRODUCTION_FIRM ," TEXT");
+    mapDataKeyType.put(DATA_KEY_AGE_LIMIT_STRING," TEXT");
+    mapDataKeyType.put(DATA_KEY_LAST_PRODUCTION_YEAR ," INTEGER");
+    mapDataKeyType.put(DATA_KEY_ADDITIONAL_INFO ," TEXT");
+    mapDataKeyType.put(DATA_KEY_SERIES ," TEXT");
+    mapDataKeyType.put(DATA_KEY_UNIX_DATE ," INTEGER");
+    mapDataKeyType.put(DATA_KEY_DATE_PROG_ID ," INTEGER");
+    mapDataKeyType.put(DATA_KEY_DATE_PROG_STRING_ID ," TEXT");
+    mapDataKeyType.put(DATA_KEY_DONT_WANT_TO_SEE ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_REMOVED_REMINDER ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_MARKING_MARKING ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_MARKING_FAVORITE ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_MARKING_FAVORITE_REMINDER ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_MARKING_REMINDER ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_MARKING_SYNC ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_REMOVED_SYNC ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_DURATION_IN_MINUTES ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_BLACK_AND_WHITE ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_4_TO_3 ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_16_TO_9 ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_MONO ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_STEREO ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_DOLBY_SOURROUND  ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_DOLBY_DIGITAL_5_1 ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_SECOND_AUDIO_PROGRAM ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_CLOSED_CAPTION ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_LIVE ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_OMU ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_FILM ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_SERIES ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_NEW ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_AUDIO_DESCRIPTION ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_NEWS ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_SHOW ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_MAGAZIN ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_HD ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_DOCUMENTATION ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_ART ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_SPORT ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_CHILDREN ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_OTHER ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_SIGN_LANGUAGE ," INTEGER DEFAULT 0 ");
+    
+    return mapDataKeyType;
+  }
+  
   // Artificial key for creating column at selection
   public static final String DATA_KEY_START_DAY_LOCAL = "startDayLocal";
   
@@ -785,157 +873,162 @@ public class TvBrowserContentProvider extends ContentProvider {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
     if(database != null) {
-      SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
-      
-      // If no sort order is specified, sort by date / time
-      String orderBy = null;
-      
-      // If this is a row query, limit the result set to teh pased in row.
-      switch(uriMatcher.match(uri)) {
-        case SEARCH: String search = uri.getPathSegments().get(1).replace("'", "''");
-                     qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE '%" + search + "%' OR " + DATA_KEY_EPISODE_TITLE + " LIKE '%" +  search + "%') AND " + DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis() + " AND NOT " + DATA_KEY_DONT_WANT_TO_SEE);
-                     qb.setProjectionMap(SEARCH_PROJECTION_MAP);
-                     qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
-                     orderBy = DATA_KEY_STARTTIME;
-                     break;
-        case GROUP_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-        case GROUPS: qb.setTables(TvBrowserDataBaseHelper.GROUPS_TABLE);
-                     orderBy = GROUP_KEY_GROUP_ID;break;
-        case CHANNEL_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-        case CHANNELS: qb.setTables(CHANNEL_TABLE);
-                      orderBy = CHANNEL_KEY_NAME;break;
-        case CHANNELGROUPS_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-        case CHANNELGROUPS: 
-          {
-            qb.setTables(TvBrowserDataBaseHelper.GROUPS_TABLE + ", " + CHANNEL_TABLE);
-            orderBy = CHANNEL_KEY_ORDER_NUMBER + ", " + CHANNEL_KEY_NAME;
-            
-            qb.appendWhere(TvBrowserDataBaseHelper.GROUPS_TABLE + "." + KEY_ID + "=" + CHANNEL_TABLE + "." + GROUP_KEY_GROUP_ID);
-            
-            if(projection != null) {
-              for(int i = 0; i < projection.length; i++) {
-                if(projection[i] != null) {
-                  if((projection[i].equals(KEY_ID) || projection[i].equals(GROUP_KEY_GROUP_ID))) {
-                    projection[i] = TvBrowserDataBaseHelper.GROUPS_TABLE + "." + projection[i]+ " AS " + projection[i];
+      try {
+        SQLiteQueryBuilder qb = new SQLiteQueryBuilder();
+        
+        // If no sort order is specified, sort by date / time
+        String orderBy = null;
+        
+        // If this is a row query, limit the result set to teh pased in row.
+        switch(uriMatcher.match(uri)) {
+          case SEARCH: String search = uri.getPathSegments().get(1).replace("'", "''");
+                       qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE '%" + search + "%' OR " + DATA_KEY_EPISODE_TITLE + " LIKE '%" +  search + "%') AND " + DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis() + " AND NOT " + DATA_KEY_DONT_WANT_TO_SEE);
+                       qb.setProjectionMap(SEARCH_PROJECTION_MAP);
+                       qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
+                       orderBy = DATA_KEY_STARTTIME;
+                       break;
+          case GROUP_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+          case GROUPS: qb.setTables(TvBrowserDataBaseHelper.GROUPS_TABLE);
+                       orderBy = GROUP_KEY_GROUP_ID;break;
+          case CHANNEL_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+          case CHANNELS: qb.setTables(CHANNEL_TABLE);
+                        orderBy = CHANNEL_KEY_NAME;break;
+          case CHANNELGROUPS_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+          case CHANNELGROUPS: 
+            {
+              qb.setTables(TvBrowserDataBaseHelper.GROUPS_TABLE + ", " + CHANNEL_TABLE);
+              orderBy = CHANNEL_KEY_ORDER_NUMBER + ", " + CHANNEL_KEY_NAME;
+              
+              qb.appendWhere(TvBrowserDataBaseHelper.GROUPS_TABLE + "." + KEY_ID + "=" + CHANNEL_TABLE + "." + GROUP_KEY_GROUP_ID);
+              
+              if(projection != null) {
+                for(int i = 0; i < projection.length; i++) {
+                  if(projection[i] != null) {
+                    if((projection[i].equals(KEY_ID) || projection[i].equals(GROUP_KEY_GROUP_ID))) {
+                      projection[i] = TvBrowserDataBaseHelper.GROUPS_TABLE + "." + projection[i]+ " AS " + projection[i];
+                    }
                   }
                 }
               }
-            }
-            
-            if(selectionArgs != null) {
-              for(int i = 0; i < selectionArgs.length; i++) {
-                if(selectionArgs[i].equals(KEY_ID)) {
-                  selectionArgs[i] = TvBrowserDataBaseHelper.GROUPS_TABLE + "." + selectionArgs[i];
+              
+              if(selectionArgs != null) {
+                for(int i = 0; i < selectionArgs.length; i++) {
+                  if(selectionArgs[i].equals(KEY_ID)) {
+                    selectionArgs[i] = TvBrowserDataBaseHelper.GROUPS_TABLE + "." + selectionArgs[i];
+                  }
                 }
               }
-            }
-            
-            if(selection != null) {
-              if(selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
-                selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.GROUPS_TABLE + "."+KEY_ID);
+              
+              if(selection != null) {
+                if(selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
+                  selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.GROUPS_TABLE + "."+KEY_ID);
+                }
+                if(selection.contains(GROUP_KEY_GROUP_ID) && !selection.contains("."+GROUP_KEY_GROUP_ID)) {
+                  selection = selection.replace(GROUP_KEY_GROUP_ID, TvBrowserDataBaseHelper.GROUPS_TABLE + "."+GROUP_KEY_GROUP_ID);
+                }
               }
-              if(selection.contains(GROUP_KEY_GROUP_ID) && !selection.contains("."+GROUP_KEY_GROUP_ID)) {
-                selection = selection.replace(GROUP_KEY_GROUP_ID, TvBrowserDataBaseHelper.GROUPS_TABLE + "."+GROUP_KEY_GROUP_ID);
-              }
-            }
-          }break;
-        case DATA_VERSION_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-        case DATA_VERSION: qb.setTables(TvBrowserDataBaseHelper.VERSION_TABLE);
-                      orderBy = VERSION_KEY_DAYS_SINCE_1970;break;
-        case DATA_UPDATE_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-        case DATA_UPDATE: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
-                      orderBy = CHANNEL_KEY_CHANNEL_ID;break;
-        case DATA_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-        case DATA: {qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
-                      orderBy = CHANNEL_KEY_CHANNEL_ID;
-                      
-                      boolean containsStartDayColumn = false;
-                      
-                      if(projection != null) {
-                        for(int i = 0; i < projection.length; i++) {
-                          if(projection[i] != null && projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
-                            containsStartDayColumn = true;
-                            projection[i] = "(strftime('%w', " + DATA_KEY_STARTTIME +
-                                "/1000, 'unixepoch', 'localtime')+1) AS " + DATA_KEY_START_DAY_LOCAL;
-                          }
-                        }
-                      }
-                      
-                      if(!containsStartDayColumn && selection != null && selection.contains(DATA_KEY_START_DAY_LOCAL)) {
-                        selection = selection.replace(DATA_KEY_START_DAY_LOCAL, "(strftime('%w', " + DATA_KEY_STARTTIME +
-                                "/1000, 'unixepoch', 'localtime')+1)");
-                      }
-                    } break;
-        case RAW_DATA_ID: selection += " " + KEY_ID + "=" + uri.getPathSegments().get(1);
-        case RAW_DATA: return rawQueryData(CONTENT_URI_DATA, projection, selection, selectionArgs, sortOrder);
-        case DATA_CHANNEL_ID: qb.appendWhere(TvBrowserDataBaseHelper.DATA_TABLE + "." + KEY_ID + "=" + uri.getPathSegments().get(1) + " AND ");
-        case DATA_CHANNELS: { qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + CHANNEL_TABLE);
-                      orderBy = CHANNEL_KEY_ORDER_NUMBER + " , " + CHANNEL_KEY_CHANNEL_ID;
-                      qb.appendWhere(CHANNEL_TABLE + "." + KEY_ID + "=" + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID);
-  
-                      boolean containsStartDayColumn = false;
-                      
-                      if(projection != null) {
-                        for(int i = 0; i < projection.length; i++) {
-                          if(projection[i] != null) {
-                            if((projection[i].equals(KEY_ID) || projection[i].equals(CHANNEL_KEY_CHANNEL_ID))) {
-                              projection[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + projection[i]+ " AS " + projection[i];
-                            }
-                            else if(projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
+            }break;
+          case DATA_VERSION_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+          case DATA_VERSION: qb.setTables(TvBrowserDataBaseHelper.VERSION_TABLE);
+                        orderBy = VERSION_KEY_DAYS_SINCE_1970;break;
+          case DATA_UPDATE_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+          case DATA_UPDATE: qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
+                        orderBy = CHANNEL_KEY_CHANNEL_ID;break;
+          case DATA_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+          case DATA: {qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
+                        orderBy = CHANNEL_KEY_CHANNEL_ID;
+                        
+                        boolean containsStartDayColumn = false;
+                        
+                        if(projection != null) {
+                          for(int i = 0; i < projection.length; i++) {
+                            if(projection[i] != null && projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
+                              containsStartDayColumn = true;
                               projection[i] = "(strftime('%w', " + DATA_KEY_STARTTIME +
                                   "/1000, 'unixepoch', 'localtime')+1) AS " + DATA_KEY_START_DAY_LOCAL;
                             }
                           }
                         }
-                      }
-                      
-                      if(selectionArgs != null) {
-                        for(int i = 0; i < selectionArgs.length; i++) {
-                          if(selectionArgs[i].equals(KEY_ID)) {
-                            selectionArgs[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + selectionArgs[i];
+                        
+                        if(!containsStartDayColumn && selection != null && selection.contains(DATA_KEY_START_DAY_LOCAL)) {
+                          selection = selection.replace(DATA_KEY_START_DAY_LOCAL, "(strftime('%w', " + DATA_KEY_STARTTIME +
+                                  "/1000, 'unixepoch', 'localtime')+1)");
+                        }
+                      } break;
+          case RAW_DATA_ID: selection += " " + KEY_ID + "=" + uri.getPathSegments().get(1);
+          case RAW_DATA: return rawQueryData(CONTENT_URI_DATA, projection, selection, selectionArgs, sortOrder);
+          case DATA_CHANNEL_ID: qb.appendWhere(TvBrowserDataBaseHelper.DATA_TABLE + "." + KEY_ID + "=" + uri.getPathSegments().get(1) + " AND ");
+          case DATA_CHANNELS: { qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + CHANNEL_TABLE);
+                        orderBy = CHANNEL_KEY_ORDER_NUMBER + " , " + CHANNEL_KEY_CHANNEL_ID;
+                        qb.appendWhere(CHANNEL_TABLE + "." + KEY_ID + "=" + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID);
+    
+                        boolean containsStartDayColumn = false;
+                        
+                        if(projection != null) {
+                          for(int i = 0; i < projection.length; i++) {
+                            if(projection[i] != null) {
+                              if((projection[i].equals(KEY_ID) || projection[i].equals(CHANNEL_KEY_CHANNEL_ID))) {
+                                projection[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + projection[i]+ " AS " + projection[i];
+                              }
+                              else if(projection[i].equals(DATA_KEY_START_DAY_LOCAL)) {
+                                projection[i] = "(strftime('%w', " + DATA_KEY_STARTTIME +
+                                    "/1000, 'unixepoch', 'localtime')+1) AS " + DATA_KEY_START_DAY_LOCAL;
+                              }
+                            }
                           }
                         }
-                      }
-                      
-                      if(selection != null) {
-                        if(selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
-                          selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+KEY_ID);
+                        
+                        if(selectionArgs != null) {
+                          for(int i = 0; i < selectionArgs.length; i++) {
+                            if(selectionArgs[i].equals(KEY_ID)) {
+                              selectionArgs[i] = TvBrowserDataBaseHelper.DATA_TABLE + "." + selectionArgs[i];
+                            }
+                          }
                         }
-                        if(selection.contains(CHANNEL_KEY_CHANNEL_ID) && !selection.contains("."+CHANNEL_KEY_CHANNEL_ID)) {
-                          selection = selection.replace(CHANNEL_KEY_CHANNEL_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+CHANNEL_KEY_CHANNEL_ID);
+                        
+                        if(selection != null) {
+                          if(selection.contains(KEY_ID) && !selection.contains("."+KEY_ID)) {
+                            selection = selection.replace(KEY_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+KEY_ID);
+                          }
+                          if(selection.contains(CHANNEL_KEY_CHANNEL_ID) && !selection.contains("."+CHANNEL_KEY_CHANNEL_ID)) {
+                            selection = selection.replace(CHANNEL_KEY_CHANNEL_ID, TvBrowserDataBaseHelper.DATA_TABLE + "."+CHANNEL_KEY_CHANNEL_ID);
+                          }
+                          if(!containsStartDayColumn && selection.contains(DATA_KEY_START_DAY_LOCAL)) {
+                            selection = selection.replace(DATA_KEY_START_DAY_LOCAL, "(strftime('%w', " + DATA_KEY_STARTTIME +
+                                "/1000, 'unixepoch', 'localtime')+1)");
+                          }
                         }
-                        if(!containsStartDayColumn && selection.contains(DATA_KEY_START_DAY_LOCAL)) {
-                          selection = selection.replace(DATA_KEY_START_DAY_LOCAL, "(strftime('%w', " + DATA_KEY_STARTTIME +
-                              "/1000, 'unixepoch', 'localtime')+1)");
-                        }
-                      }
-                    }break;
-  
-        default: break;
-      }
-      
-      if(sortOrder != null && sortOrder.trim().length() > 0) {
-        orderBy = sortOrder;
-      }
-      
-      if(orderBy != null && !orderBy.contains("NOCASE") && !orderBy.contains("COLLATE") && !orderBy.contains("DESC") && !orderBy.contains("ASC")) {
-        orderBy += " COLLATE NOCASE";
-      }
-      
-      // Apply the query to the underling database.
-      result = qb.query(database, projection, selection, selectionArgs, null, null, orderBy);
-      
-      // Register the contexts ContentResolver to be notified if the cursor result set changes.
-      
-      if(INFORM_FOR_CHANGES) {
-        result.setNotificationUri(getContext().getContentResolver(), uri);
-        
-        switch (uriMatcher.match(uri)) {
-          case DATA: result.setNotificationUri(getContext().getContentResolver(), CONTENT_URI_DATA_WITH_CHANNEL);break;
-          case DATA_ID: String segment = uri.getPathSegments().get(1);
-            result.setNotificationUri(getContext().getContentResolver(), ContentUris.withAppendedId(CONTENT_URI_DATA_WITH_CHANNEL,Integer.parseInt(segment)));
-            break;
+                      }break;
+    
+          default: break;
         }
+        
+        if(sortOrder != null && sortOrder.trim().length() > 0) {
+          orderBy = sortOrder;
+        }
+        
+        if(orderBy != null && !orderBy.contains("NOCASE") && !orderBy.contains("COLLATE") && !orderBy.contains("DESC") && !orderBy.contains("ASC")) {
+          orderBy += " COLLATE NOCASE";
+        }
+        
+        // Apply the query to the underling database.
+        result = qb.query(database, projection, selection, selectionArgs, null, null, orderBy);
+        
+        // Register the contexts ContentResolver to be notified if the cursor result set changes.
+        
+        if(INFORM_FOR_CHANGES) {
+          result.setNotificationUri(getContext().getContentResolver(), uri);
+          
+          switch (uriMatcher.match(uri)) {
+            case DATA: result.setNotificationUri(getContext().getContentResolver(), CONTENT_URI_DATA_WITH_CHANNEL);break;
+            case DATA_ID: String segment = uri.getPathSegments().get(1);
+              result.setNotificationUri(getContext().getContentResolver(), ContentUris.withAppendedId(CONTENT_URI_DATA_WITH_CHANNEL,Integer.parseInt(segment)));
+              break;
+          }
+        }
+      }catch(SQLiteException sqle) {
+        /* Just ignore the exceptions.
+         */
       }
     }
     
@@ -1029,7 +1122,9 @@ public class TvBrowserContentProvider extends ContentProvider {
         + CHANNEL_KEY_USER_START_TIME + " INTEGER, "
         + CHANNEL_KEY_USER_END_TIME + " INTEGER);";
     
-    private static final String CREATE_DATA_TABLE = "create table " + DATA_TABLE + " (" + KEY_ID + " integer primary key autoincrement, "
+    private static final String CREATE_DATA_TABLE = sqlCreateDataTable(); 
+    
+    /*= "create table " + DATA_TABLE + " (" + KEY_ID + " INTEGER primary key autoincrement, "
         + CHANNEL_KEY_CHANNEL_ID + " INTEGER REFERENCES " + CHANNEL_TABLE + "(" + KEY_ID + ") NOT NULL, "
         + DATA_KEY_STARTTIME + " INTEGER NOT NULL, "
         + DATA_KEY_ENDTIME + " INTEGER NOT NULL, "
@@ -1110,7 +1205,26 @@ public class TvBrowserContentProvider extends ContentProvider {
         + DATA_KEY_INFO_CHILDREN + " INTEGER DEFAULT 0, "
         + DATA_KEY_INFO_OTHER + " INTEGER DEFAULT 0, "
         + DATA_KEY_INFO_SIGN_LANGUAGE + " INTEGER DEFAULT 0 "
-        + ");";
+        + ");";/*/
+    
+    private static final String sqlCreateDataTable() {
+      final StringBuilder builder = new StringBuilder();
+      
+      builder.append("create table ").append(DATA_TABLE).append(" (").append(KEY_ID).append(" INTEGER primary key autoincrement, ");
+      builder.append(CHANNEL_KEY_CHANNEL_ID).append(" INTEGER REFERENCES ").append(CHANNEL_TABLE).append("(").append(KEY_ID).append(") NOT NULL, ");
+      
+      final String[] keys = MAP_DATA_KEY_TYPE.keySet().toArray(new String[MAP_DATA_KEY_TYPE.size()]);
+      
+      for(int i = 0; i < keys.length-1; i++) {
+        builder.append(keys[i]).append(MAP_DATA_KEY_TYPE.get(keys[i])).append(", ");
+      }
+      
+      if(keys.length > 0) {
+        builder.append(keys[keys.length-1]).append(MAP_DATA_KEY_TYPE.get(keys[keys.length-1])).append(" );");
+      }
+      
+      return builder.toString();
+    }
     
     private static final String CREATE_VERSION_TABLE = "create table " + VERSION_TABLE + " (" + KEY_ID + " integer primary key autoincrement, "
         + CHANNEL_KEY_CHANNEL_ID + " INTEGER REFERENCES " + CHANNEL_TABLE + "(" + KEY_ID + ") NOT NULL, "
@@ -1137,7 +1251,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       db.execSQL(CREATE_VERSION_TABLE);
     }
 
-    private static final int DATABASE_VERSION = 9;
+    private static final int DATABASE_VERSION = 10;
     
     @Override
     public void onUpgrade(final SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -1469,6 +1583,42 @@ public class TvBrowserContentProvider extends ContentProvider {
       if(oldVersion < 9) {
         if(!columnExists(db, DATA_KEY_REMOVED_SYNC)) {
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_REMOVED_SYNC + " INTEGER DEFAULT 0");
+        }
+      }
+      
+      if(oldVersion < 10) {
+        final ArrayList<String> dataKeysList = new ArrayList<String>(MAP_DATA_KEY_TYPE.size());
+        
+        final Set<String> dataKeySet = MAP_DATA_KEY_TYPE.keySet();
+        
+        for(String dataKey : dataKeySet) {
+          dataKeysList.add(dataKey);
+        }
+        
+        final Cursor columnNames = db.rawQuery("PRAGMA table_info(" + DATA_TABLE + ")", null);
+        
+        try {
+          if(IOUtils.prepareAccess(columnNames)) {
+            final int columnNameIndex = columnNames.getColumnIndex("name");
+            
+            if(columnNameIndex >= 0) {
+              while(columnNames.moveToNext()) {
+                final String columnName = columnNames.getString(columnNameIndex);
+                
+                if(columnName != null) {
+                  dataKeysList.remove(columnName.trim());
+                }
+              }
+            }
+          }
+        }finally {
+          IOUtils.close(columnNames);
+        }
+        
+        if(!dataKeysList.isEmpty()) {
+          for(String key : dataKeysList) {
+            db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + key + MAP_DATA_KEY_TYPE.get(key));
+          }
         }
       }
     }

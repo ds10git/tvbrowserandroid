@@ -1,11 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.0.1</h2>
+        <h2>0.6.0.2</h2>
+        	&bull; Hervorhebung von Schauspieler-Suchen der Lieblingssendungen im Detail-Fenster<br>
+        	&bull; Fehler beseitigt<br>
+        <h3>0.6.0.1</h3>
         	&bull; SSL-Prüfung für EPGpaid kann deaktiviert werden<br>
         	&bull; WirSchauen-Info aus Sendungen entfernen, für die eine EPGpaid-Beschreibung vorhanden ist<br>
         	&bull; Fehler beseitigt<br>
-		<h2>0.6</h2>
+		<h3>0.6</h3>
 		    &bull; Lieblingssendungen über das Kontextmenü einer Sendung editierbar<br>
 		    &bull; Hervorhebung von gefundenen Suchbegriffen der Lieblingssendungen im Detail-Fenster<br>
 		    &bull; Unterstützung für Beschreibungen und Bilder von EPGpaid hinzugefügt<br>
