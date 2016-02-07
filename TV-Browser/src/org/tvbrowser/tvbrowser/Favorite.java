@@ -493,7 +493,12 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     
     if(mUniqueProgramIds != null && mUniqueProgramIds.length > 0 &&  mUniqueProgramIds.length < 500) {
       synchronized (mUniqueProgramIds) {
-        selectionArgs = new String[mUniqueProgramIds.length];
+        final int count = mUniqueProgramIds.length;
+        final long[] uniqueProgramIds = new long[count];
+        
+        System.arraycopy(mUniqueProgramIds, 0, uniqueProgramIds, 0, count);
+        
+        selectionArgs = new String[count];
         
         where.append(" ");
         where.append(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER);
@@ -501,11 +506,11 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         where.append(TvBrowserContentProvider.KEY_ID);
         where.append(" IN ( ");
         
-        for(int i = 0; i < mUniqueProgramIds.length-1; i++) {
+        for(int i = 0; i < count; i++) {
           where.append("?, ");
           
-          if(mUniqueProgramIds.length > i) {
-            selectionArgs[i] = String.valueOf(mUniqueProgramIds[i]);
+          if(uniqueProgramIds.length > i) {
+            selectionArgs[i] = String.valueOf(uniqueProgramIds[i]);
           }
         }
         
@@ -1240,13 +1245,13 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           int reminderColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
           int removedReminderColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER);
           
-          favorite.mUniqueProgramIds = new long[cursor.getCount()];
-          
           int count = 0;
           
           ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
           ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
           ArrayList<String> reminderIdList = new ArrayList<String>();
+          
+          long[] uniqueProgramIds = new long[cursor.getCount()];
           
           do {
             long id = cursor.getLong(idColumn);
@@ -1254,7 +1259,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
             int markingCount = cursor.getInt(favoriteMarkingColumn);
             boolean markingsChanged = markingCount == 0;
             
-            favorite.mUniqueProgramIds[count] = id;
+            uniqueProgramIds[count] = id;
             count++;
             
             ContentValues values = new ContentValues();
@@ -1286,8 +1291,17 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
               ServiceUpdateReminders.startReminderUpdate(context);
             }
           }while(cursor.moveToNext());
-                    
+          
           if(!updateValuesList.isEmpty()) {
+            if(favorite.mUniqueProgramIds != null)  {
+              synchronized (favorite.mUniqueProgramIds) {
+                favorite.mUniqueProgramIds = uniqueProgramIds;
+              }
+            }
+            else {
+              favorite.mUniqueProgramIds = uniqueProgramIds;
+            }
+            
             if(!reminderIdList.isEmpty()) {
               ProgramUtils.addReminderIds(context, reminderIdList);
             }
@@ -1461,6 +1475,10 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   }
   
   public void clearUniqueIds() {
-    mUniqueProgramIds = null;
+    if(mUniqueProgramIds != null) {
+      synchronized (mUniqueProgramIds) {
+        mUniqueProgramIds = null;
+      }
+    }
   }
 }
