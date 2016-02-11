@@ -5063,6 +5063,8 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void scrollToTime(int time) {
+    Log.d("info8", "scrollToTime " + time);
+    
     if(mViewPager.getCurrentItem() == 0) {
       Fragment test = mSectionsPagerAdapter.getRegisteredFragment(0);
       

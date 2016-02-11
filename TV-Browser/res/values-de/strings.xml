@@ -3,6 +3,7 @@
     <string name="info_version_new"><![CDATA[
         <h2>0.6.0.2</h2>
         	&bull; Hervorhebung von Schauspieler-Suchen der Lieblingssendungen im Detail-Fenster<br>
+        	&bull; Sendungsliste zeigt nach Start nur die Sendungen von heute und morgen<br>
         	&bull; Fehler beseitigt<br>
         <h3>0.6.0.1</h3>
         	&bull; SSL-Prüfung für EPGpaid kann deaktiviert werden<br>
@@ -770,6 +771,7 @@
     <string name="dont_want_to_see_edit_entry">Welche Sendungen sollen verborgen werden? (Der * kann als Platzhalter benutzt werden)</string>
     <string name="dont_want_to_see_edit_entry_hint">Ausschluss eingeben</string>
     <string name="dont_want_to_see_edit_case_sensitve">Groß-/Kleinschreibung beachten</string>
+    <string name="selection_date_today_tomorrow">heute+morgen</string>
     <string name="all_data">Alle Daten</string>
     <string name="all_channels">Alle Sender</string>
     <string name="channel_minus">P-</string>

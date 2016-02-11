@@ -21,6 +21,9 @@ import org.tvbrowser.utils.UiUtils;
 import android.content.Context;
 
 public class DateSelection {
+  public static final int VALUE_DATE_ALL = -1;
+  public static final int VALUE_DATE_TODAY_TOMORROW = -2;
+  
   private long mTime;
   private Context mContext;
   
@@ -33,6 +36,9 @@ public class DateSelection {
   public String toString() {
     if(mTime >= 0) {
       return UiUtils.formatDate(mTime, mContext, false, true).toString();
+    }
+    else if(mTime == VALUE_DATE_TODAY_TOMORROW) {
+      return mContext.getResources().getString(R.string.selection_date_today_tomorrow);
     }
     
     return mContext.getResources().getString(R.string.all_data);
