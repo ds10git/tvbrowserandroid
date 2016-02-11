@@ -48,7 +48,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -119,7 +118,6 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     super.onResume();
     
     mKeepRunning = true;
-    Log.d("info2", "" + handler);
     ProgramUtils.registerMarkingsListener(getActivity(), this);
     
     startUpdateThread(mNextUpdate);
@@ -230,6 +228,18 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       mDayStart = dayStart;
       mDayClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">=" + dayStart + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + (dayStart + (24 * 60 * 60000)) + " ) ";
     }
+    else if(dayStart == DateSelection.VALUE_DATE_TODAY_TOMORROW) {
+      final Calendar tomorrow = Calendar.getInstance();
+      tomorrow.add(Calendar.DAY_OF_YEAR, 1);
+      tomorrow.set(Calendar.HOUR_OF_DAY, 23);
+      tomorrow.set(Calendar.MINUTE, 59);
+      tomorrow.set(Calendar.SECOND, 59);
+      tomorrow.set(Calendar.MILLISECOND, 999);
+      
+      mDayStart = 0;
+      
+      mDayClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis() + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + tomorrow.getTimeInMillis() + " ) ";
+    }
     else {
       mDayClause = "";
       mDayStart = 0;
@@ -269,7 +279,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mScrollTime = time;
   }
   
-  public void scrollToTime() {    Log.d("info2", "scrollToTime");
+  public void scrollToTime() {
     if(IOUtils.isDatabaseAccessible(getActivity())) {
       handler.post(new Thread("SCROLL TO TIME THREAD") {
         @Override
@@ -300,7 +310,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
           
             Cursor c = mProgramListAdapter.getCursor();
             
-            if(c != null && c.moveToFirst()) {
+            if(IOUtils.prepareAccessFirst(c)) {
               try {
                 int index = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
                 int endIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
@@ -349,8 +359,6 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
                   handler.post(new Runnable() {
                     @Override
                     public void run() {
-                      Log.d("info2", "scrollIndex " + scollIndex);
-                      
                       mListView.setSelection(scollIndex);
                     }
                   });
@@ -689,7 +697,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
           if(current == null || current.getID() != id) {
             for(int i = 0; i < channelEntries.size(); i++) {
               ChannelSelection sel = channelEntries.get(i);
-              Log.d("info2", "sel " + sel.getID() + " " + id);
+              
               if(sel.getID() == id) {
                 mChannelSelection.setSelection(i);
                 break;
@@ -708,7 +716,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
             date.setSelection(daySelection);
           }
           else {
-            date.setSelection(0);
+            date.setSelection(1);
           }
                         
           setScrollPos(scrollIndex);
@@ -728,8 +736,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     if(getActivity() != null && mKeepRunning && mDateAdapter != null) {
       mDateAdapter.clear();
       
-      mDateAdapter.add(new DateSelection(-1, getActivity()));
-    
+      mDateAdapter.add(new DateSelection(DateSelection.VALUE_DATE_TODAY_TOMORROW, getActivity()));
+      mDateAdapter.add(new DateSelection(DateSelection.VALUE_DATE_ALL, getActivity()));
+      
       long last = PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_LAST_KNOWN, R.integer.meta_data_date_known_default);
       
       Calendar lastDay = Calendar.getInstance();
@@ -891,7 +900,6 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
-    Log.d("info2", "onCreateLoader");
     mIsLoading = true;
     CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, getProjection(), getWhereClause(false) + mDayClause + mFilterClause.getWhere(), mFilterClause.getSelectionArgs(), TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     
@@ -900,7 +908,6 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
 
   @Override
   public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
-    Log.d("info2", "onLoadFinished");
     mIsLoading = false;
     mNextUpdate = 0;
     mProgramListAdapter.swapCursor(c);

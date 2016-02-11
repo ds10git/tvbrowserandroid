@@ -3,6 +3,7 @@
     <string name="info_version_new"><![CDATA[
 		<h2>0.6.0.2</h2>
             &bull; highlighting also actor matches of Favorites in detail view<br>
+            &bull; program list tab starts only with data of today and tomorrow<br>
         	&bull; fixed bugs<br>
         <h3>0.6.0.1</h3>
         	&bull; allow to disable SSL check for EPGpaid download<br>
@@ -780,6 +781,7 @@
     <string name="dont_want_to_see_edit_entry">What should be excluded? (You can use the wildcard *)</string>
     <string name="dont_want_to_see_edit_entry_hint">Enter the exclusion value</string>
     <string name="dont_want_to_see_edit_case_sensitve">case-sensitive</string>
+    <string name="selection_date_today_tomorrow">Today+tomorrow</string>
     <string name="all_data">All data</string>
     <string name="all_channels">All channels</string>
     <string name="channel_minus">CH-</string>
