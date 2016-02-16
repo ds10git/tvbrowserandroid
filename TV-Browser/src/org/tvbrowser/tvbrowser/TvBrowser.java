@@ -612,7 +612,7 @@ public class TvBrowser extends ActionBarActivity implements
       mViewPager.setCurrentItem(startTab);      
     }
     
-    handler.postDelayed(new Runnable() {
+    IOUtils.postDelayedInSeparateThread("LOAD PLUGINS WAITING THREAD", new Runnable() {
       @Override
       public void run() {
         PluginHandler.loadPlugins(getApplicationContext(),handler);
@@ -761,7 +761,7 @@ public class TvBrowser extends ActionBarActivity implements
     final int infoType = mInfoType;
     mInfoType = INFO_TYPE_NOTHING;
     
-    handler.postDelayed(new Runnable() {
+    IOUtils.postDelayedInSeparateThread("INFO WAITING THREAD", new Runnable() {
       @Override
       public void run() {
         try {
@@ -778,7 +778,7 @@ public class TvBrowser extends ActionBarActivity implements
           }
         }catch(BadTokenException e) {}
       }
-    }, 2000);
+    }, 3000);
   }
   
   @Override
@@ -823,46 +823,50 @@ public class TvBrowser extends ActionBarActivity implements
       edit.commit();
     } else if(!SHOWING_EPGPAID_INFO && !PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_INFO_SHOWN, R.bool.pref_epgpaid_info_shown_default) && (System.currentTimeMillis() - (9 * 24 * 60 * 60000L)) > firstStart
         && PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, "").trim().length() == 0 && PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, "").trim().length() == 0) {
-      
-      final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-      builder.setTitle(R.string.dialog_epgpaid_info_title);
-      
-      String info = getString(R.string.pref_epgpaid_info);
-      
-      info = "<html><p>" + info.substring(0, info.lastIndexOf("\n\n")).replace("\n\n", "</p><p>").replace("https://www.epgpaid.de", "<a href=\"https://www.epgpaid.de\">https://www.epgpaid.de</a>") + "</p></html>";
-      
-      Spanned text = Html.fromHtml(info);
-      
-      builder.setMessage(text);
-      builder.setCancelable(false);
-      builder.setPositiveButton(R.string.update_website, new OnClickListener() {
+      handler.post(new Runnable() {
         @Override
-        public void onClick(DialogInterface dialog, int which) {
-          SHOWING_EPGPAID_INFO = false;
+        public void run() {
+          final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+          builder.setTitle(R.string.dialog_epgpaid_info_title);
           
-          startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://www.epgpaid.de")));
+          String info = getString(R.string.pref_epgpaid_info);
+          
+          info = "<html><p>" + info.substring(0, info.lastIndexOf("\n\n")).replace("\n\n", "</p><p>").replace("https://www.epgpaid.de", "<a href=\"https://www.epgpaid.de\">https://www.epgpaid.de</a>") + "</p></html>";
+          
+          Spanned text = Html.fromHtml(info);
+          
+          builder.setMessage(text);
+          builder.setCancelable(false);
+          builder.setPositiveButton(R.string.update_website, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              SHOWING_EPGPAID_INFO = false;
+              
+              startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://www.epgpaid.de")));
+            }
+          });
+          builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              SHOWING_EPGPAID_INFO = false;
+            }
+          });
+          
+          AlertDialog d = builder.show();
+          ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+          
+          SHOWING_EPGPAID_INFO = true;
+          
+          final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
+          edit.putBoolean(getString(R.string.PREF_EPGPAID_INFO_SHOWN), true);
+          edit.commit();
         }
       });
-      builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          SHOWING_EPGPAID_INFO = false;
-        }
-      });
-      
-      AlertDialog d = builder.show();
-      ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
-      
-      SHOWING_EPGPAID_INFO = true;
-      
-      final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
-      edit.putBoolean(getString(R.string.PREF_EPGPAID_INFO_SHOWN), true);
-      edit.commit();
     }
   }
   
   private void showEpgDonateInfo() {
-    int count = getEpgDonateChannelsCount();
+    final int count = getEpgDonateChannelsCount();
     
     if(!SHOWING_DONATION_INFO && count > 0) {
       final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
@@ -891,72 +895,77 @@ public class TvBrowser extends ActionBarActivity implements
       //Log.d("info21", "firstTimeoutReached (" + ((now - firstDownload)/(24 * 60 * 60000L)) + "): " + firstTimeoutReached + " lastTimoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " randomShow: " + radomShow + " SHOW: " + show);
       
       if(show) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-        
-        final String title = getString(R.string.epg_donate_name).replace("{0}", String.valueOf(count));
-        String info = getString(R.string.epg_donate_info);
-        String amount = getString(R.string.epg_donate_amount);
-        final String percentInfo = getString(R.string.epg_donate_percent_info);
-        
-        final String amountValue = pref.getString(getString(R.string.EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX)+"_"+year, getString(R.string.epg_donate_current_donation_amount_default));
-        int percentValue = Integer.parseInt(pref.getString(getString(R.string.EPG_DONATE_CURRENT_DONATION_PERCENT), "-1"));
-        
-        amount = amount.replace("{0}", year).replace("{1}", amountValue);
-        
-        info = info.replace("{0}", "<h2>"+amount+"</h2>");
-        
-        builder.setTitle(title);
-        builder.setCancelable(false);
-        
-        final View view = getLayoutInflater().inflate(R.layout.dialog_epg_donate_info, getParentViewGroup(), false);
-        
-        final TextView message = (TextView)view.findViewById(R.id.dialog_epg_donate_message);
-        message.setText(Html.fromHtml(info));
-        message.setMovementMethod(LinkMovementMethod.getInstance());
-        
-        final TextView percentInfoView = (TextView)view.findViewById(R.id.dialog_epg_donate_percent_info);
-        percentInfoView.setText(Html.fromHtml(percentInfo, null, new NewsTagHandler()));
-        
-        final SeekBar percent = (SeekBar)view.findViewById(R.id.dialog_epg_donate_percent);
-        percent.setEnabled(false);
-        
-        if(percentValue >= 0) {
-          percent.setProgress(percentValue);
-        }
-        else {
-          percentInfoView.setVisibility(View.GONE);
-          percent.setVisibility(View.GONE);
-        }
-        
-        final Spinner reason = (Spinner)view.findViewById(R.id.dialog_epg_donate_reason_selection);
-        reason.setEnabled(false);
-        
-        final CheckBox dontShowAgain = (CheckBox)view.findViewById(R.id.dialog_epg_donate_dont_show_again);
-        dontShowAgain.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+        handler.post(new Runnable() {
           @Override
-          public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            reason.setEnabled(isChecked);
-          }
-        });
-        
-        builder.setView(view);
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            SHOWING_DONATION_INFO = false;
-            final Editor edit = pref.edit();
-            edit.putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now);
+          public void run() {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
             
-            if(dontShowAgain.isChecked()) {
-              edit.putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), year);
+            final String title = getString(R.string.epg_donate_name).replace("{0}", String.valueOf(count));
+            String info = getString(R.string.epg_donate_info);
+            String amount = getString(R.string.epg_donate_amount);
+            final String percentInfo = getString(R.string.epg_donate_percent_info);
+            
+            final String amountValue = pref.getString(getString(R.string.EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX)+"_"+year, getString(R.string.epg_donate_current_donation_amount_default));
+            int percentValue = Integer.parseInt(pref.getString(getString(R.string.EPG_DONATE_CURRENT_DONATION_PERCENT), "-1"));
+            
+            amount = amount.replace("{0}", year).replace("{1}", amountValue);
+            
+            info = info.replace("{0}", "<h2>"+amount+"</h2>");
+            
+            builder.setTitle(title);
+            builder.setCancelable(false);
+            
+            final View view = getLayoutInflater().inflate(R.layout.dialog_epg_donate_info, getParentViewGroup(), false);
+            
+            final TextView message = (TextView)view.findViewById(R.id.dialog_epg_donate_message);
+            message.setText(Html.fromHtml(info));
+            message.setMovementMethod(LinkMovementMethod.getInstance());
+            
+            final TextView percentInfoView = (TextView)view.findViewById(R.id.dialog_epg_donate_percent_info);
+            percentInfoView.setText(Html.fromHtml(percentInfo, null, new NewsTagHandler()));
+            
+            final SeekBar percent = (SeekBar)view.findViewById(R.id.dialog_epg_donate_percent);
+            percent.setEnabled(false);
+            
+            if(percentValue >= 0) {
+              percent.setProgress(percentValue);
+            }
+            else {
+              percentInfoView.setVisibility(View.GONE);
+              percent.setVisibility(View.GONE);
             }
             
-            edit.commit();
+            final Spinner reason = (Spinner)view.findViewById(R.id.dialog_epg_donate_reason_selection);
+            reason.setEnabled(false);
+            
+            final CheckBox dontShowAgain = (CheckBox)view.findViewById(R.id.dialog_epg_donate_dont_show_again);
+            dontShowAgain.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+              @Override
+              public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                reason.setEnabled(isChecked);
+              }
+            });
+            
+            builder.setView(view);
+            builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                SHOWING_DONATION_INFO = false;
+                final Editor edit = pref.edit();
+                edit.putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now);
+                
+                if(dontShowAgain.isChecked()) {
+                  edit.putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), year);
+                }
+                
+                edit.commit();
+              }
+            });
+            
+            builder.show();
+            SHOWING_DONATION_INFO = true;
           }
         });
-        
-        builder.show();
-        SHOWING_DONATION_INFO = true;
       }
       else {
         showEpgPaidInfo();
@@ -1099,29 +1108,6 @@ public class TvBrowser extends ActionBarActivity implements
       mTimer.scheduleAtFixedRate(new TimerTask() {
         @Override
         public void run() {
-          //int day = Calendar.getInstance().get(Calendar.DAY_OF_YEAR);
-          
-         /* if(mCurrentDay != day) {
-            new Thread() {
-              public void run() {
-                try {
-                  sleep(60000);
-                } catch (InterruptedException e1) {}
-                
-                Calendar cal2 = Calendar.getInstance();
-                cal2.add(Calendar.DAY_OF_YEAR, -2);
-                
-                try {
-                  getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + cal2.getTimeInMillis(), null);
-                }catch(IllegalArgumentException e) {}
-                
-                TvBrowser.this.sendBroadcast(new Intent(SettingConstants.DATA_UPDATE_DONE));
-              }
-            }.start();
-            
-            mCurrentDay = day;
-          }*/
-          
           LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
         }
       }, firstUpdate, 60000);
@@ -4061,25 +4047,30 @@ public class TvBrowser extends ActionBarActivity implements
     return finish;
   }*/
   
-  private void showVersionInfo(boolean showDisable) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-    
-    builder.setTitle(R.string.info_version);
-    builder.setMessage(Html.fromHtml(getString(R.string.info_version_new)));
-    builder.setPositiveButton(android.R.string.ok, null);
-    
-    if(showDisable) {
-      builder.setNegativeButton(R.string.info_version_dont_show_again, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
-          edit.putBoolean(getString(R.string.PREF_INFO_VERSION_UPDATE_SHOW), false);
-          edit.commit();
+  private void showVersionInfo(final boolean showDisable) {
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+        
+        builder.setTitle(R.string.info_version);
+        builder.setMessage(Html.fromHtml(getString(R.string.info_version_new)));
+        builder.setPositiveButton(android.R.string.ok, null);
+        
+        if(showDisable) {
+          builder.setNegativeButton(R.string.info_version_dont_show_again, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
+              edit.putBoolean(getString(R.string.PREF_INFO_VERSION_UPDATE_SHOW), false);
+              edit.commit();
+            }
+          });
         }
-      });
-    }
-    
-    builder.show();
+        
+        builder.show();        
+      }
+    });
   }
   
   private void showAbout() {
@@ -4395,40 +4386,45 @@ public class TvBrowser extends ActionBarActivity implements
   
   private void showPluginInfo() {
     if(!PrefUtils.getBooleanValue(R.string.PLUGIN_INFO_SHOWN, false)) {
-      final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-      
-      builder.setTitle(R.string.plugin_info_title);
-      builder.setCancelable(false);
-      builder.setMessage(R.string.plugin_info_message);
-      
-      builder.setPositiveButton(R.string.plugin_info_load, new OnClickListener() {
+      handler.post(new Runnable() {
         @Override
-        public void onClick(DialogInterface dialog, int which) {
-          savePluginInfoShown();
+        public void run() {          
+          final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
           
-          if(isOnline()) {
-            searchPlugins(true);
-          }
-          else {
-            showNoInternetConnection(getString(R.string.no_network_info_data_search_plugins),new Runnable() {
-              @Override
-              public void run() {
+          builder.setTitle(R.string.plugin_info_title);
+          builder.setCancelable(false);
+          builder.setMessage(R.string.plugin_info_message);
+          
+          builder.setPositiveButton(R.string.plugin_info_load, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              savePluginInfoShown();
+              
+              if(isOnline()) {
                 searchPlugins(true);
               }
-            });
-          }
+              else {
+                showNoInternetConnection(getString(R.string.no_network_info_data_search_plugins),new Runnable() {
+                  @Override
+                  public void run() {
+                    searchPlugins(true);
+                  }
+                });
+              }
+            }
+          });
+          
+          builder.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              savePluginInfoShown();
+              showChannelUpdateInfo();
+            }
+          });
+          
+          builder.show();
         }
       });
-      
-      builder.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          savePluginInfoShown();
-          showChannelUpdateInfo();
-        }
-      });
-      
-      builder.show();
     }
     else {
       showChannelUpdateInfo();

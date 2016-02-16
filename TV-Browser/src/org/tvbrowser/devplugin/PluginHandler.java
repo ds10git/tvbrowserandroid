@@ -53,10 +53,6 @@ public final class PluginHandler {
   
   private static PluginManager PLUGIN_MANAGER;
   
-  //public static final long PROGRAM_IDS_ALREADY_HANDLED_ID = -2;
-  //private static long PROGRAM_ID_FIRST = PROGRAM_IDS_ALREADY_HANDLED_ID;
-  //private static long PROGRAM_ID_LAST = PROGRAM_IDS_ALREADY_HANDLED_ID;
-  
   private static final AtomicInteger BLOG_COUNT = new AtomicInteger(0);
   
   public static final boolean pluginsAvailable() {
@@ -259,7 +255,7 @@ public final class PluginHandler {
           }
         }
         
-        handler.postDelayed(new Runnable() {
+        IOUtils.postDelayedInSeparateThread("LAST ID INFO DATE SAVE THREAD", new Runnable() {
           @Override
           public void run() {
             if(PLUGIN_LIST != null) {
@@ -298,13 +294,12 @@ public final class PluginHandler {
       }
     }
     
-    handler.postDelayed(new Runnable() {
-      
+    IOUtils.postDelayedInSeparateThread("SORT PLUGINS WAITING THREAD", new Runnable() {
       @Override
       public void run() {
         if(pluginList != null) {
           Collections.sort(pluginList);
-        }        
+        }
       }
     }, 2000);
     

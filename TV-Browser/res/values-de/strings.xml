@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.0.2</h2>
+		<h2>0.6.0.3</h2>
+            &bull; kurzes Blockieren nach Start beseitigt<br>
+            &bull; Leerzeichen vor und nach EPGpaid-Nutzername und -passwort werden ignoriert<br>
+		<h3>0.6.0.2</h3>
         	&bull; Hervorhebung von Schauspieler-Suchen der Lieblingssendungen im Detail-Fenster<br>
         	&bull; Sendungsliste zeigt nach Start nur die Sendungen von heute und morgen<br>
         	&bull; Fehler beseitigt<br>
