@@ -104,10 +104,10 @@ public class EPGpaidDataConnection {
               postParameters.append("&");
             }
             if(key.equals("username")) {
-              value = userName;
+              value = userName.trim();
             }
             else if(key.equals(passwordFieldName)) {
-              value = password;
+              value = password.trim();
             }
             
             postParameters.append(key + "=" + URLEncoder.encode(value, "UTF-8"));

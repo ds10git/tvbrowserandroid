@@ -1219,4 +1219,38 @@ public class IOUtils {
     
     return properties;
   }
+
+  /**
+   * Will wait a maximum of waitInMilliseconds in a separate Thread before running
+   * the Runnable delayed. (Might not wait the full wait time if the sleeping Thread is interrupted.)
+   * <p>
+   * @param delayed The runnable to run after the wait time.
+   * @param waitInMilliseconds The time in milliseconds to wait.
+   */
+  public static void postDelayedInSeparateThread(final Runnable delayed, final long waitInMilliseconds) {
+    postDelayedInSeparateThread("postDelayedInSeparateThread", delayed, waitInMilliseconds);
+  }
+  
+  /**
+   * Will wait a maximum of waitInMilliseconds in a separate Thread before running
+   * the Runnable delayed. (Might not wait the full wait time if the sleeping Thread is interrupted.)
+   * <p>
+   * @param threadName The name of the waiting thread.
+   * @param delayed The runnable to run after the wait time.
+   * @param waitInMilliseconds The time in milliseconds to wait.
+   */
+  public static void postDelayedInSeparateThread(String threadName, final Runnable delayed, final long waitInMilliseconds) {
+    new Thread(threadName) {
+      @Override
+      public void run() {
+        try {
+          sleep(waitInMilliseconds);
+        } catch (InterruptedException e) {
+          // simply ignore
+        }
+        
+        delayed.run();
+      };
+    }.start();
+  }
 }
