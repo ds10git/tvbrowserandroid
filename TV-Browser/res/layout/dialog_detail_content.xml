@@ -1,0 +1,209 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@id/test_test_test"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical">
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="1dp"
+        android:layout_marginStart="1dp"
+        android:orientation="horizontal">
+        <TextView
+            android:id="@id/detail_date_channel"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:drawablePadding="5dp"
+            android:gravity="center_vertical"
+            android:textColor="@color/detail_date_channel_color"
+            android:textIsSelectable="true"
+            android:textSize="20sp" />
+        <ImageButton
+            android:id="@id/detail_handle_reminder"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:layout_marginLeft="3dp"
+            android:layout_marginStart="3dp"
+            android:layout_weight="0"
+            android:contentDescription="REMINDER"
+            android:padding="0dp"
+            android:src="@drawable/ic_action_add_alarm" />
+    </LinearLayout>
+    <TextView
+        android:id="@id/detail_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="true"
+        android:textSize="20sp"
+        android:textStyle="bold" />
+    <TextView
+        android:id="@id/detail_picture_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginLeft="1dp"
+        android:layout_marginStart="1dp"
+        android:drawablePadding="3dp"
+        android:textIsSelectable="true"
+        android:textSize="@dimen/picture_desc_font_size" />
+    <TextView
+        android:id="@id/detail_picture_copyright"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:layout_marginLeft="1dp"
+        android:layout_marginStart="1dp"
+        android:textIsSelectable="true"
+        android:textSize="@dimen/picture_copyright_font_size" />
+    <TextView
+        android:id="@id/detail_genre"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:textIsSelectable="true"
+        android:textSize="16sp" />
+    <TextView
+        android:id="@id/detail_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="true"
+        android:textSize="12sp" />
+    <TextView
+        android:id="@id/detail_episode_title"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/light_gray"
+        android:textIsSelectable="true"
+        android:textSize="18sp" />
+    <TextView
+        android:id="@id/detail_short_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textIsSelectable="true"
+        android:textSize="16sp" />
+    <TextView
+        android:id="@id/detail_description"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:autoLink="web"
+        android:textIsSelectable="true"
+        android:textSize="16sp" />
+    <TextView
+        android:id="@id/detail_link"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_actors"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_regie"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_custom"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_age_limit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_netto_playtime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_vps"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_script"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_repetition_from"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_music"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_moderation"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_repetition_on"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_season"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_producer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_camera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_cut"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_other_persons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_rating"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_production_firm"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_age_limit_string"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_last_production_year"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_series"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_additional_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+</LinearLayout>
