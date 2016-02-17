@@ -1122,5 +1122,6 @@
     <string name="plugin_info_donwload">Downloading \'{0}\'</string>
     
     <string name="waiting_detail_show">Opening detail window&#8230;</string>
+    <string name="detail_date_format">%1$ta, %2$s %3$s - %4$s, %5$s</string>
     
 </resources>
