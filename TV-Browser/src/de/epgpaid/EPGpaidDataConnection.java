@@ -232,7 +232,8 @@ public class EPGpaidDataConnection {
     mHttpConnection = (HttpURLConnection) targetUrl.openConnection();
     mHttpConnection.setRequestMethod(requestMethod);
     mHttpConnection.setUseCaches(false);
-    mHttpConnection.setReadTimeout(20000);
+    
+    IOUtils.setConnectionTimeout(mHttpConnection,20000);
     
     if(REQUEST_METHOD_POST.equals(requestMethod) && postParameter != null) {
       mHttpConnection.setRequestProperty("Connection", "keep-alive");

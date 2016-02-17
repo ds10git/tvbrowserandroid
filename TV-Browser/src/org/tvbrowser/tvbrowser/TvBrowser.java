@@ -1261,6 +1261,7 @@ public class TvBrowser extends ActionBarActivity implements
           try {
             URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=channelsFromDesktop");
             connection = documentUrl.openConnection();
+            IOUtils.setConnectionTimeoutDefault(connection);
             
             SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
             
@@ -1463,6 +1464,7 @@ public class TvBrowser extends ActionBarActivity implements
           try {
             URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=dontWantToSee");
             connection = documentUrl.openConnection();
+            IOUtils.setConnectionTimeoutDefault(connection);
             
             SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
             
@@ -1756,6 +1758,7 @@ public class TvBrowser extends ActionBarActivity implements
             try {
               URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=preferencesBackup");
               connection = documentUrl.openConnection();
+              IOUtils.setConnectionTimeoutDefault(connection);
               
               SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
               
@@ -3384,6 +3387,7 @@ public class TvBrowser extends ActionBarActivity implements
           try {
             URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/testMyAccount.php");
             connection = documentUrl.openConnection();
+            IOUtils.setConnectionTimeoutDefault(connection);
             
             String userpass = userName + ":" + password;
             String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);

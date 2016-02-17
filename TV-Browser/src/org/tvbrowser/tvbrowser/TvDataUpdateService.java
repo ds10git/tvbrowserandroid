@@ -769,6 +769,8 @@ public class TvDataUpdateService extends Service {
           
           conn = url.openConnection();
           
+          IOUtils.setConnectionTimeoutDefault(conn);
+          
           conn.setRequestProperty ("Authorization", basicAuth);
           
           conn.setDoOutput(true);
@@ -2065,6 +2067,8 @@ public class TvDataUpdateService extends Service {
           URL url = new URL("http://android.tvbrowser.org/data/scripts/syncUp.php?type=favortiesFromApp");
           
           conn = url.openConnection();
+          
+          IOUtils.setConnectionTimeoutDefault(conn);
           
           conn.setRequestProperty ("Authorization", basicAuth);
           

@@ -377,7 +377,7 @@ public class IOUtils {
     URLConnection connection = null;
     try {
       connection = new URL(urlString).openConnection();
-      connection.setConnectTimeout(15000);
+      IOUtils.setConnectionTimeout(connection,15000);
       
       if(urlString.toLowerCase(Locale.US).endsWith(".gz")) {
         connection.setRequestProperty("Accept-Encoding", "gzip,deflate");
@@ -726,7 +726,7 @@ public class IOUtils {
           URL myUrl = new URL(url);
           
           connection = myUrl.openConnection();
-          connection.setConnectTimeout(timeout);
+          IOUtils.setConnectionTimeout(connection,timeout);
           
           HttpURLConnection httpConnection = (HttpURLConnection)connection;
           
@@ -763,6 +763,15 @@ public class IOUtils {
     } catch (InterruptedException e) {}
     
     return isConnected.get();
+  }
+  
+  public static void setConnectionTimeoutDefault(URLConnection connection) {
+    setConnectionTimeout(connection, 10000);
+  }
+  
+  public static void setConnectionTimeout(URLConnection connection, int timeout) {
+    connection.setReadTimeout(timeout);
+    connection.setConnectTimeout(timeout);
   }
   
   /**

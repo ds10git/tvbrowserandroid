@@ -155,8 +155,8 @@ public class Mirror implements Comparable<Mirror> {
       URL myUrl = new URL(mirror.getUrl() + group + "_lastupdate");
 
       connection = (HttpURLConnection) myUrl.openConnection();
-      connection.setConnectTimeout(timeout);
-
+      IOUtils.setConnectionTimeout(connection,timeout);
+      
       int responseCode = connection.getResponseCode();
       update.doLog("HTTP-Response for group: '" + group + "' from URL: " + myUrl);
       if(responseCode == HttpURLConnection.HTTP_OK) {
