@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.6.0.3</h2>
+		<h2>0.6.0.4</h2>
+            &bull; shorter timeout for not reacting Internet connections<br>
+		<h3>0.6.0.3</h3>
             &bull; prevent usage delay after startup<br>
             &bull; prevent leading and trailing white spaces for EPGpaid user name and passwort<br>
 		<h3>0.6.0.2</h3>
