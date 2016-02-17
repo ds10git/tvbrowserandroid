@@ -58,7 +58,6 @@ import android.app.SearchManager;
 import android.appwidget.AppWidgetManager;
 import android.content.ComponentName;
 import android.content.ContentProviderOperation;
-import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
@@ -153,7 +152,6 @@ public class UiUtils {
   
   static {
     VALUE_MAP = new HashMap<String, Integer>();
-    
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_ACTORS, R.id.detail_actors);
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_REGIE, R.id.detail_regie);
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_CUSTOM_INFO, R.id.detail_custom);
@@ -347,7 +345,6 @@ public class UiUtils {
                   TextView shortDescription = (TextView)mLayout.findViewById(R.id.detail_short_description);
                   TextView description = (TextView)mLayout.findViewById(R.id.detail_description);
                   TextView link = (TextView)mLayout.findViewById(R.id.detail_link);
-                      
                   TextView pictureDescription = (TextView)mLayout.findViewById(R.id.detail_picture_description);
                   TextView pictureCopyright = (TextView)mLayout.findViewById(R.id.detail_picture_copyright);
                   
@@ -361,64 +358,68 @@ public class UiUtils {
                   link.setTextSize(TypedValue.COMPLEX_UNIT_PX, link.getTextSize() * textScale);
                   pictureDescription.setTextSize(TypedValue.COMPLEX_UNIT_PX, pictureDescription.getTextSize() * textScale);
                   pictureCopyright.setTextSize(TypedValue.COMPLEX_UNIT_PX, pictureCopyright.getTextSize() * textScale);
-                  
+
+                  final Resources resources = context.getResources();
+
                   if(!SettingConstants.IS_DARK_THEME && !(finish instanceof InfoActivity)) {
-                    date.setTextColor(context.getResources().getColor(R.color.detail_date_channel_color_light));
+                    date.setTextColor(resources.getColor(R.color.detail_date_channel_color_light));
                   }
-                  
+
                   final int channelID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
-                  
-                  Cursor channel = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelID), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, null, null, null);
-                  
-                  channel.moveToFirst();
-                  
-                  final StringBuilder channelName = new StringBuilder();                  
-                  if(PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_DETAILS, R.bool.show_sort_number_in_details_default)) {
-                	final int columnIndex = channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
-                	if(!channel.isNull(columnIndex)) {
-                      channelName.append(channel.getString(columnIndex)).append(". ");
-                	}
-                  }
-                  channelName.append(channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
 
-                  final Date start = new Date(startTime);
-                  final java.text.DateFormat dateFormat = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT, Locale.getDefault());
-                  final java.text.DateFormat timeFormat = DateFormat.getTimeFormat(context);
-                  date.setText(context.getResources().getString(R.string.detail_date_format, start, dateFormat.format(start), timeFormat.format(start), timeFormat.format(new Date(endTime)), channelName));                     
+                  Cursor channel = null;
+                  try {
+	                  channel = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelID), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, null, null, null);
+	                  channel.moveToFirst();
 
-                  Bitmap logo = UiUtils.createBitmapFromByteArray(channel.getBlob(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
-                  
-                  if(logo != null) {
-                    float scale = context.getResources().getDisplayMetrics().density;
-                    
-                    int width = (int)(logo.getWidth() * scale);
-                    int height = (int)(logo.getHeight() * scale);
-        
-                    BitmapDrawable l = new BitmapDrawable(context.getResources(), logo);
-                    
-                    int color = PrefUtils.getIntValue(R.string.PREF_LOGO_BACKGROUND_COLOR, context.getResources().getColor(R.color.pref_logo_background_color_default));
-                    
-                    GradientDrawable background = new GradientDrawable(Orientation.BOTTOM_TOP,new int[] {color,color});
-                    
-                    int add = 2;
-                    
-                    if(PrefUtils.getBooleanValue(R.string.PREF_LOGO_BORDER, R.bool.pref_logo_border_default)) {
-                      add = 3;
-                      background.setStroke(1, PrefUtils.getIntValue(R.string.PREF_LOGO_BORDER_COLOR, context.getResources().getColor(R.color.pref_logo_border_color_default)));
-                    }
-                    
-                    background.setBounds(0, 0, width + add, height + add);
-                    
-                    LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
-                    logoDrawable.setBounds(0, 0, width + add, height + add);
-                    
-                    l.setBounds(2, 2, width, height);
-                    
-                    date.setCompoundDrawables(logoDrawable, null, null, null);
+	                  final StringBuilder channelName = new StringBuilder();                  
+	                  if(PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_DETAILS, R.bool.show_sort_number_in_details_default)) {
+	                	final int columnIndex = channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+	                	if(!channel.isNull(columnIndex)) {
+	                      channelName.append(channel.getString(columnIndex)).append(". ");
+	                	}
+	                  }
+	                  channelName.append(channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
+
+	                  final Date start = new Date(startTime);
+	                  final java.text.DateFormat dateFormat = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT, Locale.getDefault());
+	                  final java.text.DateFormat timeFormat = DateFormat.getTimeFormat(context);
+	                  date.setText(resources.getString(R.string.detail_date_format, start, dateFormat.format(start), timeFormat.format(start), timeFormat.format(new Date(endTime)), channelName));
+
+	                  Bitmap logo = UiUtils.createBitmapFromByteArray(channel.getBlob(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+
+	                  if(logo != null) {
+	                    float scale = resources.getDisplayMetrics().density;
+
+	                    int width = (int)(logo.getWidth() * scale);
+	                    int height = (int)(logo.getHeight() * scale);
+
+	                    BitmapDrawable l = new BitmapDrawable(resources, logo);
+
+	                    int color = PrefUtils.getIntValue(R.string.PREF_LOGO_BACKGROUND_COLOR, resources.getColor(R.color.pref_logo_background_color_default));
+
+	                    GradientDrawable background = new GradientDrawable(Orientation.BOTTOM_TOP,new int[] {color,color});
+
+	                    int add = 2;
+
+	                    if(PrefUtils.getBooleanValue(R.string.PREF_LOGO_BORDER, R.bool.pref_logo_border_default)) {
+	                      add = 3;
+	                      background.setStroke(1, PrefUtils.getIntValue(R.string.PREF_LOGO_BORDER_COLOR, resources.getColor(R.color.pref_logo_border_color_default)));
+	                    }
+
+	                    background.setBounds(0, 0, width + add, height + add);
+
+	                    LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+	                    logoDrawable.setBounds(0, 0, width + add, height + add);
+
+	                    l.setBounds(2, 2, width, height);
+
+	                    date.setCompoundDrawables(logoDrawable, null, null, null);
+	                  }
+                  } finally {
+                    IOUtils.close(channel);
                   }
-                  
-                  channel.close();
-                  
+
                   String year = "";
                   int yearInt = -1;
                       
@@ -482,9 +483,9 @@ public class UiUtils {
                     Bitmap image = UiUtils.createBitmapFromByteArray(c.getBlob(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)));
                     
                     if(image != null) {        
-                      BitmapDrawable b = new BitmapDrawable(context.getResources(),image);
+                      BitmapDrawable b = new BitmapDrawable(resources, image);
                       
-                      float zoom = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_PICTURE_ZOOM, R.string.detail_picture_zoom_default)) * context.getResources().getDisplayMetrics().density;
+                      float zoom = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_PICTURE_ZOOM, R.string.detail_picture_zoom_default)) * resources.getDisplayMetrics().density;
                       
                       b.setBounds(0, 0, (int)(image.getWidth() * zoom), (int)(image.getHeight() * zoom));
                       
@@ -509,7 +510,7 @@ public class UiUtils {
                     genre.setVisibility(View.GONE);
                   }
                   
-                  Spannable infoValue = IOUtils.getInfoString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)), context.getResources());
+                  Spannable infoValue = IOUtils.getInfoString(c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)), resources);
                   
                   if(PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_DETAILS, R.bool.show_info_in_details_default) && infoValue != null) {
                     info.setText(infoValue);
@@ -647,7 +648,7 @@ public class UiUtils {
                       
                       if(text.trim().length() > 0) {
                         try {
-                          String name = context.getResources().getString((Integer)R.string.class.getField(key).get(null));
+                          String name = resources.getString((Integer)R.string.class.getField(key).get(null));
                           
                           boolean endWith = false;
                           
@@ -822,9 +823,9 @@ public class UiUtils {
                   
                   final String[] projection = {TvBrowserContentProvider.KEY_ID};
                   
-                  Cursor prev = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + startTime + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + channelID + " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " DESC LIMIT 1");
-                  
+                  Cursor prev = null;
                   try {
+                	prev = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + startTime + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + channelID + " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " DESC LIMIT 1");
                     if(prev != null && prev.moveToFirst()) {
                       mPreviousId = prev.getLong(prev.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                     }
@@ -832,9 +833,9 @@ public class UiUtils {
                     IOUtils.close(prev);
                   }
                   
-                  Cursor next = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + startTime + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + channelID + " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC LIMIT 1");
-                  
+                  Cursor next = null;
                   try {
+                	next = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + startTime + " AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + channelID + " AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC LIMIT 1");
                     if(next != null && next.moveToFirst()) {
                       mNextId = next.getLong(next.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                     }
@@ -958,7 +959,9 @@ public class UiUtils {
     String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(ProgramUtils.DATA_CHANNEL_PROJECTION);
     
     if(IOUtils.isDatabaseAccessible(context)) {
-      Cursor cursor = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, id), projection, null, null, null);
+      Cursor cursor = null;
+      try {
+      cursor = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, id), projection, null, null, null);
       
       if(cursor.getCount() > 0) {
         cursor.moveToFirst();
@@ -1047,16 +1050,16 @@ public class UiUtils {
       if(context != null && context instanceof ActivityTvBrowserSearchResults) {
         menu.findItem(R.id.program_popup_search_repetition).setVisible(false);
       }
-      
-      cursor.close();
+      } finally {
+        IOUtils.close(cursor);
+      }
     }
   }
   
   public static void searchForRepetition(final Context activity, String title, String episode, View parent) {
-    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-    
-    RelativeLayout layout = (RelativeLayout)((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.search_repetition_layout, parent instanceof ViewGroup ? (ViewGroup)parent : null, false);
-    
+    final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+    final RelativeLayout layout = (RelativeLayout)((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.search_repetition_layout, parent instanceof ViewGroup ? (ViewGroup)parent : null, false);
+    final Resources resources = activity.getResources();
     final EditText titleText = (EditText)layout.findViewById(R.id.search_repetition_title);
     final EditText episodeText = (EditText)layout.findViewById(R.id.search_repetition_episode);
     
@@ -1067,10 +1070,10 @@ public class UiUtils {
       episodeText.setText(episode);
     }
     
-    builder.setTitle(activity.getResources().getString(R.string.program_popup_search_repetition));
+    builder.setTitle(resources.getString(R.string.program_popup_search_repetition));
     builder.setView(layout);
     
-    builder.setPositiveButton(activity.getResources().getString(android.R.string.search_go), new DialogInterface.OnClickListener() {      
+    builder.setPositiveButton(resources.getString(android.R.string.search_go), new DialogInterface.OnClickListener() {      
       @Override
       public void onClick(DialogInterface dialog, int which) {
         Intent search = new Intent(activity,ActivityTvBrowserSearchResults.class);
@@ -1087,7 +1090,7 @@ public class UiUtils {
       }
     });
     
-    builder.setNegativeButton(activity.getResources().getString(android.R.string.cancel), new DialogInterface.OnClickListener() {      
+    builder.setNegativeButton(resources.getString(android.R.string.cancel), new DialogInterface.OnClickListener() {      
       @Override
       public void onClick(DialogInterface dialog, int which) {
         
@@ -1100,13 +1103,13 @@ public class UiUtils {
   @SuppressLint("NewApi")
   public static boolean handleContextMenuSelection(final Context activity, MenuItem item, long programID, final View menuView, View parent) {
     if(IOUtils.isDatabaseAccessible(activity)) {
-      Cursor info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE), null, null,null);
-      
       String title = null;
-      String episode = null;
-      
+      String episode = null;  
       ArrayList<String> markedColumns = new ArrayList<String>();
-      
+      Cursor info = null;
+      try {
+      info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE), null, null,null);
+
       if(info.getCount() > 0) {
         info.moveToFirst();
         
@@ -1124,9 +1127,9 @@ public class UiUtils {
           episode = info.getString(info.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
         }
       }
-      
-      info.close();
-      
+      } finally {
+        IOUtils.close(info);
+      }
       ContentValues values = new ContentValues();
       
       if(item.getItemId() == R.id.create_favorite_item) {
@@ -1259,7 +1262,12 @@ public class UiUtils {
                       NotificationManager notification = (NotificationManager)activity.getSystemService(Context.NOTIFICATION_SERVICE);
                       notification.notify(notifyID, builder.build());
                       
-                      Cursor c = activity.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, " NOT " +TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.KEY_ID);
+                      ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+                      String title = null;
+                      
+                      Cursor c = null;
+                      try {
+                      c = activity.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, " NOT " +TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.KEY_ID);
                       c.moveToPosition(-1);
                       
                       int size = c.getCount();
@@ -1267,9 +1275,7 @@ public class UiUtils {
                       
                       builder.setProgress(100, 0, true);
                       notification.notify(notifyID, builder.build());
-                      
-                      ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
-                      
+
                       int keyColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
                       int titleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
                       DontWantToSeeExclusion exclusionValue = new DontWantToSeeExclusion(exclusion);
@@ -1285,7 +1291,7 @@ public class UiUtils {
                           notification.notify(notifyID, builder.build());
                         }
                         
-                        String title = c.getString(titleColumn);
+                        title = c.getString(titleColumn);
                         
                         if(UiUtils.filter(title, exclusionValue)) {
                           ContentValues values = new ContentValues();
@@ -1304,9 +1310,9 @@ public class UiUtils {
                           }
                         }
                       }
-                      
-                      c.close();
-                      
+                      } finally {
+                        IOUtils.close(c);
+                      }
                       if(!updateValuesList.isEmpty()) {
                         try {
                           activity.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
@@ -1386,7 +1392,10 @@ public class UiUtils {
               NotificationManager notification = (NotificationManager)activity.getSystemService(Context.NOTIFICATION_SERVICE);
               notification.notify(notifyID, builder.build());
               
-              Cursor c = activity.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.KEY_ID);
+              ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+              Cursor c = null;
+              try {
+              c = activity.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.KEY_ID);
               c.moveToPosition(-1);
               
               int size = c.getCount();
@@ -1394,9 +1403,7 @@ public class UiUtils {
               
               builder.setProgress(size, 0, true);
               notification.notify(notifyID, builder.build());
-              
-              ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
-              
+
               int keyColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
               int titleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
               
@@ -1418,9 +1425,9 @@ public class UiUtils {
               }
               
               notification.cancel(notifyID);
-              
-              c.close();
-              
+              } finally {
+               IOUtils.close(c);
+              }
               if(!updateValuesList.isEmpty()) {
                 try {
                   activity.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
@@ -2035,18 +2042,8 @@ public class UiUtils {
           TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER
           };
       
-      ContentResolver cr = context.getContentResolver();
-      final Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.CHANNEL_KEY_NAME);
-      
-      final int idColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-      final int logoColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
-      final int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-      final int orderNumberColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
-      
       int[] channelRestriction = channelFilter.getFilteredChannelIds();
-      
-      channels.moveToPosition(-1);
-      
+
       final LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
       
       // inflate channel selection view
@@ -2108,40 +2105,50 @@ public class UiUtils {
         }
       };
       
-      while(channels.moveToNext()) {
-        int channelID = channels.getInt(idColumn);
-        String name = channels.getString(nameColumn);
-        int orderNumber = channels.getInt(orderNumberColumn);
-        byte[] logo = channels.getBlob(logoColumn);
-        
-        if(orderNumber < 1) {
-          name = "-. " + name;
-        }
-        else {
-          name = orderNumber + ". " + name;
-        }
-        
-        Bitmap channelLogo = UiUtils.createBitmapFromByteArray(logo);
-        
-        if(channelLogo != null) {
-          BitmapDrawable l = new BitmapDrawable(context.getResources(), channelLogo);
-          
-          ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
-          background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
-          
-          LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
-          logoDrawable.setBounds(background.getBounds());
-          
-          l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
-          
-          channelLogo = UiUtils.drawableToBitmap(logoDrawable);
-        }
-        
-        channelAdapter.add(new AdapterChannel(channelID, name, channelLogo, isRestricted(channelRestriction, channelID)));
+      Cursor channels = null;
+      try{
+	      channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.CHANNEL_KEY_NAME);
+	      
+	      final int idColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+	      final int logoColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
+	      final int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+	      final int orderNumberColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+	      
+	      channels.moveToPosition(-1);
+	      while(channels.moveToNext()) {
+	        int channelID = channels.getInt(idColumn);
+	        String name = channels.getString(nameColumn);
+	        int orderNumber = channels.getInt(orderNumberColumn);
+	        byte[] logo = channels.getBlob(logoColumn);
+	        
+	        if(orderNumber < 1) {
+	          name = "-. " + name;
+	        }
+	        else {
+	          name = orderNumber + ". " + name;
+	        }
+	        
+	        Bitmap channelLogo = UiUtils.createBitmapFromByteArray(logo);
+	        
+	        if(channelLogo != null) {
+	          BitmapDrawable l = new BitmapDrawable(context.getResources(), channelLogo);
+	          
+	          ColorDrawable background = new ColorDrawable(SettingConstants.LOGO_BACKGROUND_COLOR);
+	          background.setBounds(0, 0, channelLogo.getWidth()+2,channelLogo.getHeight()+2);
+	          
+	          LayerDrawable logoDrawable = new LayerDrawable(new Drawable[] {background,l});
+	          logoDrawable.setBounds(background.getBounds());
+	          
+	          l.setBounds(2, 2, channelLogo.getWidth(), channelLogo.getHeight());
+	          
+	          channelLogo = UiUtils.drawableToBitmap(logoDrawable);
+	        }
+	        
+	        channelAdapter.add(new AdapterChannel(channelID, name, channelLogo, isRestricted(channelRestriction, channelID)));
+	      }
+      }finally {
+        IOUtils.close(channels);
       }
-      
-      channels.close();
-      
       list.setAdapter(channelAdapter);
       
       channelSelectionView.findViewById(R.id.channel_selection_select_all).setOnClickListener(new View.OnClickListener() {
