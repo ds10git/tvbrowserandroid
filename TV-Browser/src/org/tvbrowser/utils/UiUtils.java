@@ -244,6 +244,7 @@ public class UiUtils {
                   float textScale = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_TEXT_SCALE, R.string.detail_text_scale_default));
                   
                   final long startTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+                  final long endTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
                   final ImageButton handleReminder = (ImageButton)mLayout.findViewById(R.id.detail_handle_reminder);
                   
                   if(startTime <= System.currentTimeMillis()) {
@@ -365,25 +366,26 @@ public class UiUtils {
                     date.setTextColor(context.getResources().getColor(R.color.detail_date_channel_color_light));
                   }
                   
-                  Date start = new Date(startTime);
-                  SimpleDateFormat day = new SimpleDateFormat("EEE",Locale.getDefault());
-                  
-                  int channelID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+                  final int channelID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
                   
                   Cursor channel = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, channelID), new String[] {TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, null, null, null);
                   
                   channel.moveToFirst();
                   
-                  String channelName = "";
-                  
+                  final StringBuilder channelName = new StringBuilder();                  
                   if(PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_DETAILS, R.bool.show_sort_number_in_details_default)) {
-                    channelName = channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)) + ". ";
+                	final int columnIndex = channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+                	if(!channel.isNull(columnIndex)) {
+                      channelName.append(channel.getString(columnIndex)).append(". ");
+                	}
                   }
-                  
-                  channelName += channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-                  
-                  date.setText(day.format(start) + " " + java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT).format(start) + " " + DateFormat.getTimeFormat(context).format(start) + " - " + DateFormat.getTimeFormat(context)/*.getTimeInstance(java.text.DateFormat.SHORT)*/.format(new Date(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)))) + ", " + channelName);
-                     
+                  channelName.append(channel.getString(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)));
+
+                  final Date start = new Date(startTime);
+                  final java.text.DateFormat dateFormat = java.text.DateFormat.getDateInstance(java.text.DateFormat.SHORT, Locale.getDefault());
+                  final java.text.DateFormat timeFormat = DateFormat.getTimeFormat(context);
+                  date.setText(context.getResources().getString(R.string.detail_date_format, start, dateFormat.format(start), timeFormat.format(start), timeFormat.format(new Date(endTime)), channelName));                     
+
                   Bitmap logo = UiUtils.createBitmapFromByteArray(channel.getBlob(channel.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
                   
                   if(logo != null) {
