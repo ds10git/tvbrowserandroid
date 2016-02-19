@@ -3,6 +3,7 @@
     <string name="info_version_new"><![CDATA[
 		<h2>0.6.0.4</h2>
             &bull; kürzerer Timeout für nicht reagierende Internetverbindungen<br>
+            &bull; Fehler beseitigt<br>
 		<h3>0.6.0.3</h3>
             &bull; kurzes Blockieren nach Start beseitigt<br>
             &bull; Leerzeichen vor und nach EPGpaid-Nutzername und -passwort werden ignoriert<br>
