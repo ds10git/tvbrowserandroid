@@ -1030,8 +1030,9 @@ public class UiUtils {
                               ProgramUtils.markProgram(context, pluginProgram, null);
                             }
                           }
-                        } catch (RemoteException e) {
-                          Log.d("info23", "", e);
+                        } catch (Throwable t) {
+                          // catch all possible exceptions and errors of plugins
+                          Log.d("info23", "", t);
                         }
                         
                         return true;
@@ -1039,8 +1040,9 @@ public class UiUtils {
                     });
                   }
                 }
-              } catch (RemoteException e) {
-                Log.d("info23", "", e);
+              } catch (Throwable t) {
+                // catch all possible exceptions and errors of plugins
+                Log.d("info23", "", t);
               }
             }
           }
