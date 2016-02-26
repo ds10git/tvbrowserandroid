@@ -879,7 +879,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   private String getWhereClause(boolean useCursorLoadLastTime) {
     long time = (useCursorLoadLastTime && mCursorLoadLastTime != 0) ? mCursorLoadLastTime : System.currentTimeMillis();
     
-    String where = mDayClause.trim().length() == 0 ? " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + time + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + time + " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + time + " ) " : " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " > 0 ) ";
+    String where = mDayClause.trim().length() == 0 ? " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + time + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + time + " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + time + " ) " : " ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " > " + time + " ) " + mDayClause;
         
     if(mChannelID != NO_CHANNEL_SELECTION_ID) {
       where += "AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " IS " + mChannelID;
@@ -901,7 +901,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     mIsLoading = true;
-    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, getProjection(), getWhereClause(false) + mDayClause + mFilterClause.getWhere(), mFilterClause.getSelectionArgs(), TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+    CursorLoader loader = new CursorLoader(getActivity(), TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, getProjection(), getWhereClause(false) + mFilterClause.getWhere(), mFilterClause.getSelectionArgs(), TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     
     return loader;
   }
