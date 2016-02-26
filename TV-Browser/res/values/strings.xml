@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.6.0.4</h2>
+		<h2>0.6.0.5</h2>
+            &bull; ask user before sorting alphabetically<br>
+            &bull; fixed bugs<br>
+		<h3>0.6.0.4</h3>
             &bull; shorter timeout for not reacting Internet connections<br>
             &bull; fixed bugs<br>
 		<h3>0.6.0.3</h3>
@@ -355,6 +358,7 @@
     <string name="channel_filter_radio">Only Radio channels</string>
     <string name="channel_filter_cinema">Only Cinema channels</string>
     <string name="sort_alphabetically">Sort alphabetically</string>
+    <string name="dialog_sort_alphabetically_message">The channels will be sorted alphabetically now.\n\nAre you sure?</string>
     <string name="channel_download_warning_title">Channel download not complete</string>
     <string name="channel_download_warning_text">Not all channels could be downloaded successfully.\n\nIf you are missing channels you should try loading the channels later again.</string>
     <string name="username">Username:</string>

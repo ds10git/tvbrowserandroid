@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.6.0.4</h2>
+		<h2>0.6.0.5</h2>
+            &bull; Benutzerabfrage bevor die Sender alphabetisch sortiert werden<br>
+            &bull; Fehler beseitigt<br>
+		<h3>0.6.0.4</h3>
             &bull; kürzerer Timeout für nicht reagierende Internetverbindungen<br>
             &bull; Fehler beseitigt<br>
 		<h3>0.6.0.3</h3>
@@ -357,6 +360,7 @@
     <string name="channel_filter_radio">Nur Radio-Sender</string>
     <string name="channel_filter_cinema">Nur Kino-Sender</string>
     <string name="sort_alphabetically">Alphabetisch sortieren</string>
+    <string name="dialog_sort_alphabetically_message">Die Sender werden alphabetisch sortiert.\n\nSind Sie sicher?</string>
 	<string name="channel_download_warning_title">Senderdownload nicht vollständig</string>
     <string name="channel_download_warning_text">Nicht alle Sender konnten erfolgreich geladen werden.\n\nSollten Sie Sender vermissen, versuchen Sie die Sender später erneut zu laden.</string>
     <string name="username">Benutzername:</string>

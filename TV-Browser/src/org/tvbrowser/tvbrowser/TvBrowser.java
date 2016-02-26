@@ -1101,8 +1101,6 @@ public class TvBrowser extends ActionBarActivity implements
           checkTermsAccepted();
         }
       }
-            
-      Date firstUpdate = new Date((((long)(System.currentTimeMillis() / 60000L)) * 60000) + 61000);
       
       mTimer = new Timer();
       mTimer.scheduleAtFixedRate(new TimerTask() {
@@ -1110,7 +1108,7 @@ public class TvBrowser extends ActionBarActivity implements
         public void run() {
           LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
         }
-      }, firstUpdate, 60000);
+      }, new Date((((long)(System.currentTimeMillis() / 60000L)) * 60000) + 62000), 60000);
     }
   }
   
@@ -3022,18 +3020,29 @@ public class TvBrowser extends ActionBarActivity implements
           sortAlphabetically.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-              Collections.sort(channelSource, new Comparator<SortInterface>() {
+              AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+              builder.setCancelable(false);
+              builder.setTitle(getString(R.string.sort_alphabetically)+"?");
+              builder.setMessage(R.string.dialog_sort_alphabetically_message);
+              builder.setPositiveButton(android.R.string.yes, new OnClickListener() {
                 @Override
-                public int compare(SortInterface lhs, SortInterface rhs) {
-                  return lhs.getName().compareToIgnoreCase(rhs.getName());
+                public void onClick(DialogInterface dialog, int which) {
+                  Collections.sort(channelSource, new Comparator<SortInterface>() {
+                    @Override
+                    public int compare(SortInterface lhs, SortInterface rhs) {
+                      return lhs.getName().compareToIgnoreCase(rhs.getName());
+                    }
+                  });
+                  
+                  for(int i = 0; i < channelSource.size(); i++) {
+                    channelSource.get(i).setSortNumber(i+1);
+                  }
+                  
+                  aa.notifyDataSetChanged();    
                 }
               });
-              
-              for(int i = 0; i < channelSource.size(); i++) {
-                channelSource.get(i).setSortNumber(i+1);
-              }
-              
-              aa.notifyDataSetChanged();
+              builder.setNegativeButton(android.R.string.cancel, null);
+              builder.show();
             }
           });
           
@@ -4072,7 +4081,15 @@ public class TvBrowser extends ActionBarActivity implements
           });
         }
         
-        builder.show();        
+        try {
+          if(TvBrowser.this.getWindow().getDecorView().isShown()) {
+            builder.show();
+          }
+        }catch(Exception bte) {
+          Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
+          edit.putBoolean(getString(R.string.PREF_INFO_VERSION_UPDATE_SHOW), false);
+          edit.commit();
+        }
       }
     });
   }
