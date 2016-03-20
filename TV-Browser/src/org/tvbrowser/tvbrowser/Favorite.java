@@ -113,19 +113,21 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     
     String[] values = saveLine.split(";;");
     
-    mName = values[0];
-    mSearch = values[1];
-    
-    try {
-      mType = Integer.parseInt(values[2]);
-    }catch(NumberFormatException e) {
-      boolean onlyTitle = Boolean.valueOf(values[2]);
+    if(values.length > 2) {
+      mName = values[0];
+      mSearch = values[1];
       
-      if(onlyTitle) {
-        mType = KEYWORD_ONLY_TITLE_TYPE;
-      }
-      else {
-        mType = KEYWORD_TYPE;
+      try {
+        mType = Integer.parseInt(values[2]);
+      }catch(NumberFormatException e) {
+        boolean onlyTitle = Boolean.valueOf(values[2]);
+        
+        if(onlyTitle) {
+          mType = KEYWORD_ONLY_TITLE_TYPE;
+        }
+        else {
+          mType = KEYWORD_TYPE;
+        }
       }
     }
     

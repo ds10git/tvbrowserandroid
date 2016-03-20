@@ -637,48 +637,52 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
   
   private void addMarkingSelections() {
-    final FavoriteSpinnerEntry marked = new FavoriteSpinnerEntry(getString(R.string.marking_value_marked), null);
-      
-    String name = getString(R.string.marking_value_reminder);
-    String whereClause = TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " ";
-    
-    whereClause += " ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER  + " ) ) ";
-    
-    final FavoriteSpinnerEntry reminder = new FavoriteSpinnerEntry(name, new WhereClause(whereClause,null));
-    FavoriteSpinnerEntry syncTemp = null;
-    
-    if(PrefUtils.getBooleanValue(R.string.PREF_SYNC_FAV_FROM_DESKTOP, R.bool.pref_sync_fav_from_desktop_default) && getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
-      syncTemp = new FavoriteSpinnerEntry(getString(R.string.marking_value_sync), new WhereClause(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " " + TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, null));
-    }
-    
-    final FavoriteSpinnerEntry sync = syncTemp;
-    
-    if(!mContainsListViewFavoriteSelection) {
-      mFavoriteList.add(marked);
-      mFavoriteList.add(reminder);
-      
-      if(sync != null) {
-        mFavoriteList.add(sync);
-      }
-      
-      if(mFavoriteAdapter != null) {
-        mFavoriteAdapter.notifyDataSetChanged();
-      }
-    }
-    else {
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          mMarkingsAdapter.add(marked);
-          mMarkingsAdapter.add(reminder);
+    if(getActivity() != null) {
+      try {
+        final FavoriteSpinnerEntry marked = new FavoriteSpinnerEntry(getString(R.string.marking_value_marked), null);
+          
+        String name = getString(R.string.marking_value_reminder);
+        String whereClause = TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " ";
+        
+        whereClause += " ( ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " ) OR ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER  + " ) ) ";
+        
+        final FavoriteSpinnerEntry reminder = new FavoriteSpinnerEntry(name, new WhereClause(whereClause,null));
+        FavoriteSpinnerEntry syncTemp = null;
+        
+        if(PrefUtils.getBooleanValue(R.string.PREF_SYNC_FAV_FROM_DESKTOP, R.bool.pref_sync_fav_from_desktop_default) && getActivity().getSharedPreferences("transportation", Context.MODE_PRIVATE).getString(SettingConstants.USER_NAME, "").trim().length() > 0) {
+          syncTemp = new FavoriteSpinnerEntry(getString(R.string.marking_value_sync), new WhereClause(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER + " " + TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, null));
+        }
+        
+        final FavoriteSpinnerEntry sync = syncTemp;
+        
+        if(!mContainsListViewFavoriteSelection) {
+          mFavoriteList.add(marked);
+          mFavoriteList.add(reminder);
           
           if(sync != null) {
-            mMarkingsAdapter.add(sync);
+            mFavoriteList.add(sync);
           }
           
-          mMarkingsAdapter.notifyDataSetChanged();
+          if(mFavoriteAdapter != null) {
+            mFavoriteAdapter.notifyDataSetChanged();
+          }
         }
-      });
+        else {
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              mMarkingsAdapter.add(marked);
+              mMarkingsAdapter.add(reminder);
+              
+              if(sync != null) {
+                mMarkingsAdapter.add(sync);
+              }
+              
+              mMarkingsAdapter.notifyDataSetChanged();
+            }
+          });
+        }
+      }catch(IllegalStateException ise) {}
     }
   }
   
