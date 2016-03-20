@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.6.0.5</h2>
+		<h2>0.6.0.6</h2>
+            &bull; fehlende Anzeige laufender und abgelaufener Sendungen im Tab Sendungsliste korrigiert<br>
+            &bull; sicherere Abspeicherung der Sendersortierung<br>
+            &bull; weitere Fehler beseitigt<br>
+		<h3>0.6.0.5</h3>
             &bull; Benutzerabfrage bevor die Sender alphabetisch sortiert werden<br>
             &bull; Fehler beseitigt<br>
 		<h3>0.6.0.4</h3>

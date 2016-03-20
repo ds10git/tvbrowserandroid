@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.6.0.5</h2>
+		<h2>0.6.0.6</h2>
+            &bull; fixed missing listing of running and expired programs in program list tab<br>
+            &bull; safer storing of sorting of channels<br>
+            &bull; fixed bugs<br>
+		<h3>0.6.0.5</h3>
             &bull; ask user before sorting alphabetically<br>
             &bull; fixed bugs<br>
 		<h3>0.6.0.4</h3>

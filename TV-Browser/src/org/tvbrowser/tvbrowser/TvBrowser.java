@@ -2936,8 +2936,11 @@ public class TvBrowser extends ActionBarActivity implements
               
               int firstVisible = channelSort.getFirstVisiblePosition();
               
+              boolean changed = false;
+              
               for(int i = startIndex; i <= endIndex; i++) {
                 if(i == droppedPos || aa.getItem(i).getSortNumber() != 0) {
+                  changed = true;
                   aa.getItem(i).setSortNumber(++previousNumber);
                   
                   if(i >= firstVisible) {
@@ -2949,7 +2952,10 @@ public class TvBrowser extends ActionBarActivity implements
                   }
                 }
               }
-            
+              
+              if(!changed) {
+                aa.getItem(position).setSortNumber(position+1);
+              }
             }
           });
           
