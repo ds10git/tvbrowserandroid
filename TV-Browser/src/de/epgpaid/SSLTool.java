@@ -16,7 +16,8 @@
  */
 package de.epgpaid;
 
-import java.security.NoSuchAlgorithmException;
+import android.annotation.SuppressLint;
+
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
 
@@ -28,13 +29,11 @@ import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.X509TrustManager;
 
-import android.test.MoreAsserts;
-import android.util.Log;
-
 public class SSLTool {
   private static SSLSocketFactory mOriginalSSLSocketFactory;
   private static HostnameVerifier mOriginalHostnameVerifier;
   
+  @SuppressLint("TrulyRandom")
   public static void disableCertificateValidation() {
     // Create a trust manager that does not validate certificate chains
     TrustManager[] trustAllCerts = new TrustManager[] { 
@@ -62,9 +61,11 @@ public class SSLTool {
       if(mOriginalHostnameVerifier == null) {
         mOriginalHostnameVerifier = HttpsURLConnection.getDefaultHostnameVerifier();
       }
-      
+
+      // Apply PRNGFixes in Application#onCreate before using SecureRandom.
       SSLContext sc = SSLContext.getInstance("SSL");
       sc.init(null, trustAllCerts, new SecureRandom());
+
       HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
       HttpsURLConnection.setDefaultHostnameVerifier(hv);
     } catch (Exception e) {}
