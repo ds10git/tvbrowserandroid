@@ -176,6 +176,8 @@ public class TvBrowser extends ActionBarActivity implements
     ActionBar.TabListener {
   private static final boolean TEST_VERSION = false;
   
+  private static final int ID_LINKIFY_DISABLED = 0;
+  
   private static final int SHOW_PREFERENCES = 1;
   private static final int OPEN_FILTER_EDIT = 2;
   private static final int INSTALL_PLUGIN = 3;
@@ -680,9 +682,7 @@ public class TvBrowser extends ActionBarActivity implements
       });
       builder.setCancelable(false);
       
-      
-      AlertDialog dialog = builder.create();
-      dialog.show();
+      showAlertDialog(builder);
     }
     else {
       handleResume();
@@ -810,6 +810,68 @@ public class TvBrowser extends ActionBarActivity implements
       }, 1000);
     }
   }
+  
+  private void showAlertDialog(AlertDialog.Builder dialogBuilder) {
+    showAlertDialog(dialogBuilder, false);
+  }
+  
+  private void showAlertDialog(AlertDialog.Builder dialogBuilder, boolean linkifyMessage) {
+    showAlertDialog(dialogBuilder, linkifyMessage, null);
+  }
+  
+  private void showAlertDialog(AlertDialog.Builder dialogBuilder, boolean linkifyMessage, Runnable postShowingRunnable) {
+    showAlertDialog(dialogBuilder, linkifyMessage, postShowingRunnable, null);
+  }
+    
+  private void showAlertDialog(AlertDialog.Builder dialogBuilder, boolean linkifyMessage, Runnable postShowingRunnable, Runnable throwableRunnable) {
+    showAlertDialog(dialogBuilder, linkifyMessage ? android.R.id.message : ID_LINKIFY_DISABLED, postShowingRunnable, throwableRunnable);
+  }
+  
+  private void showAlertDialog(AlertDialog.Builder dialogBuilder, int linkifyId, Runnable postShowingRunnable, Runnable throwableRunnable) {
+    final AlertDialog dialog = dialogBuilder.create();
+    
+    showAlertDialog(dialog, linkifyId, postShowingRunnable, throwableRunnable);
+  }
+  
+  private void showAlertDialog(AlertDialog dialog) {
+    showAlertDialog(dialog, false);
+  }
+  
+  private void showAlertDialog(AlertDialog dialog, boolean linkifyMessage) {
+    showAlertDialog(dialog, false, null);
+  }
+  
+  private void showAlertDialog(AlertDialog dialog, boolean linkifyMessage, Runnable postShowingRunnable) {
+    showAlertDialog(dialog, linkifyMessage, postShowingRunnable, null);
+  }
+  
+  private void showAlertDialog(AlertDialog dialog, boolean linkifyMessage, Runnable postShowingRunnable, Runnable throwableRunnable) {
+    showAlertDialog(dialog, linkifyMessage ? android.R.id.message : ID_LINKIFY_DISABLED, postShowingRunnable, throwableRunnable);
+  }
+  
+  private void showAlertDialog(AlertDialog dialog, int linkifyId, Runnable postShowingRunnable, Runnable throwableRunnable) {
+    try {
+      if(TvBrowser.this.getWindow().getDecorView().isShown()) {
+        dialog.show();
+        
+        if(linkifyId != ID_LINKIFY_DISABLED) {
+          final TextView test = ((TextView)dialog.findViewById(linkifyId));
+          
+          if(test != null) {
+            test.setMovementMethod(LinkMovementMethod.getInstance());
+          }
+        }
+      
+        if(postShowingRunnable != null) {
+          postShowingRunnable.run();
+        }
+      }    
+    }catch(Throwable t) {
+      if(throwableRunnable != null) {
+        throwableRunnable.run();
+      }
+    }
+  }
 
   private static boolean SHOWING_EPGPAID_INFO = false;
   private static boolean SHOWING_DONATION_INFO = false;
@@ -852,14 +914,16 @@ public class TvBrowser extends ActionBarActivity implements
             }
           });
           
-          AlertDialog d = builder.show();
-          ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
-          
-          SHOWING_EPGPAID_INFO = true;
-          
-          final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
-          edit.putBoolean(getString(R.string.PREF_EPGPAID_INFO_SHOWN), true);
-          edit.commit();
+          showAlertDialog(builder, true, new Runnable() {
+            @Override
+            public void run() {
+              SHOWING_EPGPAID_INFO = true;
+              
+              final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
+              edit.putBoolean(getString(R.string.PREF_EPGPAID_INFO_SHOWN), true);
+              edit.commit();              
+            }
+          });
         }
       });
     }
@@ -962,8 +1026,12 @@ public class TvBrowser extends ActionBarActivity implements
               }
             });
             
-            builder.show();
-            SHOWING_DONATION_INFO = true;
+            showAlertDialog(builder, false, new Runnable() {
+              @Override
+              public void run() {
+                SHOWING_DONATION_INFO = true;
+              }
+            });
           }
         });
       }
@@ -1089,8 +1157,7 @@ public class TvBrowser extends ActionBarActivity implements
       });
       builder.setCancelable(false);
       
-      AlertDialog dialog = builder.create();
-      dialog.show();
+      showAlertDialog(builder);
     }
     else {
       if(!selectingChannels && !PrefUtils.getChannelsSelected(getApplicationContext())) {
@@ -1130,8 +1197,7 @@ public class TvBrowser extends ActionBarActivity implements
       }
     });
     
-    AlertDialog dialog = builder.create();
-    dialog.show();
+    showAlertDialog(builder);
   }
   
   private void showChannelSelection() {
@@ -1171,11 +1237,7 @@ public class TvBrowser extends ActionBarActivity implements
         }
       });
       
-      AlertDialog d = builder.create();
-      
-      d.show();
-  
-      ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+      showAlertDialog(builder,true);
     }
   }
   
@@ -1218,7 +1280,7 @@ public class TvBrowser extends ActionBarActivity implements
           }
         });
         
-        builder.show();
+        showAlertDialog(builder);
       }
       else {
         synchronizeChannels(false);
@@ -1709,7 +1771,7 @@ public class TvBrowser extends ActionBarActivity implements
       
       builder.setNegativeButton(android.R.string.cancel,null);
       
-      builder.show();
+      showAlertDialog(builder);
     }
     else {
       showNoInternetConnection(getString(R.string.no_network_info_data_pref_backup), null);
@@ -1913,7 +1975,7 @@ public class TvBrowser extends ActionBarActivity implements
       
       builder.setNegativeButton(android.R.string.cancel,null);
       
-      builder.show();
+      showAlertDialog(builder);
     }
     else {
       showNoInternetConnection(getString(R.string.no_network_info_data_pref_restore), null);
@@ -2615,7 +2677,7 @@ public class TvBrowser extends ActionBarActivity implements
                 }
               });
               
-              builder.show();
+              showAlertDialog(builder);
             }
           }
         });
@@ -2640,7 +2702,7 @@ public class TvBrowser extends ActionBarActivity implements
           }
         });
         
-        builder.show();
+        showAlertDialog(builder);
       }
     }
     
@@ -2738,7 +2800,7 @@ public class TvBrowser extends ActionBarActivity implements
                 }
               });
               
-              builder.show();
+              showAlertDialog(builder);
             }
           }
         }
@@ -3019,7 +3081,7 @@ public class TvBrowser extends ActionBarActivity implements
               
               builder.setNegativeButton(android.R.string.cancel, null);
               
-              builder.show();
+              showAlertDialog(builder);
             }
           });
           
@@ -3048,7 +3110,8 @@ public class TvBrowser extends ActionBarActivity implements
                 }
               });
               builder.setNegativeButton(android.R.string.cancel, null);
-              builder.show();
+              
+              showAlertDialog(builder);
             }
           });
           
@@ -3091,8 +3154,7 @@ public class TvBrowser extends ActionBarActivity implements
             }
           });
           
-          
-          builder.show();
+          showAlertDialog(builder);
         }
       }finally {
         IOUtils.close(channels);
@@ -3125,7 +3187,7 @@ public class TvBrowser extends ActionBarActivity implements
       });
       builder.setNegativeButton(android.R.string.cancel, null);
       
-      builder.show();
+      showAlertDialog(builder);
     }
     else if(!TvDataUpdateService.isRunning() && IOUtils.isDatabaseAccessible(TvBrowser.this)) {
       Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, null);
@@ -3270,7 +3332,7 @@ public class TvBrowser extends ActionBarActivity implements
               });
               b2.setNegativeButton(android.R.string.cancel, null);
               
-              b2.show();
+              showAlertDialog(b2);
             }
           };
           
@@ -3319,7 +3381,8 @@ public class TvBrowser extends ActionBarActivity implements
             }
           });
           builder.setNegativeButton(android.R.string.cancel, null);
-          builder.show();
+          
+          showAlertDialog(builder);
         }
         else {
           Cursor test2 = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null);
@@ -3389,7 +3452,7 @@ public class TvBrowser extends ActionBarActivity implements
           }
         });
         
-        builder.show();
+        showAlertDialog(builder);
       }
     });
   }
@@ -3473,12 +3536,8 @@ public class TvBrowser extends ActionBarActivity implements
         }
       }
     });
-
-    AlertDialog d = builder.create();
     
-    d.show();
-
-    ((TextView)d.findViewById(R.id.user_pw_sync_info)).setMovementMethod(LinkMovementMethod.getInstance());
+    showAlertDialog(builder,R.id.user_pw_sync_info,null,null);
   }
   
   private void showNoInternetConnection(String type, final Runnable callback) {
@@ -3496,7 +3555,7 @@ public class TvBrowser extends ActionBarActivity implements
       }
     });
     
-    builder.show();
+    showAlertDialog(builder);
   }
   
   private void checkTermsAccepted() {
@@ -3533,11 +3592,7 @@ public class TvBrowser extends ActionBarActivity implements
         }
       });
       
-      AlertDialog d = builder.create();
-            
-      d.show();
-
-      ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+      showAlertDialog(builder, true);
     }
   }
   
@@ -3796,17 +3851,7 @@ public class TvBrowser extends ActionBarActivity implements
       });
     }
     
-    AlertDialog d = builder.create();
-    
-    d.show();
-    
-    if(link) {
-      TextView test = (TextView)d.findViewById(android.R.id.message);
-
-      if(test != null) {
-        test.setMovementMethod(LinkMovementMethod.getInstance());
-      }
-    }
+    showAlertDialog(builder, link);
   }
   
   @Override
@@ -4050,7 +4095,8 @@ public class TvBrowser extends ActionBarActivity implements
                   builder.setTitle(R.string.dialog_epgpaid_invalid_title);
                   builder.setMessage(R.string.dialog_epgpaid_invalid_message);
                   builder.setPositiveButton(android.R.string.ok, null);
-                  builder.show();
+                  
+                  showAlertDialog(builder);
                 }
               });
             }
@@ -4087,15 +4133,14 @@ public class TvBrowser extends ActionBarActivity implements
           });
         }
         
-        try {
-          if(TvBrowser.this.getWindow().getDecorView().isShown()) {
-            builder.show();
+        showAlertDialog(builder, false, null, new Runnable() {
+          @Override
+          public void run() {
+            Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
+            edit.putBoolean(getString(R.string.PREF_INFO_VERSION_UPDATE_SHOW), false);
+            edit.commit();
           }
-        }catch(Exception bte) {
-          Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
-          edit.putBoolean(getString(R.string.PREF_INFO_VERSION_UPDATE_SHOW), false);
-          edit.commit();
-        }
+        });
       }
     });
   }
@@ -4153,7 +4198,7 @@ public class TvBrowser extends ActionBarActivity implements
       }
     });
     
-    builder.show();
+    showAlertDialog(builder);
   }
   
   private void synchronizeDontWantToSee() {
@@ -4176,7 +4221,7 @@ public class TvBrowser extends ActionBarActivity implements
       }
     });
     
-    builder.show();
+    showAlertDialog(builder);
   }
   
   private void pauseReminder() {
@@ -4201,7 +4246,7 @@ public class TvBrowser extends ActionBarActivity implements
       }
     });
     
-    builder.show();
+    showAlertDialog(builder);
   }
   
   private void sendLogMail(String file, String type) {
@@ -4232,7 +4277,7 @@ public class TvBrowser extends ActionBarActivity implements
         public void onClick(DialogInterface arg0, int arg1) {}
       });
       
-      builder.show();
+      showAlertDialog(builder);
     }
   }
   
@@ -4264,7 +4309,7 @@ public class TvBrowser extends ActionBarActivity implements
       public void onClick(DialogInterface arg0, int arg1) {}
     });
     
-    builder.show();
+    showAlertDialog(builder);
   }
   
   private void openFilterEdit() {
@@ -4394,10 +4439,7 @@ public class TvBrowser extends ActionBarActivity implements
                 }
               });
               
-              AlertDialog d = builder.create();
-              d.show();
-              
-              ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
+              showAlertDialog(builder, true);
             }
           });
         }
@@ -4449,7 +4491,7 @@ public class TvBrowser extends ActionBarActivity implements
             }
           });
           
-          builder.show();
+          showAlertDialog(builder);
         }
       });
     }
@@ -4561,7 +4603,7 @@ public class TvBrowser extends ActionBarActivity implements
         }
       });
       
-      builder.show();
+      showAlertDialog(builder);
     }
     else {
       showEpgDonateInfo();
@@ -4788,16 +4830,7 @@ public class TvBrowser extends ActionBarActivity implements
           handler.post(new Runnable() {
             @Override
             public void run() {
-              Window w = getWindow();
-              
-              if(w != null && w.isActive()) {
-                try {
-                  AlertDialog d = builder.create();
-                  d.show();
-                
-                  ((TextView)d.findViewById(android.R.id.message)).setMovementMethod(LinkMovementMethod.getInstance());
-                }catch(BadTokenException e) {}
-              }
+              showAlertDialog(builder,true);
             }
           });
           
@@ -4952,7 +4985,8 @@ public class TvBrowser extends ActionBarActivity implements
     builder.setTitle("CURRENT PLUGIN MARKINGS");
     builder.setMessage(markValue.toString());
     builder.setPositiveButton(android.R.string.ok, null);
-    builder.show();
+    
+    showAlertDialog(builder);
   }
   
   @Override
@@ -5552,7 +5586,7 @@ public class TvBrowser extends ActionBarActivity implements
     }
     
     if(donated == null || showIfAlreadyDonated) {
-      d.show();
+      showAlertDialog(d);
     }
     else if(donated != null) {
       AlertDialog.Builder alert2 = new AlertDialog.Builder(TvBrowser.this);
@@ -5576,7 +5610,7 @@ public class TvBrowser extends ActionBarActivity implements
               updateProgressIcon(false);
               
               if(result.isSuccess()) {
-                d.show();
+                showAlertDialog(d);
               }
               else {
                 handler.post(new Runnable() {
@@ -5596,7 +5630,7 @@ public class TvBrowser extends ActionBarActivity implements
         public void onClick(DialogInterface dialog, int which) {}
       });
       
-      alert2.show();
+      showAlertDialog(alert2);
     }
   }
   
@@ -5648,7 +5682,7 @@ public class TvBrowser extends ActionBarActivity implements
       });
     }
     
-    alert.show();
+    showAlertDialog(alert);
   }
   
   private void listPurchaseItems() {
@@ -5751,7 +5785,7 @@ public class TvBrowser extends ActionBarActivity implements
                       public void onClick(DialogInterface dialog, int which) {}
                     });
                     
-                    alert2.show();
+                    showAlertDialog(alert2);
                   }
                 }
               }, Long.toHexString(Double.doubleToLongBits(Math.random())));
@@ -5760,7 +5794,7 @@ public class TvBrowser extends ActionBarActivity implements
         }
       });
       
-      alert.show();
+      showAlertDialog(alert);
     }
   }
   
@@ -5810,7 +5844,7 @@ public class TvBrowser extends ActionBarActivity implements
       }
     });
     
-    d.show();
+    showAlertDialog(d);
   }
   
   private void showRatingAndDonationInfo() {
@@ -5916,7 +5950,7 @@ public class TvBrowser extends ActionBarActivity implements
       }
     });
     
-    d.show();
+    showAlertDialog(d,true);
   }
   
   @Override
@@ -6072,7 +6106,8 @@ public class TvBrowser extends ActionBarActivity implements
         builder.setTitle("SQL QUERY SELECTION INFO");
         builder.setMessage(message.toString());
         builder.setPositiveButton(android.R.string.ok, null);
-        builder.show();
+        
+        showAlertDialog(builder);
       }
     }
   }

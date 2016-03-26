@@ -69,9 +69,9 @@ public class EPGpaidDataConnection {
     
     Authenticator.setDefault(mAuthenticator);
     
-    if(!PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_CHECK_SSL, R.bool.pref_epgpaid_check_ssl_default)) {
+    /*if(!PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_CHECK_SSL, R.bool.pref_epgpaid_check_ssl_default)) {
       SSLTool.disableCertificateValidation();
-    }
+    }*/
     
     try {
       if(openGetConnection(DOMAIN+"login_android.php") == HttpURLConnection.HTTP_OK) {
@@ -201,7 +201,7 @@ public class EPGpaidDataConnection {
     closeHttpConnection();
     
     Authenticator.setDefault(null);
-    SSLTool.resetCertificateValidation();
+    //SSLTool.resetCertificateValidation();
   }
   
   private int openPostConnection(String url, String parameter) throws Exception {
