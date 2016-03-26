@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.6.0.6</h2>
+        <h2>0.6.0.7</h2>
+            &bull; Möglichkeit zur Deaktivierung der SSL-Prüfung für die EPGpaid-Download entfernt<br>
+            &bull; Fehler beseitigt<br>
+		<h3>0.6.0.6</h3>
             &bull; fehlende Anzeige laufender und abgelaufener Sendungen im Tab Sendungsliste korrigiert<br>
             &bull; sicherere Abspeicherung der Sendersortierung<br>
             &bull; weitere Fehler beseitigt<br>
@@ -569,7 +572,7 @@
 	<string name="channel_selection_label_text_name">Name:</string>
 	<string name="channel_selection_input_name_hint">Name des Filters eingeben</string>
 	<string name="synchronize_title">Sender synchronisieren?</string>
-	<string name="synchronize_text">Sie können die Sender aus dem Desktop-TV-Browser synchronisieren.\n\nDazu müssen Sie sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> und die Sender aus dem Desktop-TV-Browser mit dem Android-Sync Plugin exportieren.\n\nUm die <u><b>App ohne Synchronistation</b></u> nutzen zu können, müssen sie sich <u><b>nicht registrieren</b></u>.\n\nMöchten Sie die Sender jetzt synchronisieren oder möchten Sie die Sender manuell auswählen?</string>
+	<string name="synchronize_text">Sie <b>können</b> die Sender aus dem Desktop-TV-Browser synchronisieren.\n\nIn diesem Fall müssen Sie sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> und die Sender aus dem Desktop-TV-Browser mit dem Android-Sync Plugin exportieren.\n\nTV-Browser kann auch <u><b>ohne Synchronistation</b></u> benutzt werden, in diesem Fall muss man sich <u><b>nicht registrieren</b></u>.\n\nMöchten Sie die Sender jetzt synchronisieren oder möchten Sie die Sender manuell auswählen?</string>
 	<string name="synchronize_ok">Sender jetzt\nsynchronisieren</string>
 	<string name="synchronizing_channels">Sender synchronisieren&#8230;</string>
 	<string name="synchronize_cancel">Sender manuell\nauswählen</string>

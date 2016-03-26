@@ -15,7 +15,7 @@
  * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package de.epgpaid;
-
+/*
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
 import java.security.cert.X509Certificate;
@@ -30,9 +30,9 @@ import javax.net.ssl.X509TrustManager;
 
 import android.test.MoreAsserts;
 import android.util.Log;
-
+*/
 public class SSLTool {
-  private static SSLSocketFactory mOriginalSSLSocketFactory;
+  /*private static SSLSocketFactory mOriginalSSLSocketFactory;
   private static HostnameVerifier mOriginalHostnameVerifier;
   
   public static void disableCertificateValidation() {
@@ -77,5 +77,5 @@ public class SSLTool {
     if(mOriginalHostnameVerifier != null) {
       HttpsURLConnection.setDefaultHostnameVerifier(mOriginalHostnameVerifier);
     }
-  }
+  }*/
 }
