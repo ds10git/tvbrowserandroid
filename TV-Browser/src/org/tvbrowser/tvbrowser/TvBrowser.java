@@ -650,43 +650,59 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void showTerms() {
-    if(!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.EULA_ACCEPTED, false)) {
-      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-      builder.setTitle(R.string.terms_of_use);
-      
-      ScrollView layout = (ScrollView)getLayoutInflater().inflate(R.layout.dialog_terms, getParentViewGroup(), false);
-      
-      ((TextView)layout.findViewById(R.id.terms_license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
-      
-      builder.setView(layout);
-      builder.setPositiveButton(R.string.terms_of_use_accept, new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-          edit.putBoolean(SettingConstants.EULA_ACCEPTED, true);
-          edit.commit();
-          
+    new Thread("SHOW TERMS") {
+      @Override
+      public void run() {
+        try {
+          sleep(2000);
+        } catch (InterruptedException e) {
+          // ignore
+        }
+
+        if(!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.EULA_ACCEPTED, false)) {
           handler.post(new Runnable() {
             @Override
             public void run() {
-              handleResume();
+              AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+              builder.setTitle(R.string.terms_of_use);
+              
+              ScrollView layout = (ScrollView)getLayoutInflater().inflate(R.layout.dialog_terms, getParentViewGroup(), false);
+              
+              ((TextView)layout.findViewById(R.id.terms_license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
+              
+              builder.setView(layout);
+              builder.setPositiveButton(R.string.terms_of_use_accept, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                  Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+                  edit.putBoolean(SettingConstants.EULA_ACCEPTED, true);
+                  edit.commit();
+                  
+                  handler.post(new Runnable() {
+                    @Override
+                    public void run() {
+                      handleResume();
+                    }
+                  });
+                }
+              });
+              builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                  System.exit(0);
+                }
+              });
+              builder.setCancelable(false);
+              
+              showAlertDialog(builder);
             }
           });
         }
-      });
-      builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          System.exit(0);
+        else {
+          handleResume();
         }
-      });
-      builder.setCancelable(false);
-      
-      showAlertDialog(builder);
-    }
-    else {
-      handleResume();
-    }
+      }
+    }.start();
   }
   
   @Override
