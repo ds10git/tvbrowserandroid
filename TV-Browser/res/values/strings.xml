@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.6.0.8</h2>
+		<h2>0.6.0.9</h2>
+            &bull; fixed possible crash at startup<br>
+		<h3>0.6.0.8</h3>
             &bull; fixed missing setup message at frist startup<br>
 		<h3>0.6.0.7</h3>
             &bull; removed ability to disable SSL check for EPGpaid downloads<br>

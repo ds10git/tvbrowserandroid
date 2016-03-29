@@ -659,10 +659,10 @@ public class TvBrowser extends ActionBarActivity implements
           // ignore
         }
 
-        if(!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.EULA_ACCEPTED, false)) {
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            if(!PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).getBoolean(SettingConstants.EULA_ACCEPTED, false)) {
               AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
               builder.setTitle(R.string.terms_of_use);
               
@@ -696,11 +696,11 @@ public class TvBrowser extends ActionBarActivity implements
               
               showAlertDialog(builder);
             }
-          });
-        }
-        else {
-          handleResume();
-        }
+            else {
+              handleResume();
+            }
+          }
+        });
       }
     }.start();
   }
