@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.0.7</h2>
+		<h2>0.6.0.8</h2>
+            &bull; Anzeige zum Setup nach erstem Start wiederhergestellt<br>
+		<h3>0.6.0.7</h3>
             &bull; Möglichkeit zur Deaktivierung der SSL-Prüfung für die EPGpaid-Download entfernt<br>
             &bull; Fehler beseitigt<br>
 		<h3>0.6.0.6</h3>
