@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <!-- MISC PREF KEYS -->
+    	<string name="PREF_MISC_LAST_KNOWN_OPEN_DATE">PREF_MISC_LAST_KNOWN_OPEN_DATE</string>
     
     <!--  Database settings -->
     

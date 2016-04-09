@@ -76,6 +76,8 @@
 		<item type="id" name="color_pref_green1" />
 		<item type="id" name="color_pref_blue1" />
 		<item type="id" name="color_pref_alpha1" />
+		<item type="id" name="color_pref_hex_label" />
+		<item type="id" name="color_pref_hex_input" />
 		
 	<!--  color_widget -->
 		

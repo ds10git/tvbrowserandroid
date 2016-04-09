@@ -23,9 +23,15 @@ import org.tvbrowser.view.ColorView;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
+import android.text.Editable;
+import android.text.InputFilter;
+import android.text.Spanned;
+import android.text.TextWatcher;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.SeekBar;
 
 /**
@@ -106,6 +112,8 @@ public class ColorPreference extends DialogPreference {
     final SeekBar green = (SeekBar)view.findViewById(R.id.color_pref_green1);
     final SeekBar blue = (SeekBar)view.findViewById(R.id.color_pref_blue1);
     final SeekBar alpha = (SeekBar)view.findViewById(R.id.color_pref_alpha1);
+    final EditText hex = (EditText)view.findViewById(R.id.color_pref_hex_input);
+    hex.setText(String.format("%08x", mColor));
     
     Button reset = (Button)view.findViewById(R.id.color_pref_reset);
     reset.setOnClickListener(new View.OnClickListener() {
@@ -148,11 +156,15 @@ public class ColorPreference extends DialogPreference {
         else if(seekBar.equals(alpha)) {
           index = 0;
         }
+        
         if(index >= 0) {
           int[] colorValues = UiUtils.getColorValues(mDialogColorView.getColor());
           colorValues[index] = progress;
           
-          mDialogColorView.setColor(UiUtils.getColorForValues(colorValues));
+          int color = UiUtils.getColorForValues(colorValues);
+          
+          mDialogColorView.setColor(color);
+          hex.setText(String.format("%08x", color));
         }
       }
     };
@@ -161,6 +173,38 @@ public class ColorPreference extends DialogPreference {
     green.setOnSeekBarChangeListener(changeListener);
     blue.setOnSeekBarChangeListener(changeListener);
     alpha.setOnSeekBarChangeListener(changeListener);
+    
+    hex.addTextChangedListener(new TextWatcher() {
+      @Override
+      public void onTextChanged(CharSequence s, int start, int before, int count) {
+        // TODO Auto-generated method stub
+        
+      }
+      
+      @Override
+      public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+        // TODO Auto-generated method stub
+        
+      }
+      
+      @Override
+      public void afterTextChanged(Editable s) {
+        String value = s.toString();
+                  
+        if(value.trim().length() == 8) {
+          try {
+            int[] colorValues = UiUtils.getColorValues((int)Long.parseLong(value, 16));
+            
+            alpha.setProgress(colorValues[0]);
+            red.setProgress(colorValues[1]);
+            green.setProgress(colorValues[2]);
+            blue.setProgress(colorValues[3]);
+          }catch(NumberFormatException nfe) {
+            Log.d("info4", "", nfe);
+          }
+        }
+      }
+    });
   }
 
   @Override

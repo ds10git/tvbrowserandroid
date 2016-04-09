@@ -19,13 +19,47 @@
     	android:layout_height="wrap_content"
     	android:layout_alignParentStart="true"
     	android:layout_alignParentLeft="true"
-    	android:layout_margin="5dp"
+    	android:layout_marginLeft="5dp"
+    	android:layout_marginStart="5dp"
+    	android:layout_marginTop="5dp"
+    	android:layout_marginRight="5dp"
+    	android:layout_marginEnd="5dp"
     	android:layout_below="@id/color_pref_color_activated"
-    	android:layout_alignBottom="@id/color_pref_blue1"/>
+    	android:layout_alignBottom="@id/color_pref_green1"/>
+    <TextView
+        android:id="@id/color_pref_hex_label"
+        android:layout_width="wrap_content"
+        android:text="HEX #"
+        android:layout_height="wrap_content"
+        android:layout_alignParentStart="true"
+        android:layout_alignParentLeft="true"
+        android:layout_marginTop="2dp"
+        android:layout_marginLeft="5dp"
+        android:layout_marginStart="5dp"
+        android:layout_marginBottom="2dp"
+        android:layout_alignBaseline="@id/color_pref_hex_input"
+        android:layout_below="@id/color_pref_color_view"/>
+    <EditText
+        android:id="@id/color_pref_hex_input"
+        android:singleLine="true"
+        android:text="00000000"
+        android:digits="0123456789abcdefABCDEF"
+		android:inputType="textNoSuggestions"
+        android:scrollHorizontally="true"
+        android:layout_toRightOf="@id/color_pref_hex_label"
+        android:layout_toEndOf="@id/color_pref_hex_label"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_alignRight="@id/color_pref_color_view"
+        android:layout_alignEnd="@id/color_pref_color_view"
+        android:layout_marginTop="2dp"
+        android:layout_marginBottom="2dp"
+        android:layout_below="@id/color_pref_color_view"
+        android:maxLength="8"/>
     <Button 
         android:id="@id/color_pref_reset"
         android:layout_width="wrap_content"
-        android:layout_below="@id/color_pref_color_view"
+        android:layout_below="@id/color_pref_hex_input"
         android:layout_height="wrap_content"
         android:text="@string/pref_marking_color_reset"/>
     <TextView

@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.6.0.9</h2>
+		<h2>0.6.1</h2>
+			&bull; mehrere aktive Filter möglich<br>
+			&bull; Möglichkeit Farben mit HEX-Eingabe festzulegen hinzugefügt<br>
+			&bull; Datumsauswahl wird nach Tageswechsel aktualisiert, auch wenn TV-Browser nicht mit der Rücktaste verlassen wurde<br>
+            &bull; Zeitauswahl im Layout von Android vor Lollipop<br>
+		<h3>0.6.0.9</h3>
             &bull; möglichen Absturz beim Start beseitigt<br>
 		<h3>0.6.0.8</h3>
             &bull; Anzeige zum Setup nach erstem Start wiederhergestellt<br>

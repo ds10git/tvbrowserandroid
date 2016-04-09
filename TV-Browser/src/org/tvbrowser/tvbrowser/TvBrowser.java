@@ -141,7 +141,6 @@ import android.view.SubMenu;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -183,8 +182,8 @@ public class TvBrowser extends ActionBarActivity implements
   private static final int INSTALL_PLUGIN = 3;
   private static final int SHOW_PLUGIN_PREFERENCES = 4;
   
-  private FilterValues mCurrentFilter;
-  private String mCurrentFilterId;
+  private HashSet<FilterValues> mCurrentFilter;
+  private Set<String> mCurrentFilterId;
     
   /**
    * The {@link android.support.v4.view.PagerAdapter} that will provide
@@ -250,9 +249,7 @@ public class TvBrowser extends ActionBarActivity implements
     
   private int mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
   private long mProgramListScrollTime = -1;
-  
-  private FilterValues mAllFilter;
-  
+    
  // private int mCurrentDay;
   
   static {
@@ -305,8 +302,12 @@ public class TvBrowser extends ActionBarActivity implements
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     handler = new Handler();
+    mCurrentFilter = new HashSet<FilterValues>();
+    mCurrentFilterId = new HashSet<String>();
     mInfoType = INFO_TYPE_NOTHING;
     PrefUtils.initialize(TvBrowser.this);
+    
+    PrefUtils.updateKnownOpenDate(getApplicationContext());
     
     Intent start = getIntent();
     
@@ -503,6 +504,18 @@ public class TvBrowser extends ActionBarActivity implements
       if(oldVersion < 369) {
         final Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
         edit.putBoolean(getString(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE), false);
+        edit.commit();
+      }
+      if(oldVersion < 379) {
+        final HashSet<String> values = new HashSet<String>();
+        final String currentFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, null);
+        
+        if(currentFilterId != null) {
+          values.add(currentFilterId);
+        }
+        
+        final Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+        edit.putStringSet(getString(R.string.CURRENT_FILTER_ID), values);
         edit.commit();
       }
       
@@ -740,13 +753,32 @@ public class TvBrowser extends ActionBarActivity implements
       }
     };
     
+    if(PrefUtils.isNewDate(getApplicationContext())) {
+      handler.postDelayed(new Runnable() {
+        @Override
+        public void run() {
+          Intent refresh = new Intent(SettingConstants.DATA_UPDATE_DONE);
+          TvBrowser.this.sendBroadcast(refresh);
+        }
+      }, 2000);
+    }
+    
     IntentFilter filter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
     
     TvBrowser.this.registerReceiver(mUpdateDoneBroadcastReceiver, filter);
     
-    mCurrentFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, SettingConstants.ALL_FILTER_ID);
+    mCurrentFilterId = PrefUtils.getStringSetValue(R.string.CURRENT_FILTER_ID, new HashSet<String>());
+    mCurrentFilter.clear();
     
-    if(!mCurrentFilterId.contains(SettingConstants.ALL_FILTER_ID)) {
+    if(!mCurrentFilterId.isEmpty()) {
+      for(final String currentFilterIds : mCurrentFilterId) {
+        final FilterValues filterValue = FilterValues.load(currentFilterIds,TvBrowser.this);
+        
+        if(filterValue != null) {
+          mCurrentFilter.add(filterValue);
+        }
+      }
+      /*
       mCurrentFilter = FilterValues.load(mCurrentFilterId,TvBrowser.this);
       
       if(mCurrentFilter instanceof FilterValuesChannels && mProgramListChannelId != FragmentProgramsList.NO_CHANNEL_SELECTION_ID && !getFilterSelection(true).contains(String.valueOf(mProgramListChannelId)) && !mCurrentFilterId.equals(SettingConstants.ALL_FILTER_ID)) {
@@ -759,11 +791,13 @@ public class TvBrowser extends ActionBarActivity implements
         mCurrentFilter = FilterValues.load(SettingConstants.ALL_FILTER_ID, TvBrowser.this);
       }
       
-      mCurrentFilterId = mCurrentFilter.getId();
+      mCurrentFilterId = mCurrentFilter.getId();*/
     }
-    else {
+    
+    updateFilter();
+ /*   else {
       mCurrentFilter = FilterValues.load(SettingConstants.ALL_FILTER_ID, TvBrowser.this);
-    }
+    }*/
     
     if(mProgramListChannelId != FragmentProgramsList.NO_CHANNEL_SELECTION_ID) {
       showProgramsListTab(false);
@@ -809,8 +843,8 @@ public class TvBrowser extends ActionBarActivity implements
     if(intent != null && intent.hasExtra(SettingConstants.CHANNEL_ID_EXTRA)) {
       int channelId = intent.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA,0);
       
-      if(mCurrentFilter instanceof FilterValuesChannels && !getFilterSelection(true).contains(String.valueOf(channelId)) && !mCurrentFilterId.equals(SettingConstants.ALL_FILTER_ID)) {
-        updateChannelFilter(mAllFilter,R.drawable.ic_filter_default);
+      if(!getFilterSelection(true).contains(String.valueOf(channelId)) && !mCurrentFilter.isEmpty()) {
+        clearChannelFilters();
       }
       
       final Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
@@ -4341,11 +4375,39 @@ public class TvBrowser extends ActionBarActivity implements
     updateProgramListChannelBar();
   }
   
-  private void updateChannelFilter(FilterValues filter, int iconRes) {
-    mCurrentFilterId = filter.getId();
-    mCurrentFilter = filter;
-    setCurrentFilterPreference(mCurrentFilterId);
-    mFilterItem.setIcon(iconRes);
+  private void updateFilter() {
+    updateCurrentFilterPreference();
+    
+    if(mFilterItem != null) {
+      if(mCurrentFilter.isEmpty()) {
+        mFilterItem.setIcon(R.drawable.ic_filter_default);
+      }
+      else {
+        mFilterItem.setIcon(R.drawable.ic_filter_on);
+      }
+    }
+
+    sendChannelFilterUpdate();
+  }
+  
+  private void clearChannelFilters() {
+    final FilterValues[] filterValues = mCurrentFilter.toArray(new FilterValues[mCurrentFilter.size()]);
+    
+    for(FilterValues filterValue : filterValues) {
+      if(filterValue instanceof FilterValuesChannels) {
+        mCurrentFilter.remove(filterValue);
+        mCurrentFilterId.remove(filterValue.getId());
+      }
+    }
+    
+    updateCurrentFilterPreference();
+    
+    if(mCurrentFilter.isEmpty()) {
+      mFilterItem.setIcon(R.drawable.ic_filter_default);
+    }
+    else {
+      mFilterItem.setIcon(R.drawable.ic_filter_on);
+    }
 
     sendChannelFilterUpdate();
   }
@@ -4665,51 +4727,75 @@ public class TvBrowser extends ActionBarActivity implements
       int groupId = 3;
       int id = 1;
       
-      mAllFilter = FilterValues.load(SettingConstants.ALL_FILTER_ID, TvBrowser.this);
-      
-      MenuItem all = filters.add(groupId, id++, groupId, mAllFilter.toString());
+      MenuItem all = filters.add(groupId, id++, groupId, getString(R.string.activity_edit_filter_list_text_all));
       all.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
         @Override
         public boolean onMenuItemClick(MenuItem item) {
-          updateChannelFilter(mAllFilter,R.drawable.ic_filter_default);
-          item.setChecked(true);
+          mCurrentFilterId.clear();
+          mCurrentFilter.clear();
+          
+          for(int i = 0; i < FILTER_MAX_ID; i++) {
+            final MenuItem filterItem = filters.findItem(i);
+            
+            if(filterItem != null) {
+              filterItem.setChecked(false);
+            }
+          }
+          
+          updateFilter();
+          
           return true;
         }
       });
-             
-      if(mCurrentFilterId == null || mAllFilter.getId().endsWith(mCurrentFilterId)) {
-        all.setChecked(true);
-      }
+      
+      boolean isActiveFilter = false;
       
       for(final FilterValues filter : channelFilterList) {
-        MenuItem item = filters.add(groupId, id++, groupId, filter.toString());
+        final MenuItem item = filters.add(Menu.NONE, id++, groupId, filter.toString());
+        item.setCheckable(true);
         
-        if(mCurrentFilterId != null && filter.getId().endsWith(mCurrentFilterId)) {
-          mFilterItem.setIcon(R.drawable.ic_filter_on);
+        if(mCurrentFilterId.contains(filter.getId())) {
           item.setChecked(true);
+          isActiveFilter = true;
         }
         
         item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
           @Override
           public boolean onMenuItemClick(MenuItem item) {
-            updateChannelFilter(filter,R.drawable.ic_filter_on);
-            item.setChecked(true);
+            if(item.isChecked()) {
+              mCurrentFilterId.remove(filter.getId());
+              mCurrentFilter.remove(filter);
+            }
+            else {
+              mCurrentFilterId.add(filter.getId());
+              mCurrentFilter.add(filter);
+            }
+            
+            item.setChecked(!item.isChecked());
+            updateFilter();
             
             return true;
           }
         });
       }
       
-      FILTER_MAX_ID = id;
+      if(isActiveFilter) {
+        mFilterItem.setIcon(R.drawable.ic_filter_on);
+      }
+      else {
+        mFilterItem.setIcon(R.drawable.ic_filter_default);
+      }
       
-      filters.setGroupCheckable(groupId, true, true);
+      FILTER_MAX_ID = id;
     }
   }
   
-  private void setCurrentFilterPreference(String id) {
-    Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
-    edit.putString(getString(R.string.CURRENT_FILTER_ID), id);
-    edit.commit();
+  private void updateCurrentFilterPreference() {
+    if(mCurrentFilterId != null) {
+      Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+      edit.putStringSet(getString(R.string.CURRENT_FILTER_ID), mCurrentFilterId);
+      edit.commit();
+    }
   }
   
   private void searchPlugins(final boolean showChannelUpdateInfo) {
@@ -6026,20 +6112,20 @@ public class TvBrowser extends ActionBarActivity implements
     }
   }
   
-  public String getFilterSelection(boolean onlyChanneFilter) {
-    if(mCurrentFilter != null && (!onlyChanneFilter || mCurrentFilter instanceof FilterValuesChannels)) {
-      return mCurrentFilter.getWhereClause(getApplicationContext()).getWhere();
-    }
-    
-    return "";
+  public String getFilterSelection(boolean onlyChannelFilter) {
+    return PrefUtils.getFilterSelection(getApplicationContext(), onlyChannelFilter, mCurrentFilter);
   }
   
   public String getCategoryFilterSelection() {
-    if(mCurrentFilter != null && mCurrentFilter instanceof FilterValuesCategories) {
-      return mCurrentFilter.getWhereClause(getApplicationContext()).getWhere();
+    final StringBuilder result = new StringBuilder();
+    
+    for(FilterValues values : mCurrentFilter) {
+      if(values instanceof FilterValuesCategories) {
+        result.append(values.getWhereClause(getApplicationContext()).getWhere());
+      }
     }
     
-    return "";
+    return result.toString();
   }
   
   /*
