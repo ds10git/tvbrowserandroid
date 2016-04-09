@@ -333,7 +333,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     try {
       PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-      
+      //PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().remove(getString(R.string.CURRENT_FILTER_ID)).commit();
       int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
       
       if(oldVersion < 339) {
@@ -1918,7 +1918,15 @@ public class TvBrowser extends ActionBarActivity implements
                         edit.putLong(parts[0], Long.valueOf(parts[1].trim()));
                       }
                       else if(type.equals("string")) {
-                        edit.putString(parts[0], parts[1].trim());
+                        if(getString(R.string.CURRENT_FILTER_ID).equals(parts[0])) {
+                          HashSet<String> set = new HashSet<String>();
+                          set.add(parts[1].trim());
+                          
+                          edit.putStringSet(parts[0], set);
+                        }
+                        else {
+                          edit.putString(parts[0], parts[1].trim());
+                        }
                       }
                       else if(type.equals("set")) {
                         HashSet<String> set = new HashSet<String>();
