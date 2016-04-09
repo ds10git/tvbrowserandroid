@@ -2,6 +2,8 @@ package org.tvbrowser.filter;
 
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.HashSet;
+import java.util.Set;
 
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.R;
@@ -101,22 +103,26 @@ public abstract class FilterValues {
   }
   
   public static final void deleteFilter(Context context, FilterValues filter) {
-    Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, context).edit();
+    final String filterId = filter.getClass().getCanonicalName() + SEPARATOR_CLASS + filter.getId();
     
-    String filterId = filter.getClass().getCanonicalName() + SEPARATOR_CLASS + filter.getId();
+    PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, context).edit().remove(filterId).remove(filter.getId()).commit();
     
-    edit.remove(filterId);
-    edit.remove(filter.getId());
-    edit.commit();
+    final SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context);
     
-    SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context);
+    final Set<String> test = pref.getStringSet(context.getString(R.string.CURRENT_FILTER_ID), new HashSet<String>());
     
-    String test = pref.getString(context.getString(R.string.CURRENT_FILTER_ID), SettingConstants.ALL_FILTER_ID);
+    final String[] idValues = test.toArray(new String[test.size()]);
+    boolean removed = false;
     
-    if(test.equals(filter.getId())) {
-      edit = pref.edit();
-      edit.putString(context.getString(R.string.CURRENT_FILTER_ID), SettingConstants.ALL_FILTER_ID);
-      edit.commit();
+    for(String id : idValues) {
+      if(id.equals(filter.getId())) {
+        test.remove(id);
+        removed = true;
+      }
+    }
+    
+    if(removed) {
+      pref.edit().putStringSet(context.getString(R.string.CURRENT_FILTER_ID), test).commit();
     }
   }
   
