@@ -20,7 +20,6 @@ import java.util.Calendar;
 import java.util.Date;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.filter.FilterValues;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.CompatUtils;
@@ -33,7 +32,6 @@ import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
@@ -159,20 +157,16 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
           where = " ( " +TvBrowserContentProvider.DATA_KEY_STARTTIME+ ">=" + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " {0} ) GROUP BY ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " ";
         }
         
-        String mCurrentChannelFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, SettingConstants.ALL_FILTER_ID);
-        
         mUserDefindedColorChannel = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_CHANNEL, null));
         mUserDefindedColorTime = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_TIME, R.string.pref_widget_color_time_default));
         mUserDefindedColorTitel = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_TITLE, R.string.pref_widget_color_title_default));
         mUserDefindedColorCategoryDefault = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_CATEGORY, null));
         mUserDefindedColorEpisode = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_EPISODE, null));
         
-        SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, mContext);
+        String values = PrefUtils.getFilterSelection(mContext);
         
-        String values = pref.getString(mCurrentChannelFilterId, null);
-        
-        if(mCurrentChannelFilterId != null && values != null) {
-          where = where.replace("{0}", FilterValues.load(mCurrentChannelFilterId, values).getWhereClause(mContext).getWhere());
+        if(values != null && values.trim().length() > 0) {
+          where = where.replace("{0}", values);
         }
         else {
           where = where.replace("{0}", "");

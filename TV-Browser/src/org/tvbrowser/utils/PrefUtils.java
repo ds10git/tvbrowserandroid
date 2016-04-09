@@ -16,10 +16,13 @@
  */
 package org.tvbrowser.utils;
 
+import java.util.Calendar;
 import java.util.HashSet;
 import java.util.Set;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.filter.FilterValues;
+import org.tvbrowser.filter.FilterValuesChannels;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.R;
 
@@ -281,5 +284,78 @@ public class PrefUtils {
   
   public static boolean getChannelsSelected(Context context) {
     return getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).getBoolean(context.getString(R.string.CHANNELS_SELECTED), context.getResources().getBoolean(R.bool.channels_selected_default));
+  }
+  
+  public static final String getFilterSelection(final Context context, final Set<String> filterIds) {
+    final HashSet<FilterValues> filterValues = new HashSet<FilterValues>();
+    
+    for(String filterId : filterIds) {
+      final FilterValues filter = FilterValues.load(filterId, context);
+      
+      if(filter != null && !filterValues.contains(filter)) {
+        filterValues.add(filter);
+      }
+    }
+    
+    return getFilterSelection(context, false, filterValues);
+  }
+  
+  public static final String getFilterSelection(final Context context, final boolean onlyChannelFilter, final HashSet<FilterValues> filterValues) {
+    final StringBuilder channels =  new StringBuilder();
+    final StringBuilder result = new StringBuilder();
+    
+    for(FilterValues values : filterValues) {
+      if(values instanceof FilterValuesChannels) {
+        final int[] ids = ((FilterValuesChannels) values).getFilteredChannelIds();
+        
+        for(final int id : ids) {
+          if(channels.length() > 0) {
+            channels.append(", ");
+          }
+          
+          channels.append(id);
+        }
+      }
+      else if(!onlyChannelFilter) {
+        result.append(values.getWhereClause(context).getWhere());
+      }
+    }
+    
+    if(channels.length() > 0) {
+      result.append(" AND ").append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID).append(" IN ( ");
+      result.append(channels);
+      result.append(" ) ");
+    }
+    
+    return result.toString();
+  }
+  
+  public static final String getFilterSelection(Context context) {
+    final SharedPreferences pref = getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context);
+        
+    int oldVersion = pref.getInt(context.getString(R.string.OLD_VERSION), 379);
+    
+    Set<String> currentFilterIds = new HashSet<String>();
+    
+    if(oldVersion < 379) {
+      final String currentFilterId = pref.getString(context.getString(R.string.CURRENT_FILTER_ID), null);
+      
+      if(currentFilterId != null) {
+        currentFilterIds.add(currentFilterId);
+      }
+    }
+    else {
+      currentFilterIds = pref.getStringSet(context.getString(R.string.CURRENT_FILTER_ID), currentFilterIds);
+    }
+    
+    return getFilterSelection(context, currentFilterIds);
+  }
+  
+  public static final boolean isNewDate(Context context) {
+    return Calendar.getInstance().get(Calendar.DAY_OF_YEAR) != getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).getInt(context.getString(R.string.PREF_MISC_LAST_KNOWN_OPEN_DATE), -1);
+  }
+  
+  public static final void updateKnownOpenDate(Context context) {
+    getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putInt(context.getString(R.string.PREF_MISC_LAST_KNOWN_OPEN_DATE), Calendar.getInstance().get(Calendar.DAY_OF_YEAR)).commit();
   }
 }

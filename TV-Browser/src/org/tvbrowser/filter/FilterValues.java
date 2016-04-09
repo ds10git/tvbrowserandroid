@@ -1,5 +1,6 @@
 package org.tvbrowser.filter;
 
+import java.util.Arrays;
 import java.util.Comparator;
 
 import org.tvbrowser.settings.SettingConstants;
@@ -10,6 +11,7 @@ import org.tvbrowser.utils.PrefUtils;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.util.Log;
 import android.view.ViewGroup;
 
 public abstract class FilterValues {
@@ -116,5 +118,20 @@ public abstract class FilterValues {
       edit.putString(context.getString(R.string.CURRENT_FILTER_ID), SettingConstants.ALL_FILTER_ID);
       edit.commit();
     }
+  }
+  
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(getId().getBytes());
+  }
+  
+  @Override
+  public boolean equals(Object o) {
+    Log.d("info4", this + " equals " + o);
+    if(o instanceof FilterValues) {
+      return getId().equals(((FilterValues) o).getId());
+    }
+    
+    return super.equals(o);
   }
 }
