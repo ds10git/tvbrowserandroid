@@ -4,6 +4,8 @@
 		<h2>0.6.1</h2>
 			&bull; more than one filter at a time possible<br>
 			&bull; added possibility to enter color with HEX code<br>
+			&bull; keep old version of EPGpaid data to lessen missing data for programs<br>
+			&bull; make sure plugins are load again after TV-Browser is resumed without being left with the back button<br>
 			&bull; update date selections after day changed without using back button to leave TV-Browser<br>
             &bull; time selection with layout of Android prior of Lollipop<br>
 		<h3>0.6.0.9</h3>

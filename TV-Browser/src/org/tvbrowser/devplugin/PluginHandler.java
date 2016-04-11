@@ -52,6 +52,7 @@ public final class PluginHandler {
   private static ArrayList<PluginServiceConnection> PLUGIN_LIST;
   
   private static PluginManager PLUGIN_MANAGER;
+  private static boolean RELOAD = true;
   
   private static final AtomicInteger BLOG_COUNT = new AtomicInteger(0);
   
@@ -223,7 +224,7 @@ public final class PluginHandler {
     Logging.log(null, message, Logging.TYPE_PLUGIN, context);
   }
   
-  public static final void loadPlugins(Context context1, Handler handler) {
+  public static final synchronized void loadPlugins(Context context1, Handler handler) {
     try {
       doLog(context1, "loadPlugins");
       
@@ -233,7 +234,11 @@ public final class PluginHandler {
       
       if(PLUGIN_LIST == null) {
         PLUGIN_LIST = new ArrayList<PluginServiceConnection>();
-        
+        RELOAD = true;
+      }
+      
+      if(RELOAD) {
+        RELOAD = false;
        // loadFirstAndLastProgramId(context);
         ProgramUtils.handleFirstAndLastKnownProgramId(context, PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_FIRST_KNOWN, R.integer.meta_data_id_default), PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_LAST_KNOWN, R.integer.meta_data_id_default));
         
@@ -241,15 +246,16 @@ public final class PluginHandler {
         Intent baseIntent = new Intent( PluginHandler.PLUGIN_ACTION );
         baseIntent.setFlags( Intent.FLAG_DEBUG_LOG_RESOLUTION );
         List<ResolveInfo> list = packageManager.queryIntentServices(baseIntent, PackageManager.GET_RESOLVED_FILTER );
-        
+        doLog(context, "ResoleInfo list size: " + list.size());
         for( int i = 0 ; i < list.size() ; ++i ) {
           ResolveInfo info = list.get( i );
           ServiceInfo sinfo = info.serviceInfo;
-          
+          doLog(context, "ServiceInfo for "+i+" "+sinfo);
           if(sinfo != null) {
+            doLog(context, "  sinfo: " + sinfo.packageName+" "+ sinfo.name);
             PluginServiceConnection plugin = new PluginServiceConnection(sinfo.packageName, sinfo.name, context);
             
-            if(plugin.bindPlugin(context, null)) {
+            if(!PLUGIN_LIST.contains(plugin) && plugin.bindPlugin(context, null)) {
               PLUGIN_LIST.add(plugin);
             }
           }
@@ -266,7 +272,8 @@ public final class PluginHandler {
         }, 2000);
       }
       
-      incrementBlogCount();
+      incrementBlogCountIfZero();
+      
       doLog(context1, "Plugin reference count " + BLOG_COUNT.get());
     }catch(Throwable t) {
       
@@ -390,6 +397,13 @@ public final class PluginHandler {
   static void removePluginServiceConnection(PluginServiceConnection connection) {
     if(PluginHandler.PLUGIN_LIST != null) {
       PluginHandler.PLUGIN_LIST.remove(connection);
+      RELOAD = true;
+    }
+  }
+  
+  public static void incrementBlogCountIfZero() {
+    if(BLOG_COUNT.get() == 0) {
+      BLOG_COUNT.incrementAndGet();
     }
   }
   

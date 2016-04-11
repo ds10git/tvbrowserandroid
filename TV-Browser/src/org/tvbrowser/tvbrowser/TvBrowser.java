@@ -244,6 +244,7 @@ public class TvBrowser extends ActionBarActivity implements
   private Stack<ProgramsListState> mProgamListStateStack;
   private BroadcastReceiver mUpdateDoneBroadcastReceiver;
   
+  private long mCreateTime;
   private long mResumeTime;
   private IabHelper mHelper;
     
@@ -627,6 +628,8 @@ public class TvBrowser extends ActionBarActivity implements
       mViewPager.setCurrentItem(startTab);      
     }
     
+    mCreateTime = System.currentTimeMillis();
+    
     IOUtils.postDelayedInSeparateThread("LOAD PLUGINS WAITING THREAD", new Runnable() {
       @Override
       public void run() {
@@ -730,6 +733,15 @@ public class TvBrowser extends ActionBarActivity implements
     
     if(mUpdateItem != null && !TvDataUpdateService.isRunning()) {
       updateProgressIcon(false);
+    }
+    
+    if(mResumeTime - mCreateTime > 5000) {
+      IOUtils.postDelayedInSeparateThread("LOAD PLUGINS WAITING THREAD", new Runnable() {
+        @Override
+        public void run() {
+          PluginHandler.loadPlugins(getApplicationContext(),handler);
+        }
+      }, 2000);
     }
     
    /* if(TEST_VERSION) {

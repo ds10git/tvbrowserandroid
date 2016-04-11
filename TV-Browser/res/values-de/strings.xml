@@ -4,6 +4,8 @@
 		<h2>0.6.1</h2>
 			&bull; mehrere aktive Filter möglich<br>
 			&bull; Möglichkeit Farben mit HEX-Eingabe festzulegen hinzugefügt<br>
+			&bull; letzte Version der EPGpaid-Daten aufbewahren um Lücken in den Daten zu reduzieren<br>
+			&bull; Plugins neu laden wenn TV-Browser fortgesetzt wird nachdem er zuvor nicht mit der Rücktaste verlassen wurde<br>
 			&bull; Datumsauswahl wird nach Tageswechsel aktualisiert, auch wenn TV-Browser nicht mit der Rücktaste verlassen wurde<br>
             &bull; Zeitauswahl im Layout von Android vor Lollipop<br>
 		<h3>0.6.0.9</h3>

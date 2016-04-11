@@ -17,6 +17,7 @@
 package org.tvbrowser.devplugin;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.Logging;
@@ -258,6 +259,24 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   
   public String getId() {
     return mPluginId;
+  }
+  
+  private String getCompareId() {
+    return mPackageId+"."+mPluginId;
+  }
+  
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(getCompareId().getBytes());
+  }
+  
+  @Override
+  public boolean equals(Object o) {
+    if(o instanceof PluginServiceConnection) {
+      return getCompareId().equals(((PluginServiceConnection) o).getCompareId());
+    }
+    
+    return super.equals(o);
   }
 
   @Override
