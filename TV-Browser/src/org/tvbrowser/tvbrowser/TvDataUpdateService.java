@@ -35,6 +35,7 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
@@ -3174,7 +3175,7 @@ public class TvDataUpdateService extends Service {
             
             final Properties propertiesNew = IOUtils.readPropertiesFile(fileSummaryNew);
             
-            final ArrayList<String> downloadFiles = new ArrayList<String>();
+            final ArrayList<EPGpaidDownloadFile> downloadFiles = new ArrayList<EPGpaidDownloadFile>();
             
             Set<Object> newData = propertiesNew.keySet();
             
@@ -3190,7 +3191,7 @@ public class TvDataUpdateService extends Service {
                   newVersion = newVersion.substring(0,newVersion.indexOf(","));
                   doLog(keyString + " currentVersion " + currentVersion + " newVersion " + newVersion);
                   if(Integer.parseInt(newVersion) > Integer.parseInt(currentVersion)) {
-                    downloadFiles.add(key.toString()+"base.gz");
+                    downloadFiles.add(new EPGpaidDownloadFile(Integer.parseInt(newVersion),key.toString()+"base.gz"));
                   }
                   
                   break;
@@ -3204,20 +3205,22 @@ public class TvDataUpdateService extends Service {
 
             int count = 0;
             
-            for(String download : downloadFiles) {
-              File target = new File(epgPaidPath,download);
-              File old = new File(epgPaidPath,download+"_old");
+            for(EPGpaidDownloadFile download : downloadFiles) {
+              File target = new File(epgPaidPath,download.mFileName);
+              File old = new File(epgPaidPath,download+"_old_"+(download.mVersion-1));
+              File previous = new File(epgPaidPath,download+"_old_"+(download.mVersion-2));
+              
+              if(previous.isFile()) {
+                previous.delete();
+              }
               
               if(target.isFile()) {
                 target.renameTo(old);
               }
               
-              epgPaidConnection.download(download, target);
+              epgPaidConnection.download(download.mFileName, target);
               
-              if(target.isFile()) {
-                old.delete();
-              }
-              else if(old.isFile()) {
+              if(!target.isFile()) {
                 old.renameTo(target);
               }
               
@@ -3238,7 +3241,6 @@ public class TvDataUpdateService extends Service {
         }finally {
           IOUtils.close(channelsIn);
         }
-        
       }
       else if(oldChannels.isFile()) {
         oldChannels.renameTo(channels);
@@ -3290,11 +3292,29 @@ public class TvDataUpdateService extends Service {
       mBuilder.setContentText(getResources().getText(R.string.update_data_notification_epgpaid_process));
       notification.notify(ID_NOTIFY, mBuilder.build());
       
-      for(File dataFile : dataFiles) {
+      for(final File dataFile : dataFiles) {
         doLog("updateDataFromFile " + dataFile.getAbsolutePath());
-        byte version = handler.readContentValues(dataFile, currentDataIds);
-        doLog("loadVersion " + version);
-        propertiesCurrent.setProperty(dataFile.getName(), version+",0,0");
+        EPGpaidResult result = handler.readContentValues(dataFile, currentDataIds);
+        doLog("loadVersion " + result.mVersion);
+        propertiesCurrent.setProperty(dataFile.getName(), result.mVersion+",0,0");
+        
+        if(result.mHadUnknownIds) {
+          doLog("EPGpaid Missing IDs try to load old data");
+          
+          File[] oldFiles = epgPaidPath.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+              return file.getName().startsWith(dataFile.getName()) && file.getName().contains("_old_");
+            }
+          });
+          doLog("EPGpaid old data count: " + oldFiles.length);
+          
+          Arrays.sort(oldFiles);
+          
+          for(int i = oldFiles.length-1; i >= 0; i--) {
+            result = handler.readContentValues(oldFiles[i], currentDataIds);
+          }
+        }
         
         count++;
         
@@ -4058,17 +4078,17 @@ public class TvDataUpdateService extends Service {
   }
   
   private class EPGpaidDataHandler {
-    public final byte readContentValues(File file, Hashtable<String, Long> currentDataIds) {
+    public final EPGpaidResult readContentValues(File file, Hashtable<String, Long> currentDataIds) {
       DataInputStream in = null;
-      byte dataVersion = 0;
+      final EPGpaidResult result = new EPGpaidResult((byte)0);
       
       try {
         in = new DataInputStream(new BufferedInputStream(IOUtils.decompressStream(new FileInputStream(file))));
         
         byte fileVersion = in.readByte();
-        dataVersion = in.readByte();
+        result.setVersion(in.readByte());
       
-        final DataInfo dataInfo = new DataInfo(fileVersion,dataVersion,in.readShort());
+        final DataInfo dataInfo = new DataInfo(fileVersion,result.mVersion,in.readShort());
         
         String[] fileParts = file.getName().split("_");
         
@@ -4077,6 +4097,10 @@ public class TvDataUpdateService extends Service {
         utc.setTimeInMillis(Long.parseLong(file.getName().substring(0, file.getName().indexOf("_"))) * 60000L);
         
         final long date = utc.getTimeInMillis();
+        
+        if(dataInfo.getFrameCount() == 0) {
+          result.setHadUnknownIds();
+        }
         
         for(int i = 0; i < dataInfo.getFrameCount(); i++) {
           // read program id
@@ -4218,7 +4242,7 @@ public class TvDataUpdateService extends Service {
           if(titleKey != null) {
             key += ";" + startTime + ";" + titleKey;
             
-            Long programId = currentDataIds.get(key);
+            Long programId = currentDataIds.remove(key);
             
             if(programId != null) {
               ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, programId));
@@ -4226,17 +4250,21 @@ public class TvDataUpdateService extends Service {
            
               mDataDatabaseOperation.addUpdate(opBuilder.build());
             }
+            else {
+              result.setHadUnknownIds();
+            }
           }
         }
         
       }catch(IOException ioe) {
+        result.setHadUnknownIds();
         Log.d("info8", "", ioe);
         //ioe.printStackTrace();
       }finally {
         IOUtils.close(in);
       }
       
-      return dataVersion;
+      return result;
     }
   }
   
@@ -5045,4 +5073,34 @@ public class TvDataUpdateService extends Service {
   }
   
   private static final class EPGdonateSummary extends Properties implements Summary {}
+  
+  private static final class EPGpaidDownloadFile {
+    private int mVersion;
+    private String mFileName;
+    
+    private EPGpaidDownloadFile(int version, String fileName) {
+      mVersion = version;
+      mFileName = fileName;
+    }
+  }
+  
+  private static final class EPGpaidResult {
+    private byte mVersion;
+    private boolean mHadUnknownIds;
+    
+    private EPGpaidResult(byte version) {
+      mVersion = version;
+      mHadUnknownIds = false;
+    }
+    
+    private void setVersion(byte version) {
+      mVersion = version;
+    }
+    
+    private void setHadUnknownIds() {
+      if(!mHadUnknownIds) {
+        mHadUnknownIds = true;
+      }
+    }
+  }
 }

@@ -21,6 +21,7 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
+import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -1055,6 +1056,51 @@ public class IOUtils {
           TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + "<"
               + daysSince1970, null);
     } catch (IllegalArgumentException e) {
+    }
+    
+    final File pathBase = getDownloadDirectory(context);
+    
+    if(pathBase.isDirectory()) {
+      final File epgPaidPath = new File(pathBase, "epgPaidData");
+      
+      if(epgPaidPath.isDirectory()) {
+        final File fileSummaryCurrent = new File(epgPaidPath,"summary.gz");
+        final Properties currentProperties = readPropertiesFile(fileSummaryCurrent);
+        
+        if(!currentProperties.isEmpty()) {
+          final long startMinute = cal2.getTimeInMillis() / 60000;
+          
+          final File[] toDelete = pathBase.listFiles(new FileFilter() {
+            @Override
+            public boolean accept(File file) {
+              boolean result = false;
+              int index = file.getName().indexOf("_");
+              
+              if(index > 0) {
+                try {
+                  result = Long.parseLong(file.getName().substring(0,index)) < startMinute;
+                }catch(NumberFormatException nfe) {}
+              }
+              
+              return result;
+            }
+          });
+          
+          for(final File file : toDelete) {
+            if(file.getName().endsWith("_base.gz")) {
+              int index = file.getName().lastIndexOf("base.gz");
+              
+              currentProperties.remove(file.getName().substring(0, index));
+            }
+            
+            if(!file.delete()) {
+              file.deleteOnExit();
+            }
+          }
+          
+          storeProperties(currentProperties, fileSummaryCurrent, "Properties of EPGpaid");
+        }
+      }
     }
   }
   
