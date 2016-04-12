@@ -16,6 +16,7 @@
  */
 package org.tvbrowser.utils;
 
+import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -559,7 +560,25 @@ public class UiUtils {
                   String shortDescriptionValue = null;
                   String descriptionValue = null;
                   boolean showShortDescription = true;
+                  
+                  boolean showEpgPaidInfo = PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_DESCRIPTION_MISSING_INFO, R.bool.pref_epgpaid_description_missing_default);
+                  
+                  if(showEpgPaidInfo) {
+                    final Set<String> channelIds = PrefUtils.getStringSetValue(R.string.PREF_EPGPAID_DATABASE_CHANNEL_IDS, new HashSet<String>());
+                    
+                    showEpgPaidInfo = channelIds.contains(String.valueOf(channelID));
+                    
+                    if(showEpgPaidInfo) {
+                      final File epgPaidDir = new File(IOUtils.getDownloadDirectory(context),"epgPaidData");
                       
+                      if(epgPaidDir.isDirectory()) {
+                        final File[] test = epgPaidDir.listFiles();
+                        
+                        showEpgPaidInfo = (test.length <= 2);
+                      }
+                    }
+                  }
+                  
                   if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION))) {
                     shortDescriptionValue = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION)).trim();
                   }
@@ -607,6 +626,10 @@ public class UiUtils {
                         }
                       }
                     }
+                  }
+                  
+                  if(showEpgPaidInfo && shortDescriptionValue == null && descriptionValue == null) {
+                    descriptionValue = context.getString(R.string.detail_missing_description_text);
                   }
                   
                   if(shortDescriptionValue == null || !showShortDescription) {

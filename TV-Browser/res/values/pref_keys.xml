@@ -2,7 +2,7 @@
 <resources>
     <!-- MISC PREF KEYS -->
     	<string name="PREF_MISC_LAST_KNOWN_OPEN_DATE">PREF_MISC_LAST_KNOWN_OPEN_DATE</string>
-    
+    	
     <!--  Database settings -->
     
     	<string name="PREF_DATABASE_OLD_PATH">PREF_DATABASE_OLD_PATH</string>
@@ -50,6 +50,7 @@
 	    <string name="PREF_KEPT_DELETED_CHANNELS">PREF_KEPT_DELETED_CHANNELS</string>
     
     <!-- EPGpaid settings -->
+        <string name="PREF_EPGPAID_DATABASE_CHANNEL_IDS">PREF_EPGPAID_DATABASE_CHANNEL_IDS</string>
     
 	    <string name="PREF_EPGPAID_USER">PREF_EPGPAID_USER</string>
 	    <string name="PREF_EPGPAID_FIRST_START">PREF_EPGPAID_FIRST_START</string>
@@ -58,6 +59,9 @@
 	    <string name="PREF_EPGPAID_PASSWORD">PREF_EPGPAID_PASSWORD</string>
 	    <string name="PREF_EPGPAID_DOWNLOAD_MAX">PREF_EPGPAID_DOWNLOAD_MAX</string>
 	    <item name="pref_epgpaid_download_max_default" type="string" format="string">3</item>
+	    
+	    <string name="PREF_EPGPAID_DESCRIPTION_MISSING_INFO">PREF_EPGPAID_DESCRIPTION_MISSING_INFO</string>
+	    <item name="pref_epgpaid_description_missing_default" type="bool" format="boolean">true</item>
 	    
 	    <string name="PREF_EPGPAID_CHECK_SSL">PREF_EPGPAID_CHECK_SSL</string>
 	    <item name="pref_epgpaid_check_ssl_default" type="bool" format="boolean">true</item>

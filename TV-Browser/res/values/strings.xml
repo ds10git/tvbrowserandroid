@@ -5,6 +5,7 @@
 			&bull; more than one filter at a time possible<br>
 			&bull; added possibility to enter color with HEX code<br>
 			&bull; keep old version of EPGpaid data to lessen missing data for programs<br>
+			&bull; prevent timed auto update at hours the data might be inconsistent if EPGpaid is unlocked<br>
 			&bull; make sure plugins are load again after TV-Browser is resumed without being left with the back button<br>
 			&bull; update date selections after day changed without using back button to leave TV-Browser<br>
             &bull; time selection with layout of Android prior of Lollipop<br>
@@ -637,6 +638,8 @@
 	<string name="pref_download_category">Data Download</string>
 	<string name="pref_epgpaid_category">EPGpaid data</string>
 	<string name="pref_epgpaid_settings_category">EPGpaid settings</string>
+	<string name="pref_epgpaid_show_missing_info_title">Show missing descriptions</string>
+	<string name="pref_epgpaid_show_missing_info_summary">Shows info if EPGpaid is not unlocked about missing descriptions in detail view.</string>
 	<string name="pref_epgpaid_user_name_title">Username:</string>
 	<string name="pref_epgpaid_user_empty_summary">Not entered</string>
 	<string name="pref_epgpaid_user_password_set_summary">********</string>
@@ -671,6 +674,7 @@
 	<string name="pref_open">Open preferences</string>
 	<string name="pref_detail_category">Detail window</string>
 	<string name="pref_detail_category_summary">Which information should be shown in the details window?</string>
+	<string name="detail_missing_description_text">No description or picture can be shown for this program because of license restrictions.\n\nYou can unlock the descriptions and pictures for less than 1 Euro cent.\n\nMore about it at https://www.epgpaid.de</string>
 	<string name="pref_detail_picture_zoom">Zoom value for picture</string>
 	<string name="pref_detail_text_scale">Zoom value for text</string>
 	<string name="pref_list_category">Lists with programs</string>

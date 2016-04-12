@@ -5,6 +5,7 @@
 			&bull; mehrere aktive Filter möglich<br>
 			&bull; Möglichkeit Farben mit HEX-Eingabe festzulegen hinzugefügt<br>
 			&bull; letzte Version der EPGpaid-Daten aufbewahren um Lücken in den Daten zu reduzieren<br>
+			&bull; Autoupdate nach Zeit nur zu Zeitpunkten an denen die EPGpaid-Daten synchron mit dem Basisdaten sind, wenn EPGpaid aktiviert ist<br>
 			&bull; Plugins neu laden wenn TV-Browser fortgesetzt wird nachdem er zuvor nicht mit der Rücktaste verlassen wurde<br>
 			&bull; Datumsauswahl wird nach Tageswechsel aktualisiert, auch wenn TV-Browser nicht mit der Rücktaste verlassen wurde<br>
             &bull; Zeitauswahl im Layout von Android vor Lollipop<br>
@@ -632,6 +633,8 @@
 	<string name="pref_download_category">Datendownload</string>
 	<string name="pref_epgpaid_category">EPGpaid-Daten</string>
 	<string name="pref_epgpaid_settings_category">EPGpaid-Einstellungen</string>
+	<string name="pref_epgpaid_show_missing_info_title">Info bei fehlender Beschreibung</string>
+	<string name="pref_epgpaid_show_missing_info_summary">Zeigt Info im Detail-Fenster, wenn EPGpaid nicht freigeschaltet ist und keine Beschreibung für eine Sendung vorliegt.</string>
 	<string name="pref_epgpaid_user_name_title">Benutzername</string>
 	<string name="pref_epgpaid_user_empty_summary">Nicht eingegeben</string>
 	<string name="pref_epgpaid_user_password_set_summary">********</string>
@@ -667,6 +670,7 @@
 	<string name="pref_open">Einstellungen öffnen</string>
 	<string name="pref_detail_category">Detail-Fenster</string>
 	<string name="pref_detail_category_summary">Welche Informationen sollen im Detail-Fenster angezeigt werden?</string>
+	<string name="detail_missing_description_text">Für diese Sendung kann aus lizenzrechtlichen Gründen keine kostenlose Beschreibung und kein Bild angezeigt werden.\n\nSie können die Beschreibungen und Bilder jedoch für weniger als 1 Cent pro Tag freischalten.\n\nMehr dazu unter https://www.epgpaid.de</string>
 	<string name="pref_detail_picture_zoom">Bild skalieren</string>
 	<string name="pref_detail_text_scale">Text skalieren</string>
 	<string name="pref_list_category">Listen mit Sendungen</string>
