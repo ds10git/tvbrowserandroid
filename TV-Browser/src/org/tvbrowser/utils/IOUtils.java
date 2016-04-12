@@ -39,6 +39,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.TimeZone;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -675,7 +676,26 @@ public class IOUtils {
           current = System.currentTimeMillis();
         }
         
-        time += ((int)(Math.random() * 6 * 60));
+        if(PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, "").trim().length() > 0 && 
+            PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, "").trim().length() > 0) {
+          Calendar test = Calendar.getInstance(TimeZone.getTimeZone("CET"));
+          test.set(Calendar.SECOND, 0);
+          test.set(Calendar.MILLISECOND, 0);
+          
+          int timeTest = time;
+          
+          do {
+            timeTest = time + ((int)(Math.random() * 6 * 60));
+            test.set(Calendar.HOUR_OF_DAY, timeTest/60);
+            test.set(Calendar.MINUTE, timeTest%60);
+          }while(test.get(Calendar.HOUR_OF_DAY) >= 23 || test.get(Calendar.HOUR_OF_DAY) < 4 ||
+              (test.get(Calendar.HOUR_OF_DAY) >= 15 && test.get(Calendar.HOUR_OF_DAY) < 17));
+          
+          time = timeTest;
+        }
+        else {
+          time += ((int)(Math.random() * 6 * 60));
+        }
         
         Calendar last = Calendar.getInstance();
         last.setTimeInMillis(lastDate);

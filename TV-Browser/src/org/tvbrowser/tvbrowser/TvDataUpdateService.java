@@ -142,7 +142,39 @@ public class TvDataUpdateService extends Service {
   
   private ArrayList<String> mChannelsNew;
   private ArrayList<Integer> mChannelsUpdate;
-    
+  
+  private static final Comparator<File> DATA_FILE_OLD_COMPARATOR = new Comparator<File>() {
+    @Override
+    public int compare(File lhs, File rhs) {
+      final int lIndex = lhs.getName().lastIndexOf("_old_");
+      final int rIndex = lhs.getName().lastIndexOf("_old_");
+      
+      int result = 0;
+      
+      if(lIndex != -1 && rIndex != -1) {
+        try {
+          int lVersion = Integer.parseInt(lhs.getName().substring(lIndex+5));
+          int rVersion = Integer.parseInt(rhs.getName().substring(rIndex+5));
+          
+          if(lVersion - rVersion < 0) {
+            result = -1;
+          }
+          else if(lVersion - rVersion > 0) {
+            result = 1;
+          }
+        }catch(NumberFormatException nfe) {}
+      }
+      else if(lIndex != -1) {
+        result = -1;
+      }
+      else if(rIndex != -1) {
+        result = 1;
+      }
+      
+      return result;
+    }
+  };
+  
   private static final String GROUP_FILE = "groups.txt";
   
   private static final String DEFAULT_GROUPS_URL = "http://www.tvbrowser.org/listings/";
@@ -1248,6 +1280,10 @@ public class TvDataUpdateService extends Service {
     mBuilder.setContentText(getResources().getText(R.string.channel_notification_text));
     startForeground(ID_NOTIFY, mBuilder.build());
     
+    final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvDataUpdateService.this).edit();
+    edit.remove(getString(R.string.PREF_EPGPAID_DATABASE_CHANNEL_IDS));
+    edit.commit();
+    
     mCurrentChannelData = new Hashtable<String, Object>();
     
     mChannelsNew = new ArrayList<String>();
@@ -1280,7 +1316,12 @@ public class TvDataUpdateService extends Service {
     
     final File path = IOUtils.getDownloadDirectory(TvDataUpdateService.this.getApplicationContext());
 
-    File groups = new File(path,GROUP_FILE);
+    final File groups = new File(path,GROUP_FILE);
+    final File epgPaidChannels = new File(path,"epgPaidData/channels.gz");
+    
+    if(epgPaidChannels.isFile() && !epgPaidChannels.delete()) {
+      epgPaidChannels.deleteOnExit();
+    }
     
     String mirror = getGroupFileMirror();
     doLog("LOAD GROUPS FROM '" + mirror + "' to '" + groups + "'");
@@ -3191,7 +3232,7 @@ public class TvDataUpdateService extends Service {
                   newVersion = newVersion.substring(0,newVersion.indexOf(","));
                   doLog(keyString + " currentVersion " + currentVersion + " newVersion " + newVersion);
                   if(Integer.parseInt(newVersion) > Integer.parseInt(currentVersion)) {
-                    downloadFiles.add(new EPGpaidDownloadFile(Integer.parseInt(newVersion),key.toString()+"base.gz"));
+                    downloadFiles.add(new EPGpaidDownloadFile(Integer.parseInt(newVersion),Integer.parseInt(currentVersion),key.toString()+"base.gz"));
                   }
                   
                   break;
@@ -3207,11 +3248,14 @@ public class TvDataUpdateService extends Service {
             
             for(EPGpaidDownloadFile download : downloadFiles) {
               File target = new File(epgPaidPath,download.mFileName);
-              File old = new File(epgPaidPath,download+"_old_"+(download.mVersion-1));
-              File previous = new File(epgPaidPath,download+"_old_"+(download.mVersion-2));
+              File old = new File(epgPaidPath,download.mFileName+"_old_"+(download.mOldVersion));
               
-              if(previous.isFile()) {
-                previous.delete();
+              for(int i = download.mOldVersion-1; i > 0; i--) {
+                File previous = new File(epgPaidPath,download.mFileName+"_old_"+i);
+              
+                if(previous.isFile() && !previous.delete()) {
+                  previous.deleteOnExit();
+                }
               }
               
               if(target.isFile()) {
@@ -3250,6 +3294,87 @@ public class TvDataUpdateService extends Service {
       epgPaidConnection.logout();
     }
     else {
+      final File channels = new File(epgPaidPath,"channels.gz");
+      
+      if(!channels.isFile() || (System.currentTimeMillis() - channels.lastModified() > 30*24*60*60000L)) {
+        final File oldChannels = new File(epgPaidPath,"channels.gz_old");
+        
+        if(oldChannels.isFile()) {
+          oldChannels.delete();
+        }
+        
+        if(channels.isFile()) {
+          channels.renameTo(oldChannels);
+        }
+        
+        if(IOUtils.saveUrl(channels.getAbsolutePath(), "https://www.epgpaid.de/download/channels.gz")) {
+          BufferedReader channelsIn = null;
+          
+          try {
+            channelsIn = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(channels)),"UTF-8"));
+            
+            String line = null;
+            
+            final String[] projection = {
+                TvBrowserContentProvider.KEY_ID
+            };
+            
+            final Hashtable<String, Object> currentGroups = getCurrentGroups();
+            final HashSet<String> epgPaidChannelDatabaseKeys = new HashSet<String>();
+            
+            while((line = channelsIn.readLine()) != null) {
+              String[] idParts = line.split("_");
+              
+              if(idParts.length == 2) {
+                String channelIdKey = null;
+                Object groupInfo = null;
+              
+                if(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_FREE_KEY).equals(idParts[0].trim())) {
+                  final String[] channelParts = idParts[1].split("-");
+                  
+                  final String groupKey = getGroupsKey(SettingConstants.EPG_FREE_KEY,channelParts[0]);
+                  groupInfo = currentGroups.get(groupKey);
+                  channelIdKey = channelParts[1];
+                }
+                else if(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_DONATE_KEY).equals(idParts[0].trim())) {
+                  final String groupKey = getGroupsKey(SettingConstants.EPG_DONATE_KEY,SettingConstants.EPG_DONATE_GROUP_KEY);
+                  groupInfo = currentGroups.get(groupKey);
+                  channelIdKey = idParts[1].trim();
+                }
+                
+                if(channelIdKey != null && groupInfo != null) {
+                  final StringBuilder selection = new StringBuilder();
+                  
+                  selection.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID).append("='").append(channelIdKey).append("'");
+                  selection.append(" AND ");
+                  selection.append(TvBrowserContentProvider.GROUP_KEY_GROUP_ID).append(" IS ").append(((Integer)((Object[])groupInfo)[0]).intValue());
+                  
+                  final Cursor data = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, selection.toString(), null, null);
+                  
+                  try {
+                    if(IOUtils.prepareAccessFirst(data)) {
+                      final String channelId = String.valueOf(data.getInt(data.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
+                      epgPaidChannelDatabaseKeys.add(channelId);
+                    }
+                  }finally {
+                    IOUtils.close(data);
+                  }
+                }
+              }
+            }
+            
+            final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvDataUpdateService.this).edit();
+            edit.putStringSet(getString(R.string.PREF_EPGPAID_DATABASE_CHANNEL_IDS), epgPaidChannelDatabaseKeys);
+            edit.commit();
+          }catch(Exception e2) {
+            
+          }
+        }
+        else if(oldChannels.isFile()) {
+          oldChannels.renameTo(channels);
+        }
+      }
+      
       doLog("EPGpaid login NOT successfull");
     }
     
@@ -3309,7 +3434,7 @@ public class TvDataUpdateService extends Service {
           });
           doLog("EPGpaid old data count: " + oldFiles.length);
           
-          Arrays.sort(oldFiles);
+          Arrays.sort(oldFiles, DATA_FILE_OLD_COMPARATOR);
           
           for(int i = oldFiles.length-1; i >= 0; i--) {
             result = handler.readContentValues(oldFiles[i], currentDataIds);
@@ -5076,10 +5201,12 @@ public class TvDataUpdateService extends Service {
   
   private static final class EPGpaidDownloadFile {
     private int mVersion;
+    private int mOldVersion;
     private String mFileName;
     
-    private EPGpaidDownloadFile(int version, String fileName) {
+    private EPGpaidDownloadFile(int version, int oldVersion, String fileName) {
       mVersion = version;
+      mOldVersion = oldVersion;
       mFileName = fileName;
     }
   }

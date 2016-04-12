@@ -34,6 +34,10 @@
 		    android:entries="@array/download_selections"
 		    android:entryValues="@array/download_days"
 		    android:summary="%s"/>
+	    <CheckBoxPreference android:key="@string/PREF_EPGPAID_DESCRIPTION_MISSING_INFO" 
+			android:title="@string/pref_epgpaid_show_missing_info_title"
+			android:summary="@string/pref_epgpaid_show_missing_info_summary"
+			android:defaultValue="@bool/pref_epgpaid_description_missing_default"/>
 <!-- 	<CheckBoxPreference android:key="@string/PREF_EPGPAID_CHECK_SSL" 
 			android:title="@string/pref_epgpaid_ssl_check_title"
 			android:summary="@string/pref_epgpaid_ssl_check_summary"
