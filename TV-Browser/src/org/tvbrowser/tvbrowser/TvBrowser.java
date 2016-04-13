@@ -3629,41 +3629,46 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private void checkTermsAccepted() {
-    final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-    
-    String terms = pref.getString(SettingConstants.TERMS_ACCEPTED, "");
-    
-    if(terms.contains("EPG_FREE")) {
-      updateTvData(true);
-    }
-    else {
-      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-      
-      builder.setTitle(R.string.terms_of_use_data);
-      builder.setMessage(R.string.terms_of_use_text);
-      
-      builder.setPositiveButton(R.string.terms_of_use_accept, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          Editor edit = pref.edit();
-          
-          edit.putString(SettingConstants.TERMS_ACCEPTED, "EPG_FREE");
-          
-          edit.commit();
-          
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        
+        String terms = pref.getString(SettingConstants.TERMS_ACCEPTED, "");
+        
+        if(terms.contains("EPG_FREE")) {
           updateTvData(true);
         }
-      });
-      
-      builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
+        else {
+          AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
           
+          builder.setTitle(R.string.terms_of_use_data);
+          builder.setMessage(R.string.terms_of_use_text);
+          
+          builder.setPositiveButton(R.string.terms_of_use_accept, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              Editor edit = pref.edit();
+              
+              edit.putString(SettingConstants.TERMS_ACCEPTED, "EPG_FREE");
+              
+              edit.commit();
+              
+              updateTvData(true);
+            }
+          });
+          
+          builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              
+            }
+          });
+          
+          showAlertDialog(builder, true);
         }
-      });
-      
-      showAlertDialog(builder, true);
-    }
+      }
+    });
   }
   
   private static final class ExclusionEdit implements Comparable<ExclusionEdit> {

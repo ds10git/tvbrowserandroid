@@ -3089,6 +3089,13 @@ public class TvDataUpdateService extends Service {
     
     endDateTime = Math.min(endDateTime, utc.getTimeInMillis());
     
+    final Calendar yesterday = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+    yesterday.set(Calendar.HOUR_OF_DAY, 0);
+    yesterday.set(Calendar.MINUTE, 0);
+    yesterday.set(Calendar.SECOND, 0);
+    yesterday.set(Calendar.MILLISECOND, 0);
+    yesterday.add(Calendar.DAY_OF_YEAR, -1);
+    
     doLog("UPDATE EPGpaidData");
     
     final File epgPaidPath = new File(pathBase, "epgPaidData");
@@ -3107,8 +3114,11 @@ public class TvDataUpdateService extends Service {
     final File fileSummaryCurrent = new File(epgPaidPath,"summary.gz");
     final Properties propertiesCurrent = IOUtils.readPropertiesFile(fileSummaryCurrent);
     final long endCutOff = endDateTime/60000L;
+    final long startCutOff = yesterday.getTimeInMillis()/60000L;
     
     doLog("EPGpaidData endDate: " + new Date(endDateTime));
+    doLog("EPGpaidData propertiesCurrent path: " + fileSummaryCurrent.getAbsolutePath());
+    doLog("EPGpaidData propertiesCurrent size: " + propertiesCurrent.size());
     
     final String userName = PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, null);
     final String password = PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, null);
@@ -3224,15 +3234,20 @@ public class TvDataUpdateService extends Service {
               String keyString = key.toString();
               
               for(String channelId : downloadChannels) {
-                if(keyString.contains(channelId) && Long.parseLong(keyString.substring(0,keyString.indexOf("_"))) <= endCutOff) {
-                  String currentVersion = propertiesCurrent.getProperty(key.toString(),"0,0,0");
+                final long dataDate = Long.parseLong(keyString.substring(0,keyString.indexOf("_")));
+                
+                if(keyString.contains(channelId) && startCutOff <= dataDate && dataDate  <= endCutOff) {
+                  String currentVersion = propertiesCurrent.getProperty(keyString,"0,0,0");
                   currentVersion = currentVersion.substring(0,currentVersion.indexOf(","));
                   
                   String newVersion = propertiesNew.getProperty(key.toString(),"0,0,0");
                   newVersion = newVersion.substring(0,newVersion.indexOf(","));
                   doLog(keyString + " currentVersion " + currentVersion + " newVersion " + newVersion);
-                  if(Integer.parseInt(newVersion) > Integer.parseInt(currentVersion)) {
-                    downloadFiles.add(new EPGpaidDownloadFile(Integer.parseInt(newVersion),Integer.parseInt(currentVersion),key.toString()+"base.gz"));
+                  
+                  final EPGpaidDownloadFile downloadFile = new EPGpaidDownloadFile(Integer.parseInt(newVersion),Integer.parseInt(currentVersion),key.toString()+"base.gz");
+                  
+                  if(downloadFile.mVersion > downloadFile.mOldVersion) {
+                    downloadFiles.add(downloadFile);
                   }
                   
                   break;
@@ -3250,7 +3265,7 @@ public class TvDataUpdateService extends Service {
               File target = new File(epgPaidPath,download.mFileName);
               File old = new File(epgPaidPath,download.mFileName+"_old_"+(download.mOldVersion));
               
-              for(int i = download.mOldVersion-1; i > 0; i--) {
+              for(int i = download.mOldVersion-1; i >= 0; i--) {
                 File previous = new File(epgPaidPath,download.mFileName+"_old_"+i);
               
                 if(previous.isFile() && !previous.delete()) {
@@ -3378,24 +3393,15 @@ public class TvDataUpdateService extends Service {
       doLog("EPGpaid login NOT successfull");
     }
     
-    Calendar now = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-    now.set(Calendar.HOUR_OF_DAY, 0);
-    now.set(Calendar.MINUTE, 0);
-    now.set(Calendar.SECOND, 0);
-    now.set(Calendar.MILLISECOND, 0);
-    now.add(Calendar.DAY_OF_YEAR, -1);
-    
-    final long startCutOff = now.getTimeInMillis()/60000L;
-    
     File[] dataFiles = epgPaidPath.listFiles(new FileFilter() {
       @Override
       public boolean accept(File file) {
         boolean result = file.getName().endsWith("_base.gz");
         
         if(result) {
-          long fileDate = Long.parseLong(file.getName().substring(0, file.getName().indexOf("_")));
+          final long fileDate = Long.parseLong(file.getName().substring(0, file.getName().indexOf("_")));
           
-          result = startCutOff < fileDate && fileDate <= endCutOff;
+          result = startCutOff <= fileDate && fileDate <= endCutOff;
           
           if(fileDate < startCutOff) {
             file.delete();
@@ -3421,7 +3427,12 @@ public class TvDataUpdateService extends Service {
         doLog("updateDataFromFile " + dataFile.getAbsolutePath());
         EPGpaidResult result = handler.readContentValues(dataFile, currentDataIds);
         doLog("loadVersion " + result.mVersion);
-        propertiesCurrent.setProperty(dataFile.getName(), result.mVersion+",0,0");
+        
+        final int index = dataFile.getName().lastIndexOf("_base.gz");
+        
+        if(index > 0) {
+          propertiesCurrent.setProperty(dataFile.getName().substring(0,index+1), result.mVersion+",0,0");
+        }
         
         if(result.mHadUnknownIds) {
           doLog("EPGpaid Missing IDs try to load old data");
@@ -3643,7 +3654,7 @@ public class TvDataUpdateService extends Service {
         if(summary instanceof EPGfreeSummary) {
           BufferedInputStream in = new BufferedInputStream(IOUtils.decompressStream(new FileInputStream(path)));
           
-          int version = in.read();
+          in.read(); // read version
                   
           long daysSince1970 = ((in.read() & 0xFF) << 16 ) | ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
           
