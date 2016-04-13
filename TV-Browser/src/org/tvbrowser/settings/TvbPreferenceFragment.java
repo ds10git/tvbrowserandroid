@@ -25,14 +25,9 @@ import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.TvDataUpdateService;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.UiUtils;
-import org.tvbrowser.widgets.ImportantProgramsListWidget;
-import org.tvbrowser.widgets.RunningProgramsListWidget;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.appwidget.AppWidgetManager;
-import android.content.ComponentName;
-import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -48,7 +43,6 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
-import android.util.Log;
 
 public class TvbPreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
   @Override
