@@ -289,10 +289,10 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           where.append(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
           
           if(IOUtils.isDatabaseAccessible(context)) {
-            Cursor channel = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, where.toString(), null, null);
+            final Cursor channel = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, where.toString(), null, null);
             
             try {
-              if(channel.moveToFirst()) {
+              if(IOUtils.prepareAccessFirst(channel)) {
                 parsed.add(Integer.valueOf(channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID))));
               }
             }finally {
@@ -873,8 +873,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       where.append(" ) ");
       
       if(IOUtils.isDatabaseAccessible(context)) {
-        Cursor uniqueChannelIds = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, UNIQUE_CHANNEL_RESTRICTION_PROJECTION, where.toString(), null, null);
-        StringBuilder idBuilder = new StringBuilder();
+        final Cursor uniqueChannelIds = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, UNIQUE_CHANNEL_RESTRICTION_PROJECTION, where.toString(), null, null);
+        final StringBuilder idBuilder = new StringBuilder();
         
         try {
           if(IOUtils.prepareAccess(uniqueChannelIds)) {
@@ -994,7 +994,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
     
     if(IOUtils.isDatabaseAccessible(context)) {
-      Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, whereClause.getSelectionArgs(), TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      final Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, whereClause.getSelectionArgs(), TvBrowserContentProvider.DATA_KEY_STARTTIME);
       
       try {
         if(IOUtils.prepareAccess(cursor)) {
@@ -1072,10 +1072,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
                 localBroadcast.sendBroadcast(markUpdate);
               }
             } catch (RemoteException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             } catch (OperationApplicationException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             
@@ -1122,15 +1120,15 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE + ">0 ) ";
     
     if(IOUtils.isDatabaseAccessible(context)) {
-      Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, whereClause.getSelectionArgs(), TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      final Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, whereClause.getSelectionArgs(), TvBrowserContentProvider.DATA_KEY_STARTTIME);
       
       try {
-        int idColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-        int favoriteMarkerColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE);
-        int favoriteReminderColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
-        int reminderColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
-        
-        if(cursor.moveToFirst()) {
+        if(IOUtils.prepareAccessFirst(cursor)) {
+          int idColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+          int favoriteMarkerColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE);
+          int favoriteReminderColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
+          int reminderColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
+          
           ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
           ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
           ArrayList<String> removedReminderIdList = new ArrayList<String>();
@@ -1182,10 +1180,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
                 localBroadcast.sendBroadcast(markUpdate);
               }
             } catch (RemoteException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             } catch (OperationApplicationException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             
@@ -1236,12 +1232,11 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     where += " OR " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">" + System.currentTimeMillis() + " ) ";
     
     if(IOUtils.isDatabaseAccessible(context)) {
-      Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, PROJECTION, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      final Cursor cursor = resolver.query(TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, PROJECTION, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
       
       try {
-        if(cursor.moveToFirst()) {
+        if(IOUtils.prepareAccessFirst(cursor)) {
           int idColumn = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-        //  int startTimeColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
           int favoriteMarkingColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE);
           int reminderColumnFav = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
           int reminderColumn = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
@@ -1317,10 +1312,8 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
                 localBroadcast.sendBroadcast(markUpdate);
               }
             } catch (RemoteException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             } catch (OperationApplicationException e) {
-              // TODO Auto-generated catch block
               e.printStackTrace();
             }
             
