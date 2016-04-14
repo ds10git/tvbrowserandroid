@@ -1124,6 +1124,13 @@ public class IOUtils {
     }
   }
   
+  /**
+    * Sets the cursor to the first entry if it isn't <code>null</code> or has no rows.
+    * <p>
+    * @param cursor The cursor to move to the first entry, <code>null</code> value is possible.
+    * @return <code>true</code> if the cursor could be moved to the first entry,
+    * <code>false</code> otherwise.
+    */
   public static final boolean prepareAccessFirst(Cursor cursor) {
     boolean result = false;
     

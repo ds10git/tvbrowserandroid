@@ -3085,7 +3085,7 @@ public class TvDataUpdateService extends Service {
     utc.set(Calendar.SECOND, 0);
     utc.set(Calendar.MILLISECOND, 0);
     
-    utc.add(Calendar.DAY_OF_YEAR, PrefUtils.getStringValueAsInt(R.string.PREF_EPGPAID_DOWNLOAD_MAX, R.string.pref_epgpaid_download_max_default));
+    utc.add(Calendar.DAY_OF_YEAR, PrefUtils.getStringValueAsInt(R.string.PREF_EPGPAID_DOWNLOAD_MAX, R.string.pref_epgpaid_download_max_default)+1);
     
     endDateTime = Math.min(endDateTime, utc.getTimeInMillis());
     
@@ -3393,7 +3393,7 @@ public class TvDataUpdateService extends Service {
       doLog("EPGpaid login NOT successfull");
     }
     
-    File[] dataFiles = epgPaidPath.listFiles(new FileFilter() {
+    final File[] dataFiles = epgPaidPath.listFiles(new FileFilter() {
       @Override
       public boolean accept(File file) {
         boolean result = file.getName().endsWith("_base.gz");
