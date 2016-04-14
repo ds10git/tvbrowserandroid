@@ -18,6 +18,7 @@ package org.tvbrowser.tvbrowser;
 
 import java.util.Calendar;
 import java.util.Date;
+import java.util.TimeZone;
 
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.CompatUtils;
@@ -106,6 +107,15 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
           Logging.log(TAG, "AUTO DATA UPDATE isConnected: " + isConnected + " IS_RUNNING: " + TvDataUpdateService.isRunning() + " UPDATE_THREAD: " + UPDATE_THREAD, Logging.TYPE_DATA_UPDATE, context);
           
           Logging.closeLogForDataUpdate();
+          
+          if(isConnected && timeUpdateType && PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, "").trim().length() > 0 && 
+              PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, "").trim().length() > 0) {
+            Calendar test = Calendar.getInstance(TimeZone.getTimeZone("CET"));
+            test.setTimeInMillis(System.currentTimeMillis());
+            
+            isConnected = !(test.get(Calendar.HOUR_OF_DAY) >= 23 || test.get(Calendar.HOUR_OF_DAY) < 4 ||
+                (test.get(Calendar.HOUR_OF_DAY) >= 15 && test.get(Calendar.HOUR_OF_DAY) < 17));
+          }
           
           if (isConnected && (UPDATE_THREAD == null || !UPDATE_THREAD.isAlive())) {
             IOUtils.handleDataUpdatePreferences(context,true);

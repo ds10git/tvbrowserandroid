@@ -331,7 +331,12 @@ public class TvBrowser extends ActionBarActivity implements
     } catch (Exception ex) {
         // Ignore
     }
-    
+    /*
+    Editor edit3 = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit();
+    edit3.remove(getString(R.string.LAST_DATA_UPDATE));
+    edit3.putInt(getString(R.string.PREF_AUTO_UPDATE_START_TIME), 800);
+    edit3.putLong(getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), System.currentTimeMillis()+2000*60);
+    edit3.commit();*/
     try {
       PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
       //PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().remove(getString(R.string.CURRENT_FILTER_ID)).commit();
