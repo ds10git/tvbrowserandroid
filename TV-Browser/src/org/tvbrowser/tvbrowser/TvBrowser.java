@@ -811,7 +811,7 @@ public class TvBrowser extends ActionBarActivity implements
       mCurrentFilterId = mCurrentFilter.getId();*/
     }
     
-    updateFilter();
+    updateFilter(false);
  /*   else {
       mCurrentFilter = FilterValues.load(SettingConstants.ALL_FILTER_ID, TvBrowser.this);
     }*/
@@ -827,6 +827,7 @@ public class TvBrowser extends ActionBarActivity implements
     
     final int infoType = mInfoType;
     mInfoType = INFO_TYPE_NOTHING;
+    
     
     IOUtils.postDelayedInSeparateThread("INFO WAITING THREAD", new Runnable() {
       @Override
@@ -4405,7 +4406,7 @@ public class TvBrowser extends ActionBarActivity implements
     updateProgramListChannelBar();
   }
   
-  private void updateFilter() {
+  private void updateFilter(boolean sendUpdate) {
     updateCurrentFilterPreference();
     
     if(mFilterItem != null) {
@@ -4417,7 +4418,9 @@ public class TvBrowser extends ActionBarActivity implements
       }
     }
 
-    sendChannelFilterUpdate();
+    if(sendUpdate) {
+      sendChannelFilterUpdate();
+    }
   }
   
   private void clearChannelFilters() {
@@ -4772,7 +4775,7 @@ public class TvBrowser extends ActionBarActivity implements
             }
           }
           
-          updateFilter();
+          updateFilter(true);
           
           return true;
         }
@@ -4802,7 +4805,7 @@ public class TvBrowser extends ActionBarActivity implements
             }
             
             item.setChecked(!item.isChecked());
-            updateFilter();
+            updateFilter(true);
             
             return true;
           }
