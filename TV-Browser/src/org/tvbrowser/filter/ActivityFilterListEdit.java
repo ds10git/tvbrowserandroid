@@ -97,6 +97,7 @@ public class ActivityFilterListEdit extends ActionBarActivity {
     switch(item.getItemId()) {
       case R.id.activity_edit_filter_list_action_channel_add: addFilter(new FilterValuesChannels());break;
       case R.id.activity_edit_filter_list_action_categories_add: addFilter(new FilterValuesCategories());break;
+      case R.id.activity_edit_filter_list_action_keyword_add: addFilter(new FilterValuesKeyword());break;
     }
     
     return true;

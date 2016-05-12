@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tvb="http://schemas.android.com/apk/res/org.tvbrowser.tvbrowser" >
     <ListPreference
         android:title="@string/pref_i_dont_want_to_see_filter_type"
         android:key="@string/PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE"
@@ -7,9 +8,10 @@
         android:entryValues="@array/pref_simple_string_value_array2"
         android:defaultValue="@string/pref_i_dont_want_to_see_filter_type_default"
         android:summary="%s"/>
-	<org.tvbrowser.settings.ColorPreference
+	<org.tvbrowser.settings.PreferenceColorActivated
 	        android:key="@string/PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR"
 	        android:title="@string/pref_i_dont_want_to_see_highlight_color"
 	        android:summary="@string/pref_i_dont_want_to_see_highlight_color_summary"
-	        android:defaultValue="@color/i_dont_want_to_see_highlight"/>
+	        android:defaultValue="@color/i_dont_want_to_see_highlight"
+	        tvb:alwaysActivated="true"/>
 </PreferenceScreen>

@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<org.tvbrowser.view.ColorView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@id/color_view"
-    android:layout_width="40dp"
-    android:layout_height="30dp">
-</org.tvbrowser.view.ColorView>

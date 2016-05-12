@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<appwidget-provider xmlns:android="http://schemas.android.com/apk/res/android"
+    android:label="@string/widget_toggle_reminder_state_title"
+    android:previewImage="@drawable/img_widget_toggle_reminder_state"
+    android:minHeight="40dp"
+    android:minWidth="40dp"
+    android:resizeMode="none"
+    android:updatePeriodMillis="86400000"
+    android:widgetCategory="home_screen|keyguard" >
+</appwidget-provider>

@@ -59,6 +59,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.text.Spannable;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -331,7 +332,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   public void setWhereClauseTime(Object time) {
     if(time instanceof Integer) {
       int testValue = ((Integer) time).intValue();
-      
+      Log.d("info4", "setWhereClauseTime "+ time);
       if(testValue != mWhereClauseTime) {
         
         Button test = (Button)((View)getView().getParent()).findViewWithTag(Integer.valueOf(mWhereClauseTime));
@@ -343,7 +344,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         int oldWhereClauseTime = mWhereClauseTime;
         
         mWhereClauseTime = testValue;
-        
+        Log.d("info4", "mWhereClauseTime "+ mWhereClauseTime);
         Calendar now = Calendar.getInstance();
         
         Calendar today = Calendar.getInstance();
@@ -352,7 +353,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         today.set(Calendar.SECOND, 0);
         today.set(Calendar.MILLISECOND, 0);
         
-        if(mWhereClauseTime != -1 && PrefUtils.getBooleanValue(R.string.RUNNING_PROGRAMS_NEXT_DAY, R.bool.running_programs_next_day_default)) {
+        if(mWhereClauseTime != -1 && mWhereClauseTime != -2 && PrefUtils.getBooleanValue(R.string.RUNNING_PROGRAMS_NEXT_DAY, R.bool.running_programs_next_day_default)) {
           int test1 = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
           
           if((test1 - mWhereClauseTime) > 180 && mDayStart < System.currentTimeMillis() && mDayStart >= today.getTimeInMillis()) {
@@ -366,7 +367,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
             startUpdateThread();
           }
         }
-        else if(oldWhereClauseTime != -1 && mWhereClauseTime == -1) {
+        else if(oldWhereClauseTime != -1 && (mWhereClauseTime == -1 || mWhereClauseTime == -2)) {
           Spinner date = (Spinner)((ViewGroup)getView().getParent()).findViewById(R.id.running_date_selection);
           
           if(date.getCount() > 1) {
@@ -934,13 +935,16 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   private void initialize(View rootView) {
     final Button now = (Button)rootView.findViewById(R.id.now_button);
+    final Button next = (Button)rootView.findViewById(R.id.button_after1);
     mDateSelection = (Spinner)rootView.findViewById(R.id.running_date_selection);
     now.setTag(Integer.valueOf(-1));
-    
+    next.setTag(Integer.valueOf(-2));
+    Log.d("info4", "initialize");
     final View.OnClickListener listener = new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        if(v.equals(now) && mDateSelection.getCount() > 1) {
+        Log.d("info4", "onClick " + v + " " + v.getTag());
+        if(v.equals(now) || v.equals(next) && mDateSelection.getCount() > 1) {
           mDateSelection.setSelection(1);
         }
         
@@ -967,8 +971,12 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         if(getActivity() != null) {
           SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
           now.setOnClickListener(listener);
-          
           mTimeBar.addView(now);
+          
+          if(PrefUtils.getBooleanValue(R.string.PREF_RUNNING_PROGRAMS_SHOW_NEXT_BUTTON, R.bool.pref_running_programs_show_next_button_default)) {
+            next.setOnClickListener(listener);
+            mTimeBar.addView(next);
+          }
           
           ArrayList<Integer> values = new ArrayList<Integer>();
           
@@ -1313,7 +1321,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                 block.mChannelOrderNumber = channelOrderNumber;
                 
                 if(startTime <= mCurrentTime) {
-                  if(endTime <= mCurrentTime) {
+                  if(endTime <= mCurrentTime || (endTime > mCurrentTime && mWhereClauseTime == -2)) {
                     block.mPreviousPosition = c.getPosition();
                     block.mPreviousProgramID = programID;
                     block.mPreviousStart = startTime;
@@ -1343,7 +1351,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                     }
                   }
                 }
-                else {
+                else if(mWhereClauseTime != -2 || block.mNowPosition > 0) {
                   block.mNextPosition = c.getPosition();
                   block.mNextStart = startTime;
                   block.mNextEnd = endTime;
@@ -1361,6 +1369,18 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                     currentProgramMap.put(channelID, block);
                     mCurrentViewList.add(block);
                   }
+                }
+                else if(mWhereClauseTime == -2 && block.mNowPosition == 0) {
+                  block.mNowPosition = c.getPosition();
+                  block.mNowProgramID = programID;
+                  block.mNowStart = startTime;
+                  block.mNowEnd = endTime;
+                  mTitleMap.put(programID, title);
+                  block.mNowEpisode = episode;
+                  block.mNowGenre = genre;
+                  block.mNowPicture = picture;
+                  block.mNowPictureCopyright = pictureCopyright;
+                  block.mNowCategory = category;
                 }
                 
                 mMarkingsMap.put(programID, IOUtils.getStringArrayFromList(markedColumsList));
@@ -1420,18 +1440,36 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       if(getString(R.string.PREF_RUNNING_DIVIDER_SIZE).equals(key)) {
         setDividerSize(PrefUtils.getStringValue(R.string.PREF_RUNNING_DIVIDER_SIZE, R.string.pref_running_divider_size_default));
       }
+      else if(mListView != null && (getString(R.string.PREF_COLOR_SEPARATOR_LINE).equals(key) || getString(R.string.PREF_COLOR_SEPARATOR_SPACE).equals(key))) {
+        final Drawable separator = mListView.getDivider();
+        
+        if(separator instanceof SeparatorDrawable) {
+          ((SeparatorDrawable) separator).updateColors(getActivity());
+        }
+      }
     }
   }
   
   public void selectTime(int time) {
+    if(time == Integer.MAX_VALUE) {
+      time = -1;
+    }
+    
+    boolean found = false;
+    
     for(int i = 0; i < mTimeBar.getChildCount(); i++) {
       View button = mTimeBar.getChildAt(i);
       
       if(button.getTag().equals(Integer.valueOf(time-1))) {
         button.performClick();
         ((HorizontalScrollView)mTimeBar.getParent()).scrollTo(button.getLeft(), button.getTop());
+        found = true;
         break;
       }
+    }
+    
+    if(!found && time == -1) {
+      setWhereClauseTime(new Integer(-2));
     }
   }
 }

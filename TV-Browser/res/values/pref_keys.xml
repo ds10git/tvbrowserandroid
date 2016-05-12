@@ -114,6 +114,9 @@
 	    <string name="PREF_COLOR_REMINDER_USER_DEFINED">PREF_COLOR_REMINDER_USER_DEFINED</string>
 	    <string name="PREF_COLOR_SYNC_USER_DEFINED">PREF_COLOR_SYNC_USER_DEFINED</string>
 	    
+	    <string name="PREF_COLOR_SEPARATOR_LINE">PREF_COLOR_SEPARATOR_LINE</string>
+	    <string name="PREF_COLOR_SEPARATOR_SPACE">PREF_COLOR_SEPARATOR_SPACE</string>
+	    
 	    <string name="PREF_FAVORITE_TAB_LAYOUT">PREF_FAVORITE_TAB_LAYOUT</string>
 	    
 	    <!-- Category colors -->
@@ -198,6 +201,9 @@
 	    <item name="pref_reminder_vibrate_default" type="bool" format="boolean">true</item>
 	    
 	    <string name="PREF_REMINDER_COLOR_LED">PREF_REMINDER_COLOR_LED</string>
+	    
+	    <string name="PREF_REMINDER_STATE_KEEP">PREF_REMINDER_KEEP_REMINDER_STATE</string>
+	    <item name="pref_reminder_state_keep_default" type="bool" format="boolean">false</item>
 	    
 	    <string name="PREF_REMINDER_LED">PREF_REMINDER_LED</string>
 	    <item name="pref_reminder_led_default" type="bool" format="boolean">true</item>
@@ -345,6 +351,9 @@
 	
 	    <string name="SHOW_SORT_NUMBER_IN_RUNNING_LIST">SHOW_SORT_NUMBER_IN_RUNNING_LIST</string>
 	    <item name="show_sort_number_in_running_list_default" type="bool" format="boolean">true</item>
+	    
+	    <string name="PREF_RUNNING_PROGRAMS_SHOW_NEXT_BUTTON">PREF_RUNNING_PROGRAMS_SHOW_NEXT_BUTTON</string>
+	    <item name="pref_running_programs_show_next_button_default" type="bool" format="boolean">true</item>
 	    
 	<!-- Programs list settings -->
 	

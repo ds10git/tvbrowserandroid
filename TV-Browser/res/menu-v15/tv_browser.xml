@@ -29,6 +29,11 @@
                 android:orderInCategory="1"
                 app:showAsAction="never"
                 android:title="@string/button_now"/>
+            <item 
+                android:id="@id/action_scroll_next"
+                android:orderInCategory="1"
+                app:showAsAction="never"
+                android:title="@string/button_after"/>
         </menu>
     </item>
     <item

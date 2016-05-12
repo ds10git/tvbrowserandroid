@@ -33,7 +33,7 @@ public class NumberPreference extends DialogPreference {
   public NumberPreference(Context context, AttributeSet attrs) {
     super(context, attrs);
         
-    String xmlns = "http://schemas.android.com/apk/res/org.tvbrowser.tvbrowser" ;
+    String xmlns = "http://schemas.android.com/apk/res/org.tvbrowser.tvbrowser";
     
     mMinValue = attrs.getAttributeIntValue(xmlns, "minValue", 0);
     mMaxValue = attrs.getAttributeIntValue(xmlns, "maxValue", 100);

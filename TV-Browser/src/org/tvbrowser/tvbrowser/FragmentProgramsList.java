@@ -18,6 +18,7 @@ package org.tvbrowser.tvbrowser;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
@@ -276,6 +277,10 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   }
   
   public void setScrollTime(long time) {
+    if(time == Integer.MAX_VALUE) {
+      time = -1 * System.currentTimeMillis();
+    }
+    
     mScrollTime = time;
   }
   
@@ -366,20 +371,34 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
               }
             });
           }
-          else if(mScrollTime == 0) {
+          else if(mScrollTime == 0 || mScrollTime < -1) {
             Spinner test = (Spinner)((ViewGroup)getView().getParent()).findViewById(R.id.date_selection);
             
             if(test != null && test.getSelectedItemPosition() > 0) {
               test.setSelection(0);
             }
             else {
+              final AtomicInteger scrollIndex = new AtomicInteger(0);
+              
+              if(mScrollTime < -1) {
+                final Cursor c = mProgramListAdapter.getCursor();
+                
+                if(IOUtils.prepareAccessFirst(c)) {
+                  do {
+                    if(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) > System.currentTimeMillis()) {
+                      scrollIndex.set(c.getPosition());
+                    }
+                  }while(scrollIndex.get() == 0 && c.moveToNext());
+                }
+              }
+              
               mScrollTime = -1;
-        
+              
               handler.post(new Runnable() {
                 @Override
                 public void run() {
                   if(getView() != null) {
-                    mListView.setSelection(0);
+                    mListView.setSelection(scrollIndex.get());
                   }
                 }
               });
@@ -953,8 +972,17 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
 
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    if(getActivity() != null && !isDetached() && key != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE) != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
-      setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.pref_program_lists_divider_size_default));
+    if(getActivity() != null && !isDetached() && key != null) {     
+      if(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE) != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
+        setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.pref_program_lists_divider_size_default));
+      }
+      else if(mListView != null && (getString(R.string.PREF_COLOR_SEPARATOR_LINE).equals(key) || getString(R.string.PREF_COLOR_SEPARATOR_SPACE).equals(key))) {
+        final Drawable separator = mListView.getDivider();
+        
+        if(separator instanceof SeparatorDrawable) {
+          ((SeparatorDrawable) separator).updateColors(getActivity());
+        }
+      }
     }
   }
   

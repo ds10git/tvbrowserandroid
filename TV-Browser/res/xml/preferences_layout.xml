@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+                  xmlns:tvb="http://schemas.android.com/apk/res/org.tvbrowser.tvbrowser" >
 	<CheckBoxPreference android:key="@string/DARK_STYLE"
 	        android:title="@string/dark_theme"
 	        android:summary="@string/dark_theme_summary"
@@ -8,10 +9,11 @@
 	    android:key="@string/PREF_MARK_ICON_SHOW"
 	    android:title="@string/pref_mark_icon_show_title"
 	    android:defaultValue="@bool/pref_mark_icon_show_default"/>
-	<org.tvbrowser.settings.ColorPreference
+	<org.tvbrowser.settings.PreferenceColorActivated
 	        android:key="@string/PREF_LOGO_BACKGROUND_COLOR"
 	        android:title="@string/pref_logo_background_color_title"
-	        android:defaultValue="@color/pref_logo_background_color_default"/>
+	        android:defaultValue="@color/pref_logo_background_color_default"
+	        tvb:alwaysActivated="true"/>
 	<CheckBoxPreference android:key="@string/PREF_LOGO_BACKGROUND_FILL"
 	        android:title="@string/pref_logo_background_fill_title"
 	        android:summary="@string/pref_logo_background_fill_summary"
@@ -19,10 +21,11 @@
 	<CheckBoxPreference android:key="@string/PREF_LOGO_BORDER"
 	        android:title="@string/pref_logo_border_title"
 	        android:defaultValue="@bool/pref_logo_border_default"/>
-	<org.tvbrowser.settings.ColorPreference
+	<org.tvbrowser.settings.PreferenceColorActivated
 	        android:key="@string/PREF_LOGO_BORDER_COLOR"
 	        android:title="@string/pref_logo_border_color_title"
-	        android:defaultValue="@color/pref_logo_border_color_default"/>
+	        android:defaultValue="@color/pref_logo_border_color_default"
+	        tvb:alwaysActivated="true"/>
 	<PreferenceCategory android:title="@string/pref_color_title">
 	    <CheckBoxPreference android:key="@string/PREF_SHOW_PROGRESS"
 	        android:title="@string/pref_show_progress_title"
@@ -34,42 +37,62 @@
 			android:entries="@array/pref_color_style_selection_entries"
 			android:entryValues="@array/pref_simple_string_value_array4"
 			android:summary="%s"/>
-	    <org.tvbrowser.settings.ColorPreference
+	    <org.tvbrowser.settings.PreferenceColorActivated
 	        android:key="@string/PREF_COLOR_ON_AIR_BACKGROUND"
 	        android:enabled="false"
 	        android:title="@string/pref_color_running_background"
 	        android:summary="@string/pref_color_running_background_summary"
-	        android:defaultValue="@color/pref_color_on_air_background_tvb_style_default"/>
-	    <org.tvbrowser.settings.ColorPreference
+	        android:defaultValue="@color/pref_color_on_air_background_tvb_style_default"
+	        tvb:alwaysActivated="true"/>
+	    <org.tvbrowser.settings.PreferenceColorActivated
 	        android:key="@string/PREF_COLOR_ON_AIR_PROGRESS"
 	        android:enabled="false"
 	        android:title="@string/pref_color_running_progress"
 	        android:summary="@string/pref_color_running_progress_summary"
-	        android:defaultValue="@color/pref_color_on_air_progress_tvb_style_default"/>
-	    <org.tvbrowser.settings.ColorPreference
+	        android:defaultValue="@color/pref_color_on_air_progress_tvb_style_default"
+	        tvb:alwaysActivated="true"/>
+	    <org.tvbrowser.settings.PreferenceColorActivated
 	        android:key="@string/PREF_COLOR_MARKED"
 	        android:enabled="false"
 	        android:title="@string/marking_value_marked"
 	        android:summary="@string/pref_marking_color_marked_summary"
-	        android:defaultValue="@color/pref_color_mark_tvb_style_default"/>
-	    <org.tvbrowser.settings.ColorPreference
+	        android:defaultValue="@color/pref_color_mark_tvb_style_default"
+	        tvb:alwaysActivated="true"/>
+	    <org.tvbrowser.settings.PreferenceColorActivated
 	        android:key="@string/PREF_COLOR_FAVORITE"
 	        android:enabled="false"
 	        android:title="@string/title_favorites"
 	        android:summary="@string/pref_marking_color_favorite_summary"
-	        android:defaultValue="@color/pref_color_mark_favorite_tvb_style_default"/>
-	    <org.tvbrowser.settings.ColorPreference
+	        android:defaultValue="@color/pref_color_mark_favorite_tvb_style_default"
+	        tvb:alwaysActivated="true"/>
+	    <org.tvbrowser.settings.PreferenceColorActivated
 	        android:key="@string/PREF_COLOR_REMINDER"
 	        android:enabled="false"
 	        android:title="@string/pref_marking_color_reminder_title"
 	        android:summary="@string/pref_marking_color_reminder_summary"
-	        android:defaultValue="@color/pref_color_mark_reminder_tvb_style_default"/>
-	    <org.tvbrowser.settings.ColorPreference
+	        android:defaultValue="@color/pref_color_mark_reminder_tvb_style_default"
+	        tvb:alwaysActivated="true"/>
+	    <org.tvbrowser.settings.PreferenceColorActivated
 	        android:key="@string/PREF_COLOR_SYNC"
 	        android:enabled="false"
 	        android:title="@string/pref_marking_color_sync_title"
 	        android:summary="@string/pref_marking_color_sync_summary"
-	        android:defaultValue="@color/pref_color_mark_sync_tvb_style_favorite_default"/>
+	        android:defaultValue="@color/pref_color_mark_sync_tvb_style_favorite_default"
+	        tvb:alwaysActivated="true"/>
+	    <PreferenceScreen
+	        android:title="@string/pref_color_separator_programs_category"
+	        android:summary="@string/pref_color_separator_programs_category_summary">
+	       	<org.tvbrowser.settings.PreferenceColorActivated
+		        android:key="@string/PREF_COLOR_SEPARATOR_LINE"
+		        android:title="@string/pref_color_separator_programs_line"
+		        android:defaultValue="@color/pref_color_separator_line"
+		        tvb:alwaysActivated="true"/>
+	       	<org.tvbrowser.settings.PreferenceColorActivated
+		        android:key="@string/PREF_COLOR_SEPARATOR_SPACE"
+		        android:title="@string/pref_color_separator_programs_space"
+		        android:defaultValue="@color/pref_color_separator_space"
+		        tvb:alwaysActivated="true"/>
+	    </PreferenceScreen>
 	    <PreferenceScreen
 	        android:title="@string/pref_layout_colors_categories"
 	        android:summary="@string/pref_layout_colors_categories_summary">

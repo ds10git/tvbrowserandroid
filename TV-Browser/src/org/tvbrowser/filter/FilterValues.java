@@ -67,6 +67,10 @@ public abstract class FilterValues {
         result = new FilterValuesChannels(valueParts[0], valueParts[1]);
         result.mId = parts[1];
       }
+      else if(parts[0].equals(FilterValuesKeyword.class.getCanonicalName())) {        
+        result = new FilterValuesKeyword(valueParts[0], valueParts[1]);
+        result.mId = parts[1];
+      }
     }
     else if(values != null) {
       String[] valueParts = values.split(SEPARATOR);

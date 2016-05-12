@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.tvbrowser.tvbrowser"
     android:installLocation="internalOnly"
-    android:versionCode="387"
-    android:versionName="0.6.1" >
+    android:versionCode="388"
+    android:versionName="0.6.2" >
 
     <uses-sdk
         android:minSdkVersion="11"
@@ -128,17 +128,20 @@
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
         </receiver>
-        <receiver android:enabled="true" android:exported="false"
-		  android:name=".SDCardStateChangeListener">
-		  <intent-filter>
-		    <action android:name="android.intent.action.MEDIA_UNMOUNTED" />
-		    <action android:name="android.intent.action.MEDIA_REMOVED" />
-		    <action android:name="android.intent.action.MEDIA_EJECT" />
-		    <action android:name="android.intent.action.MEDIA_BAD_REMOVAL" />
-		    <action android:name="android.intent.action.MEDIA_MOUNTED" />
-		    <data android:scheme="file" />
-		  </intent-filter>
-		</receiver>
+        <receiver
+            android:name=".SDCardStateChangeListener"
+            android:enabled="true"
+            android:exported="false" >
+            <intent-filter>
+                <action android:name="android.intent.action.MEDIA_UNMOUNTED" />
+                <action android:name="android.intent.action.MEDIA_REMOVED" />
+                <action android:name="android.intent.action.MEDIA_EJECT" />
+                <action android:name="android.intent.action.MEDIA_BAD_REMOVAL" />
+                <action android:name="android.intent.action.MEDIA_MOUNTED" />
+
+                <data android:scheme="file" />
+            </intent-filter>
+        </receiver>
         <receiver android:name=".AutoDataUpdateReceiver" >
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
@@ -178,6 +181,17 @@
                 <action android:name="org.tvbrowser.HANDLE_APP_WIDGET_CLICK" />
             </intent-filter>
         </receiver>
+        <receiver
+            android:name="org.tvbrowser.widgets.WidgetToggleReminderState"
+            android:label="@string/widget_toggle_reminder_state_title" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/widget_toggle_reminder_state" />
+        </receiver>
 
         <service
             android:name=".ServiceUpdateDataTable"
@@ -194,6 +208,12 @@
             android:enabled="true"
             android:exported="false" >
         </service>
+
+        <receiver
+            android:name=".BroadcastReceiverReminderToggle"
+            android:enabled="true"
+            android:exported="false" >
+        </receiver>
     </application>
 
 </manifest>

@@ -123,6 +123,7 @@ public class FragmentProgramTable extends Fragment {
   private HashMap<String, Integer> mMarkingsMap;
   
   public void scrollToTime(int time, final MenuItem timeItem) {
+    Log.d("info4", "time " + time);
     if(isResumed()) {
       long value = System.currentTimeMillis();
       
@@ -149,11 +150,16 @@ public class FragmentProgramTable extends Fragment {
         }
       }
       
-      if(time > 0) {
+      final boolean next = (time == Integer.MAX_VALUE);
+      
+      if(next) {
+        value = System.currentTimeMillis();
+      }
+      else if(time > 0) {
         Calendar now = Calendar.getInstance();
         now.setTimeInMillis(mCurrentDate.getTimeInMillis());
         time--;
-        
+          
         now.set(Calendar.HOUR_OF_DAY, time / 60);
         now.set(Calendar.MINUTE, time % 60);
         now.set(Calendar.SECOND, 0);
@@ -167,15 +173,23 @@ public class FragmentProgramTable extends Fragment {
         
         where.append(" (( ");
         where.append(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-        where.append("<=");
-        where.append(value);
-        where.append(" ) AND ( ");
-        where.append(value);
-        where.append("<=");
-        where.append(TvBrowserContentProvider.DATA_KEY_ENDTIME);    
+        
+        if(next) {
+          where.append(">");
+          where.append(value);
+        }
+        else {
+          where.append("<=");
+          where.append(value);
+          where.append(" ) AND ( ");
+          where.append(value);
+          where.append("<=");
+          where.append(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+        }
+        
         where.append(" )) ");
         where.append(((TvBrowser)getActivity()).getFilterSelection(false));
-        
+        Log.d("info4", "where " + where);
         String[] infoNames = TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY;
         
         String[] projection = new String[4+infoNames.length];
