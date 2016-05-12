@@ -331,6 +331,31 @@ public class TvBrowserContentProvider extends ContentProvider {
     DATA_KEY_INFO_SIGN_LANGUAGE
   };
   
+  public static final String[] TEXT_SEARCHABLE_COLUMN_ARRAY = {
+    DATA_KEY_ACTORS,
+    DATA_KEY_ADDITIONAL_INFO,
+    DATA_KEY_CAMERA,
+    DATA_KEY_CUSTOM_INFO,
+    DATA_KEY_CUT,
+    DATA_KEY_DESCRIPTION,
+    DATA_KEY_EPISODE_TITLE,
+    DATA_KEY_EPISODE_TITLE_ORIGINAL,
+    DATA_KEY_GENRE,
+    DATA_KEY_MODERATION,
+    DATA_KEY_MUSIC,
+    DATA_KEY_ORIGIN,
+    DATA_KEY_OTHER_PERSONS,
+    DATA_KEY_PICTURE_DESCRIPTION,
+    DATA_KEY_PRODUCER,
+    DATA_KEY_PRODUCTION_FIRM,
+    DATA_KEY_REGIE,
+    DATA_KEY_SCRIPT,
+    DATA_KEY_SERIES,
+    DATA_KEY_SHORT_DESCRIPTION,
+    DATA_KEY_TITLE,
+    DATA_KEY_TITLE_ORIGINAL
+  };
+  
   // Column names for data version table
   public static final String VERSION_KEY_DAYS_SINCE_1970 = "daysSince1970";
   public static final String VERSION_KEY_BASE_VERSION = "baseVersion";

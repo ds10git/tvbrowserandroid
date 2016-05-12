@@ -215,7 +215,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     if(getActivity() != null) {
       if(key.equals(getString(R.string.PREF_LOGO_BORDER))) {
         CheckBoxPreference transparent = (CheckBoxPreference)findPreference(key);
-        ColorPreference borderColor = (ColorPreference)findPreference(getString(R.string.PREF_LOGO_BORDER_COLOR));
+        PreferenceColorActivated borderColor = (PreferenceColorActivated)findPreference(getString(R.string.PREF_LOGO_BORDER_COLOR));
         
         if(transparent != null && borderColor != null) {
           borderColor.setEnabled(transparent.isChecked());
@@ -395,12 +395,12 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           ListPreference currentStyle = (ListPreference)findPreference(key);
           CheckBoxPreference showProgress = (CheckBoxPreference) findPreference(getString(R.string.PREF_SHOW_PROGRESS));
           
-          ColorPreference onAirBackground = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND));
-          ColorPreference onAirProgress = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_ON_AIR_PROGRESS));
-          ColorPreference marked = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_MARKED));
-          ColorPreference markedFavorite = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_FAVORITE));
-          ColorPreference markedReminder = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_REMINDER));
-          ColorPreference markedSync = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_SYNC));
+          PreferenceColorActivated onAirBackground = (PreferenceColorActivated)findPreference(getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND));
+          PreferenceColorActivated onAirProgress = (PreferenceColorActivated)findPreference(getString(R.string.PREF_COLOR_ON_AIR_PROGRESS));
+          PreferenceColorActivated marked = (PreferenceColorActivated)findPreference(getString(R.string.PREF_COLOR_MARKED));
+          PreferenceColorActivated markedFavorite = (PreferenceColorActivated)findPreference(getString(R.string.PREF_COLOR_FAVORITE));
+          PreferenceColorActivated markedReminder = (PreferenceColorActivated)findPreference(getString(R.string.PREF_COLOR_REMINDER));
+          PreferenceColorActivated markedSync = (PreferenceColorActivated)findPreference(getString(R.string.PREF_COLOR_SYNC));
           
           if(onAirBackground != null && onAirProgress != null && marked != null && markedFavorite != null
               && markedReminder != null && markedSync != null && showProgress != null) {
@@ -712,8 +712,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         CheckBoxPreference showProgress = (CheckBoxPreference) findPreference(key);
         ListPreference currentStyle = (ListPreference)findPreference(getString(R.string.PREF_COLOR_STYLE));
         
-        ColorPreference onAirBackground = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND));
-        ColorPreference onAirProgress = (ColorPreference)findPreference(getString(R.string.PREF_COLOR_ON_AIR_PROGRESS));
+        PreferenceColorActivated onAirBackground = (PreferenceColorActivated)findPreference(getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND));
+        PreferenceColorActivated onAirProgress = (PreferenceColorActivated)findPreference(getString(R.string.PREF_COLOR_ON_AIR_PROGRESS));
         
         if(showProgress != null) {
           if(onAirBackground != null) {
@@ -808,7 +808,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
   
   private void setUserColorValue(SharedPreferences pref, String key, int valueKey) {
     ListPreference currentStyle = (ListPreference)findPreference(getString(R.string.PREF_COLOR_STYLE));
-    ColorPreference color = (ColorPreference)findPreference(key);
+    PreferenceColorActivated color = (PreferenceColorActivated)findPreference(key);
     
     if(currentStyle != null && currentStyle.getValue() != null && currentStyle.getValue().equals("0")) {
       Editor edit = pref.edit();

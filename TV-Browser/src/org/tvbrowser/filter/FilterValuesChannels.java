@@ -16,14 +16,11 @@
  */
 package org.tvbrowser.filter;
 
-import java.util.Arrays;
-
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.tvbrowser.WhereClause;
 import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;
-import android.text.TextUtils;
 import android.view.ViewGroup;
 
 /**
@@ -46,7 +43,7 @@ public class FilterValuesChannels extends FilterValues implements ChannelFilter 
   protected FilterValuesChannels(String name, String values) {
     super(name);
     
-    String[] ids = values.split(";");
+    final String[] ids = values.split(";");
     
     mChannelIds = new int[ids.length];
     
@@ -56,7 +53,7 @@ public class FilterValuesChannels extends FilterValues implements ChannelFilter 
   }
       
   public WhereClause getWhereClause(Context context) {
-    StringBuilder where = new StringBuilder();
+    final StringBuilder where = new StringBuilder();
     
     if(mChannelIds.length > 0) {
       where.append(" AND ").append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID).append(" IN ( ");

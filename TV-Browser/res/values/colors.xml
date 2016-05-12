@@ -40,4 +40,7 @@
     
     <color name="pref_first_deleted_channels">#ff5a00</color>
     <color name="pref_kept_deleted_channels">#c60000</color>
+    
+    <color name="pref_color_separator_line">#50646464</color>
+    <color name="pref_color_separator_space">#15646464</color>
 </resources>

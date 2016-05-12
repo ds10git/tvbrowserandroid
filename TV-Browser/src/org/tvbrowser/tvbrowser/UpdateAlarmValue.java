@@ -19,6 +19,7 @@ package org.tvbrowser.tvbrowser;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -28,13 +29,19 @@ public class UpdateAlarmValue extends BroadcastReceiver {
   @Override
   public void onReceive(final Context context, Intent intent) {
     boolean firstStart = false;
+
+    PrefUtils.initialize(context);
     
     if(intent != null && intent.getAction() != null && (intent.getAction().equals("android.intent.action.BOOT_COMPLETED") || intent.getAction().equals("android.intent.action.QUICKBOOT_POWERON"))) {
-      SettingConstants.setReminderPaused(context, false);
+      if(!PrefUtils.getBooleanValue(R.string.PREF_REMINDER_STATE_KEEP, R.bool.pref_reminder_state_keep_default)) {
+        SettingConstants.setReminderPaused(context, false);
+      }
+      
+      UiUtils.updateToggleReminderStateWidget(context);
+      
       firstStart = true;
     }
     
-    PrefUtils.initialize(context);
     IOUtils.handleDataUpdatePreferences(context);
     IOUtils.setDataTableRefreshTime(context);
     

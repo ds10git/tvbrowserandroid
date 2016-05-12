@@ -50,6 +50,7 @@ import org.tvbrowser.filter.ActivityFilterListEdit;
 import org.tvbrowser.filter.FilterValues;
 import org.tvbrowser.filter.FilterValuesCategories;
 import org.tvbrowser.filter.FilterValuesChannels;
+import org.tvbrowser.filter.FilterValuesKeyword;
 import org.tvbrowser.settings.PluginPreferencesActivity;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.settings.TvbPreferencesActivity;
@@ -87,6 +88,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Paint.FontMetricsInt;
 import android.graphics.drawable.BitmapDrawable;
@@ -575,7 +577,14 @@ public class TvBrowser extends ActionBarActivity implements
     // Set up the action bar.
     actionBar = getSupportActionBar();
     actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
+    
+    if(SettingConstants.isReminderPaused(TvBrowser.this)) {
+      actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#4e0002")));
+    }
+    else {
+      actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#212021")));
+    }
+    
     // Create the adapter that will return a fragment for each of the three
     // primary sections of the app.
     mSectionsPagerAdapter = new SectionsPagerAdapter(
@@ -4309,7 +4318,13 @@ public class TvBrowser extends ActionBarActivity implements
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     
     builder.setTitle(R.string.action_pause_reminder);
-    builder.setMessage(R.string.action_pause_reminder_text);
+    
+    if(PrefUtils.getBooleanValue(R.string.PREF_REMINDER_STATE_KEEP, R.bool.pref_reminder_state_keep_default)) {
+      builder.setMessage(R.string.action_reminder_disable_text);
+    }
+    else {
+      builder.setMessage(R.string.action_pause_reminder_text);
+    }
     
     builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
       @Override
@@ -4318,6 +4333,9 @@ public class TvBrowser extends ActionBarActivity implements
         
         mPauseReminder.setVisible(false);
         mContinueReminder.setVisible(true);
+        
+        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#4e0002")));
+        UiUtils.updateToggleReminderStateWidget(getApplicationContext());
       }
     });
     
@@ -4947,7 +4965,7 @@ public class TvBrowser extends ActionBarActivity implements
                 handler.postDelayed(new Runnable() {
                   @Override
                   public void run() {
-                    PluginHandler.loadPlugins(TvBrowser.this, handler);
+                    PluginHandler.loadPlugins(getApplicationContext(), handler);
                     
                     if(mPluginPreferencesMenuItem != null) {
                       mPluginPreferencesMenuItem.setEnabled(PluginHandler.hasPlugins());
@@ -5151,7 +5169,13 @@ public class TvBrowser extends ActionBarActivity implements
         }
         break;
       case R.id.action_pause_reminder: pauseReminder(); break;
-      case R.id.action_continue_reminder: SettingConstants.setReminderPaused(TvBrowser.this, false); mPauseReminder.setVisible(true); mContinueReminder.setVisible(false); break;
+      case R.id.action_continue_reminder: {
+        SettingConstants.setReminderPaused(TvBrowser.this, false);
+        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#212021")));
+        mPauseReminder.setVisible(true); 
+        mContinueReminder.setVisible(false);
+        UiUtils.updateToggleReminderStateWidget(getApplicationContext());
+      }break;
       case R.id.action_synchronize_reminders_down:
         if(isOnline()) {
           startSynchronizeRemindersDown();
@@ -5231,6 +5255,7 @@ public class TvBrowser extends ActionBarActivity implements
                                         PrefUtils.resetDataMetaData(getApplicationContext());
                                         break;
       case R.id.action_scroll_now:scrollToTime(0);break;
+      case R.id.action_scroll_next:scrollToTime(Integer.MAX_VALUE);break;
       case R.id.action_activity_filter_list_edit_open:openFilterEdit();break;
      // case R.id.action_filter_channels:filterChannels();break;
       case R.id.action_reset: {
@@ -5443,7 +5468,7 @@ public class TvBrowser extends ActionBarActivity implements
   private void updateScrollMenu() {
     if(mScrollTimeItem != null) {
       SubMenu subMenu = mScrollTimeItem.getSubMenu();
-      
+      Log.d("info4", ""+subMenu.size());
       for(int i = 0; i < SCROLL_IDS.length; i++) {
         subMenu.removeItem(SCROLL_IDS[i]);
       }
@@ -6153,7 +6178,7 @@ public class TvBrowser extends ActionBarActivity implements
     final StringBuilder result = new StringBuilder();
     
     for(FilterValues values : mCurrentFilter) {
-      if(values instanceof FilterValuesCategories) {
+      if(values instanceof FilterValuesCategories || values instanceof FilterValuesKeyword) {
         result.append(values.getWhereClause(getApplicationContext()).getWhere());
       }
     }

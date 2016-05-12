@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tvb="http://schemas.android.com/apk/res/org.tvbrowser.tvbrowser" >
 	<ListPreference
 		android:key="@string/PREF_RUNNING_DIVIDER_SIZE"
 		android:title="@string/divider_size"
@@ -13,11 +14,12 @@
 		android:entries="@array/show_logo_long"
 		android:entryValues="@array/pref_simple_string_value_array4"
 		android:summary="%s"/>
-    <org.tvbrowser.settings.ColorPreference
+    <org.tvbrowser.settings.PreferenceColorActivated
         android:key="@string/PREF_RUNNING_TIME_SELECTION"
         android:title="@string/pref_running_time_selection"
         android:summary="@string/pref_running_time_selection_summary"
-        android:defaultValue="@color/pref_color_running_time_selection_background_tvb_style_default"/>
+        android:defaultValue="@color/pref_color_running_time_selection_background_tvb_style_default"
+        tvb:alwaysActivated="true"/>
     <CheckBoxPreference android:key="@string/RUNNING_PROGRAMS_NEXT_DAY"
         android:defaultValue="@bool/running_programs_next_day_default"
         android:title="@string/pref_running_next_day"
@@ -35,4 +37,7 @@
 	<CheckBoxPreference android:key="@string/SHOW_SORT_NUMBER_IN_RUNNING_LIST" 
 		android:title="@string/show_sort_number"
 		android:defaultValue="@bool/show_sort_number_in_running_list_default"/>
+	<CheckBoxPreference android:key="@string/PREF_RUNNING_PROGRAMS_SHOW_NEXT_BUTTON" 
+		android:title="@string/pref_running_show_next_button"
+		android:defaultValue="@bool/pref_running_programs_show_next_button_default"/>
 </PreferenceScreen>

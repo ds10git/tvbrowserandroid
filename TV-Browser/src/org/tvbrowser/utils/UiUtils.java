@@ -37,18 +37,21 @@ import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.devplugin.Program;
 import org.tvbrowser.filter.CategoryFilter;
 import org.tvbrowser.filter.ChannelFilter;
+import org.tvbrowser.filter.KeywordFilter;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.ActivityFavoriteEdit;
 import org.tvbrowser.tvbrowser.ActivityTvBrowserSearchResults;
 import org.tvbrowser.tvbrowser.DontWantToSeeExclusion;
 import org.tvbrowser.tvbrowser.Favorite;
 import org.tvbrowser.tvbrowser.InfoActivity;
+import org.tvbrowser.tvbrowser.NamedFields;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.ServiceUpdateReminders;
 import org.tvbrowser.tvbrowser.TvBrowser;
 import org.tvbrowser.view.SwipeScrollView;
 import org.tvbrowser.widgets.ImportantProgramsListWidget;
 import org.tvbrowser.widgets.RunningProgramsListWidget;
+import org.tvbrowser.widgets.WidgetToggleReminderState;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
@@ -2053,6 +2056,23 @@ public class UiUtils {
     }
   }
   
+  public static void updateToggleReminderStateWidget(Context context) {
+    Log.d("info2", "updateToggleReminderStateWidget");
+    try {
+      AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
+
+      ComponentName importantProgramsWidget = new ComponentName(context, WidgetToggleReminderState.class);
+      int[] appWidgetIds = appWidgetManager.getAppWidgetIds(importantProgramsWidget);
+      
+      for(int appWidgetId : appWidgetIds) {
+        WidgetToggleReminderState.updateAppWidget(context, appWidgetManager, appWidgetId);
+      }
+      //appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.running_widget_list_view);
+      Log.d("info2", "appWidgetIds " + appWidgetIds);
+    }catch(Throwable t) {Log.d("info2", "", t);}
+  }
+  
+  
   public static void showChannelFilterSelection(Context context, final ChannelFilter channelFilter, ViewGroup parent) {
     showChannelFilterSelection(context, channelFilter, parent, null);
   }
@@ -2467,6 +2487,85 @@ public class UiUtils {
       });
     }
   }
+  
+  public static void showKeywordSelection(Context context, final KeywordFilter keywordFilter, ViewGroup parent, final Runnable cancelCallBack) {
+    final LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
+    
+    View selectionView = inflater.inflate(R.layout.dialog_filter_keyword, parent, false);
+    
+    final EditText nameInput = (EditText)selectionView.findViewById(R.id.dialog_filter_keyword_input_name);
+    final EditText keywordInput = (EditText)selectionView.findViewById(R.id.dialog_filter_keyword_input_keyword);
+    final Spinner columnSelection = (Spinner)selectionView.findViewById(R.id.dialog_filter_keyword_selection_column);
+    
+    nameInput.setText(keywordFilter.getName());
+    keywordInput.setText(keywordFilter.getKeyword());
+    
+    final ArrayAdapter<NamedFields> columnSelectionAdatper = new ArrayAdapter<NamedFields>(context, android.R.layout.simple_list_item_1);
+    columnSelection.setAdapter(columnSelectionAdatper);
+    
+    for(int i = 0; i < TvBrowserContentProvider.TEXT_SEARCHABLE_COLUMN_ARRAY.length; i++) {
+      final String column = TvBrowserContentProvider.TEXT_SEARCHABLE_COLUMN_ARRAY[i];
+      
+      columnSelectionAdatper.add(new NamedFields(context, column));
+      
+      if(column.equals(keywordFilter.getColumn())) {
+        columnSelection.setSelection(i);
+      }
+    }
+    
+    columnSelectionAdatper.sort(NamedFields.COMPARATOR);
+    
+    AlertDialog.Builder builder = new AlertDialog.Builder(context);
+    
+    builder.setView(selectionView);
+    builder.setCancelable(false);
+    
+    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        keywordFilter.setFilterValues(nameInput.getText().toString().trim(), keywordInput.getText().toString(), ((NamedFields)columnSelection.getSelectedItem()).getColumn());
+      }
+    });
+    
+    if(cancelCallBack != null) {
+      builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
+        @Override
+        public void onClick(DialogInterface dialog, int which) {
+          cancelCallBack.run();
+        }
+      });
+    }
+    else {
+      builder.setNegativeButton(android.R.string.cancel, null);
+    }
+    
+    AlertDialog dialog = builder.create();
+    dialog.show();
+    
+    if(nameInput.getVisibility() == View.VISIBLE) {
+      final Button ok = dialog.getButton(AlertDialog.BUTTON_POSITIVE);
+      ok.setEnabled(nameInput.getText().toString().trim().length() > 0 && keywordInput.getText().toString().trim().length() > 0);
+      
+      final TextWatcher textWatcher = new TextWatcher() {
+        
+        @Override
+        public void onTextChanged(CharSequence s, int start, int before, int count) {}
+        
+        @Override
+        public void beforeTextChanged(CharSequence s, int start, int count, int after) {}
+        
+        @Override
+        public void afterTextChanged(Editable s) {
+          ok.setEnabled(nameInput.getText().toString().trim().length() > 0 && keywordInput.getText().toString().trim().length() > 0);
+        }
+      };
+      
+      nameInput.addTextChangedListener(textWatcher);
+      keywordInput.addTextChangedListener(textWatcher);
+    }
+  }
+  
+  
   
   private static final class AdapterCategory {
     int mIndex;

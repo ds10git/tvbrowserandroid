@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tvb="http://schemas.android.com/apk/res/org.tvbrowser.tvbrowser" >
 	<CheckBoxPreference android:key="@string/SHOW_PICTURE_IN_DETAILS" 
 		android:title="@string/pref_show_pictures"
 		android:defaultValue="@bool/show_picture_in_details_default"/>
@@ -29,10 +30,11 @@
 		android:summaryOn="@string/pref_detail_allow_swipe_summary_on"
 		android:summaryOff="@string/pref_detail_allow_swipe_summary_off"
 		android:defaultValue="@bool/pref_detail_allow_swipe"/>
-	<org.tvbrowser.settings.ColorPreference
+	<org.tvbrowser.settings.PreferenceColorActivated
         android:key="@string/PREF_DETAIL_HIGHLIGHT_COLOR"
         android:title="@string/pref_detail_highlight_color"
-        android:defaultValue="@color/pref_color_mark_favorite_tvb_style_default"/>
+        android:defaultValue="@color/pref_color_mark_favorite_tvb_style_default"
+        tvb:alwaysActivated="true"/>
 	<CheckBoxPreference android:key="@string/SHOW_GENRE_IN_DETAILS" 
 		android:title="@string/pref_show_genre"
 		android:defaultValue="@bool/show_genre_in_details_default"/>

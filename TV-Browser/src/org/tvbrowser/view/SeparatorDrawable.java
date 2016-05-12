@@ -17,6 +17,7 @@
 package org.tvbrowser.view;
 
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.utils.PrefUtils;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -29,11 +30,17 @@ public class SeparatorDrawable extends Drawable {
   private Paint mDividerColor = new Paint();
   
   public SeparatorDrawable(Context context) {
+    updateColors(context);
+  }
+  
+  public void updateColors(Context context) {
+    PrefUtils.initialize(context.getApplicationContext());
+    
     mLineColor.setStyle(Paint.Style.STROKE);
-    mLineColor.setColor(context.getResources().getColor(R.color.running_separator_color));
+    mLineColor.setColor(PrefUtils.getIntValue(R.string.PREF_COLOR_SEPARATOR_LINE, context.getResources().getColor(R.color.pref_color_separator_line)));
     
     mDividerColor.setStyle(Paint.Style.FILL_AND_STROKE);
-    mDividerColor.setColor(context.getResources().getColor(R.color.separator_color_light));
+    mDividerColor.setColor(PrefUtils.getIntValue(R.string.PREF_COLOR_SEPARATOR_SPACE, context.getResources().getColor(R.color.pref_color_separator_space)));
   }
   
   @Override

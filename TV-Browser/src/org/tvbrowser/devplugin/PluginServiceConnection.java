@@ -79,6 +79,8 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     boolean bound = false;
     mBindCallback = bindCallback;
     
+    doLog(mContext, "Plugin connection created: " + mPackageId + " " + mPluginId+"\nCONTEXT: " + context + " " + mBindContextList.contains(context) + " " + mBindContextList.size());
+    
     if(!mBindContextList.contains(context)) {
       Intent intent = new Intent();
       intent.setClassName(mPackageId, mPluginId);

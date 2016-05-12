@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.6.1</h2>
+        <h2>0.6.2</h2>
+            &bull; added widget to toggle reminder state (running/paused)<br>
+            &bull; show paused reminder state with red colored action bar<br>
+            &bull; reminder state can be kept through reboots<br>
+            &bull; new filter type Keyword<br>
+            &bull; color of horizontal program separators configurable<br>
+        	&bull; color with HEX code also for text color<br>
+        	&bull; added new scroll target Next to time selection<br>
+		<h3>0.6.1</h3>
 			&bull; more than one filter at a time possible<br>
 			&bull; added possibility to enter color with HEX code<br>
 			&bull; keep old version of EPGpaid data to lessen missing data for programs<br>
@@ -417,6 +425,10 @@
         <item>AND</item>
         <item>OR</item>
     </string-array>
+    
+    <string name="dialog_filter_keyword_keyword_name">Keyword:</string>
+    <string name="dialog_filter_keyword_column_name">Search where?</string>
+    
     <string name="dialog_warning_timezone_title">Wrong timezone?</string>
     <string name="dialog_warning_timezone_message">The system uses German as language but the timezone is not Central European Time.\n\nIf the start time of the programs is wrong, you need to change the timezone setting in the system.</string>
     <string name="dialog_warning_timezone_change">Timezone\nsetting</string>
@@ -710,6 +722,21 @@
 	<string name="actors">Cast:\n</string>
 	<string name="regie">Director:</string>
 	<string name="ageLimit">Age Limit:</string>
+	<string name="categories">Categories</string>
+	<string name="description">Description</string>
+	<string name="duration">Duration</string>
+	<string name="endtime">End time</string>
+	<string name="episodeCount">Episode count</string>
+	<string name="episodeNumber">Episode numbers</string>
+	<string name="episodeTitle">Episode title</string>
+	<string name="episodeTitleOriginal">Episode original title</string>
+	<string name="genre">Genre</string>
+	<string name="origin">Origin</string>
+	<string name="pictureDescription">Picture description</string>
+	<string name="shortDescription">Short description</string>
+	<string name="startTime">Start time</string>
+	<string name="titleOrginal">Original title</string>
+	<string name="year">Year</string>
 	<string name="nettoPlayTime">Netto Play Time:</string>
 	<string name="vps">VPS:</string>
 	<string name="script">Script:</string>
@@ -750,6 +777,7 @@
 	    <item>Compact</item>
 	</string-array>
 	<string name="running_layout_title">Layout</string>
+	<string name="pref_running_show_next_button">Show next after now</string>
 	<string name="pref_running_next_day">Expired times for tomorrow</string>
 	<string name="pref_running_next_day_summary">Times that are expired for 3 hours are showing the programs of tomorrow.</string>
 	<string name="pref_debug">Debugging</string>
@@ -828,6 +856,7 @@
     <string name="action_synchronize_dont_want_to_see">I don\'t want to see!</string>
     <string name="action_pause_reminder">Pause Reminder</string>
     <string name="action_pause_reminder_text">The Reminders will be paused until you continue them or the system is restarted.</string>
+    <string name="action_reminder_disable_text">The Reminders will be paused until you continue them.</string>
     <string name="action_continue_reminder">Continue Reminder</string>
     <string name="no_dont_want_to_see_sync">Could not synchronize \'I don\'t want to see!\' exclusion list.\nDid you upload the exclusion list with the AndroidSync plugin?</string>
     <string name="dont_want_to_see_sync_success">Successfully synchronized exclusion list of \'I don\'t want to see!\'</string>
@@ -889,6 +918,8 @@
 	<string name="pref_reminder_time_first">First time of reminder:</string>
 	<string name="pref_reminder_time_second">Second time of reminder:</string>
 	<string name="pref_reminder_color_led">LED color</string>
+	<string name="pref_reminder_state_keep_title">Keep reminder state</string>
+	<string name="pref_reminder_state_keep_summary">If the reminder was paused and the reminder state is kept the reminder will stay paused after a reboot of the device. Otherwise the reminder will activate itself automatically after a reboot of the device.</string>
 	<string-array name="pref_category_reminder_names">
 	    <item>At start of program</item>
 	    <item>1 minute before</item>
@@ -941,6 +972,11 @@
 	    <item>Glow light (designed by HalleAndert)</item>
 	    <item>Decent dark (designed by HalleAndert)</item>
     </string-array>
+    
+    <string name="pref_color_separator_programs_category">Color for horizontal program separators</string>
+    <string name="pref_color_separator_programs_category_summary">(Not for the widgets)</string>
+    <string name="pref_color_separator_programs_line">Line</string>
+    <string name="pref_color_separator_programs_space">Space</string>
     
 	<string name="pref_marking_color_marked_summary">Color for by Plugins marked programs.</string>
     <string name="pref_marking_color_favorite_summary">Color for Favorite programs.</string>
@@ -1088,6 +1124,8 @@
     
     <string name="widget_prefrerences_simple_icon">Single color widget icon</string>
     
+    <string name="widget_toggle_reminder_state_title">TV-Browser: Toggle reminder state</string>
+    
     <string name="backup_preferences_success">Backup successfully stored on TV-Browser server</string>
     <string name="backup_preferences_restore_success">Backup successfully restored from TV-Browser server</string>
     <string name="backup_preferences_restore_failure">Backup could not be restored, maybe it was never uploaded.</string>
@@ -1104,6 +1142,7 @@
     <string name="activity_edit_filter_list_text_add">Add filter</string>
     <string name="activity_edit_filter_list_text_channels_add">Add channel filter</string>
     <string name="activity_edit_filter_list_text_categories_add">Add category filter</string>
+    <string name="activity_edit_filter_list_text_keyword_add">Add keyword filter</string>
     <string name="activity_edit_filter_list_text_all">All programs</string>
     <string name="activity_edit_filter_edit">Edit filter</string>
     <string name="activity_edit_filter_delete">Delete filter</string>

@@ -216,6 +216,15 @@
         <item type="id" name="dialog_filter_categories_selection_operation" />
         <item type="id" name="dialog_filter_categories_list" />
 
+	<!--  dialog_filter_keyword.xml -->
+
+        <item type="id" name="dialog_filter_keyword_label_name" />
+        <item type="id" name="dialog_filter_keyword_input_name" />
+        <item type="id" name="dialog_filter_keyword_label_keyword" />
+        <item type="id" name="dialog_filter_keyword_input_keyword" />
+        <item type="id" name="dialog_filter_keyword_label_column" />
+        <item type="id" name="dialog_filter_keyword_selection_column" />
+        
     <!--  donations.xml -->
 
         <item type="id" name="donation_in_app_text" />
@@ -307,6 +316,10 @@
         <item type="id" name="important_programs_widget_row_categories" />
         <item type="id" name="important_programs_widget_row_episode" />
 
+    <!-- widget_toggle_reminder_state -->
+    
+        <item type="id" name="widget_toggle_reminder_state_button" />
+        
     <!--  in_app_donations.xml -->
 
         <item type="id" name="donation_in_app_layout" />
@@ -498,6 +511,7 @@
         <item type="id" name="activity_edit_filter_list_action_add" />
         <item type="id" name="activity_edit_filter_list_action_channel_add" />
         <item type="id" name="activity_edit_filter_list_action_categories_add" />
+        <item type="id" name="activity_edit_filter_list_action_keyword_add" />
 
     <!--  don_want_to_see_context.xml -->
 
@@ -528,6 +542,7 @@
         <item type="id" name="action_activity_filter_list_edit_open" />
         <item type="id" name="action_scroll" />
         <item type="id" name="action_scroll_now" />
+        <item type="id" name="action_scroll_next" />
         <item type="id" name="menu_tvbrowser_action_update_data" />
         <item type="id" name="menu_tvbrowser_action_create_favorite" />
         <item type="id" name="menu_tvbrowser_action_favorite_add" />

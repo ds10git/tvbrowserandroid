@@ -850,8 +850,17 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
 
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-    if(!isDetached() && getActivity() != null && getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
-      setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.pref_program_lists_divider_size_default));
+    if(!isDetached() && getActivity() != null) {
+      if(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE).equals(key)) {
+        setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.pref_program_lists_divider_size_default));
+      }
+      else if(mFavoriteProgramList != null && (getString(R.string.PREF_COLOR_SEPARATOR_LINE).equals(key) || getString(R.string.PREF_COLOR_SEPARATOR_SPACE).equals(key))) {
+        final Drawable separator = mFavoriteProgramList.getDivider();
+        
+        if(separator instanceof SeparatorDrawable) {
+          ((SeparatorDrawable) separator).updateColors(getActivity());
+        }
+      }
     }
   }
   

@@ -2,7 +2,6 @@ package org.tvbrowser.filter;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.tvbrowser.WhereClause;
-import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;

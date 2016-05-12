@@ -947,10 +947,22 @@ public class IOUtils {
     int[] result = new int[] {0,0};
     
     if(encodedColor != null) {
-      String[] parts = encodedColor.split(";");
+      if(encodedColor.contains(";")) {
+        String[] parts = encodedColor.split(";");
       
-      result[0] = Boolean.parseBoolean(parts[0]) ? 1 : 0;
-      result[1] = Integer.parseInt(parts[1]);
+        result[0] = Boolean.parseBoolean(parts[0]) ? 1 : 0;
+        result[1] = Integer.parseInt(parts[1]);
+      }
+      else {
+        result[0] = 1;
+        
+        if(encodedColor.startsWith("#")) {
+          result[1] = (int)Long.parseLong(encodedColor.substring(1), 16);
+        }
+        else {
+          result[1] = Integer.parseInt(encodedColor);
+        }
+      }
     }
     
     return result;

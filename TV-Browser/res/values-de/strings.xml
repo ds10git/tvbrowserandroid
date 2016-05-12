@@ -1,7 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-		<h2>0.6.1</h2>
+        <h2>0.6.2</h2>
+            &bull; Widget zum Umschalten des Erinnerer-Status (laufend/angehalten) hinzugefügt<br>
+            &bull; angehaltener Erinnerer wird durch rot gefärbte Werkzeugleiste angezeigt<br>
+            &bull; Erinnerer-Status kann über Neustart des Gerätes beibehalten werden<br>
+            &bull; neuer Filtertyp Stichwort<br>
+            &bull; Farbe der horizontalen Sendungstrenner einstellbar<br>
+        	&bull; HEX-Eingabe auch für Textfarben<br>
+        	&bull; Als Nächstes zur Zeitauswahl hinzugefügt<br>
+		<h3>0.6.1</h3>
 			&bull; mehrere aktive Filter möglich<br>
 			&bull; Möglichkeit Farben mit HEX-Eingabe festzulegen hinzugefügt<br>
 			&bull; letzte Version der EPGpaid-Daten aufbewahren um Lücken in den Daten zu reduzieren<br>
@@ -414,6 +422,8 @@
         <item>UND</item>
         <item>ODER</item>
     </string-array>
+    <string name="dialog_filter_keyword_keyword_name">Stichwort:</string>
+    <string name="dialog_filter_keyword_column_name">Wo suchen?</string>
     <string name="dialog_warning_timezone_title">Zeitzone fehlerhaft?</string>
     <string name="dialog_warning_timezone_message">Das System verwendet Deutsch als Sprache, die eingestellte Zeitzone entspricht jedoch nicht der mitteleuropäischen Zeit.\n\nSollten die Zeiten der Sendungen nicht stimmen, muss die Zeitzoneneinstellung im System geändert werden.</string>
     <string name="dialog_warning_timezone_change">Zeitzonen-\neinstellung</string>
@@ -700,6 +710,21 @@
 	<string name="actors">Schauspieler:\n</string>
 	<string name="regie">Regie:</string>
 	<string name="ageLimit">Alterbeschränkung:</string>
+	<string name="categories">Kategorien</string>
+	<string name="description">Beschreibung</string>
+	<string name="duration">Dauer</string>
+	<string name="endtime">Endzeit</string>
+	<string name="episodeCount">Folgenanzahl</string>
+	<string name="episodeNumber">Folgennummer</string>
+	<string name="episodeTitle">Folgentitel</string>
+	<string name="episodeTitleOriginal">Original Folgentitel</string>
+	<string name="genre">Genre</string>
+	<string name="origin">Herkunft</string>
+	<string name="pictureDescription">Bildbeschreibung</string>
+	<string name="shortDescription">Kurzbeschreibung</string>
+	<string name="startTime">Startzeit</string>
+	<string name="titleOrginal">Originaltitel</string>
+	<string name="year">Jahr</string>
 	<string name="nettoPlayTime">Netto-Spielzeit:</string>
 	<string name="vps">VPS:</string>
 	<string name="script">Drehbuch:</string>
@@ -740,6 +765,7 @@
 	    <item>Kompakt</item>
 	</string-array>
 	<string name="running_layout_title">Ansicht</string>
+	<string name="pref_running_show_next_button">Als Nächstes neben Jetzt</string>
 	<string name="pref_running_next_day">Abgelaufende Zeiten für morgen</string>
 	<string name="pref_running_next_day_summary">Bei Zeiten die seit 3 Stunden abgelaufen sind, die Sendungen von morgen anzeigen.</string>
 	<string name="pref_debug">Debugging</string>
@@ -818,6 +844,7 @@
     <string name="action_synchronize_dont_want_to_see">Will ich nicht sehen!</string>
     <string name="action_pause_reminder">Erinnerer anhalten</string>
     <string name="action_pause_reminder_text">Die Erinnerungen werden so lange nicht erscheinen, bis der Erinnerer wieder fortgesetzt wird oder das System neu gestartet wird.</string>
+    <string name="action_reminder_disable_text">Die Erinnerungen werden so lange nicht erscheinen, bis der Erinnerer wieder fortgesetzt wird.</string>
     <string name="action_continue_reminder">Erinnerer fortsetzen</string>
     <string name="no_dont_want_to_see_sync">Konnte Ausschlusslite von \'Will ich nicht sehen!\' nicht synchronisieren.\nWurde die Ausschlussliste mit dem AndroidSync-Plugin hochgeladen?</string>
     <string name="dont_want_to_see_sync_success">Ausschlusslite von \'Will ich nicht sehen!\' erfolgreich synchronisiert.</string>
@@ -879,6 +906,8 @@
 	<string name="pref_reminder_time_first">Erster Erinnerungszeitpunkt:</string>
 	<string name="pref_reminder_time_second">Zweiter Erinnerungszeitpunkt:</string>
 	<string name="pref_reminder_color_led">LED-Farbe</string>
+	<string name="pref_reminder_state_keep_title">Erinnerer-Status beibehalten</string>
+	<string name="pref_reminder_state_keep_summary">Wenn der Erinnerer-Status beibehalten wird, dann bleibt ein angehaltener Erinnerer auch nach einem Neustart des Geräts angehalten. Andernfalls aktiviert er sich nach dem Neustart des Geräts automatisch wieder.</string>
 	<string-array name="pref_category_reminder_names">
 	    <item>Zu Beginn</item>
 	    <item>1 Minute vorher</item>
@@ -931,6 +960,11 @@
 	    <item>Leuchtend hell (designed by HalleAndert)</item>
 	    <item>Dezent dunkel (designed by HalleAndert)</item>
     </string-array>
+    
+    <string name="pref_color_separator_programs_category">Farbe für horizontale Sendungstrenner</string>
+    <string name="pref_color_separator_programs_category_summary">(Nicht für die Widgets)</string>
+    <string name="pref_color_separator_programs_line">Linie</string>
+    <string name="pref_color_separator_programs_space">Zwischenraum</string>
     
     <string name="pref_marking_color_marked_summary">Farbe für durch Plugins markierte Sendungen.</string>
     <string name="pref_marking_color_favorite_summary">Farbe für Lieblingssendungen.</string>
@@ -1074,6 +1108,8 @@
     
     <string name="widget_prefrerences_simple_icon">Einfarbiges Widget-Symbol</string>
     
+    <string name="widget_toggle_reminder_state_title">TV-Browser: Erinnererstatus umschalten</string>
+    
     <string name="backup_channels_success">Sender erfolgreich auf den TV-Browser-Server hochgeladen</string>
     
     <string name="backup_preferences_success">Backup erfolgreich auf den TV-Browser-Server hochgeladen</string>
@@ -1092,6 +1128,7 @@
     <string name="activity_edit_filter_list_text_add">Filter hinzufügen</string>
 	<string name="activity_edit_filter_list_text_channels_add">Neuer Senderfilter</string>
     <string name="activity_edit_filter_list_text_categories_add">Neuer Kategoriefilter</string>
+    <string name="activity_edit_filter_list_text_keyword_add">Neuer Stichwortfilter</string>
     <string name="activity_edit_filter_list_text_all">Alle Sendungen</string>
     <string name="activity_edit_filter_edit">Filter bearbeiten</string>
     <string name="activity_edit_filter_delete">Filter löschen</string>

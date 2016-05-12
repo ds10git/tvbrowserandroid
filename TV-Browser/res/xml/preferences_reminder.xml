@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tvb="http://schemas.android.com/apk/res/org.tvbrowser.tvbrowser" >
 	<ListPreference
 		android:key="@string/PREF_REMINDER_TIME"
 		android:title="@string/pref_reminder_time_first"
@@ -21,10 +22,16 @@
 		android:entries="@array/pref_reminder_priority_values_names"
 		android:entryValues="@array/pref_simple_string_value_array5"
 		android:summary="%s"/>
-	<org.tvbrowser.settings.ColorPreference
+	<org.tvbrowser.settings.PreferenceColorActivated
 	        android:key="@string/PREF_REMINDER_COLOR_LED"
 	        android:title="@string/pref_reminder_color_led"
-	        android:defaultValue="@color/pref_reminder_color_led_default"/>
+	        android:defaultValue="@color/pref_reminder_color_led_default"
+	        tvb:alwaysActivated="true"/>
+	<CheckBoxPreference android:key="@string/PREF_REMINDER_STATE_KEEP"
+			android:title="@string/pref_reminder_state_keep_title"
+			android:summary="@string/pref_reminder_state_keep_summary"
+			android:defaultValue="@bool/pref_reminder_state_keep_default"
+			/>
 	<PreferenceCategory android:title="@string/pref_reminder_type">
 		<RingtonePreference android:key="@string/PREF_REMINDER_SOUND_VALUE"
 		    android:summary="@string/pref_reminder_sound_value_summary"
