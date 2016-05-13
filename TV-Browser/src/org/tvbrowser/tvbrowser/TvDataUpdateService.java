@@ -3903,7 +3903,7 @@ public class TvDataUpdateService extends Service {
   }
   
   private interface DataHandler {
-    public Object[] readValuesFromDataFile(ChannelUpdate update, DataInputStream in, int level) throws IOException;
+    public Object[] readValuesFromDataFile(ChannelUpdate update, DataInputStream in, int level) throws Throwable;
     
     public DataInfo readDataInfo(ChannelUpdate update, DataInputStream in, UrlFileHolder dataUrlFileHolder) throws IOException;
     
@@ -4963,71 +4963,83 @@ public class TvDataUpdateService extends Service {
           }
           
           for(int i = 0; i < dataInfo.getFrameCount(); i++) {
-            Object[] info = mDataHandler.readValuesFromDataFile(this, in, level);
-            
-            String frameID = (String)info[0];
-            boolean isNew =  (Boolean)info[1];
-            
-            ContentValues contentValues = mContentValueList.get(frameID);
-            
-            if(contentValues == null) {
-              break;
-            }
-            
-            long programID = -1;
-            CurrentDataHolder value = null;
-            
-            if(current != null) {
-              value = current.get(frameID);
+            try {
+              Object[] info = mDataHandler.readValuesFromDataFile(this, in, level);
               
-              if(value != null) {
-                programID = value.mProgramID;
-              }
-            }
-            
-            if(contentValues.size() > 0) {
-              if(missingFrameIDs != null) {
-                missingFrameIDs.remove(frameID);
+              String frameID = (String)info[0];
+              boolean isNew =  (Boolean)info[1];
+              
+              ContentValues contentValues = mContentValueList.get(frameID);
+              
+              if(contentValues == null) {
+                break;
               }
               
-              if(programID >= 0) {
-                if(level == LEVEL_BASE && mDontWantToSeeValues != null) {
-                  String title = contentValues.getAsString(TvBrowserContentProvider.DATA_KEY_TITLE);
-                  
-                  if(title != null) {
-                    if(title.equals(value.mTitle)) {
-                      contentValues.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, value.mDontWantToSee ? 1 : 0);
+              long programID = -1;
+              CurrentDataHolder value = null;
+              
+              if(current != null) {
+                value = current.get(frameID);
+                
+                if(value != null) {
+                  programID = value.mProgramID;
+                }
+              }
+              
+              if(contentValues.size() > 0) {
+                if(missingFrameIDs != null) {
+                  missingFrameIDs.remove(frameID);
+                }
+                
+                if(programID >= 0) {
+                  if(level == LEVEL_BASE && mDontWantToSeeValues != null) {
+                    String title = contentValues.getAsString(TvBrowserContentProvider.DATA_KEY_TITLE);
+                    
+                    if(title != null) {
+                      if(title.equals(value.mTitle)) {
+                        contentValues.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, value.mDontWantToSee ? 1 : 0);
+                      }
+                      else if(UiUtils.filter(TvDataUpdateService.this, title, mDontWantToSeeValues)) {
+                        contentValues.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, 1);
+                      }
                     }
-                    else if(UiUtils.filter(TvDataUpdateService.this, title, mDontWantToSeeValues)) {
+                  }
+                  
+                  // program known update it
+                  if(isNew) {
+                    mUpdateValueMap.put(Long.valueOf(programID), contentValues);
+                  }
+                }
+                else if(contentValues.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME) && contentValues.get(TvBrowserContentProvider.DATA_KEY_STARTTIME) != null) {
+                  // program unknown insert it
+                  if(level == LEVEL_BASE && mDontWantToSeeValues != null) {
+                    String title = contentValues.getAsString(TvBrowserContentProvider.DATA_KEY_TITLE);
+                    
+                    if(UiUtils.filter(TvDataUpdateService.this, title, mDontWantToSeeValues)) {
                       contentValues.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, 1);
                     }
                   }
-                }
-                
-                // program known update it
-                if(isNew) {
-                  mUpdateValueMap.put(Long.valueOf(programID), contentValues);
-                }
-              }
-              else if(contentValues.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME) && contentValues.get(TvBrowserContentProvider.DATA_KEY_STARTTIME) != null) {
-                // program unknown insert it
-                if(level == LEVEL_BASE && mDontWantToSeeValues != null) {
-                  String title = contentValues.getAsString(TvBrowserContentProvider.DATA_KEY_TITLE);
                   
-                  if(UiUtils.filter(TvDataUpdateService.this, title, mDontWantToSeeValues)) {
-                    contentValues.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, 1);
+                  if(isNew) {
+                    mInsertValuesList.add(contentValues);
                   }
                 }
-                
-                if(isNew) {
-                  mInsertValuesList.add(contentValues);
+                else if(level == LEVEL_BASE) {
+                  // insert but no start time key or start time is null, dismiss
+                  mContentValueList.remove(frameID);
+                  mInsertValuesList.remove(contentValues);
                 }
               }
-              else if(level == LEVEL_BASE) {
-                // insert but no start time key or start time is null, dismiss
-                mContentValueList.remove(frameID);
-                mInsertValuesList.remove(contentValues);
+            }catch(Throwable t) {
+              StackTraceElement[] elements = t.getStackTrace();
+              
+              StringBuilder message = new StringBuilder();
+              
+              for(StackTraceElement el : elements) {
+                message.append(el.getFileName()).append(" ").append(el.getLineNumber()).append(" ").append(el.getClassName()).append(" ").append(el.getMethodName()).append("\n");
               }
+              
+              doLog("Error read data file: '" +dataFile.getAbsolutePath() + "': " + t.getMessage() + " " + message.toString());
             }
           }
           Log.d("info21", "VERSION " + dataFile.getName() + " " + Byte.valueOf(dataInfo.getDataVersion()));
