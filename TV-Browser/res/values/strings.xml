@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.2</h2>
+        <h2>0.6.2.1</h2>
+        	&bull; autoselect first time in running programs if date selection is changed<br>
+        <h3>0.6.2</h3>
             &bull; added widget to toggle reminder state (running/paused)<br>
             &bull; show paused reminder state with red colored action bar<br>
             &bull; reminder state can be kept through reboots<br>
