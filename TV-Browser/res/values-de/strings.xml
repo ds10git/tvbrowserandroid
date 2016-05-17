@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.2</h2>
+        <h2>0.6.2.1</h2>
+        	&bull; automatische Auswahl der ersten Zeit, wenn Datumsauswahl in Laufende Sendungen geändert wird<br>
+        <h3>0.6.2</h3>
             &bull; Widget zum Umschalten des Erinnerer-Status (laufend/angehalten) hinzugefügt<br>
             &bull; angehaltener Erinnerer wird durch rot gefärbte Werkzeugleiste angezeigt<br>
             &bull; Erinnerer-Status kann über Neustart des Gerätes beibehalten werden<br>

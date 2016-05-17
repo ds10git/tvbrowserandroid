@@ -45,6 +45,7 @@ import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
@@ -311,14 +312,25 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       if((mDayStart > System.currentTimeMillis() || mDayStart < today.getTimeInMillis()) && mWhereClauseTime < System.currentTimeMillis()) {
         Button time = (Button)((ViewGroup)((ViewGroup)getView().getParent()).getParent()).findViewWithTag(mWhereClauseTime);
         Button now = (Button)((ViewGroup)((ViewGroup)getView().getParent()).getParent()).findViewById(R.id.now_button);
+        Button next = (Button)((ViewGroup)((ViewGroup)getView().getParent()).getParent()).findViewById(R.id.button_after1);
         
-        if(time != null && !time.equals(now)) {
+        if(time != null && !time.equals(now) && (next == null || !time.equals(next))) {
           time.performClick();
         }
         else {
+          Button button = null;
           if(mTimeBar.getChildCount() > 1) {
-            ((Button)mTimeBar.getChildAt(1)).performClick();
+            if(next != null && next.getVisibility() == View.VISIBLE) {
+              if(mTimeBar.getChildCount() > 2) {
+                button = (Button)mTimeBar.getChildAt(2);
+              }
+            }
+            else {
+              button = (Button)mTimeBar.getChildAt(1);
+            }
           }
+          
+          selectButton(button);
         }
         
         startUpdateThread();
@@ -1461,15 +1473,38 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       View button = mTimeBar.getChildAt(i);
       
       if(button.getTag().equals(Integer.valueOf(time-1))) {
-        button.performClick();
-        ((HorizontalScrollView)mTimeBar.getParent()).scrollTo(button.getLeft(), button.getTop());
+        selectButton((Button)button);
         found = true;
         break;
       }
     }
     
     if(!found && time == -1) {
-      setWhereClauseTime(new Integer(-2));
+      setWhereClauseTime(Integer.valueOf(-2));
+    }
+  }
+  
+  private void selectButton(Button button) {
+    if(button != null) {
+      button.performClick();
+      
+      if(!isViewVisible(button)) {      
+        ((HorizontalScrollView)mTimeBar.getParent()).scrollTo(button.getLeft(), button.getTop());
+      }
+    }
+  }
+  
+  private boolean isViewVisible(View view) {
+    Rect scrollBounds = new Rect();
+    ((View)mTimeBar.getParent()).getDrawingRect(scrollBounds);
+
+    float left = view.getX();
+    float right = left + view.getWidth();
+    
+    if (scrollBounds.left < left && scrollBounds.right > right) {
+        return true;
+    } else {
+        return false;
     }
   }
 }
