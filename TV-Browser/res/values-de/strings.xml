@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.2.1</h2>
+        <h2>0.6.2.2</h2>
+        	&bull; möglichen Absturz beim Start beseitigt<br>
+        	&bull; Workaround für defekte Datumsauswahl auf Samsung-Geräten mit Android 5.0 hinzugefügt<br>
+        <h3>0.6.2.1</h3>
         	&bull; automatische Auswahl der ersten Zeit, wenn Datumsauswahl in Laufende Sendungen geändert wird<br>
         <h3>0.6.2</h3>
             &bull; Widget zum Umschalten des Erinnerer-Status (laufend/angehalten) hinzugefügt<br>

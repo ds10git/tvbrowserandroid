@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.IllegalFormatConversionException;
 import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -42,10 +43,13 @@ import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.content.res.Resources;
+import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -54,6 +58,7 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Spannable;
@@ -1104,6 +1109,10 @@ public class FragmentProgramTable extends Fragment {
     UiUtils.handleMarkings(getActivity(), null, startTime, endTime, panel, IOUtils.getStringArrayFromList(markedColumns), null, true);
   }
   
+  private boolean isBrokenSamsungDevice() {
+    return true;
+  }
+  
   @SuppressLint("NewApi")
   public void selectDate(View view) {try {
     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
@@ -1115,7 +1124,34 @@ public class FragmentProgramTable extends Fragment {
       dayStart = --testDay * 24 * 60 * 60 * 1000 - TimeZone.getDefault().getOffset(dayStart);
     }
     
-    final DatePicker select = new DatePicker(getActivity());
+    Context context = new ContextWrapper(getActivity()) {
+      private Resources wrappedResources;
+
+      @Override
+      public Resources getResources() {
+          Resources r = super.getResources();
+          if(wrappedResources == null) {
+              wrappedResources = new Resources(r.getAssets(), r.getDisplayMetrics(), r.getConfiguration()) {
+                  @NonNull
+                  @Override
+                  public String getString(int id, Object... formatArgs) throws NotFoundException {
+                      try {
+                          return super.getString(id, formatArgs);
+                      } catch (IllegalFormatConversionException ifce) {
+                          Log.e("DatePickerDialogFix", "IllegalFormatConversionException Fixed!", ifce);
+                          String template = super.getString(id);
+                          template = template.replaceAll("%" + ifce.getConversion(), "%s");
+                          return String.format(getConfiguration().locale, template, formatArgs);
+                      }
+                  }
+              };
+          }
+          
+          return wrappedResources;
+      }
+    };
+    
+    final DatePicker select = new DatePicker(context);
     
     if (Build.VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB_MR1 && 
         Build.VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
