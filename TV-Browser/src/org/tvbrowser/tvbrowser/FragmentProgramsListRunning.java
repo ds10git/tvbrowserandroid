@@ -60,7 +60,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.text.Spannable;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -344,7 +343,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   public void setWhereClauseTime(Object time) {
     if(time instanceof Integer) {
       int testValue = ((Integer) time).intValue();
-      Log.d("info4", "setWhereClauseTime "+ time);
+      
       if(testValue != mWhereClauseTime) {
         
         Button test = (Button)((View)getView().getParent()).findViewWithTag(Integer.valueOf(mWhereClauseTime));
@@ -356,7 +355,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         int oldWhereClauseTime = mWhereClauseTime;
         
         mWhereClauseTime = testValue;
-        Log.d("info4", "mWhereClauseTime "+ mWhereClauseTime);
+        
         Calendar now = Calendar.getInstance();
         
         Calendar today = Calendar.getInstance();
@@ -951,12 +950,11 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     mDateSelection = (Spinner)rootView.findViewById(R.id.running_date_selection);
     now.setTag(Integer.valueOf(-1));
     next.setTag(Integer.valueOf(-2));
-    Log.d("info4", "initialize");
+    
     final View.OnClickListener listener = new View.OnClickListener() {
       @Override
       public void onClick(View v) {
-        Log.d("info4", "onClick " + v + " " + v.getTag());
-        if(v.equals(now) || v.equals(next) && mDateSelection.getCount() > 1) {
+        if((v.equals(now) || v.equals(next)) && mDateSelection.getCount() > 1) {
           mDateSelection.setSelection(1);
         }
         
