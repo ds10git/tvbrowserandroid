@@ -224,7 +224,7 @@ public final class PluginHandler {
     Logging.log(null, message, Logging.TYPE_PLUGIN, context);
   }
   
-  public static final synchronized void loadPlugins(Context context1, Handler handler) {
+  public static final synchronized void loadPlugins(Context context1/*, Handler handler*/) {
     try {
       doLog(context1, "loadPlugins");
       
