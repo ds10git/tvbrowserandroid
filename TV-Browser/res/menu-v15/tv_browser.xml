@@ -34,6 +34,11 @@
                 android:orderInCategory="1"
                 app:showAsAction="never"
                 android:title="@string/button_after"/>
+			<item 
+                android:id="@id/action_scroll_time_free"
+                android:orderInCategory="1"
+                app:showAsAction="never"
+                android:title="@string/button_time_free"/>
         </menu>
     </item>
     <item
