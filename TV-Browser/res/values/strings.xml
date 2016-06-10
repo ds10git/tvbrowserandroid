@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.2.2</h2>
+        <h2>0.6.2.3</h2>
+        	&bull; fix missing calculation of program duration in minutes at data update<br>
+        	&bull; last selected favorite preselected after start<br>
+        	&bull; fixed minor bugs<br>
+        <h3>0.6.2.2</h3>
         	&bull; fix possible crash at startup<br>
         	&bull; added workaround for broken date selection on Samsung devices with Android 5.0<br>
         <h3>0.6.2.1</h3>

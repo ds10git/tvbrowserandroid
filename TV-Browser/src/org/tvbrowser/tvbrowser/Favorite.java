@@ -1352,16 +1352,19 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     SharedPreferences prefFavorites = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FAVORITES, context);
     
     ArrayList<Favorite> favoriteList = new ArrayList<Favorite>();
-    Map<String,?> favorites = prefFavorites.getAll();
     
-    Set<String> keys = favorites.keySet();
-    
-    for(String key : keys) {
-      String saveLine = (String)favorites.get(key);
-      Favorite fav = new Favorite(Long.parseLong(key), saveLine);
+    if(prefFavorites != null) {
+      Map<String,?> favorites = prefFavorites.getAll();
       
-      if(fav.isValid()) {
-        favoriteList.add(fav);
+      Set<String> keys = favorites.keySet();
+      
+      for(String key : keys) {
+        String saveLine = (String)favorites.get(key);
+        Favorite fav = new Favorite(Long.parseLong(key), saveLine);
+        
+        if(fav.isValid()) {
+          favoriteList.add(fav);
+        }
       }
     }
     

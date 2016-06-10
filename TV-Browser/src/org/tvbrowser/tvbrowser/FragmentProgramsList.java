@@ -63,6 +63,10 @@ import android.widget.TextView;
 
 public class FragmentProgramsList extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, ShowChannelInterface, MarkingsUpdateListener {
   public static final int NO_CHANNEL_SELECTION_ID = -1;
+  
+  public static final int INDEX_DATE_YESTERDAY = 2;
+  public static final int INDEX_DATE_TODAY_TOMORROW = 0;
+  
   private static final String EXTRA_NEXT_UPDATE = "EXTRA_NEXT_UPDATE";
   
   private SimpleCursorAdapter mProgramListAdapter;
@@ -442,8 +446,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     date.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
-      public void onItemSelected(AdapterView<?> parent, View view, 
-          int pos, long id) {
+      public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         DateSelection selection = mDateAdapter.getItem(pos);
         
         setDay(selection.getTime());
@@ -732,7 +735,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
           }
           
           if(daySelection >= 0) {
-            date.setSelection(daySelection);
+            if(daySelection < date.getCount()) {
+              date.setSelection(daySelection);
+            }
           }
           else {
             date.setSelection(1);

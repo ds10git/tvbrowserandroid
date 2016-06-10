@@ -77,7 +77,11 @@ public class NDSpinner extends Spinner {
     boolean sameSelected = position == getSelectedItemPosition();
     if (sameSelected) {
       // Spinner does not call the OnItemSelectedListener if the same item is selected, so do it manually now
-      getOnItemSelectedListener().onItemSelected(this, getSelectedView(), position, getSelectedItemId());
+      OnItemSelectedListener listener = getOnItemSelectedListener();
+      
+      if(listener != null) {
+        listener.onItemSelected(this, getSelectedView(), position, getSelectedItemId());
+      }
     }
   }
   
