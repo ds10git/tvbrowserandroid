@@ -55,6 +55,7 @@ import org.tvbrowser.settings.PluginPreferencesActivity;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.LogUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
@@ -629,6 +630,7 @@ public class TvBrowser extends ActionBarActivity implements
         .setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
           @Override
           public void onPageSelected(int position) {
+            if(position < actionBar.getTabCount()) {
             actionBar.setSelectedNavigationItem(position);
             
             Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(position);
@@ -649,6 +651,7 @@ public class TvBrowser extends ActionBarActivity implements
             
             if(position != 1) {
               mProgamListStateStack.clear();
+            }
             }
           }
         });
@@ -838,6 +841,8 @@ public class TvBrowser extends ActionBarActivity implements
     if(mProgramListChannelId != FragmentProgramsList.NO_CHANNEL_SELECTION_ID) {
       showProgramsListTab(false);
     }
+    
+   // LogUtils.logProgramData(getApplicationContext(), TvBrowserContentProvider.DATA_KEY_TITLE + " LIKE \"%Sportschau%\"", TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES);
   }
   
   @Override
@@ -993,9 +998,9 @@ public class TvBrowser extends ActionBarActivity implements
   
   private void showEpgDonateInfo() {
     Log.d("info6", "showEpgDonateInfo");
-    final int count = getEpgDonateChannelsCount();
-    Log.d("info6", "showEpgDonateInfo " + count);
-    if(!SHOWING_DONATION_INFO && count > 0) {
+    int count = 0;
+    
+    if(!SHOWING_DONATION_INFO) {
       final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
       
       //pref.edit().putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), "0").putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), 0).putLong(getString(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD), 0).commit();
@@ -1024,76 +1029,85 @@ public class TvBrowser extends ActionBarActivity implements
       Log.d("info6", "firstTimeoutReached (" + ((now - firstDownload)/(24 * 60 * 60000L)) + "): " + firstTimeoutReached + " lastTimoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " randomShow: " + radomShow + " SHOW: " + show);
       
       if(show) {
-        final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-        
-        final String title = getString(R.string.epg_donate_name).replace("{0}", String.valueOf(count));
-        String info = getString(R.string.epg_donate_info);
-        String amount = getString(R.string.epg_donate_amount);
-        final String percentInfo = getString(R.string.epg_donate_percent_info);
-        
-        final String amountValue = pref.getString(getString(R.string.EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX)+"_"+year, getString(R.string.epg_donate_current_donation_amount_default));
-        int percentValue = Integer.parseInt(pref.getString(getString(R.string.EPG_DONATE_CURRENT_DONATION_PERCENT), "-1"));
-        
-        amount = amount.replace("{0}", year).replace("{1}", amountValue);
-        
-        info = info.replace("{0}", "<h2>"+amount+"</h2>");
-        
-        builder.setTitle(title);
-        builder.setCancelable(false);
-        
-        final View view = getLayoutInflater().inflate(R.layout.dialog_epg_donate_info, getParentViewGroup(), false);
-        
-        final TextView message = (TextView)view.findViewById(R.id.dialog_epg_donate_message);
-        message.setText(Html.fromHtml(info));
-        message.setMovementMethod(LinkMovementMethod.getInstance());
-        
-        final TextView percentInfoView = (TextView)view.findViewById(R.id.dialog_epg_donate_percent_info);
-        percentInfoView.setText(Html.fromHtml(percentInfo, null, new NewsTagHandler()));
-        
-        final SeekBar percent = (SeekBar)view.findViewById(R.id.dialog_epg_donate_percent);
-        percent.setEnabled(false);
-        
-        if(percentValue >= 0) {
-          percent.setProgress(percentValue);
+        if((count = getEpgDonateChannelsCount()) > 0) {
+          final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+          
+          final String title = getString(R.string.epg_donate_name).replace("{0}", String.valueOf(count));
+          String info = getString(R.string.epg_donate_info);
+          String amount = getString(R.string.epg_donate_amount);
+          final String percentInfo = getString(R.string.epg_donate_percent_info);
+          
+          final String amountValue = pref.getString(getString(R.string.EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX)+"_"+year, getString(R.string.epg_donate_current_donation_amount_default));
+          int percentValue = Integer.parseInt(pref.getString(getString(R.string.EPG_DONATE_CURRENT_DONATION_PERCENT), "-1"));
+          
+          amount = amount.replace("{0}", year).replace("{1}", amountValue);
+          
+          info = info.replace("{0}", "<h2>"+amount+"</h2>");
+          
+          builder.setTitle(title);
+          builder.setCancelable(false);
+          
+          final View view = getLayoutInflater().inflate(R.layout.dialog_epg_donate_info, getParentViewGroup(), false);
+          
+          final TextView message = (TextView)view.findViewById(R.id.dialog_epg_donate_message);
+          message.setText(Html.fromHtml(info));
+          message.setMovementMethod(LinkMovementMethod.getInstance());
+          
+          final TextView percentInfoView = (TextView)view.findViewById(R.id.dialog_epg_donate_percent_info);
+          percentInfoView.setText(Html.fromHtml(percentInfo, null, new NewsTagHandler()));
+          
+          final SeekBar percent = (SeekBar)view.findViewById(R.id.dialog_epg_donate_percent);
+          percent.setEnabled(false);
+          
+          if(percentValue >= 0) {
+            percent.setProgress(percentValue);
+          }
+          else {
+            percentInfoView.setVisibility(View.GONE);
+            percent.setVisibility(View.GONE);
+          }
+          
+          final Spinner reason = (Spinner)view.findViewById(R.id.dialog_epg_donate_reason_selection);
+          reason.setEnabled(false);
+          
+          final CheckBox dontShowAgain = (CheckBox)view.findViewById(R.id.dialog_epg_donate_dont_show_again);
+          dontShowAgain.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+              reason.setEnabled(isChecked);
+            }
+          });
+          
+          builder.setView(view);
+          builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+              SHOWING_DONATION_INFO = false;
+              final Editor edit = pref.edit();
+              edit.putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now);
+              
+              if(dontShowAgain.isChecked()) {
+                edit.putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), year);
+              }
+              
+              edit.commit();
+            }
+          });
+          
+          showAlertDialog(builder, false, new Runnable() {
+            @Override
+            public void run() {
+              SHOWING_DONATION_INFO = true;
+            }
+          });
         }
         else {
-          percentInfoView.setVisibility(View.GONE);
-          percent.setVisibility(View.GONE);
+          showEpgPaidInfo();
         }
         
-        final Spinner reason = (Spinner)view.findViewById(R.id.dialog_epg_donate_reason_selection);
-        reason.setEnabled(false);
-        
-        final CheckBox dontShowAgain = (CheckBox)view.findViewById(R.id.dialog_epg_donate_dont_show_again);
-        dontShowAgain.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-          @Override
-          public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-            reason.setEnabled(isChecked);
-          }
-        });
-        
-        builder.setView(view);
-        builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            SHOWING_DONATION_INFO = false;
-            final Editor edit = pref.edit();
-            edit.putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now);
-            
-            if(dontShowAgain.isChecked()) {
-              edit.putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), year);
-            }
-            
-            edit.commit();
-          }
-        });
-        
-        showAlertDialog(builder, false, new Runnable() {
-          @Override
-          public void run() {
-            SHOWING_DONATION_INFO = true;
-          }
-        });
+        if(count == 0) {
+          pref.edit().putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now).commit();
+        }
       }
       else {
         showEpgPaidInfo();
@@ -1102,6 +1116,8 @@ public class TvBrowser extends ActionBarActivity implements
     else if(!SHOWING_DONATION_INFO) {
       showEpgPaidInfo();
     }
+    
+    Log.d("info6", "showEpgDonateInfo " + count);
   }
   
   private boolean hasChannels() {

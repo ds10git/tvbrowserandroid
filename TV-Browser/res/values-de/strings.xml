@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.2.2</h2>
+        <h2>0.6.2.3</h2>
+        	&bull; fehlende Berechnung der Sendungsdauer in Minuten während des Datenupdates korrigiert<br>
+        	&bull; letzte ausgewählte Lieblingssendung nach Start vorausgewählt<br>
+        	&bull; kleinere Fehler beseitigt<br>
+        <h3>0.6.2.2</h3>
         	&bull; möglichen Absturz beim Start beseitigt<br>
         	&bull; Workaround für defekte Datumsauswahl auf Samsung-Geräten mit Android 5.0 hinzugefügt<br>
         <h3>0.6.2.1</h3>

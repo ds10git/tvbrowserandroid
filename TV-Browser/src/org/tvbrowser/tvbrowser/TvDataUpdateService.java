@@ -2248,7 +2248,8 @@ public class TvDataUpdateService extends Service {
           TvBrowserContentProvider.DATA_KEY_STARTTIME,
           TvBrowserContentProvider.DATA_KEY_ENDTIME,
           TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME,
-          TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE
+          TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE,
+          TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES
       };
       
       long lastKnownDate = SettingConstants.DATA_LAST_DATE_NO_DATA;
@@ -2258,7 +2259,7 @@ public class TvDataUpdateService extends Service {
       
       try {
         // only if there are data update it
-        if(c.getCount() > 0) {
+        if(IOUtils.prepareAccess(c)) {
           int nettoColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME);
           
           int keyIDColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
@@ -2266,11 +2267,10 @@ public class TvDataUpdateService extends Service {
           int startTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
           int endTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
           int timeZoneColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE);
+          int durationColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES);
           
           long lastStartTime = -1;
           int lastChannelKey = -1;
-          
-          c.moveToPosition(-1);
           
           Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
           Calendar cal = null;
@@ -2281,6 +2281,7 @@ public class TvDataUpdateService extends Service {
             long meStart = c.getLong(startTimeColumn);
             long end = c.getLong(endTimeColumn);
             long nettoPlayTime = 0;
+            long duration = c.getLong(durationColumn);
                                 
             if(c.isNull(nettoColumn)) {
               nettoPlayTime = c.getLong(nettoColumn) * 60000;
@@ -2313,6 +2314,15 @@ public class TvDataUpdateService extends Service {
                 utc.setTimeInMillis((((long)(IOUtils.normalizeTime(cal, startHour, startMinute, 30).getTimeInMillis() / 60000)) * 60000));              
                 
                 values.put(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT, utc.get(Calendar.HOUR_OF_DAY) * 60 + utc.get(Calendar.MINUTE));
+                
+                ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
+                opBuilder.withValues(values);
+                
+                updateValuesList.add(opBuilder.build());
+              }
+              else if(end != 0 && duration == 0) {
+                ContentValues values = new ContentValues();
+                values.put(TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES, (int)((end-meStart)/60000));
                 
                 ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, progID));
                 opBuilder.withValues(values);
@@ -4124,6 +4134,10 @@ public class TvDataUpdateService extends Service {
         columnList.remove(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT);
         columnList.remove(TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES);
       }
+      else if(values.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
+        values.put(TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES, (int)((values.getAsLong(TvBrowserContentProvider.DATA_KEY_ENDTIME)-values.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME)) / 60000));
+        columnList.remove(TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES);
+      }
       
       for(String columnName : columnList) {
         if(columnName.equals(TvBrowserContentProvider.DATA_KEY_CATEGORIES) ||
@@ -4567,6 +4581,10 @@ public class TvDataUpdateService extends Service {
         
         columnList.remove(TvBrowserContentProvider.DATA_KEY_ENDTIME);
         columnList.remove(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT);
+        columnList.remove(TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES);
+      }
+      else if(values.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
+        values.put(TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES, (int)((values.getAsLong(TvBrowserContentProvider.DATA_KEY_ENDTIME)-values.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME)) / 60000));
         columnList.remove(TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES);
       }
       

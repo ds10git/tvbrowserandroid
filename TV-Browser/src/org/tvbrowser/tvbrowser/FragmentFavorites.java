@@ -73,6 +73,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   private DataSetObserver mFavoriteSelectionObserver;
   
   private ListView mFavoriteProgramList;
+  private ListView mMarkingsList;
   
   private ArrayAdapter<FavoriteSpinnerEntry> mMarkingsAdapter;
   
@@ -125,6 +126,40 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     });
   }
   
+  private boolean mIsStarted = false;
+  
+  @Override
+  public void onStart() {
+    if(getActivity() != null) {
+      mIsStarted = true;
+      
+      int selection = PrefUtils.getIntValue(R.string.PREF_MISC_LAST_FAVORITE_SELECTION, 0);
+      
+      if(selection < 0 && mMarkingsList != null && Math.abs(selection) < mMarkingsList.getChildCount()) {
+        selection = Math.abs(selection);
+        
+        mMarkingsList.performItemClick(null, selection, -1);
+      }
+      else if(mFavoriteSelection != null && selection < mFavoriteSelection.getCount()) {
+        if(mContainsListViewFavoriteSelection) {
+          mFavoriteSelection.performItemClick(null, selection, -1);
+        }
+        else if(selection >= 0) {
+          mFavoriteSelection.setSelection(selection);
+        }
+      }
+    }
+    
+    super.onStart();
+  }
+  
+  @Override
+  public void onStop() {
+    mIsStarted = false;
+    
+    super.onStop();
+  }
+    
   @Override
   public void onPause() {
     ProgramUtils.unregisterMarkingsListener(getActivity(), this);
@@ -164,9 +199,9 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     if(mFavoriteSelection.getClass().getCanonicalName().equals("android.widget.ListView")) {
       rowLayout.set(android.R.layout.simple_list_item_activated_1);
       
-      ListView markings = (ListView)getView().findViewById(R.id.favorite_fragment_selection_markings);
+      mMarkingsList = (ListView)getView().findViewById(R.id.favorite_fragment_selection_markings);
       
-      if(markings != null) {
+      if(mMarkingsList != null) {
         mMarkingsAdapter = new ArrayAdapter<FavoriteSpinnerEntry>(getActivity(), android.R.layout.simple_list_item_1) {
           public View getView(int position, View convertView, ViewGroup parent) {
             if(convertView == null) {
@@ -195,10 +230,10 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           }
         };
         
-        markings.setAdapter(mMarkingsAdapter);
+        mMarkingsList.setAdapter(mMarkingsAdapter);
       }
       
-      markings.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+      mMarkingsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
           try {
@@ -210,7 +245,9 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           mCurrentFavoriteSelection = mMarkingsAdapter.getItem(position);
           mWhereClause = getWhereClause();
           
-          ((TvBrowser)getActivity()).updateFavoritesMenu(false);
+          final TvBrowser tvb = (TvBrowser)getActivity();
+          
+          tvb.updateFavoritesMenu(false);
           
           handler.post(new Runnable() {
             @Override
@@ -220,6 +257,10 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
               }
             }
           });
+          
+          if(mIsStarted) {
+            PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, tvb).edit().putInt(tvb.getString(R.string.PREF_MISC_LAST_FAVORITE_SELECTION), (position * -1)).commit();
+          }
         }
       });
       
@@ -338,31 +379,45 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
               break;
             }
           }
+          
+          if(position.get() == -1 && mMarkingsList != null) {
+            for(int i = 0; i < mMarkingsAdapter.getCount(); i++) {
+              FavoriteSpinnerEntry entry = mMarkingsAdapter.getItem(i);
+              
+              if(!mCurrentFavoriteSelection.containsFavorite() && !entry.containsFavorite() && mCurrentFavoriteSelection.toString().equals(entry.toString())) {
+                position.set(-2);
+                break;
+              }
+            }
+          }
         }
         
         if(position.get() == -1 && mFavoriteAdapter.getCount() > 0) {
           position.set(0);
         }
         
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            if(mContainsListViewFavoriteSelection) {
-              try {
-                Method setItemChecked = mFavoriteSelection.getClass().getMethod("setItemChecked", new Class<?>[]{int.class,boolean.class});
-                setItemChecked.invoke(mFavoriteSelection, new Object[]{position.get(),true});
-                
-                if(position.get() < mFavoriteList.size()) {
-                  selectFavorite(position.get());
+        if(position.get() >= 0) {
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              if(mContainsListViewFavoriteSelection) {
+                try {
+                  Method setItemChecked = mFavoriteSelection.getClass().getMethod("setItemChecked", new Class<?>[]{int.class,boolean.class});
+                  setItemChecked.invoke(mFavoriteSelection, new Object[]{position.get(),true});
+                  
+                  if(position.get() < mFavoriteList.size()) {
+                    selectFavorite(position.get());
+                    mFavoriteSelection.setSelection(position.get());
+                  }
+                } catch (Exception e) {
                 }
-              } catch (Exception e) {
+              }
+              else {
+                mFavoriteSelection.setSelection(position.get());
               }
             }
-            else {
-              mFavoriteSelection.setSelection(position.get());
-            }
-          }
-        });
+          });
+        }
       }
     };
     
@@ -455,11 +510,11 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     return whereClause;
   }
   
-  private void selectFavorite(int position) {
+  private void selectFavorite(final int position) {
     mCurrentSelection = mCurrentFavoriteSelection = mFavoriteList.get(position);
     mWhereClause = getWhereClause();
     
-    Activity tvb = getActivity();
+    final Activity tvb = getActivity();
     
     if(tvb != null) {
       ((TvBrowser)tvb).updateFavoritesMenu(mCurrentFavoriteSelection.containsFavorite());
@@ -472,6 +527,10 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           }
         }
       });
+    }
+    
+    if(mIsStarted) {
+      PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, tvb).edit().putInt(tvb.getString(R.string.PREF_MISC_LAST_FAVORITE_SELECTION), position).commit();
     }
   }
   
@@ -773,6 +832,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       
       mFavoriteList.add(new FavoriteSpinnerEntry(favorite));
     }
+    
+    
   }
   
   private void updateFavorites() {

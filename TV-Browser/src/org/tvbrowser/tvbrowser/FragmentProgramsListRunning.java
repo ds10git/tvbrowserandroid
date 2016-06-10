@@ -835,7 +835,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
           
           Calendar now = Calendar.getInstance();
           
-          if(mDayStart > System.currentTimeMillis()) {
+          if(mDayStart != -1) {
             now.setTimeInMillis(mDayStart);
           }
           
@@ -847,6 +847,13 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
           }
           
           showChannel.putExtra(SettingConstants.START_TIME_EXTRA, now.getTimeInMillis());
+          
+          if(mDateSelection.getSelectedItemPosition() == 0) {
+            showChannel.putExtra(SettingConstants.DAY_POSITION_EXTRA, FragmentProgramsList.INDEX_DATE_YESTERDAY);
+          }
+          else if(mDateSelection.getSelectedItemPosition() == 1) {
+            showChannel.putExtra(SettingConstants.DAY_POSITION_EXTRA, FragmentProgramsList.INDEX_DATE_TODAY_TOMORROW);
+          }
           
           LocalBroadcastManager.getInstance(getActivity()).sendBroadcastSync(showChannel);
         }
@@ -1100,6 +1107,10 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         cal.set(Calendar.HOUR_OF_DAY, 0);
         
         mDateAdapter.add(new DateSelection(cal.getTimeInMillis(), getActivity()));
+      }
+      
+      if(pos == -1) {
+        pos = 1;
       }
       
       if(mDateSelection.getCount() > pos) {

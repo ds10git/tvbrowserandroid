@@ -2,6 +2,7 @@
 <resources>
     <!-- MISC PREF KEYS -->
     	<string name="PREF_MISC_LAST_KNOWN_OPEN_DATE">PREF_MISC_LAST_KNOWN_OPEN_DATE</string>
+    	<string name="PREF_MISC_LAST_FAVORITE_SELECTION">PREF_MISC_LAST_FAVORITE_SELECTION</string>
     	
     <!--  Database settings -->
     
