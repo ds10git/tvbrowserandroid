@@ -2,6 +2,10 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.6.2.3</h2>
+        	&bull; langer Klick auf Jetzt zeigt Als Nächstes im Tab Laufende Sendungen<br>
+        	&bull; langer Klick auf Zeitknöpfe öffnet Zeitauswahl zur Eingabe beliebiger Zeiten<br>
+            &bull; Zeitknopf zur Auswahl beliebiger Zeiten zu Laufende Sendungen hinzugefügt<br>
+            &bull; Auswahl beliebiger Zeiten zum Zeitmenü hinzugefügt<br>
         	&bull; fehlende Berechnung der Sendungsdauer in Minuten während des Datenupdates korrigiert<br>
         	&bull; letzte ausgewählte Lieblingssendung nach Start vorausgewählt<br>
         	&bull; kleinere Fehler beseitigt<br>
@@ -415,6 +419,7 @@
     <string name="button_now">Jetzt</string>
     <string name="button_all_channels">Alle</string>
     <string name="button_after">Als Nächstes</string>
+    <string name="button_time_free">Zeitpunkt eingeben</string>
     <string name="button_before">Davor</string>
     <string name="button_at">Genaue Zeit</string>
     <string name="no_channels">Keine Sender vorhanden.</string>
@@ -775,6 +780,9 @@
 	</string-array>
 	<string name="running_layout_title">Ansicht</string>
 	<string name="pref_running_show_next_button">Als Nächstes neben Jetzt</string>
+	<string name="pref_running_show_time_pick_button_only_when_needed_title">Zeiteingabeknopf wenn benötigt anzeigen</string>
+	<string name="pref_running_show_time_pick_button_only_when_needed_summary_on">Der Zeiteingabeknopf zur Eingabe beliebiger Zeiten wird nur angezeigt, wenn eine beliebige Zeit ausgewählt wurde.</string>
+	<string name="pref_running_show_time_pick_button_only_when_needed_summary_off">Der Zeiteingabeknopf zur Eingabe beliebiger Zeiten wird immer angezeigt.</string>
 	<string name="pref_running_next_day">Abgelaufende Zeiten für morgen</string>
 	<string name="pref_running_next_day_summary">Bei Zeiten die seit 3 Stunden abgelaufen sind, die Sendungen von morgen anzeigen.</string>
 	<string name="pref_debug">Debugging</string>

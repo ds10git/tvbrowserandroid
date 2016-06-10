@@ -2,6 +2,10 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.6.2.3</h2>
+        	&bull; long click on now shows next in running programs tab<br>
+        	&bull; long click on time buttons opens selection for any time in running programs tab<br>
+            &bull; added button to select any time in running programs tab<br>
+            &bull; added any time selection to time scroll menu<br>
         	&bull; fix missing calculation of program duration in minutes at data update<br>
         	&bull; last selected favorite preselected after start<br>
         	&bull; fixed minor bugs<br>
@@ -419,6 +423,7 @@
     <string name="button_23">23:00</string>
     <string name="button_before">Before</string>
     <string name="button_after">Next</string>
+    <string name="button_time_free">Enter time</string>
     <string name="button_at">At time</string>
     <string name="no_channels">No channels selected</string>
     <string name="select_channels">Select channels\nnow</string>
@@ -787,6 +792,9 @@
 	</string-array>
 	<string name="running_layout_title">Layout</string>
 	<string name="pref_running_show_next_button">Show next after now</string>
+	<string name="pref_running_show_time_pick_button_only_when_needed_title">Time pick button only when needed</string>
+	<string name="pref_running_show_time_pick_button_only_when_needed_summary_on">The button to enter any time value is only shown when a time was picked.</string>
+	<string name="pref_running_show_time_pick_button_only_when_needed_summary_off">The button to enter any time value is always shown.</string>
 	<string name="pref_running_next_day">Expired times for tomorrow</string>
 	<string name="pref_running_next_day_summary">Times that are expired for 3 hours are showing the programs of tomorrow.</string>
 	<string name="pref_debug">Debugging</string>

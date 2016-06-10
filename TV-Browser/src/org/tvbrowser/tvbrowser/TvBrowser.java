@@ -55,7 +55,6 @@ import org.tvbrowser.settings.PluginPreferencesActivity;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.tvbrowser.utils.IOUtils;
-import org.tvbrowser.utils.LogUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
@@ -67,6 +66,7 @@ import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
+import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
@@ -5304,6 +5304,7 @@ public class TvBrowser extends ActionBarActivity implements
                                         break;
       case R.id.action_scroll_now:scrollToTime(0);break;
       case R.id.action_scroll_next:scrollToTime(Integer.MAX_VALUE);break;
+      case R.id.action_scroll_time_free:scrollToTimePick();break;
       case R.id.action_activity_filter_list_edit_open:openFilterEdit();break;
      // case R.id.action_filter_channels:filterChannels();break;
       case R.id.action_reset: {
@@ -5327,9 +5328,26 @@ public class TvBrowser extends ActionBarActivity implements
     return super.onOptionsItemSelected(item);
   }
   
+  private void scrollToTimePick() {
+    final int lastExtraTime = PrefUtils.getIntValue(R.string.PREF_MISC_LAST_TIME_PICK_VALUE, PrefUtils.getIntValueWithDefaultKey(R.string.PREF_MISC_LAST_TIME_EXTRA_VALUE, R.integer.pref_misc_last_time_extra_value_default));
+    
+    final TimePickerDialog pick = new TimePickerDialog(TvBrowser.this, TimePickerDialog.THEME_HOLO_DARK, new TimePickerDialog.OnTimeSetListener() {
+      @Override
+      public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+        scrollToTime(hourOfDay*60+minute+1);
+        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit().putInt(getString(R.string.PREF_MISC_LAST_TIME_PICK_VALUE), hourOfDay*60+minute).commit();
+      }
+    }, lastExtraTime/60, lastExtraTime%60, DateFormat.is24HourFormat(TvBrowser.this));
+    
+    pick.show();
+  }
+  
+  /*
+   * a value of 0 stands for now, Integer.MAX_VALUE for next and every number
+   * from 1 to 1440 for a time in minutes plus one 
+   */
   private void scrollToTime(int time) {
     Log.d("info8", "scrollToTime " + time);
-    
     if(mViewPager.getCurrentItem() == 0) {
       Fragment test = mSectionsPagerAdapter.getRegisteredFragment(0);
       

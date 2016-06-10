@@ -422,6 +422,7 @@
         <item type="id" name="now_button" />
         <item type="id" name="button_after1" />
         <item type="id" name="running_list_fragment_list_view" />
+        <item type="id" name="time_extra" />
 
     <!--  running_programs_widget_divider_big.xml -->
 
@@ -543,6 +544,7 @@
         <item type="id" name="action_scroll" />
         <item type="id" name="action_scroll_now" />
         <item type="id" name="action_scroll_next" />
+        <item type="id" name="action_scroll_time_free" />
         <item type="id" name="menu_tvbrowser_action_update_data" />
         <item type="id" name="menu_tvbrowser_action_create_favorite" />
         <item type="id" name="menu_tvbrowser_action_favorite_add" />

@@ -21,6 +21,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Locale;
 
@@ -35,6 +36,7 @@ import org.tvbrowser.view.SeparatorDrawable;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -46,6 +48,7 @@ import android.content.res.Configuration;
 import android.database.Cursor;
 import android.graphics.Color;
 import android.graphics.Rect;
+import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
 import android.os.Build;
@@ -60,12 +63,14 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
 import android.text.Spannable;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.View.OnLongClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
@@ -77,10 +82,12 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.TimePicker;
 
 public class FragmentProgramsListRunning extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
   private static final String WHERE_CLAUSE_KEY = "WHERE_CLAUSE_KEY";
   private static final String DAY_CLAUSE_KEY = "DAY_CLAUSE_KEY";
+  private static final int TIMEOUT_LAST_EXTRA_CLICK = 750;
     
   private Handler handler = new Handler();
   
@@ -134,6 +141,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   private Spinner mDateSelection;
   
   private ArrayAdapter<DateSelection> mDateAdapter;
+  
+  private Button mTimeExtra;
+  private long mLastExtraClick;
   
   static {
     BEFORE_GRADIENT = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[] {Color.argb(0x84, 0, 0, 0xff),Color.WHITE});
@@ -319,13 +329,20 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         else {
           Button button = null;
           if(mTimeBar.getChildCount() > 1) {
+            int startIndex = 1;
+            
             if(next != null && next.getVisibility() == View.VISIBLE) {
               if(mTimeBar.getChildCount() > 2) {
-                button = (Button)mTimeBar.getChildAt(2);
+                startIndex = 2;
               }
             }
-            else {
-              button = (Button)mTimeBar.getChildAt(1);
+            
+            for(int i = startIndex; i < mTimeBar.getChildCount(); i++) {
+              button = (Button)mTimeBar.getChildAt(i);
+              
+              if(button.getTag(R.id.time_extra) == null) {
+                break;
+              }
             }
           }
           
@@ -951,6 +968,44 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     return view;
   }
   
+  private void pickTime(final View v) {
+    Log.d("info12", "pickTime " + new Date(mLastExtraClick + TIMEOUT_LAST_EXTRA_CLICK) + " " + new Date(System.currentTimeMillis()));
+    
+    if(mLastExtraClick + TIMEOUT_LAST_EXTRA_CLICK < System.currentTimeMillis()) {
+      if(!isViewVisible(mTimeExtra)) {      
+        ((HorizontalScrollView)mTimeBar.getParent()).scrollTo(mTimeExtra.getLeft(), mTimeExtra.getTop());
+      }
+      
+      final int time = (Integer)v.getTag();
+      
+      final TimePickerDialog pick = new TimePickerDialog(getActivity(), TimePickerDialog.THEME_HOLO_DARK, new TimePickerDialog.OnTimeSetListener() {
+        @Override
+        public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
+          final Integer selectedTime = Integer.valueOf(hourOfDay*60+minute);
+          
+          insertTimeExtra();
+          
+          Calendar cal = Calendar.getInstance();
+          cal.set(Calendar.HOUR_OF_DAY, selectedTime / 60);
+          cal.set(Calendar.MINUTE, selectedTime % 60);
+            
+          mTimeExtra.setText(DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(cal.getTime()));
+          mTimeExtra.setTag(selectedTime);
+          
+          mLastExtraClick = System.currentTimeMillis();
+          setWhereClauseTime(selectedTime);
+          PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getActivity()).edit().putInt(getString(R.string.PREF_MISC_LAST_TIME_EXTRA_VALUE), selectedTime).commit();
+        }
+      }, time/60, time%60, DateFormat.is24HourFormat(getActivity()));
+      
+      pick.show();
+    }
+    else {
+      mLastExtraClick = System.currentTimeMillis();
+      setWhereClauseTime(mWhereClauseTime);
+    }
+  }
+  
   private void initialize(View rootView) {
     final Button now = (Button)rootView.findViewById(R.id.now_button);
     final Button next = (Button)rootView.findViewById(R.id.button_after1);
@@ -958,14 +1013,27 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     now.setTag(Integer.valueOf(-1));
     next.setTag(Integer.valueOf(-2));
     
-    final View.OnClickListener listener = new View.OnClickListener() {
+    final View.OnClickListener listenerClick = new View.OnClickListener() {
       @Override
       public void onClick(View v) {
+        if(PrefUtils.getBooleanValue(R.string.PREF_RUNNING_PROGRAMS_SHOW_TIME_PICK_BUTTON_ONLY_WHEN_NEEDED, R.bool.pref_running_programs_show_time_pick_button_only_when_needed_default)) {
+          mTimeBar.removeView(mTimeExtra);
+        }
+        
         if((v.equals(now) || v.equals(next)) && mDateSelection.getCount() > 1) {
           mDateSelection.setSelection(1);
         }
         
         setWhereClauseTime(v.getTag());
+      }
+    };
+    
+    final View.OnLongClickListener listenerLongClick = new View.OnLongClickListener() {
+      @Override
+      public boolean onLongClick(final View v) {
+        pickTime(v);
+        
+        return true;
       }
     };
     
@@ -987,13 +1055,26 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         
         if(getActivity() != null) {
           SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-          now.setOnClickListener(listener);
+          now.setOnClickListener(listenerClick);
           mTimeBar.addView(now);
           
           if(PrefUtils.getBooleanValue(R.string.PREF_RUNNING_PROGRAMS_SHOW_NEXT_BUTTON, R.bool.pref_running_programs_show_next_button_default)) {
-            next.setOnClickListener(listener);
+            next.setOnClickListener(listenerClick);
             mTimeBar.addView(next);
           }
+          
+          now.setOnLongClickListener(new OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+              if(mDateSelection.getCount() > 1) {
+                mDateSelection.setSelection(1);
+              }
+              
+              setWhereClauseTime(Integer.valueOf(-2));
+              
+              return true;
+            }
+          });
           
           ArrayList<Integer> values = new ArrayList<Integer>();
           
@@ -1026,18 +1107,60 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
           if(PrefUtils.getBooleanValue(R.string.SORT_RUNNING_TIMES, R.bool.sort_running_times_default)) {
             Collections.sort(values);
           }
+
+          Calendar cal = Calendar.getInstance();
+          
+          int lastExtraTime = PrefUtils.getIntValueWithDefaultKey(R.string.PREF_MISC_LAST_TIME_EXTRA_VALUE, R.integer.pref_misc_last_time_extra_value_default);
+          
+          cal.set(Calendar.HOUR_OF_DAY, lastExtraTime/60);
+          cal.set(Calendar.MINUTE, lastExtraTime%60);
+          
+          getActivity().getLayoutInflater().inflate(R.layout.time_button, mTimeBar);
+          
+          mLastExtraClick = 0;
+          
+          mTimeExtra = (Button)mTimeBar.getChildAt(mTimeBar.getChildCount()-1);
+          mTimeExtra.setText(DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(cal.getTime()));
+          mTimeExtra.setTag(R.id.time_extra, Boolean.valueOf(true));
+          mTimeExtra.setTypeface(null, Typeface.BOLD_ITALIC);
+          mTimeExtra.setTag(Integer.valueOf(lastExtraTime));
+          mTimeExtra.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+              pickTime(v);
+            }
+          });
+          mTimeExtra.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View v) {
+              mLastExtraClick = System.currentTimeMillis();
+              
+              if((v.equals(now) || v.equals(next)) && mDateSelection.getCount() > 1) {
+                mDateSelection.setSelection(1);
+              }
+              
+              setWhereClauseTime(v.getTag());
+              
+              return true;
+            }
+          });
+          
+          if(PrefUtils.getBooleanValue(R.string.PREF_RUNNING_PROGRAMS_SHOW_TIME_PICK_BUTTON_ONLY_WHEN_NEEDED, R.bool.pref_running_programs_show_time_pick_button_only_when_needed_default)
+              && lastExtraTime != mWhereClauseTime) {
+            mTimeBar.removeView(mTimeExtra);
+          }
           
           for(Integer value : values) {
             getActivity().getLayoutInflater().inflate(R.layout.time_button, mTimeBar);
             
-            Calendar cal = Calendar.getInstance();
             cal.set(Calendar.HOUR_OF_DAY, value / 60);
             cal.set(Calendar.MINUTE, value % 60);
             
             Button time = (Button)mTimeBar.getChildAt(mTimeBar.getChildCount()-1);
             time.setText(DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(cal.getTime()));
             time.setTag(value);
-            time.setOnClickListener(listener);
+            time.setOnClickListener(listenerClick);
+            time.setOnLongClickListener(listenerLongClick);
           }
         }
       }
@@ -1455,11 +1578,51 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     getListView().setDividerHeight(UiUtils.convertDpToPixel(Integer.parseInt(size), getResources()));
   }
 
+  private void insertTimeExtra() {
+    boolean mTimeExtraFound = false;
+    
+    int insertIndex = 1;
+    
+    if(mTimeBar.getChildCount() > 1) {
+      final Button next = (Button)((ViewGroup)((ViewGroup)getView().getParent()).getParent()).findViewById(R.id.button_after1);
+      
+      if(next != null && next.getVisibility() == View.VISIBLE) {
+        if(mTimeBar.getChildCount() > 2) {
+          insertIndex = 2;
+        }
+      }
+      
+      for(int i = insertIndex; i < mTimeBar.getChildCount(); i++) {
+        Button button = (Button)mTimeBar.getChildAt(i);
+        
+        if(button.getTag(R.id.time_extra) != null) {
+          mTimeExtraFound = true;
+          
+          break;
+        }
+      }
+    }
+    
+    if(!mTimeExtraFound) {
+      mTimeBar.addView(mTimeExtra, insertIndex);
+    }
+  }
+  
   @Override
   public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
     if(!isDetached() && getActivity() != null) {
       if(getString(R.string.PREF_RUNNING_DIVIDER_SIZE).equals(key)) {
         setDividerSize(PrefUtils.getStringValue(R.string.PREF_RUNNING_DIVIDER_SIZE, R.string.pref_running_divider_size_default));
+      }
+      else if(getString(R.string.PREF_RUNNING_PROGRAMS_SHOW_TIME_PICK_BUTTON_ONLY_WHEN_NEEDED).equals(key)) {
+        boolean enabled = sharedPreferences.getBoolean(key, getResources().getBoolean(R.bool.pref_running_programs_show_time_pick_button_only_when_needed_default));
+        
+        if(enabled && !mTimeExtra.getTag().equals(Integer.valueOf(mWhereClauseTime))) {
+          mTimeBar.removeView(mTimeExtra);
+        }
+        else {
+          insertTimeExtra();
+        }
       }
       else if(mListView != null && (getString(R.string.PREF_COLOR_SEPARATOR_LINE).equals(key) || getString(R.string.PREF_COLOR_SEPARATOR_SPACE).equals(key))) {
         final Drawable separator = mListView.getDivider();
@@ -1490,6 +1653,27 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     
     if(!found && time == -1) {
       setWhereClauseTime(Integer.valueOf(-2));
+    }
+    else if(time > 0) {
+      time--;
+      
+      mTimeExtra.setTag(Integer.valueOf(time));
+      
+      Calendar cal = Calendar.getInstance();
+      
+      cal.set(Calendar.HOUR_OF_DAY, time/60);
+      cal.set(Calendar.MINUTE, time%60);
+
+      mLastExtraClick = System.currentTimeMillis();
+      mTimeExtra.setText(DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(cal.getTime()));
+      
+      insertTimeExtra();
+      
+      setWhereClauseTime(mTimeExtra.getTag());
+      
+      if(!isViewVisible(mTimeExtra)) {      
+        ((HorizontalScrollView)mTimeBar.getParent()).scrollTo(mTimeExtra.getLeft(), mTimeExtra.getTop());
+      }
     }
   }
   
