@@ -362,11 +362,12 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       int testValue = ((Integer) time).intValue();
       
       if(testValue != mWhereClauseTime) {
+        final Integer timeTest = Integer.valueOf(mWhereClauseTime);
         
-        Button test = (Button)((View)getView().getParent()).findViewWithTag(Integer.valueOf(mWhereClauseTime));
-        
-        if(test != null) {
-          test.setBackgroundResource(android.R.drawable.list_selector_background);
+        for(int i = 0; i < mTimeBar.getChildCount(); i++) {
+          if(timeTest.equals(mTimeBar.getChildAt(i).getTag())) {
+            mTimeBar.getChildAt(i).setBackgroundResource(android.R.drawable.list_selector_background);
+          }
         }
         
         int oldWhereClauseTime = mWhereClauseTime;
@@ -983,7 +984,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
           final Integer selectedTime = Integer.valueOf(hourOfDay*60+minute);
           
-          insertTimeExtra();
+          insertTimeExtra(selectedTime);
           
           Calendar cal = Calendar.getInstance();
           cal.set(Calendar.HOUR_OF_DAY, selectedTime / 60);
@@ -1301,12 +1302,16 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       cal.setTimeInMillis(System.currentTimeMillis());
     }
     
-    if(getView().getParent() != null) {
-      Button test = (Button)((View)getView().getParent()).findViewWithTag(Integer.valueOf(mWhereClauseTime));
-      
-      if(test != null) {
-        test.setBackgroundColor(UiUtils.getColor(UiUtils.RUNNING_TIME_SELECTION_KEY, getActivity()));
-      }      
+    final Integer timeTest = Integer.valueOf(mWhereClauseTime);
+    
+    for(int i = 0; i < mTimeBar.getChildCount(); i++) {
+      if(timeTest.equals(mTimeBar.getChildAt(i).getTag())) {
+        mTimeBar.getChildAt(i).setBackgroundColor(UiUtils.getColor(UiUtils.RUNNING_TIME_SELECTION_KEY, getActivity()));
+        
+        if(!isViewVisible(mTimeBar.getChildAt(i))) {      
+          ((HorizontalScrollView)mTimeBar.getParent()).scrollTo(mTimeBar.getChildAt(i).getLeft(), mTimeBar.getChildAt(i).getTop());
+        }
+      }
     }
     
     mCurrentTime = ((long)cal.getTimeInMillis() / 60000) * 60000;
@@ -1578,8 +1583,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     getListView().setDividerHeight(UiUtils.convertDpToPixel(Integer.parseInt(size), getResources()));
   }
 
-  private void insertTimeExtra() {
-    boolean mTimeExtraFound = false;
+  private void insertTimeExtra(final Integer time) {
+    boolean timeExtraFound = false;
+    boolean timeAvailable = false;
     
     int insertIndex = 1;
     
@@ -1596,14 +1602,14 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         Button button = (Button)mTimeBar.getChildAt(i);
         
         if(button.getTag(R.id.time_extra) != null) {
-          mTimeExtraFound = true;
-          
-          break;
+          timeExtraFound = true;
+        } else if(time.equals(mTimeBar.getChildAt(i).getTag())) {
+          timeAvailable = true;
         }
       }
     }
     
-    if(!mTimeExtraFound) {
+    if(!timeExtraFound && !timeAvailable) {
       mTimeBar.addView(mTimeExtra, insertIndex);
     }
   }
@@ -1621,7 +1627,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
           mTimeBar.removeView(mTimeExtra);
         }
         else {
-          insertTimeExtra();
+          insertTimeExtra(Integer.valueOf(mWhereClauseTime));
         }
       }
       else if(mListView != null && (getString(R.string.PREF_COLOR_SEPARATOR_LINE).equals(key) || getString(R.string.PREF_COLOR_SEPARATOR_SPACE).equals(key))) {
@@ -1667,7 +1673,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       mLastExtraClick = System.currentTimeMillis();
       mTimeExtra.setText(DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(cal.getTime()));
       
-      insertTimeExtra();
+      insertTimeExtra(Integer.valueOf(time));
       
       setWhereClauseTime(mTimeExtra.getTag());
       
