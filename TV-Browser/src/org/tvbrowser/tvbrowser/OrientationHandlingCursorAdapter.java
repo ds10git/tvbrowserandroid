@@ -143,47 +143,53 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
     
     boolean scale = convertView == null;
     
-    View view = super.getView(position, convertView, parent);
+    View view = new View(mContext);
     
-    if(scale) {
-      UiUtils.scaleTextViews(view, textScale);
+    try {
+      view = super.getView(position, convertView, parent);
       
-      tag = new ProgTag();
-      
-      tag.mOrientation = SettingConstants.ORIENTATION;
-      tag.mTextScale = textScale;
-      tag.mPadding = padding;
-      tag.mPaddingView = view.findViewById(R.id.programs_list_row);
-      
-      view.setTag(tag);
-    }
-    
-    tag.mPaddingView.setPadding(0, tag.mPadding, 0, tag.mPadding);
-    
-    if(mOnClickListener != null) {
-      View listEntry = tag.mPaddingView;
-      
-      if(listEntry.getTag() == null) {
-        listEntry.setOnClickListener(mOnClickListener);
-        listEntry.setOnCreateContextMenuListener(mContextMenuListener);
+      if(scale) {
+        UiUtils.scaleTextViews(view, textScale);
+        
+        tag = new ProgTag();
+        
+        tag.mOrientation = SettingConstants.ORIENTATION;
+        tag.mTextScale = textScale;
+        tag.mPadding = padding;
+        tag.mPaddingView = view.findViewById(R.id.programs_list_row);
+        
+        view.setTag(tag);
       }
       
-      listEntry.setTag(getItemId(position));
+      tag.mPaddingView.setPadding(0, tag.mPadding, 0, tag.mPadding);
       
-      View channelEntry = view.findViewById(R.id.program_list_channel_info);
-      
-      ChannelProgInfo info = (ChannelProgInfo)channelEntry.getTag();
-      
-      if(info == null) {
-        info = new ChannelProgInfo();
-        channelEntry.setOnClickListener(mChannelSwitchListener);
-        channelEntry.setTag(info);
+      if(mOnClickListener != null) {
+        View listEntry = tag.mPaddingView;
+        
+        if(listEntry.getTag() == null) {
+          listEntry.setOnClickListener(mOnClickListener);
+          listEntry.setOnCreateContextMenuListener(mContextMenuListener);
+        }
+        
+        listEntry.setTag(getItemId(position));
+        
+        View channelEntry = view.findViewById(R.id.program_list_channel_info);
+        
+        ChannelProgInfo info = (ChannelProgInfo)channelEntry.getTag();
+        
+        if(info == null) {
+          info = new ChannelProgInfo();
+          channelEntry.setOnClickListener(mChannelSwitchListener);
+          channelEntry.setTag(info);
+        }
+        
+        Cursor c = getCursor();
+        
+        info.mID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+        info.mStartTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
       }
+    }catch(IllegalStateException ise) {
       
-      Cursor c = getCursor();
-      
-      info.mID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
-      info.mStartTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
     }
     
     return view;

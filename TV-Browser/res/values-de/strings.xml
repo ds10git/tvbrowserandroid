@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.2.3</h2>
+        <h2>0.6.2.4</h2>
+        	&bull; möglicher Absturz beseitigt<br>
+        <h3>0.6.2.3</h3>
         	&bull; langer Klick auf Jetzt zeigt Als Nächstes im Tab Laufende Sendungen<br>
         	&bull; langer Klick auf Zeitknöpfe öffnet Zeitauswahl zur Eingabe beliebiger Zeiten<br>
             &bull; Zeitknopf zur Auswahl beliebiger Zeiten zu Laufende Sendungen hinzugefügt<br>

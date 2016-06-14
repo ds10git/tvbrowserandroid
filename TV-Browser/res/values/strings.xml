@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.2.3</h2>
+        <h2>0.6.2.4</h2>
+        	&bull; fixed possible crash<br>
+        <h3>0.6.2.3</h3>
         	&bull; long click on now shows next in running programs tab<br>
         	&bull; long click on time buttons opens selection for any time in running programs tab<br>
             &bull; added button to select any time in running programs tab<br>
