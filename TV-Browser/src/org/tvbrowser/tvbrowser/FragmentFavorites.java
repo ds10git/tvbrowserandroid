@@ -140,11 +140,11 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
         
         mMarkingsList.performItemClick(null, selection, -1);
       }
-      else if(mFavoriteSelection != null && selection < mFavoriteSelection.getCount()) {
+      else if(mFavoriteSelection != null && selection >= 0 && selection < mFavoriteSelection.getCount()) {
         if(mContainsListViewFavoriteSelection) {
           mFavoriteSelection.performItemClick(null, selection, -1);
         }
-        else if(selection >= 0) {
+        else {
           mFavoriteSelection.setSelection(selection);
         }
       }
@@ -511,26 +511,28 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
   
   private void selectFavorite(final int position) {
-    mCurrentSelection = mCurrentFavoriteSelection = mFavoriteList.get(position);
-    mWhereClause = getWhereClause();
-    
-    final Activity tvb = getActivity();
-    
-    if(tvb != null) {
-      ((TvBrowser)tvb).updateFavoritesMenu(mCurrentFavoriteSelection.containsFavorite());
+    if(position >= 0 && position < mFavoriteList.size()) {
+      mCurrentSelection = mCurrentFavoriteSelection = mFavoriteList.get(position);
+      mWhereClause = getWhereClause();
       
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          if(!isDetached() && getActivity() != null) {
-            getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
+      final Activity tvb = getActivity();
+      
+      if(tvb != null) {
+        ((TvBrowser)tvb).updateFavoritesMenu(mCurrentFavoriteSelection.containsFavorite());
+        
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            if(!isDetached() && getActivity() != null) {
+              getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
+            }
           }
-        }
-      });
-    }
-    
-    if(mIsStarted) {
-      PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, tvb).edit().putInt(tvb.getString(R.string.PREF_MISC_LAST_FAVORITE_SELECTION), position).commit();
+        });
+      }
+      
+      if(mIsStarted) {
+        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, tvb).edit().putInt(tvb.getString(R.string.PREF_MISC_LAST_FAVORITE_SELECTION), position).commit();
+      }
     }
   }
   
