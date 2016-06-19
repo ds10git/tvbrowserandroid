@@ -37,12 +37,17 @@
 	<CheckBoxPreference android:key="@string/SHOW_SORT_NUMBER_IN_RUNNING_LIST" 
 		android:title="@string/show_sort_number"
 		android:defaultValue="@bool/show_sort_number_in_running_list_default"/>
-	<CheckBoxPreference android:key="@string/PREF_RUNNING_PROGRAMS_SHOW_NEXT_BUTTON" 
-		android:title="@string/pref_running_show_next_button"
-		android:defaultValue="@bool/pref_running_programs_show_next_button_default"/>
-	<CheckBoxPreference android:key="@string/PREF_RUNNING_PROGRAMS_SHOW_TIME_PICK_BUTTON_ONLY_WHEN_NEEDED" 
-		android:title="@string/pref_running_show_time_pick_button_only_when_needed_title"
-		android:summaryOn="@string/pref_running_show_time_pick_button_only_when_needed_summary_on"
-		android:summaryOff="@string/pref_running_show_time_pick_button_only_when_needed_summary_off"
-		android:defaultValue="@bool/pref_running_programs_show_time_pick_button_only_when_needed_default"/>
+	<PreferenceCategory
+	    android:title="@string/pref_time_buttons">
+		<CheckBoxPreference android:key="@string/PREF_RUNNING_PROGRAMS_SHOW_NEXT_BUTTON" 
+			android:title="@string/pref_running_show_next_button"
+			android:summaryOn="@string/pref_running_show_next_button_summary_on"
+			android:summaryOff="@string/pref_running_show_next_button_summary_off"
+			android:defaultValue="@bool/pref_running_programs_show_next_button_default"/>
+		<CheckBoxPreference android:key="@string/PREF_RUNNING_PROGRAMS_SHOW_TIME_PICK_BUTTON_ONLY_WHEN_NEEDED" 
+			android:title="@string/pref_running_show_time_pick_button_only_when_needed_title"
+			android:summaryOn="@string/pref_running_show_time_pick_button_only_when_needed_summary_on"
+			android:summaryOff="@string/pref_running_show_time_pick_button_only_when_needed_summary_off"
+			android:defaultValue="@bool/pref_running_programs_show_time_pick_button_only_when_needed_default"/>
+	</PreferenceCategory>
 </PreferenceScreen>

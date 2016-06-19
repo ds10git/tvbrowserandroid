@@ -4,7 +4,6 @@ import org.tvbrowser.tvbrowser.WhereClause;
 import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.ViewGroup;
 
 public class FilterValuesKeyword extends FilterValues implements KeywordFilter {

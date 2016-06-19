@@ -2507,13 +2507,15 @@ public class UiUtils {
       final String column = TvBrowserContentProvider.TEXT_SEARCHABLE_COLUMN_ARRAY[i];
       
       columnSelectionAdatper.add(new NamedFields(context, column));
-      
-      if(column.equals(keywordFilter.getColumn())) {
-        columnSelection.setSelection(i);
-      }
     }
     
     columnSelectionAdatper.sort(NamedFields.COMPARATOR);
+    
+    for(int i = 0; i < columnSelectionAdatper.getCount(); i++) {
+      if(columnSelectionAdatper.getItem(i).getColumn().equals(keywordFilter.getColumn())) {
+        columnSelection.setSelection(i);
+      }
+    }
     
     AlertDialog.Builder builder = new AlertDialog.Builder(context);
     

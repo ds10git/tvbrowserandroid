@@ -38,7 +38,6 @@ import org.tvbrowser.view.TimeBlockProgramTableLayout;
 
 import android.annotation.SuppressLint;
 import android.annotation.TargetApi;
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
@@ -49,7 +48,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
-import android.content.res.Resources.NotFoundException;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -291,8 +289,8 @@ public class FragmentProgramTable extends Fragment {
   }
   
   @Override
-  public void onAttach(Activity activity) {
-    super.onAttach(activity);
+  public void onAttach(Context context) {
+    super.onAttach(context);
     
     mUpdateMarkingsReceiver = new BroadcastReceiver() {
       @Override

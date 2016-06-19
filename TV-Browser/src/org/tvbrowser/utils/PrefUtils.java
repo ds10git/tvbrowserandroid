@@ -31,6 +31,7 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.database.Cursor;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 public class PrefUtils {
   private static Context mContext;
@@ -39,7 +40,7 @@ public class PrefUtils {
   private PrefUtils() {}
   
   public static void initialize(Context context) {
-    if(mContext == null) {
+    if(context != null && mContext == null) {
       mContext = context.getApplicationContext();
       mPref = PreferenceManager.getDefaultSharedPreferences(mContext);
       
@@ -352,6 +353,7 @@ public class PrefUtils {
   }
   
   public static final boolean isNewDate(Context context) {
+    Log.d("info6", "LAST KNOWN START DATE " + getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).getInt(context.getString(R.string.PREF_MISC_LAST_KNOWN_OPEN_DATE), -1) + " - CURRENT DATE " + Calendar.getInstance().get(Calendar.DAY_OF_YEAR));
     return Calendar.getInstance().get(Calendar.DAY_OF_YEAR) != getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).getInt(context.getString(R.string.PREF_MISC_LAST_KNOWN_OPEN_DATE), -1);
   }
   
