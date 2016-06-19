@@ -35,7 +35,6 @@ import org.tvbrowser.utils.UiUtils;
 import org.tvbrowser.view.SeparatorDrawable;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
@@ -144,6 +143,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   private Button mTimeExtra;
   private long mLastExtraClick;
+  private boolean mUpdateRunning;
   
   static {
     BEFORE_GRADIENT = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[] {Color.argb(0x84, 0, 0, 0xff),Color.WHITE});
@@ -158,19 +158,20 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     super.onResume();
     
     mKeepRunning = true;
+    mUpdateRunning = false;
     startUpdateThread();
   }
   
   @Override
   public void onPause() {
-    
+    mUpdateRunning = false;
     mKeepRunning = false;
     super.onPause();
   }
   
   @Override
-  public void onAttach(Activity activity) {
-    super.onAttach(activity);
+  public void onAttach(Context context) {
+    super.onAttach(context);
     
     mDataUpdateReceiver = new BroadcastReceiver() {
       @Override
@@ -913,7 +914,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     
     setDividerSize(PrefUtils.getStringValue(R.string.PREF_RUNNING_DIVIDER_SIZE, R.string.pref_running_divider_size_default));
     
-    getLoaderManager().initLoader(0, null, this);
+   // getLoaderManager().initLoader(0, null, this);
   }
   
   @Override
@@ -946,8 +947,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
           handler.post(new Runnable() {
             @Override
             public void run() {
-              if(!isDetached() &&  mKeepRunning && !isRemoving()) {
+              if(!isDetached() &&  mKeepRunning && !isRemoving() && !mUpdateRunning) {
                 getLoaderManager().restartLoader(0, null, FragmentProgramsListRunning.this);
+                mUpdateRunning = true;
               }
             }
           });
@@ -1178,11 +1180,12 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
 
     mDateSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
-      public void onItemSelected(AdapterView<?> parent, View view, 
-          int pos, long id) {
-        DateSelection selection = mDateAdapter.getItem(pos);
-        
-        setDay(selection.getTime());
+      public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
+        if(pos >= 0) {
+          DateSelection selection = mDateAdapter.getItem(pos);
+          
+          setDay(selection.getTime());
+        }
       }
       
       @Override
@@ -1200,7 +1203,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
 
   private void updateDateSelection() {
     if(getActivity() != null && !isDetached() && mDateSelection != null) {
-      int pos = mDateSelection.getSelectedItemPosition();
+      final int orgPos = mDateSelection.getSelectedItemPosition();
+      int pos = orgPos;
       
       mDateAdapter.clear();
       
@@ -1242,6 +1246,11 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       }
       else {
         mDateSelection.setSelection(mDateSelection.getCount()-1);
+      }
+      
+      if(orgPos == pos && pos < mDateAdapter.getCount()) {
+        final DateSelection selection = mDateAdapter.getItem(pos);
+        setDay(selection.getTime());
       }
     }
   }
@@ -1383,6 +1392,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   @Override
   public synchronized void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, final Cursor c) {
+    Log.d("info6", "RUNNING PROGRAMS: onLoadFinished, searching programs " + System.currentTimeMillis());
     if(c != null) {
       SparseArray<ChannelProgramBlock> channelProgramMap = new SparseArray<ChannelProgramBlock>();
       SparseArray<ChannelProgramBlock> currentProgramMap = new SparseArray<ChannelProgramBlock>();
@@ -1546,11 +1556,14 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       channelProgramMap.clear();
     }
     
+    mUpdateRunning = false;
+    Log.d("info6", "RUNNING PROGRAMS: onLoadFinished, searching programs DONE " + System.currentTimeMillis());
     mRunningProgramListAdapter.notifyDataSetChanged();
   }
 
   @Override
   public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
+    mUpdateRunning = false;
     mCurrentViewList.clear();
     mProgramBlockList.clear();
   }

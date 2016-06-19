@@ -46,8 +46,7 @@
         android:background="@drawable/shape_widget_background_corners_straight_transparency_medium"
         android:id="@id/running_widget_list_view"
         android:layout_width="match_parent"
-        android:dividerHeight="1dp"
-        android:divider="@drawable/list_widgets_divider"
+        android:divider="@drawable/line_divider"
         android:layout_height="match_parent"
         android:layout_below="@id/running_widget_header_wrapper"/>
 	<TextView

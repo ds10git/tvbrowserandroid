@@ -29,7 +29,6 @@ import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
 import org.tvbrowser.view.SeparatorDrawable;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -74,6 +73,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   private Handler handler;
     
   private boolean mKeepRunning;
+  private boolean mUpdateRunning;
   private Thread mUpdateThread;
   
   private long mChannelID;
@@ -123,6 +123,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     super.onResume();
     
     mKeepRunning = true;
+    mUpdateRunning = false;
     ProgramUtils.registerMarkingsListener(getActivity(), this);
     
     startUpdateThread(mNextUpdate);
@@ -130,9 +131,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   
   @Override
   public void onPause() {
-    
     ProgramUtils.unregisterMarkingsListener(getActivity(), this);
     
+    mUpdateRunning = false;
     mKeepRunning = false;
     super.onPause();
   }
@@ -154,8 +155,8 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   }
   
   @Override
-  public void onAttach(Activity activity) {
-    super.onAttach(activity);
+  public void onAttach(Context context) {
+    super.onAttach(context);
     
     mDayStart = 0;
     mDayClause = "";
@@ -848,8 +849,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
           handler.post(new Runnable() {
             @Override
             public void run() {
-              if(mKeepRunning && !isRemoving() && !TvDataUpdateService.isRunning()) {
+              if(mKeepRunning && !isRemoving() && !TvDataUpdateService.isRunning() && !mUpdateRunning) {
                 getLoaderManager().restartLoader(0, null, FragmentProgramsList.this);
+                mUpdateRunning = true;
               }
             }
           });
@@ -963,6 +965,8 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       
       mScrollPos = -1;
     }
+    
+    mUpdateRunning = false;
   }
 
   @Override

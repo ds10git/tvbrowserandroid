@@ -143,6 +143,8 @@ public class TvDataUpdateService extends Service {
   private ArrayList<String> mChannelsNew;
   private ArrayList<Integer> mChannelsUpdate;
   
+  private Set<String> mEpgPaidChannelIds;
+  
   private static final Comparator<File> DATA_FILE_OLD_COMPARATOR = new Comparator<File>() {
     @Override
     public int compare(File lhs, File rhs) {
@@ -258,6 +260,26 @@ public class TvDataUpdateService extends Service {
   };
   
   private static final String[] FIELDS_LEVEL_PICTURE = {
+    TvBrowserContentProvider.DATA_KEY_PICTURE,
+    TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT,
+    TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION
+  };
+  
+  private static final String[] FIELDS_EPGPAID_POSSIBLE = {
+    TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
+    TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL,
+    TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
+    TvBrowserContentProvider.DATA_KEY_REGIE,
+    TvBrowserContentProvider.DATA_KEY_PRODUCER,
+    TvBrowserContentProvider.DATA_KEY_CAMERA,
+    TvBrowserContentProvider.DATA_KEY_SCRIPT,
+    TvBrowserContentProvider.DATA_KEY_REPETITION_FROM,
+    TvBrowserContentProvider.DATA_KEY_MUSIC,
+    TvBrowserContentProvider.DATA_KEY_MODERATION,
+    TvBrowserContentProvider.DATA_KEY_DESCRIPTION,
+    TvBrowserContentProvider.DATA_KEY_ACTORS,
+    TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO,
+    TvBrowserContentProvider.DATA_KEY_SERIES,
     TvBrowserContentProvider.DATA_KEY_PICTURE,
     TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT,
     TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION
@@ -403,6 +425,19 @@ public class TvDataUpdateService extends Service {
     }
   }
   
+  
+  private void loadEpgPaidChannelIdsForDataUpdate() {
+    final String userName = PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, null);
+    final String password = PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, null);
+    
+    if(userName != null && password != null && userName.trim().length() > 0 && password.trim().length() > 0) {
+      mEpgPaidChannelIds = PrefUtils.getStringSetValue(R.string.PREF_EPGPAID_DATABASE_CHANNEL_IDS, new HashSet<String>());
+    }
+    else {
+      mEpgPaidChannelIds = new HashSet<String>(0);
+    }
+  }
+  
   private void handleStoredDataFromKilledUpdate(boolean syncAllowed) {
     doLog("handleStoredDataFromKilledUpdate()");
     acquireWakeLock();
@@ -414,6 +449,8 @@ public class TvDataUpdateService extends Service {
     
     doLog("Favorite.handleDataUpdateStarted()");
     Favorite.handleDataUpdateStarted();
+    
+    loadEpgPaidChannelIdsForDataUpdate();
         
     final File path = IOUtils.getDownloadDirectory(TvDataUpdateService.this.getApplicationContext());
     
@@ -674,9 +711,13 @@ public class TvDataUpdateService extends Service {
     if(mVersionDatabaseOperation != null) {
       mVersionDatabaseOperation.cancel();
     }
+    if(mEpgPaidChannelIds != null) {
+      mEpgPaidChannelIds.clear();
+    }
     
     mDataDatabaseOperation = null;
     mVersionDatabaseOperation = null;
+    mEpgPaidChannelIds = null;
         
     stopForeground(true);
     ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(ID_NOTIFY);
@@ -2570,6 +2611,8 @@ public class TvDataUpdateService extends Service {
     doLog("Favorite.handleDataUpdateStarted()");
     Favorite.handleDataUpdateStarted();
     
+    loadEpgPaidChannelIdsForDataUpdate();
+    
     final File path = IOUtils.getDownloadDirectory(TvDataUpdateService.this.getApplicationContext());
     
     File[] oldDataFiles = path.listFiles(new FileFilter() {
@@ -3088,6 +3131,70 @@ public class TvDataUpdateService extends Service {
     }
   }
   
+  private void readEpgPaidChannelIds(final File channels) {
+    BufferedReader channelsIn = null;
+    
+    try {
+      channelsIn = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(channels)),"UTF-8"));
+      
+      String line = null;
+      
+      final String[] projection = {
+          TvBrowserContentProvider.KEY_ID
+      };
+      
+      final Hashtable<String, Object> currentGroups = getCurrentGroups();
+      final HashSet<String> epgPaidChannelDatabaseKeys = new HashSet<String>();
+      
+      while((line = channelsIn.readLine()) != null) {
+        String[] idParts = line.split("_");
+        
+        if(idParts.length == 2) {
+          String channelIdKey = null;
+          Object groupInfo = null;
+        
+          if(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_FREE_KEY).equals(idParts[0].trim())) {
+            final String[] channelParts = idParts[1].split("-");
+            
+            final String groupKey = getGroupsKey(SettingConstants.EPG_FREE_KEY,channelParts[0]);
+            groupInfo = currentGroups.get(groupKey);
+            channelIdKey = channelParts[1];
+          }
+          else if(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_DONATE_KEY).equals(idParts[0].trim())) {
+            final String groupKey = getGroupsKey(SettingConstants.EPG_DONATE_KEY,SettingConstants.EPG_DONATE_GROUP_KEY);
+            groupInfo = currentGroups.get(groupKey);
+            channelIdKey = idParts[1].trim();
+          }
+          
+          if(channelIdKey != null && groupInfo != null) {
+            final StringBuilder selection = new StringBuilder();
+            
+            selection.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID).append("='").append(channelIdKey).append("'");
+            selection.append(" AND ");
+            selection.append(TvBrowserContentProvider.GROUP_KEY_GROUP_ID).append(" IS ").append(((Integer)((Object[])groupInfo)[0]).intValue());
+            
+            final Cursor data = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, selection.toString(), null, null);
+            
+            try {
+              if(IOUtils.prepareAccessFirst(data)) {
+                final String channelId = String.valueOf(data.getInt(data.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
+                epgPaidChannelDatabaseKeys.add(channelId);
+              }
+            }finally {
+              IOUtils.close(data);
+            }
+          }
+        }
+      }
+      
+      final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvDataUpdateService.this).edit();
+      edit.putStringSet(getString(R.string.PREF_EPGPAID_DATABASE_CHANNEL_IDS), epgPaidChannelDatabaseKeys);
+      edit.commit();
+    }catch(Exception e2) {
+      
+    }
+  }
+  
   private void updateEpgPaidData(File pathBase, NotificationManager notification, long endDateTime) {    
     final Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
     utc.set(Calendar.HOUR_OF_DAY, 0);
@@ -3154,6 +3261,8 @@ public class TvDataUpdateService extends Service {
       channels.renameTo(oldChannels);
       
       if(epgPaidConnection.download(channels.getName(), channels)) {
+        readEpgPaidChannelIds(channels);
+        
         if(oldChannels.isFile()) {
           oldChannels.delete();
         }
@@ -3333,67 +3442,7 @@ public class TvDataUpdateService extends Service {
         }
         
         if(IOUtils.saveUrl(channels.getAbsolutePath(), "https://www.epgpaid.de/download/channels.gz")) {
-          BufferedReader channelsIn = null;
-          
-          try {
-            channelsIn = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(channels)),"UTF-8"));
-            
-            String line = null;
-            
-            final String[] projection = {
-                TvBrowserContentProvider.KEY_ID
-            };
-            
-            final Hashtable<String, Object> currentGroups = getCurrentGroups();
-            final HashSet<String> epgPaidChannelDatabaseKeys = new HashSet<String>();
-            
-            while((line = channelsIn.readLine()) != null) {
-              String[] idParts = line.split("_");
-              
-              if(idParts.length == 2) {
-                String channelIdKey = null;
-                Object groupInfo = null;
-              
-                if(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_FREE_KEY).equals(idParts[0].trim())) {
-                  final String[] channelParts = idParts[1].split("-");
-                  
-                  final String groupKey = getGroupsKey(SettingConstants.EPG_FREE_KEY,channelParts[0]);
-                  groupInfo = currentGroups.get(groupKey);
-                  channelIdKey = channelParts[1];
-                }
-                else if(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_DONATE_KEY).equals(idParts[0].trim())) {
-                  final String groupKey = getGroupsKey(SettingConstants.EPG_DONATE_KEY,SettingConstants.EPG_DONATE_GROUP_KEY);
-                  groupInfo = currentGroups.get(groupKey);
-                  channelIdKey = idParts[1].trim();
-                }
-                
-                if(channelIdKey != null && groupInfo != null) {
-                  final StringBuilder selection = new StringBuilder();
-                  
-                  selection.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID).append("='").append(channelIdKey).append("'");
-                  selection.append(" AND ");
-                  selection.append(TvBrowserContentProvider.GROUP_KEY_GROUP_ID).append(" IS ").append(((Integer)((Object[])groupInfo)[0]).intValue());
-                  
-                  final Cursor data = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, selection.toString(), null, null);
-                  
-                  try {
-                    if(IOUtils.prepareAccessFirst(data)) {
-                      final String channelId = String.valueOf(data.getInt(data.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
-                      epgPaidChannelDatabaseKeys.add(channelId);
-                    }
-                  }finally {
-                    IOUtils.close(data);
-                  }
-                }
-              }
-            }
-            
-            final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvDataUpdateService.this).edit();
-            edit.putStringSet(getString(R.string.PREF_EPGPAID_DATABASE_CHANNEL_IDS), epgPaidChannelDatabaseKeys);
-            edit.commit();
-          }catch(Exception e2) {
-            
-          }
+          readEpgPaidChannelIds(channels);
         }
         else if(oldChannels.isFile()) {
           oldChannels.renameTo(channels);
@@ -3731,118 +3780,14 @@ public class TvDataUpdateService extends Service {
     }
   }
   
-/*  private void updateVersionTable(String fileName, int dataVersion, long channelID, long date) {
-    long daysSince1970 = date / 24 / 60 / 60000;
-    
-    ContentValues values = new ContentValues();
-    
-    values.put(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, channelID);
-    values.put(TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970, daysSince1970);
-    
-    if(fileName.toLowerCase().contains(SettingConstants.EPG_FREE_LEVEL_NAMES[0])) {
-      values.put(TvBrowserContentProvider.VERSION_KEY_BASE_VERSION,dataVersion);
-    }
-    else if(fileName.toLowerCase().contains(SettingConstants.EPG_FREE_LEVEL_NAMES[1])) {
-      values.put(TvBrowserContentProvider.VERSION_KEY_MORE0016_VERSION,dataVersion);
-    }
-    else if(fileName.toLowerCase().contains(SettingConstants.EPG_FREE_LEVEL_NAMES[2])) {
-      values.put(TvBrowserContentProvider.VERSION_KEY_MORE1600_VERSION,dataVersion);
-    }
-    else if(fileName.toLowerCase().contains(SettingConstants.EPG_FREE_LEVEL_NAMES[3])) {
-      values.put(TvBrowserContentProvider.VERSION_KEY_PICTURE0016_VERSION,dataVersion);
-    }
-    else if(fileName.toLowerCase().contains(SettingConstants.EPG_FREE_LEVEL_NAMES[4])) {
-      values.put(TvBrowserContentProvider.VERSION_KEY_PICTURE1600_VERSION,dataVersion);
-    }
-    
-    String where = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelID + " AND " + TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + " = " + daysSince1970;
-        
-    Cursor test = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, null, where, null, null);
-    
-    // update current value
-    if(test.getCount() > 0) {
-      test.moveToFirst();
-      long id = test.getLong(test.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-      
-      int count = getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, id), values, null, null);
-    }
-    else {
-      Uri inserted = getContentResolver().insert(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, values);
-    }
-    
-    test.close();
-  }*/
-  
- /*private synchronized void addInsert(ContentValues insert) {
-    if(mDataInsertList != null) {
-      mDataInsertList.add(insert);
-      
-      if(mDataInsertList.size() > TABLE_OPERATION_MIN_SIZE) {
-        insert(mDataInsertList);
+  private static final void removeEpgPaidFieldsIfNecessary(ArrayList<String> columnList, String channelId, Set<String> epgPaidChannelIds) {
+    if(columnList != null && channelId != null && epgPaidChannelIds != null && epgPaidChannelIds.contains(channelId)) {
+      for(String field : FIELDS_EPGPAID_POSSIBLE) {
+        columnList.remove(field);
       }
     }
   }
   
-  private synchronized void addUpdate(ContentProviderOperation update) {
-    if(mDataUpdateList != null) {
-      mDataUpdateList.add(update);
-      
-      if(mDataUpdateList.size() > TABLE_OPERATION_MIN_SIZE) {
-        update(mDataUpdateList);
-      }
-    }
-  }
-  
-  private synchronized void insert(ArrayList<ContentValues> insertList) {
-    if(insertList != null && !insertList.isEmpty()) {
-      getContentResolver().bulkInsert(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, insertList.toArray(new ContentValues[insertList.size()]));
-      insertList.clear();
-    }
-  }
-  
-  private synchronized void update(ArrayList<ContentProviderOperation> updateList) {
-    if(updateList != null && !updateList.isEmpty()) {
-      try {
-        getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateList);
-      } catch (RemoteException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (OperationApplicationException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      }
-      
-      updateList.clear();
-    }
-  }
-  
-  private synchronized void addVersionInsert(ContentValues insert) {
-    if(mVersionInsertList != null) {
-      mVersionInsertList.add(insert);
-      
-      if(mVersionInsertList.size() > TABLE_OPERATION_MIN_SIZE/10) {
-        insertVersion(mVersionInsertList);
-      }
-    }
-  }
-  
-  private synchronized void addVersionUpdate(ContentProviderOperation update) {
-    if(mVersionUpdateList != null) {
-      mVersionUpdateList.add(update);
-      
-      if(mVersionUpdateList.size() > TABLE_OPERATION_MIN_SIZE/10) {
-        update(mVersionUpdateList);
-      }
-    }
-  }
-  
-  private synchronized void insertVersion(ArrayList<ContentValues> insertList) {
-    if(insertList != null && !insertList.isEmpty()) {
-      getContentResolver().bulkInsert(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, insertList.toArray(new ContentValues[insertList.size()]));
-      insertList.clear();
-    }
-  }
-  */
   private class UrlFileHolder {
     private File mDownloadFile;
     private String mDownloadURL;
@@ -3952,6 +3897,8 @@ public class TvDataUpdateService extends Service {
         case LEVEL_MORE: addArrayToList(columnList,FIELDS_LEVEL_MORE);break;
         case LEVEL_PICTURE: addArrayToList(columnList,FIELDS_LEVEL_PICTURE);break;
       }
+
+      removeEpgPaidFieldsIfNecessary(columnList, String.valueOf(update.getChannelID()), mEpgPaidChannelIds);
       
       ContentValues values = update.mContentValueList.get(String.valueOf(id));
       
@@ -4441,6 +4388,8 @@ public class TvDataUpdateService extends Service {
         case LEVEL_MORE: addArrayToList(columnList,FIELDS_LEVEL_MORE);break;
         case LEVEL_PICTURE: addArrayToList(columnList,FIELDS_LEVEL_PICTURE);break;
       }
+      
+      removeEpgPaidFieldsIfNecessary(columnList, String.valueOf(update.getChannelID()), mEpgPaidChannelIds);
       
       ContentValues values = update.mContentValueList.get(id);
       

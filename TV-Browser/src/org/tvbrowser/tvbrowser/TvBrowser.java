@@ -330,8 +330,19 @@ public class TvBrowser extends ActionBarActivity implements
     }
   }
   
+  private void checkAppReplacingState() {
+    Log.d("info6", System.currentTimeMillis()+" checkAppReplacingState START");
+    if (getResources() == null) {
+      Log.d("org.tvbrowser.tvbrowser", "app is replacing...kill");
+      android.os.Process.killProcess(android.os.Process.myPid());
+    }
+    Log.d("info6", System.currentTimeMillis()+" checkAppReplacingState END");
+  }
+  
   @Override
   protected void onCreate(Bundle savedInstanceState) {
+    checkAppReplacingState();
+    
     handler = new Handler();
     mCurrentFilter = new HashSet<FilterValues>();
     mCurrentFilterId = new HashSet<String>();
@@ -796,10 +807,13 @@ public class TvBrowser extends ActionBarActivity implements
       handler.postDelayed(new Runnable() {
         @Override
         public void run() {
+          Log.d("info6", "SEND DATA UPDATE DONE AFTER DATE CHANGE " + System.currentTimeMillis());
           Intent refresh = new Intent(SettingConstants.DATA_UPDATE_DONE);
           TvBrowser.this.sendBroadcast(refresh);
         }
       }, 2000);
+      
+      PrefUtils.updateKnownOpenDate(getApplicationContext());
     }
     
     IntentFilter filter = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
@@ -6092,7 +6106,6 @@ public class TvBrowser extends ActionBarActivity implements
     
     final Button cancel = (Button)view.findViewById(R.id.rating_donation_cancel);
     cancel.setEnabled(false);
-
     
     alert.setView(view);
     alert.setCancelable(false);
@@ -6136,13 +6149,14 @@ public class TvBrowser extends ActionBarActivity implements
       }
     });
     
-    
     d.setOnShowListener(new DialogInterface.OnShowListener() {
       @Override
       public void onShow(DialogInterface dialog) {
         new Thread("Cancel wait thread") {
           @Override
           public void run() {
+            setRatingAndDonationInfoShown();
+            
             int count = 10;
             
             while(--count >= 0) {

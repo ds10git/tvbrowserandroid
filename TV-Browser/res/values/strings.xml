@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.2.4</h2>
+        <h2>0.6.2.5</h2>
+        	&bull; better prevention of gaps in EPGpaid data<br>
+        	&bull; fix wrong preselected search place for keyword filter<br>
+        	&bull; better separators in widgets<br>
+        	&bull; update date in running programs when new day has begun<br>
+        <h3>0.6.2.4</h3>
         	&bull; fixed possible crash<br>
         <h3>0.6.2.3</h3>
         	&bull; long click on now shows next in running programs tab<br>
@@ -793,7 +798,9 @@
 	    <item>Compact</item>
 	</string-array>
 	<string name="running_layout_title">Layout</string>
-	<string name="pref_running_show_next_button">Show next after now</string>
+	<string name="pref_running_show_next_button">Show Next after now</string>
+	<string name="pref_running_show_next_button_summary_on">The moment next can be selected directly with the button Next, in the time menu or with a long click on Now.</string>
+	<string name="pref_running_show_next_button_summary_off">The moment next can be selected in the time menu or with a long click on Now.</string>
 	<string name="pref_running_show_time_pick_button_only_when_needed_title">Time pick button only when needed</string>
 	<string name="pref_running_show_time_pick_button_only_when_needed_summary_on">The button to enter any time value is only shown when a time was picked.</string>
 	<string name="pref_running_show_time_pick_button_only_when_needed_summary_off">The button to enter any time value is always shown.</string>

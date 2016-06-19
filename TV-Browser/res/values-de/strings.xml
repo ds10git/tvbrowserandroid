@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.2.4</h2>
+        <h2>0.6.2.5</h2>
+        	&bull; Lücken bei EPGpaid-Daten besser verhindern<br>
+        	&bull; fehlerhaft vorausgewählter Suchort für den Stichwortfilter korrigiert<br>
+        	&bull; Trenner in Widgets überarbeitet<br>
+        	&bull; Datum in Laufende Sendungen aktualisieren, wenn neuer Tag begonnen hat<br>
+        <h3>0.6.2.4</h3>
         	&bull; möglicher Absturz beseitigt<br>
         <h3>0.6.2.3</h3>
         	&bull; langer Klick auf Jetzt zeigt Als Nächstes im Tab Laufende Sendungen<br>
@@ -782,6 +787,8 @@
 	</string-array>
 	<string name="running_layout_title">Ansicht</string>
 	<string name="pref_running_show_next_button">Als Nächstes neben Jetzt</string>
+	<string name="pref_running_show_next_button_summary_on">Der Zeitpunkt Als Nächstes kann direkt über den entsprechenden Zeitknopf, über das Zeitmenü oder langen Klick auf Jetzt ausgewählt werden.</string>
+	<string name="pref_running_show_next_button_summary_off">Der Zeitpunkt Als Nächstes kann über das Zeitmenü oder langen Klick auf Jetzt ausgewählt werden.</string>
 	<string name="pref_running_show_time_pick_button_only_when_needed_title">Zeiteingabeknopf wenn benötigt anzeigen</string>
 	<string name="pref_running_show_time_pick_button_only_when_needed_summary_on">Der Zeiteingabeknopf zur Eingabe beliebiger Zeiten wird nur angezeigt, wenn eine beliebige Zeit ausgewählt wurde.</string>
 	<string name="pref_running_show_time_pick_button_only_when_needed_summary_off">Der Zeiteingabeknopf zur Eingabe beliebiger Zeiten wird immer angezeigt.</string>
