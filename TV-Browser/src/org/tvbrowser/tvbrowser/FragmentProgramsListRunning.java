@@ -143,7 +143,6 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   private Button mTimeExtra;
   private long mLastExtraClick;
-  private boolean mUpdateRunning;
   
   static {
     BEFORE_GRADIENT = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[] {Color.argb(0x84, 0, 0, 0xff),Color.WHITE});
@@ -158,13 +157,11 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     super.onResume();
     
     mKeepRunning = true;
-    mUpdateRunning = false;
     startUpdateThread();
   }
   
   @Override
   public void onPause() {
-    mUpdateRunning = false;
     mKeepRunning = false;
     super.onPause();
   }
@@ -540,6 +537,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     String episode = null;
     Spannable infos = null;
     
+    int startTimeResId = 0;
+    int endTimeResId = 0;
+    
     switch(type) {
       case CompactLayoutViewHolder.PREVIOUS:
         layout = viewHolder.mPrevious;
@@ -552,6 +552,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         episode = block.mPreviousEpisode;
         infos = block.mPreviousCategory;
         programID = block.mPreviousProgramID;
+        startTimeResId = R.id.running_time_previous_start;
+        endTimeResId = R.id.running_time_previous_end;
         break;
       case CompactLayoutViewHolder.NOW:
         layout = viewHolder.mNow;
@@ -564,6 +566,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         episode = block.mNowEpisode;
         infos = block.mNowCategory;
         programID = block.mNowProgramID;
+        startTimeResId = R.id.running_time_now_start;
+        endTimeResId = R.id.running_time_now_end;
         break;
       case CompactLayoutViewHolder.NEXT:
         layout = viewHolder.mNext;
@@ -576,6 +580,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         episode = block.mNextEpisode;
         infos = block.mNextCategory;
         programID = block.mNextProgramID;
+        startTimeResId = R.id.running_time_next_start;
+        endTimeResId = R.id.running_time_next_end;
         break;
     }
     
@@ -678,6 +684,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         
         channelSet = true;
       }
+      
+      viewHolder.mChannelInfo.setTag(startTimeResId, Long.valueOf(startTime));
+      viewHolder.mChannelInfo.setTag(endTimeResId, Long.valueOf(endTime));
       
       layout.setTag(Long.valueOf(programID));
       layout.setOnClickListener(mOnClickListener);
@@ -783,6 +792,14 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     }
     
     if(viewHolder != null && block != null /*&& mCurrentCursor != null && !mCurrentCursor.isClosed()*/) {
+      viewHolder.mChannelInfo.setTag(R.id.running_time_previous_start, null);
+      viewHolder.mChannelInfo.setTag(R.id.running_time_now_start, null);
+      viewHolder.mChannelInfo.setTag(R.id.running_time_next_start, null);
+      
+      viewHolder.mChannelInfo.setTag(R.id.running_time_previous_end, null);
+      viewHolder.mChannelInfo.setTag(R.id.running_time_now_end, null);
+      viewHolder.mChannelInfo.setTag(R.id.running_time_next_end, null);
+      
       boolean channelSet = false;
       
       if(mWhereClauseTime != -1) {
@@ -852,26 +869,51 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
           Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
           showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA,id);
           
-          Calendar now = Calendar.getInstance();
+          Object scrollTime = v.getTag(R.id.running_time_now_start);
+          Object endTime = v.getTag(R.id.running_time_now_end);
           
-          if(mDayStart != -1) {
-            now.setTimeInMillis(mDayStart);
+          if(scrollTime == null) {
+            scrollTime = v.getTag(R.id.running_time_previous_start);
+            endTime = v.getTag(R.id.running_time_previous_end);
           }
           
-          if(mWhereClauseTime >= 0) {
+          if(scrollTime == null) {
+            scrollTime = v.getTag(R.id.running_time_next_start);
+            endTime = v.getTag(R.id.running_time_next_end);
+          }
+          
+          if(scrollTime != null) {
+            showChannel.putExtra(SettingConstants.EXTRA_START_TIME, ((Long)scrollTime).longValue());
+            showChannel.putExtra(SettingConstants.EXTRA_END_TIME, ((Long)endTime).longValue());
+          }
+          else {
+            Calendar now = Calendar.getInstance();
+            
+            if(mDayStart != -1) {
+              now.setTimeInMillis(mDayStart);
+            }
+  
             now.set(Calendar.SECOND, 0);
             now.set(Calendar.MILLISECOND, 0);
-            now.set(Calendar.HOUR_OF_DAY, mWhereClauseTime / 60);
-            now.set(Calendar.MINUTE, mWhereClauseTime % 60);
+            
+            if(mWhereClauseTime >= 0) {
+              now.set(Calendar.HOUR_OF_DAY, mWhereClauseTime / 60);
+              now.set(Calendar.MINUTE, mWhereClauseTime % 60);
+            } else if(mWhereClauseTime == -1) {
+              now.setTimeInMillis(System.currentTimeMillis());
+            }
+            
+            showChannel.putExtra(SettingConstants.EXTRA_START_TIME, now.getTimeInMillis());
+            showChannel.putExtra(SettingConstants.EXTRA_END_TIME, now.getTimeInMillis());
           }
-          
-          showChannel.putExtra(SettingConstants.START_TIME_EXTRA, now.getTimeInMillis());
           
           if(mDateSelection.getSelectedItemPosition() == 0) {
             showChannel.putExtra(SettingConstants.DAY_POSITION_EXTRA, FragmentProgramsList.INDEX_DATE_YESTERDAY);
           }
           else if(mDateSelection.getSelectedItemPosition() == 1) {
-            showChannel.putExtra(SettingConstants.DAY_POSITION_EXTRA, FragmentProgramsList.INDEX_DATE_TODAY_TOMORROW);
+            if(endTime == null || ((Long)endTime).longValue() > System.currentTimeMillis()) {
+              showChannel.putExtra(SettingConstants.DAY_POSITION_EXTRA, FragmentProgramsList.INDEX_DATE_TODAY_TOMORROW);
+            }
           }
           
           LocalBroadcastManager.getInstance(getActivity()).sendBroadcastSync(showChannel);
@@ -941,15 +983,18 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   }
     
   private synchronized void startUpdateThread() {
-    if(mKeepRunning && (mUpdateThread == null || !mUpdateThread.isAlive())) {
+    if(mKeepRunning) {
+      if(getLoaderManager().hasRunningLoaders()) {
+        getLoaderManager().getLoader(0).cancelLoad();
+      }
+      
       mUpdateThread = new Thread() {
         public void run() {
           handler.post(new Runnable() {
             @Override
             public void run() {
-              if(!isDetached() &&  mKeepRunning && !isRemoving() && !mUpdateRunning) {
+              if(!isDetached() &&  mKeepRunning && !isRemoving()) {
                 getLoaderManager().restartLoader(0, null, FragmentProgramsListRunning.this);
-                mUpdateRunning = true;
               }
             }
           });
@@ -1491,6 +1536,11 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                     block.mPreviousPicture = picture;
                     block.mPreviousPictureCopyright = pictureCopyright;
                     block.mPreviousCategory = category;
+                    
+                    if(mWhereClauseTime == -2 && currentProgramMap.indexOfKey(channelID) < 0) { 
+                      currentProgramMap.put(channelID, block);
+                      mCurrentViewList.add(block);
+                    }
                   }
                   else if(startTime <= mCurrentTime && mCurrentTime < endTime) {
                     block.mNowPosition = c.getPosition();
@@ -1540,6 +1590,11 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                   block.mNowPicture = picture;
                   block.mNowPictureCopyright = pictureCopyright;
                   block.mNowCategory = category;
+                  
+                  if(currentProgramMap.indexOfKey(channelID) < 0) { 
+                    currentProgramMap.put(channelID, block);
+                    mCurrentViewList.add(block);
+                  }
                 }
                 
                 mMarkingsMap.put(programID, IOUtils.getStringArrayFromList(markedColumsList));
@@ -1556,14 +1611,12 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       channelProgramMap.clear();
     }
     
-    mUpdateRunning = false;
     Log.d("info6", "RUNNING PROGRAMS: onLoadFinished, searching programs DONE " + System.currentTimeMillis());
     mRunningProgramListAdapter.notifyDataSetChanged();
   }
 
   @Override
   public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
-    mUpdateRunning = false;
     mCurrentViewList.clear();
     mProgramBlockList.clear();
   }

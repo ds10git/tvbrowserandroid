@@ -79,7 +79,8 @@ public class SettingConstants {
   public static final String DAY_POSITION_EXTRA = "DAY_POSITION_EXTRA";
   public static final String FILTER_POSITION_EXTRA = "FILTER_POSITION_EXTRA";
   public static final String NO_BACK_STACKUP_EXTRA = "NO_BACK_STACKUP_EXTRA";
-  public static final String START_TIME_EXTRA = "START_TIME_EXTRA";
+  public static final String EXTRA_START_TIME = "START_TIME_EXTRA";
+  public static final String EXTRA_END_TIME = "EXTRA_END_TIME";
   public static final String SCROLL_POSITION_EXTRA = "SCROLL_POSITION_EXTRA";
   public static final String TIME_DATA_UPDATE_EXTRA = "TIME_DATA_UPDATE_EXTRA";
   public static final String EXTRA_DATA_UPDATE_TYPE_INTERNET_CONNECTION = "internetConnectionType";

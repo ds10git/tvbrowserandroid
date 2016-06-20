@@ -253,6 +253,7 @@ public class TvBrowser extends ActionBarActivity implements
     
   private int mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
   private long mProgramListScrollTime = -1;
+  private long mProgramListScrollEndTime = -1;
     
  // private int mCurrentDay;
   
@@ -355,7 +356,8 @@ public class TvBrowser extends ActionBarActivity implements
     
     if(start != null && start.hasExtra(SettingConstants.CHANNEL_ID_EXTRA)) {
       mProgramListChannelId = start.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA,FragmentProgramsList.NO_CHANNEL_SELECTION_ID);
-      mProgramListScrollTime = start.getLongExtra(SettingConstants.START_TIME_EXTRA,-1);
+      mProgramListScrollTime = start.getLongExtra(SettingConstants.EXTRA_START_TIME,-1);
+      mProgramListScrollEndTime = start.getLongExtra(SettingConstants.EXTRA_END_TIME,-1);
     }
     
     /*
@@ -884,7 +886,8 @@ public class TvBrowser extends ActionBarActivity implements
       
       final Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
       showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA, channelId);
-      showChannel.putExtra(SettingConstants.START_TIME_EXTRA, intent.getLongExtra(SettingConstants.START_TIME_EXTRA,0));
+      showChannel.putExtra(SettingConstants.EXTRA_START_TIME, intent.getLongExtra(SettingConstants.EXTRA_START_TIME,0));
+      showChannel.putExtra(SettingConstants.EXTRA_END_TIME, intent.getLongExtra(SettingConstants.EXTRA_END_TIME,-1));
       showChannel.putExtra(SettingConstants.NO_BACK_STACKUP_EXTRA, true);
       
       handler.postDelayed(new Runnable() {
@@ -5641,30 +5644,33 @@ public class TvBrowser extends ActionBarActivity implements
     }
 
     @Override
-    public Fragment getItem(int position) {
+    public synchronized Fragment getItem(int position) {
       // getItem is called to instantiate the fragment for the given page.
       // Return a DummySectionFragment (defined as a static inner class
       // below) with the page number as its lone argument.
-      Fragment fragment = null;
+      Fragment fragment = registeredFragments.get(position);
       
-      if(position == 0) {
-        if(IOUtils.isDatabaseAccessible(getApplicationContext())) {
-          fragment = new FragmentProgramsListRunning();
+      if(fragment == null) {
+        if(position == 0) {
+          if(IOUtils.isDatabaseAccessible(getApplicationContext())) {
+            fragment = new FragmentProgramsListRunning();
+          }
+          else {
+            fragment = new Fragment();
+          }
         }
-        else {
-          fragment = new Fragment();
+        else if(position == 1) {
+          fragment = new FragmentProgramsList(mProgramListChannelId, mProgramListScrollTime, mProgramListScrollEndTime);
+          mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
+          mProgramListScrollTime = -1;
+          mProgramListScrollEndTime = -1;
         }
-      }
-      else if(position == 1) {
-        fragment = new FragmentProgramsList(mProgramListChannelId, mProgramListScrollTime);
-        mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
-        mProgramListScrollTime = -1;
-      }
-      else if(position == 2) {
-        fragment = new FragmentFavorites();
-      }
-      else if(position == 3) {
-        fragment = new FragmentProgramTable();
+        else if(position == 2) {
+          fragment = new FragmentFavorites();
+        }
+        else if(position == 3) {
+          fragment = new FragmentProgramTable();
+        }
       }
       
       return fragment;
@@ -5702,7 +5708,7 @@ public class TvBrowser extends ActionBarActivity implements
     }
 
     @Override
-    public Object instantiateItem(ViewGroup container, int position) {
+    public synchronized Object instantiateItem(ViewGroup container, int position) {
         Fragment fragment = (Fragment) super.instantiateItem(container, position);
         registeredFragments.put(position, fragment);
         return fragment;
@@ -5742,6 +5748,7 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   public void showProgramsListTab(boolean remember) {
+    Log.d("info14", "showProgramsListTab " + System.currentTimeMillis());
     if(mViewPager.getCurrentItem() != 1) {
       mLastSelectedTab = mViewPager.getCurrentItem();
       mViewPager.setCurrentItem(1,true);

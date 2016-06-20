@@ -6,6 +6,9 @@
         	&bull; fix wrong preselected search place for keyword filter<br>
         	&bull; better separators in widgets<br>
         	&bull; update date in running programs when new day has begun<br>
+        	&bull; better search for next programs in running programs<br>
+        	&bull; better switch to programs list for channel click (times are better found)<br>
+        	&bull; settings of special time buttons of running programs also under time buttons<br>
         <h3>0.6.2.4</h3>
         	&bull; fixed possible crash<br>
         <h3>0.6.2.3</h3>

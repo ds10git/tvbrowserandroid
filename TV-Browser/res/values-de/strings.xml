@@ -6,6 +6,9 @@
         	&bull; fehlerhaft vorausgewählter Suchort für den Stichwortfilter korrigiert<br>
         	&bull; Trenner in Widgets überarbeitet<br>
         	&bull; Datum in Laufende Sendungen aktualisieren, wenn neuer Tag begonnen hat<br>
+        	&bull; bessere Suche nach Als Nächstes in Laufende Sendungen<br>
+        	&bull; besserer Aufruf der Sendungsliste durch Klick auf Sender (Zeiten werden besser berücksichtigt)<br>
+        	&bull; Einstellungen für die speziellen Zeitknöpfe von Laufende Sendungen auch unter Zeitknöpfe<br>
         <h3>0.6.2.4</h3>
         	&bull; möglicher Absturz beseitigt<br>
         <h3>0.6.2.3</h3>

@@ -419,7 +419,8 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
           if(mChannelClickToProgramsList) {
             final Intent startTvbProgramList = new Intent();
             startTvbProgramList.putExtra(SettingConstants.CHANNEL_ID_EXTRA, channelKey);
-            startTvbProgramList.putExtra(SettingConstants.START_TIME_EXTRA, startTime);
+            startTvbProgramList.putExtra(SettingConstants.EXTRA_START_TIME, startTime);
+            startTvbProgramList.putExtra(SettingConstants.EXTRA_END_TIME, endTime);
             
             rv.setOnClickFillInIntent(R.id.important_programs_widget_row_channel, startTvbProgramList);
           }
