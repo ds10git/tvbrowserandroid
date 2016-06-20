@@ -74,7 +74,7 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
           if(handle && tag != null) {
             Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
             showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA,tag.mID);         
-            showChannel.putExtra(SettingConstants.START_TIME_EXTRA, tag.mStartTime);
+            showChannel.putExtra(SettingConstants.EXTRA_START_TIME, tag.mStartTime);
             
             LocalBroadcastManager.getInstance(context).sendBroadcastSync(showChannel);
           }

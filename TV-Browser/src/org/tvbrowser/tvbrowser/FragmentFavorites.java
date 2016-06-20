@@ -177,6 +177,37 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     super.onPause();
   }
   
+  private synchronized void startUpdateThread() {
+    startUpdateThread(false,false);
+  }
+  
+  private synchronized void startUpdateThread(final boolean updateFavoritesMenu, final boolean editDeleteEnabled) {
+    if(mIsRunning) {
+      if(getLoaderManager().hasRunningLoaders()) {
+        getLoaderManager().getLoader(0).cancelLoad();
+      }
+      
+      mUpdateThread = new Thread("FragmentFavorites Update Thread") {
+        @Override
+        public void run() {
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              if(!isDetached() && getActivity() != null && mIsRunning) {
+                if(updateFavoritesMenu) {
+                  ((TvBrowser)getActivity()).updateFavoritesMenu(editDeleteEnabled);
+                }
+                
+                getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
+              }
+            }
+          });
+        }
+      };
+      mUpdateThread.start();
+    }
+  }
+  
   
   private AdapterView<ArrayAdapter<FavoriteSpinnerEntry>> mFavoriteSelection;
   private FavoriteSpinnerEntry mCurrentFavoriteSelection;
@@ -260,15 +291,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           if(tvb != null) {
             tvb.updateFavoritesMenu(false);
             
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                if(!isDetached()) {
-                  getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
-                }
-              }
-            });
-            
+            startUpdateThread();
+                        
             saveCurrentSelection(tvb, (position * -1));
           }
         }
@@ -379,7 +403,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       public void onChanged() {
         if(mIsStarted) {
           final AtomicInteger position = new AtomicInteger(-1);
-          int currentValue = -1;
+ //         int currentValue = -1;
           
           if(mCurrentFavoriteSelection != null) {
             for(int i = 0; i < mFavoriteList.size(); i++) {
@@ -403,7 +427,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
               }
             }
             
-            currentValue = mFavoriteSelection.getSelectedItemPosition();
+       //     currentValue = mFavoriteSelection.getSelectedItemPosition();
           }
           
           if(position.get() == -1) {
@@ -454,10 +478,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
         mCurrentSelection = mCurrentFavoriteSelection = null;
         mWhereClause = new WhereClause();
         
-        if(!isDetached() && getActivity() != null) {
-          ((TvBrowser)getActivity()).updateFavoritesMenu(false);
-          getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
-        }
+        startUpdateThread(true,false);
       }
     });
     
@@ -537,24 +558,14 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       final Activity tvb = getActivity();
       
       if(tvb != null) {
-        ((TvBrowser)tvb).updateFavoritesMenu(mCurrentFavoriteSelection.containsFavorite());
+        startUpdateThread(true, mCurrentFavoriteSelection.containsFavorite());
         
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            if(!isDetached() && getActivity() != null) {
-              getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
-            }
-          }
-        });
-      
         saveCurrentSelection(tvb, position);
       }
     }
   }
   
   private void saveCurrentSelection(final Context context, final int position) {
-    LogUtils.printStackTrace();
     Log.d("info13", "mIsStarted " + mIsStarted + " " + position);
     if(mIsStarted) {
       boolean success = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putInt(context.getString(R.string.PREF_MISC_LAST_FAVORITE_SELECTION), position).commit();
@@ -679,14 +690,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     mRefreshReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            if(!isDetached() && !isRemoving() && mIsRunning) {
-              getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
-            }
-          }
-        });
+        startUpdateThread();
       }
     };
     
@@ -1060,7 +1064,9 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
               
               if(test == null) {
                 mWhereClause = getWhereClause();
-                getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
+                
+                startUpdateThread();
+                
                 return;
               }
             }

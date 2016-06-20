@@ -104,6 +104,13 @@
 		<item type="id" name="running_compact_next_infos" />
 		<item type="id" name="running_compact_next_episode" />
 		
+		<item type="id" name="running_time_previous_start" />
+		<item type="id" name="running_time_previous_end" />
+		<item type="id" name="running_time_now_start" />
+		<item type="id" name="running_time_now_end" />
+		<item type="id" name="running_time_next_start" />
+		<item type="id" name="running_time_next_end" />
+		
 	<!--  detail_layout_swipe -->
 		
 		<item type="id" name="test_test_test" />

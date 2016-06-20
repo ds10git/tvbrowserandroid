@@ -63,6 +63,7 @@ import android.widget.TextView;
 public class FragmentProgramsList extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, ShowChannelInterface, MarkingsUpdateListener {
   public static final int NO_CHANNEL_SELECTION_ID = -1;
   
+  public static final int INDEX_DATE_TODAY = 3;
   public static final int INDEX_DATE_YESTERDAY = 2;
   public static final int INDEX_DATE_TODAY_TOMORROW = 0;
   
@@ -73,7 +74,6 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   private Handler handler;
     
   private boolean mKeepRunning;
-  private boolean mUpdateRunning;
   private Thread mUpdateThread;
   
   private long mChannelID;
@@ -101,15 +101,36 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   
   private Spinner mChannelSelection;
   private ArrayAdapter<DateSelection> mDateAdapter;
+  private Spinner mDateSelection;
+  private int mDayPreSelection = -1;
   
   public FragmentProgramsList() {
     this(NO_CHANNEL_SELECTION_ID,-1);
   }
   
   public FragmentProgramsList(int channelId, long startTime) {
+    this(channelId, startTime, -1);
+  }
+  
+  public FragmentProgramsList(int channelId, long startTime, long endTime) {
     mScrollTime = startTime;
     mChannelID = channelId;
     mScrollPos = -1;
+        
+    if(endTime != -1 && endTime < System.currentTimeMillis()) {
+      Calendar now = Calendar.getInstance();
+      now.set(Calendar.HOUR_OF_DAY, 0);
+      now.set(Calendar.MINUTE, 0);
+      now.set(Calendar.SECOND, 0);
+      now.set(Calendar.MILLISECOND, 0);
+      
+      if(startTime < now.getTimeInMillis()) {
+        mDayPreSelection = INDEX_DATE_YESTERDAY;
+      }
+      else {
+        mDayPreSelection = INDEX_DATE_TODAY;
+      }
+    }
   }
   
   @Override
@@ -123,17 +144,20 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     super.onResume();
     
     mKeepRunning = true;
-    mUpdateRunning = false;
     ProgramUtils.registerMarkingsListener(getActivity(), this);
     
-    startUpdateThread(mNextUpdate);
+    if(mDayPreSelection == -1 || mDateAdapter.getCount() < mDayPreSelection) {
+      startUpdateThread(mNextUpdate);
+    }
+    else {
+      mDateSelection.setSelection(mDayPreSelection);
+    }
   }
   
   @Override
   public void onPause() {
     ProgramUtils.unregisterMarkingsListener(getActivity(), this);
     
-    mUpdateRunning = false;
     mKeepRunning = false;
     super.onPause();
   }
@@ -437,15 +461,15 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     IntentFilter channelUpdateFilter = new IntentFilter(SettingConstants.CHANNEL_UPDATE_DONE);
     
-    final Spinner date = (Spinner)rootView.findViewById(R.id.date_selection);
+    mDateSelection = (Spinner)rootView.findViewById(R.id.date_selection);
     
     ArrayList<DateSelection> dateEntries = new ArrayList<DateSelection>();
     
     mDateAdapter = new ArrayAdapter<DateSelection>(getActivity(), android.R.layout.simple_spinner_item, dateEntries);
     mDateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-    date.setAdapter(mDateAdapter);
+    mDateSelection.setAdapter(mDateAdapter);
     
-    date.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
+    mDateSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
       public void onItemSelected(AdapterView<?> parent, View view, int pos, long id) {
         DateSelection selection = mDateAdapter.getItem(pos);
@@ -701,9 +725,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       public void onReceive(Context context, Intent intent) {
         if(getActivity() instanceof TvBrowser && mKeepRunning) {
           int id = intent.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA, -1);
-          long startTime = intent.getLongExtra(SettingConstants.START_TIME_EXTRA, -1);
+          long startTime = intent.getLongExtra(SettingConstants.EXTRA_START_TIME, -1);
+          long endTime = intent.getLongExtra(SettingConstants.EXTRA_END_TIME, -1);
           int scrollIndex = intent.getIntExtra(SettingConstants.SCROLL_POSITION_EXTRA, -1);
-          
           int daySelection = intent.getIntExtra(SettingConstants.DAY_POSITION_EXTRA, -1);
           int filterSelection = intent.getIntExtra(SettingConstants.FILTER_POSITION_EXTRA, -1);
           
@@ -711,8 +735,19 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
           
           ChannelSelection current = (ChannelSelection)mChannelSelection.getSelectedItem();
           
+          if(daySelection == -1 && endTime != -1 && startTime < System.currentTimeMillis() && endTime < System.currentTimeMillis() && startTime != endTime) {
+            if(mDateAdapter.getCount() > INDEX_DATE_TODAY) {
+              if(startTime < mDateAdapter.getItem(INDEX_DATE_TODAY).getTime()) {
+                daySelection = INDEX_DATE_YESTERDAY;
+              }
+              else {
+                daySelection = INDEX_DATE_TODAY;
+              }
+            }
+          }
+          
           if(current != null && filterSelection == -1 && backstackup) {                
-            ((TvBrowser)getActivity()).addProgramListState(date.getSelectedItemPosition(), current.getID(), filter.getSelectedItemPosition(), getCurrentScrollIndex());
+            ((TvBrowser)getActivity()).addProgramListState(mDateSelection.getSelectedItemPosition(), current.getID(), filter.getSelectedItemPosition(), getCurrentScrollIndex());
           }
           
           setDontUpdate(true);
@@ -736,12 +771,12 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
           }
           
           if(daySelection >= 0) {
-            if(daySelection < date.getCount()) {
-              date.setSelection(daySelection);
+            if(daySelection < mDateSelection.getCount()) {
+              mDateSelection.setSelection(daySelection);
             }
           }
           else {
-            date.setSelection(1);
+            mDateSelection.setSelection(1);
           }
                         
           setScrollPos(scrollIndex);
@@ -842,21 +877,25 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     startUpdateThread(0);
   }
   
-  private void startUpdateThread(long nextUpdate) {
-    if(mKeepRunning && !mDontUpdate && nextUpdate <= System.currentTimeMillis() && (mUpdateThread == null || !mUpdateThread.isAlive())) {
-      mUpdateThread = new Thread() {
+  private synchronized void startUpdateThread(long nextUpdate) {
+    if(mKeepRunning && !mDontUpdate && nextUpdate <= System.currentTimeMillis()) {
+      if(getLoaderManager().hasRunningLoaders()) {
+        getLoaderManager().getLoader(0).cancelLoad();
+      }
+      
+      mUpdateThread = new Thread("FragmentProgramsList Update Thread") {
         public void run() {
           handler.post(new Runnable() {
             @Override
             public void run() {
-              if(mKeepRunning && !isRemoving() && !TvDataUpdateService.isRunning() && !mUpdateRunning) {
+              if(mKeepRunning && !isRemoving() && !TvDataUpdateService.isRunning()) {
                 getLoaderManager().restartLoader(0, null, FragmentProgramsList.this);
-                mUpdateRunning = true;
               }
             }
           });
         }
       };
+      
       mUpdateThread.start();
     }
   }
@@ -965,8 +1004,6 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       
       mScrollPos = -1;
     }
-    
-    mUpdateRunning = false;
   }
 
   @Override
