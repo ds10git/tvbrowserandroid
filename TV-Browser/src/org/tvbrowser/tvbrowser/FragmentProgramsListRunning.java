@@ -27,6 +27,7 @@ import java.util.Locale;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.LoaderUpdater.UnsupportedFragmentException;
 import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
@@ -90,8 +91,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     
   private Handler handler = new Handler();
   
-  private boolean mKeepRunning;
-  private Thread mUpdateThread;
+ // private boolean mKeepRunning;
+  //private Thread mUpdateThread;
   private int mWhereClauseTime;
   
   private BroadcastReceiver mDataUpdateReceiver;
@@ -143,6 +144,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   private Button mTimeExtra;
   private long mLastExtraClick;
+  private LoaderUpdater mLoaderUpdater;
   
   static {
     BEFORE_GRADIENT = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[] {Color.argb(0x84, 0, 0, 0xff),Color.WHITE});
@@ -156,13 +158,16 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   public void onResume() {
     super.onResume();
     
-    mKeepRunning = true;
-    startUpdateThread();
+    mLoaderUpdater.setIsRunning();
+    mLoaderUpdater.startUpdate();
+    /*mKeepRunning = true;
+    startUpdateThread();*/
   }
   
   @Override
   public void onPause() {
-    mKeepRunning = false;
+    mLoaderUpdater.setIsNotRunning();
+    
     super.onPause();
   }
   
@@ -178,7 +183,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
             updateDateSelection();
             
             if(intent != null) {
-              startUpdateThread();
+              mLoaderUpdater.startUpdate();
             }
           }
         });
@@ -189,7 +194,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       @Override
       public void onReceive(Context context, Intent intent) {
         if(mWhereClauseTime == -1) {
-          startUpdateThread();
+          mLoaderUpdater.startUpdate();
         }
         else {
           showEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_RUNNING_LIST, R.bool.show_episode_in_running_list_default);
@@ -234,7 +239,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     mDontWantToSeeReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        startUpdateThread();
+        mLoaderUpdater.startUpdate();
       }
     };
     
@@ -292,7 +297,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     mChannelUpdateDone = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        startUpdateThread();
+        mLoaderUpdater.startUpdate();
       }
     };
     
@@ -347,10 +352,10 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
           selectButton(button);
         }
         
-        startUpdateThread();
+        mLoaderUpdater.startUpdate();
       }
       else {
-        startUpdateThread();
+        mLoaderUpdater.startUpdate();
       }
     }
   }
@@ -391,7 +396,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
             }
           }
           else {
-            startUpdateThread();
+            mLoaderUpdater.startUpdate();
           }
         }
         else if(oldWhereClauseTime != -1 && (mWhereClauseTime == -1 || mWhereClauseTime == -2)) {
@@ -401,10 +406,10 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
             date.setSelection(1);
           }
           
-          startUpdateThread();
+          mLoaderUpdater.startUpdate();
         }
         else {
-          startUpdateThread();
+          mLoaderUpdater.startUpdate();
         }
       }
     }
@@ -836,6 +841,16 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
     pref.registerOnSharedPreferenceChangeListener(this);
     
+    if(handler == null) {
+      handler = new Handler();
+    }
+    
+    try {
+      mLoaderUpdater = new LoaderUpdater(FragmentProgramsListRunning.this, handler);
+    } catch (UnsupportedFragmentException e) {
+      // Ignore
+    }
+    
     if(savedInstanceState != null) {
       mWhereClauseTime = savedInstanceState.getInt(WHERE_CLAUSE_KEY,-1);
       mDayStart = savedInstanceState.getLong(DAY_CLAUSE_KEY,-1);
@@ -978,11 +993,11 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mChannelUpdateDone);
     }
     
-    mKeepRunning = false;
+    mLoaderUpdater.setIsNotRunning();
     super.onDetach();
   }
     
-  private synchronized void startUpdateThread() {
+ /* private void startUpdateTshread() {
     if(mKeepRunning) {
       if(getLoaderManager().hasRunningLoaders()) {
         getLoaderManager().getLoader(0).cancelLoad();
@@ -1003,7 +1018,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       mUpdateThread.start();
     }
   }
-  
+  */
   @Override
   public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.running_program_fragment, container, false);
