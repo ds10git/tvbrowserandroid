@@ -29,6 +29,7 @@ import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Looper;
 import android.os.PowerManager;
 import android.view.Display;
 import android.view.View;
@@ -145,6 +146,17 @@ public class CompatUtils {
     }
     else {
       return Environment.DIRECTORY_DOWNLOADS;
+    }
+  }
+  
+  public static void quitLooperSafely(Looper looper) {
+    if(looper != null) {
+      if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN_MR2) {
+        looper.quitSafely();
+      }
+      else {
+        looper.quit();
+      }
     }
   }
 }

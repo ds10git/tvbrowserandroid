@@ -22,6 +22,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.LoaderUpdater.UnsupportedFragmentException;
 import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
@@ -72,9 +73,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   private SimpleCursorAdapter mProgramListAdapter;
   
   private Handler handler;
-    
-  private boolean mKeepRunning;
-  private Thread mUpdateThread;
+  private LoaderUpdater mLoaderUpdate;
+  //private boolean mKeepRunning;
+  //private Thread mUpdateThread;
   
   private long mChannelID;
   private long mScrollTime;
@@ -136,18 +137,25 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
+    
     handler = new Handler();
+    
+    try {
+      mLoaderUpdate = new LoaderUpdater(FragmentProgramsList.this, handler);
+    } catch (UnsupportedFragmentException e) {
+      // Ignore
+    }
   }
   
   @Override
   public void onResume() {
     super.onResume();
     
-    mKeepRunning = true;
+    mLoaderUpdate.setIsRunning();
     ProgramUtils.registerMarkingsListener(getActivity(), this);
     
     if(mDayPreSelection == -1 || mDateAdapter.getCount() < mDayPreSelection) {
-      startUpdateThread(mNextUpdate);
+      mLoaderUpdate.startUpdate(mNextUpdate);
     }
     else {
       mDateSelection.setSelection(mDayPreSelection);
@@ -158,7 +166,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   public void onPause() {
     ProgramUtils.unregisterMarkingsListener(getActivity(), this);
     
-    mKeepRunning = false;
+    mLoaderUpdate.setIsNotRunning();
     super.onPause();
   }
   
@@ -194,7 +202,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
             updateDateSelection();
             
             if(intent != null) {
-              startUpdateThread();
+              mLoaderUpdate.startUpdate();
             }
           }
         });
@@ -204,7 +212,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mDontWantToSeeReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        startUpdateThread();
+        mLoaderUpdate.startUpdate();
       }
     };
     
@@ -214,7 +222,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       @Override
       public void onReceive(Context context, Intent intent) {
         if(mNextUpdate <= System.currentTimeMillis()) {
-          startUpdateThread();
+          mLoaderUpdate.startUpdate();
         }
         else {
           handler.post(new Runnable() {
@@ -275,7 +283,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       mDayStart = 0;
     }
     
-    startUpdateThread();
+    mLoaderUpdate.startUpdate();
   }
   
   private boolean mIsShowingMarkings = false;
@@ -302,7 +310,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     mIsShowingMarkings = pos == 2;
     
-    startUpdateThread();
+    mLoaderUpdate.startUpdate();
   }
   
   public void setScrollTime(long time) {
@@ -441,7 +449,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   public void setChannelID(long id) {
     mChannelID = id;
     
-    startUpdateThread();
+    mLoaderUpdate.startUpdate();
   }
   
   @Override
@@ -662,7 +670,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mChannelUpdateReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        if(getActivity() != null && mKeepRunning && IOUtils.isDatabaseAccessible(context)) {
+        if(getActivity() != null && mLoaderUpdate.isRunning() && IOUtils.isDatabaseAccessible(context)) {
           channelAdapter.clear();
           
           channelAdapter.add(new ChannelSelection(-1, "0", getResources().getString(R.string.all_channels), null));
@@ -713,17 +721,18 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     localBroadcastManager.registerReceiver(mChannelUpdateReceiver, channelUpdateFilter);
     
-    mKeepRunning = true;
+    
+    mLoaderUpdate.setIsRunning();
     updateDateSelection();
     mChannelUpdateReceiver.onReceive(null, null);
-    mKeepRunning = false;
+    mLoaderUpdate.setIsNotRunning();
     
     IntentFilter showChannelFilter = new IntentFilter(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
     
     BroadcastReceiver showChannel = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        if(getActivity() instanceof TvBrowser && mKeepRunning) {
+        if(getActivity() instanceof TvBrowser && mLoaderUpdate.isRunning()) {
           int id = intent.getIntExtra(SettingConstants.CHANNEL_ID_EXTRA, -1);
           long startTime = intent.getLongExtra(SettingConstants.EXTRA_START_TIME, -1);
           long endTime = intent.getLongExtra(SettingConstants.EXTRA_END_TIME, -1);
@@ -782,7 +791,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
           setScrollPos(scrollIndex);
           setScrollTime(startTime);
           setDontUpdate(false);
-          startUpdateThread();
+          mLoaderUpdate.startUpdate();
                         
           ((TvBrowser)getActivity()).showProgramsListTab(backstackup);
         }
@@ -793,7 +802,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   }
   
   private void updateDateSelection() {
-    if(getActivity() != null && mKeepRunning && mDateAdapter != null) {
+    if(getActivity() != null && mLoaderUpdate.isRunning() && mDateAdapter != null) {
       mDateAdapter.clear();
       
       mDateAdapter.add(new DateSelection(DateSelection.VALUE_DATE_TODAY_TOMORROW, getActivity()));
@@ -872,12 +881,12 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   public void setDontUpdate(boolean value) {
     mDontUpdate = value;
   }
-  
+ /* 
   private void startUpdateThread() {
     startUpdateThread(0);
   }
   
-  private synchronized void startUpdateThread(long nextUpdate) {
+  private void startUpdateThread(long nextUpdate) {
     if(mKeepRunning && !mDontUpdate && nextUpdate <= System.currentTimeMillis()) {
       if(getLoaderManager().hasRunningLoaders()) {
         getLoaderManager().getLoader(0).cancelLoad();
@@ -898,7 +907,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       
       mUpdateThread.start();
     }
-  }
+  }*/
   
   private static final String[] getProjection() {
     String[] projection = null;
@@ -1088,7 +1097,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   }
   
   public void updateChannels() {
-    if(mChannelUpdateReceiver != null && getActivity() != null && mKeepRunning) {
+    if(mChannelUpdateReceiver != null && getActivity() != null && mLoaderUpdate.isRunning()) {
       mChannelUpdateReceiver.onReceive(getActivity(), null);
     }
   }
@@ -1125,7 +1134,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     handler.post(new Runnable() {
       @Override
       public void run() {
-        if(!isDetached() && !mIsLoading && !isRemoving() && mKeepRunning) {
+        if(!isDetached() && !mIsLoading && !isRemoving() && mLoaderUpdate.isRunning()) {
           if(mIsShowingMarkings) {
             setMarkFilter(2);
           }

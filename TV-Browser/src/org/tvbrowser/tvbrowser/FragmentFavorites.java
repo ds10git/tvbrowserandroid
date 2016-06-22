@@ -24,8 +24,9 @@ import java.util.concurrent.atomic.AtomicReference;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.LoaderUpdater.CallbackObjects;
+import org.tvbrowser.tvbrowser.LoaderUpdater.UnsupportedFragmentException;
 import org.tvbrowser.utils.CompatUtils;
-import org.tvbrowser.utils.LogUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
@@ -67,7 +68,10 @@ import android.widget.ListView;
 import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
-public class FragmentFavorites extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, MarkingsUpdateListener {
+public class FragmentFavorites extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, MarkingsUpdateListener, LoaderUpdater.Callback {
+  private static final String KEY_UPDATE_FAVORITES_MENU = "updateFavoritesMenu";
+  private static final String KEY_EDIT_DELETE_ENABLED = "editDeleteEnabled";
+  
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   private SimpleCursorAdapter mProgramListAdapter;
   private ArrayAdapter<FavoriteSpinnerEntry> mFavoriteAdapter;
@@ -82,15 +86,15 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   private WhereClause mWhereClause;
   
   private Handler handler;
-  
   private Thread mUpdateThread;
   
+  private LoaderUpdater mLoaderUpdate;
+  private LoaderUpdater.CallbackObjects mCallback;
+   
   private BroadcastReceiver mFavoriteChangedReceiver;
   private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mDataUpdateReceiver;
   private BroadcastReceiver mDontWantToSeeReceiver;
-  
-  private boolean mIsRunning;
   
   private boolean mContainsListViewFavoriteSelection;
   
@@ -177,48 +181,38 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     super.onPause();
   }
   
-  private synchronized void startUpdateThread() {
+  private void startUpdateThread() {
     startUpdateThread(false,false);
   }
   
-  private synchronized void startUpdateThread(final boolean updateFavoritesMenu, final boolean editDeleteEnabled) {
-    if(mIsRunning) {
-      if(getLoaderManager().hasRunningLoaders()) {
-        getLoaderManager().getLoader(0).cancelLoad();
-      }
-      
-      mUpdateThread = new Thread("FragmentFavorites Update Thread") {
-        @Override
-        public void run() {
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              if(!isDetached() && getActivity() != null && mIsRunning) {
-                if(updateFavoritesMenu) {
-                  ((TvBrowser)getActivity()).updateFavoritesMenu(editDeleteEnabled);
-                }
-                
-                getLoaderManager().restartLoader(0, null, FragmentFavorites.this);
-              }
-            }
-          });
-        }
-      };
-      mUpdateThread.start();
-    }
+  private void startUpdateThread(final boolean updateFavoritesMenu, final boolean editDeleteEnabled) {
+    mCallback.addOrReplace(new LoaderUpdater.CallbackObject<Boolean>(KEY_UPDATE_FAVORITES_MENU, updateFavoritesMenu));
+    mCallback.addOrReplace(new LoaderUpdater.CallbackObject<Boolean>(KEY_EDIT_DELETE_ENABLED, editDeleteEnabled));
+    
+    mLoaderUpdate.startUpdate(mCallback);
   }
-  
   
   private AdapterView<ArrayAdapter<FavoriteSpinnerEntry>> mFavoriteSelection;
   private FavoriteSpinnerEntry mCurrentFavoriteSelection;
   
   private TextView mHelp;
-  
+    
   @Override
   public void onActivityCreated(Bundle savedInstanceState) {
     super.onActivityCreated(savedInstanceState);
     
     handler = new Handler();
+    
+    if(mLoaderUpdate == null) {
+      try {
+        mLoaderUpdate = new LoaderUpdater(FragmentFavorites.this, handler);
+      } catch (UnsupportedFragmentException e1) {
+        Log.d("info14", "", e1);
+        // Ignore
+      }
+    }
+    
+    mCallback = new LoaderUpdater.CallbackObjects();
     
     mWhereClause = new WhereClause();
     
@@ -578,6 +572,19 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   public void onAttach(Context context) {
     super.onAttach(context);
     
+    if(handler == null) {
+      handler = new Handler();
+    }
+    
+    if(mLoaderUpdate == null) {
+      try {
+        mLoaderUpdate = new LoaderUpdater(FragmentFavorites.this, handler);
+      } catch (UnsupportedFragmentException e1) {
+        Log.d("info14", "", e1);
+        // Ignore
+      }
+    }
+    
     mFavoriteChangedReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, final Intent intent) {
@@ -706,7 +713,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
     
-    mIsRunning = true;
+    mLoaderUpdate.setIsRunning();
   }
   
   private void removeMarkingSelections() {
@@ -780,7 +787,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   
   @Override
   public void onDetach() {
-    mIsRunning = false;
+    mLoaderUpdate.setIsNotRunning();
     
     if(mFavoriteChangedReceiver != null) {
       LocalBroadcastManager.getInstance(getActivity()).unregisterReceiver(mFavoriteChangedReceiver);
@@ -1059,7 +1066,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
         @Override
         public void run() {
           if(mCurrentFavoriteSelection != null) {
-            if(mIsRunning && !isDetached() && !isRemoving()) {
+            if(mLoaderUpdate.isRunning() && !isDetached() && !isRemoving()) {
               WhereClause test = mCurrentFavoriteSelection.getWhereClause();
               
               if(test == null) {
@@ -1076,5 +1083,14 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
         }
       });
     
+  }
+
+  @Override
+  public void handleCallback(CallbackObjects callbackObjects) {
+    if(callbackObjects != null) {
+      if((Boolean)callbackObjects.getCallbackObjectValue(KEY_UPDATE_FAVORITES_MENU, false)) {
+        ((TvBrowser)getActivity()).updateFavoritesMenu((Boolean)callbackObjects.getCallbackObjectValue(KEY_EDIT_DELETE_ENABLED, false));
+      }
+    }
   }
 }
