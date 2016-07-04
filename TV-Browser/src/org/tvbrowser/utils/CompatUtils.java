@@ -16,6 +16,8 @@
  */
 package org.tvbrowser.utils;
 
+import java.io.File;
+
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -157,6 +159,15 @@ public class CompatUtils {
       else {
         looper.quit();
       }
+    }
+  }
+  
+  public static boolean acceptFileAsSdCard(File file) {
+    if(Build.VERSION.SDK_INT >= 23) {
+      return file.isDirectory();
+    }
+    else {
+      return file.isDirectory() && file.getName().toLowerCase().contains("sdcard");
     }
   }
 }

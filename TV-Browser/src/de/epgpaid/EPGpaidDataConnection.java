@@ -38,10 +38,13 @@ import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 
+import android.content.Context;
 import android.util.Log;
 
 public class EPGpaidDataConnection {
-  private static final Pattern FORM_PATTERN = Pattern.compile(".*?name=\"(.*?)\".*?value=\"(.*?)\".*");
+  private static final Pattern PATTERN_FORM = Pattern.compile(".*?name=\"(.*?)\".*?value=\"(.*?)\".*");
+  private static final Pattern PATTERN_DATE_UNTIL = Pattern.compile(".*?<p>Logged\\s+In:\\s+(\\d+)\\s*</p>*?");
+  
   private static final String DOMAIN = "https://data.epgpaid.de/";
   private static final String REQUEST_METHOD_GET = "GET";
   private static final String REQUEST_METHOD_POST = "POST";
@@ -64,7 +67,7 @@ public class EPGpaidDataConnection {
    // mCookieList = new ArrayList<String>();
   }
   
-  public boolean login(String userName, String password) {
+  public boolean login(String userName, String password, final Context context) {
     boolean result = false;
     
     Authenticator.setDefault(mAuthenticator);
@@ -85,7 +88,7 @@ public class EPGpaidDataConnection {
           String[] lines = pageContent.split("\n");
           
           for(String line : lines) {
-            Matcher m = FORM_PATTERN.matcher(line);
+            Matcher m = PATTERN_FORM.matcher(line);
             
             if(m.find()) {
               nameValueMap.put(m.group(1),m.group(2));
@@ -115,10 +118,29 @@ public class EPGpaidDataConnection {
           
           // post login data
           if(openPostConnection(DOMAIN+"login_android.php", postParameters.toString()) == HttpURLConnection.HTTP_OK) {
+            final String content = readPageContent(mHttpConnection);
+            
+            final Matcher date = PATTERN_DATE_UNTIL.matcher(content);
+            
+            long until = 0;
+            
+            if(date.find()) {
+              until = updateUntilDate(date, context);
+            }
+            
             closeHttpConnection();
             
+            try {
+              Thread.sleep(200);
+            }catch(InterruptedException ie) {
+              //ignore
+            }
+            
             // test if access is granted
-            result = openGetConnection(DOMAIN+"accessTest.php") == HttpURLConnection.HTTP_OK;
+            if((openGetConnection(DOMAIN+"accessTest.php")  == HttpURLConnection.HTTP_OK) || until != 0) {
+              result = true; 
+            }
+            
             closeHttpConnection();
           }
         }
@@ -130,6 +152,16 @@ public class EPGpaidDataConnection {
     Authenticator.setDefault(null);
     
     return result;
+  }
+  
+  private long updateUntilDate(final Matcher date, final Context context) {
+    long value = Long.parseLong(date.group(1))*1000;
+    
+    if(value > System.currentTimeMillis()) {
+      PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.PREF_EPGPAID_ACCESS_UNTIL), value).commit();
+    }
+    
+    return value;
   }
   
   public boolean isLoggedIn() {

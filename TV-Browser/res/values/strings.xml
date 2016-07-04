@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.2.5</h2>
+        <h2>0.6.2.6</h2>
+        	&bull; find SD cards for database storing under Android 6.0 too<br>
+        	&bull; longer timeout for channel data download<br>
+        	&bull; show end date of EPGpaid access in settings<br>
+        	&bull; restore database storage location from backup only if database file is accessible<br>
+        <h3>0.6.2.5</h3>
         	&bull; better prevention of gaps in EPGpaid data<br>
         	&bull; fix wrong preselected search place for keyword filter<br>
         	&bull; better separators in widgets<br>
@@ -678,6 +683,8 @@
 	<string name="pref_epgpaid_show_missing_info_summary">Shows info if EPGpaid is not unlocked about missing descriptions in detail view.</string>
 	<string name="pref_epgpaid_user_name_title">Username:</string>
 	<string name="pref_epgpaid_user_empty_summary">Not entered</string>
+	<string name="pref_epgpaid_until_title">Activity of EPGpaid</string>
+	<string name="pref_epgpaid_until_summary">Access until: {0}</string>
 	<string name="pref_epgpaid_user_password_set_summary">********</string>
 	<string name="pref_epgpaid_user_password_title">Password</string>
 	<string name="pref_epgpaid_max_download_title">Download maximum:</string>

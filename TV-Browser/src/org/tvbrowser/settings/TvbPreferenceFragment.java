@@ -23,6 +23,7 @@ import java.util.Arrays;
 
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.TvDataUpdateService;
+import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.UiUtils;
 
@@ -39,10 +40,13 @@ import android.os.Environment;
 import android.preference.CheckBoxPreference;
 import android.preference.EditTextPreference;
 import android.preference.ListPreference;
+import android.preference.Preference;
+import android.preference.PreferenceCategory;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
+import android.util.Log;
 
 public class TvbPreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
   @Override
@@ -61,6 +65,13 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     else if(getString(R.string.category_epgpaid).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_epgpaid);
       
+      final DateUntilPreference p = (DateUntilPreference)findPreference(getString(R.string.PREF_EPGPAID_ACCESS_UNTIL));
+      final PreferenceCategory credentials = (PreferenceCategory)findPreference(getString(R.string.PREF_EPGPAID_CATEGORY_CREDENTIALS));
+      
+      if(p != null && credentials != null && p.getValue() == 0) {
+        credentials.removePreference(p);
+      }
+      
       onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_EPGPAID_DOWNLOAD_MAX));
       onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_EPGPAID_USER));
       onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_EPGPAID_PASSWORD));
@@ -73,7 +84,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       path.setEnabled(!TvDataUpdateService.isRunning());
       
       File external = Environment.getExternalStorageDirectory();
-      
+      Log.d("info22", "external "+external);
       final ArrayList<String> entries = new ArrayList<String>();
       final ArrayList<String> entryValues = new ArrayList<String>();
       
@@ -93,7 +104,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         File[] sdcards = new File(external.getAbsolutePath().toString().substring(0, external.getAbsolutePath().indexOf(File.separator, 1))).listFiles(new FileFilter() {
           @Override
           public boolean accept(File pathname) {
-            return pathname.isDirectory() && pathname.getName().toLowerCase().contains("sdcard");
+            return CompatUtils.acceptFileAsSdCard(pathname);
           }
         });
         

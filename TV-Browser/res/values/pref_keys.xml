@@ -54,6 +54,10 @@
 	    <string name="PREF_KEPT_DELETED_CHANNELS">PREF_KEPT_DELETED_CHANNELS</string>
     
     <!-- EPGpaid settings -->
+        <string name="PREF_EPGPAID_CATEGORY_CREDENTIALS">PREF_EPGPAID_CATEGORY_CREDENTIALS</string>
+    	<string name="PREF_EPGPAID_ACCESS_UNTIL">PREF_EPGPAID_ACCESS_UNTIL</string>
+    	<item name="pref_epgpaid_access_until_default" type="integer" format="integer">0</item>
+    
         <string name="PREF_EPGPAID_DATABASE_CHANNEL_IDS">PREF_EPGPAID_DATABASE_CHANNEL_IDS</string>
     
 	    <string name="PREF_EPGPAID_USER">PREF_EPGPAID_USER</string>
