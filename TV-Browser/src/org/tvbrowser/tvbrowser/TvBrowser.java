@@ -2004,6 +2004,13 @@ public class TvBrowser extends ActionBarActivity implements
                           
                           edit.putStringSet(parts[0], set);
                         }
+                        else if(getString(R.string.PREF_DATABASE_PATH).equals(parts[0])) {
+                          final File test = new File(parts[1].trim());
+                          
+                          if(test.isFile()) {
+                            edit.putString(parts[0], parts[1].trim());
+                          }
+                        }
                         else {
                           edit.putString(parts[0], parts[1].trim());
                         }
@@ -4181,7 +4188,7 @@ public class TvBrowser extends ActionBarActivity implements
             protected Boolean doInBackground(File... params) {
               mSource = params[0];
               
-              return IOUtils.copyFile(params[0], params[1]);
+              return !params[0].isFile() || IOUtils.copyFile(params[0], params[1]);
             }
             
             @Override
@@ -4241,7 +4248,7 @@ public class TvBrowser extends ActionBarActivity implements
           if(userName != null && password != null && userName.trim().length() > 0 && password.trim().length() > 0) {
             final EPGpaidDataConnection epgPaidTest = new EPGpaidDataConnection();
             
-            if(epgPaidTest.login(userName, password)) {
+            if(epgPaidTest.login(userName, password, getApplicationContext())) {
               epgPaidTest.logout();
             }
             else {

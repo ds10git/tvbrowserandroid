@@ -1,7 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.2.5</h2>
+        <h2>0.6.2.6</h2>
+        	&bull; SD-Karten für Speicherung der Datenbank werden auch unter Android 6.0 gefunden<br>
+        	&bull; längere Wartezeit vor Abbruch des Senderdownloads bei langsamen Internetverbindungen<br>
+        	&bull; Enddatum des EPG-Zugangs wird in den Einstellungen angezeigt<br>
+        	&bull; Wiederherstellen des Datenbankpfads aus Sicherung nur, wenn die Datenbank lesbar ist<br>
+        <h3>0.6.2.5</h3>
         	&bull; Lücken bei EPGpaid-Daten besser verhindern<br>
         	&bull; fehlerhaft vorausgewählter Suchort für den Stichwortfilter korrigiert<br>
         	&bull; Trenner in Widgets überarbeitet<br>
@@ -673,6 +678,8 @@
 	<string name="pref_epgpaid_user_empty_summary">Nicht eingegeben</string>
 	<string name="pref_epgpaid_user_password_set_summary">********</string>
 	<string name="pref_epgpaid_user_password_title">Passwort</string>
+	<string name="pref_epgpaid_until_title">Gültigkeit von EPGpaid</string>
+	<string name="pref_epgpaid_until_summary">Ihr Zugang ist freigeschaltet bis zum: {0}</string>
 	<string name="pref_epgpaid_max_download_title">Maximal herunterladen für:</string>
 	<string name="pref_epgpaid_ssl_check_title">SSL-Zertifikat prüfen</string>
 	<string name="pref_epgpaid_ssl_check_summary">Sollten Ihre Zugangsdaten nicht erfolgreich validiert werden können, obwohl alle Eingaben korrekt sind und eine Internetverbindung besteht, können Sie hier die Prüfung des SSL-Zertifikats abschalten, um mögliche Probleme zu umgehen.</string>

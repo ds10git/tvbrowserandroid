@@ -17,7 +17,9 @@
 	    	android:action="android.intent.action.VIEW"
 	   		android:data="https://www.epgpaid.de/index.php?id=order" />
 	</Preference>
-	<PreferenceCategory android:title="@string/pref_epgpaid_settings_category">
+	<PreferenceCategory
+	    android:key="@string/PREF_EPGPAID_CATEGORY_CREDENTIALS" 
+	    android:title="@string/pref_epgpaid_settings_category">
 	    <EditTextPreference
 	    	android:key="@string/PREF_EPGPAID_USER"
 	    	android:summary="@string/pref_epgpaid_user_empty_summary"
@@ -27,6 +29,11 @@
 	    	android:summary="@string/pref_epgpaid_user_empty_summary"
 	    	android:title="@string/pref_epgpaid_user_password_title"
 	    	android:inputType="textPassword" />
+	    <org.tvbrowser.settings.DateUntilPreference
+	    	android:key="@string/PREF_EPGPAID_ACCESS_UNTIL"
+	    	android:defaultValue="@integer/pref_epgpaid_access_until_default"
+	    	android:summary="@string/pref_epgpaid_until_summary"
+	    	android:title="@string/pref_epgpaid_until_title" />
 	    <ListPreference
 		    android:key="@string/PREF_EPGPAID_DOWNLOAD_MAX"
 		    android:title="@string/pref_epgpaid_max_download_title"

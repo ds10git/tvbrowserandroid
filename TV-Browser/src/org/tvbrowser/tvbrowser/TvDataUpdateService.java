@@ -1597,6 +1597,7 @@ public class TvDataUpdateService extends Service {
           GroupInfo test = updateGroup(cr, knownId, SettingConstants.EPG_FREE_KEY, parts[0], builder.toString(), values);
           
           if(test != null) {
+            doLog("Add group '" + test.getFileName() + "' to download list");
             channelMirrors.add(test);
           }
           else {
@@ -1636,6 +1637,7 @@ public class TvDataUpdateService extends Service {
         GroupInfo test = updateGroup(cr, knownId, SettingConstants.EPG_DONATE_KEY, SettingConstants.EPG_DONATE_GROUP_KEY, mirrors, values);
         
         if(test != null) {
+          doLog("Add group '" + test.getFileName() + "' to download list");
           channelMirrors.add(test);
         }
         else {
@@ -1650,58 +1652,66 @@ public class TvDataUpdateService extends Service {
         notification.notify(ID_NOTIFY, mBuilder.build());
         
         for(final GroupInfo info : channelMirrors) {
+          doLog("Add group '" + info.getFileName() + "' to channel download ");
+          
           mThreadPool.execute(new Thread("DATA UPDATE GROUP CHANNEL ADDING THREAD") {
             public void run() {
-              File group = new File(path,info.getFileName());
-              
-              boolean groupSucces = false;
-              
-              String[] urls = info.getUrls();
-              ArrayList<Integer> notWorkingIndicies = new ArrayList<Integer>();
-              
-              for(int i = 0; i < urls.length; i++) {
-                int index = (int)(Math.random()*urls.length);
-                int count = 0;
+              try {
+                doLog("Prepare channel download for group: " + info.getFileName());
+                final File group = new File(path,info.getFileName());
                 
-                while((notWorkingIndicies.contains(Integer.valueOf(index)) && count++ < urls.length) || index >= urls.length) {
-                  index = (int)(Math.random()*urls.length);
-                }
+                boolean groupSucces = false;
                 
-                String url = urls[index];
+                String[] urls = info.getUrls();
+                ArrayList<Integer> notWorkingIndicies = new ArrayList<Integer>();
                 
-                try {
-                  if(IOUtils.saveUrl(group.getAbsolutePath(), url + info.getUrlFileName(), 15000)) {
-                    groupSucces = addChannels(group,info);
-                    
-                    mBuilder.setProgress(channelMirrors.size(), mCurrentDownloadCount++, false);
-                    notification.notify(ID_NOTIFY, mBuilder.build());
-                    
-                    if(groupSucces) {
-                      doLog("Load channels for group '" + info.getFileName() + "' successfull from: " + url);
+                for(int i = 0; i < urls.length; i++) {
+                  int index = (int)(Math.random()*urls.length);
+                  int count = 0;
+                  
+                  while((notWorkingIndicies.contains(Integer.valueOf(index)) && count++ < urls.length) || index >= urls.length) {
+                    index = (int)(Math.random()*urls.length);
+                  }
+                  
+                  String url = urls[index];
+                  
+                  try {
+                    doLog("Start channel download for group '" + info.getFileName() + "' from: " + url);
+                    if(IOUtils.saveUrl(group.getAbsolutePath(), url + info.getUrlFileName(), 15000)) {
+                      groupSucces = addChannels(group,info);
                       
-                      File mirrors = new File(path,info.getMirrorFileName());
+                      mBuilder.setProgress(channelMirrors.size(), mCurrentDownloadCount++, false);
+                      notification.notify(ID_NOTIFY, mBuilder.build());
                       
-                      if(IOUtils.saveUrl(mirrors.getAbsolutePath(), url + info.getMirrorUrlFileName(), 15000)) {
-                        updateMirror(mirrors);
+                      if(groupSucces) {
+                        doLog("Load channels for group '" + info.getFileName() + "' successfull from: " + url);
+                        
+                        File mirrors = new File(path,info.getMirrorFileName());
+                        
+                        if(IOUtils.saveUrl(mirrors.getAbsolutePath(), url + info.getMirrorUrlFileName(), 15000)) {
+                          updateMirror(mirrors);
+                        }
+                        
+                        break;
                       }
-                      
-                      break;
+                      else {
+                        doLog("Not successfull load channels for group '" + info.getFileName() + "' from: " + url);
+                        notWorkingIndicies.add(Integer.valueOf(index));
+                      }
                     }
                     else {
                       doLog("Not successfull load channels for group '" + info.getFileName() + "' from: " + url);
                       notWorkingIndicies.add(Integer.valueOf(index));
                     }
+                  } catch (Exception e) {
+                    groupSucces = false;
                   }
-                  else {
-                    doLog("Not successfull load channels for group '" + info.getFileName() + "' from: " + url);
-                    notWorkingIndicies.add(Integer.valueOf(index));
-                  }
-                } catch (Exception e) {
-                  groupSucces = false;
                 }
+                
+                success.andUpdateBoolean(groupSucces);
+              }catch(Throwable t) {
+                doLog("ERROR processing channels for group: " + info.getFileName(), t);
               }
-              
-              success.andUpdateBoolean(groupSucces);
             }
           });
         }
@@ -1709,7 +1719,7 @@ public class TvDataUpdateService extends Service {
         mThreadPool.shutdown();
         
         try {
-          mThreadPool.awaitTermination(10, TimeUnit.MINUTES);
+          mThreadPool.awaitTermination(30, TimeUnit.MINUTES);
         } catch (InterruptedException e) {}
         
         if(!mThreadPool.isTerminated()) {
@@ -1984,6 +1994,7 @@ public class TvDataUpdateService extends Service {
             }
             
             if(channelValues == null) {
+              doLog("Add channel to database INSERT: " + name);
               insertValuesList.add(values);
               
               if(mHadChannels) {
@@ -1991,6 +2002,7 @@ public class TvDataUpdateService extends Service {
               }
             }
             else {
+              doLog("Add channel to database UPDATE: " + name);
               Integer uniqueChannelId = (Integer)((Object[])channelValues)[0];
               // update channel            
               ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, uniqueChannelId.intValue()));
@@ -2017,7 +2029,9 @@ public class TvDataUpdateService extends Service {
         }
         if(!updateValuesList.isEmpty()) {
           try {
-            getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+            if(updateValuesList.size() > getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList).length) {
+              returnValue = false;
+            }
           } catch (Exception e) {
             returnValue = false;
           }
@@ -2523,6 +2537,22 @@ public class TvDataUpdateService extends Service {
   }
   
   public void doLog(String value) {
+    doLog(value, null);
+  }
+  
+  public void doLog(String value, Throwable t) {
+    if(t != null) {
+      final StringBuilder message = new StringBuilder(value).append("\n");
+      
+      message.append(t.toString()).append("\n");
+      
+      final StackTraceElement[] els = t.getStackTrace();
+      
+      for(StackTraceElement el : els) {
+        message.append(el.toString()).append("\n");
+      }
+    }
+    
     Logging.log("info7", value, Logging.TYPE_DATA_UPDATE, TvDataUpdateService.this);
   }
   
@@ -3242,7 +3272,7 @@ public class TvDataUpdateService extends Service {
     
     if(userName != null && password != null 
         && userName.trim().length() > 0 && password.trim().length() > 0 
-        && epgPaidConnection.login(userName, password)) {
+        && epgPaidConnection.login(userName, password, getApplicationContext())) {
       if(!PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE, false)) {
         final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit();
         edit.putBoolean(getString(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE), true);
