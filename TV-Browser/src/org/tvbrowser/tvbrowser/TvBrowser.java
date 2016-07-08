@@ -5184,13 +5184,18 @@ public class TvBrowser extends ActionBarActivity implements
     }
   }
   
-  public void updateFavoritesMenu(boolean editDeleteEnabled) {
-    if(mCreateFavorite != null) {
-      SubMenu menu = mCreateFavorite.getSubMenu();
-      
-      menu.findItem(R.id.menu_tvbrowser_action_favorite_edit).setEnabled(editDeleteEnabled);
-      menu.findItem(R.id.menu_tvbrowser_action_favorite_delete).setEnabled(editDeleteEnabled);
-    }
+  public void updateFavoritesMenu(final boolean editDeleteEnabled) {
+    handler.post(new Runnable() {
+      @Override
+      public void run() {
+        if(mCreateFavorite != null) {
+          SubMenu menu = mCreateFavorite.getSubMenu();
+          
+          menu.findItem(R.id.menu_tvbrowser_action_favorite_edit).setEnabled(editDeleteEnabled);
+          menu.findItem(R.id.menu_tvbrowser_action_favorite_delete).setEnabled(editDeleteEnabled);
+        }
+      }
+    });
   }
   
   private void showMarkingData() {
