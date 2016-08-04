@@ -197,6 +197,10 @@
         android:orderInCategory="100"
         app:showAsAction="never"
         android:title="@string/action_search_plugins"/>
+	<item android:id="@id/action_privacy"
+        android:orderInCategory="100"
+        app:showAsAction="never"
+        android:title="@string/action_privacy"/>
     <item android:id="@id/action_about"
         android:orderInCategory="100"
         app:showAsAction="never"

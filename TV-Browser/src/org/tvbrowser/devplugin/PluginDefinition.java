@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Locale;
 import java.util.concurrent.TimeoutException;
 
+import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.IOUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -36,7 +37,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
  * @author René Mach
  */
 public class PluginDefinition implements Comparable<PluginDefinition> {
-  private static final String PLUGIN_INFO_URL = "http://android.tvbrowser.org/download/android-plugins.gz";
+  private static final String PLUGIN_INFO_URL = SettingConstants.URL_SYNC_BASE + "download/android-plugins.gz";
   
   private static final String XML_ELEMENT_ROOT = "plugin";
   private static final String XML_ATTRIBUTE_PACKAGE = "package";

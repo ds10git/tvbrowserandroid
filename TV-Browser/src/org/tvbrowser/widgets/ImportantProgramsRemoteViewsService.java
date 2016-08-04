@@ -184,6 +184,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
         
         final long token = Binder.clearCallingIdentity();
         try {
+          if(IOUtils.isDatabaseAccessible(getApplicationContext())) {
             mCursor = getApplicationContext().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + ", " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + limit);
             
             if(mCursor != null) {
@@ -244,6 +245,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
                 }
               }
             }
+          }
         } finally {
             Binder.restoreCallingIdentity(token);
         }

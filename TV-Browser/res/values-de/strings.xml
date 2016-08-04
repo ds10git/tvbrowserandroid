@@ -1,11 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.2.6</h2>
+        <h2>0.6.3</h2>
+        	&bull; Link zu Datenschutzerklärung hinzugefügt<br>
+        	&bull; Synchronisationsdaten werden über eine sichere Internetverbindung übertragen<br>
+        	&bull; Versuch unzuverlässige Erinnerungen unter Android 6.0 zu beheben (Erinnerungen werden als Wecker angelegt)<br>
         	&bull; SD-Karten für Speicherung der Datenbank werden auch unter Android 6.0 gefunden<br>
         	&bull; längere Wartezeit vor Abbruch des Senderdownloads bei langsamen Internetverbindungen<br>
         	&bull; Enddatum des EPG-Zugangs wird in den Einstellungen angezeigt<br>
         	&bull; Wiederherstellen des Datenbankpfads aus Sicherung nur, wenn die Datenbank lesbar ist<br>
+        	&bull; Laufzeit verlängert bis 01.06.2017<br>
         <h3>0.6.2.5</h3>
         	&bull; Lücken bei EPGpaid-Daten besser verhindern<br>
         	&bull; fehlerhaft vorausgewählter Suchort für den Stichwortfilter korrigiert<br>
@@ -539,6 +543,8 @@
 	<string name="favorite_remind">An gefundene Sendungen erinnern</string>
     <string name="favorite_exclusion">Ausschlüsse:</string>
     <string name="favorite_exclusion_hint">Kommagetrennte Liste (optional)</string>
+    <string name="dialog_epgpaid_info_expiration_title">EPGpaid-Zugang läuft aus</string>
+    <string name="dialog_epgpaid_info_expiration_message">Ihr EPGpaid-Zugang läuft am {0} aus.\n\nWenn Sie jetzt erneut bestellen und die Zahlung bis zum {0} eingeht, wird Ihr Zugang nahtlos um weitere 12 Monate verlängert.</string>
     <string name="dialog_epgpaid_info_title">Vermissen Sie Beschreibungen und Bilder?</string>
     <string name="dialog_epgpaid_invalid_title">EPGpaid Benutzername/Passwort nicht korrekt?</string>
     <string name="dialog_epgpaid_invalid_message">EPGpaid-Benutzername/Passwort konnte nicht erfolgreich validiert werden.\n\nDies muss nicht bedeuten, dass die Zugangsdaten falsch sind, es könnte auch sein, dass keine Internetverbindung besteht oder kein Kontakt zum Server aufgenommen werden konnte.\n\nBitte prüfen Sie Ihre Eingaben und Ihre Internetverbindung.</string>
@@ -608,6 +614,7 @@
   http://www.apache.org/licenses/LICENSE-2.0</p></html>]]></string>
     <string name="terms">Der Benutzungszeitraum von TV-Browser für Android kann begrenzt sein. Die Begrenzung ist auf der Über-Seite ersichtlich. Es wird garantiert, dass nach Ablauf des Benutzungszeitraums ein kostenloses Update zur Verfügung steht, so lange die Entwickler von TV-Browser für Android in der Lage und gewillt sind Updates herauszugeben.</string>
     <string name="name_for_android">TV-Browser für Android</string>
+    <string name="action_privacy">Datenschutzerklärung</string>
     <string name="action_about">Über TV-Browser</string>
     <string name="action_search_plugins">Nach Plugins suchen</string>
     <string name="create_favorite_item">Lieblingssendung erstellen</string>

@@ -579,6 +579,7 @@
         <item type="id" name="action_dont_want_to_see_edit" />
         <item type="id" name="action_donation" />
         <item type="id" name="action_search_plugins" />
+        <item type="id" name="action_privacy" />
         <item type="id" name="action_about" />
         <item type="id" name="action_debug" />
         <item type="id" name="action_delete_data_update_log" />

@@ -57,6 +57,8 @@
         <string name="PREF_EPGPAID_CATEGORY_CREDENTIALS">PREF_EPGPAID_CATEGORY_CREDENTIALS</string>
     	<string name="PREF_EPGPAID_ACCESS_UNTIL">PREF_EPGPAID_ACCESS_UNTIL</string>
     	<item name="pref_epgpaid_access_until_default" type="integer" format="integer">0</item>
+    	
+    	<string name="PREF_EPGPAID_EXPIRATION_SHOWN">PREF_EPGPAID_EXPIRATION_SHOWN</string>
     
         <string name="PREF_EPGPAID_DATABASE_CHANNEL_IDS">PREF_EPGPAID_DATABASE_CHANNEL_IDS</string>
     
