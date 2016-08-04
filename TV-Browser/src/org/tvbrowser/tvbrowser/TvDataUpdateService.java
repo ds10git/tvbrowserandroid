@@ -1026,7 +1026,7 @@ public class TvDataUpdateService extends Service {
       URLConnection connection = null;
       BufferedReader read = null;
       try {
-        URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=reminderFromDesktop");
+        URL documentUrl = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/syncDown.php?type=reminderFromDesktop");
         connection = documentUrl.openConnection();
         
         SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_TRANSPORTATION, TvDataUpdateService.this);
@@ -1335,17 +1335,17 @@ public class TvDataUpdateService extends Service {
     Cursor currentChannels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, null, null, null);
 
     try {
-      currentChannels.moveToPosition(-1);
-      
-      final int idIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-      final int groupKeyIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-      final int channelKeyIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-      final int channelNameIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-      final int channelSelectionIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
-      
-      while(currentChannels.moveToNext()) {
-        String key = IOUtils.getUniqueChannelKey(currentChannels.getString(groupKeyIndex), currentChannels.getString(channelKeyIndex));
-        mCurrentChannelData.put(key, new Object[] {Integer.valueOf(currentChannels.getInt(idIndex)) , currentChannels.getString(channelNameIndex), Integer.valueOf(currentChannels.getInt(channelSelectionIndex))});
+      if(IOUtils.prepareAccess(currentChannels)) {
+        final int idIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+        final int groupKeyIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+        final int channelKeyIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+        final int channelNameIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+        final int channelSelectionIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
+        
+        while(currentChannels.moveToNext()) {
+          String key = IOUtils.getUniqueChannelKey(currentChannels.getString(groupKeyIndex), currentChannels.getString(channelKeyIndex));
+          mCurrentChannelData.put(key, new Object[] {Integer.valueOf(currentChannels.getInt(idIndex)) , currentChannels.getString(channelNameIndex), Integer.valueOf(currentChannels.getInt(channelSelectionIndex))});
+        }
       }
     }finally {
       if(currentChannels != null) {
@@ -2161,7 +2161,7 @@ public class TvDataUpdateService extends Service {
       InputStream is = null;
 
       try {
-          URL url = new URL("http://android.tvbrowser.org/data/scripts/syncUp.php?type=favortiesFromApp");
+          URL url = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/syncUp.php?type=favortiesFromApp");
           
           conn = url.openConnection();
           
@@ -2250,7 +2250,7 @@ public class TvDataUpdateService extends Service {
 	URLConnection connection = null;
 	BufferedReader read = null;
 	try {
-      URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=favoritesFromDesktop");
+      URL documentUrl = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/syncDown.php?type=favoritesFromDesktop");
       connection = documentUrl.openConnection();
       
       SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
@@ -2431,7 +2431,7 @@ public class TvDataUpdateService extends Service {
       }
       
       if(toRemider) {
-        synchronizeUp(false, null, "http://android.tvbrowser.org/data/scripts/syncUp.php?type=reminderFromApp", notification);
+        synchronizeUp(false, null, SettingConstants.URL_SYNC_BASE + "data/scripts/syncUp.php?type=reminderFromApp", notification);
       }
       
       if(PrefUtils.getBooleanValue(R.string.PREF_NEWS_SHOW, R.bool.pref_news_show_default)) {

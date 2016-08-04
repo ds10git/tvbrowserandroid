@@ -18,9 +18,13 @@ package org.tvbrowser.utils;
 
 import java.io.File;
 
+import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.InfoActivity;
+
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.AlarmManager.AlarmClockInfo;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
@@ -33,6 +37,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -133,8 +138,20 @@ public class CompatUtils {
     return size;
   }
   
+  public static final void setAlarmInexact(AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
+    alarm.set(type, triggerAtMillis, operation);
+  }
+  
   public static final void setAlarm(AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
-    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+    setAlarm(alarm, type, triggerAtMillis, operation, null);
+  }
+  
+  public static final void setAlarm(AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation, PendingIntent info) {
+    if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+      // Cheap workaround for Marshmallow doze mode
+      alarm.setAlarmClock(new AlarmClockInfo(triggerAtMillis, info), operation);
+    }
+    else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       alarm.setExact(type, triggerAtMillis, operation);
     }
     else {

@@ -607,10 +607,10 @@ public class IOUtils {
     Intent dataUpdate = new Intent(context, AutoDataUpdateReceiver.class);
     dataUpdate.putExtra(SettingConstants.TIME_DATA_UPDATE_EXTRA, true);
     
-    if(time > System.currentTimeMillis()) {
+    if(time != 0) {
       PendingIntent pending = PendingIntent.getBroadcast(context, DATA_UPDATE_KEY, dataUpdate, PendingIntent.FLAG_UPDATE_CURRENT);
       
-      CompatUtils.setAlarm(alarmManager,AlarmManager.RTC_WAKEUP, time, pending);
+      CompatUtils.setAlarmInexact(alarmManager,AlarmManager.RTC_WAKEUP, Math.max(System.currentTimeMillis()+28*60000,time), pending);
     }
   }
   
@@ -719,6 +719,8 @@ public class IOUtils {
         if(current < System.currentTimeMillis()) {
           current += (24 * 60 * 60000);
         }
+        
+        current = Math.max(System.currentTimeMillis()+30*60000, current);
         
         Editor currentTime = PreferenceManager.getDefaultSharedPreferences(context).edit();
         currentTime.putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), current);

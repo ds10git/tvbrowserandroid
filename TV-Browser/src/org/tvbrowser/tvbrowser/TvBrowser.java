@@ -259,8 +259,8 @@ public class TvBrowser extends ActionBarActivity implements
   
   static {
     mRundate = Calendar.getInstance();
-    mRundate.set(Calendar.YEAR, 2016);
-    mRundate.set(Calendar.MONTH, Calendar.SEPTEMBER);
+    mRundate.set(Calendar.YEAR, 2017);
+    mRundate.set(Calendar.MONTH, Calendar.JUNE);
     mRundate.set(Calendar.DAY_OF_MONTH, 1);
   }
   
@@ -1010,6 +1010,20 @@ public class TvBrowser extends ActionBarActivity implements
           edit.commit();              
         }
       });
+    } else if(PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, "").trim().length() > 0 && PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, "").trim().length() > 0) {
+      final long dateUntil = PrefUtils.getLongValueWithDefaultKey(R.string.PREF_EPGPAID_ACCESS_UNTIL, R.integer.pref_epgpaid_access_until_default);
+      final long expirationShown = PrefUtils.getLongValueWithDefaultKey(R.string.PREF_EPGPAID_EXPIRATION_SHOWN, R.integer.pref_epgpaid_access_until_default);
+      
+      if(dateUntil != 0 && (dateUntil > System.currentTimeMillis()) && (dateUntil - (14 * 24 * 60 * 60000L)) < System.currentTimeMillis() && (expirationShown + (180 * 24 * 60 * 60000L))  < System.currentTimeMillis()) {
+        String message = getString(R.string.dialog_epgpaid_info_expiration_message).replace("{0}", DateFormat.getMediumDateFormat(getApplicationContext()).format(new java.util.Date(dateUntil)));
+        
+        showAlertDialog(getString(R.string.dialog_epgpaid_info_expiration_title), message, null, null, new Runnable() {
+          @Override
+          public void run() {
+            PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().putLong(getString(R.string.PREF_EPGPAID_EXPIRATION_SHOWN), System.currentTimeMillis()).commit();
+          }
+        }, null, null, false, true);
+      }
     }
   }
   
@@ -1449,7 +1463,7 @@ public class TvBrowser extends ActionBarActivity implements
           
           URLConnection connection = null;
           try {
-            URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=channelsFromDesktop");
+            URL documentUrl = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/syncDown.php?type=channelsFromDesktop");
             connection = documentUrl.openConnection();
             IOUtils.setConnectionTimeoutDefault(connection);
             
@@ -1652,7 +1666,7 @@ public class TvBrowser extends ActionBarActivity implements
           URLConnection connection = null;
           
           try {
-            URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=dontWantToSee");
+            URL documentUrl = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/syncDown.php?type=dontWantToSee");
             connection = documentUrl.openConnection();
             IOUtils.setConnectionTimeoutDefault(connection);
             
@@ -1792,7 +1806,7 @@ public class TvBrowser extends ActionBarActivity implements
                 }
                 
                 if(!replace && exclusionBuilder.length() > 0) {
-                  startSynchronizeUp(false, exclusionBuilder.toString(), "http://android.tvbrowser.org/data/scripts/syncUp.php?type=dontWantToSee", null, null);
+                  startSynchronizeUp(false, exclusionBuilder.toString(), SettingConstants.URL_SYNC_BASE + "data/scripts/syncUp.php?type=dontWantToSee", null, null);
                 }
               }
               else {
@@ -1801,7 +1815,7 @@ public class TvBrowser extends ActionBarActivity implements
                     exclusionBuilder.append(old).append("\n");
                   }
                   
-                  startSynchronizeUp(false, exclusionBuilder.toString(), "http://android.tvbrowser.org/data/scripts/syncUp.php?type=dontWantToSee", null, null);
+                  startSynchronizeUp(false, exclusionBuilder.toString(), SettingConstants.URL_SYNC_BASE + "data/scripts/syncUp.php?type=dontWantToSee", null, null);
                 }
                 
                 handler.post(new Runnable() {
@@ -1895,7 +1909,7 @@ public class TvBrowser extends ActionBarActivity implements
             backup.append("\n");
           }
           
-          startSynchronizeUp(true, backup.toString(), "http://android.tvbrowser.org/data/scripts/syncUp.php?type=preferencesBackup", SettingConstants.SYNCHRONIZE_UP_DONE, getString(R.string.backup_preferences_success));
+          startSynchronizeUp(true, backup.toString(), SettingConstants.URL_SYNC_BASE + "data/scripts/syncUp.php?type=preferencesBackup", SettingConstants.SYNCHRONIZE_UP_DONE, getString(R.string.backup_preferences_success));
         }
       });
       
@@ -1946,7 +1960,7 @@ public class TvBrowser extends ActionBarActivity implements
             boolean restored = false;
             
             try {
-              URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/syncDown.php?type=preferencesBackup");
+              URL documentUrl = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/syncDown.php?type=preferencesBackup");
               connection = documentUrl.openConnection();
               IOUtils.setConnectionTimeoutDefault(connection);
               
@@ -2197,7 +2211,7 @@ public class TvBrowser extends ActionBarActivity implements
       }
       
       if(uploadChannels.toString().trim().length() > 0) {
-        startSynchronizeUp(true, uploadChannels.toString().trim(), "http://android.tvbrowser.org/data/scripts/syncUp.php?type=channelsFromDesktop", SettingConstants.SYNCHRONIZE_UP_DONE, getString(R.string.backup_channels_success));
+        startSynchronizeUp(true, uploadChannels.toString().trim(), SettingConstants.URL_SYNC_BASE + "data/scripts/syncUp.php?type=channelsFromDesktop", SettingConstants.SYNCHRONIZE_UP_DONE, getString(R.string.backup_channels_success));
       }
     }
   }
@@ -3618,7 +3632,7 @@ public class TvBrowser extends ActionBarActivity implements
         public void run() {
           URLConnection connection = null;
           try {
-            URL documentUrl = new URL("http://android.tvbrowser.org/data/scripts/testMyAccount.php");
+            URL documentUrl = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/testMyAccount.php");
             connection = documentUrl.openConnection();
             IOUtils.setConnectionTimeoutDefault(connection);
             
@@ -4302,6 +4316,10 @@ public class TvBrowser extends ActionBarActivity implements
         edit.commit();
       }
     });
+  }
+  
+  private void showPrivacyStatement() {
+    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingConstants.URL_SYNC_BASE + "index.php?id=privacystatement")));
   }
   
   private void showAbout() {
@@ -5263,7 +5281,7 @@ public class TvBrowser extends ActionBarActivity implements
         break;
       case R.id.action_synchronize_reminders_up:
         if(isOnline()) {
-          startSynchronizeUp(true, null, "http://android.tvbrowser.org/data/scripts/syncUp.php?type=reminderFromApp", SettingConstants.SYNCHRONIZE_UP_DONE, null);
+          startSynchronizeUp(true, null, SettingConstants.URL_SYNC_BASE + "data/scripts/syncUp.php?type=reminderFromApp", SettingConstants.SYNCHRONIZE_UP_DONE, null);
         }
         else {
           showNoInternetConnection(getString(R.string.no_network_info_data_sync_reminder),null);
@@ -5323,6 +5341,7 @@ public class TvBrowser extends ActionBarActivity implements
           showNoInternetConnection(getString(R.string.no_network_info_data_update), null);
         }
         break;
+      case R.id.action_privacy: showPrivacyStatement();break;
       case R.id.action_about: showAbout();break;
       case R.id.action_load_channels_again: selectChannels(true);break;
       case R.id.action_select_channels: selectChannels(false);break;
@@ -5796,7 +5815,7 @@ public class TvBrowser extends ActionBarActivity implements
       alert.setPositiveButton(R.string.donation_info_website, new OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-          startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=donations")));
+          startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingConstants.URL_SYNC_BASE + "index.php?id=donations")));
         }
       });
     }
@@ -5934,7 +5953,7 @@ public class TvBrowser extends ActionBarActivity implements
       alert.setPositiveButton(R.string.donation_open_website, new OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-          startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=donations")));
+          startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingConstants.URL_SYNC_BASE + "index.php?id=donations")));
         }
       });
     }
@@ -6097,7 +6116,7 @@ public class TvBrowser extends ActionBarActivity implements
       public void onClick(View v) {
         d.dismiss();
         
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=donations")));
+        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingConstants.URL_SYNC_BASE + "index.php?id=donations")));
       }
     });
     
