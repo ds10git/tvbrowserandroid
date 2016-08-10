@@ -9,7 +9,6 @@ import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 
 import android.app.AlarmManager;
-import android.app.AlarmManager.AlarmClockInfo;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.ContentUris;

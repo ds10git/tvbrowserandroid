@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
 import java.util.TimeZone;
@@ -458,7 +459,7 @@ public class TvDataUpdateService extends Service {
       File[] oldDataFiles = path.listFiles(new FileFilter() {
         @Override
         public boolean accept(File pathname) {
-          return pathname.getName().toLowerCase().endsWith(".prog.gz");
+          return pathname.getName().toLowerCase(Locale.GERMAN).endsWith(".prog.gz");
         }
       });
       
@@ -2648,7 +2649,7 @@ public class TvDataUpdateService extends Service {
     File[] oldDataFiles = path.listFiles(new FileFilter() {
       @Override
       public boolean accept(File pathname) {
-        return pathname.getName().toLowerCase().endsWith(".gz");
+        return pathname.getName().toLowerCase(Locale.GERMAN).endsWith(".gz");
       }
     });
     
@@ -2763,7 +2764,7 @@ public class TvDataUpdateService extends Service {
                 doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
                 doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
                 
-                if(!mirrorURL.toLowerCase().startsWith("http://") && !mirrorURL.toLowerCase().startsWith("https://")) {
+                if(!mirrorURL.toLowerCase(Locale.GERMAN).startsWith("http://") && !mirrorURL.toLowerCase(Locale.GERMAN).startsWith("https://")) {
                   doLog("RELOAD MIRRORS FOR '" + groupId);
                   mirrorURL = reloadMirrors(groupId, path);
                   
@@ -3485,15 +3486,16 @@ public class TvDataUpdateService extends Service {
     final File[] dataFiles = epgPaidPath.listFiles(new FileFilter() {
       @Override
       public boolean accept(File file) {
-        boolean result = file.getName().endsWith("_base.gz");
+        boolean result = file.getName().toLowerCase(Locale.GERMAN).contains("_base.gz");
         
         if(result) {
           final long fileDate = Long.parseLong(file.getName().substring(0, file.getName().indexOf("_")));
           
-          result = startCutOff <= fileDate && fileDate <= endCutOff;
+          result = file.getName().toLowerCase(Locale.GERMAN).endsWith("_base.gz") && 
+              (startCutOff <= fileDate && fileDate <= endCutOff);
           
-          if(fileDate < startCutOff) {
-            file.delete();
+          if(fileDate < startCutOff && !file.delete()) {
+            file.deleteOnExit();
           }
         }
         
@@ -3691,7 +3693,7 @@ public class TvDataUpdateService extends Service {
         doLog("Update mirrors from: " + mirrorFile.getName());
         
         while((line = in.readLine()) != null) {
-          if(line.toLowerCase().startsWith("http://") || line.toLowerCase().startsWith("https://")) {
+          if(line.toLowerCase(Locale.GERMAN).startsWith("http://") || line.toLowerCase(Locale.GERMAN).startsWith("https://")) {
             String[] parts = line.split(";");
             
             if(!parts[0].endsWith("/")) {
@@ -4170,19 +4172,19 @@ public class TvDataUpdateService extends Service {
         Byte dataVersion = update.mVersionMap.get(fileName);
         
         if(dataVersion != null) {
-          if(fileName.toLowerCase().contains(SettingConstants.EPG_FREE_LEVEL_NAMES[0])) {
+          if(fileName.toLowerCase(Locale.GERMAN).contains(SettingConstants.EPG_FREE_LEVEL_NAMES[0])) {
             values.put(TvBrowserContentProvider.VERSION_KEY_BASE_VERSION,dataVersion);
           }
-          else if(fileName.toLowerCase().contains(SettingConstants.EPG_FREE_LEVEL_NAMES[1])) {
+          else if(fileName.toLowerCase(Locale.GERMAN).contains(SettingConstants.EPG_FREE_LEVEL_NAMES[1])) {
             values.put(TvBrowserContentProvider.VERSION_KEY_MORE0016_VERSION,dataVersion);
           }
-          else if(fileName.toLowerCase().contains(SettingConstants.EPG_FREE_LEVEL_NAMES[2])) {
+          else if(fileName.toLowerCase(Locale.GERMAN).contains(SettingConstants.EPG_FREE_LEVEL_NAMES[2])) {
             values.put(TvBrowserContentProvider.VERSION_KEY_MORE1600_VERSION,dataVersion);
           }
-          else if(fileName.toLowerCase().contains(SettingConstants.EPG_FREE_LEVEL_NAMES[3])) {
+          else if(fileName.toLowerCase(Locale.GERMAN).contains(SettingConstants.EPG_FREE_LEVEL_NAMES[3])) {
             values.put(TvBrowserContentProvider.VERSION_KEY_PICTURE0016_VERSION,dataVersion);
           }
-          else if(fileName.toLowerCase().contains(SettingConstants.EPG_FREE_LEVEL_NAMES[4])) {
+          else if(fileName.toLowerCase(Locale.GERMAN).contains(SettingConstants.EPG_FREE_LEVEL_NAMES[4])) {
             values.put(TvBrowserContentProvider.VERSION_KEY_PICTURE1600_VERSION,dataVersion);
           }
         }
@@ -4615,13 +4617,13 @@ public class TvDataUpdateService extends Service {
         Byte dataVersion = update.mVersionMap.get(fileName);
         Log.d("info21","ADD VERSION INFO " + fileName + " " + update.getChannelID() + "_" + daysSince1970 + " " + dataVersion.byteValue());
         if(dataVersion != null) {
-          if(fileName.toLowerCase().contains(SettingConstants.EPG_DONATE_LEVEL_NAMES[0])) {
+          if(fileName.toLowerCase(Locale.GERMAN).contains(SettingConstants.EPG_DONATE_LEVEL_NAMES[0])) {
             values.put(TvBrowserContentProvider.VERSION_KEY_BASE_VERSION,dataVersion.intValue());
           }
-          else if(fileName.toLowerCase().contains(SettingConstants.EPG_DONATE_LEVEL_NAMES[1])) {
+          else if(fileName.toLowerCase(Locale.GERMAN).contains(SettingConstants.EPG_DONATE_LEVEL_NAMES[1])) {
             values.put(TvBrowserContentProvider.VERSION_KEY_MORE1600_VERSION,dataVersion.intValue());
           }
-          else if(fileName.toLowerCase().contains(SettingConstants.EPG_DONATE_LEVEL_NAMES[2])) {
+          else if(fileName.toLowerCase(Locale.GERMAN).contains(SettingConstants.EPG_DONATE_LEVEL_NAMES[2])) {
             values.put(TvBrowserContentProvider.VERSION_KEY_PICTURE1600_VERSION,dataVersion.intValue());
           }
         }

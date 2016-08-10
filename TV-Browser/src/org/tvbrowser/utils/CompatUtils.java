@@ -17,14 +17,13 @@
 package org.tvbrowser.utils;
 
 import java.io.File;
-
-import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.tvbrowser.InfoActivity;
+import java.lang.reflect.Method;
+import java.util.Locale;
 
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
-import android.app.PendingIntent;
 import android.app.AlarmManager.AlarmClockInfo;
+import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
@@ -37,7 +36,6 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Looper;
 import android.os.PowerManager;
-import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -142,6 +140,21 @@ public class CompatUtils {
     alarm.set(type, triggerAtMillis, operation);
   }
   
+  public static final void setExactAlarmAndAllowWhileIdle(AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
+    if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
+      try {
+        Method setExactAndAllowWhileIdle = alarm.getClass().getDeclaredMethod("setExactAndAllowWhileIdle", int.class, long.class, PendingIntent.class);
+        setExactAndAllowWhileIdle.setAccessible(true);
+        setExactAndAllowWhileIdle.invoke(alarm, type, triggerAtMillis, operation);
+      } catch (Throwable t) {
+        setAlarm(alarm, type, triggerAtMillis, operation, null);
+      }
+    }
+    else {
+      setAlarm(alarm, type, triggerAtMillis, operation, null);
+    }
+  }
+  
   public static final void setAlarm(AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
     setAlarm(alarm, type, triggerAtMillis, operation, null);
   }
@@ -184,7 +197,7 @@ public class CompatUtils {
       return file.isDirectory();
     }
     else {
-      return file.isDirectory() && file.getName().toLowerCase().contains("sdcard");
+      return file.isDirectory() && file.getName().toLowerCase(Locale.GERMAN).contains("sdcard");
     }
   }
 }

@@ -1107,9 +1107,9 @@ public class FragmentProgramTable extends Fragment {
     UiUtils.handleMarkings(getActivity(), null, startTime, endTime, panel, IOUtils.getStringArrayFromList(markedColumns), null, true);
   }
   
-  private boolean isBrokenSamsungDevice() {
+  /*private boolean isBrokenSamsungDevice() {
     return true;
-  }
+  }*/
   
   @SuppressLint("NewApi")
   public void selectDate(View view) {try {

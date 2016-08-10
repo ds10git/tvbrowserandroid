@@ -92,7 +92,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   private BroadcastReceiver mMarkingsChangedReceiver;
   private BroadcastReceiver mChannelUpdateReceiver;
   
-  private boolean mDontUpdate;
+  //private boolean mDontUpdate;
   private int mScrollPos;
   
   private ListView mListView;
@@ -759,7 +759,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
             ((TvBrowser)getActivity()).addProgramListState(mDateSelection.getSelectedItemPosition(), current.getID(), filter.getSelectedItemPosition(), getCurrentScrollIndex());
           }
           
-          setDontUpdate(true);
+       //   setDontUpdate(true);
           
           if(current == null || current.getID() != id) {
             for(int i = 0; i < channelEntries.size(); i++) {
@@ -790,7 +790,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
                         
           setScrollPos(scrollIndex);
           setScrollTime(startTime);
-          setDontUpdate(false);
+        //  setDontUpdate(false);
           mLoaderUpdate.startUpdate();
                         
           ((TvBrowser)getActivity()).showProgramsListTab(backstackup);
@@ -846,7 +846,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     super.onActivityCreated(savedInstanceState);
     mChannelID = NO_CHANNEL_SELECTION_ID;
-    mDontUpdate = false;
+   // mDontUpdate = false;
     mScrollPos = -1;
     
     String[] projection = {
@@ -878,9 +878,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.pref_program_lists_divider_size_default));
   }
   
-  public void setDontUpdate(boolean value) {
+  /*public void setDontUpdate(boolean value) {
     mDontUpdate = value;
-  }
+  }*/
  /* 
   private void startUpdateThread() {
     startUpdateThread(0);
