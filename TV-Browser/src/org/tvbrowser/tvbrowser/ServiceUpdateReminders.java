@@ -119,18 +119,18 @@ public class ServiceUpdateReminders extends Service {
       
       if(startTime-reminderTime > System.currentTimeMillis()-200) {        
         Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime-reminderTime) + " with programID: '" + programID + "' " + pending.toString(), Logging.TYPE_REMINDER, context);
-        CompatUtils.setAlarm(alarmManager,AlarmManager.RTC_WAKEUP, startTime-reminderTime, pending, start);
+        CompatUtils.setAlarm(context, alarmManager,AlarmManager.RTC_WAKEUP, startTime-reminderTime, pending, start);
       }
       else if(firstCreation) {
         Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(System.currentTimeMillis()) + " with programID: '" + programID + "' " + pending.toString(), Logging.TYPE_REMINDER, context);
-        CompatUtils.setAlarm(alarmManager,AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pending, start);
+        CompatUtils.setAlarm(context, alarmManager,AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pending, start);
       }
       
       if(remindAgain && startTime-reminderTimeSecond > System.currentTimeMillis()) {
         pending = PendingIntent.getBroadcast(context, (int)-programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
         
         Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime-reminderTimeSecond) + " with programID: '-" + programID + "' " + pending.toString(), Logging.TYPE_REMINDER, context);
-        CompatUtils.setAlarm(alarmManager,AlarmManager.RTC_WAKEUP, startTime-reminderTimeSecond, pending, start);
+        CompatUtils.setAlarm(context, alarmManager,AlarmManager.RTC_WAKEUP, startTime-reminderTimeSecond, pending, start);
       }
     }
     else {

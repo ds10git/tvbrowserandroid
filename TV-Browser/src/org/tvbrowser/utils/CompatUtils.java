@@ -20,6 +20,8 @@ import java.io.File;
 import java.lang.reflect.Method;
 import java.util.Locale;
 
+import org.tvbrowser.tvbrowser.R;
+
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.AlarmManager.AlarmClockInfo;
@@ -36,6 +38,7 @@ import android.os.Build;
 import android.os.Environment;
 import android.os.Looper;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -140,29 +143,45 @@ public class CompatUtils {
     alarm.set(type, triggerAtMillis, operation);
   }
   
-  public static final void setExactAlarmAndAllowWhileIdle(AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
+  public static final void setExactAlarmAndAllowWhileIdle(Context context, AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
     if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
       try {
         Method setExactAndAllowWhileIdle = alarm.getClass().getDeclaredMethod("setExactAndAllowWhileIdle", int.class, long.class, PendingIntent.class);
         setExactAndAllowWhileIdle.setAccessible(true);
         setExactAndAllowWhileIdle.invoke(alarm, type, triggerAtMillis, operation);
       } catch (Throwable t) {
-        setAlarm(alarm, type, triggerAtMillis, operation, null);
+        setAlarm(context, alarm, type, triggerAtMillis, operation, null);
       }
     }
     else {
-      setAlarm(alarm, type, triggerAtMillis, operation, null);
+      setAlarm(context, alarm, type, triggerAtMillis, operation, null);
     }
   }
   
-  public static final void setAlarm(AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
-    setAlarm(alarm, type, triggerAtMillis, operation, null);
+  public static final void setAlarmExact(Context context, AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
+    if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+      alarm.setExact(type, triggerAtMillis, operation);
+    }
+    else {
+      alarm.set(type, triggerAtMillis, operation);
+    }
   }
   
-  public static final void setAlarm(AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation, PendingIntent info) {
+  public static final void setAlarm(Context context, AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation, PendingIntent info) {
     if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
       // Cheap workaround for Marshmallow doze mode
-      alarm.setAlarmClock(new AlarmClockInfo(triggerAtMillis, info), operation);
+      if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.PREF_REMINDER_AS_ALARM_CLOCK), context.getResources().getBoolean(R.bool.pref_reminder_as_alarm_clock_default))) {
+        alarm.setAlarmClock(new AlarmClockInfo(triggerAtMillis, info), operation);
+      }
+      else {
+        try {
+          Method setExactAndAllowWhileIdle = alarm.getClass().getDeclaredMethod("setExactAndAllowWhileIdle", int.class, long.class, PendingIntent.class);
+          setExactAndAllowWhileIdle.setAccessible(true);
+          setExactAndAllowWhileIdle.invoke(alarm, type, triggerAtMillis, operation);
+        } catch (Throwable t) {
+          alarm.setExact(type, triggerAtMillis, operation);
+        }
+      }
     }
     else if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       alarm.setExact(type, triggerAtMillis, operation);

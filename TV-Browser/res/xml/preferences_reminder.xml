@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tvb="http://schemas.android.com/apk/res/org.tvbrowser.tvbrowser" >
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tvb="http://schemas.android.com/apk/res/org.tvbrowser.tvbrowser"
+    android:key="PREF_SCREEN_REMINDER" >
 	<ListPreference
 		android:key="@string/PREF_REMINDER_TIME"
 		android:title="@string/pref_reminder_time_first"
@@ -22,6 +24,12 @@
 		android:entries="@array/pref_reminder_priority_values_names"
 		android:entryValues="@array/pref_simple_string_value_array5"
 		android:summary="%s"/>
+	<CheckBoxPreference
+	    android:key="@string/PREF_REMINDER_AS_ALARM_CLOCK"
+	    android:defaultValue="@bool/pref_reminder_as_alarm_clock_default"
+	    android:title="@string/pref_reminder_as_alarm_clock_title"
+	    android:summaryOn="@string/pref_reminder_as_alarm_clock_summary_on"
+	    android:summaryOff="@string/pref_reminder_as_alarm_clock_summary_off"/>
 	<org.tvbrowser.settings.PreferenceColorActivated
 	        android:key="@string/PREF_REMINDER_COLOR_LED"
 	        android:title="@string/pref_reminder_color_led"

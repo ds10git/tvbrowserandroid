@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.tvbrowser.ServiceUpdateReminders;
 import org.tvbrowser.tvbrowser.TvDataUpdateService;
 import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
@@ -29,12 +30,15 @@ import org.tvbrowser.utils.UiUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
+import android.content.res.Resources;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.CheckBoxPreference;
@@ -53,14 +57,13 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-    String category = getArguments().getString(getString(R.string.pref_category_key));
-        
-    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+    final String category = getArguments().getString(getString(R.string.pref_category_key));
+    final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
     
     if(getString(R.string.category_download).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_download);
       
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_AUTO_UPDATE_TYPE));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_AUTO_UPDATE_TYPE));
     }
     else if(getString(R.string.category_epgpaid).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_epgpaid);
@@ -72,9 +75,9 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         credentials.removePreference(p);
       }
       
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_EPGPAID_DOWNLOAD_MAX));
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_EPGPAID_USER));
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_EPGPAID_PASSWORD));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_EPGPAID_DOWNLOAD_MAX));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_EPGPAID_USER));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_EPGPAID_PASSWORD));
     }
     else if(getString(R.string.category_database).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_database);
@@ -134,7 +137,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     else if(getString(R.string.category_start).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_start);
       
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.TAB_TO_SHOW_AT_START));
+      onSharedPreferenceChanged(pref,getString(R.string.TAB_TO_SHOW_AT_START));
     }
     else if(getString(R.string.category_theme).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_layout);
@@ -146,20 +149,28 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     else if(getString(R.string.category_reminder).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_reminder);
       
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_TIME));
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED));
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_SOUND_VALUE));
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE));
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_ACTIVATED));
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SOUND_VALUE));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_TIME));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_SOUND_VALUE));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_WORK_MODE_ACTIVATED));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_WORK_MODE_SOUND_VALUE));
 
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED));
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED));
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED));
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_THURSDAY_ACTIVATED));
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_FRIDAY_ACTIVATED));
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SATURDAY_ACTIVATED));
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_REMINDER_WORK_MODE_SUNDAY_ACTIVATED));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_WORK_MODE_THURSDAY_ACTIVATED));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_WORK_MODE_FRIDAY_ACTIVATED));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_WORK_MODE_SATURDAY_ACTIVATED));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_WORK_MODE_SUNDAY_ACTIVATED));
+      
+      if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP_MR1) {
+        final Preference alarmClockReminder = findPreference(getString(R.string.PREF_REMINDER_AS_ALARM_CLOCK));
+        
+        if(alarmClockReminder != null) {
+          getPreferenceScreen().removePreference(alarmClockReminder);
+        }
+      }
     }
     else if(getString(R.string.category_time_buttons).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_time_buttons);
@@ -174,7 +185,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     else if(getString(R.string.category_program_table).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_program_table);
       
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PROG_TABLE_ACTIVATED));
+      onSharedPreferenceChanged(pref,getString(R.string.PROG_TABLE_ACTIVATED));
     }
     else if(getString(R.string.category_list).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_program_lists);
@@ -182,12 +193,12 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     else if(getString(R.string.category_details).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_details);
       
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.SHOW_PICTURE_IN_DETAILS));
+      onSharedPreferenceChanged(pref,getString(R.string.SHOW_PICTURE_IN_DETAILS));
     }
     else if(getString(R.string.category_news).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_news);
       
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_NEWS_SHOW));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_NEWS_SHOW));
     }
     else if(getString(R.string.category_widgets).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_widgets);
@@ -200,7 +211,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     }
     else if(getString(R.string.category_i_dont_want_to_see).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_i_dont_want_to_see);
-      onSharedPreferenceChanged(pref,getResources().getString(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE));
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE));
     }
     else if(getString(R.string.category_debug).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_debug);
@@ -811,6 +822,10 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           start.setEnabled(activated.isChecked());
           end.setEnabled(activated.isChecked());
         }
+      }
+      else if(key.equals(getString(R.string.PREF_REMINDER_AS_ALARM_CLOCK))) {
+        ServiceUpdateReminders.startReminderUpdate(getActivity().getApplicationContext());
+        IOUtils.setDataTableRefreshTime(getActivity().getApplicationContext());
       }
     }
   }
