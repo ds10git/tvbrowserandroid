@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.3</h2>
+        <h2>0.6.3.1</h2>
+        	&bull; added setting to disable reminder being scheduled as alarm clock under Android 6.0
+        <h3>0.6.3</h3>
         	&bull; added link to privacy statement<br>
         	&bull; synchronization data is send via a secure Internet connection<br>
         	&bull; tried to fix untimed reminders under Android 6.0 (reminders are set as alarms)<br>
@@ -947,6 +949,9 @@
 	<string name="pref_reminder_night_start">Start of night mode</string>
 	<string name="pref_reminder_night_end">End of night mode</string>
 	<string name="pref_reminder_work_mode_category">Work mode</string>
+	<string name="pref_reminder_as_alarm_clock_title">As alarm clock</string>
+	<string name="pref_reminder_as_alarm_clock_summary_on">Reminder will be added as alarm clock to make sure it will be shown even in doze mode of device.</string>
+	<string name="pref_reminder_as_alarm_clock_summary_off">Reminder will be added as simple alarm. In that case it might happen, that reminders will not be shown at the time it was schedules if the device is in doze mode.</string>
 	<string name="monday">Monday</string>
 	<string name="tuesday">Tuesday</string>
 	<string name="wednesday">Wednesday</string>

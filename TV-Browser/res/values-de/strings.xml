@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.3</h2>
+        <h2>0.6.3.1</h2>
+        	&bull; Einstellung zur Deaktivierung der Programmierung von Erinnerungen als Wecker bei Android 6.0 hinzugefügt
+        <h3>0.6.3</h3>
         	&bull; Link zu Datenschutzerklärung hinzugefügt<br>
         	&bull; Synchronisationsdaten werden über eine sichere Internetverbindung übertragen<br>
         	&bull; Versuch unzuverlässige Erinnerungen unter Android 6.0 zu beheben (Erinnerungen werden als Wecker angelegt)<br>
@@ -935,6 +937,9 @@
 	<string name="pref_reminder_night_start">Start des Nacht-Modus</string>
 	<string name="pref_reminder_night_end">Ende des Nacht-Modus</string>
 	<string name="pref_reminder_work_mode_category">Arbeits-Modus</string>
+	<string name="pref_reminder_as_alarm_clock_title">Als Wecker</string>
+	<string name="pref_reminder_as_alarm_clock_summary_on">Erinnerungen werden als Wecker angelegt, um sicher zu stellen, dass sie auch im Ruhezustand des Geräts erscheinen.</string>
+	<string name="pref_reminder_as_alarm_clock_summary_off">Erinnerungen werden als Alarm angelegt, bei dem es vorkommen kann, dass Erinnerungen nicht zum programmierten Zeitpunkt erscheinen, wenn das Gerät im Ruhezustand ist.</string>
 	<string name="monday">Montag</string>
 	<string name="tuesday">Dienstag</string>
 	<string name="wednesday">Mittwoch</string>
