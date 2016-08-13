@@ -17,6 +17,7 @@
 package org.tvbrowser.tvbrowser;
 
 import java.util.ArrayList;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 
@@ -45,6 +46,8 @@ public class MemorySizeConstrictedDatabaseOperation {
   private int mMinOperationDivider;
   
   private boolean mOperationsAvailable;
+  private boolean mOperationsAdded;
+  private AtomicBoolean mSuccess;
   
   public MemorySizeConstrictedDatabaseOperation(Context context, Uri insertUri) {
     this(context,insertUri,1);
@@ -58,6 +61,8 @@ public class MemorySizeConstrictedDatabaseOperation {
   public MemorySizeConstrictedDatabaseOperation(Context context, Uri insertUri, int minOperationDivider) {
     mContext = context;
     mInsertUri = insertUri;
+    mSuccess = new AtomicBoolean(true);
+    mOperationsAdded = false;
     
     if(mMinOperationDivider > 0) {
       mMinOperationDivider = minOperationDivider;
@@ -107,6 +112,7 @@ public class MemorySizeConstrictedDatabaseOperation {
     if(mInsertList != null) {
       mOperationsAvailable = true;
       mInsertList.add(insert);
+      mOperationsAdded = true;
       
       if(mInsertList.size() > TABLE_OPERATION_MIN_SIZE/mMinOperationDivider) {
         insert();
@@ -118,6 +124,7 @@ public class MemorySizeConstrictedDatabaseOperation {
     if(mUpdateList != null) {
       mOperationsAvailable = true;
       mUpdateList.add(update);
+      mOperationsAdded = true;
       
       if(mUpdateList.size() > TABLE_OPERATION_MIN_SIZE/mMinOperationDivider) {
         update();
@@ -127,7 +134,10 @@ public class MemorySizeConstrictedDatabaseOperation {
   
   private synchronized void insert() {
     if(mInsertUri != null && mInsertList != null && !mInsertList.isEmpty() && mContext != null) {
-      mContext.getContentResolver().bulkInsert(mInsertUri, mInsertList.toArray(new ContentValues[mInsertList.size()]));
+      boolean success = mContext.getContentResolver().bulkInsert(mInsertUri, mInsertList.toArray(new ContentValues[mInsertList.size()])) >= mInsertList.size();
+      
+      mSuccess.compareAndSet(true, success);
+      
       mInsertList.clear();
     }
   }
@@ -135,9 +145,10 @@ public class MemorySizeConstrictedDatabaseOperation {
   private synchronized void update() {
     Log.d("info9", "update()");
     if(mUpdateList != null && !mUpdateList.isEmpty() && mContext != null) {
+      boolean success = false;
       Log.d("info9", " " + mUpdateList.size());
       try {
-        mContext.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, mUpdateList);
+         success = mContext.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, mUpdateList).length >= mUpdateList.size();
       } catch (RemoteException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
@@ -146,11 +157,17 @@ public class MemorySizeConstrictedDatabaseOperation {
         e.printStackTrace();
       }
       
+      mSuccess.compareAndSet(true, success);
+      
       mUpdateList.clear();
     }
   }
   
   public boolean operationsAvailable() {
     return mOperationsAvailable;
+  }
+  
+  public boolean wasSuccessfull() {
+    return mSuccess.get() && mOperationsAdded;
   }
 }
