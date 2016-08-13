@@ -43,6 +43,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Hashtable;
+import java.util.List;
 import java.util.Locale;
 import java.util.Properties;
 import java.util.Set;
@@ -184,9 +185,9 @@ public class TvDataUpdateService extends Service {
   
   private static final String[] DEFAULT_GROUPS_URL_MIRRORS = {
       "http://tvbrowser.dyndns.tv/",
-      "http://www.gamers-fusion.de/projects/tvbrowser.org/",
       "http://tvbrowser1.sam-schwedler.de/",
-      "http://tvbrowser.nicht-langweilig.de/data/"
+      "http://mirror.sperrgebiet.org/tvbrowser",
+      "http://tvbrowser.qwws.net/"
   };
   
   private static final String[] FIELDS_LEVEL_BASE = {
@@ -805,6 +806,7 @@ public class TvDataUpdateService extends Service {
     
     Logging.closeLogForDataUpdate();
     ((NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE)).cancel(ID_NOTIFY);
+        
     stopSelf();
   }
   
@@ -1372,15 +1374,28 @@ public class TvDataUpdateService extends Service {
         IOUtils.saveUrl(groups.getAbsolutePath(), mirror);
         doLog("START GROUP UPDATE");
         updateGroups(groups, path, autoUpdate);
-      } catch (Exception e) {
+      } catch (Throwable t) {
+        doLog("ERROR AT DOWNLOADING GROUPS ", t);
+        
         Intent updateDone = new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
         updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_SUCCESSFULLY, false);
         updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_AUTO_UPDATE, autoUpdate);
         
         LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
         
+        stopForeground(true);
         stopSelfInternal();
       }
+    }
+    else {
+      Intent updateDone = new Intent(SettingConstants.CHANNEL_DOWNLOAD_COMPLETE);
+      updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_SUCCESSFULLY, false);
+      updateDone.putExtra(SettingConstants.EXTRA_CHANNEL_DOWNLOAD_AUTO_UPDATE, autoUpdate);
+      
+      LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(updateDone);
+      
+      stopForeground(true);
+      stopSelfInternal();
     }
   }
   
@@ -1649,6 +1664,7 @@ public class TvDataUpdateService extends Service {
       if(!channelMirrors.isEmpty()) {
         mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
         mCurrentDownloadCount = 0;
+        mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(getApplicationContext(), TvBrowserContentProvider.CONTENT_URI_CHANNELS);
         mBuilder.setProgress(channelMirrors.size(), 0, false);
         notification.notify(ID_NOTIFY, mBuilder.build());
         
@@ -1679,6 +1695,7 @@ public class TvDataUpdateService extends Service {
                   try {
                     doLog("Start channel download for group '" + info.getFileName() + "' from: " + url);
                     if(IOUtils.saveUrl(group.getAbsolutePath(), url + info.getUrlFileName(), 15000)) {
+                      doLog("End channel download for group '" + info.getFileName() + "' successfull from: " + url);
                       groupSucces = addChannels(group,info);
                       
                       mBuilder.setProgress(channelMirrors.size(), mCurrentDownloadCount++, false);
@@ -1724,9 +1741,15 @@ public class TvDataUpdateService extends Service {
         } catch (InterruptedException e) {}
         
         if(!mThreadPool.isTerminated()) {
-          mThreadPool.shutdownNow();
+          final List<Runnable> unstartedThreads = mThreadPool.shutdownNow();
+          
+          doLog("Aborted channel download, with undone channel downloads: " + (unstartedThreads != null ? unstartedThreads.size() : 0));
+          
           success.setBoolean(false);
         }
+        
+        mDataDatabaseOperation.finish();
+        success.andUpdateBoolean(mDataDatabaseOperation.wasSuccessfull());
       }
       else {
         success.setBoolean(false);
@@ -1747,6 +1770,11 @@ public class TvDataUpdateService extends Service {
     
     if(success.getBoolean()) {
       edit.putLong(getString(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST), System.currentTimeMillis());
+      doLog("DONE: Cannel update successfull");
+    }
+    else {
+      edit.putLong(getString(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST_NO_SUCCESS), System.currentTimeMillis());
+      doLog("FINISHED: Cannel update NOT successfull");
     }
     
     if(!mChannelsUpdate.isEmpty()) {
@@ -1790,7 +1818,7 @@ public class TvDataUpdateService extends Service {
     stopSelfInternal();
   }
   
-  private synchronized String[] loadAvailableMirrorsForGroup(String mirrorLine) { 
+  private String[] loadAvailableMirrorsForGroup(String mirrorLine) { 
     String[] mirrors = null;
     
     if(mirrorLine.contains(";")) {
@@ -1883,8 +1911,8 @@ public class TvDataUpdateService extends Service {
         
         boolean returnValueOnceSet = false;
         
-        final ArrayList<ContentValues> insertValuesList = new ArrayList<ContentValues>();
-        final ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+    //    final ArrayList<ContentValues> insertValuesList = new ArrayList<ContentValues>();
+      //  final ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
                 
         while((line = read.readLine()) != null) {
           String[] parts = line.split(";");
@@ -1996,7 +2024,8 @@ public class TvDataUpdateService extends Service {
             
             if(channelValues == null) {
               doLog("Add channel to database INSERT: " + name);
-              insertValuesList.add(values);
+              //insertValuesList.add(values);
+              mDataDatabaseOperation.addInsert(values);
               
               if(mHadChannels) {
                 mChannelsNew.add(IOUtils.getUniqueChannelKey(String.valueOf(info.getUniqueGroupID()), channelId));
@@ -2009,7 +2038,8 @@ public class TvDataUpdateService extends Service {
               ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, uniqueChannelId.intValue()));
               opBuilder.withValues(values);
               
-              updateValuesList.add(opBuilder.build());
+              mDataDatabaseOperation.addUpdate(opBuilder.build());
+              //updateValuesList.add(opBuilder.build());
               
               if(!((String)((Object[])channelValues)[1]).trim().equals(name.trim())) {
                 mChannelsUpdate.add(uniqueChannelId);
@@ -2023,20 +2053,7 @@ public class TvDataUpdateService extends Service {
         
         read.close();
         
-        if(!insertValuesList.isEmpty()) {
-          if(insertValuesList.size() > getContentResolver().bulkInsert(TvBrowserContentProvider.CONTENT_URI_CHANNELS, insertValuesList.toArray(new ContentValues[insertValuesList.size()]))) {
-            returnValue = false;
-          }
-        }
-        if(!updateValuesList.isEmpty()) {
-          try {
-            if(updateValuesList.size() > getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList).length) {
-              returnValue = false;
-            }
-          } catch (Exception e) {
-            returnValue = false;
-          }
-        }
+        //returnValue = handleDatabaseInsertAndUpdate(insertValuesList, updateValuesList, returnValue);
       } catch (FileNotFoundException e) {
         returnValue = false;
         e.printStackTrace();
@@ -2050,6 +2067,25 @@ public class TvDataUpdateService extends Service {
     
     return returnValue;
   }
+  /*
+  private synchronized boolean handleDatabaseInsertAndUpdate(final ArrayList<ContentValues> insertValuesList, final ArrayList<ContentProviderOperation> updateValuesList, boolean returnValue) {
+    if(insertValuesList != null && !insertValuesList.isEmpty()) {
+      if(insertValuesList.size() > getContentResolver().bulkInsert(TvBrowserContentProvider.CONTENT_URI_CHANNELS, insertValuesList.toArray(new ContentValues[insertValuesList.size()]))) {
+        returnValue = false;
+      }
+    }
+    if(updateValuesList != null && !updateValuesList.isEmpty()) {
+      try {
+        if(updateValuesList.size() > getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList).length) {
+          returnValue = false;
+        }
+      } catch (Exception e) {
+        returnValue = false;
+      }
+    }
+    
+    return returnValue;
+  }*/
   
   private byte[] getXmlBytes(boolean syncFav, boolean syncMarkings) {
     StringBuilder where = new StringBuilder();
@@ -2490,8 +2526,10 @@ public class TvDataUpdateService extends Service {
     }
     
     int autoChannelUpdateFrequency = PrefUtils.getStringValueAsInt(R.string.PREF_AUTO_CHANNEL_UPDATE_FREQUENCY, R.string.pref_auto_channel_update_frequency_default);
-        
-    if(syncAllowed && autoChannelUpdateFrequency != -1 && PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0) + (autoChannelUpdateFrequency * 24 * 60 * 60000L) < System.currentTimeMillis()) {
+    
+    doLog("Can update channels: " + syncAllowed + " autoChannelUpdateFrequency: " + autoChannelUpdateFrequency + " last successfull auto channel update: " + new Date(PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0)) + " last unsuccessfull channel update: " + new Date(PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST_NO_SUCCESS, 0)));
+    
+    if(syncAllowed && autoChannelUpdateFrequency != -1 && ((PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0) + (autoChannelUpdateFrequency * 24 * 60 * 60000L)) < System.currentTimeMillis()) && ((PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST_NO_SUCCESS, 0) + (2 * 24 * 60 * 60000L)) < System.currentTimeMillis())) {
       updateChannels(true);
     }
     else {

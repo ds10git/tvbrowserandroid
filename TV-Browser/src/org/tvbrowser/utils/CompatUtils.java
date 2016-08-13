@@ -150,11 +150,11 @@ public class CompatUtils {
         setExactAndAllowWhileIdle.setAccessible(true);
         setExactAndAllowWhileIdle.invoke(alarm, type, triggerAtMillis, operation);
       } catch (Throwable t) {
-        setAlarm(context, alarm, type, triggerAtMillis, operation, null);
+        setAlarmExact(context, alarm, type, triggerAtMillis, operation);
       }
     }
     else {
-      setAlarm(context, alarm, type, triggerAtMillis, operation, null);
+      setAlarmExact(context, alarm, type, triggerAtMillis, operation);
     }
   }
   

@@ -372,7 +372,7 @@ public class IOUtils {
     return loadData.get();
   }
   
-  private static byte[] loadUrl(String urlString, AtomicInteger timeoutCount) throws MalformedURLException, IOException {
+  private static byte[] loadUrl(final String urlString, final AtomicInteger timeoutCount) throws MalformedURLException, IOException {
     BufferedInputStream in = null;
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     
@@ -763,7 +763,7 @@ public class IOUtils {
           e.printStackTrace();
         }
         finally  {
-        	// FIXME disconnect(connection);
+          disconnect(connection);
         }
       };
     }.start();

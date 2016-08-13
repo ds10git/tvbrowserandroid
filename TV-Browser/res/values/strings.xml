@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.3.1</h2>
+        <h2>0.6.3.2</h2>
+        	&bull; changed channel download to prevent daily automatically channel update
+        <h3>0.6.3.1</h3>
         	&bull; added setting to disable reminder being scheduled as alarm clock under Android 6.0
         <h3>0.6.3</h3>
         	&bull; added link to privacy statement<br>
