@@ -3,6 +3,7 @@
     <string name="info_version_new"><![CDATA[
         <h2>0.6.3.2</h2>
         	&bull; Download der Senderliste überarbeitet, um zu verhindern, dass die täglich automatisch neu geladen wird
+        	&bull; Verlust der Internetverbindung führt zum Abbruch des Datenupdates 
         <h3>0.6.3.1</h3>
         	&bull; Einstellung zur Deaktivierung der Programmierung von Erinnerungen als Wecker bei Android 6.0 hinzugefügt
         <h3>0.6.3</h3>

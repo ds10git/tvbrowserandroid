@@ -154,7 +154,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
     }
   }
   
-  private void reschedule(Context context, SharedPreferences pref) {
+  public static void reschedule(Context context, SharedPreferences pref) {
     IOUtils.removeDataUpdateTime(context, pref);
     
     long current = System.currentTimeMillis() + (30 * 60000);
