@@ -65,12 +65,14 @@ import org.tvbrowser.utils.UiUtils;
 import android.annotation.SuppressLint;
 import android.app.NotificationManager;
 import android.app.Service;
+import android.content.BroadcastReceiver;
 import android.content.ContentProviderOperation;
 import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -146,6 +148,24 @@ public class TvDataUpdateService extends Service {
   private ArrayList<Integer> mChannelsUpdate;
   
   private Set<String> mEpgPaidChannelIds;
+  private BroadcastReceiver mReceiverConnectivityChange;
+  
+  private boolean mIsAutoUpdate;
+  private boolean mOnlyWifi;
+  private boolean mIsConnected;
+  private boolean mConnectionLost;
+  private int mCountTimedOutConnections;
+  
+  private void checkAndSetConnectionState(long downloadStart) {
+    if(System.currentTimeMillis() - downloadStart > 28000) {
+      mCountTimedOutConnections++;
+    }
+    
+    if(mCountTimedOutConnections > 5) {
+      mIsConnected = false;
+      mConnectionLost = true;
+    }
+  }
   
   private static final Comparator<File> DATA_FILE_OLD_COMPARATOR = new Comparator<File>() {
     @Override
@@ -323,12 +343,16 @@ public class TvDataUpdateService extends Service {
           }
           
           boolean isConnected = false;
-          boolean onlyWifi = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvDataUpdateService.this).getBoolean(getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI), getResources().getBoolean(R.bool.pref_auto_update_only_wifi_default));
+          mOnlyWifi = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvDataUpdateService.this).getBoolean(getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI), getResources().getBoolean(R.bool.pref_auto_update_only_wifi_default));
           boolean isInternetConnectionAutoUpdate = false;
+          mIsAutoUpdate = false;
           
           if(intent != null) { 
             if(intent.getIntExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TYPE_UPDATE_AUTO) == TYPE_UPDATE_MANUELL) {
-              onlyWifi = false;
+              mOnlyWifi = false;
+            }
+            else {
+              mIsAutoUpdate = true;
             }
             
             isInternetConnectionAutoUpdate = intent.getBooleanExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE_INTERNET_CONNECTION, false);
@@ -340,7 +364,7 @@ public class TvDataUpdateService extends Service {
             } catch (InterruptedException e) {}
           }
           
-          ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+          final ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
           
           NetworkInfo lan = CompatUtils.getLanNetworkIfPossible(connMgr);
           NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
@@ -350,11 +374,39 @@ public class TvDataUpdateService extends Service {
             isConnected = true;
           }
           
-          if(!isConnected && !onlyWifi && mobile != null && mobile.isConnected()) {
+          if(!isConnected && !mOnlyWifi && mobile != null && mobile.isConnected()) {
             isConnected = true;
           }
           
           if(isConnected && intent != null) {
+            mCountTimedOutConnections = 0;
+            mIsConnected = true;
+            mConnectionLost = false;
+            mReceiverConnectivityChange = new BroadcastReceiver() {
+              @Override
+              public void onReceive(Context context, Intent intent) {
+                boolean isConnected = false;
+                NetworkInfo lan = CompatUtils.getLanNetworkIfPossible(connMgr);
+                NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
+                NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+                
+                if((wifi != null && wifi.isConnected()) || (lan != null && lan.isConnected())) {
+                  isConnected = true;
+                }
+                
+                if(!isConnected && !mOnlyWifi && mobile != null && mobile.isConnected()) {
+                  isConnected = true;
+                }
+                  
+                if(!mConnectionLost) {
+                  mConnectionLost = mIsConnected && !isConnected;
+                }
+                
+                mIsConnected = isConnected;
+              }
+            };
+            registerReceiver(mReceiverConnectivityChange, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+            
             if(intent.getIntExtra(KEY_TYPE, TYPE_TV_DATA) == TYPE_TV_DATA) {
               mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(getResources().getString(R.string.days_to_download_default)));
               updateTvData();
@@ -379,6 +431,7 @@ public class TvDataUpdateService extends Service {
             }
           }
           else {
+            mIsConnected = false;
             mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
             startForeground(ID_NOTIFY, mBuilder.build());
             doLog("NO UPDATE DONE, NO INTERNET CONNECTION OR NO INTENT, PROCESS EXISTING DATA");
@@ -716,6 +769,10 @@ public class TvDataUpdateService extends Service {
     if(mEpgPaidChannelIds != null) {
       mEpgPaidChannelIds.clear();
     }
+    if(mReceiverConnectivityChange != null) {
+      unregisterReceiver(mReceiverConnectivityChange);
+      mReceiverConnectivityChange = null;
+    }
     
     mDataDatabaseOperation = null;
     mVersionDatabaseOperation = null;
@@ -732,6 +789,19 @@ public class TvDataUpdateService extends Service {
   }
     
   private void stopSelfInternal() {
+    if(mReceiverConnectivityChange != null) {
+      unregisterReceiver(mReceiverConnectivityChange);
+      mReceiverConnectivityChange = null;
+    }
+    
+    if(mConnectionLost && mIsAutoUpdate) {
+      final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+      
+      if(pref.getString(getString(R.string.PREF_AUTO_UPDATE_TYPE), getString(R.string.pref_auto_update_type_default)).equals("2")) {
+        AutoDataUpdateReceiver.reschedule(getApplicationContext(),pref);
+      }
+    }
+    
     mDataDatabaseOperation = null;
     mVersionDatabaseOperation = null;
     
@@ -1369,7 +1439,7 @@ public class TvDataUpdateService extends Service {
     
     String mirror = getGroupFileMirror();
     doLog("LOAD GROUPS FROM '" + mirror + "' to '" + groups + "'");
-    if(mirror != null) {
+    if(mIsConnected && mirror != null) {
       try {
         IOUtils.saveUrl(groups.getAbsolutePath(), mirror);
         doLog("START GROUP UPDATE");
@@ -1415,7 +1485,7 @@ public class TvDataUpdateService extends Service {
       
       String test = groupUrlList.get(index);
       
-      if(IOUtils.isConnectedToServer(test, 5000)) {
+      if(mIsConnected && IOUtils.isConnectedToServer(test, 5000)) {
         choosenMirror = test;
       }
       else {
@@ -1537,6 +1607,7 @@ public class TvDataUpdateService extends Service {
     final ChangeableFinalBoolean success = new ChangeableFinalBoolean(true);
     
     if(groups.isFile()) {
+      mCountTimedOutConnections = 0;
       Hashtable<String, Object> currentGroups = getCurrentGroups();
       
       final NotificationManager notification = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
@@ -1694,7 +1765,10 @@ public class TvDataUpdateService extends Service {
                   
                   try {
                     doLog("Start channel download for group '" + info.getFileName() + "' from: " + url);
-                    if(IOUtils.saveUrl(group.getAbsolutePath(), url + info.getUrlFileName(), 15000)) {
+                    
+                    long downloadStart = System.currentTimeMillis();
+                    
+                    if(mIsConnected && IOUtils.saveUrl(group.getAbsolutePath(), url + info.getUrlFileName(), 15000)) {
                       doLog("End channel download for group '" + info.getFileName() + "' successfull from: " + url);
                       groupSucces = addChannels(group,info);
                       
@@ -1706,7 +1780,7 @@ public class TvDataUpdateService extends Service {
                         
                         File mirrors = new File(path,info.getMirrorFileName());
                         
-                        if(IOUtils.saveUrl(mirrors.getAbsolutePath(), url + info.getMirrorUrlFileName(), 15000)) {
+                        if(mIsConnected && IOUtils.saveUrl(mirrors.getAbsolutePath(), url + info.getMirrorUrlFileName(), 15000)) {
                           updateMirror(mirrors);
                         }
                         
@@ -1718,6 +1792,7 @@ public class TvDataUpdateService extends Service {
                       }
                     }
                     else {
+                      checkAndSetConnectionState(downloadStart);
                       doLog("Not successfull load channels for group '" + info.getFileName() + "' from: " + url);
                       notWorkingIndicies.add(Integer.valueOf(index));
                     }
@@ -1838,7 +1913,7 @@ public class TvDataUpdateService extends Service {
         mirror = mirror.substring(0,index);
       }
       
-      if(IOUtils.isConnectedToServer(mirror,10000)) {
+      if(mIsConnected && IOUtils.isConnectedToServer(mirror,10000)) {
         if(!mirror.endsWith("/")) {
           mirror += "/";
         }
@@ -2014,7 +2089,7 @@ public class TvDataUpdateService extends Service {
             values.put(TvBrowserContentProvider.CHANNEL_KEY_ALL_COUNTRIES, allCountries);
             values.put(TvBrowserContentProvider.CHANNEL_KEY_JOINED_CHANNEL_ID, joinedChannel);
             
-            if(logoUrl != null && logoUrl.length() > 0) {
+            if(mIsConnected && logoUrl != null && logoUrl.length() > 0) {
               try {
                 byte[] blob = IOUtils.loadUrl(logoUrl, 10000);
                 
@@ -2457,7 +2532,7 @@ public class TvDataUpdateService extends Service {
       updateFavorites(notification);
     }
     
-    if(syncAllowed) {
+    if(syncAllowed && mIsConnected) {
       syncFavorites(notification);
           
       boolean fromRemider = PrefUtils.getBooleanValue(R.string.PREF_SYNC_REMINDERS_FROM_DESKTOP, R.bool.pref_sync_reminders_from_desktop_default);
@@ -2529,7 +2604,7 @@ public class TvDataUpdateService extends Service {
     
     doLog("Can update channels: " + syncAllowed + " autoChannelUpdateFrequency: " + autoChannelUpdateFrequency + " last successfull auto channel update: " + new Date(PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0)) + " last unsuccessfull channel update: " + new Date(PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST_NO_SUCCESS, 0)));
     
-    if(syncAllowed && autoChannelUpdateFrequency != -1 && ((PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0) + (autoChannelUpdateFrequency * 24 * 60 * 60000L)) < System.currentTimeMillis()) && ((PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST_NO_SUCCESS, 0) + (2 * 24 * 60 * 60000L)) < System.currentTimeMillis())) {
+    if(syncAllowed && mIsConnected && autoChannelUpdateFrequency != -1 && ((PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0) + (autoChannelUpdateFrequency * 24 * 60 * 60000L)) < System.currentTimeMillis()) && ((PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST_NO_SUCCESS, 0) + (2 * 24 * 60 * 60000L)) < System.currentTimeMillis())) {
       updateChannels(true);
     }
     else {
@@ -2603,7 +2678,7 @@ public class TvDataUpdateService extends Service {
     String groupTxt = getGroupFileMirror();
     String mirrorLine = "";
     
-    if(groupTxt != null) {
+    if(mIsConnected && groupTxt != null) {
       File groups = new File(path,GROUP_FILE);
       
       try {
@@ -2676,6 +2751,7 @@ public class TvDataUpdateService extends Service {
     
     mShowNotification = true;
     mUnsuccessfulDownloads = 0;
+    mCountTimedOutConnections = 0;
     
     doLog("Favorite.handleDataUpdateStarted()");
     Favorite.handleDataUpdateStarted();
@@ -2830,7 +2906,7 @@ public class TvDataUpdateService extends Service {
                   String summaryFileName = groupId + "_summary.gz";
                   
                   if(checkOnlyConnection) {
-                    if(!donationInfoLoaded) {
+                    if(mIsConnected && !donationInfoLoaded) {
                       Editor edit = PreferenceManager.getDefaultSharedPreferences(TvDataUpdateService.this).edit();
                       edit.putLong(getString(R.string.EPG_DONATE_LAST_DATA_DOWNLOAD), System.currentTimeMillis());
                       
@@ -3082,17 +3158,19 @@ public class TvDataUpdateService extends Service {
           public void run() {
             setUncaughtExceptionHandler(handleExc);
             
-            try {
-              IOUtils.saveUrl(mirrorFile.getAbsolutePath(), mirror.getDownloadURL());
-              updateMirror(mirrorFile);
-              mCurrentDownloadCount++;
-              
-              if(mShowNotification) {
-                mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-                notification.notify(ID_NOTIFY, mBuilder.build());
+            if(mIsConnected) {
+              try {
+                IOUtils.saveUrl(mirrorFile.getAbsolutePath(), mirror.getDownloadURL());
+                updateMirror(mirrorFile);
+                mCurrentDownloadCount++;
+                
+                if(mShowNotification) {
+                  mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+                  notification.notify(ID_NOTIFY, mBuilder.build());
+                }
+              } catch (Exception e) {
+                mUnsuccessfulDownloads++;
               }
-            } catch (Exception e) {
-              mUnsuccessfulDownloads++;
             }
           }
         });
@@ -3510,7 +3588,7 @@ public class TvDataUpdateService extends Service {
           channels.renameTo(oldChannels);
         }
         
-        if(IOUtils.saveUrl(channels.getAbsolutePath(), "https://www.epgpaid.de/download/channels.gz")) {
+        if(mIsConnected && IOUtils.saveUrl(channels.getAbsolutePath(), "https://www.epgpaid.de/download/channels.gz")) {
           readEpgPaidChannelIds(channels);
         }
         else if(oldChannels.isFile()) {
@@ -3776,68 +3854,70 @@ public class TvDataUpdateService extends Service {
       summary = new EPGdonateSummary();
     }
     
-    try {
-      IOUtils.saveUrl(path.getAbsolutePath(), summaryurl);
-      
-      if(path.isFile()) {
-        if(summary instanceof EPGfreeSummary) {
-          BufferedInputStream in = new BufferedInputStream(IOUtils.decompressStream(new FileInputStream(path)));
-          
-          in.read(); // read version
-                  
-          long daysSince1970 = ((in.read() & 0xFF) << 16 ) | ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
-          
-          ((EPGfreeSummary)summary).setStartDaySince1970(daysSince1970);
-          
-          ((EPGfreeSummary)summary).setLevels(in.read());
-          
-          int frameCount = (in.read() & 0xFF << 8) | (in.read() & 0xFF);
-          
-          for(int i = 0; i < frameCount; i++) {
-            int byteCount = in.read();
+    if(mIsConnected) {
+      try {
+        IOUtils.saveUrl(path.getAbsolutePath(), summaryurl);
+        
+        if(path.isFile()) {
+          if(summary instanceof EPGfreeSummary) {
+            BufferedInputStream in = new BufferedInputStream(IOUtils.decompressStream(new FileInputStream(path)));
             
-            byte[] value = new byte[byteCount];
+            in.read(); // read version
+                    
+            long daysSince1970 = ((in.read() & 0xFF) << 16 ) | ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
             
-            in.read(value);
+            ((EPGfreeSummary)summary).setStartDaySince1970(daysSince1970);
             
-            String country = new String(value);
+            ((EPGfreeSummary)summary).setLevels(in.read());
             
-            byteCount = in.read();
+            int frameCount = (in.read() & 0xFF << 8) | (in.read() & 0xFF);
             
-            value = new byte[byteCount];
-            
-            in.read(value);
-            
-            String channelID = new String(value);
-            
-            int dayCount = in.read();
-            
-            ChannelFrame frame = new ChannelFrame(country, channelID, dayCount);
-            
-            for(int day = 0; day < dayCount; day++) {
-              int[] values = new int[((EPGfreeSummary)summary).getLevels()];
+            for(int i = 0; i < frameCount; i++) {
+              int byteCount = in.read();
               
-              for(int j = 0; j < values.length; j++) {
-                values[j] = in.read();
+              byte[] value = new byte[byteCount];
+              
+              in.read(value);
+              
+              String country = new String(value);
+              
+              byteCount = in.read();
+              
+              value = new byte[byteCount];
+              
+              in.read(value);
+              
+              String channelID = new String(value);
+              
+              int dayCount = in.read();
+              
+              ChannelFrame frame = new ChannelFrame(country, channelID, dayCount);
+              
+              for(int day = 0; day < dayCount; day++) {
+                int[] values = new int[((EPGfreeSummary)summary).getLevels()];
+                
+                for(int j = 0; j < values.length; j++) {
+                  values[j] = in.read();
+                }
+                
+                frame.add(day, values);
               }
               
-              frame.add(day, values);
+              ((EPGfreeSummary)summary).addChannelFrame(frame);
             }
-            
-            ((EPGfreeSummary)summary).addChannelFrame(frame);
           }
-        }
-        else if(summary instanceof EPGdonateSummary) {
-          GZIPInputStream in = new GZIPInputStream(new FileInputStream(path));
+          else if(summary instanceof EPGdonateSummary) {
+            GZIPInputStream in = new GZIPInputStream(new FileInputStream(path));
+            
+            ((EPGdonateSummary)summary).load(in);
+            
+            in.close();
+          }
           
-          ((EPGdonateSummary)summary).load(in);
-          
-          in.close();
+          deleteFile(path);
         }
-        
-        deleteFile(path);
-      }
-    } catch (Exception e) {}
+      } catch (Exception e) {}
+    }
     
     return summary;
   }
@@ -3872,7 +3952,7 @@ public class TvDataUpdateService extends Service {
     }
     
     public short getFrameCount(short currentCount) {
-      if(currentCount == 254 && mDownloadURL != null) {
+      if(currentCount == 254 && mDownloadURL != null && mIsConnected) {
         final String url = mDownloadURL.substring(0, mDownloadURL.indexOf(".prog.gz")) +  "_additional.prog.gz";
         final String fileName = mDownloadFile.getAbsolutePath().substring(0, mDownloadFile.getAbsolutePath().indexOf(".prog.gz"))  +  "_additional.prog.gz";
         
@@ -4801,11 +4881,17 @@ public class TvDataUpdateService extends Service {
       for(String url : mUrlList) {
         File updateFile = new File(path,url.substring(url.lastIndexOf("/")+1));
         
-        try {
-          IOUtils.saveUrl(updateFile.getAbsolutePath(), url);
-          downloadList.add(new UrlFileHolder(updateFile, url));
-        } catch (Exception e) {
-          mUnsuccessfulDownloads++;
+        if(mIsConnected) {
+          try {
+            long downloadStart = System.currentTimeMillis();
+            IOUtils.saveUrl(updateFile.getAbsolutePath(), url);
+            
+            checkAndSetConnectionState(downloadStart);
+            
+            downloadList.add(new UrlFileHolder(updateFile, url));
+          } catch (Exception e) {
+            mUnsuccessfulDownloads++;
+          }
         }
       }
       
