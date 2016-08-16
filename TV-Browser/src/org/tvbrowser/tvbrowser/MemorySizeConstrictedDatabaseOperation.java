@@ -44,6 +44,7 @@ public class MemorySizeConstrictedDatabaseOperation {
   
   private Uri mInsertUri;
   private int mMinOperationDivider;
+  private int mOperationDivider;
   
   private boolean mOperationsAvailable;
   private boolean mOperationsAdded;
@@ -70,6 +71,8 @@ public class MemorySizeConstrictedDatabaseOperation {
     else {
       mMinOperationDivider = 1;
     }
+    
+    mOperationDivider = TABLE_OPERATION_MIN_SIZE/mMinOperationDivider;
     
     if(insertUri != null) {
       mInsertList = new ArrayList<ContentValues>();
@@ -114,7 +117,7 @@ public class MemorySizeConstrictedDatabaseOperation {
       mInsertList.add(insert);
       mOperationsAdded = true;
       
-      if(mInsertList.size() > TABLE_OPERATION_MIN_SIZE/mMinOperationDivider) {
+      if(mInsertList.size() > mOperationDivider) {
         insert();
       }
     }
@@ -126,7 +129,7 @@ public class MemorySizeConstrictedDatabaseOperation {
       mUpdateList.add(update);
       mOperationsAdded = true;
       
-      if(mUpdateList.size() > TABLE_OPERATION_MIN_SIZE/mMinOperationDivider) {
+      if(mUpdateList.size() > mOperationDivider) {
         update();
       }
     }

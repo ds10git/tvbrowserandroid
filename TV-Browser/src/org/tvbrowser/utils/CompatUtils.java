@@ -39,6 +39,7 @@ import android.os.Environment;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
@@ -179,6 +180,7 @@ public class CompatUtils {
           setExactAndAllowWhileIdle.setAccessible(true);
           setExactAndAllowWhileIdle.invoke(alarm, type, triggerAtMillis, operation);
         } catch (Throwable t) {
+          Log.d("info22", "", t);
           alarm.setExact(type, triggerAtMillis, operation);
         }
       }

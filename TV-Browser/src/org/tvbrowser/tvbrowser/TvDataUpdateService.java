@@ -1613,7 +1613,9 @@ public class TvDataUpdateService extends Service {
       final NotificationManager notification = (NotificationManager)getSystemService(NOTIFICATION_SERVICE);
       final ArrayList<GroupInfo> channelMirrors = new ArrayList<GroupInfo>();
       
-      ContentResolver cr = getContentResolver();
+      final ContentResolver cr = getContentResolver();
+      
+      mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
       
       try {
         BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(groups)));
@@ -1681,17 +1683,21 @@ public class TvDataUpdateService extends Service {
           doLog("Mirrors for group '" + parts[0] + "': " + builder.toString());
           values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, builder.toString());
           
-          GroupInfo test = updateGroup(cr, knownId, SettingConstants.EPG_FREE_KEY, parts[0], builder.toString(), values);
-          
-          if(test != null) {
-            doLog("Add group '" + test.getFileName() + "' to download list");
-            channelMirrors.add(test);
-          }
-          else {
-            success.andUpdateBoolean(false);
-          }
+          mThreadPool.execute(new Runnable() {
+            @Override
+            public void run() {
+              GroupInfo test = updateGroup(cr, knownId, SettingConstants.EPG_FREE_KEY, parts[0], builder.toString(), values);
+              
+              if(test != null) {
+                doLog("Add group '" + test.getFileName() + "' to download list");
+                channelMirrors.add(test);
+              }
+              else {
+                success.andUpdateBoolean(false);
+              }
+            }
+          });
         }
-        
         in.close();
       } catch (Throwable t) {
         Log.d("info7", "", t);
@@ -1721,15 +1727,33 @@ public class TvDataUpdateService extends Service {
         
         values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, mirrors);
         
-        GroupInfo test = updateGroup(cr, knownId, SettingConstants.EPG_DONATE_KEY, SettingConstants.EPG_DONATE_GROUP_KEY, mirrors, values);
-        
-        if(test != null) {
-          doLog("Add group '" + test.getFileName() + "' to download list");
-          channelMirrors.add(test);
-        }
-        else {
-          success.andUpdateBoolean(false);
-        }
+        mThreadPool.execute(new Runnable() {
+          @Override
+          public void run() {
+            GroupInfo test = updateGroup(cr, knownId, SettingConstants.EPG_DONATE_KEY, SettingConstants.EPG_DONATE_GROUP_KEY, values.getAsString(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS), values);
+            
+            if(test != null) {
+              doLog("Add group '" + test.getFileName() + "' to download list");
+              channelMirrors.add(test);
+            }
+            else {
+              success.andUpdateBoolean(false);
+            }
+          }
+        });
+      }
+      
+      mThreadPool.shutdown();
+      
+      try {
+        mThreadPool.awaitTermination(5, TimeUnit.MINUTES);
+      } catch (InterruptedException e1) {
+        e1.printStackTrace();
+      }
+      
+      if(!mThreadPool.isTerminated()) {
+        mThreadPool.shutdownNow();
+        success.setBoolean(false);
       }
       
       if(!channelMirrors.isEmpty()) {
