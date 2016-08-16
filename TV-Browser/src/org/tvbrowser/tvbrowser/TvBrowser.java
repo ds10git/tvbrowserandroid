@@ -385,6 +385,12 @@ public class TvBrowser extends ActionBarActivity implements
       //PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().remove(getString(R.string.CURRENT_FILTER_ID)).commit();
       int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
       
+      if(oldVersion == 402) {
+        final SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, getApplicationContext());
+        
+        pref.edit().remove(getString(R.string.PREF_REMINDER_AS_ALARM_CLOCK)).commit();
+        ServiceUpdateReminders.startReminderUpdate(getApplicationContext());
+      }
       if(oldVersion < 339) {
         startService(new Intent(TvBrowser.this,ServiceChannelCleaner.class));
       }
@@ -1304,7 +1310,7 @@ public class TvBrowser extends ActionBarActivity implements
               public void run() {
                 Log.d("info6", "Runnable " + infoType);
                 if(infoType == INFO_TYPE_NOTHING) {
-                  showEpgDonateInfo();
+                  showChannelUpdateInfo();
                 }
                 else if(infoType == INFO_TYPE_VERSION) {
                   showVersionInfo(true);

@@ -199,7 +199,7 @@
 	<!-- Reminder settings -->
 	    
 	    <string name="PREF_REMINDER_AS_ALARM_CLOCK">PREF_REMINDER_AS_ALARM_CLOCK</string>
-	    <item name="pref_reminder_as_alarm_clock_default" type="bool" format="boolean">true</item>
+	    <item name="pref_reminder_as_alarm_clock_default" type="bool" format="boolean">false</item>
 	    
 	    <string name="PREF_REMINDER_TIME">PREF_REMINDER_TIME</string>
 	    <item name="pref_reminder_time_default" type="string" format="string">0</item>

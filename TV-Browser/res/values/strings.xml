@@ -2,8 +2,9 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.6.3.2</h2>
-        	&bull; changed channel download to prevent daily automatically channel update
-        	&bull; recognize connectivity change during data update
+        	&bull; changed channel download to prevent daily automatically channel update<br>
+        	&bull; recognize connectivity change during data update<br>
+        	&bull; changed default value for reminder as alarm clock in Android since 6.0<br>
         <h3>0.6.3.1</h3>
         	&bull; added setting to disable reminder being scheduled as alarm clock under Android 6.0
         <h3>0.6.3</h3>
