@@ -72,7 +72,7 @@ public class LoaderUpdater {
     startUpdate(nextUpdate, null);
   }
   
-  public void startUpdate(long nextUpdate, final CallbackObjects callbackObjects) {
+  public synchronized void startUpdate(long nextUpdate, final CallbackObjects callbackObjects) {
     mLastUpdateStart = System.currentTimeMillis();
     
     if((nextUpdate == 0 || nextUpdate >= System.currentTimeMillis()) && 
@@ -94,7 +94,9 @@ public class LoaderUpdater {
             }
             
             if(mFragment.getLoaderManager().hasRunningLoaders()) {
-              mFragment.getLoaderManager().getLoader(0).stopLoading();
+              try {
+                mFragment.getLoaderManager().getLoader(0).stopLoading();
+              }catch(Throwable t) {}
             }
             
             

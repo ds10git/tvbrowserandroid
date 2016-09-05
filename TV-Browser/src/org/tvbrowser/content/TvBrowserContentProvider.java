@@ -108,6 +108,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String GROUP_KEY_GROUP_PROVIDER = "groupProvider";
   public static final String GROUP_KEY_GROUP_DESCRIPTION = "groupDescription";
   public static final String GROUP_KEY_GROUP_MIRRORS = "groupMirrors";
+  public static final String GROUP_KEY_GROUP_MIRRORS_DEFAULT = "groupDefaultMirrors";
   
   // Column names for the channel table
   public static final String CHANNEL_KEY_BASE_COUNTRY = "baseCountry";
@@ -1124,7 +1125,8 @@ public class TvBrowserContentProvider extends ContentProvider {
         + GROUP_KEY_GROUP_NAME + " TEXT NOT NULL, "
         + GROUP_KEY_GROUP_PROVIDER + " TEXT NOT NULL, "
         + GROUP_KEY_GROUP_DESCRIPTION + " TEXT NOT NULL, "
-        + GROUP_KEY_GROUP_MIRRORS + " TEXT NOT NULL);";
+        + GROUP_KEY_GROUP_MIRRORS + " TEXT NOT NULL, "
+        + GROUP_KEY_GROUP_MIRRORS_DEFAULT + " TEXT NOT NULL);";
     
     private static final String CREATE_CHANNEL_TABLE = "create table " + CHANNEL_TABLE + " (" + KEY_ID + " integer primary key autoincrement, "
         + GROUP_KEY_GROUP_ID + " INTEGER REFERENCES " + GROUPS_TABLE + "(" + KEY_ID + ") NOT NULL, "
@@ -1148,89 +1150,6 @@ public class TvBrowserContentProvider extends ContentProvider {
         + CHANNEL_KEY_USER_END_TIME + " INTEGER);";
     
     private static final String CREATE_DATA_TABLE = sqlCreateDataTable(); 
-    
-    /*= "create table " + DATA_TABLE + " (" + KEY_ID + " INTEGER primary key autoincrement, "
-        + CHANNEL_KEY_CHANNEL_ID + " INTEGER REFERENCES " + CHANNEL_TABLE + "(" + KEY_ID + ") NOT NULL, "
-        + DATA_KEY_STARTTIME + " INTEGER NOT NULL, "
-        + DATA_KEY_ENDTIME + " INTEGER NOT NULL, "
-        + DATA_KEY_TITLE + " TEXT NOT NULL, "
-        + DATA_KEY_SHORT_DESCRIPTION + " TEXT, "
-        + DATA_KEY_DESCRIPTION + " TEXT, "
-        + DATA_KEY_TITLE_ORIGINAL + " TEXT, "
-        + DATA_KEY_EPISODE_TITLE + " TEXT, "
-        + DATA_KEY_EPISODE_TITLE_ORIGINAL + " TEXT, "
-        + DATA_KEY_ACTORS + " TEXT, "
-        + DATA_KEY_REGIE + " TEXT, "
-        + DATA_KEY_CUSTOM_INFO + " TEXT, "
-        + DATA_KEY_CATEGORIES + " INTEGER, "
-        + DATA_KEY_AGE_LIMIT + " INTEGER, "
-        + DATA_KEY_WEBSITE_LINK+ " TEXT, "
-        + DATA_KEY_GENRE + " TEXT, "
-        + DATA_KEY_ORIGIN + " TEXT, "
-        + DATA_KEY_NETTO_PLAY_TIME + " INTEGER, "
-        + DATA_KEY_VPS + " INTEGER, "
-        + DATA_KEY_SCRIPT + " TEXT, "
-        + DATA_KEY_REPETITION_FROM + " TEXT, "
-        + DATA_KEY_REPETITION_ON + " TEXT, "
-        + DATA_KEY_MUSIC + " TEXT, "
-        + DATA_KEY_MODERATION + " TEXT, "
-        + DATA_KEY_YEAR + " INTEGER, "
-        + DATA_KEY_PICTURE + " BLOB, "
-        + DATA_KEY_PICTURE_COPYRIGHT + " TEXT, "
-        + DATA_KEY_PICTURE_DESCRIPTION + " TEXT, "
-        + DATA_KEY_EPISODE_NUMBER + " INTEGER, "
-        + DATA_KEY_EPISODE_COUNT + " INTEGER, "
-        + DATA_KEY_SEASON_NUMBER + " INTEGER, "
-        + DATA_KEY_PRODUCER + " TEXT, "
-        + DATA_KEY_CAMERA + " TEXT, "
-        + DATA_KEY_CUT + " TEXT, "
-        + DATA_KEY_OTHER_PERSONS + " TEXT, "
-        + DATA_KEY_RATING + " INTEGER, "
-        + DATA_KEY_PRODUCTION_FIRM + " TEXT, "
-        + DATA_KEY_AGE_LIMIT_STRING+ " TEXT, "
-        + DATA_KEY_LAST_PRODUCTION_YEAR + " INTEGER, "
-        + DATA_KEY_ADDITIONAL_INFO + " TEXT, "
-        + DATA_KEY_SERIES + " TEXT, "
-        + DATA_KEY_UNIX_DATE + " INTEGER, "
-        + DATA_KEY_DATE_PROG_ID + " INTEGER, "
-        + DATA_KEY_DATE_PROG_STRING_ID + " TEXT, "
-        + DATA_KEY_DONT_WANT_TO_SEE + " INTEGER DEFAULT 0, "
-        + DATA_KEY_REMOVED_REMINDER	+ " INTEGER DEFAULT 0, "
-        + DATA_KEY_MARKING_MARKING + " INTEGER DEFAULT 0, "
-        + DATA_KEY_MARKING_FAVORITE + " INTEGER DEFAULT 0, "
-        + DATA_KEY_MARKING_FAVORITE_REMINDER + " INTEGER DEFAULT 0, "
-        + DATA_KEY_MARKING_REMINDER + " INTEGER DEFAULT 0, "
-        + DATA_KEY_MARKING_SYNC + " INTEGER DEFAULT 0, "
-        + DATA_KEY_REMOVED_SYNC + " INTEGER DEFAULT 0, "
-        + DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0, "
-        + DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0, "
-        + DATA_KEY_DURATION_IN_MINUTES + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_BLACK_AND_WHITE + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_4_TO_3 + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_16_TO_9 + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_MONO + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_STEREO + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_DOLBY_SOURROUND  + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_DOLBY_DIGITAL_5_1 + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_SECOND_AUDIO_PROGRAM + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_CLOSED_CAPTION + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_LIVE + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_OMU + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_FILM + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_SERIES + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_NEW + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_AUDIO_DESCRIPTION + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_NEWS + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_SHOW + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_MAGAZIN + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_HD + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_DOCUMENTATION + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_ART + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_SPORT + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_CHILDREN + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_OTHER + " INTEGER DEFAULT 0, "
-        + DATA_KEY_INFO_SIGN_LANGUAGE + " INTEGER DEFAULT 0 "
-        + ");";/*/
     
     private static final String sqlCreateDataTable() {
       final StringBuilder builder = new StringBuilder();
@@ -1276,7 +1195,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       db.execSQL(CREATE_VERSION_TABLE);
     }
 
-    private static final int DATABASE_VERSION = 10;
+    private static final int DATABASE_VERSION = 11;
     
     @Override
     public void onUpgrade(final SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -1502,36 +1421,6 @@ public class TvBrowserContentProvider extends ContentProvider {
           }
         }
         
-        /*db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_DURATION_IN_MINUTES + " INTEGER DEFAULT 0");
-        
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_BLACK_AND_WHITE + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_4_TO_3 + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_16_TO_9 + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_MONO + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_STEREO + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_DOLBY_SOURROUND  + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_DOLBY_DIGITAL_5_1 + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_SECOND_AUDIO_PROGRAM + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_CLOSED_CAPTION + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_LIVE + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_OMU + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_FILM + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_SERIES + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_NEW + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_AUDIO_DESCRIPTION + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_NEWS + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_SHOW + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_MAGAZIN + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_HD + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_DOCUMENTATION + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_ART + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_SPORT + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_CHILDREN + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_OTHER + " INTEGER DEFAULT 0");
-        db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_INFO_SIGN_LANGUAGE + " INTEGER DEFAULT 0");
-        */
         new Thread("DATABASE DATA TABLE UPDATE THREAD") {
           @Override
           public void run() {
@@ -1646,6 +1535,10 @@ public class TvBrowserContentProvider extends ContentProvider {
           }
         }
       }
+      
+      if(oldVersion < 11) {
+        db.execSQL("ALTER TABLE " + GROUPS_TABLE + " ADD COLUMN " + GROUP_KEY_GROUP_MIRRORS_DEFAULT);
+      }
     }
   
     @Override
@@ -1663,9 +1556,13 @@ public class TvBrowserContentProvider extends ContentProvider {
   }
   
   private static final boolean columnExists(SQLiteDatabase db, String columnName) {
+    return columnExists(db, CHANNEL_TABLE, columnName);
+  }
+  
+  private static final boolean columnExists(SQLiteDatabase db, String table, String columnName) {
     boolean result = false;
     
-    Cursor c = db.rawQuery("PRAGMA table_info(" + CHANNEL_TABLE + ")", null);
+    Cursor c = db.rawQuery("PRAGMA table_info(" + table + ")", null);
     try {
       if(IOUtils.prepareAccess(c)) {
         while(c.moveToNext()) {

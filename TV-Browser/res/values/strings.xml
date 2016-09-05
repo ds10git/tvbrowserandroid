@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.3.2</h2>
+        <h2>0.6.3.3</h2>
+        	&bull; fixed possible crash<br>
+        	&bull; added fallback to default mirrors for data download<br>
+        <h3>0.6.3.2</h3>
         	&bull; changed channel download to prevent daily automatically channel update<br>
         	&bull; recognize connectivity change during data update<br>
         	&bull; changed default value for reminder as alarm clock in Android since 6.0<br>
