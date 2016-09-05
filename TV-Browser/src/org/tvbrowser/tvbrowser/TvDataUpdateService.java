@@ -1532,6 +1532,7 @@ public class TvDataUpdateService extends Service {
     
     if(knownId == null) {
       doLog("Insert group '" + groupId + "' into database.");
+      
       // The group is not already known, so insert it
       Uri insert = cr.insert(TvBrowserContentProvider.CONTENT_URI_GROUPS, values);
       doLog("Insert group '" + groupId + "' to URI: " + insert);
@@ -1675,6 +1676,8 @@ public class TvDataUpdateService extends Service {
             }
           }
           
+          values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS_DEFAULT, builder.toString());
+          
           if(useCurrentMirrors) {
             builder.delete(0, builder.length());
             builder.append(currentMirrors);
@@ -1726,6 +1729,7 @@ public class TvDataUpdateService extends Service {
         }
         
         values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS, mirrors);
+        values.put(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS_DEFAULT, mirrors);
         
         mThreadPool.execute(new Runnable() {
           @Override
@@ -2893,12 +2897,19 @@ public class TvDataUpdateService extends Service {
             doLog("Cursor size for groupKey: " + group.getCount());
             
             try {
+              final int columnIndexId = group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+              final int columnIndexMirrors = group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS);
+              final int columnIndexMirrorsDefault = group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS_DEFAULT);
+              
               if(group != null && group.getCount() > 0) {
                 group.moveToFirst();
                 
-                groupId = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
-                String mirrorURL = group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS));
+                groupId = group.getString(columnIndexId);
+                String mirrorURL = group.getString(columnIndexMirrors);
+                String mirrorURLsDefault = group.isNull(columnIndexMirrorsDefault) ? "" : group.getString(columnIndexMirrorsDefault);
+                
                 Log.d("info21", "GROUPID " + groupId + " " + mirrorURL);
+                doLog("DEFAULT MIRRORS for group '" + groupId + "': " + mirrorURLsDefault);
                 doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
                 doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
                 
@@ -2914,6 +2925,14 @@ public class TvDataUpdateService extends Service {
                 
                 if(groupId.equals(SettingConstants.EPG_DONATE_GROUP_KEY)) {
                   checkOnlyConnection = true;
+                }
+                
+                String[] defaultMirrors = mirrorURLsDefault.split(";");
+                
+                for(String defaultMirror : defaultMirrors) {
+                  if(!mirrorURL.contains(defaultMirror)) {
+                    mirrorURL += ";" + defaultMirror;
+                  }
                 }
                 
                 Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL);

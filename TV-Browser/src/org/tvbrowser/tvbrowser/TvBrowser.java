@@ -4108,10 +4108,12 @@ public class TvBrowser extends ActionBarActivity implements
       actionBar.removeTabAt(3);
     }
     else if(!(test instanceof FragmentProgramTable) && programTableActivated) {
-      actionBar.addTab(actionBar.newTab()
-          .setText(mSectionsPagerAdapter.getPageTitle(3)).setTabListener(this));
-      mSectionsPagerAdapter.notifyDataSetChanged();
-      mSectionsPagerAdapter.instantiateItem(mViewPager, 3);
+      try {
+        actionBar.addTab(actionBar.newTab()
+            .setText(mSectionsPagerAdapter.getPageTitle(3)).setTabListener(this));
+        mSectionsPagerAdapter.notifyDataSetChanged();
+        mSectionsPagerAdapter.instantiateItem(mViewPager, 3);
+      }catch(Throwable t) {}
     }
     else if(test instanceof FragmentProgramTable) {
       if(!((FragmentProgramTable)test).checkTimeBlockSize() && !((FragmentProgramTable)test).updateTable()) {

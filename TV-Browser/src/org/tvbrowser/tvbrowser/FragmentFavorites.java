@@ -120,48 +120,55 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   @Override
   public void onResume() {
     super.onResume();
-    ProgramUtils.registerMarkingsListener(getActivity(), this);
     
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        if(!isDetached() && !isRemoving()) {
-          mFavoriteAdapter.notifyDataSetChanged();
+    if(getActivity() != null) {
+      ProgramUtils.registerMarkingsListener(getActivity(), this);
+      
+      handler.post(new Runnable() {
+        @Override
+        public void run() {
+          if(!isDetached() && !isRemoving()) {
+            mFavoriteAdapter.notifyDataSetChanged();
+          }
         }
-      }
-    });
+      });
+    }
   }
   
   private boolean mIsStarted = false;
   
   @Override
   public void onStart() {
-    if(getActivity() != null) {
-      int selection = PrefUtils.getIntValue(R.string.PREF_MISC_LAST_FAVORITE_SELECTION, 0);
-      Log.d("info13", "selection " + selection + " " + mContainsListViewFavoriteSelection);
-      if(mFavoriteSelection != null) {
-        Log.d("info13", "count " + mFavoriteSelection.getCount());
-      }
-      if(selection < 0 && mMarkingsList != null && Math.abs(selection) < mMarkingsList.getChildCount()) {
-        selection = Math.abs(selection);
+    try {
+      if(getActivity() != null) {
+        int selection = PrefUtils.getIntValue(R.string.PREF_MISC_LAST_FAVORITE_SELECTION, 0);
+        Log.d("info13", "selection " + selection + " " + mContainsListViewFavoriteSelection);
+        if(mFavoriteSelection != null) {
+          Log.d("info13", "count " + mFavoriteSelection.getCount());
+        }
+        if(selection < 0 && mMarkingsList != null && Math.abs(selection) < mMarkingsList.getChildCount()) {
+          selection = Math.abs(selection);
+          
+          mMarkingsList.performItemClick(null, selection, -1);
+        }
+        else if(mFavoriteSelection != null && selection >= 0 && selection < mFavoriteSelection.getCount()) {
+          if(mContainsListViewFavoriteSelection) {
+            mFavoriteSelection.performItemClick(null, selection, -1);
+          }
+          else {
+            mFavoriteSelection.setSelection(selection);
+          }
+        }
         
-        mMarkingsList.performItemClick(null, selection, -1);
+        handler.post(new Runnable() {
+          @Override
+          public void run() {
+            mIsStarted = true;
+          }
+        });
       }
-      else if(mFavoriteSelection != null && selection >= 0 && selection < mFavoriteSelection.getCount()) {
-        if(mContainsListViewFavoriteSelection) {
-          mFavoriteSelection.performItemClick(null, selection, -1);
-        }
-        else {
-          mFavoriteSelection.setSelection(selection);
-        }
-      }
+    }catch(Throwable t) {
       
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          mIsStarted = true;
-        }
-      });
     }
     
     super.onStart();

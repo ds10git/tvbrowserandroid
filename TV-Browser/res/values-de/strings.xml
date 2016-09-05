@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+        <h2>0.6.3.3</h2>
+        	&bull; mögliche Absturzursachen beseitigt<br>
+        	&bull; Rückfall auf Standardspiegelserver für Datendownload hinzugefügt<br>
         <h2>0.6.3.2</h2>
         	&bull; Download der Senderliste überarbeitet, um zu verhindern, dass die täglich automatisch neu geladen wird<br>
         	&bull; Verlust der Internetverbindung führt zum Abbruch des Datenupdates<br>
