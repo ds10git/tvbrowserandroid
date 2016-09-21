@@ -24,6 +24,9 @@
 	    <string name="LOAD_PICTURE_DATA">LOAD_PICTURE_DATA</string>
 	    <item name="load_picture_data_default" type="bool" format="boolean">false</item>
 	    
+	    <string name="PREF_DATA_UPDATE_INSTABLE_CONNECTION_ACCEPTABLE">PREF_DATA_UPDATE_INSTABLE_CONNECTION_ACCEPTABLE</string>
+	    <item name="pref_data_update_instable_conncetion_acceptable_default" type="bool" format="boolean">false</item>
+	    	    
 	    <string name="PREF_AUTO_UPDATE_TYPE">PREF_AUTO_UPDATE_TYPE</string>
 	    <item name="pref_auto_update_type_default" type="string" format="string">0</item>
 	    

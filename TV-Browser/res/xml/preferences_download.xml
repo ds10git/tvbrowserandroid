@@ -15,6 +15,11 @@
 	    <CheckBoxPreference android:key="@string/LOAD_PICTURE_DATA"
 	        android:title="@string/pref_load_picture_data"
 	        android:defaultValue="@bool/load_picture_data_default"/>
+	    <CheckBoxPreference android:key="@string/PREF_DATA_UPDATE_INSTABLE_CONNECTION_ACCEPTABLE"
+	        android:title="@string/pref_data_update_connection_instable_accept_title"
+	        android:summaryOn="@string/pref_data_update_connection_instable_accept_summary_on"
+	        android:summaryOff="@string/pref_data_update_connection_instable_accept_summary_off"
+	        android:defaultValue="@bool/pref_data_update_instable_conncetion_acceptable_default"/>
 	    <PreferenceCategory android:title="@string/pref_auto_update_category">
 	        <ListPreference
 	            android:key="@string/PREF_AUTO_UPDATE_TYPE"
