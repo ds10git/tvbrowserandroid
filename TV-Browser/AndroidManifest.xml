@@ -2,8 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="org.tvbrowser.tvbrowser"
     android:installLocation="internalOnly"
-    android:versionCode="404"
-    android:versionName="0.6.3.3" >
+    android:versionCode="405"
+    android:versionName="0.6.3.4" >
 
     <uses-sdk
         android:minSdkVersion="11"

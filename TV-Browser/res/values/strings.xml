@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.3.3</h2>
+        <h2>0.6.3.4</h2>
+        	&bull; added setting to allow use of instable Internet connections for data update<br>
+        <h3>0.6.3.3</h3>
         	&bull; fixed possible crash<br>
         	&bull; added fallback to default mirrors for data download<br>
         <h3>0.6.3.2</h3>
@@ -720,6 +722,9 @@
 	<string name="pref_database_copy_title">Copying database</string>
 	<string name="pref_database_copy_wait">Please wait&#8230;</string>
 	<string name="pref_summary_data_download">Settings for data download</string>
+	<string name="pref_data_update_connection_instable_accept_title">Instable Internet connection</string>
+	<string name="pref_data_update_connection_instable_accept_summary_on">The used Internet connection is very slow or instable. TV-Browser should download the data nonetheless even if the download needs much time.</string>
+	<string name="pref_data_update_connection_instable_accept_summary_off">The used Internet connection is fast and reliable. TV-Browser will cancel the data download if the connection seems to be instable.</string>
     <string name="pref_load_full_data">Download full data</string>
     <string name="pref_load_picture_data">Download pictures</string>
 	<string name="pref_load_full_data_summary_on">All available data is downloaded</string>

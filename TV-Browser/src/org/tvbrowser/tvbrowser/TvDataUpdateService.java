@@ -154,16 +154,23 @@ public class TvDataUpdateService extends Service {
   private boolean mOnlyWifi;
   private boolean mIsConnected;
   private boolean mConnectionLost;
+  private boolean mInstableConnectionAcceptable;
   private int mCountTimedOutConnections;
   
+  private int mInternetConnectionTimeout;
+  
   private void checkAndSetConnectionState(long downloadStart) {
-    if(System.currentTimeMillis() - downloadStart > 28000) {
-      mCountTimedOutConnections++;
-    }
+    doLog("INSTABLE INTERNET CONNECTION ACCEPTABLE: " + mInstableConnectionAcceptable + " " + mInternetConnectionTimeout + " TIMED OUT: " + mCountTimedOutConnections + " IS CONNECTED: " + mIsConnected);
     
-    if(mCountTimedOutConnections > 5) {
-      mIsConnected = false;
-      mConnectionLost = true;
+    if(!mInstableConnectionAcceptable) {
+      if(System.currentTimeMillis() - downloadStart > 28000) {
+        mCountTimedOutConnections++;
+      }
+      
+      if(mCountTimedOutConnections > 5) {
+        mIsConnected = false;
+        mConnectionLost = true;
+      }
     }
   }
   
@@ -334,6 +341,15 @@ public class TvDataUpdateService extends Service {
         public void run() {
           setPriority(NORM_PRIORITY);
           Logging.openLogForDataUpdate(TvDataUpdateService.this);
+          
+          mInstableConnectionAcceptable = PrefUtils.getBooleanValue(R.string.PREF_DATA_UPDATE_INSTABLE_CONNECTION_ACCEPTABLE, R.bool.pref_data_update_instable_conncetion_acceptable_default);
+          
+          if(mInstableConnectionAcceptable) {
+            mInternetConnectionTimeout = 30000;
+          }
+          else {
+            mInternetConnectionTimeout = 15000;
+          }
           
           doLog("Received intent: " + intent);
           
@@ -1441,7 +1457,7 @@ public class TvDataUpdateService extends Service {
     doLog("LOAD GROUPS FROM '" + mirror + "' to '" + groups + "'");
     if(mIsConnected && mirror != null) {
       try {
-        IOUtils.saveUrl(groups.getAbsolutePath(), mirror);
+        IOUtils.saveUrl(groups.getAbsolutePath(), mirror, mInternetConnectionTimeout);
         doLog("START GROUP UPDATE");
         updateGroups(groups, path, autoUpdate);
       } catch (Throwable t) {
@@ -1796,7 +1812,7 @@ public class TvDataUpdateService extends Service {
                     
                     long downloadStart = System.currentTimeMillis();
                     
-                    if(mIsConnected && IOUtils.saveUrl(group.getAbsolutePath(), url + info.getUrlFileName(), 15000)) {
+                    if(mIsConnected && IOUtils.saveUrl(group.getAbsolutePath(), url + info.getUrlFileName(), mInternetConnectionTimeout)) {
                       doLog("End channel download for group '" + info.getFileName() + "' successfull from: " + url);
                       groupSucces = addChannels(group,info);
                       
@@ -1808,7 +1824,7 @@ public class TvDataUpdateService extends Service {
                         
                         File mirrors = new File(path,info.getMirrorFileName());
                         
-                        if(mIsConnected && IOUtils.saveUrl(mirrors.getAbsolutePath(), url + info.getMirrorUrlFileName(), 15000)) {
+                        if(mIsConnected && IOUtils.saveUrl(mirrors.getAbsolutePath(), url + info.getMirrorUrlFileName(), mInternetConnectionTimeout)) {
                           updateMirror(mirrors);
                         }
                         
@@ -2710,7 +2726,7 @@ public class TvDataUpdateService extends Service {
       File groups = new File(path,GROUP_FILE);
       
       try {
-        IOUtils.saveUrl(groups.getAbsolutePath(), groupTxt);
+        IOUtils.saveUrl(groups.getAbsolutePath(), groupTxt, mInternetConnectionTimeout);
         
         if(groups.isFile()) {
           BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(groups)));
@@ -3203,7 +3219,7 @@ public class TvDataUpdateService extends Service {
             
             if(mIsConnected) {
               try {
-                IOUtils.saveUrl(mirrorFile.getAbsolutePath(), mirror.getDownloadURL());
+                IOUtils.saveUrl(mirrorFile.getAbsolutePath(), mirror.getDownloadURL(), mInternetConnectionTimeout);
                 updateMirror(mirrorFile);
                 mCurrentDownloadCount++;
                 
@@ -3631,7 +3647,7 @@ public class TvDataUpdateService extends Service {
           channels.renameTo(oldChannels);
         }
         
-        if(mIsConnected && IOUtils.saveUrl(channels.getAbsolutePath(), "https://www.epgpaid.de/download/channels.gz")) {
+        if(mIsConnected && IOUtils.saveUrl(channels.getAbsolutePath(), "https://www.epgpaid.de/download/channels.gz", mInternetConnectionTimeout)) {
           readEpgPaidChannelIds(channels);
         }
         else if(oldChannels.isFile()) {
@@ -3899,7 +3915,7 @@ public class TvDataUpdateService extends Service {
     
     if(mIsConnected) {
       try {
-        IOUtils.saveUrl(path.getAbsolutePath(), summaryurl);
+        IOUtils.saveUrl(path.getAbsolutePath(), summaryurl, mInternetConnectionTimeout);
         
         if(path.isFile()) {
           if(summary instanceof EPGfreeSummary) {
@@ -4002,7 +4018,7 @@ public class TvDataUpdateService extends Service {
         doLog("Download additional data file from '" + url + "'");
         
         try {
-          IOUtils.saveUrl(fileName, url);
+          IOUtils.saveUrl(fileName, url, mInternetConnectionTimeout);
           
           doLog("Read frame count from '" + fileName + "'");
           
@@ -4927,11 +4943,15 @@ public class TvDataUpdateService extends Service {
         if(mIsConnected) {
           try {
             long downloadStart = System.currentTimeMillis();
-            IOUtils.saveUrl(updateFile.getAbsolutePath(), url);
+            
+            if(IOUtils.saveUrl(updateFile.getAbsolutePath(), url, mInternetConnectionTimeout)) {
+              downloadList.add(new UrlFileHolder(updateFile, url));
+            }
+            else {
+              mUnsuccessfulDownloads++;
+            }
             
             checkAndSetConnectionState(downloadStart);
-            
-            downloadList.add(new UrlFileHolder(updateFile, url));
           } catch (Exception e) {
             mUnsuccessfulDownloads++;
           }
