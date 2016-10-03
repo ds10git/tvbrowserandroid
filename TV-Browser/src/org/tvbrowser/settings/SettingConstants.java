@@ -231,14 +231,13 @@ public class SettingConstants {
       PrefUtils.initialize(context.getApplicationContext());
       
       if(IOUtils.isDatabaseAccessible(context)) {
-        Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, null);
-        
         SMALL_LOGO_MAP.clear();
         MEDIUM_LOGO_MAP.clear();
         
-        if(channels != null) {
-          if(channels.getCount() > 0 ) {
-            channels.moveToPosition(-1);
+        final Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, null);
+        
+        try {
+          if(IOUtils.prepareAccess(channels)) {
             int keyIndex = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
             int logoIndex = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
             
@@ -251,8 +250,8 @@ public class SettingConstants {
               }
             }
           }
-          
-          channels.close();
+        }finally {
+          IOUtils.close(channels);
         }
       }
     }

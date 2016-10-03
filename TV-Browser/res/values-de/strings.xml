@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.3.4</h2>
+        <h2>0.6.3.5</h2>
+        	&bull; Versuch Absturz beim Datenupdate zu verhindern, falls inkompatible Daten heruntergeladen werden<br>
+        	&bull; möglichen Absturz beim Zugriff auf die Datenbank beseitigt<br>
+        	&bull; möglichen Absturz beim Bearbeiten der Lieblingssendungen beseitigt<br>
+        <h3>0.6.3.4</h3>
         	&bull; Einstellung hinzugefügt, um Benutzung instabiler Internetverbindungen für das Datenupdate zu erlauben<br>
         <h3>0.6.3.3</h3>
         	&bull; mögliche Absturzursachen beseitigt<br>

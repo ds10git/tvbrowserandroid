@@ -545,24 +545,22 @@ public class TvDataUpdateService extends Service {
         final SparseArray<String> groupMap = new SparseArray<String>();
         final String[] groupProjection = new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID};
         
-        Cursor groupCursor = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, null, null, null);
+        final Cursor groupCursor = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, null, null, null);
         
         try {
-          groupCursor.moveToPosition(-1);
-          
-          final int keyColumn = groupCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-          final int dataServiceColumn = groupCursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID);
-          
-          while(groupCursor.moveToNext()) {
-            int key = groupCursor.getInt(keyColumn);
-            String dataServiceId = groupCursor.getString(dataServiceColumn);
+          if(IOUtils.prepareAccess(groupCursor)) {
+            final int keyColumn = groupCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+            final int dataServiceColumn = groupCursor.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID);
             
-            groupMap.put(key, dataServiceId);
+            while(groupCursor.moveToNext()) {
+              int key = groupCursor.getInt(keyColumn);
+              String dataServiceId = groupCursor.getString(dataServiceColumn);
+              
+              groupMap.put(key, dataServiceId);
+            }
           }
         }finally {
-          if(groupCursor != null && !groupCursor.isClosed()) {
-            groupCursor.close();
-          }
+          IOUtils.close(groupCursor);
         }
         
         DataHandler epgFreeDataHandler = new EPGfreeDataHandler();
@@ -5192,7 +5190,7 @@ public class TvDataUpdateService extends Service {
                   }
                   
                   // program known update it
-                  if(isNew) {
+                  if(isNew && isValidDataContent(contentValues)) {
                     mUpdateValueMap.put(Long.valueOf(programID), contentValues);
                   }
                 }
@@ -5206,7 +5204,7 @@ public class TvDataUpdateService extends Service {
                     }
                   }
                   
-                  if(isNew) {
+                  if(isNew && isValidDataContent(contentValues)) {
                     mInsertValuesList.add(contentValues);
                   }
                 }
@@ -5299,6 +5297,20 @@ public class TvDataUpdateService extends Service {
     }
     
     return false;
+  }
+  
+  private static boolean isValidDataContent(ContentValues values) {
+    boolean result = true;
+    
+    if((!values.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME) || values.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME) == null)
+      ||
+      (!values.containsKey(TvBrowserContentProvider.DATA_KEY_ENDTIME) || values.getAsLong(TvBrowserContentProvider.DATA_KEY_ENDTIME) == null)
+      ||
+      (!values.containsKey(TvBrowserContentProvider.DATA_KEY_TITLE) || values.getAsString(TvBrowserContentProvider.DATA_KEY_TITLE) == null)) {
+      result = false;
+    }
+    
+    return result;
   }
   
   /**

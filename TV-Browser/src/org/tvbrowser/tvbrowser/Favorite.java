@@ -516,7 +516,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           }
         }
         
-        selectionArgs[mUniqueProgramIds.length-1] = String.valueOf(mUniqueProgramIds[mUniqueProgramIds.length-1]);
+        selectionArgs[uniqueProgramIds.length-1] = String.valueOf(uniqueProgramIds[uniqueProgramIds.length-1]);
       }
       
       where.append("? ) ");
