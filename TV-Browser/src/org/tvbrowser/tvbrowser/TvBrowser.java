@@ -2985,10 +2985,10 @@ public class TvBrowser extends ActionBarActivity implements
   
   private void selectChannels(boolean loadAgain) {
     if(IOUtils.isDatabaseAccessible(TvBrowser.this)) {
-      Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null);
+      final Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null);
       
       try {
-        if(loadAgain || channels.getCount() < 1) {
+        if(loadAgain || channels == null || channels.getCount() < 1) {
           if(isOnline()) {
             runChannelDownload();
           }

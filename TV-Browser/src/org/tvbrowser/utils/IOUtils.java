@@ -881,12 +881,10 @@ public class IOUtils {
     
     if(IOUtils.isDatabaseAccessible(context)) {
       final long token = Binder.clearCallingIdentity();
-      Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.CHANNEL_KEY_NAME, TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.KEY_ID);
+      final Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.CHANNEL_KEY_NAME, TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.KEY_ID);
       
       try {
-        if(channels != null) {
-          channels.moveToPosition(-1);
-          
+        if(IOUtils.prepareAccess(channels)) {
           int keyColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
           int nameColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
           int iconColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
@@ -1148,7 +1146,7 @@ public class IOUtils {
   public static final boolean prepareAccessFirst(Cursor cursor) {
     boolean result = false;
     
-    if(cursor != null && cursor.getCount() > 0) {
+    if(cursor != null && cursor.getCount() > 0 && !cursor.isClosed()) {
       cursor.moveToFirst();
       result = true;
     }
@@ -1159,7 +1157,7 @@ public class IOUtils {
   public static final boolean prepareAccess(Cursor cursor) {
     boolean result = false;
     
-    if(cursor != null && cursor.getCount() > 0) {
+    if(cursor != null && cursor.getCount() > 0 && !cursor.isClosed()) {
       cursor.moveToPosition(-1);
       result = true;
     }

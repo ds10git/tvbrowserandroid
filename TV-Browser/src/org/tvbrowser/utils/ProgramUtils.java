@@ -67,7 +67,7 @@ public class ProgramUtils {
   public static final Program createProgramFromDataCursor(Context context, Cursor cursor) {
     Program result = null;
     
-    if(cursor != null && !cursor.isClosed() && cursor.moveToFirst() && cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME) != -1) {
+    if(IOUtils.prepareAccessFirst(cursor) && cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME) != -1) {
       Channel channel = createChannelFromCursor(context, cursor);
       
       if(channel != null) {
@@ -161,7 +161,7 @@ public class ProgramUtils {
           Cursor channelCursor = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, TvBrowserContentProvider.KEY_ID + "=" + channelId, null, null);
           
           try {
-            if(channelCursor != null && !channelCursor.isClosed() && channelCursor.moveToFirst()) {
+            if(IOUtils.prepareAccessFirst(channelCursor)) {
               result = new Channel(channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)), channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
             }
           }finally {
@@ -190,10 +190,10 @@ public class ProgramUtils {
     
     if(IOUtils.isDatabaseAccessible(context)) {
       final long token = Binder.clearCallingIdentity();
-      Cursor programs = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, program.getId()), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_MARKING}, null, null, null);
+      final Cursor programs = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, program.getId()), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_MARKING}, null, null, null);
       
       try {
-        if(programs != null && programs.moveToFirst()) {
+        if(IOUtils.prepareAccessFirst(programs)) {
           if(programs.getInt(programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) == 0) {
             ContentValues mark = new ContentValues();
             mark.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, true);
@@ -236,7 +236,7 @@ public class ProgramUtils {
       Cursor programs = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, program.getId()), new String[] {TvBrowserContentProvider.DATA_KEY_MARKING_MARKING}, null, null, null);
       
       try {
-        if(programs != null && programs.moveToFirst()) {
+        if(IOUtils.prepareAccessFirst(programs)) {
           if(programs.getInt(programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING)) == 1 && !PluginHandler.isMarkedByPlugins(program.getId())) {
             ContentValues mark = new ContentValues();
             mark.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, false);
