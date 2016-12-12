@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.3.5</h2>
+        <h2>0.6.3.6</h2>
+        	&bull; Laufzeit verlängert bis 31.12.2019<br>
+        	&bull; möglichen Absturz beseitigt<br>
+        <h3>0.6.3.5</h3>
         	&bull; Versuch Absturz beim Datenupdate zu verhindern, falls inkompatible Daten heruntergeladen werden<br>
         	&bull; möglichen Absturz beim Zugriff auf die Datenbank beseitigt<br>
         	&bull; möglichen Absturz beim Bearbeiten der Lieblingssendungen beseitigt<br>
@@ -736,7 +739,7 @@
 	<string name="pref_open">Einstellungen öffnen</string>
 	<string name="pref_detail_category">Detail-Fenster</string>
 	<string name="pref_detail_category_summary">Welche Informationen sollen im Detail-Fenster angezeigt werden?</string>
-	<string name="detail_missing_description_text">Für diese Sendung kann aus lizenzrechtlichen Gründen keine kostenlose Beschreibung und kein Bild angezeigt werden.\n\nSie können die Beschreibungen und Bilder jedoch für weniger als 1 Cent pro Tag freischalten.\n\nMehr dazu unter https://www.epgpaid.de</string>
+	<string name="detail_missing_description_text">Für diese Sendung kann aus lizenzrechtlichen Gründen keine kostenlose Beschreibung und kein Bild angezeigt werden.\n\nSie können die Beschreibungen und Bilder jedoch für ca. 1 Cent pro Tag freischalten.\n\nMehr dazu unter https://www.epgpaid.de</string>
 	<string name="pref_detail_picture_zoom">Bild skalieren</string>
 	<string name="pref_detail_text_scale">Text skalieren</string>
 	<string name="pref_list_category">Listen mit Sendungen</string>

@@ -494,32 +494,36 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     String[] selectionArgs = null;
     
     if(mUniqueProgramIds != null && mUniqueProgramIds.length > 0 &&  mUniqueProgramIds.length < 500) {
-      synchronized (mUniqueProgramIds) {
-        final int count = mUniqueProgramIds.length;
-        final long[] uniqueProgramIds = new long[count];
-        
-        System.arraycopy(mUniqueProgramIds, 0, uniqueProgramIds, 0, count);
-        
-        selectionArgs = new String[count];
-        
-        where.append(" ");
-        where.append(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER);
-        where.append(" ");
-        where.append(TvBrowserContentProvider.KEY_ID);
-        where.append(" IN ( ");
-        
-        for(int i = 0; i < count; i++) {
-          where.append("?, ");
+      try {
+        synchronized (mUniqueProgramIds) {
+          final int count = mUniqueProgramIds.length;
+          final long[] uniqueProgramIds = new long[count];
           
-          if(uniqueProgramIds.length > i) {
-            selectionArgs[i] = String.valueOf(uniqueProgramIds[i]);
+          System.arraycopy(mUniqueProgramIds, 0, uniqueProgramIds, 0, count);
+          
+          selectionArgs = new String[count];
+          
+          where.append(" ");
+          where.append(TvBrowserContentProvider.CONCAT_TABLE_PLACE_HOLDER);
+          where.append(" ");
+          where.append(TvBrowserContentProvider.KEY_ID);
+          where.append(" IN ( ");
+          
+          for(int i = 0; i < count; i++) {
+            where.append("?, ");
+            
+            if(uniqueProgramIds.length > i) {
+              selectionArgs[i] = String.valueOf(uniqueProgramIds[i]);
+            }
           }
+          
+          selectionArgs[uniqueProgramIds.length-1] = String.valueOf(uniqueProgramIds[uniqueProgramIds.length-1]);
         }
         
-        selectionArgs[uniqueProgramIds.length-1] = String.valueOf(uniqueProgramIds[uniqueProgramIds.length-1]);
+        where.append("? ) ");
+      }catch(ArrayIndexOutOfBoundsException aie) {
+        where.append(getWhereClause());
       }
-      
-      where.append("? ) ");
     }
     else {
       where.append(getWhereClause());

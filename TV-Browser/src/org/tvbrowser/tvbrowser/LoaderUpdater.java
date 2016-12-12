@@ -175,12 +175,16 @@ public class LoaderUpdater {
     }
     
     public void addOrReplace(CallbackObject<?> callbackObject) {
-      mCallbackObjects.remove(callbackObject);
-      mCallbackObjects.add(callbackObject);
+      synchronized (mCallbackObjects) {
+        mCallbackObjects.remove(callbackObject);
+        mCallbackObjects.add(callbackObject);
+      }
     }
     
     public CallbackObject<?>[] getCallbackObjects() {
-      return mCallbackObjects.toArray(new CallbackObject[mCallbackObjects.size()]);
+      synchronized (mCallbackObjects) {
+        return mCallbackObjects.toArray(new CallbackObject[mCallbackObjects.size()]);
+      }
     }
     
     public Object getCallbackObjectValue(String name, Object defaultValue) {
@@ -194,10 +198,12 @@ public class LoaderUpdater {
     }
     
     public CallbackObject<?> getCallbackObject(String name, CallbackObject<?> defaultValue) {
-      for(CallbackObject<?> test : mCallbackObjects) {
-        if(name.equals(test.mName)) {
-          defaultValue = test;
-          break;
+      synchronized (mCallbackObjects) {
+        for(CallbackObject<?> test : mCallbackObjects) {
+          if(name.equals(test.mName)) {
+            defaultValue = test;
+            break;
+          }
         }
       }
       

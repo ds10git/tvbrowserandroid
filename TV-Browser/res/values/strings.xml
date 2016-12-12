@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.3.5</h2>
+        <h2>0.6.3.6</h2>
+        	&bull; extended runtime until 2019-12-31<br>
+        	&bull; fixed possible crash<br>
+        <h3>0.6.3.5</h3>
         	&bull; try to prevent crash at data update if incompatible data for a channel is downloaded<br>
         	&bull; fix possible crash at database access<br>
         	&bull; fix possible crash at editing favorites<br>
@@ -742,7 +745,7 @@
 	<string name="pref_open">Open preferences</string>
 	<string name="pref_detail_category">Detail window</string>
 	<string name="pref_detail_category_summary">Which information should be shown in the details window?</string>
-	<string name="detail_missing_description_text">No description or picture can be shown for this program because of license restrictions.\n\nYou can unlock the descriptions and pictures for less than 1 Euro cent.\n\nMore about it at https://www.epgpaid.de</string>
+	<string name="detail_missing_description_text">No description or picture can be shown for this program because of license restrictions.\n\nYou can unlock the descriptions and pictures for circa 1 Euro cent.\n\nMore about it at https://www.epgpaid.de</string>
 	<string name="pref_detail_picture_zoom">Zoom value for picture</string>
 	<string name="pref_detail_text_scale">Zoom value for text</string>
 	<string name="pref_list_category">Lists with programs</string>
