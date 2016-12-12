@@ -259,9 +259,9 @@ public class TvBrowser extends ActionBarActivity implements
   
   static {
     mRundate = Calendar.getInstance();
-    mRundate.set(Calendar.YEAR, 2017);
-    mRundate.set(Calendar.MONTH, Calendar.JUNE);
-    mRundate.set(Calendar.DAY_OF_MONTH, 1);
+    mRundate.set(Calendar.YEAR, 2019);
+    mRundate.set(Calendar.MONTH, Calendar.DECEMBER);
+    mRundate.set(Calendar.DAY_OF_MONTH, 31);
   }
   
   @Override
@@ -2988,7 +2988,7 @@ public class TvBrowser extends ActionBarActivity implements
       final Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null);
       
       try {
-        if(loadAgain || channels == null || channels.getCount() < 1) {
+        if(loadAgain || channels == null || (channels != null && channels.getCount() < 1)) {
           if(isOnline()) {
             runChannelDownload();
           }

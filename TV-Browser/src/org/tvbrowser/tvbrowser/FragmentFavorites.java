@@ -140,7 +140,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   @Override
   public void onStart() {
     try {
-      if(getActivity() != null) {
+      Activity activity = getActivity();
+      if(activity != null) {
         int selection = PrefUtils.getIntValue(R.string.PREF_MISC_LAST_FAVORITE_SELECTION, 0);
         Log.d("info13", "selection " + selection + " " + mContainsListViewFavoriteSelection);
         if(mFavoriteSelection != null) {
