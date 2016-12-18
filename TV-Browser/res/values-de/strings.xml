@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+        <h2>0.6.3.7</h2>
+        	&bull; abgeschnittene Beschreibungen im Detail-Fenster korrigiert<br>
+        	&bull; Versuch Standardvibration des Systems für Erinnerungen zu verhindern<br>
         <h2>0.6.3.6</h2>
         	&bull; Laufzeit verlängert bis 31.12.2019<br>
         	&bull; möglichen Absturz beseitigt<br>

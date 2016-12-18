@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.3.6</h2>
+        <h2>0.6.3.7</h2>
+        	&bull; fixed cut off descriptions in detail view<br>
+        	&bull; try to prevent default vibration of system for Reminders<br>
+        <h3>0.6.3.6</h3>
         	&bull; extended runtime until 2019-12-31<br>
         	&bull; fixed possible crash<br>
         <h3>0.6.3.5</h3>

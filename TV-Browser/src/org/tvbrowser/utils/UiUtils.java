@@ -624,7 +624,7 @@ public class UiUtils {
                           if(testIndex > 0) {
                             para0 = para0.substring(testIndex+1).trim();
                             
-                            if(para1.endsWith(para0)) {
+                            if(!para0.isEmpty() && para1.endsWith(para0)) {
                               descriptionValue = descriptionValue.substring(paragraphs[0].length()+1).trim();
                             }
                           }
