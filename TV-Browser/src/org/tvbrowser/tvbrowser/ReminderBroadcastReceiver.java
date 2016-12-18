@@ -236,10 +236,14 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
             }
             else {
               builder.setDefaults(0);
+              builder.setSound(null);
             }
             
             if(vibrate) {
               builder.setVibrate(new long[] {1000,200,1000,400,1000,600});
+            }
+            else {
+              builder.setVibrate(null);
             }
             
             builder.setAutoCancel(true);
