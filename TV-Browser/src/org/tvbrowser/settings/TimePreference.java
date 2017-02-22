@@ -11,6 +11,8 @@ import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TimePicker;
 
+import org.tvbrowser.utils.CompatUtils;
+
 public class TimePreference extends DialogPreference {
   private Calendar mTime;
   private TimePicker mTimePicker;
@@ -36,8 +38,8 @@ public class TimePreference extends DialogPreference {
   protected void onBindDialogView(View view) {
     super.onBindDialogView(view);
     
-    mTimePicker.setCurrentHour(mTime.get(Calendar.HOUR_OF_DAY));
-    mTimePicker.setCurrentMinute(mTime.get(Calendar.MINUTE));
+    CompatUtils.setTimePickerHour(mTimePicker, mTime.get(Calendar.HOUR_OF_DAY));
+    CompatUtils.setTimePickerMinute(mTimePicker, mTime.get(Calendar.MINUTE));
   }
   
   @Override
@@ -45,10 +47,10 @@ public class TimePreference extends DialogPreference {
     super.onDialogClosed(positiveResult);
     
     if(positiveResult) {
-      mTime.set(Calendar.HOUR_OF_DAY, mTimePicker.getCurrentHour());
-      mTime.set(Calendar.MINUTE, mTimePicker.getCurrentMinute());
+      mTime.set(Calendar.HOUR_OF_DAY, CompatUtils.getTimePickerHour(mTimePicker));
+      mTime.set(Calendar.MINUTE, CompatUtils.getTimePickerMinute(mTimePicker));
       
-      int minutes = mTimePicker.getCurrentHour() * 60 + mTimePicker.getCurrentMinute();
+      int minutes = CompatUtils.getTimePickerHour(mTimePicker) * 60 + CompatUtils.getTimePickerMinute(mTimePicker);
       
       setTitle(DateFormat.getTimeFormat(getContext()).format(mTime.getTime()));
       

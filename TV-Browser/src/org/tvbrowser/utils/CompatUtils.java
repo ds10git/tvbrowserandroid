@@ -44,6 +44,7 @@ import android.view.Display;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.RemoteViews;
+import android.widget.TimePicker;
 
 /**
  * A class that uses the current available method of deprecated methods on the Build.VERSION of the running device.
@@ -220,5 +221,45 @@ public class CompatUtils {
     else {
       return file.isDirectory() && file.getName().toLowerCase(Locale.GERMAN).contains("sdcard");
     }
+  }
+
+  public static void setTimePickerHour(final TimePicker timePicker, final int hour) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M )
+      timePicker.setHour(hour);
+    else
+      //noinspection deprecation
+      timePicker.setCurrentHour(hour);
+  }
+
+  public static int getTimePickerHour(final TimePicker timePicker) {
+    int hour;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      hour = timePicker.getHour();
+    }
+    else {
+      //noinspection deprecation
+      hour = timePicker.getCurrentHour();
+    }
+    return hour;
+  }
+
+  public static void setTimePickerMinute(final TimePicker timePicker, final int minute) {
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M )
+      timePicker.setMinute(minute);
+    else
+      //noinspection deprecation
+      timePicker.setCurrentMinute(minute);
+  }
+
+  public static int getTimePickerMinute(final TimePicker timePicker) {
+    int minute;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+      minute = timePicker.getMinute();
+    }
+    else {
+      //noinspection deprecation
+      minute = timePicker.getCurrentMinute();
+    }
+    return minute;
   }
 }

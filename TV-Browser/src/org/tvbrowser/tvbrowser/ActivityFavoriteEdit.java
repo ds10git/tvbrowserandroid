@@ -27,6 +27,7 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.filter.CategoryFilter;
 import org.tvbrowser.filter.ChannelFilter;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.UiUtils;
 
@@ -37,6 +38,7 @@ import android.content.Intent;
 import android.content.res.Resources.Theme;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.text.Editable;
@@ -96,10 +98,10 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
     mAttributes = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_attributes);
     mExclusions = (EditText)findViewById(R.id.activity_edit_favorite_input_id_restriction_exclusion);
     
-    int color = getResources().getColor(R.color.abc_primary_text_material_light);
+    int color = ContextCompat.getColor(this, R.color.abc_primary_text_material_light);
     
     if(SettingConstants.IS_DARK_THEME) {
-      color = getResources().getColor(R.color.abc_primary_text_material_dark);
+      color = ContextCompat.getColor(this, R.color.abc_primary_text_material_dark);
     }
     
     mDuration.setTextColor(color);
@@ -232,35 +234,35 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
       if(mFavorite.getDurationRestrictionMinimum() >= 0) {
         minimumSelected.setChecked(true);
         
-        minimum.setCurrentHour(mFavorite.getDurationRestrictionMinimum() / 60);
-        minimum.setCurrentMinute(mFavorite.getDurationRestrictionMinimum() % 60);
+        CompatUtils.setTimePickerHour(minimum, mFavorite.getDurationRestrictionMinimum() / 60);
+        CompatUtils.setTimePickerMinute(minimum, mFavorite.getDurationRestrictionMinimum() % 60);
       }
       else {
         minimum.setEnabled(false);
-        minimum.setCurrentHour(0);
-        minimum.setCurrentMinute(0);
+        CompatUtils.setTimePickerHour(minimum, 0);
+        CompatUtils.setTimePickerMinute(minimum, 0);
       }
       
       if(mFavorite.getDurationRestrictionMaximum() > 0) {
         maximumSelected.setChecked(true);
         
-        maximum.setCurrentHour(mFavorite.getDurationRestrictionMaximum() / 60);
-        maximum.setCurrentMinute(mFavorite.getDurationRestrictionMaximum() % 60);
+        CompatUtils.setTimePickerHour(maximum, mFavorite.getDurationRestrictionMaximum() / 60);
+        CompatUtils.setTimePickerMinute(maximum, mFavorite.getDurationRestrictionMaximum() % 60);
       }
       else {
         maximum.setEnabled(false);
-        maximum.setCurrentHour(0);
-        maximum.setCurrentMinute(0);
+        CompatUtils.setTimePickerHour(maximum, 0);
+        CompatUtils.setTimePickerMinute(maximum, 0);
       }
     }
     else {
       minimum.setEnabled(false);
-      minimum.setCurrentHour(0);
-      minimum.setCurrentMinute(0);
+      CompatUtils.setTimePickerHour(minimum, 0);
+      CompatUtils.setTimePickerMinute(minimum, 0);
       
       maximum.setEnabled(false);
-      maximum.setCurrentHour(0);
-      maximum.setCurrentMinute(0);
+      CompatUtils.setTimePickerHour(maximum, 0);
+      CompatUtils.setTimePickerMinute(maximum, 0);
     }
     
     minimumSelected.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
@@ -286,11 +288,11 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
         int maximumValue = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
         
         if(minimumSelected.isChecked()) {
-          minimumValue = minimum.getCurrentHour() * 60 + minimum.getCurrentMinute();
+          minimumValue = CompatUtils.getTimePickerHour(minimum) * 60 + CompatUtils.getTimePickerMinute(minimum);
         }
         
         if(maximumSelected.isChecked()) {
-          maximumValue = maximum.getCurrentHour() * 60 + maximum.getCurrentMinute();
+          maximumValue = CompatUtils.getTimePickerHour(maximum) * 60 + CompatUtils.getTimePickerMinute(maximum);
           
           if(maximumValue == 0) {
             maximumValue = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
@@ -337,24 +339,24 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
       
       Calendar current = Calendar.getInstance();
       current.setTime(utc.getTime());
-      
-      from.setCurrentHour(current.get(Calendar.HOUR_OF_DAY));
-      from.setCurrentMinute(current.get(Calendar.MINUTE));
+
+      CompatUtils.setTimePickerHour(from, current.get(Calendar.HOUR_OF_DAY));
+      CompatUtils.setTimePickerMinute(from, current.get(Calendar.MINUTE));
       
       utc.set(Calendar.HOUR_OF_DAY, mFavorite.getTimeRestrictionEnd() / 60);
       utc.set(Calendar.MINUTE, mFavorite.getTimeRestrictionEnd() % 60);
       
       current.setTime(utc.getTime());
-      
-      to.setCurrentHour(current.get(Calendar.HOUR_OF_DAY));
-      to.setCurrentMinute(current.get(Calendar.MINUTE));
+
+      CompatUtils.setTimePickerHour(to, current.get(Calendar.HOUR_OF_DAY));
+      CompatUtils.setTimePickerMinute(to, current.get(Calendar.MINUTE));
     }
     else {
-      from.setCurrentHour(0);
-      from.setCurrentMinute(0);
-      
-      to.setCurrentHour(23);
-      to.setCurrentMinute(59);
+      CompatUtils.setTimePickerHour(from, 0);
+      CompatUtils.setTimePickerMinute(from, 0);
+
+      CompatUtils.setTimePickerHour(to, 23);
+      CompatUtils.setTimePickerMinute(to, 59);
     }
     
     builder.setView(timeSelection);
@@ -363,22 +365,22 @@ public class ActivityFavoriteEdit extends ActionBarActivity implements ChannelFi
       @Override
       public void onClick(DialogInterface dialog, int which) {
         Calendar current = Calendar.getInstance();
-        IOUtils.normalizeTime(current, from.getCurrentHour(), from.getCurrentMinute(), 0);
+        IOUtils.normalizeTime(current, CompatUtils.getTimePickerHour(from), CompatUtils.getTimePickerMinute(from), 0);
         
         Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
         utc.setTime(current.getTime());
         
         int start = utc.get(Calendar.HOUR_OF_DAY) * 60 + utc.get(Calendar.MINUTE);
         
-        current.set(Calendar.HOUR_OF_DAY, to.getCurrentHour());
-        current.set(Calendar.MINUTE, to.getCurrentMinute());
+        current.set(Calendar.HOUR_OF_DAY, CompatUtils.getTimePickerHour(to));
+        current.set(Calendar.MINUTE, CompatUtils.getTimePickerMinute(to));
         
         utc.setTime(current.getTime());
         
         int end = utc.get(Calendar.HOUR_OF_DAY) * 60 + utc.get(Calendar.MINUTE);
         
-        final int unNormalizedFromTime = from.getCurrentHour() * 60 + from.getCurrentMinute();
-        final int unNormalizedToTime = to.getCurrentHour() * 60 + to.getCurrentMinute();
+        final int unNormalizedFromTime = CompatUtils.getTimePickerHour(from) * 60 + CompatUtils.getTimePickerMinute(from);
+        final int unNormalizedToTime = CompatUtils.getTimePickerHour(to) * 60 + CompatUtils.getTimePickerMinute(to);
         
         if((unNormalizedToTime == unNormalizedFromTime) || (unNormalizedFromTime == 0 && unNormalizedToTime == 1439)) {
           start = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;

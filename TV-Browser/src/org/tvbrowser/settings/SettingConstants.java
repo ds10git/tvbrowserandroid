@@ -37,6 +37,7 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.graphics.drawable.LayerDrawable;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.util.SparseArray;
 
 public class SettingConstants {
@@ -283,7 +284,7 @@ public class SettingConstants {
     LayerDrawable logo = new LayerDrawable(new Drawable[] {logo1});
     GradientDrawable background = null;
     
-    int backgroundColor = PrefUtils.getIntValue(R.string.PREF_LOGO_BACKGROUND_COLOR, context.getResources().getColor(R.color.pref_logo_background_color_default));
+    int backgroundColor = PrefUtils.getIntValue(R.string.PREF_LOGO_BACKGROUND_COLOR, ContextCompat.getColor(context, R.color.pref_logo_background_color_default));
     
     background = new GradientDrawable(Orientation.BOTTOM_TOP, new int[] {backgroundColor,backgroundColor});
     
@@ -300,7 +301,7 @@ public class SettingConstants {
     logo1.setBounds(maxwidth/2-width/2, maxheight/2-height/2, maxwidth/2+width/2, maxheight/2+height/2);
     
     if(withBorder) {
-      background.setStroke(1, PrefUtils.getIntValue(R.string.PREF_LOGO_BORDER_COLOR, context.getResources().getColor(R.color.pref_logo_border_color_default)));
+      background.setStroke(1, PrefUtils.getIntValue(R.string.PREF_LOGO_BORDER_COLOR, ContextCompat.getColor(context, R.color.pref_logo_border_color_default)));
     }
     
     return logo;

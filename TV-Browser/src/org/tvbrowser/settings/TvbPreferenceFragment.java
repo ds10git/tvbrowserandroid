@@ -30,11 +30,10 @@ import org.tvbrowser.utils.UiUtils;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.Intent;
+import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
-import android.content.res.Resources;
 import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
@@ -50,6 +49,7 @@ import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
 import android.preference.RingtonePreference;
+import android.support.v4.content.ContextCompat;
 import android.util.Log;
 
 public class TvbPreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
@@ -431,80 +431,81 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
             if(currentStyle != null && currentStyle.getValue() != null) {
               currentStyleValue = Integer.parseInt(currentStyle.getValue());
             }
-            
+
+            final Context context = getActivity();
             if(currentStyleValue == 1) {
-              int color = getResources().getColor(R.color.pref_color_on_air_background_tvb_style_default);
+              int color = ContextCompat.getColor(context, R.color.pref_color_on_air_background_tvb_style_default);
               onAirBackground.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_on_air_progress_tvb_style_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_on_air_progress_tvb_style_default);
               onAirProgress.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_mark_tvb_style_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_mark_tvb_style_default);
               marked.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_mark_favorite_tvb_style_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_mark_favorite_tvb_style_default);
               markedFavorite.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_mark_reminder_tvb_style_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_mark_reminder_tvb_style_default);
               markedReminder.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_mark_sync_tvb_style_favorite_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_mark_sync_tvb_style_favorite_default);
               markedSync.setColors(color, color);
               
               
-              if(sharedPreferences.getInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), getResources().getColor(R.color.pref_color_running_time_selection_background_glow_style_default)) == getResources().getColor(R.color.pref_color_running_time_selection_background_glow_style_default)) {
+              if(sharedPreferences.getInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_glow_style_default)) == ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_glow_style_default)) {
                 Editor edit = (Editor)sharedPreferences.edit();
-                edit.putInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), getResources().getColor(R.color.pref_color_running_time_selection_background_tvb_style_default));
+                edit.putInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_tvb_style_default));
                 edit.commit();
               }
             }
             else if(currentStyleValue == 2) {
-              int color = getResources().getColor(R.color.pref_color_on_air_background_glow_style_default);
+              int color = ContextCompat.getColor(context, R.color.pref_color_on_air_background_glow_style_default);
               onAirBackground.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_on_air_progress_glow_style_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_on_air_progress_glow_style_default);
               onAirProgress.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_mark_glow_style_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_mark_glow_style_default);
               marked.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_mark_favorite_glow_style_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_mark_favorite_glow_style_default);
               markedFavorite.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_mark_reminder_glow_style_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_mark_reminder_glow_style_default);
               markedReminder.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_mark_sync_glow_style_favorite_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_mark_sync_glow_style_favorite_default);
               markedSync.setColors(color, color);
               
-              if(sharedPreferences.getInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), getResources().getColor(R.color.pref_color_running_time_selection_background_tvb_style_default)) == getResources().getColor(R.color.pref_color_running_time_selection_background_tvb_style_default)) {
+              if(sharedPreferences.getInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_tvb_style_default)) == ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_tvb_style_default)) {
                 Editor edit = (Editor)sharedPreferences.edit();
-                edit.putInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), getResources().getColor(R.color.pref_color_running_time_selection_background_glow_style_default));
+                edit.putInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_glow_style_default));
                 edit.commit();
               }
             }
             else if(currentStyleValue == 3) {
-              int color = getResources().getColor(R.color.pref_color_on_air_background_decent_dark_style_default);
+              int color = ContextCompat.getColor(context, R.color.pref_color_on_air_background_decent_dark_style_default);
               onAirBackground.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_on_air_progress_decent_dark_style_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_on_air_progress_decent_dark_style_default);
               onAirProgress.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_mark_decent_dark_style_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_mark_decent_dark_style_default);
               marked.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_mark_favorite_decent_dark_style_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_mark_favorite_decent_dark_style_default);
               markedFavorite.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_mark_reminder_decent_dark_style_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_mark_reminder_decent_dark_style_default);
               markedReminder.setColors(color, color);
-              color = getResources().getColor(R.color.pref_color_mark_sync_decent_dark_style_favorite_default);
+              color = ContextCompat.getColor(context, R.color.pref_color_mark_sync_decent_dark_style_favorite_default);
               markedSync.setColors(color, color);
               
-              if(sharedPreferences.getInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), getResources().getColor(R.color.pref_color_running_time_selection_background_tvb_style_default)) == getResources().getColor(R.color.pref_color_running_time_selection_background_tvb_style_default)) {
+              if(sharedPreferences.getInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_tvb_style_default)) == ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_tvb_style_default)) {
                 Editor edit = (Editor)sharedPreferences.edit();
-                edit.putInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), getResources().getColor(R.color.pref_color_running_time_selection_background_decent_dark_style_default));
+                edit.putInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_decent_dark_style_default));
                 edit.commit();
               }
             }
             else if(currentStyleValue == 0) {
-              int color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND_USER_DEFINED), getResources().getColor(R.color.pref_color_on_air_background_tvb_style_default));
+              int color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND_USER_DEFINED), ContextCompat.getColor(context, R.color.pref_color_on_air_background_tvb_style_default));
               onAirBackground.setColors(color, color);
-              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_ON_AIR_PROGRESS_USER_DEFINED), getResources().getColor(R.color.pref_color_on_air_progress_tvb_style_default));
+              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_ON_AIR_PROGRESS_USER_DEFINED), ContextCompat.getColor(context, R.color.pref_color_on_air_progress_tvb_style_default));
               onAirProgress.setColors(color, color);
-              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_MARKED_USER_DEFINED), getResources().getColor(R.color.pref_color_mark_tvb_style_default));
+              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_MARKED_USER_DEFINED), ContextCompat.getColor(context, R.color.pref_color_mark_tvb_style_default));
               marked.setColors(color, color);
-              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_FAVORITE_USER_DEFINED), getResources().getColor(R.color.pref_color_mark_favorite_tvb_style_default));
+              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_FAVORITE_USER_DEFINED), ContextCompat.getColor(context, R.color.pref_color_mark_favorite_tvb_style_default));
               markedFavorite.setColors(color, color);
-              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_REMINDER_USER_DEFINED), getResources().getColor(R.color.pref_color_mark_reminder_tvb_style_default));
+              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_REMINDER_USER_DEFINED), ContextCompat.getColor(context, R.color.pref_color_mark_reminder_tvb_style_default));
               markedReminder.setColors(color, color);
-              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_SYNC_USER_DEFINED), getResources().getColor(R.color.pref_color_mark_sync_tvb_style_favorite_default));
+              color = sharedPreferences.getInt(getString(R.string.PREF_COLOR_SYNC_USER_DEFINED), ContextCompat.getColor(context, R.color.pref_color_mark_sync_tvb_style_favorite_default));
               markedSync.setColors(color, color);
             }
             
