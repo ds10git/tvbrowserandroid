@@ -32,6 +32,7 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.TextPaint;
 import android.view.View;
@@ -201,10 +202,10 @@ public class ProgramPanel extends View {
       
       if(isExpired()) {
         if(SettingConstants.IS_DARK_THEME) {
-          mPicture.setColorFilter(getResources().getColor(org.tvbrowser.tvbrowser.R.color.dark_gray), PorterDuff.Mode.DARKEN);
+          mPicture.setColorFilter(ContextCompat.getColor(getContext(), org.tvbrowser.tvbrowser.R.color.dark_gray), PorterDuff.Mode.DARKEN);
         }
         else {
-          mPicture.setColorFilter(getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
+          mPicture.setColorFilter(ContextCompat.getColor(getContext(), android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
         }
       }
     }
@@ -356,7 +357,7 @@ public class ProgramPanel extends View {
   public void checkExpired(Handler handler) {
     if(!mIsExpired && isExpired()) {
       if(mPicture != null) {
-        mPicture.setColorFilter(getResources().getColor(android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
+        mPicture.setColorFilter(ContextCompat.getColor(getContext(), android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
       }
       
       handler.post(new Runnable() {

@@ -58,6 +58,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.Spannable;
 import android.text.TextUtils;
@@ -908,7 +909,7 @@ public class FragmentProgramTable extends Fragment {
     }
     
     if(SettingConstants.IS_DARK_THEME) {
-      programTableLayout.findViewById(R.id.button_panel).setBackgroundColor(getResources().getColor(R.color.background_material_dark));
+      programTableLayout.findViewById(R.id.button_panel).setBackgroundColor(ContextCompat.getColor(getActivity(), R.color.background_material_dark));
     }
     
     ProgramTableLayoutConstants.initialize(getActivity());
