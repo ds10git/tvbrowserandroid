@@ -28,6 +28,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Typeface;
 import android.preference.PreferenceManager;
+import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
 import android.text.format.DateFormat;
 import android.widget.TextView;
@@ -148,7 +149,7 @@ public class ProgramTableLayoutConstants {
         
     BLOCK_PAINT.setColor(Color.argb(30,GRAY_VALUE, GRAY_VALUE, GRAY_VALUE));
     LINE_PAINT.setColor(Color.argb(60, GRAY_VALUE, GRAY_VALUE, GRAY_VALUE));
-    CHANNEL_LINE_PAINT.setColor(context.getResources().getColor(R.color.light_gray));
+    CHANNEL_LINE_PAINT.setColor(ContextCompat.getColor(context, R.color.light_gray));
     
     PADDING_SIDE = (int) (2 * scale + 0.5f);
     
@@ -156,7 +157,7 @@ public class ProgramTableLayoutConstants {
     TIME_BLOCK_TIME_PAINT.setColor(new TextView(context).getTextColors().getDefaultColor());
     FONT_SIZE_ASCENT = Math.abs(TIME_BLOCK_TIME_PAINT.getFontMetricsInt().ascent);
     
-    CHANNEL_BACKGROUND_PAINT.setColor(context.getResources().getColor(R.color.prog_table_channel_background));
+    CHANNEL_BACKGROUND_PAINT.setColor(ContextCompat.getColor(context, R.color.prog_table_channel_background));
     CHANNEL_BACKGROUND_PAINT.setStyle(Paint.Style.FILL_AND_STROKE);
     
     TIME_FORMAT = DateFormat.getTimeFormat(context);
@@ -168,7 +169,7 @@ public class ProgramTableLayoutConstants {
     
     CHANNEL_BAR_HEIGHT = context.getResources().getDimensionPixelSize(R.dimen.prog_table_channel_height);
     
-    CHANNEL_PAINT.setColor(context.getResources().getColor(R.color.prog_table_channel_color));
+    CHANNEL_PAINT.setColor(ContextCompat.getColor(context, R.color.prog_table_channel_color));
     CHANNEL_PAINT.setTextSize(context.getResources().getDimensionPixelSize(R.dimen.prog_table_channel_font_size));
     CHANNEL_PAINT.setTypeface(Typeface.DEFAULT_BOLD);
     
