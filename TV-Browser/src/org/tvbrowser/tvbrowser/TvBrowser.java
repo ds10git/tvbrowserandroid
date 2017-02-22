@@ -54,6 +54,7 @@ import org.tvbrowser.filter.FilterValuesKeyword;
 import org.tvbrowser.settings.PluginPreferencesActivity;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.settings.TvbPreferencesActivity;
+import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.ProgramUtils;
@@ -109,6 +110,7 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
@@ -273,7 +275,7 @@ public class TvBrowser extends ActionBarActivity implements
   }
   
   private final boolean addUserColor(SharedPreferences pref, Editor edit, int defaultColorKey, int colorKey, int userColorKey) {
-    int defaultColor = getResources().getColor(defaultColorKey);
+    int defaultColor = ContextCompat.getColor(this, defaultColorKey);
     int color = pref.getInt(getString(colorKey), defaultColor);
     
     edit.putInt(getString(userColorKey), color);
@@ -2593,8 +2595,8 @@ public class TvBrowser extends ActionBarActivity implements
       final Set<String> firstDeletedChannels = PrefUtils.getStringSetValue(R.string.PREF_FIRST_DELETED_CHANNELS, new HashSet<String>());
       final Set<String> keptDeletedChannels = PrefUtils.getStringSetValue(R.string.PREF_KEPT_DELETED_CHANNELS, new HashSet<String>());
       
-      final int firstDeletedColor = getResources().getColor(R.color.pref_first_deleted_channels);
-      final int keptDeletedColor = getResources().getColor(R.color.pref_kept_deleted_channels);
+      final int firstDeletedColor = ContextCompat.getColor(this, R.color.pref_first_deleted_channels);
+      final int keptDeletedColor = ContextCompat.getColor(this, R.color.pref_kept_deleted_channels);
       
       // Custom array adapter for channel selection
       final ArrayAdapter<ChannelSelection> channelSelectionAdapter = new ArrayAdapter<ChannelSelection>(TvBrowser.this, R.layout.channel_row, channelSelectionList) {
@@ -3485,15 +3487,15 @@ public class TvBrowser extends ActionBarActivity implements
               
               final TimePicker timePick = (TimePicker)timeSelection.findViewById(R.id.dialog_data_update_selection_auto_update_selection_time);
               timePick.setIs24HourView(DateFormat.is24HourFormat(TvBrowser.this));
-              timePick.setCurrentHour(currentAutoUpdateTime.get()/60);
-              timePick.setCurrentMinute(currentAutoUpdateTime.get()%60);
+              CompatUtils.setTimePickerHour(timePick, currentAutoUpdateTime.get()/60);
+              CompatUtils.setTimePickerMinute(timePick, currentAutoUpdateTime.get()%60);
               
               b2.setView(timeSelection);
               
               b2.setPositiveButton(android.R.string.ok, new OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                  currentAutoUpdateTime.set(timePick.getCurrentHour() * 60 + timePick.getCurrentMinute());
+                  currentAutoUpdateTime.set(CompatUtils.getTimePickerHour(timePick) * 60 + CompatUtils.getTimePickerMinute(timePick));
                   
                   Calendar now = Calendar.getInstance();
                   

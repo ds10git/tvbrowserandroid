@@ -23,7 +23,9 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
+import android.support.v4.content.ContextCompat;
 
 public class SeparatorDrawable extends Drawable {
   private Paint mLineColor = new Paint();
@@ -37,10 +39,10 @@ public class SeparatorDrawable extends Drawable {
     PrefUtils.initialize(context.getApplicationContext());
     
     mLineColor.setStyle(Paint.Style.STROKE);
-    mLineColor.setColor(PrefUtils.getIntValue(R.string.PREF_COLOR_SEPARATOR_LINE, context.getResources().getColor(R.color.pref_color_separator_line)));
+    mLineColor.setColor(PrefUtils.getIntValue(R.string.PREF_COLOR_SEPARATOR_LINE, ContextCompat.getColor(context, R.color.pref_color_separator_line)));
     
     mDividerColor.setStyle(Paint.Style.FILL_AND_STROKE);
-    mDividerColor.setColor(PrefUtils.getIntValue(R.string.PREF_COLOR_SEPARATOR_SPACE, context.getResources().getColor(R.color.pref_color_separator_space)));
+    mDividerColor.setColor(PrefUtils.getIntValue(R.string.PREF_COLOR_SEPARATOR_SPACE, ContextCompat.getColor(context, R.color.pref_color_separator_space)));
   }
   
   @Override
@@ -56,7 +58,7 @@ public class SeparatorDrawable extends Drawable {
   @Override
   public int getOpacity() {
     // TODO Auto-generated method stub
-    return 0;
+    return PixelFormat.UNKNOWN;
   }
 
   @Override

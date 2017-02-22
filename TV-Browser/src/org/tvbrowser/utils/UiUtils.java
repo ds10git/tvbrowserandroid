@@ -81,6 +81,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
+import android.graphics.PixelFormat;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
@@ -327,7 +328,7 @@ public class UiUtils {
                     });
                   }
                   
-                  final int favoriteMatchHighlightColor = PrefUtils.getIntValue(R.string.PREF_DETAIL_HIGHLIGHT_COLOR, context.getResources().getColor(R.color.pref_detail_highlight_color_default));
+                  final int favoriteMatchHighlightColor = PrefUtils.getIntValue(R.string.PREF_DETAIL_HIGHLIGHT_COLOR, ContextCompat.getColor(context, R.color.pref_detail_highlight_color_default));
                   
                   final Favorite[] markedFromFavorites = Favorite.getFavoritesForUniqueId(context, id);
                   final ArrayList<FavoriteTypePattern> patternList = new ArrayList<FavoriteTypePattern>();
@@ -366,7 +367,7 @@ public class UiUtils {
                   final Resources resources = context.getResources();
 
                   if(!SettingConstants.IS_DARK_THEME && !(finish instanceof InfoActivity)) {
-                    date.setTextColor(resources.getColor(R.color.detail_date_channel_color_light));
+                    date.setTextColor(ContextCompat.getColor(context, R.color.detail_date_channel_color_light));
                   }
 
                   final int channelID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
@@ -401,7 +402,7 @@ public class UiUtils {
 
 	                    BitmapDrawable l = new BitmapDrawable(resources, logo);
 
-	                    int color = PrefUtils.getIntValue(R.string.PREF_LOGO_BACKGROUND_COLOR, resources.getColor(R.color.pref_logo_background_color_default));
+	                    int color = PrefUtils.getIntValue(R.string.PREF_LOGO_BACKGROUND_COLOR, ContextCompat.getColor(context, R.color.pref_logo_background_color_default));
 
 	                    GradientDrawable background = new GradientDrawable(Orientation.BOTTOM_TOP,new int[] {color,color});
 
@@ -409,7 +410,7 @@ public class UiUtils {
 
 	                    if(PrefUtils.getBooleanValue(R.string.PREF_LOGO_BORDER, R.bool.pref_logo_border_default)) {
 	                      add = 3;
-	                      background.setStroke(1, PrefUtils.getIntValue(R.string.PREF_LOGO_BORDER_COLOR, resources.getColor(R.color.pref_logo_border_color_default)));
+	                      background.setStroke(1, PrefUtils.getIntValue(R.string.PREF_LOGO_BORDER_COLOR, ContextCompat.getColor(context, R.color.pref_logo_border_color_default)));
 	                    }
 
 	                    background.setBounds(0, 0, width + add, height + add);
@@ -1581,7 +1582,7 @@ public class UiUtils {
 
     @Override
     public int getOpacity() {
-      return 0;
+      return PixelFormat.UNKNOWN;
     }
 
     @Override
@@ -1903,14 +1904,14 @@ public class UiUtils {
             color = SettingConstants.EXPIRED_LIGHT_COLOR;
           }
           break;
-      case MARKED_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_MARKED), context.getResources().getColor(R.color.pref_color_mark_tvb_style_default));break;
-      case MARKED_FAVORITE_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_FAVORITE), context.getResources().getColor(R.color.pref_color_mark_favorite_tvb_style_default));break;
-      case MARKED_REMINDER_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_REMINDER), context.getResources().getColor(R.color.pref_color_mark_reminder_tvb_style_default));break;
-      case MARKED_SYNC_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_SYNC), context.getResources().getColor(R.color.pref_color_mark_sync_tvb_style_favorite_default));break;
-      case ON_AIR_BACKGROUND_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND), context.getResources().getColor(R.color.pref_color_on_air_background_tvb_style_default));break;
-      case ON_AIR_PROGRESS_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_PROGRESS), context.getResources().getColor(R.color.pref_color_on_air_progress_tvb_style_default));break;
-      case RUNNING_TIME_SELECTION_KEY: color = pref.getInt(context.getString(R.string.PREF_RUNNING_TIME_SELECTION), context.getResources().getColor(R.color.pref_color_running_time_selection_background_tvb_style_default));break;
-      case I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR), context.getResources().getColor(R.color.i_dont_want_to_see_highlight));break;
+      case MARKED_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_MARKED), ContextCompat.getColor(context, R.color.pref_color_mark_tvb_style_default));break;
+      case MARKED_FAVORITE_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_FAVORITE), ContextCompat.getColor(context, R.color.pref_color_mark_favorite_tvb_style_default));break;
+      case MARKED_REMINDER_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_REMINDER), ContextCompat.getColor(context, R.color.pref_color_mark_reminder_tvb_style_default));break;
+      case MARKED_SYNC_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_SYNC), ContextCompat.getColor(context, R.color.pref_color_mark_sync_tvb_style_favorite_default));break;
+      case ON_AIR_BACKGROUND_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_BACKGROUND), ContextCompat.getColor(context, R.color.pref_color_on_air_background_tvb_style_default));break;
+      case ON_AIR_PROGRESS_KEY: color = pref.getInt(context.getString(R.string.PREF_COLOR_ON_AIR_PROGRESS), ContextCompat.getColor(context, R.color.pref_color_on_air_progress_tvb_style_default));break;
+      case RUNNING_TIME_SELECTION_KEY: color = pref.getInt(context.getString(R.string.PREF_RUNNING_TIME_SELECTION), ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_tvb_style_default));break;
+      case I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR_KEY: color = pref.getInt(context.getString(R.string.PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR), ContextCompat.getColor(context, R.color.i_dont_want_to_see_highlight));break;
     }
     
     return color;

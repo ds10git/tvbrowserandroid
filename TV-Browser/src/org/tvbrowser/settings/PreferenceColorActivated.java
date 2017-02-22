@@ -8,6 +8,7 @@ import org.tvbrowser.view.ColorView;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.preference.DialogPreference;
+import android.support.v4.content.ContextCompat;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.AttributeSet;
@@ -59,7 +60,7 @@ public class PreferenceColorActivated extends DialogPreference {
         }
         else {
           values[0] = 1;
-          values[1] = context.getResources().getColor(resId);
+          values[1] = ContextCompat.getColor(context, resId);
         }
                
         mActivated = values[0] == 1;

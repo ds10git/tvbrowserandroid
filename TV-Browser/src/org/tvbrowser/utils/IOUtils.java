@@ -858,6 +858,20 @@ public class IOUtils {
   }
 
   /**
+   * Closes the given database cursor, releases assigned resources, and makes the cursor invalid.
+   * A call to {@link Cursor#requery()} will not make the cursor valid again.
+   * Calls are <code>null</code>-safe and idempotent.
+   *
+   * @param cursor the {@link Cursor} to close.
+   * @see Cursor#close()
+   */
+  public static void close(final Cursor cursor) {
+    if (cursor!=null && !cursor.isClosed()) {
+      cursor.close();
+    }
+  }
+
+  /**
    * Disconnects the given connection and releases or reuses associated resources.
    * Calls are <code>null</code>-safe and idempotent.
    * <p/>
