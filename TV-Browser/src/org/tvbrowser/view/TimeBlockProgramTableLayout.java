@@ -22,6 +22,8 @@ import java.util.Calendar;
 import android.content.Context;
 import android.graphics.Canvas;
 
+import org.tvbrowser.tvbrowser.R;
+
 public class TimeBlockProgramTableLayout extends ProgramTableLayout {
   //private ArrayList<Integer> mChannelIDsOrdered;
   private int[] mBlockHeights;
@@ -167,13 +169,8 @@ public class TimeBlockProgramTableLayout extends ProgramTableLayout {
       if(time >= 24) {
         time -= 24;
       }
-      
-      String value = String.valueOf(time);
-      
-      if(value.length() == 1) {
-        value = "0" + value;
-      }
-      
+
+      final String value = getContext().getString(R.string.time_block_time_format, time);
       float length = ProgramTableLayoutConstants.TIME_BLOCK_TIME_PAINT.measureText(value);
       
       canvas.drawText(value, ProgramTableLayoutConstants.ROW_HEADER / 2 - length/2, y, ProgramTableLayoutConstants.TIME_BLOCK_TIME_PAINT);
