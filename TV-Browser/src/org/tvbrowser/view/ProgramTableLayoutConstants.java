@@ -43,6 +43,9 @@ public class ProgramTableLayoutConstants {
   static final Paint CHANNEL_LINE_PAINT = new Paint();
   
   static final TextPaint TIME_BLOCK_TIME_PAINT = new TextPaint();
+  static {
+    TIME_BLOCK_TIME_PAINT.setFlags(Paint.SUBPIXEL_TEXT_FLAG | Paint.ANTI_ALIAS_FLAG);
+  }
   
   static int FONT_SIZE_ASCENT;
   static int COLUMN_WIDTH = -1;

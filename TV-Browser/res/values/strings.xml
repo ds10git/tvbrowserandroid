@@ -1262,4 +1262,5 @@
     <string name="waiting_detail_show">Opening detail window&#8230;</string>
     <string name="detail_date_format">%1$ta, %2$s %3$s - %4$s, %5$s</string>
     
+    <string name="time_block_time_format" translatable="false">%1$02d</string>
 </resources>
