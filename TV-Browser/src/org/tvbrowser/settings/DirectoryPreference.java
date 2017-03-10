@@ -18,10 +18,10 @@ package org.tvbrowser.settings;
 
 import org.tvbrowser.tvbrowser.R;
 
-import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.preference.ListPreference;
+import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
 
 public class DirectoryPreference extends ListPreference {
