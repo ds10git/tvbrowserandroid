@@ -88,10 +88,10 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.util.SparseArrayCompat;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
-import android.util.SparseArray;
 import android.widget.Toast;
 import de.epgpaid.EPGpaidDataConnection;
 
@@ -542,7 +542,7 @@ public class TvDataUpdateService extends Service {
         
         final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_TIMEZONE,TvBrowserContentProvider.GROUP_KEY_GROUP_ID};
         
-        final SparseArray<String> groupMap = new SparseArray<String>();
+        final SparseArrayCompat<String> groupMap = new SparseArrayCompat<String>();
         final String[] groupProjection = new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID};
         
         final Cursor groupCursor = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, null, null, null);
@@ -1040,7 +1040,7 @@ public class TvDataUpdateService extends Service {
     
     StringBuilder dat = new StringBuilder();
     
-    SparseArray<SimpleGroupInfo> groupInfo = new SparseArray<SimpleGroupInfo>();
+    SparseArrayCompat<SimpleGroupInfo> groupInfo = new SparseArrayCompat<SimpleGroupInfo>();
     
     if(programs.getCount() > 0) {
       programs.moveToPosition(-1);
@@ -2229,7 +2229,7 @@ public class TvDataUpdateService extends Service {
     
     StringBuilder dat = new StringBuilder();
     
-    SparseArray<SimpleGroupInfo> groupInfo = new SparseArray<SimpleGroupInfo>();
+    SparseArrayCompat<SimpleGroupInfo> groupInfo = new SparseArrayCompat<SimpleGroupInfo>();
     
     if(programs.getCount() > 0) {
       programs.moveToPosition(-1);

@@ -111,6 +111,7 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
@@ -134,7 +135,6 @@ import android.text.style.ReplacementSpan;
 import android.text.style.URLSpan;
 import android.util.Base64;
 import android.util.Log;
-import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -2157,7 +2157,7 @@ public class TvBrowser extends AppCompatActivity implements
           TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER
       };
       
-      SparseArray<String> groupKeys = new SparseArray<String>();
+      SparseArrayCompat<String> groupKeys = new SparseArrayCompat<String>();
       StringBuilder uploadChannels = new StringBuilder();
       
       Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
@@ -5678,7 +5678,7 @@ public class TvBrowser extends AppCompatActivity implements
    * of the sections/tabs/pages.
    */
   public class SectionsPagerAdapter extends FragmentPagerAdapter {
-    SparseArray<Fragment> registeredFragments = new SparseArray<Fragment>();
+    SparseArrayCompat<Fragment> registeredFragments = new SparseArrayCompat<Fragment>();
     
     public SectionsPagerAdapter(FragmentManager fm) {
       super(fm);
