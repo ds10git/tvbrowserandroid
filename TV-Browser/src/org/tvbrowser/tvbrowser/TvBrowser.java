@@ -116,7 +116,7 @@ import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.Html;
@@ -176,7 +176,7 @@ import com.example.android.listviewdragginganimation.StableArrayAdapter;
 
 import de.epgpaid.EPGpaidDataConnection;
 
-public class TvBrowser extends ActionBarActivity implements
+public class TvBrowser extends AppCompatActivity implements
     ActionBar.TabListener {
   private static final boolean TEST_VERSION = false;
   
