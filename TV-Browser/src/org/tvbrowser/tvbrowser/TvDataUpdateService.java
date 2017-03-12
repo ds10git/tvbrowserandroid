@@ -88,6 +88,7 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.util.LongSparseArray;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -3992,9 +3993,7 @@ public class TvDataUpdateService extends Service {
   
   private static final void addArrayToList(ArrayList<String> list, String[] values) {
     if(values != null && list != null) {
-      for(String value : values) {
-        list.add(value);
-      }
+      Collections.addAll(list, values);
     }
   }
   
@@ -4849,7 +4848,7 @@ public class TvDataUpdateService extends Service {
     private HashMap<String, ContentValues> mContentValueList; 
     private HashMap<String, Byte> mVersionMap;
     private ArrayList<ContentValues> mInsertValuesList;
-    private HashMap<Long, ContentValues> mUpdateValueMap;
+    private LongSparseArray<ContentValues> mUpdateValueMap;
     private boolean mContainsPicture;
     private boolean mContainsDescription;
     private DataHandler mDataHandler;
@@ -4880,7 +4879,7 @@ public class TvDataUpdateService extends Service {
       mContentValueList = new HashMap<String, ContentValues>(0);
       mInsertValuesList = new ArrayList<ContentValues>();
       mVersionMap = new HashMap<String, Byte>();
-      mUpdateValueMap = new HashMap<Long, ContentValues>();
+      mUpdateValueMap = new LongSparseArray<ContentValues>();
       mContainsDescription = false;
       mContainsPicture = false;
     }
@@ -5062,8 +5061,9 @@ public class TvDataUpdateService extends Service {
          }
        }
        
-       if(!mUpdateValueMap.isEmpty()) {
-         for(Long programID : mUpdateValueMap.keySet()) {
+       if(mUpdateValueMap!=null) {
+         for(int i=0; i<mUpdateValueMap.size(); i++) {
+           final long programID = mUpdateValueMap.keyAt(i);
            ContentValues value = mUpdateValueMap.get(programID);
            
            if(value != null && mDataDatabaseOperation != null) {

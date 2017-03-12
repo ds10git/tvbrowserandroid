@@ -936,16 +936,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     projection[11] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
     projection[12] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
     projection[13] = TvBrowserContentProvider.CHANNEL_KEY_LOGO;
-    
-    for(int i = 0; i < infoCategories.length; i++) {
-      projection[14+i] = infoCategories[i];
-    }
-    
-    int startIndex = 14 + infoCategories.length;
 
-    for(int i = startIndex ; i < (startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length); i++) {
-      projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
-    }
+    System.arraycopy(infoCategories, 0, projection, 14, infoCategories.length);
+    System.arraycopy(TvBrowserContentProvider.MARKING_COLUMNS, 0, projection, 14 + infoCategories.length, TvBrowserContentProvider.MARKING_COLUMNS.length);
     
     return projection;
   }

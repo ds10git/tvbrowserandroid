@@ -17,6 +17,7 @@
 package org.tvbrowser.utils;
 
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -179,12 +180,8 @@ public class PrefUtils {
       
       HashSet<String> defaultValues = new HashSet<String>();
       
-      if(tempValues != null) {
-        for(String value : tempValues) {
-          defaultValues.add(value);
-        }
-      }
       
+      Collections.addAll(defaultValues, tempValues);
       return getStringSetValue(prefKey,defaultValues);
     }
     

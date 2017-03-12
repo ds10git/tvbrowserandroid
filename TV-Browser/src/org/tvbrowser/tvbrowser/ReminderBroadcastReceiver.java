@@ -183,7 +183,9 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
       
       if(showReminder && IOUtils.isDatabaseAccessible(context)) {
         Logging.log(tag,  new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' CONTEXT: " + context + " contentResolver: " + context.getContentResolver(), Logging.TYPE_REMINDER, context);
-        Cursor values = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), SettingConstants.REMINDER_PROJECTION, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+        Cursor values = null; try {
+        values = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), SettingConstants.REMINDER_PROJECTION, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+        assert values != null;
         Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Tried to load program with given ID, cursor size: " + values.getCount(), Logging.TYPE_REMINDER, context);
         if(values.moveToFirst()) {
           NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
@@ -290,7 +292,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           }
         }
         
-        values.close();
+        } finally {IOUtils.close(values);}
       }
     }
     

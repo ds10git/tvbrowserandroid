@@ -113,7 +113,7 @@ public class EPGpaidDataConnection {
               value = password.trim();
             }
             
-            postParameters.append(key + "=" + URLEncoder.encode(value, "UTF-8"));
+            postParameters.append(key).append("=").append(URLEncoder.encode(value, "UTF-8"));
           }
           
           // post login data
