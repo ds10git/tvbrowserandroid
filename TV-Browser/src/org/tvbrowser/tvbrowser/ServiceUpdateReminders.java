@@ -100,13 +100,16 @@ public class ServiceUpdateReminders extends Service {
     remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
     
     if(startTime <= 0 && IOUtils.isDatabaseAccessible(context)) {
-      Cursor time = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, null);
-      
-      if(time.moveToFirst()) {
-        startTime = time.getLong(0);
+      Cursor time = null;
+      try {
+        time = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), new String[] {TvBrowserContentProvider.DATA_KEY_STARTTIME}, null, null, null);
+
+        if(time.moveToFirst()) {
+          startTime = time.getLong(0);
+        }
+      } finally {
+        IOUtils.close(time);
       }
-      
-      time.close();
     }
     
     if(startTime >= System.currentTimeMillis()) {

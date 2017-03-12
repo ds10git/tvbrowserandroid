@@ -199,13 +199,7 @@ public class EPGpaidDataConnection {
         }catch(IOException ioe1) {
           ioe1.printStackTrace();
         }finally {
-          if(in != null) {
-            try {
-              in.close();
-            }catch(IOException ioe1) {
-              ioe1.printStackTrace();
-            }
-          }
+          IOUtils.close(in);
         }
       }
     }catch(Exception e) {
@@ -285,13 +279,7 @@ public class EPGpaidDataConnection {
       } catch(IOException ioe) {
         ioe.printStackTrace();
       } finally {
-        if(post != null) {
-          try {
-            post.close();
-          }catch(IOException ioe) {
-            ioe.printStackTrace();
-          }
-        }
+        IOUtils.close(post);
       }
     }
     
@@ -330,14 +318,7 @@ public class EPGpaidDataConnection {
         // TODO Auto-generated catch block
         e.printStackTrace();
       } finally {
-        if(in != null) {
-          try {
-            in.close();
-          } catch (IOException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-        }
+        IOUtils.close(in);
       }
     }
     

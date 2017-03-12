@@ -2160,10 +2160,12 @@ public class TvBrowser extends ActionBarActivity implements
       SparseArray<String> groupKeys = new SparseArray<String>();
       StringBuilder uploadChannels = new StringBuilder();
       
-      Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+      Cursor channels = null;
       
       try {
+        channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
         if(IOUtils.prepareAccess(channels)) {
+          assert channels != null;
           int groupKeyColumn = channels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
           int channelKeyColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
           int channelKeyOrderNumberColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
@@ -2181,10 +2183,12 @@ public class TvBrowser extends ActionBarActivity implements
                   TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID
               };
               
-              Cursor groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, TvBrowserContentProvider.KEY_ID + "=" + groupKey, null, null);
+              Cursor groups = null;
               
               try {
+                groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, TvBrowserContentProvider.KEY_ID + "=" + groupKey, null, null);
                 if(IOUtils.prepareAccessFirst(groups)) {
+                  assert groups != null;
                   String dataServiceId = groups.getString(groups.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID));
                   String goupIdValue = groups.getString(groups.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
                   
@@ -2201,7 +2205,7 @@ public class TvBrowser extends ActionBarActivity implements
                   }
                 }
               }finally {
-                groups.close();
+                IOUtils.close(groups);
               }
             }
             
@@ -2215,7 +2219,7 @@ public class TvBrowser extends ActionBarActivity implements
           }
         }
       }finally {
-        channels.close();
+        IOUtils.close(channels);
       }
       
       if(uploadChannels.toString().trim().length() > 0) {
