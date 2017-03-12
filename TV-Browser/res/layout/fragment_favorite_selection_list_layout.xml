@@ -1,52 +1,57 @@
 <?xml version="1.0" encoding="utf-8"?>
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="horizontal"
-    android:baselineAligned="false" >
+    android:layout_height="match_parent">
     <RelativeLayout
         android:id="@id/favorite_fragment_selection_header"
-        android:layout_width="100dp"
-	    android:layout_alignParentTop="true"
-	    android:layout_alignParentLeft="true"
-	    android:layout_alignParentStart="true"
-        android:layout_height="match_parent">  
+        android:layout_width="@dimen/favorite_list_width"
+        android:layout_height="match_parent">
         <ListView
-		    android:id="@id/favorite_fragment_selection_markings"
-		    android:layout_width="100dp"
-		    android:layout_height="wrap_content"
-		    android:layout_marginRight="5dp"
-		    android:layout_marginEnd="5dp"
-		    android:layout_alignParentBottom="true"
-		    android:layout_alignParentLeft="true"
-		    android:layout_alignParentStart="true"/>
-		<ListView
-		    android:id="@id/favorite_fragment_selection"
-		    android:layout_width="100dp"
-		    android:layout_height="match_parent"
-		    android:layout_marginRight="5dp"
-		    android:layout_marginEnd="5dp"
-		    android:layout_above="@id/favorite_fragment_selection_markings"
-		    android:layout_alignParentTop="true"
-		    android:layout_alignParentLeft="true"
-		    android:layout_alignParentStart="true"/>        
+            android:id="@id/favorite_fragment_selection_markings"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_marginTop="2dp"
+            android:drawSelectorOnTop="true" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_above="@id/favorite_fragment_selection_markings"
+            android:layout_alignParentLeft="true"
+            android:layout_alignParentStart="true"
+            android:layout_alignParentTop="true">
+            <ListView
+                android:id="@id/favorite_fragment_selection"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:drawSelectorOnTop="true" />
+            <View
+                android:layout_width="10dp"
+                android:layout_height="match_parent"
+                android:layout_gravity="end"
+                android:background="@drawable/multipane_dropshadow" />
+        </FrameLayout>
     </RelativeLayout>
     <TextView
         android:id="@id/favorite_fragment_help"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
+        android:layout_toEndOf="@id/favorite_fragment_selection_header"
+        android:layout_toRightOf="@id/favorite_fragment_selection_header"
         android:gravity="center"
-        android:textSize="18sp"
         android:padding="20dp"
         android:text="@string/favorite_fragment_help"
-        android:layout_toRightOf="@id/favorite_fragment_selection_header"
-        android:layout_toEndOf="@id/favorite_fragment_selection_header"/>
+        android:textSize="18sp" />
     <ListView
         android:id="@id/favorite_program_list"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_alignParentTop="true"
+        android:layout_toEndOf="@id/favorite_fragment_selection_header"
         android:layout_toRightOf="@id/favorite_fragment_selection_header"
-        android:layout_toEndOf="@id/favorite_fragment_selection_header"/>
+        android:drawSelectorOnTop="true" />
 </RelativeLayout>
