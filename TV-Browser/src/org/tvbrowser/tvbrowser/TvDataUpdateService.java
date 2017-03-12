@@ -598,9 +598,10 @@ public class TvDataUpdateService extends Service {
               
               final String where = TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY + "=\"" + country +"\" AND " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\"" + channelId +"\" AND " + TvBrowserContentProvider.CHANNEL_KEY_SELECTION;
               
-              final Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where, null, null);
+              Cursor channel = null;
               
               try {
+                channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where, null, null);
                 if(channel != null && channel.moveToFirst()) {
                   try {
                     final int firstMinus = key.indexOf("-");
@@ -636,9 +637,7 @@ public class TvDataUpdateService extends Service {
                   deleteFile(file);
                 }
               }finally {
-                if(channel != null) {
-                  channel.close();
-                }
+                IOUtils.close(channel);
               }
             }
             
@@ -1036,13 +1035,13 @@ public class TvDataUpdateService extends Service {
     
     where.append(" ( ").append(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER).append(" OR ").append(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER).append(" ) ") ;
     
-    Cursor programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
-    
-    StringBuilder dat = new StringBuilder();
+    final StringBuilder dat = new StringBuilder();
+    Cursor programs = null; try {
+    programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
     SparseArray<SimpleGroupInfo> groupInfo = new SparseArray<SimpleGroupInfo>();
     
-    if(programs.getCount() > 0) {
+    if(programs!=null && programs.getCount() > 0) {
       programs.moveToPosition(-1);
       
       int startTimeColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
@@ -1055,9 +1054,10 @@ public class TvDataUpdateService extends Service {
           TvBrowserContentProvider.GROUP_KEY_GROUP_ID
       };
       
-      Cursor groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, null, null, null);
+      Cursor groups = null; try {
+      groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, null, null, null);
       
-      if(groups.getCount() > 0) {
+      if(groups!=null && groups.getCount() > 0) {
         groups.moveToPosition(-1);
         
         while(groups.moveToNext()) {
@@ -1075,7 +1075,7 @@ public class TvDataUpdateService extends Service {
         }
       }
       
-      groups.close();
+      } finally {IOUtils.close(groups);}
       
       if(groupInfo.size() > 0) {
         while(programs.moveToNext()) {
@@ -1097,7 +1097,7 @@ public class TvDataUpdateService extends Service {
       }
     }
     
-    programs.close();
+    } finally {IOUtils.close(programs);}
     
     return IOUtils.getCompressedData(dat.toString().getBytes());
   }
@@ -1419,10 +1419,12 @@ public class TvDataUpdateService extends Service {
     
     final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.GROUP_KEY_GROUP_ID,TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_SELECTION};
     
-    Cursor currentChannels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, null, null, null);
+    Cursor currentChannels = null;
 
     try {
+      currentChannels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, null, null, null);
       if(IOUtils.prepareAccess(currentChannels)) {
+        assert currentChannels != null;
         final int idIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
         final int groupKeyIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
         final int channelKeyIndex = currentChannels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
@@ -1435,9 +1437,7 @@ public class TvDataUpdateService extends Service {
         }
       }
     }finally {
-      if(currentChannels != null) {
-        currentChannels.close();
-      }
+      IOUtils.close(currentChannels);
     }
     
     mHadChannels = !mCurrentChannelData.isEmpty();
@@ -1594,9 +1594,11 @@ public class TvDataUpdateService extends Service {
     
     final String[] projection = new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID,TvBrowserContentProvider.GROUP_KEY_GROUP_ID,TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS};
     
-    final Cursor currentGroupsQuery = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, projection, null, null, null);
+    Cursor currentGroupsQuery = null;
     
     try {
+      currentGroupsQuery = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, projection, null, null, null);
+      assert currentGroupsQuery != null;
       currentGroupsQuery.moveToPosition(-1);
       
       int keyIndex = currentGroupsQuery.getColumnIndex(TvBrowserContentProvider.KEY_ID);
@@ -1610,9 +1612,7 @@ public class TvDataUpdateService extends Service {
         currentGroups.put(key, new Object[] {Integer.valueOf(currentGroupsQuery.getInt(keyIndex)), currentGroupsQuery.getString(mirrorIndex)});
       }
     }finally {
-      if(currentGroupsQuery != null) {
-        currentGroupsQuery.close();
-      }
+      IOUtils.close(currentGroupsQuery);
     }
     
     return currentGroups;
@@ -1632,8 +1632,9 @@ public class TvDataUpdateService extends Service {
       
       mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
       
+      BufferedReader in = null;
       try {
-        BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(groups)));
+        in = new BufferedReader(new InputStreamReader(new FileInputStream(groups)));
           
         String line = null;
         doLog("Read groups from: " + groups.getName());
@@ -1715,12 +1716,12 @@ public class TvDataUpdateService extends Service {
             }
           });
         }
-        in.close();
       } catch (Throwable t) {
         Log.d("info7", "", t);
+      } finally {
+        IOUtils.close(in);
       }
       
-      {
         final String key = SettingConstants.EPG_DONATE_KEY + "_##_" + SettingConstants.EPG_DONATE_GROUP_KEY;
         
         Object currentGroupValues = currentGroups.get(key);
@@ -1759,7 +1760,6 @@ public class TvDataUpdateService extends Service {
             }
           }
         });
-      }
       
       mThreadPool.shutdown();
       
@@ -2021,10 +2021,11 @@ public class TvDataUpdateService extends Service {
     boolean returnValue = false;
     
     if(group.isFile()) {
+      BufferedReader read = null;
       try {
-        BufferedReader read = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(new FileInputStream(group)),"ISO-8859-1"));
+        read = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(new FileInputStream(group)),"ISO-8859-1"));
         
-        String line = null;
+        String line;
         
         boolean returnValueOnceSet = false;
         
@@ -2168,7 +2169,6 @@ public class TvDataUpdateService extends Service {
           }
         }
         
-        read.close();
         
         //returnValue = handleDatabaseInsertAndUpdate(insertValuesList, updateValuesList, returnValue);
       } catch (FileNotFoundException e) {
@@ -2177,6 +2177,8 @@ public class TvDataUpdateService extends Service {
       } catch (IOException e) {
         returnValue = false;
         e.printStackTrace();
+      } finally {
+        IOUtils.close(read);
       }
       
       deleteFile(group);
@@ -2225,13 +2227,13 @@ public class TvDataUpdateService extends Service {
         TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY
     };
     
-    Cursor programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
     
-    StringBuilder dat = new StringBuilder();
-    
+    final StringBuilder dat = new StringBuilder();
+    Cursor programs = null; try {
+    programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
     SparseArray<SimpleGroupInfo> groupInfo = new SparseArray<SimpleGroupInfo>();
     
-    if(programs.getCount() > 0) {
+    if(programs!=null && programs.getCount() > 0) {
       programs.moveToPosition(-1);
       
       String[] groupProjection = {
@@ -2240,9 +2242,10 @@ public class TvDataUpdateService extends Service {
           TvBrowserContentProvider.GROUP_KEY_GROUP_ID
       };
       
-      Cursor groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, null, null, null);
+      Cursor groups = null; try {
+      groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, null, null, null);
       
-      if(groups.getCount() > 0) {
+      if(groups!=null && groups.getCount() > 0) {
         groups.moveToPosition(-1);
         
         while(groups.moveToNext()) {
@@ -2260,7 +2263,7 @@ public class TvDataUpdateService extends Service {
         }
       }
       
-      groups.close();
+      } finally {IOUtils.close(groups);}
       
       if(groupInfo.size() > 0) {
         int startTimeColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
@@ -2286,7 +2289,7 @@ public class TvDataUpdateService extends Service {
       }
     }
     
-    programs.close();
+    } finally {IOUtils.close(programs);}
           
     return IOUtils.getCompressedData(dat.toString().getBytes());
   }
@@ -2722,12 +2725,12 @@ public class TvDataUpdateService extends Service {
     
     if(mIsConnected && groupTxt != null) {
       File groups = new File(path,GROUP_FILE);
-      
+      BufferedReader in = null;
       try {
         IOUtils.saveUrl(groups.getAbsolutePath(), groupTxt, mInternetConnectionTimeout);
         
         if(groups.isFile()) {
-          BufferedReader in = new BufferedReader(new InputStreamReader(new FileInputStream(groups)));
+          in = new BufferedReader(new InputStreamReader(new FileInputStream(groups)));
           
           String line = null;
           
@@ -2746,7 +2749,6 @@ public class TvDataUpdateService extends Service {
             }
           }
           
-          in.close();
         }
         
       } catch (MalformedURLException e) {
@@ -2755,6 +2757,8 @@ public class TvDataUpdateService extends Service {
       } catch (IOException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
+      } finally {
+        IOUtils.close(in);
       }
       
       deleteFile(groups);
@@ -2879,15 +2883,17 @@ public class TvDataUpdateService extends Service {
     
     ArrayList<MirrorDownload> downloadMirrorList = new ArrayList<MirrorDownload>();
     
-    Cursor channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-    doLog("channelCursor: " + channelCursor);
-    boolean donationInfoLoaded = false;
     
     Calendar to = Calendar.getInstance();
     to.add(Calendar.DAY_OF_MONTH, mDaysToLoad);
     doLog("End date of data to download: " + to.getTime());
+    Cursor channelCursor = null;
+    try {
+    channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where.toString(), null, TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+    doLog("channelCursor: " + channelCursor);
+    boolean donationInfoLoaded = false;
     
-    if(channelCursor.moveToFirst()) {
+    if(channelCursor!=null && channelCursor.moveToFirst()) {
       int lastGroup = -1;
       Mirror mirror = null;
       String groupId = null;
@@ -2907,10 +2913,11 @@ public class TvDataUpdateService extends Service {
             mirror = null;
             groupId = null;
             doLog("Content URI for data update " + ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey));
-            Cursor group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
-            doLog("Cursor size for groupKey: " + group.getCount());
             
+            Cursor group = null;
             try {
+              group = cr.query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupKey), null, null, null, null);
+              doLog("Cursor size for groupKey: " + group.getCount());
               final int columnIndexId = group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
               final int columnIndexMirrors = group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS);
               final int columnIndexMirrorsDefault = group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_MIRRORS_DEFAULT);
@@ -3197,7 +3204,7 @@ public class TvDataUpdateService extends Service {
       }while(channelCursor.moveToNext());
     }
     
-    channelCursor.close();
+    } finally {IOUtils.close(channelCursor);}
     
     final int downloadCount = downloadMirrorList.size() + downloadCountTemp;
     doLog("Data files to load " + downloadCount);
@@ -3744,7 +3751,8 @@ public class TvDataUpdateService extends Service {
       mCurrentVersionIDs = new Hashtable<String, int[]>();
     }
     
-    Cursor ids = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, null, null, null, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+    Cursor ids = null; try {
+    ids = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, null, null, null, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
     
     if(ids.getCount() > 0) {
       ids.moveToPosition(-1);
@@ -3774,7 +3782,7 @@ public class TvDataUpdateService extends Service {
       }
     }
     
-    ids.close();
+    } finally {IOUtils.close(ids);}
   }
   
   private void readCurrentData() {
@@ -3912,13 +3920,15 @@ public class TvDataUpdateService extends Service {
     }
     
     if(mIsConnected) {
+      InputStream in = null;
       try {
         IOUtils.saveUrl(path.getAbsolutePath(), summaryurl, mInternetConnectionTimeout);
         
         if(path.isFile()) {
           if(summary instanceof EPGfreeSummary) {
-            BufferedInputStream in = new BufferedInputStream(IOUtils.decompressStream(new FileInputStream(path)));
-            
+            in = new BufferedInputStream(IOUtils.decompressStream(new FileInputStream(path)));
+
+            //noinspection ResultOfMethodCallIgnored
             in.read(); // read version
                     
             long daysSince1970 = ((in.read() & 0xFF) << 16 ) | ((in.read() & 0xFF) << 8) | (in.read() & 0xFF);
@@ -3934,6 +3944,7 @@ public class TvDataUpdateService extends Service {
               
               byte[] value = new byte[byteCount];
               
+              //noinspection ResultOfMethodCallIgnored
               in.read(value);
               
               String country = new String(value);
@@ -3942,6 +3953,7 @@ public class TvDataUpdateService extends Service {
               
               value = new byte[byteCount];
               
+              //noinspection ResultOfMethodCallIgnored
               in.read(value);
               
               String channelID = new String(value);
@@ -3964,16 +3976,15 @@ public class TvDataUpdateService extends Service {
             }
           }
           else if(summary instanceof EPGdonateSummary) {
-            GZIPInputStream in = new GZIPInputStream(new FileInputStream(path));
-            
+            in = new GZIPInputStream(new FileInputStream(path));
             ((EPGdonateSummary)summary).load(in);
-            
-            in.close();
           }
-          
-          deleteFile(path);
         }
-      } catch (Exception e) {}
+      } catch (Exception ignored) {}
+      finally {
+        IOUtils.close(in);
+        deleteFile(path);
+      }
     }
     
     return summary;
@@ -4014,26 +4025,25 @@ public class TvDataUpdateService extends Service {
         final String fileName = mDownloadFile.getAbsolutePath().substring(0, mDownloadFile.getAbsolutePath().indexOf(".prog.gz"))  +  "_additional.prog.gz";
         
         doLog("Download additional data file from '" + url + "'");
-        
+        BufferedInputStream in = null;
         try {
           IOUtils.saveUrl(fileName, url, mInternetConnectionTimeout);
           
           doLog("Read frame count from '" + fileName + "'");
           
-          BufferedInputStream in = new BufferedInputStream(IOUtils.decompressStream(new FileInputStream(fileName)));
           
+          in = new BufferedInputStream(IOUtils.decompressStream(new FileInputStream(fileName)));
+          //noinspection ResultOfMethodCallIgnored
           in.read(); // read version
           
-          currentCount = (short)(((in.read() & 0xFF) << 8) | (in.read() & 0xFF));
           
-          in.close();
-        } catch (MalformedURLException e) {
-        } catch (IOException e) {
+          currentCount = (short) (((in.read() & 0xFF) << 8) | (in.read() & 0xFF));
+        } catch (IOException ignored) {
+        } finally {
+          IOUtils.close(in);
         }
         
-        File additional = new File(fileName);
-        
-        deleteFile(additional);
+        deleteFile(new File(fileName));
       }
       
       return currentCount;
@@ -4082,6 +4092,7 @@ public class TvDataUpdateService extends Service {
       if(count == 0) {
         byte[] addBytes = new byte[(((in.read() & 0xFF) << 8) | (in.read() & 0xFF))];
         
+        //noinspection ResultOfMethodCallIgnored
         in.read(addBytes);
         
         id = (short)((in.read() & 0xFF) + IOUtils.getIntForBytes(addBytes));
@@ -4129,6 +4140,7 @@ public class TvDataUpdateService extends Service {
       Calendar cal = Calendar.getInstance(update.getTimeZone());
       
       for(byte field = 0; field < count; field++) {
+        //noinspection ResultOfMethodCallIgnored
         in.read(fieldInfoBuffer);
         byte fieldType = fieldInfoBuffer[0];
         
@@ -4203,7 +4215,7 @@ public class TvDataUpdateService extends Service {
               
               Long o = values.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
               
-              if(o instanceof Long) {
+              if(o != null) {
                 if(o > cal.getTimeInMillis()) {
                   cal.add(Calendar.DAY_OF_YEAR, 1);
                 }
@@ -4329,6 +4341,7 @@ public class TvDataUpdateService extends Service {
        */
       byte[] fileInfoBuffer = new byte[3];
       
+      //noinspection ResultOfMethodCallIgnored
       in.read(fileInfoBuffer);
       
       return new DataInfo(fileInfoBuffer[0],fileInfoBuffer[1],dataUrlFileHolder.getFrameCount((short)(fileInfoBuffer[2] & 0xFF)));
@@ -5090,12 +5103,12 @@ public class TvDataUpdateService extends Service {
       Log.d("info21", "FILE " + dataFile.getAbsolutePath());
       if(dataFile.isFile()) {
         doLog("Read data from file: " +dataFile.getAbsolutePath());
+        DataInputStream in = null;
         try {
-          DataInputStream in = null;
-          
+          ByteArrayOutputStream temp = null;
           try {
             in = new DataInputStream(new BufferedInputStream(IOUtils.decompressStream(new FileInputStream(dataFile))));
-            ByteArrayOutputStream temp = new ByteArrayOutputStream();
+            temp = new ByteArrayOutputStream();
             
             byte[] buffer = new byte[8192];
             
@@ -5106,12 +5119,13 @@ public class TvDataUpdateService extends Service {
               temp.write(buffer, readCount, count);
             }
             
-            in.close();
+            IOUtils.close(in);
             
             in = new DataInputStream(new ByteArrayInputStream(temp.toByteArray()));
-            temp.close();
-          }catch(IOException ee) {
+          }catch(IOException ignored) {
            
+          } finally {
+            IOUtils.close(temp);
           }
           
           final DataInfo dataInfo = mDataHandler.readDataInfo(this, in, dataUrlFileHolder);
@@ -5260,7 +5274,6 @@ public class TvDataUpdateService extends Service {
           }
           
           Log.d("info5", "INSERTED");
-          in.close();
         } catch (Exception e) {
           StackTraceElement[] elements = e.getStackTrace();
           
@@ -5272,6 +5285,8 @@ public class TvDataUpdateService extends Service {
           
           doLog("Error read data file: '" +dataFile.getAbsolutePath() + "': " + e.getMessage() + " " + message.toString());
           Log.d("info5", "error data update", e);
+        } finally {
+          IOUtils.close(in);
         }
         
         deleteFile(dataFile);

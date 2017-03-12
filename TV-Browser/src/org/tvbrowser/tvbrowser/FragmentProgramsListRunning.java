@@ -255,8 +255,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
             if(mMarkingsMap.indexOfKey(programID) >= 0 && IOUtils.isDatabaseAccessible(getActivity())) {
               String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
               
-              Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), projection, null, null, null);
               
+              Cursor c = null; try {
+              c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), projection, null, null, null);
               if(c.moveToFirst()) {
                 try {
                   final View view = getListView().findViewWithTag(programID);
@@ -287,7 +288,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                 }catch(NullPointerException npe) {}
               }
                             
-              c.close();
+              } finally {IOUtils.close(c);}
             }
           }
         }.start();
@@ -1614,14 +1615,13 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                 
                 mMarkingsMap.put(programID, IOUtils.getStringArrayFromList(markedColumsList));
                 markedColumsList.clear();
-                markedColumsList = null;
               }
             }
           }
         }catch(IllegalStateException e1) {}
       }
       
-      c.close();
+      IOUtils.close(c); // FIXME should be a call to an adapter's swapCursor to reuse the loader's cursor
       currentProgramMap.clear();
       channelProgramMap.clear();
     }

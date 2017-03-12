@@ -1235,8 +1235,10 @@ public class TvBrowserContentProvider extends ContentProvider {
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_REMINDER + " INTEGER DEFAULT 0");
           db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + DATA_KEY_MARKING_SYNC + " INTEGER DEFAULT 0");
           
-          Cursor markings = db.query(DATA_TABLE, new String[] {KEY_ID,DATA_KEY_MARKING_VALUES}, "ifnull("+DATA_KEY_MARKING_VALUES+", '') != ''", null, null, null, KEY_ID);
           
+          Cursor markings = null;
+          try {
+          markings = db.query(DATA_TABLE, new String[] {KEY_ID,DATA_KEY_MARKING_VALUES}, "ifnull("+DATA_KEY_MARKING_VALUES+", '') != ''", null, null, null, KEY_ID);
           if(markings.moveToFirst()) {
             ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
             
@@ -1290,8 +1292,8 @@ public class TvBrowserContentProvider extends ContentProvider {
               db.setTransactionSuccessful();
               db.endTransaction();
             }
-          }
           
+          }} finally {IOUtils.close(markings);}
           db.execSQL("ALTER TABLE " + DATA_TABLE + " RENAME TO " + DATA_TABLE + "_old");
           db.execSQL(CREATE_DATA_TABLE);
           
@@ -1411,7 +1413,7 @@ public class TvBrowserContentProvider extends ContentProvider {
               }
             }
           }finally {
-            c.close();
+            IOUtils.close(c);
           }
         }
         
@@ -1484,9 +1486,7 @@ public class TvBrowserContentProvider extends ContentProvider {
                 }
               }
             }finally {
-              if(all != null) {
-                all.close();
-              }
+              IOUtils.close(all);
             }
           };
         }.start();
