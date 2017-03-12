@@ -2054,9 +2054,7 @@ public class TvBrowser extends ActionBarActivity implements
                             }
                           }
                           else {
-                            for(String setPart : setParts) {
-                              set.add(setPart);
-                            }
+                            Collections.addAll(set, setParts);
                             
                             edit.putStringSet(parts[0], set);
                           }

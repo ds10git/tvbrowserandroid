@@ -1345,13 +1345,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     projection[11] = TvBrowserContentProvider.CHANNEL_KEY_NAME;
     projection[12] = TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE;
     
-    for(int i = 0; i < infoCategories.length; i++) {
-      projection[13+i] = infoCategories[i];
-    }
-    
-    for(int i = startIndex ; i < (startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length); i++) {
-      projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
-    }
+    System.arraycopy(infoCategories, 0, projection, 13, infoCategories.length);
+    System.arraycopy(TvBrowserContentProvider.MARKING_COLUMNS, 0, projection, startIndex, TvBrowserContentProvider.MARKING_COLUMNS.length);
     
     Calendar cal = Calendar.getInstance();
     cal.set(Calendar.MINUTE, 0);

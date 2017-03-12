@@ -1,6 +1,7 @@
 package org.tvbrowser.tvbrowser;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashSet;
 
 import android.os.Handler;
@@ -168,9 +169,7 @@ public class LoaderUpdater {
       mCallbackObjects = new HashSet<LoaderUpdater.CallbackObject<?>>();
       
       if(initialObjects != null) {
-        for(CallbackObject<?> o : initialObjects) {
-          mCallbackObjects.add(o);
-        }
+        Collections.addAll(mCallbackObjects, initialObjects);
       }
     }
     

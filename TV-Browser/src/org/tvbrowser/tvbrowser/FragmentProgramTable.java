@@ -203,9 +203,7 @@ public class FragmentProgramTable extends Fragment {
         projection[2] = TvBrowserContentProvider.DATA_KEY_STARTTIME;
         projection[3] = TvBrowserContentProvider.DATA_KEY_ENDTIME;
         
-        for(int i = 0; i < infoNames.length; i++) {
-          projection[4+i] = infoNames[i];
-        }
+        System.arraycopy(infoNames, 0, projection, 4, infoNames.length);
         
         
         if(IOUtils.isDatabaseAccessible(getActivity())) {
@@ -683,15 +681,8 @@ public class FragmentProgramTable extends Fragment {
           projection[6] = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID;
           projection[7] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
           
-          for(int i = 0; i < infoCategories.length; i++) {
-            projection[8+i] = infoCategories[i];
-          }
-          
-          int startIndex = 8 + infoCategories.length;
-            
-          for(int i = startIndex; i < (startIndex + TvBrowserContentProvider.MARKING_COLUMNS.length); i++) {
-            projection[i] = TvBrowserContentProvider.MARKING_COLUMNS[i-startIndex];
-          }
+          System.arraycopy(infoCategories, 0, projection, 8, infoCategories.length);
+          System.arraycopy(TvBrowserContentProvider.MARKING_COLUMNS, 0, projection, 8 + infoCategories.length, TvBrowserContentProvider.MARKING_COLUMNS.length);
           
           LinearLayout channelBar = (LinearLayout)programTable.findViewById(R.id.program_table_channel_bar);
           ArrayList<Integer> channelIDsOrdered = new ArrayList<Integer>();
