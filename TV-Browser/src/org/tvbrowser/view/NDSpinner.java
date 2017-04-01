@@ -8,7 +8,6 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
-import android.widget.Spinner;
 
 /** Spinner extension that calls onItemSelected even when the selection is the same as its previous value 
  * 
@@ -16,7 +15,7 @@ import android.widget.Spinner;
  *  
  * */
 @SuppressLint("ClickableViewAccessibility")
-public class NDSpinner extends Spinner {
+public class NDSpinner extends android.support.v7.widget.AppCompatSpinner {
   private GestureDetector mClickDetector;
   private OnCreateContextMenuListener mLongClickListener;
   
