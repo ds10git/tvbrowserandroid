@@ -35,7 +35,7 @@ public class DateSelection {
   @Override
   public String toString() {
     if(mTime >= 0) {
-      return UiUtils.formatDate(mTime, mContext, false, true).toString();
+      return UiUtils.formatDate(mTime, mContext, false, true);
     }
     else if(mTime == VALUE_DATE_TODAY_TOMORROW) {
       return mContext.getResources().getString(R.string.selection_date_today_tomorrow);

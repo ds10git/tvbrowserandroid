@@ -2054,9 +2054,7 @@ public class TvBrowser extends AppCompatActivity implements
                             }
                           }
                           else {
-                            for(String setPart : setParts) {
-                              set.add(setPart);
-                            }
+                            Collections.addAll(set, setParts);
                             
                             edit.putStringSet(parts[0], set);
                           }
@@ -2160,10 +2158,12 @@ public class TvBrowser extends AppCompatActivity implements
       SparseArrayCompat<String> groupKeys = new SparseArrayCompat<String>();
       StringBuilder uploadChannels = new StringBuilder();
       
-      Cursor channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+      Cursor channels = null;
       
       try {
+        channels = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
         if(IOUtils.prepareAccess(channels)) {
+          assert channels != null;
           int groupKeyColumn = channels.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
           int channelKeyColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
           int channelKeyOrderNumberColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
@@ -2181,10 +2181,12 @@ public class TvBrowser extends AppCompatActivity implements
                   TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID
               };
               
-              Cursor groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, TvBrowserContentProvider.KEY_ID + "=" + groupKey, null, null);
+              Cursor groups = null;
               
               try {
+                groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, groupProjection, TvBrowserContentProvider.KEY_ID + "=" + groupKey, null, null);
                 if(IOUtils.prepareAccessFirst(groups)) {
+                  assert groups != null;
                   String dataServiceId = groups.getString(groups.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID));
                   String goupIdValue = groups.getString(groups.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID));
                   
@@ -2201,7 +2203,7 @@ public class TvBrowser extends AppCompatActivity implements
                   }
                 }
               }finally {
-                groups.close();
+                IOUtils.close(groups);
               }
             }
             
@@ -2215,7 +2217,7 @@ public class TvBrowser extends AppCompatActivity implements
           }
         }
       }finally {
-        channels.close();
+        IOUtils.close(channels);
       }
       
       if(uploadChannels.toString().trim().length() > 0) {
