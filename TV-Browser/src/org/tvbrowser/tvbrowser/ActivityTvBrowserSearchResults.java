@@ -24,14 +24,10 @@ import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
 import org.tvbrowser.view.SeparatorDrawable;
 
-import android.app.AlertDialog;
-import android.app.LoaderManager;
 import android.app.SearchManager;
 import android.content.ContentUris;
-import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.Loader;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.content.res.Configuration;
@@ -41,16 +37,20 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v4.app.LoaderManager;
+import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 
-public class ActivityTvBrowserSearchResults extends ActionBarActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, MarkingsUpdateListener {
+public class ActivityTvBrowserSearchResults extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, MarkingsUpdateListener {
   private SimpleCursorAdapter mProgramsListAdapter;
 
   private static String QUERY_EXTRA_KEY = "QUERY_EXTRA_KEY";
@@ -130,7 +130,7 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
     });
     
     // Initiate the Cursor Loader
-    getLoaderManager().initLoader(0, null, this);
+    getSupportLoaderManager().initLoader(0, null, this);
     
     // Get the launch Intent
     parseIntent(getIntent());
@@ -190,7 +190,7 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
       }
       
       // Restart the Cursor Loader to execute the new query
-      getLoaderManager().restartLoader(0, args, this);
+      getSupportLoaderManager().restartLoader(0, args, this);
     }
     else if(Intent.ACTION_VIEW.equals(intent.getAction())) {
       try {
@@ -199,7 +199,7 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
         Bundle args = new Bundle();
         args.putLong(QUERY_EXTRA_ID_KEY, key);
         
-        getLoaderManager().restartLoader(0, args, this);
+        getSupportLoaderManager().restartLoader(0, args, this);
       }catch(NumberFormatException e) {
         // Ignore
       }
@@ -216,7 +216,7 @@ public class ActivityTvBrowserSearchResults extends ActionBarActivity implements
       }
       
       // Restart the Cursor Loader to execute the new query
-      getLoaderManager().restartLoader(0, args, this);
+      getSupportLoaderManager().restartLoader(0, args, this);
     }
   }
   

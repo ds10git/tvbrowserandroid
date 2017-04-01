@@ -119,7 +119,7 @@
         </activity>
         <activity
             android:name=".InfoActivity"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar" />
+            android:theme="@style/Theme.TvBrowser.Translucent" />
         <activity
             android:name="org.tvbrowser.widgets.ImportantProgramsWidgetConfigurationActivity"
             android:label="@string/widget_important_default_title" >

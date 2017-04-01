@@ -59,12 +59,13 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.LongSparseArray;
+import android.support.v4.util.SparseArrayCompat;
 import android.text.Spannable;
 import android.text.format.DateFormat;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -1320,7 +1321,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   }
   
   @Override
-  public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
+  public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     String[] infoCategories = TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY;
     int startIndex = 13 + infoCategories.length;
     
@@ -1451,11 +1452,11 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   }
   
   @Override
-  public synchronized void onLoadFinished(android.support.v4.content.Loader<Cursor> loader, final Cursor c) {
+  public synchronized void onLoadFinished(Loader<Cursor> loader, final Cursor c) {
     Log.d("info6", "RUNNING PROGRAMS: onLoadFinished, searching programs " + System.currentTimeMillis());
     if(c != null) {
-      SparseArray<ChannelProgramBlock> channelProgramMap = new SparseArray<ChannelProgramBlock>();
-      SparseArray<ChannelProgramBlock> currentProgramMap = new SparseArray<ChannelProgramBlock>();
+      SparseArrayCompat<ChannelProgramBlock> channelProgramMap = new SparseArrayCompat<ChannelProgramBlock>();
+      SparseArrayCompat<ChannelProgramBlock> currentProgramMap = new SparseArrayCompat<ChannelProgramBlock>();
       boolean showDontWantToSee = PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(getResources().getStringArray(R.array.pref_simple_string_value_array2)[1]);
       
       mProgramBlockList.clear();
@@ -1631,7 +1632,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   }
 
   @Override
-  public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
+  public void onLoaderReset(Loader<Cursor> loader) {
     mCurrentViewList.clear();
     mProgramBlockList.clear();
   }
