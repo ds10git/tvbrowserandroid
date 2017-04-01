@@ -47,7 +47,7 @@ public class PluginPreferencesActivity extends ToolbarPreferencesActivity {
     Intent intent = getIntent();
     
     if(intent != null && intent.hasExtra(EXTRA_SHOW_FRAGMENT_ARGUMENTS)) {
-      mToolBar.setTitle(intent.getBundleExtra(EXTRA_SHOW_FRAGMENT_ARGUMENTS).getString("category"));
+      getDelegate().getSupportActionBar().setTitle(intent.getBundleExtra(EXTRA_SHOW_FRAGMENT_ARGUMENTS).getString("category"));
     }
   }
   

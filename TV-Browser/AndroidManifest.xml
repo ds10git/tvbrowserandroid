@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="org.tvbrowser.tvbrowser"
     android:installLocation="internalOnly"
     android:versionCode="410"
@@ -100,10 +101,22 @@
         </activity>
         <activity
             android:name="org.tvbrowser.settings.TvbPreferencesActivity"
-            android:label="@string/pref_summary" />
+            android:label="@string/pref_summary"
+            android:parentActivityName=".TvBrowser"
+            tools:targetApi="jelly_bean">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".TvBrowser" />
+        </activity>
         <activity
             android:name="org.tvbrowser.settings.PluginPreferencesActivity"
-            android:label="@string/menu_tvbrowser_title_settings_plugins" />
+            android:label="@string/menu_tvbrowser_title_settings_plugins"
+            android:parentActivityName=".TvBrowser"
+            tools:targetApi="jelly_bean">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".TvBrowser" />
+        </activity>
         <activity
             android:name=".InfoActivity"
             android:theme="@android:style/Theme.Translucent.NoTitleBar" />
