@@ -1292,13 +1292,7 @@ public class IOUtils {
       } catch (IOException e) {
         e.printStackTrace();
       } finally {
-        if(out != null) {
-          try {
-            out.close();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        }
+        close(out);
       }
     }
   }
@@ -1315,13 +1309,7 @@ public class IOUtils {
       } catch(IOException e) {
         
       } finally {
-        if(in != null) {
-          try {
-            in.close();
-          } catch (IOException e) {
-            e.printStackTrace();
-          }
-        }
+        close(in);
       }
     }
     

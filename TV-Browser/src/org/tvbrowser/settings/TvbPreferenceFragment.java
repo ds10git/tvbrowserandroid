@@ -104,7 +104,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       }
       
       if(external != null && external.isDirectory()) {
-        File[] sdcards = new File(external.getAbsolutePath().toString().substring(0, external.getAbsolutePath().indexOf(File.separator, 1))).listFiles(new FileFilter() {
+        File[] sdcards = new File(external.getAbsolutePath().substring(0, external.getAbsolutePath().indexOf(File.separator, 1))).listFiles(new FileFilter() {
           @Override
           public boolean accept(File pathname) {
             return CompatUtils.acceptFileAsSdCard(pathname);

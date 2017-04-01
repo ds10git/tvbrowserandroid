@@ -63,11 +63,7 @@ public class Logging {
         }
       } catch (IOException e) {}
       finally {
-        if(log != null && type == TYPE_REMINDER) {
-          try {
-            log.close();
-          } catch (IOException e) {}
-        }
+        IOUtils.close(log);
       }
     }
     
@@ -105,10 +101,8 @@ public class Logging {
   
   public static synchronized void closeLogForDataUpdate() {
     if(DATA_UPDATE_LOG != null) {
-      try {
-        DATA_UPDATE_LOG.close();
-        DATA_UPDATE_LOG = null;
-      } catch (IOException e) {}
+      IOUtils.close(DATA_UPDATE_LOG);
+      DATA_UPDATE_LOG = null;
     }
   }
   
