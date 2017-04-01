@@ -32,11 +32,11 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.os.Binder;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.util.SparseArrayCompat;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.TextUtils;
 import android.text.style.ImageSpan;
-import android.util.SparseArray;
 
 public class ProgramUtils {
   public static final String[] DATA_CHANNEL_PROJECTION = {
@@ -97,7 +97,7 @@ public class ProgramUtils {
   
   public static final Program[] createProgramsFromDataCursor(Context context, Cursor cursor) {
     ArrayList<Program> programsList = new ArrayList<Program>();
-    SparseArray<Channel> channelMap = new SparseArray<Channel>();
+    SparseArrayCompat<Channel> channelMap = new SparseArrayCompat<Channel>();
     
     if(cursor != null && !cursor.isClosed() && cursor.moveToFirst() && cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME) != -1) {
       Calendar test = Calendar.getInstance();
