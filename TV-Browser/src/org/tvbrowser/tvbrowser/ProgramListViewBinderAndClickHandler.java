@@ -33,6 +33,7 @@ import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.Spannable;
 import android.text.format.DateFormat;
 import android.view.ContextMenu;
@@ -44,7 +45,6 @@ import android.widget.AdapterView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.RelativeLayout;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBinder{

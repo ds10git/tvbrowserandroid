@@ -63,7 +63,6 @@ import org.xml.sax.XMLReader;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
@@ -112,11 +111,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBar.Tab;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AlertDialog;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.text.Editable;
 import android.text.Html;
@@ -134,7 +135,6 @@ import android.text.style.ReplacementSpan;
 import android.text.style.URLSpan;
 import android.util.Base64;
 import android.util.Log;
-import android.util.SparseArray;
 import android.util.TypedValue;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -176,7 +176,7 @@ import com.example.android.listviewdragginganimation.StableArrayAdapter;
 
 import de.epgpaid.EPGpaidDataConnection;
 
-public class TvBrowser extends ActionBarActivity implements
+public class TvBrowser extends AppCompatActivity implements
     ActionBar.TabListener {
   private static final boolean TEST_VERSION = false;
   
@@ -2155,7 +2155,7 @@ public class TvBrowser extends ActionBarActivity implements
           TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER
       };
       
-      SparseArray<String> groupKeys = new SparseArray<String>();
+      SparseArrayCompat<String> groupKeys = new SparseArrayCompat<String>();
       StringBuilder uploadChannels = new StringBuilder();
       
       Cursor channels = null;
@@ -5680,7 +5680,7 @@ public class TvBrowser extends ActionBarActivity implements
    * of the sections/tabs/pages.
    */
   public class SectionsPagerAdapter extends FragmentPagerAdapter {
-    SparseArray<Fragment> registeredFragments = new SparseArray<Fragment>();
+    SparseArrayCompat<Fragment> registeredFragments = new SparseArrayCompat<Fragment>();
     
     public SectionsPagerAdapter(FragmentManager fm) {
       super(fm);

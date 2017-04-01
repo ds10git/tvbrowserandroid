@@ -1,57 +1,106 @@
 package org.tvbrowser.settings;
 
-import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.UiUtils;
 
-import android.content.res.Resources.Theme;
-import android.os.Build;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
-import android.support.v7.widget.Toolbar;
+import android.support.annotation.LayoutRes;
+import android.support.annotation.NonNull;
+import android.support.v4.app.NavUtils;
+import android.support.v7.app.AppCompatDelegate;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.LinearLayout;
 
-public class ToolbarPreferencesActivity extends PreferenceActivity {
-  protected Toolbar mToolBar;
-  private int mThemeId;
-  
+public abstract class ToolbarPreferencesActivity extends PreferenceActivity {
+  private AppCompatDelegate mDelegate;
   @Override
-  protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
-    if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-      mThemeId = R.style.AppTheme;
-    }
-    else {
-      mThemeId = UiUtils.getThemeResourceId();
-    }
-    
-    super.onApplyThemeResource(theme, mThemeId, first);
-  }
-  
-  @Override
-  protected void onCreate(Bundle savedInstanceState) {
+  protected void onCreate(final Bundle savedInstanceState) {
+    setTheme(UiUtils.getThemeResourceId());
+    getDelegate().installViewFactory();
+    getDelegate().onCreate(savedInstanceState);
     super.onCreate(savedInstanceState);
-
-    setTheme(mThemeId);
-    
-    ViewGroup root = (ViewGroup) findViewById(android.R.id.content);
-    View content = root.getChildAt(0);
-    LinearLayout toolbarContainer = (LinearLayout) View.inflate(this, R.layout.activity_pref, null);
-
-    root.removeAllViews();
-    toolbarContainer.addView(content);
-    root.addView(toolbarContainer);
-
-    mToolBar = (Toolbar) toolbarContainer.findViewById(R.id.toolbar);
-    
-    mToolBar = (Toolbar) toolbarContainer.findViewById(R.id.toolbar);
-    mToolBar.setTitle(getTitle());
-    mToolBar.setNavigationIcon(R.drawable.abc_ic_ab_back_mtrl_am_alpha);
-    mToolBar.setNavigationOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-            finish();
-        }
-    });
   }
+  @Override
+  protected void onPostCreate(final Bundle savedInstanceState) {
+    super.onPostCreate(savedInstanceState);
+    getDelegate().onPostCreate(savedInstanceState);
   }
+
+  @NonNull
+  @Override
+  public MenuInflater getMenuInflater() {
+    return getDelegate().getMenuInflater();
+  }
+
+  @Override
+  public void setContentView(@LayoutRes final int layoutResId) {
+    getDelegate().setContentView(layoutResId);
+  }
+
+  @Override
+  public void setContentView(final View view) {
+    getDelegate().setContentView(view);
+  }
+
+  @Override
+  public void setContentView(final View view, ViewGroup.LayoutParams params) {
+    getDelegate().setContentView(view, params);
+  }
+
+  @Override
+  public void addContentView(final View view, ViewGroup.LayoutParams params) {
+    getDelegate().addContentView(view, params);
+  }
+
+  @Override
+  protected void onPostResume() {
+    super.onPostResume();
+    getDelegate().onPostResume();
+  }
+
+  @Override
+  protected void onTitleChanged(final CharSequence title, final int color) {
+    super.onTitleChanged(title, color);
+    getDelegate().setTitle(title);
+  }
+
+  @Override
+  public void onConfigurationChanged(final Configuration newConfig) {
+    super.onConfigurationChanged(newConfig);
+    getDelegate().onConfigurationChanged(newConfig);
+  }
+
+  @Override
+  protected void onStop() {
+    getDelegate().onStop();
+    super.onStop();
+  }
+
+  @Override
+  protected void onDestroy() {
+    getDelegate().onDestroy();
+    super.onDestroy();
+  }
+
+  @Override
+  public boolean onOptionsItemSelected(final MenuItem item) {
+    switch (item.getItemId()) {
+      case android.R.id.home:
+        // Navigates to the parent activity following the styleguide (up action/ up navigation).
+        // Simple back navigation is done by the back button (e. g. previous preference screen).
+        NavUtils.navigateUpFromSameTask(this);
+        return true;
+    }
+    return super.onOptionsItemSelected(item);
+  }
+
+  protected final AppCompatDelegate getDelegate() {
+    if (mDelegate == null) {
+      mDelegate = AppCompatDelegate.create(this, null);
+    }
+    return mDelegate;
+  }
+}

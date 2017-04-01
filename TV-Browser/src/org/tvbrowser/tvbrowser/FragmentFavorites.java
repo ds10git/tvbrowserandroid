@@ -33,7 +33,6 @@ import org.tvbrowser.utils.UiUtils;
 import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -52,7 +51,10 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.CursorLoader;
+import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.widget.SimpleCursorAdapter;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -65,7 +67,6 @@ import android.widget.AdapterView;
 import android.widget.AdapterView.AdapterContextMenuInfo;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.SimpleCursorAdapter;
 import android.widget.TextView;
 
 public class FragmentFavorites extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, MarkingsUpdateListener, LoaderUpdater.Callback {
@@ -813,7 +814,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
   
   @Override
-  public android.support.v4.content.Loader<Cursor> onCreateLoader(int id, Bundle args) {
+  public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     String[] projection = null;
     
     if(PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default)) {
@@ -930,7 +931,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
   
   @Override
-  public void onLoadFinished(android.support.v4.content.Loader<Cursor> loader,
+  public void onLoadFinished(Loader<Cursor> loader,
       Cursor c) {
     if(c != null && c.getCount() > 0) {
       mHelp.setVisibility(View.GONE);
@@ -943,7 +944,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
 
   @Override
-  public void onLoaderReset(android.support.v4.content.Loader<Cursor> loader) {
+  public void onLoaderReset(Loader<Cursor> loader) {
     mProgramListAdapter.swapCursor(null);
     mHelp.setVisibility(View.VISIBLE);
   }
