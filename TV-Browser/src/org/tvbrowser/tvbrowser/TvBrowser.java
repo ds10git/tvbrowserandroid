@@ -440,7 +440,7 @@ public class TvBrowser extends AppCompatActivity implements
                 IOUtils.close(synced);
               }
             }
-          };
+          }
         }.start();
       }
       if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < 309) {
@@ -465,7 +465,7 @@ public class TvBrowser extends AppCompatActivity implements
                 IOUtils.close(reminders);
               }
             }
-          };
+          }
         }.start();
       }
       if(oldVersion < 304) {
@@ -1450,8 +1450,8 @@ public class TvBrowser extends AppCompatActivity implements
           mProgress = new ProgressDialog(TvBrowser.this);
           mProgress.setMessage(getString(R.string.synchronizing_channels));
           mProgress.show();
-        };
-        
+        }
+
         @Override
         protected Void doInBackground(Void... params) {
           boolean somethingSynchonized = false;
@@ -1640,7 +1640,7 @@ public class TvBrowser extends AppCompatActivity implements
           if(mProgress != null) {
             mProgress.dismiss();
           }
-        };
+        }
       };
       
       synchronize.execute();
@@ -2437,8 +2437,8 @@ public class TvBrowser extends AppCompatActivity implements
       
       return super.iterator();
     }
-  };
-  
+  }
+
   /**
    * Class for filtering of country and category for channel selection.
    * 
@@ -4287,7 +4287,7 @@ public class TvBrowser extends AppCompatActivity implements
               });
             }
           }    
-        };
+        }
       }.start();
     }
   }
@@ -5149,8 +5149,8 @@ public class TvBrowser extends AppCompatActivity implements
                           mProgress = new ProgressDialog(TvBrowser.this);
                           mProgress.setMessage(getString(R.string.plugin_info_donwload).replace("{0}", mCurrentDownloadPlugin.getName()));
                           mProgress.show();
-                        };
-                        
+                        }
+
                         @Override
                         protected Boolean doInBackground(String... params) {
                           mPluginFile = new File(params[0]);
@@ -5167,7 +5167,7 @@ public class TvBrowser extends AppCompatActivity implements
                           }
                           
                           mLoadingPlugin = false;
-                        };
+                        }
                       };
                       
                       async.execute(mCurrentDownloadPlugin.toString(), downloadUrl);
