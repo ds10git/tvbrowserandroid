@@ -223,7 +223,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
                 final int index = mCursor.getColumnIndex(column);
                 
                 if(index >= 0) {
-                  mMarkingColumsIndexMap.put(column, Integer.valueOf(index));
+                  mMarkingColumsIndexMap.put(column, index);
                 }
               }
               
@@ -312,7 +312,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
         final String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
         String number = null;
         final CharSequence episodeTitle = (mShowEpisode && !mCursor.isNull(mEpisodeIndex)) ? WidgetUtils.getColoredString(mCursor.getString(mEpisodeIndex),mUserDefindedColorEpisode) : null;
-        Spannable categorySpan = (mShowCategories && !mCursor.isNull(mCategoryIndex)) ? IOUtils.getInfoString(mCursor.getInt(mCategoryIndex), getResources(), true, mUserDefindedColorCategoryDefault[0] == 1 ? Integer.valueOf(mUserDefindedColorCategoryDefault[1]) : null) : null;
+        Spannable categorySpan = (mShowCategories && !mCursor.isNull(mCategoryIndex)) ? IOUtils.getInfoString(mCursor.getInt(mCategoryIndex), getResources(), true, mUserDefindedColorCategoryDefault[0] == 1 ? mUserDefindedColorCategoryDefault[1] : null) : null;
         Spannable marking = WidgetUtils.getMarkings(mContext, mCursor, mShowMarkings, mMarkingPluginsIndex, mMarkingFavoriteIndex, mMarkingReminderIndex, mMarkingFavoriteReminderIndex, mMarkingSyncIndex);
         
         if(shortName != null) {

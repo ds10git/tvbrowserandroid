@@ -234,7 +234,7 @@ public class UiUtils {
             
             @Override
             protected Boolean doInBackground(Void... params) {
-              Boolean result = Boolean.valueOf(false);
+              Boolean result = Boolean.FALSE;
               
               final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
               
@@ -243,7 +243,7 @@ public class UiUtils {
               try {
                 if(IOUtils.prepareAccessFirst(c)) {
                   mHasSpannableActors = false;
-                  result = Boolean.valueOf(true);
+                  result = Boolean.TRUE;
                   float textScale = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_TEXT_SCALE, R.string.detail_text_scale_default));
                   
                   final long startTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
@@ -2254,7 +2254,7 @@ public class UiUtils {
             AdapterChannel item = channelAdapter.getItem(i);
             
             if(item.mSelected) {
-              channelIDList.add(Integer.valueOf(item.mChannelID));
+              channelIDList.add(item.mChannelID);
             }
             else {
               allSelected = false;
@@ -2424,7 +2424,7 @@ public class UiUtils {
           AdapterCategory item = categoryAdapter.getItem(i);
           
           if(item.mSelected) {
-            channelIDList.add(Integer.valueOf(item.mIndex));
+            channelIDList.add(item.mIndex);
           }
           else {
             allSelected = false;

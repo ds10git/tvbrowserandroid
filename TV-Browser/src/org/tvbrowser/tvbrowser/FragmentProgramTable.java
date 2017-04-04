@@ -215,10 +215,10 @@ public class FragmentProgramTable extends Fragment {
               
               do {
                 id = c.getLong(c.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-              }while(((getView().findViewWithTag(Long.valueOf(id)) == null) || (value - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1.25 * 60 * 60000))) && c.moveToNext());
+              }while(((getView().findViewWithTag(id) == null) || (value - c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME))) > ((int)(1.25 * 60 * 60000))) && c.moveToNext());
               
               if(id != -1 && getView() != null) {
-                final View view = getView().findViewWithTag(Long.valueOf(id));
+                final View view = getView().findViewWithTag(id);
                 
                 if(view != null) {
                   final ScrollView scroll = (ScrollView)getView().findViewById(R.id.vertical_program_table_scroll);
@@ -526,14 +526,14 @@ public class FragmentProgramTable extends Fragment {
                   int index = c.getColumnIndex(column);
                   
                   if(index >= 0) {
-                    markingColumsIndexMap.put(column, Integer.valueOf(index));
+                    markingColumsIndexMap.put(column, index);
                   }
                 }
                 
                 while(c.moveToNext()) {
                   long key = c.getLong(keyColumnIndex);
                   
-                  View view = mProgramPanelLayout.findViewWithTag(Long.valueOf(key));
+                  View view = mProgramPanelLayout.findViewWithTag(key);
                   
                   if(view != null) {
                     long startTime = c.getLong(statTimeColumnIndex);
@@ -598,7 +598,7 @@ public class FragmentProgramTable extends Fragment {
     
     for(int infoKey : infoPrefKeyArr) {
       if(PrefUtils.getBooleanValue(infoKey, R.bool.pref_info_show_default)) {
-        mShowInfos.add(Integer.valueOf(infoKey));
+        mShowInfos.add(infoKey);
       }
     }
     
@@ -688,7 +688,7 @@ public class FragmentProgramTable extends Fragment {
           ArrayList<Integer> channelIDsOrdered = new ArrayList<Integer>();
           
           while(channels.moveToNext()) {
-            channelIDsOrdered.add(Integer.valueOf(channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.KEY_ID))));
+            channelIDsOrdered.add(channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
             
             String name = channels.getString(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
             
@@ -753,7 +753,7 @@ public class FragmentProgramTable extends Fragment {
                   int index = cursor.getColumnIndex(column);
                   
                   if(index >= 0) {
-                    mMarkingsMap.put(column, Integer.valueOf(index));
+                    mMarkingsMap.put(column, index);
                   }
                 }
                 
@@ -994,7 +994,7 @@ public class FragmentProgramTable extends Fragment {
       
       for(int infoKey : infoPrefKeyArr) {
         boolean isShownSetting = PrefUtils.getBooleanValue(infoKey, R.bool.pref_info_show_default);
-        boolean isCurrentlyShown = mShowInfos.contains(Integer.valueOf(infoKey));
+        boolean isCurrentlyShown = mShowInfos.contains(infoKey);
         
         if((isShownSetting && !isCurrentlyShown) || (!isShownSetting && isCurrentlyShown)) {
           updateInfoValues = true;

@@ -1510,7 +1510,7 @@ public class TvBrowser extends AppCompatActivity implements
                     String groupId = group.getString(groupIdIndex);
                     int key = group.getInt(keyIndex);
                     
-                    groupMap.put(dataServiceId+";"+groupId, Integer.valueOf(key));
+                    groupMap.put(dataServiceId+";"+groupId, key);
                   }
                 }
               }finally {
@@ -2386,7 +2386,7 @@ public class TvBrowser extends AppCompatActivity implements
         ChannelSelection selection = super.get(i);
         
         if(selection.isCategory(filter.mCategory) && selection.isCountry(filter.mCountry)) {
-          map.add(Integer.valueOf(i));
+          map.add(i);
         }
       }
       
@@ -5613,7 +5613,7 @@ public class TvBrowser extends AppCompatActivity implements
           
           Field setting = string.getDeclaredField("TIME_BUTTON_" + i);
           
-          Integer value = Integer.valueOf(pref.getInt(getResources().getString((Integer)setting.get(string)), defaultValues[i-1]));
+          Integer value = pref.getInt(getResources().getString((Integer) setting.get(string)), defaultValues[i - 1]);
           
           if(value >= -1 && !values.contains(value)) {
             values.add(value);
@@ -5622,7 +5622,7 @@ public class TvBrowser extends AppCompatActivity implements
       }
       
       for(int i = 7; i <= timeButtonCount; i++) {
-          Integer value = Integer.valueOf(pref.getInt("TIME_BUTTON_" + i, 0));
+          Integer value = pref.getInt("TIME_BUTTON_" + i, 0);
           
           if(value >= -1 && !values.contains(value)) {
             values.add(value);

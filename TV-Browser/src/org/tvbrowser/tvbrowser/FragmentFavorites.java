@@ -318,7 +318,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     getActivity().getTheme().resolveAttribute(android.R.attr.windowBackground, a, true);
     if (a.type >= TypedValue.TYPE_FIRST_COLOR_INT && a.type <= TypedValue.TYPE_LAST_COLOR_INT) {
         // windowBackground is a color
-      backgroundRef.set(Integer.valueOf(a.data));
+      backgroundRef.set(a.data);
     } else {
         // windowBackground is not a color, probably a drawable
         ///Drawable d = ContextCompat.getDrawable(getActivity(),a.resourceId);

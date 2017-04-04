@@ -117,7 +117,7 @@ public class FilterCursorWrapper extends CursorWrapper {
     for(int i = 0; i < super.getCount(); i++) {
       if(mCursor.moveToNext()) {
         if(filter.accept(mCursor)) {
-          newFilterMap.add(Integer.valueOf(i));
+          newFilterMap.add(i);
         }
       }
     }
