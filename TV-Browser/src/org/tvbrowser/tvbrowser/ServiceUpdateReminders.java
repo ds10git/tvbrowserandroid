@@ -78,7 +78,7 @@ public class ServiceUpdateReminders extends Service {
           }
           
           stopSelf();
-        };
+        }
       };
       mUpdateRemindersThread.start();
     }

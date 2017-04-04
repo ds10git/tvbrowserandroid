@@ -345,7 +345,7 @@ public class IOUtils {
         finally {
           close(fout);
         }
-      };
+      }
     }.start();
     
     Thread wait = new Thread("SAVE URL WAITING THREAD") {
@@ -355,7 +355,7 @@ public class IOUtils {
             sleep(100);
           } catch (InterruptedException e) {}
         }
-      };
+      }
     };
     wait.start();
     
@@ -450,7 +450,7 @@ public class IOUtils {
         finally {
           close(fout);
         }
-      };
+      }
     }.start();
     
     Thread wait = new Thread("SAVE URL WAITING THREAD") {
@@ -460,7 +460,7 @@ public class IOUtils {
             sleep(100);
           } catch (InterruptedException e) {}
         }
-      };
+      }
     };
     wait.start();
         
@@ -522,7 +522,7 @@ public class IOUtils {
         finally {
           close(fout);
         }
-      };
+      }
     }.start();
     
     Thread wait = new Thread("SAVE URL WAITING THREAD") {
@@ -532,7 +532,7 @@ public class IOUtils {
             sleep(100);
           } catch (InterruptedException e) {}
         }
-      };
+      }
     };
     wait.start();
         
@@ -763,7 +763,7 @@ public class IOUtils {
         finally  {
           disconnect(connection);
         }
-      };
+      }
     }.start();
     
     Thread check = new Thread("WAITING FOR NETWORK CONNECTION THREAD") {
@@ -1344,7 +1344,7 @@ public class IOUtils {
         }
         
         delayed.run();
-      };
+      }
     }.start();
   }
 }

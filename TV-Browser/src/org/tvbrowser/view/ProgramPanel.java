@@ -365,7 +365,7 @@ public class ProgramPanel extends View {
         public void run() {
           try {
             invalidate();
-          }catch(Throwable t) {};
+          }catch(Throwable t) {}
         }
       });  
     }

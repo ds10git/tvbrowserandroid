@@ -80,7 +80,7 @@ public class ServiceChannelCleaner extends Service {
           
           stopSelf();
         }
-      };
+      }
     }.start();
     
     return Service.START_NOT_STICKY;

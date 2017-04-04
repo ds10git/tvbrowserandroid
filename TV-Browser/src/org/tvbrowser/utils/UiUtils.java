@@ -971,7 +971,7 @@ public class UiUtils {
                     e.printStackTrace();
                   }
                   mShowingProgramInfo = false;
-                };
+                }
               }.start();
             }
           };
