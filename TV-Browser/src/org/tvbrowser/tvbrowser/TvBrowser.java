@@ -5595,8 +5595,8 @@ public class TvBrowser extends AppCompatActivity implements
     if(mScrollTimeItem != null) {
       SubMenu subMenu = mScrollTimeItem.getSubMenu();
       Log.d("info4", ""+subMenu.size());
-      for(int i = 0; i < SCROLL_IDS.length; i++) {
-        subMenu.removeItem(SCROLL_IDS[i]);
+      for (int SCROLL_ID : SCROLL_IDS) {
+        subMenu.removeItem(SCROLL_ID);
       }
       
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
