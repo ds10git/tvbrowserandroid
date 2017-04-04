@@ -78,11 +78,8 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
   @Override
   public void onUpdate(Context context, AppWidgetManager appWidgetManager,
       int[] appWidgetIds) {
-    final int n = appWidgetIds.length;
-    
-    for(int i = 0; i < n; i++) {
-      int appWidgetId = appWidgetIds[i];
       
+    for (int appWidgetId : appWidgetIds) {
       boolean isKeyguard = CompatUtils.isKeyguardWidget(appWidgetId, context);
       int type = PreferenceManager.getDefaultSharedPreferences(context).getInt(appWidgetId + "_" + context.getString(R.string.WIDGET_CONFIG_IMPORTANT_TYPE), context.getResources().getInteger(R.integer.widget_config_important_type_index_default));
       

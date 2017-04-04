@@ -81,11 +81,7 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
   
   @Override
   public void onUpdate(Context context, AppWidgetManager appWidgetManager, int[] appWidgetIds) {
-    final int n = appWidgetIds.length;
-    
-    for(int i = 0; i < n; i++) {
-      int appWidgetId = appWidgetIds[i];
-      
+    for (int appWidgetId : appWidgetIds) {
       boolean isKeyguard = CompatUtils.isKeyguardWidget(appWidgetId, context);
       
       Intent intent = new Intent(context, RunningProgramsRemoteViewsService.class);

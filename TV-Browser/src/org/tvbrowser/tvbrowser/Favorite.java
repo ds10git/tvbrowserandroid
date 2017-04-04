@@ -268,9 +268,9 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.KEY_ID
       };
       
-      for(int i = 0; i < parts.length; i++) {
-        String[] channelIdParts = parts[i].split("#_#");
         
+      for (String part : parts) {
+        String[] channelIdParts = part.split("#_#");
         if(channelIdParts.length == 3) {
           StringBuilder where = new StringBuilder();
           
