@@ -88,6 +88,7 @@ import android.os.RemoteException;
 import android.preference.PreferenceManager;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v4.util.LongSparseArray;
 import android.support.v4.util.SparseArrayCompat;
 import android.text.TextUtils;
 import android.util.Base64;
