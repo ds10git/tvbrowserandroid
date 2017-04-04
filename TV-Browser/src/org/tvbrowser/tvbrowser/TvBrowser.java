@@ -2413,7 +2413,7 @@ public class TvBrowser extends AppCompatActivity implements
     @Override
     public Iterator<ChannelSelection> iterator() {
       if(mValueMap != null) {
-        Iterator<ChannelSelection> it = new Iterator<TvBrowser.ChannelSelection>() {
+        return new Iterator<ChannelSelection>() {
           private int mCurrentIndex = 0;
           private ChannelSelection mCurrent = null;
           
@@ -2433,8 +2433,6 @@ public class TvBrowser extends AppCompatActivity implements
             mCurrent = null;
           }
         };
-        
-        return it;
       }
       
       return super.iterator();
@@ -3161,9 +3159,7 @@ public class TvBrowser extends AppCompatActivity implements
             public void dropped(int originalPosition, int position) {
               int startIndex = originalPosition;
               int endIndex = position;
-              
-              int droppedPos = position;
-              
+
               if(originalPosition > position) {
                 startIndex = position;
                 endIndex = originalPosition;
@@ -3180,7 +3176,7 @@ public class TvBrowser extends AppCompatActivity implements
               boolean changed = false;
               
               for(int i = startIndex; i <= endIndex; i++) {
-                if(i == droppedPos || aa.getItem(i).getSortNumber() != 0) {
+                if(i == position || aa.getItem(i).getSortNumber() != 0) {
                   changed = true;
                   aa.getItem(i).setSortNumber(++previousNumber);
                   

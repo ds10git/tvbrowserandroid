@@ -183,9 +183,7 @@ public class NewsReader {
     }
     
     boolean isOutdated() {
-      boolean outdated = mDate == null || mDate.getTime() < (System.currentTimeMillis() - (NEWS_DAYOUT * 24 * 60 * 60000L));
-      
-      return outdated;
+      return mDate == null || mDate.getTime() < (System.currentTimeMillis() - (NEWS_DAYOUT * 24 * 60 * 60000L));
     }
     
     @Override
