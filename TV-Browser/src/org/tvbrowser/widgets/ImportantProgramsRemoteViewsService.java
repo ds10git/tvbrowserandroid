@@ -391,7 +391,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
         for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
           final Integer index = mMarkingColumsIndexMap.get(column);
           
-          if(index != null && mCursor.getInt(index.intValue()) == 1) {
+          if(index != null && mCursor.getInt(index) == 1) {
             markedColumns.add(column);
           }
         }

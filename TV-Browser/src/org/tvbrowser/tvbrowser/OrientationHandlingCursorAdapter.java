@@ -60,7 +60,7 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
           Long tag = (Long)v.getTag();
           
           if(tag != null) {
-            UiUtils.showProgramInfo(context, tag.longValue(), null, mHandler);
+            UiUtils.showProgramInfo(context, tag, null, mHandler);
           }
         }
       };
@@ -99,7 +99,7 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
         @Override
         public void onCreateContextMenu(ContextMenu menu, View v,
             ContextMenuInfo menuInfo) {
-          long id = ((Long)v.getTag()).longValue();
+          long id = (Long) v.getTag();
           mContextMenuInfo = new AdapterView.AdapterContextMenuInfo(v, -1, id);
           
           UiUtils.createContextMenu(context, menu, id);

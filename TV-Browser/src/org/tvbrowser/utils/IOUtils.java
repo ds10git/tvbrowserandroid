@@ -287,7 +287,7 @@ public class IOUtils {
           infoString.append(", ");
           
           if(defaultColor != null) {
-            infoString.setSpan(new ForegroundColorSpan(defaultColor.intValue()), infoString.length()-2, infoString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            infoString.setSpan(new ForegroundColorSpan(defaultColor), infoString.length()-2, infoString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
           }
         }
         infoString.append(valueArr[i]);
@@ -302,7 +302,7 @@ public class IOUtils {
           }
           
           if(color != null) {
-            infoString.setSpan(new ForegroundColorSpan(color.intValue()), infoString.length()-valueArr[i].length(), infoString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            infoString.setSpan(new ForegroundColorSpan(color), infoString.length()-valueArr[i].length(), infoString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
           }          
         }
       }

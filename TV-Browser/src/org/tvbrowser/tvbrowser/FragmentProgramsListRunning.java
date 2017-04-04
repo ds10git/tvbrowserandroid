@@ -364,7 +364,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   public void setWhereClauseTime(Object time) {
     if(time instanceof Integer) {
-      int testValue = ((Integer) time).intValue();
+      int testValue = (Integer) time;
       
       if(testValue != mWhereClauseTime) {
         final Integer timeTest = mWhereClauseTime;
@@ -871,7 +871,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         Long tag = (Long)v.getTag();
         
         if(tag != null) {
-          UiUtils.showProgramInfo(getActivity(), tag.longValue(), getActivity().getCurrentFocus(), handler);
+          UiUtils.showProgramInfo(getActivity(), tag, getActivity().getCurrentFocus(), handler);
         }
       }
     };
@@ -928,7 +928,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
             showChannel.putExtra(SettingConstants.DAY_POSITION_EXTRA, FragmentProgramsList.INDEX_DATE_YESTERDAY);
           }
           else if(mDateSelection.getSelectedItemPosition() == 1) {
-            if(endTime == null || ((Long)endTime).longValue() > System.currentTimeMillis()) {
+            if(endTime == null || (Long) endTime > System.currentTimeMillis()) {
               showChannel.putExtra(SettingConstants.DAY_POSITION_EXTRA, FragmentProgramsList.INDEX_DATE_TODAY_TOMORROW);
             }
           }
@@ -1511,7 +1511,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
               for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
                 Integer value = markingColumnsMap.get(column);
                 
-                if(value != null && c.getInt(value.intValue()) >= 1) {
+                if(value != null && c.getInt(value) >= 1) {
                   markedColumsList.add(column);
                 }
                 else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && ProgramUtils.isMarkedWithIcon(getActivity(), programID)) {
@@ -1638,7 +1638,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     Long test = (Long)v.getTag();
     
     if(test != null) {
-      mContextProgramID = test.longValue();
+      mContextProgramID = test;
       mContextView = v;
       UiUtils.createContextMenu(getActivity(), menu, mContextProgramID);
     }

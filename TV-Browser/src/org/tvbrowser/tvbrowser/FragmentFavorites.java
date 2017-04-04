@@ -348,7 +348,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
             backgound = (Drawable)backgroundRef.get();
           }
           else if(backgroundRef.get() instanceof Integer) {
-            backgound = new ColorDrawable(((Integer)backgroundRef.get()).intValue());
+            backgound = new ColorDrawable((Integer) backgroundRef.get());
           }
           
           if(!mContainsListViewFavoriteSelection) {
