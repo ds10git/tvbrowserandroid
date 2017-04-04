@@ -5018,7 +5018,7 @@ public class TvDataUpdateService extends Service {
            if(toAdd.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
              if(!toAdd.containsKey(TvBrowserContentProvider.DATA_KEY_ENDTIME) || toAdd.getAsLong(TvBrowserContentProvider.DATA_KEY_ENDTIME) == 0) {
                long meStart = toAdd.getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-               int j = i + 0;
+               int j = i;
                
                while(j < mInsertValuesList.size() && meStart == mInsertValuesList.get(j).getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
                  j++;
