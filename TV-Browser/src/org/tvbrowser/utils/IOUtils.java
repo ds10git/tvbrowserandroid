@@ -236,7 +236,7 @@ public class IOUtils {
       int[] colorCategory = getActivatedColorFor(PrefUtils.getStringValue(colorKey, getDefaultCategoryColorKeyForColorKey(colorKey)));
       
       if(colorCategory[0] == 1) {
-        categoryColorMap.put(names[i], Integer.valueOf(colorCategory[1]));
+        categoryColorMap.put(names[i], colorCategory[1]);
       }
     }
         
@@ -298,7 +298,7 @@ public class IOUtils {
           Integer color = defaultColor;
           
           if(colorCategory[0] == 1) {
-            color = Integer.valueOf(colorCategory[1]);
+            color = colorCategory[1];
           }
           
           if(color != null) {

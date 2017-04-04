@@ -1173,7 +1173,7 @@ public class TvDataUpdateService extends Service {
                   try {
                     if(channel.moveToFirst()) {
                       int channelIdValue = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-                      channelId = Integer.valueOf(channelIdValue);
+                      channelId = channelIdValue;
                       
                       knownChannels.put(groupChannelKey, channelId);
                     }
@@ -1326,7 +1326,7 @@ public class TvDataUpdateService extends Service {
               try {
                 if(channel.moveToFirst()) {
                   int channelIdValue = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-                  channelId = Integer.valueOf(channelIdValue);
+                  channelId = channelIdValue;
                   
                   knownChannels.put(groupChannelKey, channelId);
                 }
@@ -1800,7 +1800,7 @@ public class TvDataUpdateService extends Service {
                   int index = (int)(Math.random()*urls.length);
                   int count = 0;
                   
-                  while((notWorkingIndicies.contains(Integer.valueOf(index)) && count++ < urls.length) || index >= urls.length) {
+                  while((notWorkingIndicies.contains(index) && count++ < urls.length) || index >= urls.length) {
                     index = (int)(Math.random()*urls.length);
                   }
                   
@@ -1831,13 +1831,13 @@ public class TvDataUpdateService extends Service {
                       }
                       else {
                         doLog("Not successfull load channels for group '" + info.getFileName() + "' from: " + url);
-                        notWorkingIndicies.add(Integer.valueOf(index));
+                        notWorkingIndicies.add(index);
                       }
                     }
                     else {
                       checkAndSetConnectionState(downloadStart);
                       doLog("Not successfull load channels for group '" + info.getFileName() + "' from: " + url);
-                      notWorkingIndicies.add(Integer.valueOf(index));
+                      notWorkingIndicies.add(index);
                     }
                   } catch (Exception e) {
                     groupSucces = false;
@@ -1911,7 +1911,7 @@ public class TvDataUpdateService extends Service {
         Log.d("info77", uniqueChannelKey + " " + c.getCount());
         try {
           if(c.moveToFirst()) {
-            updatedIdsList.add(Integer.valueOf(c.getInt(c.getColumnIndex(TvBrowserContentProvider.KEY_ID))));
+            updatedIdsList.add(c.getInt(c.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
           }
         }finally {
           IOUtils.close(c);
@@ -3540,7 +3540,7 @@ public class TvDataUpdateService extends Service {
                       final long startTime = data.getLong(columnIndexStartTime);
                       final String title = data.getString(columnIndexTitle).replaceAll("\\p{punct}|\\s+", "_").replaceAll("_+", "_");
                       
-                      currentDataIds.put(line.trim()+";"+startTime+";"+title, Long.valueOf(id));
+                      currentDataIds.put(line.trim()+";"+startTime+";"+title, id);
                       doLog("KEY " + line.trim()+";"+startTime+";"+title + " " + id);
                     }
                   }
@@ -5241,8 +5241,8 @@ public class TvDataUpdateService extends Service {
               doLog("Error read data file: '" +dataFile.getAbsolutePath() + "': " + t.getMessage() + " " + message.toString());
             }
           }
-          Log.d("info21", "VERSION " + dataFile.getName() + " " + Byte.valueOf(dataInfo.getDataVersion()));
-          mVersionMap.put(dataFile.getName(), Byte.valueOf(dataInfo.getDataVersion()));
+          Log.d("info21", "VERSION " + dataFile.getName() + " " + dataInfo.getDataVersion());
+          mVersionMap.put(dataFile.getName(), dataInfo.getDataVersion());
           
           if(level == LEVEL_BASE && missingFrameIDs != null && !missingFrameIDs.isEmpty()) {
             StringBuilder where = new StringBuilder(" ( ( ");
@@ -5355,7 +5355,7 @@ public class TvDataUpdateService extends Service {
     }
     
     public int[] getVersionForDay(int day) {
-      return mLevelVersions.get(Integer.valueOf(day));
+      return mLevelVersions.get(day);
     }
     
     public int getDayCount() {

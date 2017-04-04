@@ -293,7 +293,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
             
             try {
               if(IOUtils.prepareAccessFirst(channel)) {
-                parsed.add(Integer.valueOf(channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID))));
+                parsed.add(channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
               }
             }finally {
               IOUtils.close(channel);

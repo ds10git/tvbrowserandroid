@@ -367,7 +367,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       int testValue = ((Integer) time).intValue();
       
       if(testValue != mWhereClauseTime) {
-        final Integer timeTest = Integer.valueOf(mWhereClauseTime);
+        final Integer timeTest = mWhereClauseTime;
         
         for(int i = 0; i < mTimeBar.getChildCount(); i++) {
           if(timeTest.equals(mTimeBar.getChildAt(i).getTag())) {
@@ -692,10 +692,10 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         channelSet = true;
       }
       
-      viewHolder.mChannelInfo.setTag(startTimeResId, Long.valueOf(startTime));
-      viewHolder.mChannelInfo.setTag(endTimeResId, Long.valueOf(endTime));
+      viewHolder.mChannelInfo.setTag(startTimeResId, startTime);
+      viewHolder.mChannelInfo.setTag(endTimeResId, endTime);
       
-      layout.setTag(Long.valueOf(programID));
+      layout.setTag(programID);
       layout.setOnClickListener(mOnClickListener);
       
       final String[] markingsValue = mMarkingsMap.get(programID);
@@ -1046,7 +1046,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       final TimePickerDialog pick = new TimePickerDialog(getActivity(), TimePickerDialog.THEME_HOLO_DARK, new TimePickerDialog.OnTimeSetListener() {
         @Override
         public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-          final Integer selectedTime = Integer.valueOf(hourOfDay*60+minute);
+          final Integer selectedTime = hourOfDay * 60 + minute;
           
           insertTimeExtra(selectedTime);
           
@@ -1075,8 +1075,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     final Button now = (Button)rootView.findViewById(R.id.now_button);
     final Button next = (Button)rootView.findViewById(R.id.button_after1);
     mDateSelection = (Spinner)rootView.findViewById(R.id.running_date_selection);
-    now.setTag(Integer.valueOf(-1));
-    next.setTag(Integer.valueOf(-2));
+    now.setTag(-1);
+    next.setTag(-2);
     
     final View.OnClickListener listenerClick = new View.OnClickListener() {
       @Override
@@ -1135,7 +1135,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                 mDateSelection.setSelection(1);
               }
               
-              setWhereClauseTime(Integer.valueOf(-2));
+              setWhereClauseTime(-2);
               
               return true;
             }
@@ -1153,7 +1153,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
               
               Field setting = string.getDeclaredField("TIME_BUTTON_" + i);
               
-              Integer value = Integer.valueOf(pref.getInt(getResources().getString((Integer)setting.get(string)), defaultValues[i-1]));
+              Integer value = pref.getInt(getResources().getString((Integer) setting.get(string)), defaultValues[i - 1]);
               
               if(value >= -1 && !values.contains(value)) {
                 values.add(value);
@@ -1162,7 +1162,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
           }
           
           for(int i = 7; i <= timeButtonCount; i++) {
-              Integer value = Integer.valueOf(pref.getInt("TIME_BUTTON_" + i, 0));
+              Integer value = pref.getInt("TIME_BUTTON_" + i, 0);
               
               if(value >= -1 && !values.contains(value)) {
                 values.add(value);
@@ -1186,9 +1186,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
           
           mTimeExtra = (Button)mTimeBar.getChildAt(mTimeBar.getChildCount()-1);
           mTimeExtra.setText(DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(cal.getTime()));
-          mTimeExtra.setTag(R.id.time_extra, Boolean.valueOf(true));
+          mTimeExtra.setTag(R.id.time_extra, Boolean.TRUE);
           mTimeExtra.setTypeface(null, Typeface.BOLD_ITALIC);
-          mTimeExtra.setTag(Integer.valueOf(lastExtraTime));
+          mTimeExtra.setTag(lastExtraTime);
           mTimeExtra.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -1368,7 +1368,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       cal.setTimeInMillis(System.currentTimeMillis());
     }
     
-    final Integer timeTest = Integer.valueOf(mWhereClauseTime);
+    final Integer timeTest = mWhereClauseTime;
     
     for(int i = 0; i < mTimeBar.getChildCount(); i++) {
       if(timeTest.equals(mTimeBar.getChildAt(i).getTag())) {
@@ -1482,7 +1482,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         int index = c.getColumnIndex(column);
         
         if(index >= 0) {
-          markingColumnsMap.put(column, Integer.valueOf(index));
+          markingColumnsMap.put(column, index);
         }
       }
       
@@ -1700,11 +1700,11 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       else if(getString(R.string.PREF_RUNNING_PROGRAMS_SHOW_TIME_PICK_BUTTON_ONLY_WHEN_NEEDED).equals(key)) {
         boolean enabled = sharedPreferences.getBoolean(key, getResources().getBoolean(R.bool.pref_running_programs_show_time_pick_button_only_when_needed_default));
         
-        if(enabled && !mTimeExtra.getTag().equals(Integer.valueOf(mWhereClauseTime))) {
+        if(enabled && !mTimeExtra.getTag().equals(mWhereClauseTime)) {
           mTimeBar.removeView(mTimeExtra);
         }
         else {
-          insertTimeExtra(Integer.valueOf(mWhereClauseTime));
+          insertTimeExtra(mWhereClauseTime);
         }
       }
       else if(mListView != null && (getString(R.string.PREF_COLOR_SEPARATOR_LINE).equals(key) || getString(R.string.PREF_COLOR_SEPARATOR_SPACE).equals(key))) {
@@ -1727,7 +1727,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     for(int i = 0; i < mTimeBar.getChildCount(); i++) {
       View button = mTimeBar.getChildAt(i);
       
-      if(button.getTag().equals(Integer.valueOf(time-1))) {
+      if(button.getTag().equals(time - 1)) {
         selectButton((Button)button);
         found = true;
         break;
@@ -1735,12 +1735,12 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     }
     
     if(!found && time == -1) {
-      setWhereClauseTime(Integer.valueOf(-2));
+      setWhereClauseTime(-2);
     }
     else if(time > 0) {
       time--;
       
-      mTimeExtra.setTag(Integer.valueOf(time));
+      mTimeExtra.setTag(time);
       
       Calendar cal = Calendar.getInstance();
       
@@ -1750,7 +1750,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       mLastExtraClick = System.currentTimeMillis();
       mTimeExtra.setText(DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(cal.getTime()));
       
-      insertTimeExtra(Integer.valueOf(time));
+      insertTimeExtra(time);
       
       setWhereClauseTime(mTimeExtra.getTag());
       
