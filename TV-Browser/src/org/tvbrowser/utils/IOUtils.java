@@ -162,7 +162,7 @@ public class IOUtils {
   };
   
   public static final String[] getInfoStringArrayNames(Resources res) {
-    String[] valueArr = {
+    return new String[]{
         res.getString(R.string.info_black_and_white),
         res.getString(R.string.info_four_to_three),
         res.getString(R.string.info_sixteen_to_nine),
@@ -189,8 +189,6 @@ public class IOUtils {
         res.getString(R.string.info_other),
         res.getString(R.string.info_sign_language)
     };
-    
-    return valueArr;
   }
   
   public static boolean infoSet(int categories, int info) {

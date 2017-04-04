@@ -108,9 +108,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       layout = R.layout.fragment_favorite_selection_list_layout;
     }
     
-    View v = inflater.inflate(layout, container, false);
-    
-    return v;
+    return inflater.inflate(layout, container, false);
   }
   
   public void updateSynchroButton(View view) {
@@ -862,9 +860,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       tvb.showSQLquery(where, mWhereClause.getSelectionArgs());
     }
     
-    CursorLoader loader = new CursorLoader(tvb, TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, mWhereClause.getSelectionArgs(), TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-    
-    return loader;
+    return new CursorLoader(tvb, TvBrowserContentProvider.RAW_QUERY_CONTENT_URI_DATA, projection, where, mWhereClause.getSelectionArgs(), TvBrowserContentProvider.DATA_KEY_STARTTIME + " , " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
   }
 
   private void updateFavoriteList(boolean mark) {
