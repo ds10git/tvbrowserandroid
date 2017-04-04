@@ -306,7 +306,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         mChannelRestrictionIDs = new int[parsed.size()];
         
         for(int i = 0; i < mChannelRestrictionIDs.length; i++) {
-          mChannelRestrictionIDs[i] = parsed.get(i).intValue();
+          mChannelRestrictionIDs[i] = parsed.get(i);
         }
       }
     }

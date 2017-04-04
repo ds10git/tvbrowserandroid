@@ -1552,7 +1552,7 @@ public class TvBrowser extends AppCompatActivity implements
                       Integer groupId = groupMap.get(dataService+";"+groupKey);
                       
                       if(groupId != null) {
-                        String where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=" + groupId.intValue() + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "='" + channelId + "' ) ";
+                        String where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=" + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "='" + channelId + "' ) ";
                           
                         ContentValues values = new ContentValues();
                         
@@ -1875,7 +1875,7 @@ public class TvBrowser extends AppCompatActivity implements
             Object value = preferences.get(key);
             
             if(value instanceof Boolean) {
-              if(!getString(R.string.PREF_EPGPAID_INFO_SHOWN).equals(key) || !getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(key) || ((Boolean)value).booleanValue()) {
+              if(!getString(R.string.PREF_EPGPAID_INFO_SHOWN).equals(key) || !getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(key) || (Boolean) value) {
                 backup.append("boolean:").append(key).append("=").append(value).append("\n");
               }
             }
@@ -5641,7 +5641,7 @@ public class TvBrowser extends AppCompatActivity implements
         cal.set(Calendar.HOUR_OF_DAY, values.get(i) / 60);
         cal.set(Calendar.MINUTE, values.get(i) % 60);
         
-        SCROLL_TIMES[i] = values.get(i).intValue();
+        SCROLL_TIMES[i] = values.get(i);
         SCROLL_IDS[i] = -(i+1);
         
         subMenu.add(100, SCROLL_IDS[i], i+1, DateFormat.getTimeFormat(TvBrowser.this).format(cal.getTime()));

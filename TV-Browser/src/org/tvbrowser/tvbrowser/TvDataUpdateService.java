@@ -846,7 +846,7 @@ public class TvDataUpdateService extends Service {
           Integer selection = (Integer)((Object[])channelValues)[2];
           
           if(currentFirstDeletedChannels.contains(uniqueChannelId)) {
-            if(selection.intValue() == 1) {Log.d("info2", "ADD " + uniqueChannelId);
+            if(selection == 1) {Log.d("info2", "ADD " + uniqueChannelId);
               secondDeletedUserChannels.add(uniqueChannelId);
             }
             else {
@@ -1166,7 +1166,7 @@ public class TvDataUpdateService extends Service {
                 Integer channelId = knownChannels.get(groupChannelKey);
                 
                 if(channelId == null) {
-                  String where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + ((Integer)((Object[])groupInfo)[0]).intValue() + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + channelIdKey + "\' ) ";
+                  String where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + (Integer) ((Object[]) groupInfo)[0] + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + channelIdKey + "\' ) ";
                   
                   Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
                   
@@ -1319,7 +1319,7 @@ public class TvDataUpdateService extends Service {
             Integer channelId = knownChannels.get(groupChannelKey);
             
             if(channelId == null) {
-              String where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + ((Integer)((Object[])groupInfo)[0]).intValue() + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + channelIdKey + "\' ) ";
+              String where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + (Integer) ((Object[]) groupInfo)[0] + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + channelIdKey + "\' ) ";
               
               Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
               
@@ -1336,7 +1336,7 @@ public class TvDataUpdateService extends Service {
             }
             
             if(channelId != null) {
-              String where = " ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelId.intValue() + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_REMOVED_SYNC + " AND NOT " + TvBrowserContentProvider.DATA_KEY_MARKING_SYNC;
+              String where = " ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " = " + channelId + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + " = " + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_REMOVED_SYNC + " AND NOT " + TvBrowserContentProvider.DATA_KEY_MARKING_SYNC;
                 
               Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
               try {
@@ -1567,12 +1567,12 @@ public class TvDataUpdateService extends Service {
     }
     else {
       doLog("Update group '" + groupId + "' in database.");
-      cr.update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS,knownId.intValue()), values, null, null);
+      cr.update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_GROUPS, knownId), values, null, null);
       
       doLog("Update group '" + groupId + "' loadGroupInfoForGroup().");
       String[] urls = loadAvailableMirrorsForGroup(mirrorUrls);
       
-      GroupInfo test = new GroupInfo(dataServiceId, urls, urlFileName, fileName, mirrorUrlFileName, mirrorFileName, knownId.intValue());
+      GroupInfo test = new GroupInfo(dataServiceId, urls, urlFileName, fileName, mirrorUrlFileName, mirrorFileName, knownId);
       
       if(urls.length > 0) {
         doLog("Load channels for group '" + groupId + "' to " + test.getFileName());
@@ -2154,7 +2154,7 @@ public class TvDataUpdateService extends Service {
               doLog("Add channel to database UPDATE: " + name);
               Integer uniqueChannelId = (Integer)((Object[])channelValues)[0];
               // update channel            
-              ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, uniqueChannelId.intValue()));
+              ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, uniqueChannelId));
               opBuilder.withValues(values);
               
               mDataDatabaseOperation.addUpdate(opBuilder.build());
@@ -4803,7 +4803,7 @@ public class TvDataUpdateService extends Service {
       
       for(String fileName : update.mVersionMap.keySet()) {
         Byte dataVersion = update.mVersionMap.get(fileName);
-        Log.d("info21","ADD VERSION INFO " + fileName + " " + update.getChannelID() + "_" + daysSince1970 + " " + dataVersion.byteValue());
+        Log.d("info21","ADD VERSION INFO " + fileName + " " + update.getChannelID() + "_" + daysSince1970 + " " + dataVersion);
         if(dataVersion != null) {
           if(fileName.toLowerCase(Locale.GERMAN).contains(SettingConstants.EPG_DONATE_LEVEL_NAMES[0])) {
             values.put(TvBrowserContentProvider.VERSION_KEY_BASE_VERSION,dataVersion.intValue());

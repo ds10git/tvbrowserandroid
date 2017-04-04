@@ -890,7 +890,7 @@ public class UiUtils {
                 }catch(IllegalArgumentException e) {}
               }
               
-              if(result.booleanValue()) {
+              if(result) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 
                 if(finish != null) {
@@ -1681,7 +1681,7 @@ public class UiUtils {
           }
           
           if(color != null) {
-            colors[i] = getColor(color.intValue(), context);
+            colors[i] = getColor(color, context);
           }
         }
         
@@ -1698,7 +1698,7 @@ public class UiUtils {
         }
         
         if(color != null) {
-          draw.add(new ColorDrawable(getColor(color.intValue(), context)));
+          draw.add(new ColorDrawable(getColor(color, context)));
         }
       }
     }

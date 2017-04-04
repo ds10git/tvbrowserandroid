@@ -544,7 +544,7 @@ public class FragmentProgramTable extends Fragment {
                     for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
                       Integer index = markingColumsIndexMap.get(column);
                       
-                      if(index != null && c.getInt(index.intValue()) == 1) {
+                      if(index != null && c.getInt(index) == 1) {
                         markedColumns.add(column);
                       }
                     }
@@ -1088,7 +1088,7 @@ public class FragmentProgramTable extends Fragment {
     for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
       Integer value = mMarkingsMap.get(column);
       
-      if(value != null && cursor.getInt(value.intValue()) == 1) {
+      if(value != null && cursor.getInt(value) == 1) {
         markedColumns.add(column);
       }
       else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && ProgramUtils.isMarkedWithIcon(getActivity(), programId)) {

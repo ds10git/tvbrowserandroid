@@ -290,7 +290,7 @@ public class ProgramPanel extends View {
           Integer color = entry.getColor();
           
           if(color != null && !isExpired()) {
-            toUseForPictureCopyright.setColor(color.intValue());
+            toUseForPictureCopyright.setColor(color);
           }
           else {
             toUseForPictureCopyright.setColor(oldColor);
