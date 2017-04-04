@@ -2669,7 +2669,7 @@ public class UiUtils {
       mHighlight = false;
       
       for(FavoriteTypePattern pattern : patternList) {
-        if(!pattern.isTitleOnlyType() && pattern.mPattern.matcher(actor.replaceAll("\\n+", " ")).find()) {
+        if(pattern.isNotOnlyTitleType() && pattern.mPattern.matcher(actor.replaceAll("\\n+", " ")).find()) {
           mHighlight = true;
           break;
         }
@@ -2730,7 +2730,7 @@ public class UiUtils {
     SpannableStringBuilder string = new SpannableStringBuilder(text);
     
     for(FavoriteTypePattern typePattern : patternList) {
-      if(allPatterns || !typePattern.isTitleOnlyType()) {
+      if(allPatterns || typePattern.isNotOnlyTitleType()) {
         string = typePattern.addHighlighting(string, backgroundColorSpan);
       }
     }
@@ -2761,8 +2761,8 @@ public class UiUtils {
       return text;
     }
     
-    public boolean isTitleOnlyType() {
-      return mType == Favorite.KEYWORD_ONLY_TITLE_TYPE;
+    public boolean isNotOnlyTitleType() {
+      return mType != Favorite.KEYWORD_ONLY_TITLE_TYPE;
     }
   }
   

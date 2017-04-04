@@ -1037,7 +1037,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     Log.d("info12", "pickTime " + new Date(mLastExtraClick + TIMEOUT_LAST_EXTRA_CLICK) + " " + new Date(System.currentTimeMillis()));
     
     if(mLastExtraClick + TIMEOUT_LAST_EXTRA_CLICK < System.currentTimeMillis()) {
-      if(!isViewVisible(mTimeExtra)) {      
+      if(isViewNotVisible(mTimeExtra)) {
         ((HorizontalScrollView)mTimeBar.getParent()).scrollTo(mTimeExtra.getLeft(), mTimeExtra.getTop());
       }
       
@@ -1374,7 +1374,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       if(timeTest.equals(mTimeBar.getChildAt(i).getTag())) {
         mTimeBar.getChildAt(i).setBackgroundColor(UiUtils.getColor(UiUtils.RUNNING_TIME_SELECTION_KEY, getActivity()));
         
-        if(!isViewVisible(mTimeBar.getChildAt(i))) {      
+        if(isViewNotVisible(mTimeBar.getChildAt(i))) {
           ((HorizontalScrollView)mTimeBar.getParent()).scrollTo(mTimeBar.getChildAt(i).getLeft(), mTimeBar.getChildAt(i).getTop());
         }
       }
@@ -1752,7 +1752,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       
       setWhereClauseTime(mTimeExtra.getTag());
       
-      if(!isViewVisible(mTimeExtra)) {      
+      if(isViewNotVisible(mTimeExtra)) {
         ((HorizontalScrollView)mTimeBar.getParent()).scrollTo(mTimeExtra.getLeft(), mTimeExtra.getTop());
       }
     }
@@ -1762,13 +1762,13 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     if(button != null) {
       button.performClick();
       
-      if(!isViewVisible(button)) {      
+      if(isViewNotVisible(button)) {
         ((HorizontalScrollView)mTimeBar.getParent()).scrollTo(button.getLeft(), button.getTop());
       }
     }
   }
   
-  private boolean isViewVisible(View view) {
+  private boolean isViewNotVisible(View view) {
     Rect scrollBounds = new Rect();
     ((View)mTimeBar.getParent()).getDrawingRect(scrollBounds);
 
@@ -1776,9 +1776,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     float right = left + view.getWidth();
     
     if (scrollBounds.left < left && scrollBounds.right > right) {
-        return true;
-    } else {
         return false;
+    } else {
+        return true;
     }
   }
 }
