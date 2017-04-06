@@ -224,11 +224,13 @@ public class CompatUtils {
   }
 
   public static void setTimePickerHour(final TimePicker timePicker, final int hour) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M )
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
       timePicker.setHour(hour);
-    else
+    }
+    else {
       //noinspection deprecation
       timePicker.setCurrentHour(hour);
+    }
   }
 
   public static int getTimePickerHour(final TimePicker timePicker) {
@@ -244,11 +246,13 @@ public class CompatUtils {
   }
 
   public static void setTimePickerMinute(final TimePicker timePicker, final int minute) {
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M )
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
       timePicker.setMinute(minute);
-    else
+    }
+    else {
       //noinspection deprecation
       timePicker.setCurrentMinute(minute);
+    }
   }
 
   public static int getTimePickerMinute(final TimePicker timePicker) {
