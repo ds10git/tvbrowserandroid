@@ -33,7 +33,7 @@ public abstract class ProgramTableLayout extends ViewGroup {
   
   final int getIndexForChannelID(int channelID) {
     for(int i = 0; i < mChannelIDsOrdered.size(); i++) {
-      if(mChannelIDsOrdered.get(i).intValue() == channelID) {
+      if(mChannelIDsOrdered.get(i) == channelID) {
         return i;
       }
     }

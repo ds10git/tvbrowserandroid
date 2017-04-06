@@ -268,9 +268,9 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.KEY_ID
       };
       
-      for(int i = 0; i < parts.length; i++) {
-        String[] channelIdParts = parts[i].split("#_#");
         
+      for (String part : parts) {
+        String[] channelIdParts = part.split("#_#");
         if(channelIdParts.length == 3) {
           StringBuilder where = new StringBuilder();
           
@@ -293,7 +293,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
             
             try {
               if(IOUtils.prepareAccessFirst(channel)) {
-                parsed.add(Integer.valueOf(channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID))));
+                parsed.add(channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
               }
             }finally {
               IOUtils.close(channel);
@@ -306,7 +306,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         mChannelRestrictionIDs = new int[parsed.size()];
         
         for(int i = 0; i < mChannelRestrictionIDs.length; i++) {
-          mChannelRestrictionIDs[i] = parsed.get(i).intValue();
+          mChannelRestrictionIDs[i] = parsed.get(i);
         }
       }
     }

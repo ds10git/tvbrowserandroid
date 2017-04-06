@@ -162,7 +162,7 @@ public class IOUtils {
   };
   
   public static final String[] getInfoStringArrayNames(Resources res) {
-    String[] valueArr = {
+    return new String[]{
         res.getString(R.string.info_black_and_white),
         res.getString(R.string.info_four_to_three),
         res.getString(R.string.info_sixteen_to_nine),
@@ -189,8 +189,6 @@ public class IOUtils {
         res.getString(R.string.info_other),
         res.getString(R.string.info_sign_language)
     };
-    
-    return valueArr;
   }
   
   public static boolean infoSet(int categories, int info) {
@@ -236,7 +234,7 @@ public class IOUtils {
       int[] colorCategory = getActivatedColorFor(PrefUtils.getStringValue(colorKey, getDefaultCategoryColorKeyForColorKey(colorKey)));
       
       if(colorCategory[0] == 1) {
-        categoryColorMap.put(names[i], Integer.valueOf(colorCategory[1]));
+        categoryColorMap.put(names[i], colorCategory[1]);
       }
     }
         
@@ -287,7 +285,7 @@ public class IOUtils {
           infoString.append(", ");
           
           if(defaultColor != null) {
-            infoString.setSpan(new ForegroundColorSpan(defaultColor.intValue()), infoString.length()-2, infoString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            infoString.setSpan(new ForegroundColorSpan(defaultColor), infoString.length()-2, infoString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
           }
         }
         infoString.append(valueArr[i]);
@@ -298,11 +296,11 @@ public class IOUtils {
           Integer color = defaultColor;
           
           if(colorCategory[0] == 1) {
-            color = Integer.valueOf(colorCategory[1]);
+            color = colorCategory[1];
           }
           
           if(color != null) {
-            infoString.setSpan(new ForegroundColorSpan(color.intValue()), infoString.length()-valueArr[i].length(), infoString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+            infoString.setSpan(new ForegroundColorSpan(color), infoString.length()-valueArr[i].length(), infoString.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
           }          
         }
       }
@@ -347,7 +345,7 @@ public class IOUtils {
         finally {
           close(fout);
         }
-      };
+      }
     }.start();
     
     Thread wait = new Thread("SAVE URL WAITING THREAD") {
@@ -357,7 +355,7 @@ public class IOUtils {
             sleep(100);
           } catch (InterruptedException e) {}
         }
-      };
+      }
     };
     wait.start();
     
@@ -452,7 +450,7 @@ public class IOUtils {
         finally {
           close(fout);
         }
-      };
+      }
     }.start();
     
     Thread wait = new Thread("SAVE URL WAITING THREAD") {
@@ -462,7 +460,7 @@ public class IOUtils {
             sleep(100);
           } catch (InterruptedException e) {}
         }
-      };
+      }
     };
     wait.start();
         
@@ -524,7 +522,7 @@ public class IOUtils {
         finally {
           close(fout);
         }
-      };
+      }
     }.start();
     
     Thread wait = new Thread("SAVE URL WAITING THREAD") {
@@ -534,7 +532,7 @@ public class IOUtils {
             sleep(100);
           } catch (InterruptedException e) {}
         }
-      };
+      }
     };
     wait.start();
         
@@ -765,7 +763,7 @@ public class IOUtils {
         finally  {
           disconnect(connection);
         }
-      };
+      }
     }.start();
     
     Thread check = new Thread("WAITING FOR NETWORK CONNECTION THREAD") {
@@ -1346,7 +1344,7 @@ public class IOUtils {
         }
         
         delayed.run();
-      };
+      }
     }.start();
   }
 }
