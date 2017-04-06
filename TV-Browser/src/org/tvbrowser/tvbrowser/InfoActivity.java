@@ -88,7 +88,7 @@ public class InfoActivity extends AppCompatActivity {
           
           Field setting = string.getDeclaredField("TIME_BUTTON_" + i);
           
-          Integer value = Integer.valueOf(pref.getInt(getResources().getString((Integer)setting.get(string)), defaultValues[i-1]));
+          Integer value = pref.getInt(getResources().getString((Integer) setting.get(string)), defaultValues[i - 1]);
           
           if(value >= -1 && !values.contains(value)) {
             values.add(value);
@@ -97,7 +97,7 @@ public class InfoActivity extends AppCompatActivity {
       }
       
       for(int i = 7; i <= timeButtonCount; i++) {
-          Integer value = Integer.valueOf(pref.getInt("TIME_BUTTON_" + i, 0));
+          Integer value = pref.getInt("TIME_BUTTON_" + i, 0);
           
           if(value >= -1 && !values.contains(value)) {
             values.add(value);

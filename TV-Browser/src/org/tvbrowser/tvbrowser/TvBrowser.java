@@ -440,7 +440,7 @@ public class TvBrowser extends AppCompatActivity implements
                 IOUtils.close(synced);
               }
             }
-          };
+          }
         }.start();
       }
       if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < 309) {
@@ -465,7 +465,7 @@ public class TvBrowser extends AppCompatActivity implements
                 IOUtils.close(reminders);
               }
             }
-          };
+          }
         }.start();
       }
       if(oldVersion < 304) {
@@ -1450,8 +1450,8 @@ public class TvBrowser extends AppCompatActivity implements
           mProgress = new ProgressDialog(TvBrowser.this);
           mProgress.setMessage(getString(R.string.synchronizing_channels));
           mProgress.show();
-        };
-        
+        }
+
         @Override
         protected Void doInBackground(Void... params) {
           boolean somethingSynchonized = false;
@@ -1510,7 +1510,7 @@ public class TvBrowser extends AppCompatActivity implements
                     String groupId = group.getString(groupIdIndex);
                     int key = group.getInt(keyIndex);
                     
-                    groupMap.put(dataServiceId+";"+groupId, Integer.valueOf(key));
+                    groupMap.put(dataServiceId+";"+groupId, key);
                   }
                 }
               }finally {
@@ -1552,7 +1552,7 @@ public class TvBrowser extends AppCompatActivity implements
                       Integer groupId = groupMap.get(dataService+";"+groupKey);
                       
                       if(groupId != null) {
-                        String where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=" + groupId.intValue() + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "='" + channelId + "' ) ";
+                        String where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + "=" + groupId + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "='" + channelId + "' ) ";
                           
                         ContentValues values = new ContentValues();
                         
@@ -1640,7 +1640,7 @@ public class TvBrowser extends AppCompatActivity implements
           if(mProgress != null) {
             mProgress.dismiss();
           }
-        };
+        }
       };
       
       synchronize.execute();
@@ -1875,7 +1875,7 @@ public class TvBrowser extends AppCompatActivity implements
             Object value = preferences.get(key);
             
             if(value instanceof Boolean) {
-              if(!getString(R.string.PREF_EPGPAID_INFO_SHOWN).equals(key) || !getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(key) || ((Boolean)value).booleanValue()) {
+              if(!getString(R.string.PREF_EPGPAID_INFO_SHOWN).equals(key) || !getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(key) || (Boolean) value) {
                 backup.append("boolean:").append(key).append("=").append(value).append("\n");
               }
             }
@@ -2386,7 +2386,7 @@ public class TvBrowser extends AppCompatActivity implements
         ChannelSelection selection = super.get(i);
         
         if(selection.isCategory(filter.mCategory) && selection.isCountry(filter.mCountry)) {
-          map.add(Integer.valueOf(i));
+          map.add(i);
         }
       }
       
@@ -2413,7 +2413,7 @@ public class TvBrowser extends AppCompatActivity implements
     @Override
     public Iterator<ChannelSelection> iterator() {
       if(mValueMap != null) {
-        Iterator<ChannelSelection> it = new Iterator<TvBrowser.ChannelSelection>() {
+        return new Iterator<ChannelSelection>() {
           private int mCurrentIndex = 0;
           private ChannelSelection mCurrent = null;
           
@@ -2433,14 +2433,12 @@ public class TvBrowser extends AppCompatActivity implements
             mCurrent = null;
           }
         };
-        
-        return it;
       }
       
       return super.iterator();
     }
-  };
-  
+  }
+
   /**
    * Class for filtering of country and category for channel selection.
    * 
@@ -3161,9 +3159,7 @@ public class TvBrowser extends AppCompatActivity implements
             public void dropped(int originalPosition, int position) {
               int startIndex = originalPosition;
               int endIndex = position;
-              
-              int droppedPos = position;
-              
+
               if(originalPosition > position) {
                 startIndex = position;
                 endIndex = originalPosition;
@@ -3180,7 +3176,7 @@ public class TvBrowser extends AppCompatActivity implements
               boolean changed = false;
               
               for(int i = startIndex; i <= endIndex; i++) {
-                if(i == droppedPos || aa.getItem(i).getSortNumber() != 0) {
+                if(i == position || aa.getItem(i).getSortNumber() != 0) {
                   changed = true;
                   aa.getItem(i).setSortNumber(++previousNumber);
                   
@@ -4291,7 +4287,7 @@ public class TvBrowser extends AppCompatActivity implements
               });
             }
           }    
-        };
+        }
       }.start();
     }
   }
@@ -5153,8 +5149,8 @@ public class TvBrowser extends AppCompatActivity implements
                           mProgress = new ProgressDialog(TvBrowser.this);
                           mProgress.setMessage(getString(R.string.plugin_info_donwload).replace("{0}", mCurrentDownloadPlugin.getName()));
                           mProgress.show();
-                        };
-                        
+                        }
+
                         @Override
                         protected Boolean doInBackground(String... params) {
                           mPluginFile = new File(params[0]);
@@ -5171,7 +5167,7 @@ public class TvBrowser extends AppCompatActivity implements
                           }
                           
                           mLoadingPlugin = false;
-                        };
+                        }
                       };
                       
                       async.execute(mCurrentDownloadPlugin.toString(), downloadUrl);
@@ -5595,8 +5591,8 @@ public class TvBrowser extends AppCompatActivity implements
     if(mScrollTimeItem != null) {
       SubMenu subMenu = mScrollTimeItem.getSubMenu();
       Log.d("info4", ""+subMenu.size());
-      for(int i = 0; i < SCROLL_IDS.length; i++) {
-        subMenu.removeItem(SCROLL_IDS[i]);
+      for (int SCROLL_ID : SCROLL_IDS) {
+        subMenu.removeItem(SCROLL_ID);
       }
       
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
@@ -5613,7 +5609,7 @@ public class TvBrowser extends AppCompatActivity implements
           
           Field setting = string.getDeclaredField("TIME_BUTTON_" + i);
           
-          Integer value = Integer.valueOf(pref.getInt(getResources().getString((Integer)setting.get(string)), defaultValues[i-1]));
+          Integer value = pref.getInt(getResources().getString((Integer) setting.get(string)), defaultValues[i - 1]);
           
           if(value >= -1 && !values.contains(value)) {
             values.add(value);
@@ -5622,7 +5618,7 @@ public class TvBrowser extends AppCompatActivity implements
       }
       
       for(int i = 7; i <= timeButtonCount; i++) {
-          Integer value = Integer.valueOf(pref.getInt("TIME_BUTTON_" + i, 0));
+          Integer value = pref.getInt("TIME_BUTTON_" + i, 0);
           
           if(value >= -1 && !values.contains(value)) {
             values.add(value);
@@ -5641,7 +5637,7 @@ public class TvBrowser extends AppCompatActivity implements
         cal.set(Calendar.HOUR_OF_DAY, values.get(i) / 60);
         cal.set(Calendar.MINUTE, values.get(i) % 60);
         
-        SCROLL_TIMES[i] = values.get(i).intValue();
+        SCROLL_TIMES[i] = values.get(i);
         SCROLL_IDS[i] = -(i+1);
         
         subMenu.add(100, SCROLL_IDS[i], i+1, DateFormat.getTimeFormat(TvBrowser.this).format(cal.getTime()));

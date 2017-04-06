@@ -234,7 +234,7 @@ public class UiUtils {
             
             @Override
             protected Boolean doInBackground(Void... params) {
-              Boolean result = Boolean.valueOf(false);
+              Boolean result = Boolean.FALSE;
               
               final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
               
@@ -243,7 +243,7 @@ public class UiUtils {
               try {
                 if(IOUtils.prepareAccessFirst(c)) {
                   mHasSpannableActors = false;
-                  result = Boolean.valueOf(true);
+                  result = Boolean.TRUE;
                   float textScale = Float.parseFloat(PrefUtils.getStringValue(R.string.DETAIL_TEXT_SCALE, R.string.detail_text_scale_default));
                   
                   final long startTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
@@ -890,7 +890,7 @@ public class UiUtils {
                 }catch(IllegalArgumentException e) {}
               }
               
-              if(result.booleanValue()) {
+              if(result) {
                 AlertDialog.Builder builder = new AlertDialog.Builder(context);
                 
                 if(finish != null) {
@@ -971,7 +971,7 @@ public class UiUtils {
                     e.printStackTrace();
                   }
                   mShowingProgramInfo = false;
-                };
+                }
               }.start();
             }
           };
@@ -1681,7 +1681,7 @@ public class UiUtils {
           }
           
           if(color != null) {
-            colors[i] = getColor(color.intValue(), context);
+            colors[i] = getColor(color, context);
           }
         }
         
@@ -1698,7 +1698,7 @@ public class UiUtils {
         }
         
         if(color != null) {
-          draw.add(new ColorDrawable(getColor(color.intValue(), context)));
+          draw.add(new ColorDrawable(getColor(color, context)));
         }
       }
     }
@@ -2254,7 +2254,7 @@ public class UiUtils {
             AdapterChannel item = channelAdapter.getItem(i);
             
             if(item.mSelected) {
-              channelIDList.add(Integer.valueOf(item.mChannelID));
+              channelIDList.add(item.mChannelID);
             }
             else {
               allSelected = false;
@@ -2424,7 +2424,7 @@ public class UiUtils {
           AdapterCategory item = categoryAdapter.getItem(i);
           
           if(item.mSelected) {
-            channelIDList.add(Integer.valueOf(item.mIndex));
+            channelIDList.add(item.mIndex);
           }
           else {
             allSelected = false;
@@ -2669,7 +2669,7 @@ public class UiUtils {
       mHighlight = false;
       
       for(FavoriteTypePattern pattern : patternList) {
-        if(!pattern.isTitleOnlyType() && pattern.mPattern.matcher(actor.replaceAll("\\n+", " ")).find()) {
+        if(pattern.isNotOnlyTitleType() && pattern.mPattern.matcher(actor.replaceAll("\\n+", " ")).find()) {
           mHighlight = true;
           break;
         }
@@ -2730,7 +2730,7 @@ public class UiUtils {
     SpannableStringBuilder string = new SpannableStringBuilder(text);
     
     for(FavoriteTypePattern typePattern : patternList) {
-      if(allPatterns || !typePattern.isTitleOnlyType()) {
+      if(allPatterns || typePattern.isNotOnlyTitleType()) {
         string = typePattern.addHighlighting(string, backgroundColorSpan);
       }
     }
@@ -2761,8 +2761,8 @@ public class UiUtils {
       return text;
     }
     
-    public boolean isTitleOnlyType() {
-      return mType == Favorite.KEYWORD_ONLY_TITLE_TYPE;
+    public boolean isNotOnlyTitleType() {
+      return mType != Favorite.KEYWORD_ONLY_TITLE_TYPE;
     }
   }
   
