@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.UnsupportedEncodingException;
 import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -52,6 +53,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.CRC32;
 import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -1029,7 +1031,8 @@ public class TvDataUpdateService extends Service {
         TvBrowserContentProvider.DATA_KEY_STARTTIME,
         TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
         TvBrowserContentProvider.GROUP_KEY_GROUP_ID,
-        TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY
+        TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY,
+        TvBrowserContentProvider.DATA_KEY_TITLE
     };
     
     StringBuilder where = new StringBuilder();
@@ -1043,11 +1046,14 @@ public class TvDataUpdateService extends Service {
     SparseArrayCompat<SimpleGroupInfo> groupInfo = new SparseArrayCompat<SimpleGroupInfo>();
     
     if(programs!=null && programs.getCount() > 0) {
+      final CRC32 crc = new CRC32();
+      
       programs.moveToPosition(-1);
       
-      int startTimeColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-      int groupKeyColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-      int channelKeyBaseCountryColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY);
+      final int startTimeColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      final int groupKeyColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+      final int channelKeyBaseCountryColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY);
+      final int columnIndexTitle = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
       
       String[] groupProjection = {
           TvBrowserContentProvider.KEY_ID,
@@ -1093,7 +1099,19 @@ public class TvDataUpdateService extends Service {
             groupId = "";
           }
           
-          dat.append(startTime).append(";").append(info.mDataServiceID).append(groupId).append(":").append(baseCountry).append(":").append(channelID).append("\n");
+          dat.append(startTime).append(";").append(info.mDataServiceID).append(groupId).append(":").append(baseCountry).append(":").append(channelID);
+          
+          crc.reset();
+          
+          try {
+            crc.update(programs.getString(columnIndexTitle).getBytes("UTF-8"));
+            dat.append(";").append(crc.getValue());
+          } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }
+          
+          dat.append("\n");
         }
       }
     }
@@ -1114,13 +1132,14 @@ public class TvDataUpdateService extends Service {
       URLConnection connection = null;
       BufferedReader read = null;
       try {
-        URL documentUrl = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/syncDown.php?type=reminderFromDesktop");
+        final URL documentUrl = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/syncDown.php?type=reminderFromDesktop");
         connection = documentUrl.openConnection();
         
-        SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_TRANSPORTATION, TvDataUpdateService.this);
+        final SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_TRANSPORTATION, TvDataUpdateService.this);
         
-        String car = pref.getString(SettingConstants.USER_NAME, null);
-        String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+        final String car = pref.getString(SettingConstants.USER_NAME, null);
+        final String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+        final CRC32 crc = new CRC32();
         
         if(car != null && bicycle != null && car.trim().length() > 0 && bicycle.trim().length() > 0) {
           String userpass = car + ":" + bicycle;
@@ -1188,26 +1207,47 @@ public class TvDataUpdateService extends Service {
                   Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
                   try {
                     if(program.moveToFirst()) {
-                      boolean marked = program.getInt(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER)) == 1;
-                                                
-                      if(!marked) {
-                        ContentValues values = new ContentValues();
-                        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, true);
+                      String title = program.getString(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
+                      
+                      if(parts.length > 2) {
+                        crc.reset();
                         
-                        long programID = program.getLong(program.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-                        
-                        ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID));
-                        opBuilder.withValues(values);
-                        
-                        updateValuesList.add(opBuilder.build());
-                        
-                        Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-                        intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, programID);
-                        
-                        markingIntentList.add(intent);
-                        
-                        reminderIdList.add(String.valueOf(programID));
-                        //UiUtils.addReminder(TvDataUpdateService.this, programID, time, TvBrowser.class, true);
+                        try {
+                          crc.update(title.getBytes("UTF-8"));
+                          
+                          if(Long.parseLong(parts[2]) == crc.getValue()) {
+                            title = null;
+                          }
+                        } catch(Exception uee) {
+                          title = null;
+                        }
+                      }
+                      else {
+                        title = null;
+                      }
+                      
+                      if(title == null) {
+                        final boolean marked = program.getInt(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER)) == 1;
+                                                  
+                        if(!marked) {
+                          ContentValues values = new ContentValues();
+                          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, true);
+                          
+                          long programID = program.getLong(program.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                          
+                          ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID));
+                          opBuilder.withValues(values);
+                          
+                          updateValuesList.add(opBuilder.build());
+                          
+                          Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
+                          intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, programID);
+                          
+                          markingIntentList.add(intent);
+                          
+                          reminderIdList.add(String.valueOf(programID));
+                          //UiUtils.addReminder(TvDataUpdateService.this, programID, time, TvBrowser.class, true);
+                        }
                       }
                     }
                   }finally {
@@ -1291,6 +1331,7 @@ public class TvDataUpdateService extends Service {
       Hashtable<String, Object> currentGroups = getCurrentGroups();
       Hashtable<String, Integer> knownChannels = new Hashtable<String, Integer>();
       ArrayList<String> idList = new ArrayList<String>();
+      final CRC32 crc = new CRC32();
       
       for(String fav : mSyncFavorites) {
         if(fav != null && fav.contains(";") && fav.contains(":")) {
@@ -1341,25 +1382,46 @@ public class TvDataUpdateService extends Service {
               Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, where, null, null);
               try {
                 if(program.moveToFirst()) {
-                  boolean markedAsFavorite = program.getInt(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE)) == 1;
+                  String title = program.getString(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
                   
-                  if(!markedAsFavorite) {
-                    ContentValues values = new ContentValues();
-                    values.put(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, true);
+                  if(parts.length > 2) {
+                    crc.reset();
                     
-                    long programID = program.getLong(program.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                    try {
+                      crc.update(title.getBytes("UTF-8"));
+                      
+                      if(Long.parseLong(parts[2]) == crc.getValue()) {
+                        title = null;
+                      }
+                    } catch(Exception uee) {
+                      title = null;
+                    }
+                  }
+                  else {
+                    title = null;
+                  }
+                  
+                  if(title == null) {
+                    boolean markedAsFavorite = program.getInt(program.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE)) == 1;
                     
-                    idList.add(String.valueOf(programID));
-                    
-                    ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID));
-                    opBuilder.withValues(values);
-                    
-                    updateValuesList.add(opBuilder.build());
-                    
-                    Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-                    intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, programID);
-                    
-                    markingIntentList.add(intent);
+                    if(!markedAsFavorite) {
+                      ContentValues values = new ContentValues();
+                      values.put(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, true);
+                      
+                      long programID = program.getLong(program.getColumnIndex(TvBrowserContentProvider.KEY_ID));
+                      
+                      idList.add(String.valueOf(programID));
+                      
+                      ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID));
+                      opBuilder.withValues(values);
+                      
+                      updateValuesList.add(opBuilder.build());
+                      
+                      Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
+                      intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, programID);
+                      
+                      markingIntentList.add(intent);
+                    }
                   }
                 }
               }finally {
@@ -2225,7 +2287,8 @@ public class TvDataUpdateService extends Service {
         TvBrowserContentProvider.DATA_KEY_STARTTIME,
         TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
         TvBrowserContentProvider.GROUP_KEY_GROUP_ID,
-        TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY
+        TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY,
+        TvBrowserContentProvider.DATA_KEY_TITLE
     };
     
     
@@ -2236,6 +2299,8 @@ public class TvDataUpdateService extends Service {
     SparseArrayCompat<SimpleGroupInfo> groupInfo = new SparseArrayCompat<SimpleGroupInfo>();
     
     if(programs!=null && programs.getCount() > 0) {
+      final CRC32 crc = new CRC32();
+
       programs.moveToPosition(-1);
       
       String[] groupProjection = {
@@ -2268,9 +2333,10 @@ public class TvDataUpdateService extends Service {
       } finally {IOUtils.close(groups);}
       
       if(groupInfo.size() > 0) {
-        int startTimeColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-        int groupKeyColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-        int channelKeyBaseCountryColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY);
+        final int startTimeColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+        final int groupKeyColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
+        final int channelKeyBaseCountryColumnIndex = programs.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_BASE_COUNTRY);
+        final int columnIndexTitle = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
         
         while(programs.moveToNext()) {
           int groupID = programs.getInt(groupKeyColumnIndex);
@@ -2286,7 +2352,19 @@ public class TvDataUpdateService extends Service {
             groupId = "";
           }
           
-          dat.append(startTime).append(";").append(info.mDataServiceID).append(groupId).append(":").append(baseCountry).append(":").append(channelID).append("\n");
+          crc.reset();
+          
+          dat.append(startTime).append(";").append(info.mDataServiceID).append(groupId).append(":").append(baseCountry).append(":").append(channelID);
+          
+          try {
+            crc.update(programs.getString(columnIndexTitle).getBytes("UTF-8"));
+            dat.append(";").append(crc.getValue());
+          } catch (UnsupportedEncodingException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+          }
+          
+          dat.append("\n");
         }
       }
     }
@@ -2318,7 +2396,7 @@ public class TvDataUpdateService extends Service {
       URLConnection conn = null;
       OutputStream os = null;
       InputStream is = null;
-
+      
       try {
           URL url = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/syncUp.php?type=favortiesFromApp");
           
