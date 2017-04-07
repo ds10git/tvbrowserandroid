@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+        <h2>0.6.4</h2>
+        	&bull; prevent wrongly synchronized programs<br>
+        	&bull; miscellaneous improvements/bug fixes of Thorsten1976<br>
         <h2>0.6.3.7</h2>
         	&bull; fixed cut off descriptions in detail view<br>
         	&bull; try to prevent default vibration of system for Reminders<br>
