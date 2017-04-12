@@ -458,7 +458,7 @@ public class IabHelper {
         String dataSignature = data.getStringExtra(RESPONSE_INAPP_SIGNATURE);
 
         if (resultCode == Activity.RESULT_OK && responseCode == BILLING_RESPONSE_RESULT_OK) {
-            logDebug("Successful resultcode from purchase activity.");
+            logDebug("Successful result code from purchase activity.");
             logDebug("Purchase data: " + purchaseData);
             logDebug("Data signature: " + dataSignature);
             logDebug("Extras: " + data.getExtras());
@@ -502,7 +502,7 @@ public class IabHelper {
             // result code was OK, but in-app billing response was not OK.
             logDebug("Result code was OK but in-app billing response was not OK: " + getResponseDesc(responseCode));
             if (mPurchaseListener != null) {
-                result = new IabResult(responseCode, "Problem purchashing item.");
+                result = new IabResult(responseCode, "Problem purchasing item.");
                 mPurchaseListener.onIabPurchaseFinished(result, null);
             }
         }

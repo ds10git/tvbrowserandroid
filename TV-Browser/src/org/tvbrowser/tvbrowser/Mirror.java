@@ -30,7 +30,7 @@ import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.IOUtils;
 
 /**
- * Class with informations about a webserver for data update.
+ * Class with information about a webserver for data update.
  * <p>
  * @author René Mach
  */
@@ -125,7 +125,7 @@ public class Mirror implements Comparable<Mirror> {
           mirrorsWithAcceptedWeight.add(toChooseFrom.get(i));
         }
         else {
-          update.doLog("NOT accepted miror for group (weigth to low) '" + group + "': " + toChooseFrom.get(i).getUrl());
+          update.doLog("NOT accepted mirror for group (weigth to low) '" + group + "': " + toChooseFrom.get(i).getUrl());
         }
       }
       
@@ -134,12 +134,12 @@ public class Mirror implements Comparable<Mirror> {
         
         update.doLog("Accepted weight for group '" + group + "': " + test.getWeight() + " URL: " + test.getUrl());
         if((!checkOnlyConnection && useMirror(test,group,5000,update)) || IOUtils.isConnectedToServer(test.getUrl(), 5000)) {
-          update.doLog("Accepted miror for group '" + group + "': " + test.getUrl());
+          update.doLog("Accepted mirror for group '" + group + "': " + test.getUrl());
           choosen = test;
         }
         else {
           toChooseFrom.remove(test);
-          update.doLog("NOT accepted miror for group '" + group + "': " + test.getUrl());
+          update.doLog("NOT accepted mirror for group '" + group + "': " + test.getUrl());
         }
       }
     }

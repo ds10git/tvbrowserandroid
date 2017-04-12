@@ -179,7 +179,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
     if (Intent.ACTION_SEARCH.equals(intent.getAction())) {
       mSearchString = intent.getStringExtra(SearchManager.QUERY);
       
-      // Perfom the search, passing in the search query as an argument to the Cursor Loader
+      // Perform the search, passing in the search query as an argument to the Cursor Loader
       Bundle args = new Bundle();
       args.putString(QUERY_EXTRA_KEY, mSearchString);
       

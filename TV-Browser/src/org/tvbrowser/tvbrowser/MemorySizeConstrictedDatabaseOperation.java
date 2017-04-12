@@ -57,7 +57,7 @@ public class MemorySizeConstrictedDatabaseOperation {
   /**
    * @param context The Context to use.
    * @param insertUri The content URI for the insert operations
-   * @param minOperationDivider The divider for the number of entries before starting database opertaion-
+   * @param minOperationDivider The divider for the number of entries before starting database operation.
    */
   public MemorySizeConstrictedDatabaseOperation(Context context, Uri insertUri, int minOperationDivider) {
     mContext = context;

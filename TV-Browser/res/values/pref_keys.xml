@@ -88,7 +88,7 @@
 	    <string name="TAB_TO_SHOW_AT_START">TAB_TO_SHOW_AT_START</string>
 	    <item name="tab_to_show_at_start_default" type="string" format="string">0</item>
 
-    <!-- Apperience settings-->
+    <!-- Appearance settings-->
 
 	    <string name="DARK_STYLE">DARK_STYLE</string>
 	    <item name="dark_style_default" type="bool" format="boolean">true</item>
@@ -577,7 +577,7 @@
 	    
 	    <string name="LOG_PLUGIN_LAST_POST">LOG_PLUGIN_LAST_POST</string>
 	    
-	    <!-- Miscelangelous settings -->
+	    <!-- Miscellaneous settings -->
     
 	    <string name="OLD_VERSION">OLD_VERSION</string>
 	    <item name="old_version_default" type="integer" format="integer">166</item>

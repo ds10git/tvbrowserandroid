@@ -62,7 +62,7 @@ public class PluginPreferencesFragment extends PreferenceFragment {
     
     // Load the preferences from an XML resource
     PreferenceScreen preferenceScreen = getPreferenceManager().createPreferenceScreen(getActivity());
-    // add prefrences using preferenceScreen.addPreference()
+    // add preferences using preferenceScreen.addPreference()
     this.setPreferenceScreen(preferenceScreen);
     preferenceScreen.setTitle("ccccc");
     
