@@ -1774,11 +1774,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
 
     float left = view.getX();
     float right = left + view.getWidth();
-    
-    if (scrollBounds.left < left && scrollBounds.right > right) {
-        return false;
-    } else {
-        return true;
-    }
+
+	  return !(scrollBounds.left < left && scrollBounds.right > right);
   }
 }

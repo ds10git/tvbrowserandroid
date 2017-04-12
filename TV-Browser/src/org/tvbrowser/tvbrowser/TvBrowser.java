@@ -3340,12 +3340,9 @@ public class TvBrowser extends AppCompatActivity implements
   public boolean isOnline() {
     ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo netInfo = cm.getActiveNetworkInfo();
-    
-    if(netInfo != null && netInfo.isConnectedOrConnecting()) {
-      return true;
-    }
-    
-    return false;
+
+    return netInfo != null && netInfo.isConnectedOrConnecting();
+
   }
   
   private void updateTvData(boolean checkBatterie) {
@@ -5791,13 +5788,8 @@ public class TvBrowser extends AppCompatActivity implements
     if(mViewPager.getCurrentItem() != 1) {
       mLastSelectedTab = mViewPager.getCurrentItem();
       mViewPager.setCurrentItem(1,true);
-      
-      if(remember) {
-        mProgramsListWasShow = true;
-      }
-      else {
-        mProgramsListWasShow = false;
-      }
+
+      mProgramsListWasShow = remember;
     }
   }
   
