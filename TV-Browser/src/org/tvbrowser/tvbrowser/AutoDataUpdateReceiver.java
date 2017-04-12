@@ -64,30 +64,25 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
       Logging.log(TAG, "AUTO DATA UPDATE autoUpdateActive: " + autoUpdate + " Internet type: " + internetConnectionType + " Time type: " + timeUpdateType, Logging.TYPE_DATA_UPDATE, context);
       
       if(autoUpdate) {
-        if(internetConnectionType) {
-          int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default)) + 1;
-          
-          long lastDate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, R.integer.last_data_update_default);
-          
-          Calendar last = Calendar.getInstance();
-          last.setTimeInMillis(lastDate);
-          
-          int dayDiff = Calendar.getInstance().get(Calendar.DAY_OF_YEAR) - last.get(Calendar.DAY_OF_YEAR);//(int)((System.currentTimeMillis() - last.getTimeInMillis()) / 60000. / 60. / 24.);
-          
-          if(dayDiff < 0) {
-            dayDiff = Calendar.getInstance().getMaximum(Calendar.DAY_OF_YEAR) + dayDiff;
-          }
-  
-          autoUpdate = dayDiff >= days && (System.currentTimeMillis() - lastDate) / 1000 / 60 / 60 > 12;
-        }
-        else if(timeUpdateType) {
-          autoUpdate = intent.getBooleanExtra(SettingConstants.TIME_DATA_UPDATE_EXTRA, false);
-        }
-        else {
-          autoUpdate = false;
-        }
-        
-        Logging.log(TAG, "AUTO DATA UPDATE doUpdateNow ('" + new Date(System.currentTimeMillis()) +"'): " + autoUpdate , Logging.TYPE_DATA_UPDATE, context);
+	      if (internetConnectionType) {
+		      int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default)) + 1;
+
+		      long lastDate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, R.integer.last_data_update_default);
+
+		      Calendar last = Calendar.getInstance();
+		      last.setTimeInMillis(lastDate);
+
+		      int dayDiff = Calendar.getInstance().get(Calendar.DAY_OF_YEAR) - last.get(Calendar.DAY_OF_YEAR);//(int)((System.currentTimeMillis() - last.getTimeInMillis()) / 60000. / 60. / 24.);
+
+		      if (dayDiff < 0) {
+			      dayDiff = Calendar.getInstance().getMaximum(Calendar.DAY_OF_YEAR) + dayDiff;
+		      }
+
+		      autoUpdate = dayDiff >= days && (System.currentTimeMillis() - lastDate) / 1000 / 60 / 60 > 12;
+	      } else
+		      autoUpdate = timeUpdateType && intent.getBooleanExtra(SettingConstants.TIME_DATA_UPDATE_EXTRA, false);
+
+	      Logging.log(TAG, "AUTO DATA UPDATE doUpdateNow ('" + new Date(System.currentTimeMillis()) +"'): " + autoUpdate , Logging.TYPE_DATA_UPDATE, context);
         
         if(autoUpdate) {
           ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);

@@ -43,7 +43,7 @@ public class ServiceUpdateReminders extends Service {
         @Override
         public void run() {
           if(IOUtils.isDatabaseAccessible(ServiceUpdateReminders.this)) {
-            boolean firstStart = intent != null ? intent.getBooleanExtra(EXTRA_FIRST_STARTUP, false) : false;
+            boolean firstStart = intent != null && intent.getBooleanExtra(EXTRA_FIRST_STARTUP, false);
             
             StringBuilder where = new StringBuilder(" ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " OR " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis() + " ) ");
             
