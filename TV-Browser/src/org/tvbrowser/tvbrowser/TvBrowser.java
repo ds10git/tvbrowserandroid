@@ -6313,11 +6313,9 @@ public class TvBrowser extends AppCompatActivity implements
    */
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
-    if (keyCode == KeyEvent.KEYCODE_MENU/* && "LGE".equalsIgnoreCase(Build.BRAND)*/) {
-      return true;
-    }
-    
-    return super.onKeyDown(keyCode, event);
+    /* && "LGE".equalsIgnoreCase(Build.BRAND)*/
+    return keyCode == KeyEvent.KEYCODE_MENU || super.onKeyDown(keyCode, event);
+
   }
 
   @Override

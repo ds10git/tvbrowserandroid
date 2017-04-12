@@ -116,11 +116,8 @@ public class PrefUtils {
   }
   
   public static boolean getBooleanValue(int prefKey, int defaultKey) {
-    if(mContext != null) {
-      return getBooleanValue(prefKey,mContext.getResources().getBoolean(defaultKey));
-    }
-    
-    return false;
+	  return mContext != null && getBooleanValue(prefKey, mContext.getResources().getBoolean(defaultKey));
+
   }
   
   public static String getStringValue(int prefKey, String defaultValue) {
