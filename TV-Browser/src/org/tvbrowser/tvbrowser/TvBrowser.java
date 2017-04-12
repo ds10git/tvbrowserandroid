@@ -5656,7 +5656,7 @@ public class TvBrowser extends AppCompatActivity implements
       switch(tab.getPosition()) {
         case 2:mScrollTimeItem.setVisible(false);break;
         
-        default:mScrollTimeItem.setVisible(true && !mSearchExpanded);break;
+        default:mScrollTimeItem.setVisible(!mSearchExpanded);break;
       }
     }
   }
