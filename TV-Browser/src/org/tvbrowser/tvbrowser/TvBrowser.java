@@ -1295,7 +1295,7 @@ public class TvBrowser extends AppCompatActivity implements
         public void run() {
           LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
         }
-      }, new Date((((long)(System.currentTimeMillis() / 60000L)) * 60000) + 62000), 60000);
+      }, new Date((System.currentTimeMillis() / 60000L * 60000) + 62000), 60000);
       
       final int infoType = mInfoType;
       mInfoType = INFO_TYPE_NOTHING;
