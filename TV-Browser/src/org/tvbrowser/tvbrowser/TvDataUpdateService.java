@@ -1191,8 +1191,7 @@ public class TvDataUpdateService extends Service {
                   
                   try {
                     if(channel.moveToFirst()) {
-                      int channelIdValue = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-                      channelId = channelIdValue;
+                      channelId = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                       
                       knownChannels.put(groupChannelKey, channelId);
                     }
@@ -1366,8 +1365,7 @@ public class TvDataUpdateService extends Service {
               
               try {
                 if(channel.moveToFirst()) {
-                  int channelIdValue = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-                  channelId = channelIdValue;
+                  channelId = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                   
                   knownChannels.put(groupChannelKey, channelId);
                 }
