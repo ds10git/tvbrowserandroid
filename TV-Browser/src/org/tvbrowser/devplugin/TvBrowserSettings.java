@@ -23,7 +23,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * A parcelable class with informations about TV-Browser.
+ * A parcelable class with information about TV-Browser.
  * 
  * @author René Mach
  */

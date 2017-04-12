@@ -385,7 +385,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   private static final UriMatcher uriMatcher;
   
   // Allocate the UriMatcher object, where a URI ending in 'earthquakes' will correspond to a request
-  // for all eathquakes, and 'earthquakes' with a traisling '/[rowID]' will represent a single earthquake row.
+  // for all earthquakes, and 'earthquakes' with a trailing '/[rowID]' will represent a single earthquake row.
   static {
     uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "groups", GROUPS);
@@ -470,6 +470,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   @Override
   public String getType(Uri uri) {
     switch(uriMatcher.match(uri)) {
+      // FIXME vnd.andorid.cursor.* should be vnd.android.cursor.
       case GROUPS: return "vnd.andorid.cursor.dir/vnd.tvbrowser.groups";
       case GROUP_ID: return "vnd.andorid.cursor.item/vnd.tvbrowser.groups";
       case CHANNELS: return "vnd.andorid.cursor.dir/vnd.tvbrowser.channels";
@@ -688,7 +689,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
     if(database != null) {
-      // Insert the new row. The call to databse.insert will return the row number if it is successfull.
+      // Insert the new row. The call to database.insert will return the row number if it is successful.
       long rowID = database.insert(TvBrowserDataBaseHelper.VERSION_TABLE, "version", values);
       
       // Return a URI to the newly inserted row on success.
@@ -714,7 +715,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
     if(database != null) {
-      // Insert the new row. The call to databse.insert will return the row number if it is successfull.
+      // Insert the new row. The call to database.insert will return the row number if it is successful.
       long rowID = database.insert(TvBrowserDataBaseHelper.DATA_TABLE, "channel", values);
       
       // Return a URI to the newly inserted row on success.
@@ -739,7 +740,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
     if(database != null) {
-      // Insert the new row. The call to databse.insert will return the row number if it is successfull.
+      // Insert the new row. The call to database.insert will return the row number if it is successful.
       long rowID = database.insert(CHANNEL_TABLE, "channel", values);
       
       // Return a URI to the newly inserted row on success.
@@ -764,7 +765,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
     if(database != null) {
-      // Insert the new row. The call to databse.insert will return the row number if it is successfull.
+      // Insert the new row. The call to database.insert will return the row number if it is successful.
       long rowID = database.insert(TvBrowserDataBaseHelper.GROUPS_TABLE, "group", values);
       
       // Return a URI to the newly inserted row on success.
@@ -908,7 +909,7 @@ public class TvBrowserContentProvider extends ContentProvider {
         // If no sort order is specified, sort by date / time
         String orderBy = null;
         
-        // If this is a row query, limit the result set to teh pased in row.
+        // If this is a row query, limit the result set to the pased in row.
         switch(uriMatcher.match(uri)) {
           case SEARCH: String search = uri.getPathSegments().get(1).replace("'", "''");
                        qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE '%" + search + "%' OR " + DATA_KEY_EPISODE_TITLE + " LIKE '%" +  search + "%') AND " + DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis() + " AND NOT " + DATA_KEY_DONT_WANT_TO_SEE);
@@ -1115,7 +1116,7 @@ public class TvBrowserContentProvider extends ContentProvider {
 
   public static final String CHANNEL_TABLE = "channels";
   
-  // Helper class for opneing, creating, and managing database version control
+  // Helper class for opening, creating, and managing database version control
   private static class TvBrowserDataBaseHelper extends SQLiteOpenHelper {
     private static final String GROUPS_TABLE = "channelGroups";
     

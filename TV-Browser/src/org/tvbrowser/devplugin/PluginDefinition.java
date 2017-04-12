@@ -32,7 +32,7 @@ import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
 /**
- * A class that contains informations about a certain Plugin.
+ * A class that contains information about a certain Plugin.
  * <p>
  * @author René Mach
  */

@@ -960,7 +960,7 @@
 	<string name="pref_reminder_night_end">Ende des Nacht-Modus</string>
 	<string name="pref_reminder_work_mode_category">Arbeits-Modus</string>
 	<string name="pref_reminder_as_alarm_clock_title">Als Wecker</string>
-	<string name="pref_reminder_as_alarm_clock_summary_on">Erinnerungen werden als Wecker angelegt, um sicher zu stellen, dass sie auch im Ruhezustand des Geräts erscheinen.</string>
+	<string name="pref_reminder_as_alarm_clock_summary_on">Erinnerungen werden als Wecker angelegt, um sicherzustellen, dass sie auch im Ruhezustand des Geräts erscheinen.</string>
 	<string name="pref_reminder_as_alarm_clock_summary_off">Erinnerungen werden als Alarm angelegt, bei dem es vorkommen kann, dass Erinnerungen nicht zum programmierten Zeitpunkt erscheinen, wenn das Gerät im Ruhezustand ist.</string>
 	<string name="monday">Montag</string>
 	<string name="tuesday">Dienstag</string>

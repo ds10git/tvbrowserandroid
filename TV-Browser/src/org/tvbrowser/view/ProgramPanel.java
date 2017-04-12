@@ -272,7 +272,7 @@ public class ProgramPanel extends View {
       canvas.translate(0, lines.length * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT);
     }
     
-    // draw additonal infos
+    // draw additional info
     if(mCategoriesString != null) {
       //lines = mInfoString.split("\n");
       
