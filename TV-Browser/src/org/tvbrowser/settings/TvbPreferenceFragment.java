@@ -449,7 +449,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
               
               
               if(sharedPreferences.getInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_glow_style_default)) == ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_glow_style_default)) {
-                Editor edit = (Editor)sharedPreferences.edit();
+                Editor edit = sharedPreferences.edit();
                 edit.putInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_tvb_style_default));
                 edit.commit();
               }
@@ -469,7 +469,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
               markedSync.setColors(color, color);
               
               if(sharedPreferences.getInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_tvb_style_default)) == ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_tvb_style_default)) {
-                Editor edit = (Editor)sharedPreferences.edit();
+                Editor edit = sharedPreferences.edit();
                 edit.putInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_glow_style_default));
                 edit.commit();
               }
@@ -489,7 +489,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
               markedSync.setColors(color, color);
               
               if(sharedPreferences.getInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_tvb_style_default)) == ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_tvb_style_default)) {
-                Editor edit = (Editor)sharedPreferences.edit();
+                Editor edit = sharedPreferences.edit();
                 edit.putInt(getString(R.string.PREF_RUNNING_TIME_SELECTION), ContextCompat.getColor(context, R.color.pref_color_running_time_selection_background_decent_dark_style_default));
                 edit.commit();
               }

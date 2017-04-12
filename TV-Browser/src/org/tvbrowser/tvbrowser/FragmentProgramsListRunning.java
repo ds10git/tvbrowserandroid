@@ -205,7 +205,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
           new Thread() {
             public void run() {
               if(getActivity() != null && isAdded()) {
-                ViewGroup list = (ViewGroup)getListView();
+                ViewGroup list = getListView();
                 
                 for(int i = 0; i < list.getChildCount(); i++) {
                   CompactLayoutViewHolder holder = (CompactLayoutViewHolder) list.getChildAt(i).getTag();
@@ -324,9 +324,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       today.set(Calendar.MILLISECOND, 0);
       
       if((mDayStart > System.currentTimeMillis() || mDayStart < today.getTimeInMillis()) && mWhereClauseTime < System.currentTimeMillis()) {
-        Button time = (Button)((ViewGroup)((ViewGroup)getView().getParent()).getParent()).findViewWithTag(mWhereClauseTime);
-        Button now = (Button)((ViewGroup)((ViewGroup)getView().getParent()).getParent()).findViewById(R.id.now_button);
-        Button next = (Button)((ViewGroup)((ViewGroup)getView().getParent()).getParent()).findViewById(R.id.button_after1);
+        Button time = (Button)((ViewGroup) getView().getParent().getParent()).findViewWithTag(mWhereClauseTime);
+        Button now = (Button)((ViewGroup) getView().getParent().getParent()).findViewById(R.id.now_button);
+        Button next = (Button)((ViewGroup) getView().getParent().getParent()).findViewById(R.id.button_after1);
         
         if(time != null && !time.equals(now) && (next == null || !time.equals(next))) {
           time.performClick();
@@ -1380,7 +1380,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       }
     }
     
-    mCurrentTime = ((long)cal.getTimeInMillis() / 60000) * 60000;
+    mCurrentTime = (cal.getTimeInMillis() / 60000) * 60000;
     
     String sort = TvBrowserContentProvider.DATA_KEY_STARTTIME + " ASC";
     
@@ -1665,7 +1665,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     int insertIndex = 1;
     
     if(mTimeBar.getChildCount() > 1) {
-      final Button next = (Button)((ViewGroup)((ViewGroup)getView().getParent()).getParent()).findViewById(R.id.button_after1);
+      final Button next = (Button)((ViewGroup) getView().getParent().getParent()).findViewById(R.id.button_after1);
       
       if(next != null && next.getVisibility() == View.VISIBLE) {
         if(mTimeBar.getChildCount() > 2) {
