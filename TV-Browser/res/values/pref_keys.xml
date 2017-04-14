@@ -237,7 +237,7 @@
 	    <string name="PREF_REMINDER_WORK_MODE_PRIORITY_VALUE" translatable="false">PREF_REMINDER_WORK_MODE_PRIORITY_VALUE</string>
 	    	    
 	    <string name="PREF_REMINDER_WORK_MODE_SOUND_VALUE" translatable="false">PREF_REMINDER_WORK_MODE_SOUND_VALUE</string>
-	    <item name="pref_reminder_work_mode_sound_value_default" type="string" format="string" translatable="false"></item>
+	    <item name="pref_reminder_work_mode_sound_value_default" type="string" format="string" translatable="false" />
 	    
 	    <string name="PREF_REMINDER_WORK_MODE_VIBRATE" translatable="false">PREF_REMINDER_WORK_MODE_VIBRATE</string>
 	    <item name="pref_reminder_work_mode_vibrate_default" type="bool" format="boolean">false</item>
@@ -309,7 +309,7 @@
 	    <string name="PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE" translatable="false">PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE</string>
 	    
 	    <string name="PREF_REMINDER_NIGHT_MODE_SOUND_VALUE" translatable="false">PREF_REMINDER_NIGHT_MODE_SOUND_VALUE</string>
-	    <item name="pref_reminder_night_mode_sound_value_default" type="string" format="string" translatable="false"></item>
+	    <item name="pref_reminder_night_mode_sound_value_default" type="string" format="string" translatable="false" />
 	    
 	    <string name="PREF_REMINDER_NIGHT_MODE_VIBRATE" translatable="false">PREF_REMINDER_NIGHT_MODE_VIBRATE</string>
 	    <item name="pref_reminder_night_mode_vibrate_default" type="bool" format="boolean">false</item>
