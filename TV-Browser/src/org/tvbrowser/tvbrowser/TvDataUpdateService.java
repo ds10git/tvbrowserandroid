@@ -2505,7 +2505,7 @@ public class TvDataUpdateService extends Service {
         
         String dateValue = read.readLine();
         
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd", Locale.US);
         Date syncDate = dateFormat.parse(dateValue.trim());
         
         if(syncDate.getTime() > System.currentTimeMillis()) {
