@@ -18,7 +18,7 @@
 	     	android:id="@id/running_programs_widget_row_channel_logo"
 	    	android:layout_width="match_parent"
 	    	android:scaleType="center"
-	    	android:contentDescription="image"
+	    	android:contentDescription="@string/channel_logo_content_description"
 	    	android:layout_height="wrap_content"
 	     	/>
 	     <TextView
