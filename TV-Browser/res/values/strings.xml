@@ -1101,7 +1101,7 @@
     <string name="donation_open_inapp">Open InApp Donations</string>
     <string name="donation_info_website">To see possible ways of donating to the TV-Browser development you can look at the website of TV-Browser for Android.</string>
     <string name="donation_open_website">Show website with\nways of donating</string>
-    <string name="donation_thanks_text">Thank you for considering to make a donation, you can select from the following donations (these contains 30% Google Play transaction fee and the VAT):</string>
+    <string name="donation_thanks_text">Thank you for considering to make a donation, you can select from the following donations (these contains 30%% Google Play transaction fee and the VAT):</string>
     <string name="make_donation_info">You are about to make a donation of {0}.\n\nWith clicking on \'Yes, make donation\' you confirm that you are at least 18 years and therefor allowed to make donations.</string>
     <string name="make_donation">Yes, make\ndonation</string>
     <string name="stop_donation">No, thanks</string>
