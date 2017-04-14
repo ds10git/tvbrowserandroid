@@ -1249,4 +1249,5 @@
     <string name="plugin_info_donwload">Lade \'{0}\' herunter</string>
     
     <string name="waiting_detail_show">Öffne Detail-Fenster&#8230;</string>
+	<string name="channel_logo_content_description">Logo des Programms</string>
 </resources>

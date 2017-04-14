@@ -1266,4 +1266,5 @@
     <string name="detail_date_format">%1$ta, %2$s %3$s - %4$s, %5$s</string>
     
     <string name="time_block_time_format" translatable="false">%1$02d</string>
+	<string name="channel_logo_content_description">The channel\'s logo</string>
 </resources>
