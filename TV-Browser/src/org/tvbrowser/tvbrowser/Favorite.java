@@ -18,6 +18,7 @@ package org.tvbrowser.tvbrowser;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Hashtable;
 import java.util.Map;
 import java.util.Set;
@@ -847,7 +848,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     
     saveString.append(";;");
     
-    Log.d("info2", "SAVE UNIQUE " + mUniqueProgramIds);
+    Log.d("info2", "SAVE UNIQUE " + Arrays.toString(mUniqueProgramIds));
     
     saveString = appendSaveStringWithArray(mUniqueProgramIds, saveString);
             
@@ -1197,7 +1198,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         Log.d("info2", "hier7 ");
         IOUtils.close(cursor);
         favorite.mUniqueProgramIds = null;
-        Log.d("info2", "hier8 " + favorite.mUniqueProgramIds);
+        Log.d("info2", "hier8 " + Arrays.toString(favorite.mUniqueProgramIds));
         if(save) {
           favorite.save(context);
         }
