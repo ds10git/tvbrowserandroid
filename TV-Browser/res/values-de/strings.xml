@@ -1089,7 +1089,7 @@
     <string name="donation_open_inapp">Zeige InApp-Spenden</string>
     <string name="donation_info_website">Alle Spendenmöglichkeiten sind auf der Webseite von TV-Browser für Android beschrieben.</string>
     <string name="donation_open_website">Webseite mit allen\nSpendenmöglichkeiten öffnen</string>
-    <string name="donation_thanks_text">Vielen Dank für das Interesse an Spenden für TV-Browser, Sie können aus folgenden Beträgen auswählen (diese enthalen jeweils 30% Google Play Zahlungsgebühr und die jeweilige Mehrwertsteuer):</string>
+    <string name="donation_thanks_text">Vielen Dank für das Interesse an Spenden für TV-Browser, Sie können aus folgenden Beträgen auswählen (diese enthalen jeweils 30%% Google Play Zahlungsgebühr und die jeweilige Mehrwertsteuer):</string>
     <string name="make_donation_info">Sie sind dabei eine Spende von {0} zu leisten.\n\nMit dem Klick auf \'Ja, jetzt spenden\' bestätigen Sie, dass sie mindestens 18 Jahre alt sind und damit Spenden leisten dürfen.</string>
     <string name="make_donation">Ja, jetzt\nspenden</string>
     <string name="stop_donation">Nein, Danke</string>
