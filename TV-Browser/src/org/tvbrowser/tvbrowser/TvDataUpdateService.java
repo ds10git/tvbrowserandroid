@@ -3037,7 +3037,7 @@ public class TvDataUpdateService extends Service {
                 }
                 
                 Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL);
-                Log.d("info21", "MIRRORS AVAILABLE " + mirrors);
+                Log.d("info21", "MIRRORS AVAILABLE " + Arrays.toString(mirrors));
                 mirror = Mirror.getMirrorToUseForGroup(mirrors, groupId, this, checkOnlyConnection);                
                 doLog("Choosen mirror for group '" + groupId + "': " + mirror);
                 
@@ -4897,7 +4897,7 @@ public class TvDataUpdateService extends Service {
       
       int[] versionInfo = mCurrentVersionIDs.get(update.getChannelID() + "_" + daysSince1970);
       
-      Log.d("info21","currentInfo " + versionInfo + " BASE " + values.getAsByte(TvBrowserContentProvider.VERSION_KEY_BASE_VERSION));
+      Log.d("info21","currentInfo " + Arrays.toString(versionInfo) + " BASE " + values.getAsByte(TvBrowserContentProvider.VERSION_KEY_BASE_VERSION));
       
       if(versionInfo == null && mVersionDatabaseOperation != null) {
         mVersionDatabaseOperation.addInsert(values);
