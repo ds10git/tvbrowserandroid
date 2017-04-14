@@ -1857,7 +1857,8 @@ public class TvDataUpdateService extends Service {
                 
                 String[] urls = info.getUrls();
                 ArrayList<Integer> notWorkingIndicies = new ArrayList<Integer>();
-                
+
+                //noinspection ForLoopReplaceableByForEach
                 for(int i = 0; i < urls.length; i++) {
                   int index = (int)(Math.random()*urls.length);
                   int count = 0;
@@ -5284,7 +5285,7 @@ public class TvDataUpdateService extends Service {
                   
                   // program known update it
                   if(isNew && isValidDataContent(contentValues)) {
-                    mUpdateValueMap.put(Long.valueOf(programID), contentValues);
+                    mUpdateValueMap.put(programID, contentValues);
                   }
                 }
                 else if(contentValues.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME) && contentValues.get(TvBrowserContentProvider.DATA_KEY_STARTTIME) != null) {
