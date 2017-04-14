@@ -1,137 +1,137 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- MISC PREF KEYS -->
-    	<string name="PREF_MISC_LAST_KNOWN_OPEN_DATE">PREF_MISC_LAST_KNOWN_OPEN_DATE</string>
-    	<string name="PREF_MISC_LAST_FAVORITE_SELECTION">PREF_MISC_LAST_FAVORITE_SELECTION</string>
-    	<string name="PREF_MISC_LAST_TIME_PICK_VALUE">PREF_MISC_LAST_TIME_PICK_VALUE</string>
-    	<string name="PREF_MISC_LAST_TIME_EXTRA_VALUE">PREF_MISC_LAST_TIME_EXTRA_VALUE</string>
+    	<string name="PREF_MISC_LAST_KNOWN_OPEN_DATE" translatable="false">PREF_MISC_LAST_KNOWN_OPEN_DATE</string>
+    	<string name="PREF_MISC_LAST_FAVORITE_SELECTION" translatable="false">PREF_MISC_LAST_FAVORITE_SELECTION</string>
+    	<string name="PREF_MISC_LAST_TIME_PICK_VALUE" translatable="false">PREF_MISC_LAST_TIME_PICK_VALUE</string>
+    	<string name="PREF_MISC_LAST_TIME_EXTRA_VALUE" translatable="false">PREF_MISC_LAST_TIME_EXTRA_VALUE</string>
     	<item name="pref_misc_last_time_extra_value_default" type="integer" format="integer">720</item>
     	
     <!--  Database settings -->
     
-    	<string name="PREF_DATABASE_OLD_PATH">PREF_DATABASE_OLD_PATH</string>
-    	<string name="PREF_DATABASE_PATH">PREF_DATABASE_PATH</string>
-	    <item name="pref_database_path_default" type="string" format="string">internal</item>
+    	<string name="PREF_DATABASE_OLD_PATH" translatable="false">PREF_DATABASE_OLD_PATH</string>
+    	<string name="PREF_DATABASE_PATH" translatable="false">PREF_DATABASE_PATH</string>
+	    <item name="pref_database_path_default" type="string" format="string" translatable="false">internal</item>
     
     <!-- Download settings -->
     
-	    <string name="DAYS_TO_DOWNLOAD">DAYS_TO_DOWNLOAD</string>
-	    <item name="days_to_download_default" type="string" format="string">2</item>
+	    <string name="DAYS_TO_DOWNLOAD" translatable="false">DAYS_TO_DOWNLOAD</string>
+	    <item name="days_to_download_default" type="string" format="string" translatable="false">2</item>
 	    
-	    <string name="LOAD_FULL_DATA">LOAD_FULL_DATA</string>
+	    <string name="LOAD_FULL_DATA" translatable="false">LOAD_FULL_DATA</string>
 	    <item name="load_full_data_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="LOAD_PICTURE_DATA">LOAD_PICTURE_DATA</string>
+	    <string name="LOAD_PICTURE_DATA" translatable="false">LOAD_PICTURE_DATA</string>
 	    <item name="load_picture_data_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="PREF_DATA_UPDATE_INSTABLE_CONNECTION_ACCEPTABLE">PREF_DATA_UPDATE_INSTABLE_CONNECTION_ACCEPTABLE</string>
+	    <string name="PREF_DATA_UPDATE_INSTABLE_CONNECTION_ACCEPTABLE" translatable="false">PREF_DATA_UPDATE_INSTABLE_CONNECTION_ACCEPTABLE</string>
 	    <item name="pref_data_update_instable_conncetion_acceptable_default" type="bool" format="boolean">false</item>
 	    	    
-	    <string name="PREF_AUTO_UPDATE_TYPE">PREF_AUTO_UPDATE_TYPE</string>
-	    <item name="pref_auto_update_type_default" type="string" format="string">0</item>
+	    <string name="PREF_AUTO_UPDATE_TYPE" translatable="false">PREF_AUTO_UPDATE_TYPE</string>
+	    <item name="pref_auto_update_type_default" type="string" format="string" translatable="false">0</item>
 	    
-	    <string name="PREF_AUTO_UPDATE_RANGE">PREF_AUTO_UPDATE_RANGE</string>
-	    <item name="pref_auto_update_range_default" type="string" format="string">2</item>
+	    <string name="PREF_AUTO_UPDATE_RANGE" translatable="false">PREF_AUTO_UPDATE_RANGE</string>
+	    <item name="pref_auto_update_range_default" type="string" format="string" translatable="false">2</item>
 	    
-	    <string name="PREF_AUTO_UPDATE_FREQUENCY">PREF_AUTO_UPDATE_FREQUENCY</string>
-	    <item name="pref_auto_update_frequency_default" type="string" format="string">0</item>
+	    <string name="PREF_AUTO_UPDATE_FREQUENCY" translatable="false">PREF_AUTO_UPDATE_FREQUENCY</string>
+	    <item name="pref_auto_update_frequency_default" type="string" format="string" translatable="false">0</item>
 	    
-	    <string name="PREF_AUTO_UPDATE_ONLY_WIFI">PREF_AUTO_UPDATE_ONLY_WIFI</string>
+	    <string name="PREF_AUTO_UPDATE_ONLY_WIFI" translatable="false">PREF_AUTO_UPDATE_ONLY_WIFI</string>
 	    <item name="pref_auto_update_only_wifi_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_AUTO_UPDATE_START_TIME">PREF_AUTO_UPDATE_START_TIME</string>
+	    <string name="PREF_AUTO_UPDATE_START_TIME" translatable="false">PREF_AUTO_UPDATE_START_TIME</string>
 	    <item name="pref_auto_update_start_time_default" type="integer" format="integer">0</item>
 	    
-	    <string name="PREF_AUTO_CHANNEL_UPDATE_FREQUENCY">PREF_AUTO_CHANNEL_UPDATE_FREQUENCY</string>
-	    <item name="pref_auto_channel_update_frequency_default" type="string" format="string">14</item>
+	    <string name="PREF_AUTO_CHANNEL_UPDATE_FREQUENCY" translatable="false">PREF_AUTO_CHANNEL_UPDATE_FREQUENCY</string>
+	    <item name="pref_auto_channel_update_frequency_default" type="string" format="string" translatable="false">14</item>
 	    
-	    <string name="PREF_AUTO_CHANNEL_UPDATE_LAST">PREF_AUTO_CHANNEL_UPDATE_LAST</string>
-	    <string name="PREF_AUTO_CHANNEL_UPDATE_LAST_NO_SUCCESS">PREF_AUTO_CHANNEL_UPDATE_LAST_NO_SUCCESS</string>
+	    <string name="PREF_AUTO_CHANNEL_UPDATE_LAST" translatable="false">PREF_AUTO_CHANNEL_UPDATE_LAST</string>
+	    <string name="PREF_AUTO_CHANNEL_UPDATE_LAST_NO_SUCCESS" translatable="false">PREF_AUTO_CHANNEL_UPDATE_LAST_NO_SUCCESS</string>
 	    
-	    <string name="PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED">PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED</string>
-	    <string name="PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED">PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED</string>
+	    <string name="PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED" translatable="false">PREF_AUTO_CHANNEL_UPDATE_CHANNELS_UPDATED</string>
+	    <string name="PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED" translatable="false">PREF_AUTO_CHANNEL_UPDATE_CHANNELS_INSERTED</string>
 	    
-	    <string name="PREF_LAST_CHANNEL_UPDATE">PREF_LAST_CHANNEL_UPDATE</string>
+	    <string name="PREF_LAST_CHANNEL_UPDATE" translatable="false">PREF_LAST_CHANNEL_UPDATE</string>
 	    
-	    <string name="PREF_FIRST_DELETED_CHANNELS">PREF_FIRST_DELETED_CHANNELS</string>
-	    <string name="PREF_SECOND_DELETED_CHANNELS">PREF_SECOND_DELETED_CHANNELS</string>
-	    <string name="PREF_KEPT_DELETED_CHANNELS">PREF_KEPT_DELETED_CHANNELS</string>
+	    <string name="PREF_FIRST_DELETED_CHANNELS" translatable="false">PREF_FIRST_DELETED_CHANNELS</string>
+	    <string name="PREF_SECOND_DELETED_CHANNELS" translatable="false">PREF_SECOND_DELETED_CHANNELS</string>
+	    <string name="PREF_KEPT_DELETED_CHANNELS" translatable="false">PREF_KEPT_DELETED_CHANNELS</string>
     
     <!-- EPGpaid settings -->
-        <string name="PREF_EPGPAID_CATEGORY_CREDENTIALS">PREF_EPGPAID_CATEGORY_CREDENTIALS</string>
-    	<string name="PREF_EPGPAID_ACCESS_UNTIL">PREF_EPGPAID_ACCESS_UNTIL</string>
+        <string name="PREF_EPGPAID_CATEGORY_CREDENTIALS" translatable="false">PREF_EPGPAID_CATEGORY_CREDENTIALS</string>
+    	<string name="PREF_EPGPAID_ACCESS_UNTIL" translatable="false">PREF_EPGPAID_ACCESS_UNTIL</string>
     	<item name="pref_epgpaid_access_until_default" type="integer" format="integer">0</item>
     	
-    	<string name="PREF_EPGPAID_EXPIRATION_SHOWN">PREF_EPGPAID_EXPIRATION_SHOWN</string>
+    	<string name="PREF_EPGPAID_EXPIRATION_SHOWN" translatable="false">PREF_EPGPAID_EXPIRATION_SHOWN</string>
     
-        <string name="PREF_EPGPAID_DATABASE_CHANNEL_IDS">PREF_EPGPAID_DATABASE_CHANNEL_IDS</string>
+        <string name="PREF_EPGPAID_DATABASE_CHANNEL_IDS" translatable="false">PREF_EPGPAID_DATABASE_CHANNEL_IDS</string>
     
-	    <string name="PREF_EPGPAID_USER">PREF_EPGPAID_USER</string>
-	    <string name="PREF_EPGPAID_FIRST_START">PREF_EPGPAID_FIRST_START</string>
-	    <string name="PREF_EPGPAID_FIRST_DOWNLOAD_DONE">PREF_EPGPAID_FIRST_DOWNLOAD_DONE</string>
+	    <string name="PREF_EPGPAID_USER" translatable="false">PREF_EPGPAID_USER</string>
+	    <string name="PREF_EPGPAID_FIRST_START" translatable="false">PREF_EPGPAID_FIRST_START</string>
+	    <string name="PREF_EPGPAID_FIRST_DOWNLOAD_DONE" translatable="false">PREF_EPGPAID_FIRST_DOWNLOAD_DONE</string>
 	    
-	    <string name="PREF_EPGPAID_PASSWORD">PREF_EPGPAID_PASSWORD</string>
-	    <string name="PREF_EPGPAID_DOWNLOAD_MAX">PREF_EPGPAID_DOWNLOAD_MAX</string>
-	    <item name="pref_epgpaid_download_max_default" type="string" format="string">3</item>
+	    <string name="PREF_EPGPAID_PASSWORD" translatable="false">PREF_EPGPAID_PASSWORD</string>
+	    <string name="PREF_EPGPAID_DOWNLOAD_MAX" translatable="false">PREF_EPGPAID_DOWNLOAD_MAX</string>
+	    <item name="pref_epgpaid_download_max_default" type="string" format="string" translatable="false">3</item>
 	    
-	    <string name="PREF_EPGPAID_DESCRIPTION_MISSING_INFO">PREF_EPGPAID_DESCRIPTION_MISSING_INFO</string>
+	    <string name="PREF_EPGPAID_DESCRIPTION_MISSING_INFO" translatable="false">PREF_EPGPAID_DESCRIPTION_MISSING_INFO</string>
 	    <item name="pref_epgpaid_description_missing_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_EPGPAID_CHECK_SSL">PREF_EPGPAID_CHECK_SSL</string>
+	    <string name="PREF_EPGPAID_CHECK_SSL" translatable="false">PREF_EPGPAID_CHECK_SSL</string>
 	    <item name="pref_epgpaid_check_ssl_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_EPGPAID_INFO_SHOWN">PREF_EPGPAID_INFO_SHOWN</string>
+	    <string name="PREF_EPGPAID_INFO_SHOWN" translatable="false">PREF_EPGPAID_INFO_SHOWN</string>
 	    <item name="pref_epgpaid_info_shown_default" type="bool" format="boolean">false</item>
 	    
     <!-- Start settings -->
     
-	    <string name="TAB_TO_SHOW_AT_START">TAB_TO_SHOW_AT_START</string>
-	    <item name="tab_to_show_at_start_default" type="string" format="string">0</item>
+	    <string name="TAB_TO_SHOW_AT_START" translatable="false">TAB_TO_SHOW_AT_START</string>
+	    <item name="tab_to_show_at_start_default" type="string" format="string" translatable="false">0</item>
 
     <!-- Apperience settings-->
 
-	    <string name="DARK_STYLE">DARK_STYLE</string>
+	    <string name="DARK_STYLE" translatable="false">DARK_STYLE</string>
 	    <item name="dark_style_default" type="bool" format="boolean">true</item>
 
-	    <string name="PREF_MARK_ICON_SHOW">PREF_MARK_ICON_SHOW</string>
+	    <string name="PREF_MARK_ICON_SHOW" translatable="false">PREF_MARK_ICON_SHOW</string>
 	    <item name="pref_mark_icon_show_default" type="bool" format="boolean">true</item>
 	    		
-	    <string name="PREF_LOGO_BACKGROUND_COLOR">PREF_LOGO_BACKGROUND_COLOR</string>
+	    <string name="PREF_LOGO_BACKGROUND_COLOR" translatable="false">PREF_LOGO_BACKGROUND_COLOR</string>
 	    <item name="pref_logo_background_color_default" type="color" format="color">#fff</item>
 	    
-	    <string name="PREF_LOGO_BACKGROUND_FILL">PREF_LOGO_BACKGROUND_FILL</string>
+	    <string name="PREF_LOGO_BACKGROUND_FILL" translatable="false">PREF_LOGO_BACKGROUND_FILL</string>
 	    <item name="pref_logo_background_fill_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="PREF_LOGO_BORDER">PREF_LOGO_BORDER</string>
+	    <string name="PREF_LOGO_BORDER" translatable="false">PREF_LOGO_BORDER</string>
 	    <item name="pref_logo_border_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="PREF_LOGO_BORDER_COLOR">PREF_LOGO_BORDER_COLOR</string>
+	    <string name="PREF_LOGO_BORDER_COLOR" translatable="false">PREF_LOGO_BORDER_COLOR</string>
 	    <item name="pref_logo_border_color_default" type="color" format="color">#777</item>
 	    	    
-	    <string name="PREF_SHOW_PROGRESS">PREF_SHOW_PROGRESS</string>
+	    <string name="PREF_SHOW_PROGRESS" translatable="false">PREF_SHOW_PROGRESS</string>
 	    <item name="pref_show_progress_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_COLOR_ON_AIR_BACKGROUND">PREF_COLOR_ON_AIR_BACKGROUND</string>
-	    <string name="PREF_COLOR_ON_AIR_PROGRESS">PREF_COLOR_ON_AIR_PROGRESS</string>
-	    <string name="PREF_COLOR_MARKED">PREF_COLOR_MARKED</string>
-	    <string name="PREF_COLOR_FAVORITE">PREF_COLOR_FAVORITE</string>
-	    <string name="PREF_COLOR_REMINDER">PREF_COLOR_REMINDER</string>
-	    <string name="PREF_COLOR_SYNC">PREF_COLOR_SYNC</string>
+	    <string name="PREF_COLOR_ON_AIR_BACKGROUND" translatable="false">PREF_COLOR_ON_AIR_BACKGROUND</string>
+	    <string name="PREF_COLOR_ON_AIR_PROGRESS" translatable="false">PREF_COLOR_ON_AIR_PROGRESS</string>
+	    <string name="PREF_COLOR_MARKED" translatable="false">PREF_COLOR_MARKED</string>
+	    <string name="PREF_COLOR_FAVORITE" translatable="false">PREF_COLOR_FAVORITE</string>
+	    <string name="PREF_COLOR_REMINDER" translatable="false">PREF_COLOR_REMINDER</string>
+	    <string name="PREF_COLOR_SYNC" translatable="false">PREF_COLOR_SYNC</string>
 	    
-	    <string name="PREF_COLOR_STYLE">PREF_COLOR_STYLE</string>
-	    <item name="pref_color_style_default" type="string" format="string">1</item>
+	    <string name="PREF_COLOR_STYLE" translatable="false">PREF_COLOR_STYLE</string>
+	    <item name="pref_color_style_default" type="string" format="string" translatable="false">1</item>
 	    
-	    <string name="PREF_COLOR_ON_AIR_BACKGROUND_USER_DEFINED">PREF_COLOR_ON_AIR_BACKGROUND_USER_DEFINED</string>
-	    <string name="PREF_COLOR_ON_AIR_PROGRESS_USER_DEFINED">PREF_COLOR_ON_AIR_PROGRESS_USER_DEFINED</string>
-	    <string name="PREF_COLOR_MARKED_USER_DEFINED">PREF_COLOR_MARKED_USER_DEFINED</string>
-	    <string name="PREF_COLOR_FAVORITE_USER_DEFINED">PREF_COLOR_FAVORITE_USER_DEFINED</string>
-	    <string name="PREF_COLOR_REMINDER_USER_DEFINED">PREF_COLOR_REMINDER_USER_DEFINED</string>
-	    <string name="PREF_COLOR_SYNC_USER_DEFINED">PREF_COLOR_SYNC_USER_DEFINED</string>
+	    <string name="PREF_COLOR_ON_AIR_BACKGROUND_USER_DEFINED" translatable="false">PREF_COLOR_ON_AIR_BACKGROUND_USER_DEFINED</string>
+	    <string name="PREF_COLOR_ON_AIR_PROGRESS_USER_DEFINED" translatable="false">PREF_COLOR_ON_AIR_PROGRESS_USER_DEFINED</string>
+	    <string name="PREF_COLOR_MARKED_USER_DEFINED" translatable="false">PREF_COLOR_MARKED_USER_DEFINED</string>
+	    <string name="PREF_COLOR_FAVORITE_USER_DEFINED" translatable="false">PREF_COLOR_FAVORITE_USER_DEFINED</string>
+	    <string name="PREF_COLOR_REMINDER_USER_DEFINED" translatable="false">PREF_COLOR_REMINDER_USER_DEFINED</string>
+	    <string name="PREF_COLOR_SYNC_USER_DEFINED" translatable="false">PREF_COLOR_SYNC_USER_DEFINED</string>
 	    
-	    <string name="PREF_COLOR_SEPARATOR_LINE">PREF_COLOR_SEPARATOR_LINE</string>
-	    <string name="PREF_COLOR_SEPARATOR_SPACE">PREF_COLOR_SEPARATOR_SPACE</string>
+	    <string name="PREF_COLOR_SEPARATOR_LINE" translatable="false">PREF_COLOR_SEPARATOR_LINE</string>
+	    <string name="PREF_COLOR_SEPARATOR_SPACE" translatable="false">PREF_COLOR_SEPARATOR_SPACE</string>
 	    
-	    <string name="PREF_FAVORITE_TAB_LAYOUT">PREF_FAVORITE_TAB_LAYOUT</string>
+	    <string name="PREF_FAVORITE_TAB_LAYOUT" translatable="false">PREF_FAVORITE_TAB_LAYOUT</string>
 	    
 	    <!-- Category colors -->
 	    
@@ -165,536 +165,536 @@
 	    
 	     -->
 	    
-	    <item name="pref_color_categories_default" type="string" format="string">false;-16777216</item>
+	    <item name="pref_color_categories_default" type="string" format="string" translatable="false">false;-16777216</item>
 	    
-	    <string name="PREF_COLOR_CATEGORY_BLACK_AND_WHITE">PREF_COLOR_CATEGORY_BLACK_AND_WHITE</string>
-	    <string name="PREF_COLOR_CATEGORY_FOUR_TO_THREE">PREF_COLOR_CATEGORY_FOUR_TO_THREE</string>
-	    <string name="PREF_COLOR_CATEGORY_SIXTEEN_TO_NINE">PREF_COLOR_CATEGORY_SIXTEEN_TO_NINE</string>
-	    <string name="PREF_COLOR_CATEGORY_MONO">PREF_COLOR_CATEGORY_MONO</string>
-	    <string name="PREF_COLOR_CATEGORY_STEREO">PREF_COLOR_CATEGORY_STEREO</string>
-	    <string name="PREF_COLOR_CATEGORY_DOLBY_SOURROUND">PREF_COLOR_CATEGORY_DOLBY_SOURROUND</string>
-	    <string name="PREF_COLOR_CATEGORY_DOLBY_DIGITAL">PREF_COLOR_CATEGORY_DOLBY_DIGITAL</string>
-	    <string name="PREF_COLOR_CATEGORY_SECOND_ADUIO_PROGRAM">PREF_COLOR_CATEGORY_SECOND_ADUIO_PROGRAM</string>
-	    <string name="PREF_COLOR_CATEGORY_CLOSED_CAPTION">PREF_COLOR_CATEGORY_CLOSED_CAPTION</string>
-	    <string name="PREF_COLOR_CATEGORY_LIVE">PREF_COLOR_CATEGORY_LIVE</string>
-	    <string name="PREF_COLOR_CATEGORY_OMU">PREF_COLOR_CATEGORY_OMU</string>
-	    <string name="PREF_COLOR_CATEGORY_FILM">PREF_COLOR_CATEGORY_FILM</string>
-	    <item name="pref_color_category_film_default" type="string" format="string">true;-50887</item>
-	    <string name="PREF_COLOR_CATEGORY_SERIES">PREF_COLOR_CATEGORY_SERIES</string>
-	    <item name="pref_color_category_series_default" type="string" format="string">true;-16754689</item>
-	    <string name="PREF_COLOR_CATEGORY_NEW">PREF_COLOR_CATEGORY_NEW</string>
-	    <item name="pref_color_category_new_default" type="string" format="string">true;-29696</item>
-	    <string name="PREF_COLOR_CATEGORY_AUDIO_DESCRIPTION">PREF_COLOR_CATEGORY_AUDIO_DESCRIPTION</string>
-	    <string name="PREF_COLOR_CATEGORY_NEWS">PREF_COLOR_CATEGORY_NEWS</string>
-	    <string name="PREF_COLOR_CATEGORY_SHOW">PREF_COLOR_CATEGORY_SHOW</string>
-	    <item name="pref_color_category_show_default" type="string" format="string">true;-16732752</item>
-	    <string name="PREF_COLOR_CATEGORY_MAGAZIN">PREF_COLOR_CATEGORY_MAGAZIN</string>
-	    <string name="PREF_COLOR_CATEGORY_HD">PREF_COLOR_CATEGORY_HD</string>
-	    <string name="PREF_COLOR_CATEGORY_DOCU">PREF_COLOR_CATEGORY_DOCU</string>
-	    <item name="pref_color_category_docu_default" type="string" format="string">true;-16732672</item>
-	    <string name="PREF_COLOR_CATEGORY_ART">PREF_COLOR_CATEGORY_ART</string>
-	    <string name="PREF_COLOR_CATEGORY_SPORT">PREF_COLOR_CATEGORY_SPORT</string>
-	    <string name="PREF_COLOR_CATEGORY_CHILDREN">PREF_COLOR_CATEGORY_CHILDREN</string>
-	    <item name="pref_color_category_children_default" type="string" format="string">true;-4128575</item>
-	    <string name="PREF_COLOR_CATEGORY_OTHER">PREF_COLOR_CATEGORY_OTHER</string>
-	    <string name="PREF_COLOR_CATEGORY_SIGN_LANGUAGE">PREF_COLOR_CATEGORY_SIGN_LANGUAGE</string>
+	    <string name="PREF_COLOR_CATEGORY_BLACK_AND_WHITE" translatable="false">PREF_COLOR_CATEGORY_BLACK_AND_WHITE</string>
+	    <string name="PREF_COLOR_CATEGORY_FOUR_TO_THREE" translatable="false">PREF_COLOR_CATEGORY_FOUR_TO_THREE</string>
+	    <string name="PREF_COLOR_CATEGORY_SIXTEEN_TO_NINE" translatable="false">PREF_COLOR_CATEGORY_SIXTEEN_TO_NINE</string>
+	    <string name="PREF_COLOR_CATEGORY_MONO" translatable="false">PREF_COLOR_CATEGORY_MONO</string>
+	    <string name="PREF_COLOR_CATEGORY_STEREO" translatable="false">PREF_COLOR_CATEGORY_STEREO</string>
+	    <string name="PREF_COLOR_CATEGORY_DOLBY_SOURROUND" translatable="false">PREF_COLOR_CATEGORY_DOLBY_SOURROUND</string>
+	    <string name="PREF_COLOR_CATEGORY_DOLBY_DIGITAL" translatable="false">PREF_COLOR_CATEGORY_DOLBY_DIGITAL</string>
+	    <string name="PREF_COLOR_CATEGORY_SECOND_ADUIO_PROGRAM" translatable="false">PREF_COLOR_CATEGORY_SECOND_ADUIO_PROGRAM</string>
+	    <string name="PREF_COLOR_CATEGORY_CLOSED_CAPTION" translatable="false">PREF_COLOR_CATEGORY_CLOSED_CAPTION</string>
+	    <string name="PREF_COLOR_CATEGORY_LIVE" translatable="false">PREF_COLOR_CATEGORY_LIVE</string>
+	    <string name="PREF_COLOR_CATEGORY_OMU" translatable="false">PREF_COLOR_CATEGORY_OMU</string>
+	    <string name="PREF_COLOR_CATEGORY_FILM" translatable="false">PREF_COLOR_CATEGORY_FILM</string>
+	    <item name="pref_color_category_film_default" type="string" format="string" translatable="false">true;-50887</item>
+	    <string name="PREF_COLOR_CATEGORY_SERIES" translatable="false">PREF_COLOR_CATEGORY_SERIES</string>
+	    <item name="pref_color_category_series_default" type="string" format="string" translatable="false">true;-16754689</item>
+	    <string name="PREF_COLOR_CATEGORY_NEW" translatable="false">PREF_COLOR_CATEGORY_NEW</string>
+	    <item name="pref_color_category_new_default" type="string" format="string" translatable="false">true;-29696</item>
+	    <string name="PREF_COLOR_CATEGORY_AUDIO_DESCRIPTION" translatable="false">PREF_COLOR_CATEGORY_AUDIO_DESCRIPTION</string>
+	    <string name="PREF_COLOR_CATEGORY_NEWS" translatable="false">PREF_COLOR_CATEGORY_NEWS</string>
+	    <string name="PREF_COLOR_CATEGORY_SHOW" translatable="false">PREF_COLOR_CATEGORY_SHOW</string>
+	    <item name="pref_color_category_show_default" type="string" format="string" translatable="false">true;-16732752</item>
+	    <string name="PREF_COLOR_CATEGORY_MAGAZIN" translatable="false">PREF_COLOR_CATEGORY_MAGAZIN</string>
+	    <string name="PREF_COLOR_CATEGORY_HD" translatable="false">PREF_COLOR_CATEGORY_HD</string>
+	    <string name="PREF_COLOR_CATEGORY_DOCU" translatable="false">PREF_COLOR_CATEGORY_DOCU</string>
+	    <item name="pref_color_category_docu_default" type="string" format="string" translatable="false">true;-16732672</item>
+	    <string name="PREF_COLOR_CATEGORY_ART" translatable="false">PREF_COLOR_CATEGORY_ART</string>
+	    <string name="PREF_COLOR_CATEGORY_SPORT" translatable="false">PREF_COLOR_CATEGORY_SPORT</string>
+	    <string name="PREF_COLOR_CATEGORY_CHILDREN" translatable="false">PREF_COLOR_CATEGORY_CHILDREN</string>
+	    <item name="pref_color_category_children_default" type="string" format="string" translatable="false">true;-4128575</item>
+	    <string name="PREF_COLOR_CATEGORY_OTHER" translatable="false">PREF_COLOR_CATEGORY_OTHER</string>
+	    <string name="PREF_COLOR_CATEGORY_SIGN_LANGUAGE" translatable="false">PREF_COLOR_CATEGORY_SIGN_LANGUAGE</string>
 	    
 	<!-- Reminder settings -->
 	    
-	    <string name="PREF_REMINDER_AS_ALARM_CLOCK">PREF_REMINDER_AS_ALARM_CLOCK</string>
+	    <string name="PREF_REMINDER_AS_ALARM_CLOCK" translatable="false">PREF_REMINDER_AS_ALARM_CLOCK</string>
 	    <item name="pref_reminder_as_alarm_clock_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="PREF_REMINDER_TIME">PREF_REMINDER_TIME</string>
-	    <item name="pref_reminder_time_default" type="string" format="string">0</item>
+	    <string name="PREF_REMINDER_TIME" translatable="false">PREF_REMINDER_TIME</string>
+	    <item name="pref_reminder_time_default" type="string" format="string" translatable="false">0</item>
 	    
-	    <string name="PREF_REMINDER_TIME_SECOND">PREF_REMINDER_TIME_SECOND</string>
-	    <item name="pref_reminder_time_second_default" type="string" format="string">-1</item>
+	    <string name="PREF_REMINDER_TIME_SECOND" translatable="false">PREF_REMINDER_TIME_SECOND</string>
+	    <item name="pref_reminder_time_second_default" type="string" format="string" translatable="false">-1</item>
 	    
-	    <string name="PREF_REMINDER_PRIORITY_VALUE">PREF_REMINDER_PRIORITY_VALUE</string>
-	    <item name="pref_reminder_priority_default" type="string" format="string">0</item>
+	    <string name="PREF_REMINDER_PRIORITY_VALUE" translatable="false">PREF_REMINDER_PRIORITY_VALUE</string>
+	    <item name="pref_reminder_priority_default" type="string" format="string" translatable="false">0</item>
 	    
-	    <string name="PREF_REMINDER_SOUND_VALUE">PREF_REMINDER_SOUND_VALUE</string>
+	    <string name="PREF_REMINDER_SOUND_VALUE" translatable="false">PREF_REMINDER_SOUND_VALUE</string>
 	    
-	    <string name="PREF_REMINDER_VIBRATE">PREF_REMINDER_VIBRATE</string>
+	    <string name="PREF_REMINDER_VIBRATE" translatable="false">PREF_REMINDER_VIBRATE</string>
 	    <item name="pref_reminder_vibrate_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_REMINDER_COLOR_LED">PREF_REMINDER_COLOR_LED</string>
+	    <string name="PREF_REMINDER_COLOR_LED" translatable="false">PREF_REMINDER_COLOR_LED</string>
 	    
-	    <string name="PREF_REMINDER_STATE_KEEP">PREF_REMINDER_KEEP_REMINDER_STATE</string>
+	    <string name="PREF_REMINDER_STATE_KEEP" translatable="false">PREF_REMINDER_KEEP_REMINDER_STATE</string>
 	    <item name="pref_reminder_state_keep_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="PREF_REMINDER_LED">PREF_REMINDER_LED</string>
+	    <string name="PREF_REMINDER_LED" translatable="false">PREF_REMINDER_LED</string>
 	    <item name="pref_reminder_led_default" type="bool" format="boolean">true</item>
 	    
 	    <!-- PREFERENCES OF WORK MODE OF REMINDER -->
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_ACTIVATED">PREF_REMINDER_WORK_MODE_ACTIVATED</string>
+	    <string name="PREF_REMINDER_WORK_MODE_ACTIVATED" translatable="false">PREF_REMINDER_WORK_MODE_ACTIVATED</string>
 	    <item name="pref_reminder_work_mode_activated_default" type="bool" format="boolean">false</item>
 	        
-	    <string name="PREF_REMINDER_WORK_MODE_NO_REMINDER">PREF_REMINDER_WORK_MODE_NO_REMINDER</string>
+	    <string name="PREF_REMINDER_WORK_MODE_NO_REMINDER" translatable="false">PREF_REMINDER_WORK_MODE_NO_REMINDER</string>
 	    <item name="pref_reminder_work_mode_no_reminder_default" type="bool" format="boolean">true</item>
 
-	    <string name="PREF_REMINDER_WORK_MODE_PRIORITY_VALUE">PREF_REMINDER_WORK_MODE_PRIORITY_VALUE</string>
+	    <string name="PREF_REMINDER_WORK_MODE_PRIORITY_VALUE" translatable="false">PREF_REMINDER_WORK_MODE_PRIORITY_VALUE</string>
 	    	    
-	    <string name="PREF_REMINDER_WORK_MODE_SOUND_VALUE">PREF_REMINDER_WORK_MODE_SOUND_VALUE</string>
-	    <item name="pref_reminder_work_mode_sound_value_default" type="string" format="string"></item>
+	    <string name="PREF_REMINDER_WORK_MODE_SOUND_VALUE" translatable="false">PREF_REMINDER_WORK_MODE_SOUND_VALUE</string>
+	    <item name="pref_reminder_work_mode_sound_value_default" type="string" format="string" translatable="false"></item>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_VIBRATE">PREF_REMINDER_WORK_MODE_VIBRATE</string>
+	    <string name="PREF_REMINDER_WORK_MODE_VIBRATE" translatable="false">PREF_REMINDER_WORK_MODE_VIBRATE</string>
 	    <item name="pref_reminder_work_mode_vibrate_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_LED">PREF_REMINDER_WORK_MODE_LED</string>
+	    <string name="PREF_REMINDER_WORK_MODE_LED" translatable="false">PREF_REMINDER_WORK_MODE_LED</string>
 	    <item name="pref_reminder_work_mode_led_default" type="bool" format="boolean">false</item>
 	
 	    <item name="pref_reminder_work_mode_start_default" type="integer" format="integer">420</item>
 	    <item name="pref_reminder_work_mode_end_default" type="integer" format="integer">960</item>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_DAYS">PREF_REMINDER_WORK_MODE_DAYS</string>
+	    <string name="PREF_REMINDER_WORK_MODE_DAYS" translatable="false">PREF_REMINDER_WORK_MODE_DAYS</string>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED">PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED</string>
+	    <string name="PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED" translatable="false">PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED</string>
 	    <item name="pref_reminder_work_mode_monday_activated_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_MONDAY_START">PREF_REMINDER_WORK_MODE_MONDAY_START</string>
-	    <string name="PREF_REMINDER_WORK_MODE_MONDAY_END">PREF_REMINDER_WORK_MODE_MONDAY_END</string>
+	    <string name="PREF_REMINDER_WORK_MODE_MONDAY_START" translatable="false">PREF_REMINDER_WORK_MODE_MONDAY_START</string>
+	    <string name="PREF_REMINDER_WORK_MODE_MONDAY_END" translatable="false">PREF_REMINDER_WORK_MODE_MONDAY_END</string>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED">PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED</string>
+	    <string name="PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED" translatable="false">PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED</string>
 	    <item name="pref_reminder_work_mode_tuesday_activated_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_TUESDAY_START">PREF_REMINDER_WORK_MODE_TUESDAY_START</string>
-	    <string name="PREF_REMINDER_WORK_MODE_TUESDAY_END">PREF_REMINDER_WORK_MODE_TUESDAY_END</string>
+	    <string name="PREF_REMINDER_WORK_MODE_TUESDAY_START" translatable="false">PREF_REMINDER_WORK_MODE_TUESDAY_START</string>
+	    <string name="PREF_REMINDER_WORK_MODE_TUESDAY_END" translatable="false">PREF_REMINDER_WORK_MODE_TUESDAY_END</string>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED">PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED</string>
+	    <string name="PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED" translatable="false">PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED</string>
 	    <item name="pref_reminder_work_mode_wednesday_activated_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_WEDNESDAY_START">PREF_REMINDER_WORK_MODE_WEDNESDAY_START</string>
-	    <string name="PREF_REMINDER_WORK_MODE_WEDNESDAY_END">PREF_REMINDER_WORK_MODE_WEDNESDAY_END</string>
+	    <string name="PREF_REMINDER_WORK_MODE_WEDNESDAY_START" translatable="false">PREF_REMINDER_WORK_MODE_WEDNESDAY_START</string>
+	    <string name="PREF_REMINDER_WORK_MODE_WEDNESDAY_END" translatable="false">PREF_REMINDER_WORK_MODE_WEDNESDAY_END</string>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_THURSDAY_ACTIVATED">PREF_REMINDER_WORK_MODE_THURSDAY_ACTIVATED</string>
+	    <string name="PREF_REMINDER_WORK_MODE_THURSDAY_ACTIVATED" translatable="false">PREF_REMINDER_WORK_MODE_THURSDAY_ACTIVATED</string>
 	    <item name="pref_reminder_work_mode_thursday_activated_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_THURSDAY_START">PREF_REMINDER_WORK_MODE_THURSDAY_START</string>
-	    <string name="PREF_REMINDER_WORK_MODE_THURSDAY_END">PREF_REMINDER_WORK_MODE_THURSDAY_END</string>
+	    <string name="PREF_REMINDER_WORK_MODE_THURSDAY_START" translatable="false">PREF_REMINDER_WORK_MODE_THURSDAY_START</string>
+	    <string name="PREF_REMINDER_WORK_MODE_THURSDAY_END" translatable="false">PREF_REMINDER_WORK_MODE_THURSDAY_END</string>
 	    
-		<string name="PREF_REMINDER_WORK_MODE_FRIDAY_ACTIVATED">PREF_REMINDER_WORK_MODE_FRIDAY_ACTIVATED</string>
+		<string name="PREF_REMINDER_WORK_MODE_FRIDAY_ACTIVATED" translatable="false">PREF_REMINDER_WORK_MODE_FRIDAY_ACTIVATED</string>
 	    <item name="pref_reminder_work_mode_friday_activated_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_FRIDAY_START">PREF_REMINDER_WORK_MODE_FRIDAY_START</string>
-	    <string name="PREF_REMINDER_WORK_MODE_FRIDAY_END">PREF_REMINDER_WORK_MODE_FRIDAY_END</string>
+	    <string name="PREF_REMINDER_WORK_MODE_FRIDAY_START" translatable="false">PREF_REMINDER_WORK_MODE_FRIDAY_START</string>
+	    <string name="PREF_REMINDER_WORK_MODE_FRIDAY_END" translatable="false">PREF_REMINDER_WORK_MODE_FRIDAY_END</string>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_SATURDAY_ACTIVATED">PREF_REMINDER_WORK_MODE_SATURDAY_ACTIVATED</string>
+	    <string name="PREF_REMINDER_WORK_MODE_SATURDAY_ACTIVATED" translatable="false">PREF_REMINDER_WORK_MODE_SATURDAY_ACTIVATED</string>
 	    <item name="pref_reminder_work_mode_saturday_activated_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_SATURDAY_START">PREF_REMINDER_WORK_MODE_SATURDAY_START</string>
-	    <string name="PREF_REMINDER_WORK_MODE_SATURDAY_END">PREF_REMINDER_WORK_MODE_SATURDAY_END</string>
+	    <string name="PREF_REMINDER_WORK_MODE_SATURDAY_START" translatable="false">PREF_REMINDER_WORK_MODE_SATURDAY_START</string>
+	    <string name="PREF_REMINDER_WORK_MODE_SATURDAY_END" translatable="false">PREF_REMINDER_WORK_MODE_SATURDAY_END</string>
 	    
-		<string name="PREF_REMINDER_WORK_MODE_SUNDAY_ACTIVATED">PREF_REMINDER_WORK_MODE_SUNDAY_ACTIVATED</string>
+		<string name="PREF_REMINDER_WORK_MODE_SUNDAY_ACTIVATED" translatable="false">PREF_REMINDER_WORK_MODE_SUNDAY_ACTIVATED</string>
 	    <item name="pref_reminder_work_mode_sunday_activated_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="PREF_REMINDER_WORK_MODE_SUNDAY_START">PREF_REMINDER_WORK_MODE_SUNDAY_START</string>
-	    <string name="PREF_REMINDER_WORK_MODE_SUNDAY_END">PREF_REMINDER_WORK_MODE_SUNDAY_END</string>
+	    <string name="PREF_REMINDER_WORK_MODE_SUNDAY_START" translatable="false">PREF_REMINDER_WORK_MODE_SUNDAY_START</string>
+	    <string name="PREF_REMINDER_WORK_MODE_SUNDAY_END" translatable="false">PREF_REMINDER_WORK_MODE_SUNDAY_END</string>
 	    
 	    <!-- PREFERENCES FOR NIGHT MODE OF REMINDER -->
 	    
-	    <string name="PREF_REMINDER_NIGHT_MODE_ACTIVATED">PREF_REMINDER_NIGHT_MODE_ACTIVATED</string>
+	    <string name="PREF_REMINDER_NIGHT_MODE_ACTIVATED" translatable="false">PREF_REMINDER_NIGHT_MODE_ACTIVATED</string>
 	    <item name="pref_reminder_night_mode_activated_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="PREF_REMINDER_NIGHT_MODE_START">PREF_REMINDER_NIGHT_MODE_START</string>
+	    <string name="PREF_REMINDER_NIGHT_MODE_START" translatable="false">PREF_REMINDER_NIGHT_MODE_START</string>
 	    <item name="pref_reminder_night_mode_start_default" type="integer" format="integer">1380</item>
 	    
-	    <string name="PREF_REMINDER_NIGHT_MODE_END">PREF_REMINDER_NIGHT_MODE_END</string>
+	    <string name="PREF_REMINDER_NIGHT_MODE_END" translatable="false">PREF_REMINDER_NIGHT_MODE_END</string>
 	    <item name="pref_reminder_night_mode_end_default" type="integer" format="integer">420</item>
 	    
-	    <string name="PREF_REMINDER_NIGHT_MODE_NO_REMINDER">PREF_REMINDER_NIGHT_MODE_NO_REMINDER</string>
+	    <string name="PREF_REMINDER_NIGHT_MODE_NO_REMINDER" translatable="false">PREF_REMINDER_NIGHT_MODE_NO_REMINDER</string>
 	    <item name="pref_reminder_night_mode_no_reminder_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE">PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE</string>
+	    <string name="PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE" translatable="false">PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE</string>
 	    
-	    <string name="PREF_REMINDER_NIGHT_MODE_SOUND_VALUE">PREF_REMINDER_NIGHT_MODE_SOUND_VALUE</string>
-	    <item name="pref_reminder_night_mode_sound_value_default" type="string" format="string"></item>
+	    <string name="PREF_REMINDER_NIGHT_MODE_SOUND_VALUE" translatable="false">PREF_REMINDER_NIGHT_MODE_SOUND_VALUE</string>
+	    <item name="pref_reminder_night_mode_sound_value_default" type="string" format="string" translatable="false"></item>
 	    
-	    <string name="PREF_REMINDER_NIGHT_MODE_VIBRATE">PREF_REMINDER_NIGHT_MODE_VIBRATE</string>
+	    <string name="PREF_REMINDER_NIGHT_MODE_VIBRATE" translatable="false">PREF_REMINDER_NIGHT_MODE_VIBRATE</string>
 	    <item name="pref_reminder_night_mode_vibrate_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="PREF_REMINDER_NIGHT_MODE_LED">PREF_REMINDER_NIGHT_MODE_LED</string>
+	    <string name="PREF_REMINDER_NIGHT_MODE_LED" translatable="false">PREF_REMINDER_NIGHT_MODE_LED</string>
 	    <item name="pref_reminder_night_mode_led_default" type="bool" format="boolean">false</item>
 	    
 	<!-- Time buttons settings -->
-	    <string name="TIME_BUTTON_COUNT">TIME_BUTTON_COUNT</string>
+	    <string name="TIME_BUTTON_COUNT" translatable="false">TIME_BUTTON_COUNT</string>
 	    <item name="time_button_count_default" type="integer" format="integer">6</item>
 	    
-	    <string name="time_button_key_prefix">TIME_BUTTON_</string>
+	    <string name="time_button_key_prefix" translatable="false">TIME_BUTTON_</string>
 	    
-	    <string name="TIME_BUTTON_PREFERENCES_SUB_SCREEN">TIME_BUTTON_PREFERENCES_SUB_SCREEN</string>
+	    <string name="TIME_BUTTON_PREFERENCES_SUB_SCREEN" translatable="false">TIME_BUTTON_PREFERENCES_SUB_SCREEN</string>
 	    
-	    <string name="TIME_BUTTON_1">TIME_BUTTON_ONE</string>
+	    <string name="TIME_BUTTON_1" translatable="false">TIME_BUTTON_ONE</string>
 	    <item name="time_button_1_default" type="integer" format="integer">1215</item>
 	    
-	    <string name="TIME_BUTTON_2">TIME_BUTTON_TWO</string>
+	    <string name="TIME_BUTTON_2" translatable="false">TIME_BUTTON_TWO</string>
 	    <item name="time_button_2_default" type="integer" format="integer">360</item>
 	    
-	    <string name="TIME_BUTTON_3">TIME_BUTTON_THREE</string>
+	    <string name="TIME_BUTTON_3" translatable="false">TIME_BUTTON_THREE</string>
 	    <item name="time_button_3_default" type="integer" format="integer">720</item>
 	    
-	    <string name="TIME_BUTTON_4">TIME_BUTTON_FOUR</string>
+	    <string name="TIME_BUTTON_4" translatable="false">TIME_BUTTON_FOUR</string>
 	    <item name="time_button_4_default" type="integer" format="integer">960</item>
 	    
-	    <string name="TIME_BUTTON_5">TIME_BUTTON_FIVE</string>
+	    <string name="TIME_BUTTON_5" translatable="false">TIME_BUTTON_FIVE</string>
 	    <item name="time_button_5_default" type="integer" format="integer">1080</item>
 	    
-	    <string name="TIME_BUTTON_6">TIME_BUTTON_SIX</string>
+	    <string name="TIME_BUTTON_6" translatable="false">TIME_BUTTON_SIX</string>
 	    <item name="time_button_6_default" type="integer" format="integer">1380</item>
 	    	    
-	    <string name="SORT_RUNNING_TIMES">SORT_RUNNING_TIMES</string>
+	    <string name="SORT_RUNNING_TIMES" translatable="false">SORT_RUNNING_TIMES</string>
     	<item name="sort_running_times_default" type="bool" format="boolean">false</item>
 	
 	<!-- Running programs settings -->
-		<string name="PREF_RUNNING_DIVIDER_SIZE">PREF_RUNNING_DIVIDER_SIZE</string>
-		<item name="pref_running_divider_size_default" type="string" format="string">@string/divider_small</item>
+		<string name="PREF_RUNNING_DIVIDER_SIZE" translatable="false">PREF_RUNNING_DIVIDER_SIZE</string>
+		<item name="pref_running_divider_size_default" type="string" format="string" translatable="false">@string/divider_small</item>
 		
-		<string name="CHANNEL_LOGO_NAME_RUNNING">CHANNEL_LOGO_NAME_RUNNING</string>
-	    <item name="channel_logo_name_running_default" type="string" format="string">0</item>
+		<string name="CHANNEL_LOGO_NAME_RUNNING" translatable="false">CHANNEL_LOGO_NAME_RUNNING</string>
+	    <item name="channel_logo_name_running_default" type="string" format="string" translatable="false">0</item>
 		
-	    <string name="PREF_RUNNING_TIME_SELECTION">PREF_RUNNING_TIME_SELECTION</string>
+	    <string name="PREF_RUNNING_TIME_SELECTION" translatable="false">PREF_RUNNING_TIME_SELECTION</string>
 	    	
-	    <string name="RUNNING_PROGRAMS_NEXT_DAY">RUNNING_PROGRAMS_NEXT_DAY</string>
+	    <string name="RUNNING_PROGRAMS_NEXT_DAY" translatable="false">RUNNING_PROGRAMS_NEXT_DAY</string>
 	    <item name="running_programs_next_day_default" type="bool" format="boolean">true</item>
 	    
-		<string name="PREF_RUNNING_LIST_CLICK_TO_CHANNEL_TO_LIST">PREF_RUNNING_LIST_CLICK_TO_CHANNEL_TO_LIST</string>
+		<string name="PREF_RUNNING_LIST_CLICK_TO_CHANNEL_TO_LIST" translatable="false">PREF_RUNNING_LIST_CLICK_TO_CHANNEL_TO_LIST</string>
     	<item name="pref_running_list_click_to_channel_to_list_default" type="bool" format="boolean">true</item>
 
-	    <string name="SHOW_EPISODE_IN_RUNNING_LIST">SHOW_EPISODE_IN_RUNNING_LIST</string>
+	    <string name="SHOW_EPISODE_IN_RUNNING_LIST" translatable="false">SHOW_EPISODE_IN_RUNNING_LIST</string>
 	    <item name="show_episode_in_running_list_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="SHOW_INFO_IN_RUNNING_LIST">SHOW_INFO_IN_RUNNING_LIST</string>
+	    <string name="SHOW_INFO_IN_RUNNING_LIST" translatable="false">SHOW_INFO_IN_RUNNING_LIST</string>
 	    <item name="show_info_in_running_list_default" type="bool" format="boolean">true</item>
 	
-	    <string name="SHOW_SORT_NUMBER_IN_RUNNING_LIST">SHOW_SORT_NUMBER_IN_RUNNING_LIST</string>
+	    <string name="SHOW_SORT_NUMBER_IN_RUNNING_LIST" translatable="false">SHOW_SORT_NUMBER_IN_RUNNING_LIST</string>
 	    <item name="show_sort_number_in_running_list_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_RUNNING_PROGRAMS_SHOW_NEXT_BUTTON">PREF_RUNNING_PROGRAMS_SHOW_NEXT_BUTTON</string>
+	    <string name="PREF_RUNNING_PROGRAMS_SHOW_NEXT_BUTTON" translatable="false">PREF_RUNNING_PROGRAMS_SHOW_NEXT_BUTTON</string>
 	    <item name="pref_running_programs_show_next_button_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_RUNNING_PROGRAMS_SHOW_TIME_PICK_BUTTON_ONLY_WHEN_NEEDED">PREF_RUNNING_PROGRAMS_SHOW_TIME_PICK_BUTTON_ONLY_WHEN_NEEDED</string>
+	    <string name="PREF_RUNNING_PROGRAMS_SHOW_TIME_PICK_BUTTON_ONLY_WHEN_NEEDED" translatable="false">PREF_RUNNING_PROGRAMS_SHOW_TIME_PICK_BUTTON_ONLY_WHEN_NEEDED</string>
 	    <item name="pref_running_programs_show_time_pick_button_only_when_needed_default" type="bool" format="boolean">false</item>
 	    
 	<!-- Programs list settings -->
 	
-	    <string name="CHANNEL_LOGO_NAME_PROGRAMS_LIST">CHANNEL_LOGO_NAME_PROGRAMS_LIST</string>
-	    <item name="channel_logo_name_programs_list_default" type="string" format="string">1</item>
+	    <string name="CHANNEL_LOGO_NAME_PROGRAMS_LIST" translatable="false">CHANNEL_LOGO_NAME_PROGRAMS_LIST</string>
+	    <item name="channel_logo_name_programs_list_default" type="string" format="string" translatable="false">1</item>
 
-	    <string name="SHOW_SORT_NUMBER_IN_PROGRAMS_LIST">SHOW_SORT_NUMBER_IN_PROGRAMS_LIST</string>
+	    <string name="SHOW_SORT_NUMBER_IN_PROGRAMS_LIST" translatable="false">SHOW_SORT_NUMBER_IN_PROGRAMS_LIST</string>
 	    <item name="show_sort_number_in_programs_list_default" type="bool" format="boolean">false</item>
 
-	    <string name="SHOW_DATE_FOR_PROGRAMS_LIST">SHOW_DATE_FOR_PROGRAMS_LIST</string>
-	    <item name="show_date_for_programs_list_default" type="string" format="string">1</item>
+	    <string name="SHOW_DATE_FOR_PROGRAMS_LIST" translatable="false">SHOW_DATE_FOR_PROGRAMS_LIST</string>
+	    <item name="show_date_for_programs_list_default" type="string" format="string" translatable="false">1</item>
 	    
-	    <string name="SHOW_CHANNEL_FOR_PROGRAMS_LIST">SHOW_CHANNEL_FOR_PROGRAMS_LIST</string>
-	    <item name="show_channel_for_programs_list_default" type="string" format="string">1</item>
+	    <string name="SHOW_CHANNEL_FOR_PROGRAMS_LIST" translatable="false">SHOW_CHANNEL_FOR_PROGRAMS_LIST</string>
+	    <item name="show_channel_for_programs_list_default" type="string" format="string" translatable="false">1</item>
 	    
 	<!-- Program table settings -->
 	
-	    <string name="PROG_TABLE_ACTIVATED">PROG_TABLE_ACTIVATED</string>
+	    <string name="PROG_TABLE_ACTIVATED" translatable="false">PROG_TABLE_ACTIVATED</string>
 	    <item name="prog_table_activated_default" type="bool" format="boolean">@bool/prog_table_default</item>
 	    
-	    <string name="PROG_TABLE_DELAYED">PROG_TABLE_DELAYED</string>
+	    <string name="PROG_TABLE_DELAYED" translatable="false">PROG_TABLE_DELAYED</string>
 	    <item name="prog_table_delayed_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PROG_TABLE_LAYOUT">PROG_TABLE_LAYOUT</string>
-	    <item name="prog_table_layout_default" type="string" format="string">0</item>
+	    <string name="PROG_TABLE_LAYOUT" translatable="false">PROG_TABLE_LAYOUT</string>
+	    <item name="prog_table_layout_default" type="string" format="string" translatable="false">0</item>
 	    
-	    <string name="PROG_PANEL_TIME_BLOCK_SIZE">PROG_PANEL_TIME_BLOCK_SIZE</string>
-	    <item name="prog_panel_time_block_size" type="string" format="string">2</item>
+	    <string name="PROG_PANEL_TIME_BLOCK_SIZE" translatable="false">PROG_PANEL_TIME_BLOCK_SIZE</string>
+	    <item name="prog_panel_time_block_size" type="string" format="string" translatable="false">2</item>
 	    
-	    <string name="PROG_PANEL_GROW">PROG_PANEL_GROW</string>
+	    <string name="PROG_PANEL_GROW" translatable="false">PROG_PANEL_GROW</string>
 	    <item name="prog_panel_grow_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PROG_TABLE_COLUMN_WIDTH">PROG_TABLE_COLUMN_WIDTH</string>
+	    <string name="PROG_TABLE_COLUMN_WIDTH" translatable="false">PROG_TABLE_COLUMN_WIDTH</string>
 	    <item name="prog_table_column_width_default" type="integer" format="integer">200</item>
 
-	    <string name="CHANNEL_LOGO_NAME_PROGRAM_TABLE">CHANNEL_LOGO_NAME_PROGRAM_TABLE</string>
-    	<item name="channel_logo_name_program_table_default" type="string" format="string">0</item>
+	    <string name="CHANNEL_LOGO_NAME_PROGRAM_TABLE" translatable="false">CHANNEL_LOGO_NAME_PROGRAM_TABLE</string>
+    	<item name="channel_logo_name_program_table_default" type="string" format="string" translatable="false">0</item>
 	    
-	    <string name="PROG_TABLE_TEXT_SCALE">PROG_TABLE_TEXT_SCALE</string>
-	    <item name="prog_table_text_scale_default" type="string" format="string">1.0</item>
+	    <string name="PROG_TABLE_TEXT_SCALE" translatable="false">PROG_TABLE_TEXT_SCALE</string>
+	    <item name="prog_table_text_scale_default" type="string" format="string" translatable="false">1.0</item>
     	
-	    <string name="SHOW_PICTURE_IN_PROGRAM_TABLE">SHOW_PICTURE_IN_PROGRAM_TABLE</string>
+	    <string name="SHOW_PICTURE_IN_PROGRAM_TABLE" translatable="false">SHOW_PICTURE_IN_PROGRAM_TABLE</string>
 	    <item name="prog_table_show_pictures_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="SHOW_GENRE_IN_PROGRAM_TABLE">SHOW_GENRE_IN_PROGRAM_TABLE</string>
+	    <string name="SHOW_GENRE_IN_PROGRAM_TABLE" translatable="false">SHOW_GENRE_IN_PROGRAM_TABLE</string>
 	    <item name="prog_table_show_genre_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="SHOW_EPISODE_IN_PROGRAM_TABLE">SHOW_EPISODE_IN_PROGRAM_TABLE</string>
+	    <string name="SHOW_EPISODE_IN_PROGRAM_TABLE" translatable="false">SHOW_EPISODE_IN_PROGRAM_TABLE</string>
 	    <item name="prog_table_show_episode_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="SHOW_INFO_IN_PROGRAM_TABLE">SHOW_INFO_IN_PROGRAM_TABLE</string>
+	    <string name="SHOW_INFO_IN_PROGRAM_TABLE" translatable="false">SHOW_INFO_IN_PROGRAM_TABLE</string>
 	    <item name="prog_table_show_infos_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="SHOW_SORT_NUMBER_IN_PROGRAM_TABLE">SHOW_SORT_NUMBER_IN_PROGRAM_TABLE</string>
+	    <string name="SHOW_SORT_NUMBER_IN_PROGRAM_TABLE" translatable="false">SHOW_SORT_NUMBER_IN_PROGRAM_TABLE</string>
 	    <item name="show_sort_number_in_program_table_default" type="bool" format="boolean">true</item>
 	    
 	<!-- Program lists settings -->
 	
-	    <string name="CHANNEL_LOGO_NAME_PROGRAM_LISTS">CHANNEL_LOGO_NAME_PROGRAM_LISTS</string>
-	    <item name="channel_logo_name_program_lists_default" type="string" format="string">0</item>
+	    <string name="CHANNEL_LOGO_NAME_PROGRAM_LISTS" translatable="false">CHANNEL_LOGO_NAME_PROGRAM_LISTS</string>
+	    <item name="channel_logo_name_program_lists_default" type="string" format="string" translatable="false">0</item>
 	
-	    <string name="PREF_PROGRAM_LISTS_TEXT_SCALE">PREF_PROGRAM_LISTS_TEXT_SCALE</string>
-	    <item name="pref_program_lists_text_scale_default" type="string" format="string">1.0</item>
+	    <string name="PREF_PROGRAM_LISTS_TEXT_SCALE" translatable="false">PREF_PROGRAM_LISTS_TEXT_SCALE</string>
+	    <item name="pref_program_lists_text_scale_default" type="string" format="string" translatable="false">1.0</item>
 	    
-	    <string name="PREF_PROGRAM_LISTS_VERTICAL_PADDING_SIZE">PREF_PROGRAM_LISTS_PADDING_SIZE</string>
-	    <item name="pref_program_lists_vertical_padding_size_default" type="string" format="string">@string/divider_small</item>
+	    <string name="PREF_PROGRAM_LISTS_VERTICAL_PADDING_SIZE" translatable="false">PREF_PROGRAM_LISTS_PADDING_SIZE</string>
+	    <item name="pref_program_lists_vertical_padding_size_default" type="string" format="string" translatable="false">@string/divider_small</item>
 	    
-	    <string name="PREF_PROGRAM_LISTS_DIVIDER_SIZE">PREF_PROGRAM_LISTS_DIVIDER_SIZE</string>
-	    <item name="pref_program_lists_divider_size_default" type="string" format="string">@string/divider_tiny</item>
+	    <string name="PREF_PROGRAM_LISTS_DIVIDER_SIZE" translatable="false">PREF_PROGRAM_LISTS_DIVIDER_SIZE</string>
+	    <item name="pref_program_lists_divider_size_default" type="string" format="string" translatable="false">@string/divider_tiny</item>
 
-	    <string name="PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST">PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST</string>
+	    <string name="PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST" translatable="false">PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST</string>
 	    <item name="pref_program_lists_click_to_channel_to_list_default" type="bool" format="boolean">true</item>
 	    	    	    
-	    <string name="PREF_PROGRAM_LISTS_SHOW_END_TIME">PREF_PROGRAM_LISTS_SHOW_END_TIME</string>
+	    <string name="PREF_PROGRAM_LISTS_SHOW_END_TIME" translatable="false">PREF_PROGRAM_LISTS_SHOW_END_TIME</string>
 	    <item name="pref_program_lists_show_end_time_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="SHOW_PICTURE_IN_LISTS">SHOW_PICTURE_IN_LISTS</string>
+	    <string name="SHOW_PICTURE_IN_LISTS" translatable="false">SHOW_PICTURE_IN_LISTS</string>
 	    <item name="show_pictures_in_lists_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="SHOW_GENRE_IN_LISTS">SHOW_GENRE_IN_LISTS</string>
+	    <string name="SHOW_GENRE_IN_LISTS" translatable="false">SHOW_GENRE_IN_LISTS</string>
 	    <item name="show_genre_in_lists_default" type="bool" format="boolean">true</item>
 	    
-		<string name="SHOW_EPISODE_IN_LISTS">SHOW_EPISODE_IN_LISTS</string>
+		<string name="SHOW_EPISODE_IN_LISTS" translatable="false">SHOW_EPISODE_IN_LISTS</string>
 	    <item name="show_episode_in_lists_default" type="bool" format="boolean">true</item>
 		
-	    <string name="SHOW_INFO_IN_LISTS">SHOW_INFO_IN_LISTS</string>
+	    <string name="SHOW_INFO_IN_LISTS" translatable="false">SHOW_INFO_IN_LISTS</string>
 	    <item name="show_info_in_lists_default" type="bool" format="boolean">true</item>
 	    
-        <string name="SHOW_SORT_NUMBER_IN_LISTS">SHOW_SORT_NUMBER_IN_LISTS</string>
+        <string name="SHOW_SORT_NUMBER_IN_LISTS" translatable="false">SHOW_SORT_NUMBER_IN_LISTS</string>
 	    <item name="show_sort_number_in_lists_default" type="bool" format="boolean">true</item>
 	    
 	<!-- Detail settings -->
 	
-	    <string name="SHOW_PICTURE_IN_DETAILS">SHOW_PICTURE_IN_DETAILS</string>
+	    <string name="SHOW_PICTURE_IN_DETAILS" translatable="false">SHOW_PICTURE_IN_DETAILS</string>
     	<item name="show_picture_in_details_default" type="bool" format="boolean">true</item>
 
-    	<string name="DETAIL_PICTURE_DESCRIPTION_POSITION">DETAIL_PICTURE_DESCRIPTION_POSITION</string>
-    	<item name="detail_picture_description_position_default" type="string" format="string">0</item>
+    	<string name="DETAIL_PICTURE_DESCRIPTION_POSITION" translatable="false">DETAIL_PICTURE_DESCRIPTION_POSITION</string>
+    	<item name="detail_picture_description_position_default" type="string" format="string" translatable="false">0</item>
     		
-    	<string name="SHOW_SORT_NUMBER_IN_DETAILS">SHOW_SORT_NUMBER_IN_DETAILS</string>
+    	<string name="SHOW_SORT_NUMBER_IN_DETAILS" translatable="false">SHOW_SORT_NUMBER_IN_DETAILS</string>
 	    <item name="show_sort_number_in_details_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="DETAIL_TEXT_SCALE">DETAIL_TEXT_SCALE</string>
-	    <item name="detail_text_scale_default" type="string" format="string">1.0</item>
+	    <string name="DETAIL_TEXT_SCALE" translatable="false">DETAIL_TEXT_SCALE</string>
+	    <item name="detail_text_scale_default" type="string" format="string" translatable="false">1.0</item>
 	    
-	    <string name="DETAIL_PICTURE_ZOOM">DETAIL_PICTURE_ZOOM</string>
-	    <item name="detail_picture_zoom_default" type="string" format="string">1.4</item>
+	    <string name="DETAIL_PICTURE_ZOOM" translatable="false">DETAIL_PICTURE_ZOOM</string>
+	    <item name="detail_picture_zoom_default" type="string" format="string" translatable="false">1.4</item>
 
-	    <string name="SHOW_GENRE_IN_DETAILS">SHOW_GENRE_IN_DETAILS</string>
+	    <string name="SHOW_GENRE_IN_DETAILS" translatable="false">SHOW_GENRE_IN_DETAILS</string>
 	    <item name="show_genre_in_details_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="SHOW_EPISODE_IN_DETAILS">SHOW_EPISODE_IN_DETAILS</string>
+	    <string name="SHOW_EPISODE_IN_DETAILS" translatable="false">SHOW_EPISODE_IN_DETAILS</string>
 	    <item name="show_episode_in_details_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="SHOW_INFO_IN_DETAILS">SHOW_INFO_IN_DETAILS</string>
+	    <string name="SHOW_INFO_IN_DETAILS" translatable="false">SHOW_INFO_IN_DETAILS</string>
 	    <item name="show_info_in_details_default" type="bool" format="boolean">true</item>
 
-	    <string name="PREF_SHOW_ADDITIONAL_INFO_IN_DETAILS">PREF_SHOW_ADDITIONAL_INFO_IN_DETAILS</string>
+	    <string name="PREF_SHOW_ADDITIONAL_INFO_IN_DETAILS" translatable="false">PREF_SHOW_ADDITIONAL_INFO_IN_DETAILS</string>
 	    <item name="pref_show_additional_info_in_details_default" type="bool" format="boolean">true</item>
 	    	    
-	    <string name="PREF_DETAIL_ALLOW_SWIPE">PREF_DETAIL_ALLOW_SWIPE</string>
+	    <string name="PREF_DETAIL_ALLOW_SWIPE" translatable="false">PREF_DETAIL_ALLOW_SWIPE</string>
 	    <item name="pref_detail_allow_swipe" type="bool" format="boolean">true</item>
 
-	    <string name="PREF_DETAIL_HIGHLIGHT_COLOR">PREF_DETAIL_HIGHLIGHT_COLOR</string>
+	    <string name="PREF_DETAIL_HIGHLIGHT_COLOR" translatable="false">PREF_DETAIL_HIGHLIGHT_COLOR</string>
 	    <item name="pref_detail_highlight_color_default" type="color" format="color">#73FF0000</item>
 	    
 	    	    
 	    <!-- DETAIL OTHER INFORMATION PREFERENCES -->
 	    
-		    <string name="SHOW_LINK_IN_DETAILS">SHOW_LINK_IN_DETAILS</string>
+		    <string name="SHOW_LINK_IN_DETAILS" translatable="false">SHOW_LINK_IN_DETAILS</string>
 		    <item name="show_link_in_details_default" type="bool" format="boolean">true</item>
     		
 		    
    
 	<!-- Synchronization settings -->
 
-	    <string name="PREF_SYNC_FAV_TO_DESKTOP">PREF_SYNC_FAV_TO_DESKTOP</string>
+	    <string name="PREF_SYNC_FAV_TO_DESKTOP" translatable="false">PREF_SYNC_FAV_TO_DESKTOP</string>
 	    <item name="pref_sync_fav_to_desktop_default" type="bool" format="boolean">true</item>
 	
-	    <string name="PREF_SYNC_FAV_FROM_DESKTOP">PREF_SYNC_FAV_FROM_DESKTOP</string>
+	    <string name="PREF_SYNC_FAV_FROM_DESKTOP" translatable="false">PREF_SYNC_FAV_FROM_DESKTOP</string>
 	    <item name="pref_sync_fav_from_desktop_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_SYNC_REMINDERS_FROM_DESKTOP">PREF_SYNC_REMINDERS_FROM_DESKTOP</string>
+	    <string name="PREF_SYNC_REMINDERS_FROM_DESKTOP" translatable="false">PREF_SYNC_REMINDERS_FROM_DESKTOP</string>
 	    <item name="pref_sync_reminders_from_desktop_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_SYNC_REMINDERS_TO_DESKTOP">PREF_SYNC_REMINDERS_TO_DESKTOP</string>
+	    <string name="PREF_SYNC_REMINDERS_TO_DESKTOP" translatable="false">PREF_SYNC_REMINDERS_TO_DESKTOP</string>
 	    <item name="pref_sync_reminders_to_desktop_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_SYNC_MARKED_TO_DESKTOP">PREF_SYNC_MARKED_TO_DESKTOP</string>
+	    <string name="PREF_SYNC_MARKED_TO_DESKTOP" translatable="false">PREF_SYNC_MARKED_TO_DESKTOP</string>
 	    <item name="pref_sync_marked_to_desktop_default" type="bool" format="boolean">true</item>
 		
 	<!-- Additional information settings -->
 	
-		<string name="PREF_INFO_SHOW_BLACK_AND_WHITE">PREF_INFO_SHOW_BLACK_AND_WHITE</string>
-	    <string name="PREF_INFO_SHOW_FOUR_TO_THREE">PREF_INFO_SHOW_FOUR_TO_THREE</string>
-	    <string name="PREF_INFO_SHOW_SIXTEEN_TO_NINE">PREF_INFO_SHOW_SIXTEEN_TO_NINE</string>
-	    <string name="PREF_INFO_SHOW_MONO">PREF_INFO_SHOW_MONO</string>
-	    <string name="PREF_INFO_SHOW_STEREO">PREF_INFO_SHOW_STEREO</string>
-	    <string name="PREF_INFO_SHOW_DOLBY_SOURROUND">PREF_INFO_SHOW_DOLBY_SOURROUND</string>
-	    <string name="PREF_INFO_SHOW_DOLBY_DIGITAL">PREF_INFO_SHOW_DOLBY_DIGITAL</string>
-	    <string name="PREF_INFO_SHOW_SECOND_ADUIO_PROGRAM">PREF_INFO_SHOW_SECOND_ADUIO_PROGRAM</string>
-	    <string name="PREF_INFO_SHOW_CLOSED_CAPTION">PREF_INFO_SHOW_CLOSED_CAPTION</string>
-	    <string name="PREF_INFO_SHOW_LIVE">PREF_INFO_SHOW_LIVE</string>
-	    <string name="PREF_INFO_SHOW_OMU">PREF_INFO_SHOW_OMU</string>
-	    <string name="PREF_INFO_SHOW_FILM">PREF_INFO_SHOW_FILM</string>
-	    <string name="PREF_INFO_SHOW_SERIES">PREF_INFO_SHOW_SERIES</string>
-	    <string name="PREF_INFO_SHOW_NEW">PREF_INFO_SHOW_NEW</string>
-	    <string name="PREF_INFO_SHOW_AUDIO_DESCRIPTION">PREF_INFO_SHOW_AUDIO_DESCRIPTION</string>
-	    <string name="PREF_INFO_SHOW_NEWS">PREF_INFO_SHOW_NEWS</string>
-	    <string name="PREF_INFO_SHOW_SHOW">PREF_INFO_SHOW_SHOW</string>
-	    <string name="PREF_INFO_SHOW_MAGAZIN">PREF_INFO_SHOW_MAGAZIN</string>
-	    <string name="PREF_INFO_SHOW_HD">PREF_INFO_SHOW_HD</string>
-	    <string name="PREF_INFO_SHOW_DOCU">PREF_INFO_SHOW_DOCU</string>
-		<string name="PREF_INFO_SHOW_ART">PREF_INFO_SHOW_ART</string>
-		<string name="PREF_INFO_SHOW_SPORT">PREF_INFO_SHOW_SPORT</string>
-		<string name="PREF_INFO_SHOW_CHILDREN">PREF_INFO_SHOW_CHILDREN</string>
-		<string name="PREF_INFO_SHOW_OTHER">PREF_INFO_SHOW_OTHER</string>
-		<string name="PREF_INFO_SHOW_SIGN_LANGUAGE">PREF_INFO_SHOW_SIGN_LANGUAGE</string>
+		<string name="PREF_INFO_SHOW_BLACK_AND_WHITE" translatable="false">PREF_INFO_SHOW_BLACK_AND_WHITE</string>
+	    <string name="PREF_INFO_SHOW_FOUR_TO_THREE" translatable="false">PREF_INFO_SHOW_FOUR_TO_THREE</string>
+	    <string name="PREF_INFO_SHOW_SIXTEEN_TO_NINE" translatable="false">PREF_INFO_SHOW_SIXTEEN_TO_NINE</string>
+	    <string name="PREF_INFO_SHOW_MONO" translatable="false">PREF_INFO_SHOW_MONO</string>
+	    <string name="PREF_INFO_SHOW_STEREO" translatable="false">PREF_INFO_SHOW_STEREO</string>
+	    <string name="PREF_INFO_SHOW_DOLBY_SOURROUND" translatable="false">PREF_INFO_SHOW_DOLBY_SOURROUND</string>
+	    <string name="PREF_INFO_SHOW_DOLBY_DIGITAL" translatable="false">PREF_INFO_SHOW_DOLBY_DIGITAL</string>
+	    <string name="PREF_INFO_SHOW_SECOND_ADUIO_PROGRAM" translatable="false">PREF_INFO_SHOW_SECOND_ADUIO_PROGRAM</string>
+	    <string name="PREF_INFO_SHOW_CLOSED_CAPTION" translatable="false">PREF_INFO_SHOW_CLOSED_CAPTION</string>
+	    <string name="PREF_INFO_SHOW_LIVE" translatable="false">PREF_INFO_SHOW_LIVE</string>
+	    <string name="PREF_INFO_SHOW_OMU" translatable="false">PREF_INFO_SHOW_OMU</string>
+	    <string name="PREF_INFO_SHOW_FILM" translatable="false">PREF_INFO_SHOW_FILM</string>
+	    <string name="PREF_INFO_SHOW_SERIES" translatable="false">PREF_INFO_SHOW_SERIES</string>
+	    <string name="PREF_INFO_SHOW_NEW" translatable="false">PREF_INFO_SHOW_NEW</string>
+	    <string name="PREF_INFO_SHOW_AUDIO_DESCRIPTION" translatable="false">PREF_INFO_SHOW_AUDIO_DESCRIPTION</string>
+	    <string name="PREF_INFO_SHOW_NEWS" translatable="false">PREF_INFO_SHOW_NEWS</string>
+	    <string name="PREF_INFO_SHOW_SHOW" translatable="false">PREF_INFO_SHOW_SHOW</string>
+	    <string name="PREF_INFO_SHOW_MAGAZIN" translatable="false">PREF_INFO_SHOW_MAGAZIN</string>
+	    <string name="PREF_INFO_SHOW_HD" translatable="false">PREF_INFO_SHOW_HD</string>
+	    <string name="PREF_INFO_SHOW_DOCU" translatable="false">PREF_INFO_SHOW_DOCU</string>
+		<string name="PREF_INFO_SHOW_ART" translatable="false">PREF_INFO_SHOW_ART</string>
+		<string name="PREF_INFO_SHOW_SPORT" translatable="false">PREF_INFO_SHOW_SPORT</string>
+		<string name="PREF_INFO_SHOW_CHILDREN" translatable="false">PREF_INFO_SHOW_CHILDREN</string>
+		<string name="PREF_INFO_SHOW_OTHER" translatable="false">PREF_INFO_SHOW_OTHER</string>
+		<string name="PREF_INFO_SHOW_SIGN_LANGUAGE" translatable="false">PREF_INFO_SHOW_SIGN_LANGUAGE</string>
 	    <item name="pref_info_show_default" type="bool" format="boolean">true</item>
 	
 	<!-- I don't want to see settings -->
-		<string name="PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE">PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE</string>
-		<item name="pref_i_dont_want_to_see_filter_type_default" type="string" format="string">0</item>
+		<string name="PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE" translatable="false">PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE</string>
+		<item name="pref_i_dont_want_to_see_filter_type_default" type="string" format="string" translatable="false">0</item>
 	    
-		<string name="PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR">PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR</string>
+		<string name="PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR" translatable="false">PREF_I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR</string>
 		
 	<!-- Debugging settings -->
     
-    	<string name="WRITE_DATA_UPDATE_LOG">WRITE_LOG</string>
+    	<string name="WRITE_DATA_UPDATE_LOG" translatable="false">WRITE_LOG</string>
 	    <item name="write_data_update_log_default" type="bool" format="boolean">false</item>
     	
-	    <string name="WRITE_REMINDER_LOG">WRITE_REMINDER_LOG</string>
+	    <string name="WRITE_REMINDER_LOG" translatable="false">WRITE_REMINDER_LOG</string>
 	    <item name="write_reminder_log_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="REMINDER_LOG_LAST_POS">REMINDER_LOG_LAST_POS</string>
+	    <string name="REMINDER_LOG_LAST_POS" translatable="false">REMINDER_LOG_LAST_POS</string>
 	    <item name="log_last_pos_default" type="integer" format="integer">0</item>
     
-	    <string name="LOG_WRITE_PLUGIN_LOG">LOG_WRITE_PLUGIN_LOG</string>
+	    <string name="LOG_WRITE_PLUGIN_LOG" translatable="false">LOG_WRITE_PLUGIN_LOG</string>
 	    <item name="log_write_plugin_log_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="LOG_PLUGIN_LAST_POST">LOG_PLUGIN_LAST_POST</string>
+	    <string name="LOG_PLUGIN_LAST_POST" translatable="false">LOG_PLUGIN_LAST_POST</string>
 	    
 	    <!-- Miscelangelous settings -->
     
-	    <string name="OLD_VERSION">OLD_VERSION</string>
+	    <string name="OLD_VERSION" translatable="false">OLD_VERSION</string>
 	    <item name="old_version_default" type="integer" format="integer">166</item>
     
-    	<string name="I_DONT_WANT_TO_SEE_ENTRIES">I_DONT_WANT_TO_SEE_ENTRIES</string>
+    	<string name="I_DONT_WANT_TO_SEE_ENTRIES" translatable="false">I_DONT_WANT_TO_SEE_ENTRIES</string>
     	
-	    <string name="LAST_DATA_UPDATE">LAST_DATA_UPDATE</string>
+	    <string name="LAST_DATA_UPDATE" translatable="false">LAST_DATA_UPDATE</string>
 	    <item name="last_data_update_default" type="integer" format="integer">0</item>
 		
-		<string name="META_DATA_DATE_FIRST_KNOWN">META_DATA_DATE_FIRST_KNOWN</string>
-	    <string name="META_DATA_DATE_LAST_KNOWN">META_DATA_DATE_LAST_KNOWN</string>
+		<string name="META_DATA_DATE_FIRST_KNOWN" translatable="false">META_DATA_DATE_FIRST_KNOWN</string>
+	    <string name="META_DATA_DATE_LAST_KNOWN" translatable="false">META_DATA_DATE_LAST_KNOWN</string>
 	    <item name="meta_data_date_known_default" type="integer" format="integer">0</item>
 	    
-	    <string name="META_DATA_ID_FIRST_KNOWN">META_DATA_ID_FIRST_KNOWN</string>
-	    <string name="META_DATA_ID_LAST_KNOWN">META_DATA_ID_LAST_KNOWN</string>
+	    <string name="META_DATA_ID_FIRST_KNOWN" translatable="false">META_DATA_ID_FIRST_KNOWN</string>
+	    <string name="META_DATA_ID_LAST_KNOWN" translatable="false">META_DATA_ID_LAST_KNOWN</string>
 	    <item name="meta_data_id_default" type="integer" format="integer">-1</item>
 	    
-	    <string name="CHANNELS_SELECTED">CHANNELS_SELECTED</string>
+	    <string name="CHANNELS_SELECTED" translatable="false">CHANNELS_SELECTED</string>
 	    <item name="channels_selected_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="PREF_RUNNING_TIME">PREF_RUNNING_TIME</string>
+	    <string name="PREF_RUNNING_TIME" translatable="false">PREF_RUNNING_TIME</string>
     	<item name="pref_running_time_default" type="integer" format="integer">0</item>
     
-	    <string name="PREF_RATING_DONATION_INFO_SHOWN">PREF_RATING_DONATION_INFO_SHOWN</string>
+	    <string name="PREF_RATING_DONATION_INFO_SHOWN" translatable="false">PREF_RATING_DONATION_INFO_SHOWN</string>
 	    <item name="pref_rating_donation_info_shown_default" type="bool" format="boolean">false</item>
 	    
-	    <string name="AUTO_UPDATE_CURRENT_START_TIME">AUTO_UPDATE_CURRENT_START_TIME</string>
+	    <string name="AUTO_UPDATE_CURRENT_START_TIME" translatable="false">AUTO_UPDATE_CURRENT_START_TIME</string>
 	    <item name="auto_update_current_start_time_default" type="integer" format="integer">0</item>
 	    
-	    <string name="CURRENT_FILTER_ID">CURRENT_FILTER_ID</string>
+	    <string name="CURRENT_FILTER_ID" translatable="false">CURRENT_FILTER_ID</string>
 	    
-	    <string name="NEWS_DATE_LAST_KNOWN">NEWS_DATE_LAST_KNOWN</string>
-	    <string name="NEWS_DATE_LAST_DOWNLOAD">NEWS_DATE_LAST_DOWNLOAD</string>
-	    <string name="NEWS_DATE_LAST_SHOWN">NEWS_DATE_LAST_SHOWN</string>
-	    <string name="NEWS_TEXT">NEWS_TEXT</string>
+	    <string name="NEWS_DATE_LAST_KNOWN" translatable="false">NEWS_DATE_LAST_KNOWN</string>
+	    <string name="NEWS_DATE_LAST_DOWNLOAD" translatable="false">NEWS_DATE_LAST_DOWNLOAD</string>
+	    <string name="NEWS_DATE_LAST_SHOWN" translatable="false">NEWS_DATE_LAST_SHOWN</string>
+	    <string name="NEWS_TEXT" translatable="false">NEWS_TEXT</string>
 	    
-	    <string name="PREF_NEWS_SHOW">PREF_NEWS_SHOW</string>
+	    <string name="PREF_NEWS_SHOW" translatable="false">PREF_NEWS_SHOW</string>
 	    <item name="pref_news_show_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_NEWS_TYPE">PREF_NEWS_TYPE</string>
-	    <item name="pref_news_type_default" type="string" format="string">@string/pref_news_type_android</item>
+	    <string name="PREF_NEWS_TYPE" translatable="false">PREF_NEWS_TYPE</string>
+	    <item name="pref_news_type_default" type="string" format="string" translatable="false">@string/pref_news_type_android</item>
 	    
-	    <string name="PREF_INFO_VERSION_UPDATE_SHOW">PREF_INFO_VERSION_UPDATE_SHOW</string>
+	    <string name="PREF_INFO_VERSION_UPDATE_SHOW" translatable="false">PREF_INFO_VERSION_UPDATE_SHOW</string>
 	    <item name="pref_info_version_update_show_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_LAST_KNOWN_DATA_DATE">PREF_LAST_KNOWN_DATA_DATE</string>
+	    <string name="PREF_LAST_KNOWN_DATA_DATE" translatable="false">PREF_LAST_KNOWN_DATA_DATE</string>
 	    
-	    <string name="PREF_WARNING_TIMEZONE_SHOW">PREF_WARNING_TIMEZONE_SHOW</string>
+	    <string name="PREF_WARNING_TIMEZONE_SHOW" translatable="false">PREF_WARNING_TIMEZONE_SHOW</string>
 	    <item name="pref_warning_timezone_show_default" type="bool" format="boolean">true</item>
 	    
 	<!-- Widgets layout settings -->
-	    <string name="PREF_WIDGET_VERTICAL_PADDING_SIZE">PREF_WIDGET_VERTICAL_PADDING_SIZE</string>
-	    <item name="pref_widget_vertical_padding_size_default" type="string" format="string">@string/divider_small</item>
+	    <string name="PREF_WIDGET_VERTICAL_PADDING_SIZE" translatable="false">PREF_WIDGET_VERTICAL_PADDING_SIZE</string>
+	    <item name="pref_widget_vertical_padding_size_default" type="string" format="string" translatable="false">@string/divider_small</item>
 
-	    <string name="PREF_WIDGET_LISTS_DIVIDER_SIZE">PREF_WIDGET_LISTS_DIVIDER_SIZE</string>
-	    <item name="pref_widget_lists_divider_size_default" type="string" format="string">@string/divider_tiny</item>
+	    <string name="PREF_WIDGET_LISTS_DIVIDER_SIZE" translatable="false">PREF_WIDGET_LISTS_DIVIDER_SIZE</string>
+	    <item name="pref_widget_lists_divider_size_default" type="string" format="string" translatable="false">@string/divider_tiny</item>
 	    
-	    <string name="PREF_WIDGET_CHANNEL_LOGO_NAME">PREF_WIDGET_CHANNEL_LOGO_NAME</string>
-	    <item name="pref_widget_channel_logo_name_default" type="string" format="string">0</item>
+	    <string name="PREF_WIDGET_CHANNEL_LOGO_NAME" translatable="false">PREF_WIDGET_CHANNEL_LOGO_NAME</string>
+	    <item name="pref_widget_channel_logo_name_default" type="string" format="string" translatable="false">0</item>
 	    
-	    <string name="PREF_WIDGET_SHOW_SORT_NUMBER">PREF_WIDGET_SHOW_SORT_NUMBER</string>
+	    <string name="PREF_WIDGET_SHOW_SORT_NUMBER" translatable="false">PREF_WIDGET_SHOW_SORT_NUMBER</string>
 	    <item name="pref_widget_show_sort_number_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_WIDGET_SHOW_EPISODE">PREF_WIDGET_SHOW_EPISODE</string>
+	    <string name="PREF_WIDGET_SHOW_EPISODE" translatable="false">PREF_WIDGET_SHOW_EPISODE</string>
 	    <item name="pref_widget_show_episode_default" type="bool" format="boolean">true</item>
 
-	    <string name="PREF_WIDGET_SHOW_CATEGORIES">PREF_WIDGET_SHOW_CATEGORIES</string>
+	    <string name="PREF_WIDGET_SHOW_CATEGORIES" translatable="false">PREF_WIDGET_SHOW_CATEGORIES</string>
 	    <item name="pref_widget_show_categories_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_WIDGET_SHOW_MARKINGS">PREF_WIDGET_SHOW_MARKINGS</string>
+	    <string name="PREF_WIDGET_SHOW_MARKINGS" translatable="false">PREF_WIDGET_SHOW_MARKINGS</string>
 	    <item name="pref_widget_show_markings_default" type="bool" format="boolean">true</item>
 	    
-	    <string name="PREF_WIDGET_TEXT_SCALE">PREF_WIDGET_TEXT_SCALE</string>
-	    <item name="pref_widget_text_scale_default" type="string" format="string">1.0</item>
+	    <string name="PREF_WIDGET_TEXT_SCALE" translatable="false">PREF_WIDGET_TEXT_SCALE</string>
+	    <item name="pref_widget_text_scale_default" type="string" format="string" translatable="false">1.0</item>
 	    
-	    <string name="PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST">PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST</string>
+	    <string name="PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST" translatable="false">PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST</string>
     	<item name="pref_widget_click_to_channel_to_list_default" type="bool" format="boolean">true</item>
 
-    	<string name="PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS">PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS</string>
+    	<string name="PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS" translatable="false">PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS</string>
     	<item name="pref_widget_background_rounded_corners_default" type="bool" format="boolean">false</item>
     	
-    	<string name="PREF_WIDGET_COLOR_CHANNEL">PREF_WIDGET_COLOR_CHANNEL</string>
-    	<string name="PREF_WIDGET_COLOR_DATE">PREF_WIDGET_COLOR_DATE</string>
-    	<string name="PREF_WIDGET_COLOR_TIME">PREF_WIDGET_COLOR_TIME</string>
-    	<item name="pref_widget_color_time_default" type="string" format="string">true;-5850113</item>
-    	<string name="PREF_WIDGET_COLOR_TITLE">PREF_WIDGET_COLOR_TITLE</string>
-    	<item name="pref_widget_color_title_default" type="string" format="string">true;-1</item>
-    	<string name="PREF_WIDGET_COLOR_CATEGORY">PREF_WIDGET_COLOR_CATEGORY</string>
-    	<string name="PREF_WIDGET_COLOR_EPISODE">PREF_WIDGET_COLOR_EPISODE</string>
+    	<string name="PREF_WIDGET_COLOR_CHANNEL" translatable="false">PREF_WIDGET_COLOR_CHANNEL</string>
+    	<string name="PREF_WIDGET_COLOR_DATE" translatable="false">PREF_WIDGET_COLOR_DATE</string>
+    	<string name="PREF_WIDGET_COLOR_TIME" translatable="false">PREF_WIDGET_COLOR_TIME</string>
+    	<item name="pref_widget_color_time_default" type="string" format="string" translatable="false">true;-5850113</item>
+    	<string name="PREF_WIDGET_COLOR_TITLE" translatable="false">PREF_WIDGET_COLOR_TITLE</string>
+    	<item name="pref_widget_color_title_default" type="string" format="string" translatable="false">true;-1</item>
+    	<string name="PREF_WIDGET_COLOR_CATEGORY" translatable="false">PREF_WIDGET_COLOR_CATEGORY</string>
+    	<string name="PREF_WIDGET_COLOR_EPISODE" translatable="false">PREF_WIDGET_COLOR_EPISODE</string>
     		
     <!-- 	<string name="PREF_WIDGET_BACKGROUND_TRANSPARENCY">PREF_WIDGET_BACKGROUND_TRANSPARENCY</string>
     	<item name="pref_widget_background_transparency_default" type="bool" format="boolean">true</item>
     	 -->
-    	<string name="PREF_WIDGET_BACKGROUND_TRANSPARENCY_HEADER">PREF_WIDGET_BACKGROUND_TRANSPARENCY_HEADER</string>
-    	<item name="pref_widget_background_transparency_header_default" type="string" format="string">3</item>
+    	<string name="PREF_WIDGET_BACKGROUND_TRANSPARENCY_HEADER" translatable="false">PREF_WIDGET_BACKGROUND_TRANSPARENCY_HEADER</string>
+    	<item name="pref_widget_background_transparency_header_default" type="string" format="string" translatable="false">3</item>
     	
-    	<string name="PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST">PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST</string>
-    	<item name="pref_widget_background_transparency_list_default" type="string" format="string">2</item>
+    	<string name="PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST" translatable="false">PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST</string>
+    	<item name="pref_widget_background_transparency_list_default" type="string" format="string" translatable="false">2</item>
     		
-    	<string name="PREF_WIDGET_SIMPLE_ICON">PREF_WIDGET_SIMPLE_ICON</string>
+    	<string name="PREF_WIDGET_SIMPLE_ICON" translatable="false">PREF_WIDGET_SIMPLE_ICON</string>
     	<item name="pref_widget_simple_icon_default" type="bool" format="boolean">false</item>
     	
     	<!-- EPGdonate keys -->
-    	<string name="EPG_DONATE_CURRENT_DONATION_PERCENT">EPG_DONATE_CURRENT_DONATION_PERCENT</string>
-    	<item name="epg_donate_current_donation_percent_default" type="string" format="string">-1</item>
+    	<string name="EPG_DONATE_CURRENT_DONATION_PERCENT" translatable="false">EPG_DONATE_CURRENT_DONATION_PERCENT</string>
+    	<item name="epg_donate_current_donation_percent_default" type="string" format="string" translatable="false">-1</item>
     	
-    	<string name="EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX">EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX</string>
+    	<string name="EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX" translatable="false">EPG_DONATE_CURRENT_DONATION_AMOUNT_PREFIX</string>
     	<item name="epg_donate_current_donation_amount_default" type="string" format="string">3\u20AC</item>
     	
-    	<string name="EPG_DONATE_LAST_DONATION_INFO_SHOWN">EPG_DONATE_LAST_DONATION_INFO_SHOWN</string>
-    	<string name="EPG_DONATE_DONT_SHOW_AGAIN_YEAR">EPG_DONATE_DONT_SHOW_AGAIN_YEAR</string>
-    	<string name="EPG_DONATE_FIRST_DATA_DOWNLOAD">EPG_DONATE_FIRST_DATA_DOWNLOAD</string>
-    	<string name="EPG_DONATE_LAST_DATA_DOWNLOAD">EPG_DONATE_LAST_DATA_DOWNLOAD</string>
+    	<string name="EPG_DONATE_LAST_DONATION_INFO_SHOWN" translatable="false">EPG_DONATE_LAST_DONATION_INFO_SHOWN</string>
+    	<string name="EPG_DONATE_DONT_SHOW_AGAIN_YEAR" translatable="false">EPG_DONATE_DONT_SHOW_AGAIN_YEAR</string>
+    	<string name="EPG_DONATE_FIRST_DATA_DOWNLOAD" translatable="false">EPG_DONATE_FIRST_DATA_DOWNLOAD</string>
+    	<string name="EPG_DONATE_LAST_DATA_DOWNLOAD" translatable="false">EPG_DONATE_LAST_DATA_DOWNLOAD</string>
     	
     	<!-- Plugin keys -->
-    	<string name="PLUGIN_LAST_ID_INFO_DATE">PLUGIN_LAST_ID_INFO_DATE</string>
-    	<string name="PLUGIN_INFO_SHOWN">PLUGIN_INFO_SHOWN</string>
+    	<string name="PLUGIN_LAST_ID_INFO_DATE" translatable="false">PLUGIN_LAST_ID_INFO_DATE</string>
+    	<string name="PLUGIN_INFO_SHOWN" translatable="false">PLUGIN_INFO_SHOWN</string>
     	
     	
 </resources>

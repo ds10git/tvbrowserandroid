@@ -7,7 +7,7 @@
     <item name="favorite_list_weight" format="float" type="dimen">0.75</item>
     <item name="favorite_program_weight" format="float" type="dimen">0.25</item>
     <item name="prog_table_default" type="bool" format="boolean">false</item>
-    <item name="pref_favorite_tab_layout_default" type="string" format="string">1</item>
+    <item name="pref_favorite_tab_layout_default" type="string" format="string" translatable="false">1</item>
     <dimen name="detail_padding_left_right">14dp</dimen>
     <dimen name="detail_padding_top_bottom">8dp</dimen>
     <dimen name="running_bar_height">48dp</dimen>
