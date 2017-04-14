@@ -116,10 +116,10 @@
         <item>@string/radio</item>
         <item>@string/cinema</item>
     </string-array>
-    <string name="divider_tiny">1</string>
-    <string name="divider_small">5</string>
-    <string name="divider_medium">10</string>
-    <string name="divider_big">20</string>
+    <string name="divider_tiny" translatable="false">1</string>
+    <string name="divider_small" translatable="false">5</string>
+    <string name="divider_medium" translatable="false">10</string>
+    <string name="divider_big" translatable="false">20</string>
     <string-array name="divider_values">
         <item>@string/divider_tiny</item>
         <item>@string/divider_small</item>
