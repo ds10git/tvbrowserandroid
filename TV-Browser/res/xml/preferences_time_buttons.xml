@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tvb="http://schemas.android.com/apk/res/org.tvbrowser.tvbrowser" >
+    xmlns:tvb="http://schemas.android.com/apk/res-auto" >
     <org.tvbrowser.settings.NumberPreference
          android:key="@string/TIME_BUTTON_COUNT"
          android:defaultValue="@integer/time_button_count_default"

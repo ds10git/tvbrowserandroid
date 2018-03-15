@@ -7,7 +7,6 @@ android {
     defaultConfig {
         applicationId "org.tvbrowser.tvbrowser"
         minSdkVersion 14
-        //noinspection OldTargetApi
         targetSdkVersion 27
 	    versionCode 411
 	    versionName "0.6.4"
@@ -18,6 +17,8 @@ android {
 		    debuggable true
 		    minifyEnabled false
 		    proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+		    versionNameSuffix "-debug"
+		    applicationIdSuffix ".debug"
 	    }
         release {
             minifyEnabled true
@@ -31,12 +32,14 @@ android {
 
 		free {
 			dimension "default"
-			//versionNameSuffix "-google"
-			//applicationIdSuffix ".google"
+			versionNameSuffix ""
+			applicationIdSuffix ""
 		}
 		
 		google {
 			dimension "default"
+			versionNameSuffix "-play"
+			applicationIdSuffix ".play"
 		}
 	}
 
@@ -89,6 +92,5 @@ android {
 }
 
 dependencies {
-	//noinspection GradleDependency
 	implementation 'com.android.support:appcompat-v7:27.1.0'
 }

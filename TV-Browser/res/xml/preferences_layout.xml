@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-                  xmlns:tvb="http://schemas.android.com/apk/res/org.tvbrowser.tvbrowser" >
+                  xmlns:tvb="http://schemas.android.com/apk/res-auto" >
 	<CheckBoxPreference android:key="@string/DARK_STYLE"
 	        android:title="@string/dark_theme"
 	        android:summary="@string/dark_theme_summary"

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tvb="http://schemas.android.com/apk/res/org.tvbrowser.tvbrowser" >
+    xmlns:tvb="http://schemas.android.com/apk/res-auto" >
     <ListPreference
         android:title="@string/pref_i_dont_want_to_see_filter_type"
         android:key="@string/PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE"
