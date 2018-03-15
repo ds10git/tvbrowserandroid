@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package billing.util;
+package com.android.vending.billing.util;
 
 import android.text.TextUtils;
 import android.util.Log;

@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 	<LinearLayout
 	    android:id="@id/donation_in_app_layout"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:orientation="vertical" >
+	    android:padding="?dialogPreferredPadding"
+	    android:orientation="vertical">
 	    <TextView
 	        android:id="@id/donation_thanks"
 	        android:text="@string/donation_thanks_text"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:textSize="18sp"
-	        android:layout_margin="5dp"
-	        android:layout_marginBottom="10dp"/>
+	        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+	        android:layout_marginBottom="8dp"/>
 	</LinearLayout>
 </ScrollView>

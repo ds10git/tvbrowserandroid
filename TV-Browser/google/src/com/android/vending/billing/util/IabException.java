@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package billing.util;
+package com.android.vending.billing.util;
 
 /**
  * Exception thrown when something went wrong with in-app billing.

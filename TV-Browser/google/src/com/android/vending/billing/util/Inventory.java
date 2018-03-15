@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package billing.util;
+package com.android.vending.billing.util;
 
 import java.util.ArrayList;
 import java.util.HashMap;

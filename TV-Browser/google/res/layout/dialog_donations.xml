@@ -1,46 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 	<LinearLayout
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
-	    android:orientation="vertical" >
+	    android:orientation="vertical"
+	    android:padding="?dialogPreferredPadding">
 	    <TextView
 	        android:id="@id/donation_in_app_text"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:text="@string/donation_info_inapp"
-	        android:textSize="18sp"
-	        android:layout_marginLeft="5dp"
-		    android:layout_marginRight="5dp"
-		    android:layout_marginBottom="5dp"/>
+	        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+	        android:layout_marginBottom="8dp"
+	        android:text="@string/donation_info_inapp"/>
 		<Button
 		    android:id="@id/donation_in_app_button"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
-		    android:text="@string/donation_open_inapp"
-		    android:textSize="22sp"
-		    android:layout_marginLeft="5dp"
-		    android:layout_marginRight="5dp"
-		    android:layout_marginBottom="10dp"
-		    />
+		    android:text="@string/donation_open_inapp"/>
 		<TextView
 	        android:id="@id/donation_show_ways"
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
-	        android:text="@string/donation_info_website"
-	        android:textSize="18sp"
-	        android:layout_margin="5dp"/>
+	        android:layout_marginTop="?dialogPreferredPadding"
+	        android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
+	        android:layout_marginBottom="8dp"
+	        android:text="@string/donation_info_website"/>
 		<Button
 		    android:id="@id/donation_website_button"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
-		    android:text="@string/donation_open_website"
-		    android:textSize="22sp"
-		    android:layout_marginLeft="5dp"
-		    android:layout_marginRight="5dp"
-		    android:layout_marginBottom="10dp"
-		    />
+		    android:text="@string/donation_open_website"/>
 	</LinearLayout>
 </ScrollView>

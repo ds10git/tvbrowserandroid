@@ -13,7 +13,7 @@
  * limitations under the License.
  */
 
-package billing.util;
+package com.android.vending.billing.util;
 
 import android.app.Activity;
 import android.app.PendingIntent;
