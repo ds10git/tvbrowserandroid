@@ -1,33 +1,29 @@
 apply plugin: 'com.android.application'
 
 android {
-
-    compileSdkVersion 27
-
-    defaultConfig {
-        applicationId "org.tvbrowser.tvbrowser"
-        minSdkVersion 14
-        targetSdkVersion 27
-	    versionCode 411
-	    versionName "0.6.4"
-    }
-
-    buildTypes {
-	    debug {
-		    debuggable true
-		    minifyEnabled false
-		    proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
-		    versionNameSuffix "-debug"
-		    applicationIdSuffix ".debug"
-	    }
-        release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
-        }
-    }
-
+	compileSdkVersion 27
+	defaultConfig {
+		applicationId "org.tvbrowser.tvbrowser"
+		minSdkVersion 14
+		targetSdkVersion 27
+		versionCode 411
+		versionName "0.6.4"
+		vectorDrawables.useSupportLibrary = true
+	}
+	buildTypes {
+		debug {
+			debuggable true
+			minifyEnabled false
+			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+			versionNameSuffix "-debug"
+			applicationIdSuffix ".debug"
+		}
+		release {
+			minifyEnabled true
+			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+		}
+	}
 	flavorDimensions "default"
-
 	productFlavors {
 
 		free {
@@ -35,24 +31,23 @@ android {
 			versionNameSuffix ""
 			applicationIdSuffix ""
 		}
-		
+
 		google {
 			dimension "default"
 			versionNameSuffix "-play"
 			applicationIdSuffix ".play"
 		}
 	}
-
 	sourceSets {
-        main {
-            manifest.srcFile 'AndroidManifest.xml'
-            java.srcDirs = ['src']
-            resources.srcDirs = ['src']
-            aidl.srcDirs = ['src']
-            renderscript.srcDirs = ['src']
-            res.srcDirs = ['res']
-            assets.srcDirs = ['assets']
-        }
+		main {
+			manifest.srcFile 'AndroidManifest.xml'
+			java.srcDirs = ['src']
+			resources.srcDirs = ['src']
+			aidl.srcDirs = ['src']
+			renderscript.srcDirs = ['src']
+			res.srcDirs = ['res']
+			assets.srcDirs = ['assets']
+		}
 
 		free {
 			manifest.srcFile 'free/AndroidManifest.xml'
@@ -63,7 +58,7 @@ android {
 			res.srcDirs = ['free/res']
 			assets.srcDirs = ['free/assets']
 		}
-		
+
 		google {
 			manifest.srcFile 'google/AndroidManifest.xml'
 			java.srcDirs = ['google/src']
@@ -75,14 +70,11 @@ android {
 		}
 
 		androidTest.setRoot('androidTest')
-        instrumentTest.setRoot('instrumentTest')
-    }
-
+	}
 	compileOptions {
 		sourceCompatibility JavaVersion.VERSION_1_8
 		targetCompatibility JavaVersion.VERSION_1_8
 	}
-
 	lintOptions {
 		checkReleaseBuilds true
 		// Or, if you prefer, you can continue to check for errors in release builds,
@@ -92,5 +84,7 @@ android {
 }
 
 dependencies {
-	implementation 'com.android.support:appcompat-v7:27.1.0'
+	implementation 'com.android.support:appcompat-v7:27.1.1'
+	implementation 'com.android.support:support-vector-drawable:27.1.1'
+	implementation 'com.android.support:design:27.1.1'
 }

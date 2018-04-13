@@ -60,8 +60,10 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 	}
 
 	void onDestroy() {
-		iabHelper.dispose();
-		iabHelper = null;
+		if (iabHelper!=null) {
+			iabHelper.dispose();
+			iabHelper = null;
+		}
 	}
 
 	private void showInAppDonations(final Inventory inv) {
@@ -214,21 +216,23 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 
 	private void listPurchaseItems() {
 		try {
-			iabHelper.queryInventoryAsync(true, SKU_LIST, new QueryInventoryFinishedListener() {
-				@Override
-				public void onQueryInventoryFinished(IabResult result, final Inventory inv) {
-					if (result.isFailure()) {
-						showInAppError();
-					} else {
-						tvBrowser.getHandler().post(new Runnable() {
-							@Override
-							public void run() {
-								showInAppDonations(inv);
-							}
-						});
+			if (iabHelper!=null) {
+				iabHelper.queryInventoryAsync(true, SKU_LIST, new QueryInventoryFinishedListener() {
+					@Override
+					public void onQueryInventoryFinished(IabResult result, final Inventory inv) {
+						if (result.isFailure()) {
+							showInAppError();
+						} else {
+							tvBrowser.getHandler().post(new Runnable() {
+								@Override
+								public void run() {
+									showInAppDonations(inv);
+								}
+							});
+						}
 					}
-				}
-			});
+				});
+			}
 		} catch (IllegalStateException e) {
 			showInAppError();
 		}

@@ -21,6 +21,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.Locale;
 
+import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.Program;
 import org.tvbrowser.settings.SettingConstants;
@@ -29,7 +30,6 @@ import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
 
-import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -188,7 +188,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
         assert values != null;
         Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Tried to load program with given ID, cursor size: " + values.getCount(), Logging.TYPE_REMINDER, context);
         if(values.moveToFirst()) {
-          NotificationCompat.Builder builder = new NotificationCompat.Builder(context);
+          final NotificationCompat.Builder builder = new NotificationCompat.Builder(context, App.get().notificationChannelId());
           
           // high priority notification
           builder.setPriority(priority);
@@ -279,10 +279,12 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
             startInfo.setAction("actionstring" + System.currentTimeMillis());
             
             builder.setContentIntent(PendingIntent.getActivity(context, 0, startInfo, 0));
-            Notification notification = builder.build();
             
             Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Create notification with intent: " + startInfo, Logging.TYPE_REMINDER, context);
-            ((NotificationManager)context.getSystemService(Context.NOTIFICATION_SERVICE)).notify(title,(int)(startTime / 60000), notification);
+            final NotificationManager notificationManager = (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+            if (notificationManager != null) {
+              notificationManager.notify(title,(int)(startTime / 60000), builder.build());
+            }
             Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Notification was send.", Logging.TYPE_REMINDER, context);
             
             Intent broadcastProgram = new Intent(SettingConstants.PROGRAM_REMINDED_FOR);

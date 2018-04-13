@@ -76,7 +76,7 @@ public class PreferenceColorActivated extends DialogPreference {
       mColor = mDefaultColor = -16777216;
     }
     
-    String xmlns = "http://schemas.android.com/apk/res/org.tvbrowser.tvbrowser";
+    String xmlns = "http://schemas.android.com/apk/res-auto";
     
     mAlwaysActivated = attrs.getAttributeBooleanValue(xmlns, "alwaysActivated", false);
     

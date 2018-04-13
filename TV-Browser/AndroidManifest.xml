@@ -2,13 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     package="org.tvbrowser.tvbrowser"
-    android:installLocation="internalOnly"
-    android:versionCode="411"
-    android:versionName="0.6.4" >
-
-    <uses-sdk
-        android:minSdkVersion="11"
-        android:targetSdkVersion="22" />
+    android:installLocation="internalOnly">
 
     <permission
         android:name="org.tvbrowser.permission.BIND_PLUGIN"
@@ -32,6 +26,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name"
         android:largeHeap="true"
+        android:name="org.tvbrowser.App"
         android:theme="@style/AppDarkTheme" >
         <meta-data
             android:name="android.app.default_searchable"
@@ -63,10 +58,8 @@
             android:windowSoftInputMode="stateUnspecified|adjustPan" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
@@ -90,10 +83,8 @@
             android:launchMode="singleTop" >
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
@@ -199,7 +190,6 @@
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
             </intent-filter>
-
             <meta-data
                 android:name="android.appwidget.provider"
                 android:resource="@xml/widget_toggle_reminder_state" />

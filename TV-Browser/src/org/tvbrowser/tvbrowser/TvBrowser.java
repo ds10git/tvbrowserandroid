@@ -42,6 +42,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
+import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
