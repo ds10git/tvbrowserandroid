@@ -42,8 +42,8 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
+import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.devplugin.PluginDefinition;
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.filter.ActivityFilterListEdit;
@@ -128,11 +128,9 @@ import android.text.Spanned;
 import android.text.TextUtils;
 import android.text.format.DateFormat;
 import android.text.method.LinkMovementMethod;
-import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 import android.text.style.ReplacementSpan;
-import android.text.style.URLSpan;
 import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
@@ -164,12 +162,6 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
 import android.widget.Toast;
-import billing.util.IabHelper;
-import billing.util.IabHelper.QueryInventoryFinishedListener;
-import billing.util.IabResult;
-import billing.util.Inventory;
-import billing.util.Purchase;
-import billing.util.SkuDetails;
 
 import com.example.android.listviewdragginganimation.DynamicListView;
 import com.example.android.listviewdragginganimation.StableArrayAdapter;
@@ -184,7 +176,7 @@ public class TvBrowser extends AppCompatActivity implements
   
   private static final int SHOW_PREFERENCES = 1;
   private static final int OPEN_FILTER_EDIT = 2;
-  private static final int INSTALL_PLUGIN = 3;
+  static final int INSTALL_PLUGIN = 3;
   private static final int SHOW_PLUGIN_PREFERENCES = 4;
   
   private HashSet<FilterValues> mCurrentFilter;
@@ -251,7 +243,8 @@ public class TvBrowser extends AppCompatActivity implements
   
   private long mCreateTime;
   private long mResumeTime;
-  private IabHelper mHelper;
+  private DonationRatingHelper donationsRatingHelper;
+  private PluginUpdateHelper pluginUpdateHelper;
     
   private int mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
   private long mProgramListScrollTime = -1;
@@ -704,6 +697,8 @@ public class TvBrowser extends AppCompatActivity implements
     
     IOUtils.handleDataUpdatePreferences(TvBrowser.this);
     IOUtils.setDataTableRefreshTime(TvBrowser.this);
+    donationsRatingHelper = new DonationRatingHelperImpl(this);
+    pluginUpdateHelper = new PluginUpdateHelperImpl(this);
   }
   
   @Override
@@ -907,11 +902,11 @@ public class TvBrowser extends AppCompatActivity implements
     }
   }
   
-  private void showAlertDialog(AlertDialog.Builder dialogBuilder) {
+  void showAlertDialog(AlertDialog.Builder dialogBuilder) {
     showAlertDialog(dialogBuilder, false);
   }
   
-  private void showAlertDialog(AlertDialog.Builder dialogBuilder, boolean linkifyMessage) {
+  void showAlertDialog(AlertDialog.Builder dialogBuilder, boolean linkifyMessage) {
     showAlertDialog(dialogBuilder, linkifyMessage, null);
   }
   
@@ -929,11 +924,11 @@ public class TvBrowser extends AppCompatActivity implements
     showAlertDialog(dialog, linkifyId, postShowingRunnable, throwableRunnable);
   }
   
-  private void showAlertDialog(AlertDialog dialog) {
+  void showAlertDialog(AlertDialog dialog) {
     showAlertDialog(dialog, false);
   }
   
-  private void showAlertDialog(AlertDialog dialog, boolean linkifyMessage) {
+  void showAlertDialog(AlertDialog dialog, boolean linkifyMessage) {
     showAlertDialog(dialog, false, null);
   }
   
@@ -1034,7 +1029,7 @@ public class TvBrowser extends AppCompatActivity implements
       }
     }
   }
-  
+
   private void showEpgDonateInfo() {
     Log.d("info6", "showEpgDonateInfo");
     int count = 0;
@@ -1175,7 +1170,7 @@ public class TvBrowser extends AppCompatActivity implements
     return result;
   }
   
-  private int getEpgDonateChannelsCount() {
+  int getEpgDonateChannelsCount() {
     int result = 0;
     Log.d("info6", "getEpgDonateChannelsCount");
     try {
@@ -1208,11 +1203,7 @@ public class TvBrowser extends AppCompatActivity implements
     }catch(Throwable t) {Log.d("info6", "", t);}
     return result;
   }
-  
-  private boolean hasEpgDonateChannelsSubscribed() {
-    return getEpgDonateChannelsCount() > 0;
-  }
-  
+
   private void handleResume() {
     /*new Thread() {
       public void run() {
@@ -1232,104 +1223,60 @@ public class TvBrowser extends AppCompatActivity implements
     }.start();
     */
     // Don't allow use of version after date
-    if(mRundate.getTimeInMillis() < System.currentTimeMillis()) {
-      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-      builder.setTitle(R.string.versionExpired);
-      
-      Calendar test = (Calendar)mRundate.clone();
-      test.add(Calendar.DAY_OF_YEAR, 7);
-      
-      final int diff = (int)((test.getTimeInMillis() - System.currentTimeMillis()) / (24 * 60 * 60000));
-      
-      String expiredMessage = diff == 0 ? getString(R.string.versionExpiredMsgLast) : getString(R.string.versionExpiredMsg);
-      
-      expiredMessage = expiredMessage.replace("{0}", String.valueOf(diff));
-      
-      String updateText = SettingConstants.GOOGLE_PLAY ? getString(R.string.update_google_play) : getString(R.string.update_website);
-      
-      builder.setMessage(expiredMessage);
-      builder.setPositiveButton(updateText, new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          if(SettingConstants.GOOGLE_PLAY) {
-            final String appPackageName = getPackageName(); // getPackageName() from Context or Activity object
-            try {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
-            } catch (android.content.ActivityNotFoundException anfe) {
-                startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + appPackageName)));
-            }
-          }
-          else {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=download")));
-          }
-          
-          System.exit(0);
-        }
-      });
-      builder.setNegativeButton(R.string.update_not_now, new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          if(diff < 0) {
-            System.exit(0);
-          }
-        }
-      });
-      builder.setCancelable(false);
-      
-      showAlertDialog(builder);
+    if (mRundate.getTimeInMillis() < System.currentTimeMillis()) {
+      donationsRatingHelper.handleExpiredVersion(mRundate);
+      return;
     }
-    else {
-      Log.d("info6", "selectingChannels " + selectingChannels + " " + PrefUtils.getChannelsSelected(getApplicationContext()));
-      if(!selectingChannels && !PrefUtils.getChannelsSelected(getApplicationContext())) {
-        askChannelDownload(R.string.select_channels);
+
+    Log.d("info6", "selectingChannels " + selectingChannels + " " + PrefUtils.getChannelsSelected(getApplicationContext()));
+    if (!selectingChannels && !PrefUtils.getChannelsSelected(getApplicationContext())) {
+      askChannelDownload(R.string.select_channels);
       }
       else if(PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_LAST_KNOWN, R.integer.meta_data_date_known_default) < System.currentTimeMillis()) {
-        if(isOnline()) {
-          checkTermsAcceptedInUIThread();
-        }
+      if (isOnline()) {
+        checkTermsAcceptedInUIThread();
       }
+    }
+
+    mTimer = new Timer();
+    mTimer.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
+      }
+    }, new Date((((long) (System.currentTimeMillis() / 60000L)) * 60000) + 62000), 60000);
+
+    final int infoType = mInfoType;
+    mInfoType = INFO_TYPE_NOTHING;
+
       
-      mTimer = new Timer();
-      mTimer.scheduleAtFixedRate(new TimerTask() {
-        @Override
-        public void run() {
-          LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
-        }
-      }, new Date((((long)(System.currentTimeMillis() / 60000L)) * 60000) + 62000), 60000);
-      
-      final int infoType = mInfoType;
-      mInfoType = INFO_TYPE_NOTHING;
-      
-      
-      IOUtils.postDelayedInSeparateThread("INFO WAITING THREAD", new Runnable() {
-        @Override
-        public void run() {
-          try {
-            Log.d("info6", "infoType " + infoType);
-            
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                Log.d("info6", "Runnable " + infoType);
-                if(infoType == INFO_TYPE_NOTHING) {
-                  showChannelUpdateInfo();
+    IOUtils.postDelayedInSeparateThread("INFO WAITING THREAD", new Runnable() {
+      @Override
+      public void run() {
+        try {
+          Log.d("info6", "infoType " + infoType);
+
+          handler.post(new Runnable() {
+            @Override
+            public void run() {
+              Log.d("info6", "Runnable " + infoType);
+              if (infoType == INFO_TYPE_NOTHING) {
+                showChannelUpdateInfo();
                 }
                 else if(infoType == INFO_TYPE_VERSION) {
-                  showVersionInfo(true);
+                showVersionInfo(true);
                 }
                 else if(infoType == INFO_TYPE_NEWS) {
-                  showNews();
-                }
+                showNews();
               }
-            });
-          }catch(BadTokenException e) {}
+            }
+          });
+        } catch (BadTokenException e) {
         }
-      }, 3000);
-    }
-    
-    
+      }
+    }, 3000);
   }
-  
+
   private void askChannelDownload(int positiveButton) {
     Log.d("info6", "askChannelDownload");
     selectingChannels = true;
@@ -3715,7 +3662,7 @@ public class TvBrowser extends AppCompatActivity implements
     showAlertDialog(builder,R.id.user_pw_sync_info,null,null);
   }
   
-  private void showNoInternetConnection(String type, final Runnable callback) {
+  void showNoInternetConnection(String type, final Runnable callback) {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     
     builder.setTitle(R.string.no_network);
@@ -4041,8 +3988,8 @@ public class TvBrowser extends AppCompatActivity implements
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
  // Pass on the activity result to the helper for handling
-    if(mHelper != null) {
-      if (!mHelper.handleActivityResult(requestCode, resultCode, data)) {
+    if(donationsRatingHelper != null) {
+      if (!donationsRatingHelper.onActivityResult(requestCode, resultCode, data)) {
           // not handled, so handle it ourselves (here's where you'd
           // perform any handling of activity results not related to in-app
           // billing...
@@ -4064,10 +4011,8 @@ public class TvBrowser extends AppCompatActivity implements
       
       sendChannelFilterUpdate();
     }
-    else if(requestCode == INSTALL_PLUGIN && mCurrentDownloadPlugin != null && mCurrentDownloadPlugin.isFile()) {
-      if(!mCurrentDownloadPlugin.delete()) {
-        mCurrentDownloadPlugin.deleteOnExit();
-      }
+    else if(requestCode == INSTALL_PLUGIN) {
+      pluginUpdateHelper.cleanup();
     }
     else if(requestCode == SHOW_PLUGIN_PREFERENCES) {
       PluginPreferencesActivity.clearPlugins();
@@ -4333,7 +4278,7 @@ public class TvBrowser extends AppCompatActivity implements
   private void showAbout() {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     
-    RelativeLayout about = (RelativeLayout)getLayoutInflater().inflate(R.layout.dialog_about, getParentViewGroup(), false);
+    View about = getLayoutInflater().inflate(R.layout.dialog_about, getParentViewGroup(), false);
     
     try {
       PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
@@ -4586,7 +4531,7 @@ public class TvBrowser extends AppCompatActivity implements
     }
   }
   
-  private static final class NewsTagHandler implements TagHandler {
+  static final class NewsTagHandler implements TagHandler {
     @Override
     public void handleTag(boolean opening, String tag, Editable output, XMLReader xmlReader) {
       if(tag.equals("right")) {
@@ -4654,7 +4599,7 @@ public class TvBrowser extends AppCompatActivity implements
             public void onClick(DialogInterface dialog, int which) {
               pref.edit().putLong(getString(R.string.NEWS_DATE_LAST_SHOWN), System.currentTimeMillis()).commit();
               
-              showPluginInfo();
+              pluginUpdateHelper.showPluginInfo();
             }
           });
           
@@ -4665,59 +4610,16 @@ public class TvBrowser extends AppCompatActivity implements
             pref.edit().putLong(getString(R.string.NEWS_DATE_LAST_SHOWN), System.currentTimeMillis()).commit();
           }
           
-          showPluginInfo();
+          pluginUpdateHelper.showPluginInfo();
         }
       }
       else {
-        showPluginInfo();
+        pluginUpdateHelper.showPluginInfo();
       }
     }
   }
-  
-  private void showPluginInfo() {
-    Log.d("info6", "showPluginInfo");
-    if(!PrefUtils.getBooleanValue(R.string.PLUGIN_INFO_SHOWN, false)) {        
-      final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-      
-      builder.setTitle(R.string.plugin_info_title);
-      builder.setCancelable(false);
-      builder.setMessage(R.string.plugin_info_message);
-      
-      builder.setPositiveButton(R.string.plugin_info_load, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          savePluginInfoShown();
-          
-          if(isOnline()) {
-            searchPlugins(true);
-          }
-          else {
-            showNoInternetConnection(getString(R.string.no_network_info_data_search_plugins),new Runnable() {
-              @Override
-              public void run() {
-                searchPlugins(true);
-              }
-            });
-          }
-        }
-      });
-      
-      builder.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          savePluginInfoShown();
-          showChannelUpdateInfo();
-        }
-      });
-      
-      showAlertDialog(builder);
-    }
-    else {
-      showChannelUpdateInfo();
-    }
-  }
     
-  private void showChannelUpdateInfo() {
+  void showChannelUpdateInfo() {
     Log.d("info6", "showChannelUpdateInfo ");
     /*runOnUiThread(new Runnable() {
       @Override
@@ -4832,12 +4734,6 @@ public class TvBrowser extends AppCompatActivity implements
     }
   }
   
-  private void savePluginInfoShown() {
-    Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
-    edit.putBoolean(getString(R.string.PLUGIN_INFO_SHOWN), true);
-    edit.commit();
-  }
-  
   private int FILTER_MAX_ID = 0; 
   
   private synchronized void updateFromFilterEdit() {
@@ -4942,258 +4838,6 @@ public class TvBrowser extends AppCompatActivity implements
     }
   }
   
-  private void searchPlugins(final boolean showChannelUpdateInfo) {
-    if(isOnline()) {
-      new Thread("SEARCH FOR PLUGINS THREAD") {
-        @Override
-        public void run() {
-          updateProgressIcon(true);
-          PluginDefinition[] availablePlugins = PluginDefinition.loadAvailablePluginDefinitions();
-          
-          final ArrayList<PluginDefinition> newPlugins = new ArrayList<PluginDefinition>();
-          final PluginServiceConnection[] connections = PluginHandler.getAvailablePlugins();
-          
-          for(PluginDefinition def : availablePlugins) {
-            if(Build.VERSION.SDK_INT >= def.getMinApiVersion()) {
-              String packageName = def.getPackageName();
-              String[] services = def.getServices();
-              
-              for(String service : services) {
-                if(service.startsWith(".")) {
-                  service = packageName + service;
-                }
-                
-                String[] parts = service.split(":");
-                
-                boolean wasAdded = false;
-                boolean wasFound = false;
-                                
-                if(connections != null && connections.length > 0) {
-                  for(PluginServiceConnection connection : connections) {
-                    if(connection.getId().equals(parts[0])) {
-                      wasFound = true;
-                      
-                      String currentVersion = connection.getPluginVersion();
-                      
-                      if(currentVersion != null && !currentVersion.equals(parts[1])) {
-                        newPlugins.add(def);
-                        def.setIsUpdate();
-                        wasAdded = true;
-                        break;
-                      }
-                    }
-                  }
-                }
-                
-                if(wasAdded) {
-                  break;
-                }
-                else if(!wasFound) {
-                  newPlugins.add(def);
-                }
-              }
-            }
-          }
-          
-          StringBuilder pluginsText = new StringBuilder();
-          
-          Collections.sort(newPlugins);
-          
-          for(PluginDefinition news : newPlugins) {
-            if(pluginsText.length() > 0) {
-              pluginsText.append("<line>LINE</line>");
-            }
-            
-            pluginsText.append("<h3>");
-            pluginsText.append(news.getName());
-            
-            if(news.isUpdate()) {
-              pluginsText.append(" <i>(Update)</i>");
-            }
-            
-            pluginsText.append("</h3>");
-            
-            pluginsText.append(news.getDescription());
-            
-            pluginsText.append("<p><i>");
-            pluginsText.append(getString(R.string.author)).append(" ");
-            pluginsText.append(news.getAuthor());
-            pluginsText.append(" <right>").append(getString(R.string.version)).append(" ");
-            pluginsText.append(news.getVersion());
-            pluginsText.append("</i></right></p>");
-            
-            if(news.isOnGooglePlay()) {
-              pluginsText.append("<p><a href=\"http://play.google.com/store/apps/details?id=");
-              pluginsText.append(news.getPackageName());
-              pluginsText.append("\">").append(getString(R.string.plugin_open_google_play)).append("</a></p>");
-            }
-            
-            if(news.getDownloadLink() != null && news.getDownloadLink().trim().length() > 0) {
-              pluginsText.append("<p><a href=\"");
-              pluginsText.append(news.getDownloadLink().replace("http://", "plugin://").replace("https://", "plugins://"));
-              pluginsText.append("\">").append(getString(R.string.plugin_download_manually)).append("</a></p>");
-            }
-          }
-          
-          String title = getString(R.string.plugin_available_title);
-          
-          if(newPlugins.isEmpty()) {
-            title = getString(R.string.plugin_available_not_title);
-            pluginsText.append(getString(R.string.plugin_available_not_message));
-          }
-          
-          final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-          
-          builder.setTitle(title);
-          builder.setCancelable(false);
-          
-          builder.setMessage(getClickableText(Html.fromHtml(pluginsText.toString(),null,new NewsTagHandler())));
-          
-          builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-              if(!newPlugins.isEmpty()) {
-                PluginHandler.shutdownPlugins(TvBrowser.this);
-                
-                handler.postDelayed(new Runnable() {
-                  @Override
-                  public void run() {
-                    PluginHandler.loadPlugins(getApplicationContext());
-                    
-                    if(mPluginPreferencesMenuItem != null) {
-                      mPluginPreferencesMenuItem.setEnabled(PluginHandler.hasPlugins());
-                    }
-                  }
-                }, 2000);
-              }
-              
-              if(showChannelUpdateInfo) {
-                handler.post(new Runnable() {
-                  @Override
-                  public void run() {
-                    showChannelUpdateInfo();
-                  }
-                });
-              }
-            }
-          });
-          
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              showAlertDialog(builder,true);
-            }
-          });
-          
-          updateProgressIcon(false);
-        }
-      }.start();
-    }
-  }
-  
-  private boolean mLoadingPlugin = false;
-  private File mCurrentDownloadPlugin;
-  
-  private void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span)
-  {    
-      int start = strBuilder.getSpanStart(span);
-      int end = strBuilder.getSpanEnd(span);
-      int flags = strBuilder.getSpanFlags(span);
-      ClickableSpan clickable = new ClickableSpan() {
-            public void onClick(View view) {
-              if(!mLoadingPlugin) {
-                mLoadingPlugin = true;
-                String url = span.getURL();
-                
-                if(url.startsWith("http://play.google.com/store/apps/details?id=")) {
-                  try {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url.replace("http://play.google.com/store/apps", "market:/"))));
-                  } catch (android.content.ActivityNotFoundException anfe) {
-                    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(url)));
-                  }
-                  
-                  mLoadingPlugin = false;
-                }
-                else if(url.startsWith("plugin://") || url.startsWith("plugins://")) {
-                  final File path = IOUtils.getDownloadDirectory(getApplicationContext());
-                  
-                  if(!path.isDirectory()) {
-                    path.mkdirs();
-                  }
-                  
-                  if(url.startsWith("plugin://")) {
-                    url = url.replace("plugin://", "http://");
-                  }
-                  else if(url.startsWith("plugins://")) {
-                    url = url.replace("plugins://", "https://");
-                  }
-                  
-                  String name = url.substring(url.lastIndexOf("/")+1);
-                  
-                  mCurrentDownloadPlugin = new File(path, name);
-                  
-                  if(mCurrentDownloadPlugin.isFile()) {
-                    mCurrentDownloadPlugin.delete();
-                  }
-                  
-                  final String downloadUrl = url;
-                  
-                  handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                      AsyncTask<String, Void, Boolean> async = new AsyncTask<String, Void, Boolean>() {
-                        private ProgressDialog mProgress;
-                        private File mPluginFile;
-                        
-                        protected void onPreExecute() {
-                          mProgress = new ProgressDialog(TvBrowser.this);
-                          mProgress.setMessage(getString(R.string.plugin_info_donwload).replace("{0}", mCurrentDownloadPlugin.getName()));
-                          mProgress.show();
-                        }
-
-                        @Override
-                        protected Boolean doInBackground(String... params) {
-                          mPluginFile = new File(params[0]);
-                          return IOUtils.saveUrl(params[0], params[1], 15000);
-                        }
-                        
-                        protected void onPostExecute(Boolean result) {
-                          mProgress.dismiss();
-                          
-                          if(result) {
-                            Intent intent = new Intent(Intent.ACTION_VIEW);
-                            intent.setDataAndType(Uri.fromFile(mPluginFile),"application/vnd.android.package-archive");
-                            TvBrowser.this.startActivityForResult(intent, INSTALL_PLUGIN);
-                          }
-                          
-                          mLoadingPlugin = false;
-                        }
-                      };
-                      
-                      async.execute(mCurrentDownloadPlugin.toString(), downloadUrl);
-                    }
-                  });
-                }
-                else {
-                  mLoadingPlugin = false;
-                }
-              }
-            }
-      };
-      strBuilder.setSpan(clickable, start, end, flags);
-      strBuilder.removeSpan(span);
-  }
-
-  private SpannableStringBuilder getClickableText(CharSequence sequence)
-  {
-          SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
-          URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);   
-          for(URLSpan span : urls) {
-              makeLinkClickable(strBuilder, span);
-          }
-      return strBuilder;    
-  }
-  
   private void editFavorite() {
     Fragment favorites = mSectionsPagerAdapter.getRegisteredFragment(2);
     
@@ -5257,16 +4901,16 @@ public class TvBrowser extends AppCompatActivity implements
       case R.id.menu_tvbrowser_action_favorite_add: UiUtils.editFavorite(null, TvBrowser.this, null);break;
       case R.id.menu_tvbrowser_action_favorite_edit: editFavorite();break;
       case R.id.menu_tvbrowser_action_favorite_delete: deleteFavorite();break;
-      case R.id.action_donation: showDonationInfo(); break;
+      case R.id.action_donation: donationsRatingHelper.showDonationInfo(); break;
       case R.id.action_search_plugins: 
         if(isOnline()) {
-          searchPlugins(false);
+          pluginUpdateHelper.searchPlugins(false);
         }
         else {
           showNoInternetConnection(getString(R.string.no_network_info_data_search_plugins),new Runnable() {
             @Override
             public void run() {
-              searchPlugins(false);
+              pluginUpdateHelper.searchPlugins(false);
             }
           });
         }
@@ -5383,7 +5027,13 @@ public class TvBrowser extends AppCompatActivity implements
     
     return super.onOptionsItemSelected(item);
   }
-  
+
+  @Override
+  public boolean onPrepareOptionsMenu(final Menu menu) {
+    menu.findItem(R.id.action_donation).setVisible(donationsRatingHelper.showDonationMenuItem());
+    return super.onPrepareOptionsMenu(menu);
+  }
+
   private void scrollToTimePick() {
     final int lastExtraTime = PrefUtils.getIntValue(R.string.PREF_MISC_LAST_TIME_PICK_VALUE, PrefUtils.getIntValueWithDefaultKey(R.string.PREF_MISC_LAST_TIME_EXTRA_VALUE, R.integer.pref_misc_last_time_extra_value_default));
     
@@ -5791,7 +5441,7 @@ public class TvBrowser extends AppCompatActivity implements
     if(mViewPager.getCurrentItem() != 1) {
       mLastSelectedTab = mViewPager.getCurrentItem();
       mViewPager.setCurrentItem(1,true);
-      
+
       if(remember) {
         mProgramsListWasShow = true;
       }
@@ -5801,440 +5451,12 @@ public class TvBrowser extends AppCompatActivity implements
     }
   }
   
-  private void setRatingAndDonationInfoShown() {
-    PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit().putBoolean(getString(R.string.PREF_RATING_DONATION_INFO_SHOWN), true).commit();
-  }
-  
-  private void showInAppDonations(final Inventory inv, boolean showIfAlreadyDonated) {
-    updateProgressIcon(false);
-    
-    AlertDialog.Builder alert = new AlertDialog.Builder(TvBrowser.this);
-    
-    alert.setTitle(R.string.donation);
-    
-    View view = getLayoutInflater().inflate(R.layout.in_app_donations, getParentViewGroup(), false);
-    LinearLayout layout = (LinearLayout)view.findViewById(R.id.donation_in_app_layout);
-    
-    alert.setView(view);
-    
-    alert.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), null);
-        
-    if(Locale.getDefault().getCountry().equals("DE")) {
-      alert.setPositiveButton(R.string.donation_info_website, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingConstants.URL_SYNC_BASE + "index.php?id=donations")));
-        }
-      });
-    }
-    
-    final AlertDialog d = alert.create();
-    
-    View.OnClickListener onDonationClick = new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        d.dismiss();
-        
-        openDonation((SkuDetails)v.getTag());
-      }
-    };
-    
-    Purchase donated = null;
-    SkuDetails donatedDetails = null;
-    
-    for(String sku : SettingConstants.SKU_LIST) {
-      SkuDetails details = inv.getSkuDetails(sku);
-      Purchase donatedTest = inv.getPurchase(sku);
-      
-      if(donatedTest != null && details != null) {
-        donated = donatedTest;
-        donatedDetails = details;
-      }
-      if(details != null) {
-        if(!details.getSku().equals(SettingConstants.SKU_EPG_DONATE_ONCE) || hasEpgDonateChannelsSubscribed()) {
-          String title = details.getTitle().substring(0,details.getTitle().indexOf("(")-1);
-          
-          Button donation = new Button(this);
-          donation.setTextSize(TypedValue.COMPLEX_UNIT_SP,18);
-          donation.setText(title + ": " + details.getPrice());
-          donation.setTag(details);
-          donation.setOnClickListener(onDonationClick);
-        
-          layout.addView(donation);
-          
-          LinearLayout.LayoutParams params = (LinearLayout.LayoutParams)donation.getLayoutParams();
-          params.setMargins(5, 0, 5, 5); //left, top, right, bottom
-          donation.setLayoutParams(params);
-        }
-      }
-    }
-    
-    if(donated == null || showIfAlreadyDonated) {
-      showAlertDialog(d);
-    }
-    else if(donated != null) {
-      AlertDialog.Builder alert2 = new AlertDialog.Builder(TvBrowser.this);
-      
-      alert2.setTitle(R.string.donation);
-      
-      String message = getString(R.string.already_donated).replace("{1}", DateFormat.getLongDateFormat(this).format(new Date(donated.getPurchaseTime()))).replace("{0}", donatedDetails.getPrice());
-      
-      alert2.setMessage(message);
-      
-      final Purchase toConsume = donated;
-      
-      alert2.setPositiveButton(R.string.donate_again, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          updateProgressIcon(true);
-          
-          mHelper.consumeAsync(toConsume,new IabHelper.OnConsumeFinishedListener() {
-            @Override
-            public void onConsumeFinished(Purchase purchase, IabResult result) {
-              updateProgressIcon(false);
-              
-              if(result.isSuccess()) {
-                showAlertDialog(d);
-              }
-              else {
-                handler.post(new Runnable() {
-                  @Override
-                  public void run() {
-                    Toast.makeText(TvBrowser.this, "", Toast.LENGTH_LONG).show();
-                  }
-                });
-              }
-            }
-          });
-        }
-      });
-      
-      alert2.setNegativeButton(R.string.stop_donation, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {}
-      });
-      
-      showAlertDialog(alert2);
-    }
-  }
-  
   @Override
   public void onDestroy() {
      
-     PluginHandler.shutdownPlugins(getApplicationContext());
-     
-     if (mHelper != null) {
-       mHelper.dispose();
-     }
-     
-     mHelper = null;
-     super.onDestroy();
-  }
-  
-  private void showInAppError(String error) {
-    updateProgressIcon(false);
-    
-    AlertDialog.Builder alert = new AlertDialog.Builder(TvBrowser.this);
-    
-    alert.setTitle(R.string.donation);
-    
-    boolean showOthers = true;
-    
-    if(!Locale.getDefault().getCountry().equals("DE")) {
-      showOthers = false;
-    }
-    
-    String message = getString(R.string.in_app_error_1);
-    
-    if(showOthers) {
-      message += " " + getString(R.string.in_app_error_2);
-    }
-    else {
-      message += ".";
-    }
-    
-    alert.setMessage(message);
-    
-    alert.setNegativeButton(android.R.string.ok, null);
-    
-    if(showOthers) {
-      alert.setPositiveButton(R.string.donation_open_website, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingConstants.URL_SYNC_BASE + "index.php?id=donations")));
-        }
-      });
-    }
-    
-    showAlertDialog(alert);
-  }
-  
-  private void listPurchaseItems() {
-    try {
-      mHelper.queryInventoryAsync(true, SettingConstants.SKU_LIST, new QueryInventoryFinishedListener() {
-        @Override
-        public void onQueryInventoryFinished(IabResult result, final Inventory inv) {
-          if(result.isFailure()) {
-            showInAppError("InApp Billing listing failed");
-          }
-          else {
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                showInAppDonations(inv,false);
-              }
-            });
-          }
-        }
-      });
-    }catch(IllegalStateException e) {
-      showInAppError("InApp Billing listing failed");
-    }
-  }
-  
-  private void prepareInAppPayment() {
-    updateProgressIcon(true);
-    
-    if(mHelper == null) {
-      String a2b = "2XQh0oOHnnZ2p3Ja8Xj6SlLFmI1Z/QIDAQAB";
-      String a2a = "8AMIIBCgKCAQEAqfmi767AEH+MBv+";
-      String ag2 = "Zh6iBFrN3zYpj1ikPu9jdtp+H47F8JvCzKt55xgIrzBpID58VfO";
-      String u6c = "+K1ZDlHw1rO+qN7GW177mzEO0yk+bVs0hwE/5QF2RamM+hOcCeyB7";
-      String ab2 = "6r2nGP94ai9Rgip1NLwZ1VYzFOPFC2/";
-      String hm5 = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ";
-      String ot8 = "tWvkedDMJd+4l912GuKiUa6FNw/sZLa9UIWB2ojgr2";
-      String bt4 = "TPd7Q6T9xOhHS01Ydws58YaK1NSCuIrFLG1I";
-      String ddx = "x3bLB5fJKPrWJc33MMqybm6KWIc+HVt2+HT";
-      String iz4 = "dePazzkaD5s84IG9FDe/cO3tvL/EZmSUiphDGXWl+beL2TW7D";
-      String hrq = hm5 + a2a + ab2 + bt4 + ddx + iz4 + u6c + ag2 + ot8 + a2b;
-      
-      mHelper = new IabHelper(TvBrowser.this, hrq);
-      mHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
-        
-        @Override
-        public void onIabSetupFinished(IabResult result) {
-          if (!result.isSuccess()) {
-            showInAppError("InApp Billing Setup failed");
-          }
-          else {
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                listPurchaseItems();
-              }
-            });
-          }
-        }
-      });
-    }
-    else {
-      listPurchaseItems();
-    }
-  }
-    
-  private void openDonation(final SkuDetails skuDetails) {
-    if(skuDetails != null && mHelper != null) {
-      AlertDialog.Builder alert = new AlertDialog.Builder(TvBrowser.this);
-      
-      alert.setTitle(R.string.donation);
-      
-      View view = getLayoutInflater().inflate(R.layout.open_donation, getParentViewGroup(), false);
-      
-      alert.setView(view);
-      
-      ((TextView)view.findViewById(R.id.donation_open_info)).setText(getString(R.string.make_donation_info).replace("{0}", skuDetails.getPrice()));
-      
-      alert.setNegativeButton(R.string.stop_donation, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {}
-      });
-      
-      alert.setPositiveButton(R.string.make_donation, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              mHelper.launchPurchaseFlow(TvBrowser.this, skuDetails.getSku(), 500012, new IabHelper.OnIabPurchaseFinishedListener() {           
-                @Override
-                public void onIabPurchaseFinished(IabResult result, Purchase info) {
-                  if(result.isSuccess()) {
-                    AlertDialog.Builder alert2 = new AlertDialog.Builder(TvBrowser.this);
-                    
-                    alert2.setTitle(R.string.donation);
-                    alert2.setMessage(R.string.thanks_for_donation);
-                    
-                    alert2.setPositiveButton(android.R.string.ok, new OnClickListener() {
-                      @Override
-                      public void onClick(DialogInterface dialog, int which) {}
-                    });
-                    
-                    showAlertDialog(alert2);
-                  }
-                }
-              }, Long.toHexString(Double.doubleToLongBits(Math.random())));
-            }
-          });
-        }
-      });
-      
-      showAlertDialog(alert);
-    }
-  }
-  
-  private void showDonationInfo() {
-    AlertDialog.Builder alert = new AlertDialog.Builder(TvBrowser.this);
-    
-    alert.setTitle(R.string.donation);
-    
-    View view = getLayoutInflater().inflate(R.layout.dialog_donations, getParentViewGroup(), false);
-    
-    alert.setView(view);
-    
-    Button inAppDonation = (Button)view.findViewById(R.id.donation_in_app_button);
-    
-    TextView webInfo = (TextView)view.findViewById(R.id.donation_show_ways);
-    Button openWeb = (Button)view.findViewById(R.id.donation_website_button);
-        
-    if(!Locale.getDefault().getCountry().equals("DE")) {
-      webInfo.setVisibility(View.GONE);
-      openWeb.setVisibility(View.GONE);
-    }
-    
-    alert.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        
-      }
-    });
-    
-    final AlertDialog d = alert.create();
-    
-    inAppDonation.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        d.dismiss();
-        
-        prepareInAppPayment();
-      }
-    });
-    
-    openWeb.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        d.dismiss();
-        
-        startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingConstants.URL_SYNC_BASE + "index.php?id=donations")));
-      }
-    });
-    
-    showAlertDialog(d);
-  }
-  
-  private void showRatingAndDonationInfo() {
-    AlertDialog.Builder alert = new AlertDialog.Builder(TvBrowser.this);
-    
-    alert.setTitle(R.string.you_like_it);
-    
-    View view = getLayoutInflater().inflate(R.layout.rating_and_donation, getParentViewGroup(), false);
-    
-    TextView ratingInfo = (TextView)view.findViewById(R.id.rating_info);
-    Button rate = (Button)view.findViewById(R.id.rating_button);
-    Button donate = (Button)view.findViewById(R.id.donation_button);
-    
-    if(!SettingConstants.GOOGLE_PLAY) {
-      ratingInfo.setVisibility(View.GONE);
-      rate.setVisibility(View.GONE);
-    }
-    
-    ratingInfo.setText(Html.fromHtml(getString(R.string.rating_text)));
-    ((TextView)view.findViewById(R.id.donation_info)).setText(Html.fromHtml(getString(R.string.donate_text)));
-    
-    final Button cancel = (Button)view.findViewById(R.id.rating_donation_cancel);
-    cancel.setEnabled(false);
-    
-    alert.setView(view);
-    alert.setCancelable(false);
-    
-    final AlertDialog d = alert.create();
-    
-    cancel.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        setRatingAndDonationInfoShown();
-        d.dismiss();
-        
-        finish();
-      }
-    });
-    
-    donate.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        setRatingAndDonationInfoShown();
-        d.dismiss();
-        
-        showDonationInfo();
-      }
-    });
-    
-    rate.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        setRatingAndDonationInfoShown();
-        d.dismiss();
-        
-        final String appPackageName = getPackageName(); // getPackageName() from Context or Activity object
-        try {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
-        } catch (android.content.ActivityNotFoundException anfe) {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://play.google.com/store/apps/details?id=" + appPackageName)));
-        }
-        
-        finish();
-      }
-    });
-    
-    d.setOnShowListener(new DialogInterface.OnShowListener() {
-      @Override
-      public void onShow(DialogInterface dialog) {
-        new Thread("Cancel wait thread") {
-          @Override
-          public void run() {
-            setRatingAndDonationInfoShown();
-            
-            int count = 10;
-            
-            while(--count >= 0) {
-              final int countValue = count+1;
-              
-              handler.post(new Runnable() {
-                @Override
-                public void run() {
-                  cancel.setText(getString(R.string.not_now).replace("{0}", " (" + countValue + ")"));
-                }
-              });
-              
-              try {
-                sleep(1000);
-              } catch (InterruptedException e) {
-                e.printStackTrace();
-              }
-            }
-            
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                cancel.setText(getString(R.string.not_now).replace("{0}", ""));
-                cancel.setEnabled(true);
-              }
-            });
-          }
-        }.start();
-      }
-    });
-    
-    showAlertDialog(d,true);
+    PluginHandler.shutdownPlugins(getApplicationContext());
+    donationsRatingHelper.onDestroy();
+    super.onDestroy();
   }
   
   @Override
@@ -6263,7 +5485,7 @@ public class TvBrowser extends AppCompatActivity implements
       final boolean timeToShow = (pref.getLong(getString(R.string.PREF_RUNNING_TIME), getResources().getInteger(R.integer.pref_running_time_default)) > 2 * 60 * 60000);
       
       if(isTaskRoot() && !infoShown && timeToShow) {
-        showRatingAndDonationInfo();
+        donationsRatingHelper.showRatingAndDonationInfo();
       }
       else {
         super.onBackPressed();
@@ -6324,7 +5546,7 @@ public class TvBrowser extends AppCompatActivity implements
     if (keyCode == KeyEvent.KEYCODE_MENU/* && "LGE".equalsIgnoreCase(Build.BRAND)*/) {
       return true;
     }
-    
+
     return super.onKeyDown(keyCode, event);
   }
 
@@ -6396,6 +5618,16 @@ public class TvBrowser extends AppCompatActivity implements
         
         showAlertDialog(builder);
       }
+    }
+  }
+
+  Handler getHandler() {
+    return handler;
+  }
+
+  void togglePluginPreferencesMenuItem() {
+    if(mPluginPreferencesMenuItem != null) {
+      mPluginPreferencesMenuItem.setEnabled(PluginHandler.hasPlugins());
     }
   }
 }

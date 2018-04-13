@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+	<string name="update_google_play">Öffne Google Play</string>
+
+	<string name="rating_button">Bei Google Play bewerten</string>
+	<string name="rating_text">Sie nutzen TV-Browser jetzt einige Zeit. Wenn Sie möchten können Sie TV-Browser bei Google Play bewerten.</string>
+
+	<string name="donation_info_inapp">Sie können direkt über InApp-Zahlung aus einer Liste von Beträgen eine Summe auswählen. Die Spende wird erst gebucht, wenn dies in Google Play bestätigt wurde.</string>
+	<string name="donation_open_inapp">Zeige InApp-Spenden</string>
+	<string name="donation_thanks_text">Vielen Dank für das Interesse an Spenden für TV-Browser, Sie können aus folgenden Beträgen auswählen (diese enthalten jeweils 30% Google Play Zahlungsgebühr und die jeweilige Mehrwertsteuer):</string>
+	<string name="make_donation_info">Sie sind dabei eine Spende von {0} zu leisten.\n\nMit dem Klick auf \'Ja, jetzt spenden\' bestätigen Sie, dass sie mindestens 18 Jahre alt sind und damit Spenden leisten dürfen.</string>
+	<string name="make_donation">Ja, jetzt\nspenden</string>
+	<string name="stop_donation">Nein, Danke</string>
+	<string name="thanks_for_donation">Vielen Dank für die Spende für TV-Browser für Android.</string>
+	<string name="in_app_error_1">Konnte keine Verbindung zu Google Play herstellen.\n\nBitte versuchen Sie es später erneut</string>
+	<string name="in_app_error_2">oder verwenden Sie eine Spendenalternative.</string>
+	<string name="already_donated">Sie haben bereits am {1} {0} gespendet. Nochmal danke dafür.\n\nMöchten Sie tatsächlich nochmals spenden?</string>
+	<string name="donate_again">Ja, nochmals spenden</string>
+	<string name="no_donation_possible">Zur Zeit keine Spenden möglich.\nBitte versuchen Sie es später erneut.</string>
+</resources>

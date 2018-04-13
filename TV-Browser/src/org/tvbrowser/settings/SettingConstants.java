@@ -16,7 +16,6 @@
  */
 package org.tvbrowser.settings;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -41,7 +40,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.util.SparseArrayCompat;
 
 public class SettingConstants {
-  public static boolean GOOGLE_PLAY = true;
   public static final int ACCEPTED_DAY_COUNT = 8;
   
   private static final String REMINDER_PAUSE_KEY = "REMINDER_PAUSE_KEY";
@@ -104,25 +102,6 @@ public class SettingConstants {
   public static final String UPDATE_RUNNING_APP_WIDGET = "org.tvbrowser.UPDATE_RUNNING_APP_WIDGET";
   public static final String UPDATE_IMPORTANT_APP_WIDGET = "org.tvbrowser.UPDATE_IMPORTANT_APP_WIDGET";
   public static final String UPDATE_APP_WIDGET_ID_EXTRA = "UPDATE_APP_WIDGET_ID_EXTRA";
-  
-  public static final String SKU_ONE_STAR_DONATION = "one_star_donation";
-  public static final String SKU_TWO_STAR_DONATION = "two_star_donation";
-  public static final String SKU_THREE_STAR_DONATION = "three_star_donation";
-  public static final String SKU_FOUR_STAR_DONATION = "four_star_donation";
-  public static final String SKU_FIVE_STAR_DONATION = "five_star_donation";
-  public static final String SKU_EPG_DONATE_ONCE = "epg_donate_once";
-  public static final String SKU_EPG_DONATE_ABO = "epg_donate_abo";
-  
-  public static final ArrayList<String> SKU_LIST = new ArrayList<String>();
-  
-  static {
-    SKU_LIST.add(SKU_EPG_DONATE_ONCE);
-    SKU_LIST.add(SKU_ONE_STAR_DONATION);
-    SKU_LIST.add(SKU_TWO_STAR_DONATION);
-    SKU_LIST.add(SKU_THREE_STAR_DONATION);
-    SKU_LIST.add(SKU_FOUR_STAR_DONATION);
-    SKU_LIST.add(SKU_FIVE_STAR_DONATION);
-  }
   
   public static final int[] CATEGORY_PREF_KEY_ARR = {
     R.string.PREF_INFO_SHOW_BLACK_AND_WHITE,
