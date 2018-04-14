@@ -23,7 +23,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * A parcelable class with informations about a context menu entry of a TV-Browser plugin.
+ * A parcelable class with information about a context menu entry of a TV-Browser plugin.
  * 
  * @author René Mach
  */

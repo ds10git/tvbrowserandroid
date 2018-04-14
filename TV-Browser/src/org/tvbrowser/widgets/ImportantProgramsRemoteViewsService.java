@@ -486,7 +486,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
         final Intent update = new Intent(SettingConstants.UPDATE_IMPORTANT_APP_WIDGET);
         update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
         
-        mPendingRunning = PendingIntent.getBroadcast(mContext, (int)mAppWidgetId, update, PendingIntent.FLAG_UPDATE_CURRENT);
+        mPendingRunning = PendingIntent.getBroadcast(mContext, mAppWidgetId, update, PendingIntent.FLAG_UPDATE_CURRENT);
         
         AlarmManager alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
         

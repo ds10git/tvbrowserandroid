@@ -279,8 +279,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
           try {
-            Method setItemChecked = mFavoriteSelection.getClass().getMethod("setItemChecked", new Class<?>[]{int.class,boolean.class});
-            setItemChecked.invoke(mFavoriteSelection, new Object[]{-1,true});
+            Method setItemChecked = mFavoriteSelection.getClass().getMethod("setItemChecked", int.class,boolean.class);
+            setItemChecked.invoke(mFavoriteSelection, -1,true);
           } catch (Exception e) {
           }
           
@@ -300,8 +300,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       });
       
       try {
-        Method setChoiceMode = mFavoriteSelection.getClass().getMethod("setChoiceMode", new Class<?>[] {int.class});
-        setChoiceMode.invoke(mFavoriteSelection, new Object[] {ListView.CHOICE_MODE_SINGLE});
+        Method setChoiceMode = mFavoriteSelection.getClass().getMethod("setChoiceMode", int.class);
+        setChoiceMode.invoke(mFavoriteSelection, ListView.CHOICE_MODE_SINGLE);
       } catch (Exception e) {
       }
       
@@ -445,8 +445,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
               public void run() {
                 if(mContainsListViewFavoriteSelection) {
                   try {
-                    Method setItemChecked = mFavoriteSelection.getClass().getMethod("setItemChecked", new Class<?>[]{int.class,boolean.class});
-                    setItemChecked.invoke(mFavoriteSelection, new Object[]{position.get(),true});
+                    Method setItemChecked = mFavoriteSelection.getClass().getMethod("setItemChecked", int.class,boolean.class);
+                    setItemChecked.invoke(mFavoriteSelection, position.get(),true);
                     
                     if(position.get() < mFavoriteList.size()) {
                       selectFavorite(position.get());

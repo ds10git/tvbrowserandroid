@@ -122,10 +122,10 @@ public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter
         }
         
         if(endTime < System.currentTimeMillis()) {
-          ((TextView) until).setTextColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, mActivity));
+          until.setTextColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, mActivity));
         }
         else {
-          ((TextView) until).setTextColor(mDefaultTextColor);
+          until.setTextColor(mDefaultTextColor);
         }
         
         return true;

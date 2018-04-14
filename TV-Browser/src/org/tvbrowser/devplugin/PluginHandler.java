@@ -125,22 +125,22 @@ public final class PluginHandler {
 
       @Override
       public boolean markProgram(Program program) throws RemoteException {
-        return program != null ? markProgramWithIcon(program, null) : false;
+        return program != null && markProgramWithIcon(program, null);
       }
 
       @Override
       public boolean unmarkProgram(Program program) throws RemoteException {
-        return program != null ? unmarkProgramWithIcon(program, null) : false;
+        return program != null && unmarkProgramWithIcon(program, null);
       }
 
       @Override
       public boolean markProgramWithIcon(Program program, String pluginCanonicalClassName) throws RemoteException {
-        return program != null ? ProgramUtils.markProgram(context, program, pluginCanonicalClassName) : false;
+        return program != null && ProgramUtils.markProgram(context, program, pluginCanonicalClassName);
       }
 
       @Override
       public boolean unmarkProgramWithIcon(Program program, String pluginCanonicalClassName) throws RemoteException {
-        return program != null ? ProgramUtils.unmarkProgram(context, program, pluginCanonicalClassName) : false;
+        return program != null && ProgramUtils.unmarkProgram(context, program, pluginCanonicalClassName);
       }
 
       @Override

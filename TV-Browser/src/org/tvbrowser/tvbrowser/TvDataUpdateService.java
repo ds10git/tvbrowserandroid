@@ -163,7 +163,7 @@ public class TvDataUpdateService extends Service {
   private int mInternetConnectionTimeout;
   
   private void checkAndSetConnectionState(long downloadStart) {
-    doLog("INSTABLE INTERNET CONNECTION ACCEPTABLE: " + mInstableConnectionAcceptable + " " + mInternetConnectionTimeout + " TIMED OUT: " + mCountTimedOutConnections + " IS CONNECTED: " + mIsConnected);
+    doLog("UNSTABLE INTERNET CONNECTION ACCEPTABLE: " + mInstableConnectionAcceptable + " " + mInternetConnectionTimeout + " TIMED OUT: " + mCountTimedOutConnections + " IS CONNECTED: " + mIsConnected);
     
     if(!mInstableConnectionAcceptable) {
       if(System.currentTimeMillis() - downloadStart > 28000) {
@@ -340,7 +340,7 @@ public class TvDataUpdateService extends Service {
   @Override
   public synchronized int onStartCommand(final Intent intent, int flags, int startId) {
     if(!isRunning() && IOUtils.isDatabaseAccessible(this)) {
-      ON_START_COMMAND_THEAD = new Thread("DATA UPDATE ON START COMMOAND THREAD") {
+      ON_START_COMMAND_THEAD = new Thread("DATA UPDATE ON START COMMAND THREAD") {
         public void run() {
           setPriority(NORM_PRIORITY);
           Logging.openLogForDataUpdate(TvDataUpdateService.this);
@@ -1185,14 +1185,13 @@ public class TvDataUpdateService extends Service {
                 Integer channelId = knownChannels.get(groupChannelKey);
                 
                 if(channelId == null) {
-                  String where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + (Integer) ((Object[]) groupInfo)[0] + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + channelIdKey + "\' ) ";
+                  String where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + ((Object[]) groupInfo)[0] + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + channelIdKey + "\' ) ";
                   
                   Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
                   
                   try {
                     if(channel.moveToFirst()) {
-                      int channelIdValue = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-                      channelId = channelIdValue;
+                      channelId = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                       
                       knownChannels.put(groupChannelKey, channelId);
                     }
@@ -1360,14 +1359,13 @@ public class TvDataUpdateService extends Service {
             Integer channelId = knownChannels.get(groupChannelKey);
             
             if(channelId == null) {
-              String where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + (Integer) ((Object[]) groupInfo)[0] + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + channelIdKey + "\' ) ";
+              String where = " ( " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + ((Object[]) groupInfo)[0] + " ) AND ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=\'" + channelIdKey + "\' ) ";
               
               Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, where, null, null);
               
               try {
                 if(channel.moveToFirst()) {
-                  int channelIdValue = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
-                  channelId = channelIdValue;
+                  channelId = channel.getInt(channel.getColumnIndex(TvBrowserContentProvider.KEY_ID));
                   
                   knownChannels.put(groupChannelKey, channelId);
                 }
@@ -1874,14 +1872,14 @@ public class TvDataUpdateService extends Service {
                     long downloadStart = System.currentTimeMillis();
                     
                     if(mIsConnected && IOUtils.saveUrl(group.getAbsolutePath(), url + info.getUrlFileName(), mInternetConnectionTimeout)) {
-                      doLog("End channel download for group '" + info.getFileName() + "' successfull from: " + url);
+                      doLog("End channel download for group '" + info.getFileName() + "' successful from: " + url);
                       groupSucces = addChannels(group,info);
                       
                       mBuilder.setProgress(channelMirrors.size(), mCurrentDownloadCount++, false);
                       notification.notify(ID_NOTIFY, mBuilder.build());
                       
                       if(groupSucces) {
-                        doLog("Load channels for group '" + info.getFileName() + "' successfull from: " + url);
+                        doLog("Load channels for group '" + info.getFileName() + "' successful from: " + url);
                         
                         File mirrors = new File(path,info.getMirrorFileName());
                         
@@ -1892,13 +1890,13 @@ public class TvDataUpdateService extends Service {
                         break;
                       }
                       else {
-                        doLog("Not successfull load channels for group '" + info.getFileName() + "' from: " + url);
+                        doLog("Not successful load channels for group '" + info.getFileName() + "' from: " + url);
                         notWorkingIndicies.add(index);
                       }
                     }
                     else {
                       checkAndSetConnectionState(downloadStart);
-                      doLog("Not successfull load channels for group '" + info.getFileName() + "' from: " + url);
+                      doLog("Not successful load channels for group '" + info.getFileName() + "' from: " + url);
                       notWorkingIndicies.add(index);
                     }
                   } catch (Exception e) {
@@ -1950,11 +1948,11 @@ public class TvDataUpdateService extends Service {
     
     if(success.getBoolean()) {
       edit.putLong(getString(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST), System.currentTimeMillis());
-      doLog("DONE: Cannel update successfull");
+      doLog("DONE: Channel update successful");
     }
     else {
       edit.putLong(getString(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST_NO_SUCCESS), System.currentTimeMillis());
-      doLog("FINISHED: Cannel update NOT successfull");
+      doLog("FINISHED: Channel update NOT successful");
     }
     
     if(!mChannelsUpdate.isEmpty()) {
@@ -2582,7 +2580,7 @@ public class TvDataUpdateService extends Service {
             if(lastChannelKey == channelKey) {
               cal = Calendar.getInstance(TimeZone.getTimeZone(c.getString(timeZoneColumn)));
               
-              // if end not set or netto play time larger than next start or next time not end time
+              // if end not set or net play time larger than next start or next time not end time
               if(end == 0 || (nettoPlayTime > (lastStartTime - meStart))/* || (lastProgram && end != nextStart && ((nextStart - meStart) < (3 * 60 * 60000)))*/) {
                 if(nettoPlayTime > (lastStartTime - meStart)) {
                   lastStartTime = meStart + nettoPlayTime;
@@ -2591,7 +2589,7 @@ public class TvDataUpdateService extends Service {
                   lastStartTime = meStart + (long)(2.5 * 60 * 60000);
                 }
                 
-                utc.setTimeInMillis((((long)(cal.getTimeInMillis() / 60000)) * 60000));
+                utc.setTimeInMillis((cal.getTimeInMillis() / 60000 * 60000));
                 
                 ContentValues values = new ContentValues();
                 values.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, lastStartTime);
@@ -2603,7 +2601,7 @@ public class TvDataUpdateService extends Service {
                 int startMinute = cal.get(Calendar.MILLISECOND);
                 
                 // Normalize start hour and minute to 2014-12-31 to have the same time base on all occasions
-                utc.setTimeInMillis((((long)(IOUtils.normalizeTime(cal, startHour, startMinute, 30).getTimeInMillis() / 60000)) * 60000));              
+                utc.setTimeInMillis((IOUtils.normalizeTime(cal, startHour, startMinute, 30).getTimeInMillis() / 60000 * 60000));
                 
                 values.put(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT, utc.get(Calendar.HOUR_OF_DAY) * 60 + utc.get(Calendar.MINUTE));
                 
@@ -2727,7 +2725,7 @@ public class TvDataUpdateService extends Service {
     
     int autoChannelUpdateFrequency = PrefUtils.getStringValueAsInt(R.string.PREF_AUTO_CHANNEL_UPDATE_FREQUENCY, R.string.pref_auto_channel_update_frequency_default);
     
-    doLog("Can update channels: " + syncAllowed + " autoChannelUpdateFrequency: " + autoChannelUpdateFrequency + " last successfull auto channel update: " + new Date(PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0)) + " last unsuccessfull channel update: " + new Date(PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST_NO_SUCCESS, 0)));
+    doLog("Can update channels: " + syncAllowed + " autoChannelUpdateFrequency: " + autoChannelUpdateFrequency + " last successful auto channel update: " + new Date(PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0)) + " last unsuccessful channel update: " + new Date(PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST_NO_SUCCESS, 0)));
     
     if(syncAllowed && mIsConnected && autoChannelUpdateFrequency != -1 && ((PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST, 0) + (autoChannelUpdateFrequency * 24 * 60 * 60000L)) < System.currentTimeMillis()) && ((PrefUtils.getLongValue(R.string.PREF_AUTO_CHANNEL_UPDATE_LAST_NO_SUCCESS, 0) + (2 * 24 * 60 * 60000L)) < System.currentTimeMillis())) {
       updateChannels(true);
@@ -3039,7 +3037,7 @@ public class TvDataUpdateService extends Service {
                 Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL);
                 Log.d("info21", "MIRRORS AVAILABLE " + mirrors);
                 mirror = Mirror.getMirrorToUseForGroup(mirrors, groupId, this, checkOnlyConnection);                
-                doLog("Choosen mirror for group '" + groupId + "': " + mirror);
+                doLog("Chosen mirror for group '" + groupId + "': " + mirror);
                 
                 Log.d("info21", "MIRROR CHOOSEN " + mirror);
                 if(mirror != null) {
@@ -3336,7 +3334,7 @@ public class TvDataUpdateService extends Service {
               
       for(final ChannelUpdate update : updateList) {
         if(!mThreadPool.isShutdown()) {
-          mThreadPool.execute(new Thread("DATA UPDATE DATA DOWNLOAD THEAD") {
+          mThreadPool.execute(new Thread("DATA UPDATE DATA DOWNLOAD THREAD") {
             public void run() {
               setUncaughtExceptionHandler(handleExc);
               update.download(path, notification, downloadCount);
@@ -4265,14 +4263,14 @@ public class TvDataUpdateService extends Service {
                             cal.set(Calendar.MINUTE, startTime % 60);
                             cal.set(Calendar.SECOND, 30);
                             
-                            long time = (((long)(cal.getTimeInMillis() / 60000)) * 60000);
+                            long time = (cal.getTimeInMillis() / 60000 * 60000);
                             
                             utc.setTimeInMillis(time);
                             
                             values.put(columnName = TvBrowserContentProvider.DATA_KEY_STARTTIME, time);
                             
                             // Normalize start hour and minute to 2014-12-31 to have the same time base on all occasions
-                            utc.setTimeInMillis((((long)(IOUtils.normalizeTime(cal, startTime, 30).getTimeInMillis() / 60000)) * 60000));
+                            utc.setTimeInMillis((IOUtils.normalizeTime(cal, startTime, 30).getTimeInMillis() / 60000 * 60000));
                             
                             values.put(TvBrowserContentProvider.DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT, utc.get(Calendar.HOUR_OF_DAY)*60 + utc.get(Calendar.MINUTE));
                             
@@ -4299,14 +4297,14 @@ public class TvDataUpdateService extends Service {
                 }
               }
               
-              long time =  (((long)(cal.getTimeInMillis() / 60000)) * 60000);
+              long time =  (cal.getTimeInMillis() / 60000 * 60000);
               
               utc.setTimeInMillis(time);
               
               values.put(columnName = TvBrowserContentProvider.DATA_KEY_ENDTIME, time);
               
               // Normalize start hour and minute to 2014-12-31 to have the same time base on all occasions
-              utc.setTimeInMillis((((long)(IOUtils.normalizeTime(cal, endTime, 30).getTimeInMillis() / 60000)) * 60000));
+              utc.setTimeInMillis((IOUtils.normalizeTime(cal, endTime, 30).getTimeInMillis() / 60000 * 60000));
               
               values.put(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT, utc.get(Calendar.HOUR_OF_DAY)*60 + utc.get(Calendar.MINUTE));
               
@@ -5115,7 +5113,7 @@ public class TvDataUpdateService extends Service {
                  int startMinute = cal.get(Calendar.MILLISECOND);
                  
                  // Normalize start hour and minute to 2014-12-31 to have the same time base on all occasions
-                 utc.setTimeInMillis((((long)(IOUtils.normalizeTime(cal, startHour, startMinute, 30).getTimeInMillis() / 60000)) * 60000));
+                 utc.setTimeInMillis((IOUtils.normalizeTime(cal, startHour, startMinute, 30).getTimeInMillis() / 60000 * 60000));
                  
                  toAdd.put(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT, utc.get(Calendar.HOUR_OF_DAY)*60 + utc.get(Calendar.MINUTE));
                  toAdd.put(TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES, (int)((nextStart - meStart)/60000));
@@ -5489,7 +5487,7 @@ public class TvDataUpdateService extends Service {
     public Calendar getStartDate() {
       Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
       
-      // calculate the number of miliseconds since 1970 to get to the UNIX time  
+      // calculate the number of milliseconds since 1970 to get to the UNIX time
       cal.setTimeInMillis(mStartDaySince1970 * 24 * 60 * 60000);
       
       return cal;

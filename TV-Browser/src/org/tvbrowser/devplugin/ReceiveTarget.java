@@ -24,7 +24,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * A parcelable class with informations about a TV-Browser plugin receive target.
+ * A parcelable class with information about a TV-Browser plugin receive target.
  * 
  * @author René Mach
  */
@@ -102,7 +102,7 @@ public class ReceiveTarget implements Parcelable {
    * @param service The service to check this ReceiveTarget for.
    * @param id The id of the ReceiveTarget to check.
    * @return <code>true</code> if this is the ReceiveTarget with the given parameter,
-   *         <code>false</code> otherweise.
+   *         <code>false</code> otherwise.
    */
   public boolean isReceiveTargetOfServiceWithId(Service service, int id) {
     return mId == id && service.getClass().getCanonicalName().equals(mServiceClass);

@@ -1065,7 +1065,7 @@ public class TvBrowser extends AppCompatActivity implements
       
       boolean show = firstTimeoutReached && lastTimoutReached && alreadyShowTimeoutReached && !alreadyShownThisMonth && !dontShowAgainThisYear && radomShow;
       
-      Log.d("info6", "firstTimeoutReached (" + ((now - firstDownload)/(24 * 60 * 60000L)) + "): " + firstTimeoutReached + " lastTimoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " randomShow: " + radomShow + " SHOW: " + show);
+      Log.d("info6", "firstTimeoutReached (" + ((now - firstDownload)/(24 * 60 * 60000L)) + "): " + firstTimeoutReached + " lastTimeoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " randomShow: " + radomShow + " SHOW: " + show);
       
       if(show) {
         if((count = getEpgDonateChannelsCount()) > 0) {
@@ -1295,7 +1295,7 @@ public class TvBrowser extends AppCompatActivity implements
         public void run() {
           LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
         }
-      }, new Date((((long)(System.currentTimeMillis() / 60000L)) * 60000) + 62000), 60000);
+      }, new Date((System.currentTimeMillis() / 60000L * 60000) + 62000), 60000);
       
       final int infoType = mInfoType;
       mInfoType = INFO_TYPE_NOTHING;
@@ -2455,7 +2455,7 @@ public class TvBrowser extends AppCompatActivity implements
   }
   
   /**
-   * Class for country filtering of channel selecton.
+   * Class for country filtering of channel selection.
    * 
    * @author René Mach
    */
@@ -3340,12 +3340,9 @@ public class TvBrowser extends AppCompatActivity implements
   public boolean isOnline() {
     ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo netInfo = cm.getActiveNetworkInfo();
-    
-    if(netInfo != null && netInfo.isConnectedOrConnecting()) {
-      return true;
-    }
-    
-    return false;
+
+    return netInfo != null && netInfo.isConnectedOrConnecting();
+
   }
   
   private void updateTvData(boolean checkBatterie) {
@@ -5656,7 +5653,7 @@ public class TvBrowser extends AppCompatActivity implements
       switch(tab.getPosition()) {
         case 2:mScrollTimeItem.setVisible(false);break;
         
-        default:mScrollTimeItem.setVisible(true && !mSearchExpanded);break;
+        default:mScrollTimeItem.setVisible(!mSearchExpanded);break;
       }
     }
   }
@@ -5791,13 +5788,8 @@ public class TvBrowser extends AppCompatActivity implements
     if(mViewPager.getCurrentItem() != 1) {
       mLastSelectedTab = mViewPager.getCurrentItem();
       mViewPager.setCurrentItem(1,true);
-      
-      if(remember) {
-        mProgramsListWasShow = true;
-      }
-      else {
-        mProgramsListWasShow = false;
-      }
+
+      mProgramsListWasShow = remember;
     }
   }
   
@@ -6321,11 +6313,9 @@ public class TvBrowser extends AppCompatActivity implements
    */
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
-    if (keyCode == KeyEvent.KEYCODE_MENU/* && "LGE".equalsIgnoreCase(Build.BRAND)*/) {
-      return true;
-    }
-    
-    return super.onKeyDown(keyCode, event);
+    /* && "LGE".equalsIgnoreCase(Build.BRAND)*/
+    return keyCode == KeyEvent.KEYCODE_MENU || super.onKeyDown(keyCode, event);
+
   }
 
   @Override

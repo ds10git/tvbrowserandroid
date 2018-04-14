@@ -84,18 +84,12 @@ public class FilterCursorWrapper extends CursorWrapper {
 
   @Override
   public final boolean isBeforeFirst() {
-      if (getCount() == 0) {
-          return true;
-      }
-      return mPos == -1;
+	  return getCount() == 0 || mPos == -1;
   }
 
   @Override
   public final boolean isAfterLast() {
-      if (getCount() == 0) {
-          return true;
-      }
-      return mPos == getCount();
+	  return getCount() == 0 || mPos == getCount();
   }
 
   @Override
