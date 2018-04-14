@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout android:layout_width="match_parent"
-    android:layout_height="match_parent"
-     xmlns:android="http://schemas.android.com/apk/res/android"
-     >
+                android:layout_height="match_parent"
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                xmlns:tools="http://schemas.android.com/tools"
+	>
      
     <RelativeLayout android:id="@id/button_panel"
         android:layout_width="match_parent"
@@ -28,7 +29,7 @@
 	    android:layout_toLeftOf="@id/switch_to_next_day"
 	    android:layout_toRightOf="@id/switch_to_previous_day"
 	    android:gravity="center_horizontal|center_vertical"
-	    android:text="Sonntag\n20. November"
+	    tools:text="Sonntag\n20. November"
 	    android:clickable="true" />
     
      <Button

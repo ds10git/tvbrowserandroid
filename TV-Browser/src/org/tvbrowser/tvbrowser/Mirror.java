@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.Locale;
 import java.util.Random;
 
 import org.tvbrowser.settings.SettingConstants;
@@ -38,7 +39,7 @@ public class Mirror implements Comparable<Mirror> {
   private String mUrl;
   private int mWeight;
   
-  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+  private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
   
   public Mirror(String url, int weight) {
     mUrl = url;

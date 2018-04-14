@@ -1855,7 +1855,8 @@ public class TvDataUpdateService extends Service {
                 
                 String[] urls = info.getUrls();
                 ArrayList<Integer> notWorkingIndicies = new ArrayList<Integer>();
-                
+
+                //noinspection ForLoopReplaceableByForEach
                 for(int i = 0; i < urls.length; i++) {
                   int index = (int)(Math.random()*urls.length);
                   int count = 0;
@@ -2503,7 +2504,7 @@ public class TvDataUpdateService extends Service {
         
         String dateValue = read.readLine();
         
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd");
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd", Locale.US);
         Date syncDate = dateFormat.parse(dateValue.trim());
         
         if(syncDate.getTime() > System.currentTimeMillis()) {
@@ -3035,7 +3036,7 @@ public class TvDataUpdateService extends Service {
                 }
                 
                 Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL);
-                Log.d("info21", "MIRRORS AVAILABLE " + mirrors);
+                Log.d("info21", "MIRRORS AVAILABLE " + Arrays.toString(mirrors));
                 mirror = Mirror.getMirrorToUseForGroup(mirrors, groupId, this, checkOnlyConnection);                
                 doLog("Chosen mirror for group '" + groupId + "': " + mirror);
                 
@@ -4895,7 +4896,7 @@ public class TvDataUpdateService extends Service {
       
       int[] versionInfo = mCurrentVersionIDs.get(update.getChannelID() + "_" + daysSince1970);
       
-      Log.d("info21","currentInfo " + versionInfo + " BASE " + values.getAsByte(TvBrowserContentProvider.VERSION_KEY_BASE_VERSION));
+      Log.d("info21","currentInfo " + Arrays.toString(versionInfo) + " BASE " + values.getAsByte(TvBrowserContentProvider.VERSION_KEY_BASE_VERSION));
       
       if(versionInfo == null && mVersionDatabaseOperation != null) {
         mVersionDatabaseOperation.addInsert(values);
@@ -5282,7 +5283,7 @@ public class TvDataUpdateService extends Service {
                   
                   // program known update it
                   if(isNew && isValidDataContent(contentValues)) {
-                    mUpdateValueMap.put(Long.valueOf(programID), contentValues);
+                    mUpdateValueMap.put(programID, contentValues);
                   }
                 }
                 else if(contentValues.containsKey(TvBrowserContentProvider.DATA_KEY_STARTTIME) && contentValues.get(TvBrowserContentProvider.DATA_KEY_STARTTIME) != null) {

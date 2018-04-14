@@ -19,6 +19,7 @@ package org.tvbrowser.utils;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.HashMap;
@@ -2020,7 +2021,7 @@ public class UiUtils {
 
       ComponentName importantProgramsWidget = new ComponentName(context, ImportantProgramsListWidget.class);
       int[] appWidgetIds = appWidgetManager.getAppWidgetIds(importantProgramsWidget);
-      Log.d("info2", "appWidgetIds " + appWidgetIds);
+      Log.d("info2", "appWidgetIds " + Arrays.toString(appWidgetIds));
       appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.important_widget_list_view);
     }catch(Throwable t) {Log.d("info2", "", t);}
   }
@@ -2033,7 +2034,7 @@ public class UiUtils {
       ComponentName importantProgramsWidget = new ComponentName(context, RunningProgramsListWidget.class);
       int[] appWidgetIds = appWidgetManager.getAppWidgetIds(importantProgramsWidget);
       appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.running_widget_list_view);
-      Log.d("info2", "appWidgetIds " + appWidgetIds);
+      Log.d("info2", "appWidgetIds " + Arrays.toString(appWidgetIds));
     }catch(Throwable t) {Log.d("info2", "", t);}
   }
   
@@ -2073,7 +2074,7 @@ public class UiUtils {
         WidgetToggleReminderState.updateAppWidget(context, appWidgetManager, appWidgetId);
       }
       //appWidgetManager.notifyAppWidgetViewDataChanged(appWidgetIds, R.id.running_widget_list_view);
-      Log.d("info2", "appWidgetIds " + appWidgetIds);
+      Log.d("info2", "appWidgetIds " + Arrays.toString(appWidgetIds));
     }catch(Throwable t) {Log.d("info2", "", t);}
   }
   
