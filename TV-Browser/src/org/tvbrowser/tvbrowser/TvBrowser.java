@@ -1060,7 +1060,7 @@ public class TvBrowser extends AppCompatActivity implements
       
       boolean show = firstTimeoutReached && lastTimoutReached && alreadyShowTimeoutReached && !alreadyShownThisMonth && !dontShowAgainThisYear && radomShow;
       
-      Log.d("info6", "firstTimeoutReached (" + ((now - firstDownload)/(24 * 60 * 60000L)) + "): " + firstTimeoutReached + " lastTimeoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " randomShow: " + radomShow + " SHOW: " + show);
+      Log.d("info6", "firstTimeoutReached (" + ((now - firstDownload)/(24 * 60 * 60000L)) + "): " + firstTimeoutReached + " lastTimoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " randomShow: " + radomShow + " SHOW: " + show);
       
       if(show) {
         if((count = getEpgDonateChannelsCount()) > 0) {
@@ -1250,32 +1250,6 @@ public class TvBrowser extends AppCompatActivity implements
     mInfoType = INFO_TYPE_NOTHING;
 
       
-<<<<<<< HEAD
-      mTimer = new Timer();
-      mTimer.scheduleAtFixedRate(new TimerTask() {
-        @Override
-        public void run() {
-          LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
-        }
-      }, new Date((System.currentTimeMillis() / 60000L * 60000) + 62000), 60000);
-      
-      final int infoType = mInfoType;
-      mInfoType = INFO_TYPE_NOTHING;
-      
-      
-      IOUtils.postDelayedInSeparateThread("INFO WAITING THREAD", new Runnable() {
-        @Override
-        public void run() {
-          try {
-            Log.d("info6", "infoType " + infoType);
-            
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                Log.d("info6", "Runnable " + infoType);
-                if(infoType == INFO_TYPE_NOTHING) {
-                  showChannelUpdateInfo();
-=======
     IOUtils.postDelayedInSeparateThread("INFO WAITING THREAD", new Runnable() {
       @Override
       public void run() {
@@ -1288,7 +1262,6 @@ public class TvBrowser extends AppCompatActivity implements
               Log.d("info6", "Runnable " + infoType);
               if (infoType == INFO_TYPE_NOTHING) {
                 showChannelUpdateInfo();
->>>>>>> 8a8c3e39b869f580801ea319f64241cd9b0a5be5
                 }
                 else if(infoType == INFO_TYPE_VERSION) {
                 showVersionInfo(true);
@@ -2429,7 +2402,7 @@ public class TvBrowser extends AppCompatActivity implements
   }
   
   /**
-   * Class for country filtering of channel selection.
+   * Class for country filtering of channel selecton.
    * 
    * @author René Mach
    */
@@ -3314,9 +3287,12 @@ public class TvBrowser extends AppCompatActivity implements
   public boolean isOnline() {
     ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo netInfo = cm.getActiveNetworkInfo();
-
-    return netInfo != null && netInfo.isConnectedOrConnecting();
-
+    
+    if(netInfo != null && netInfo.isConnectedOrConnecting()) {
+      return true;
+    }
+    
+    return false;
   }
   
   private void updateTvData(boolean checkBatterie) {
@@ -5330,7 +5306,7 @@ public class TvBrowser extends AppCompatActivity implements
       switch(tab.getPosition()) {
         case 2:mScrollTimeItem.setVisible(false);break;
         
-        default:mScrollTimeItem.setVisible(!mSearchExpanded);break;
+        default:mScrollTimeItem.setVisible(true && !mSearchExpanded);break;
       }
     }
   }
@@ -5466,16 +5442,12 @@ public class TvBrowser extends AppCompatActivity implements
       mLastSelectedTab = mViewPager.getCurrentItem();
       mViewPager.setCurrentItem(1,true);
 
-<<<<<<< HEAD
-      mProgramsListWasShow = remember;
-=======
       if(remember) {
         mProgramsListWasShow = true;
       }
       else {
         mProgramsListWasShow = false;
       }
->>>>>>> 8a8c3e39b869f580801ea319f64241cd9b0a5be5
     }
   }
   
@@ -5571,17 +5543,11 @@ public class TvBrowser extends AppCompatActivity implements
    */
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
-<<<<<<< HEAD
-    /* && "LGE".equalsIgnoreCase(Build.BRAND)*/
-    return keyCode == KeyEvent.KEYCODE_MENU || super.onKeyDown(keyCode, event);
-
-=======
     if (keyCode == KeyEvent.KEYCODE_MENU/* && "LGE".equalsIgnoreCase(Build.BRAND)*/) {
       return true;
     }
 
     return super.onKeyDown(keyCode, event);
->>>>>>> 8a8c3e39b869f580801ea319f64241cd9b0a5be5
   }
 
   @Override

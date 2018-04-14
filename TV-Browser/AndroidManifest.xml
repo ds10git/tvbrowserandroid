@@ -85,14 +85,6 @@
                 <action android:name="android.intent.action.SEARCH" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-<<<<<<< HEAD
-
-            <intent-filter>
-                <action android:name="com.google.android.gms.actions.SEARCH_ACTION" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
-=======
->>>>>>> 8a8c3e39b869f580801ea319f64241cd9b0a5be5
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />

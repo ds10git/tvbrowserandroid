@@ -15,7 +15,7 @@
         	&bull; fix possible crash at database access<br>
         	&bull; fix possible crash at editing favorites<br>
         <h3>0.6.3.4</h3>
-        	&bull; added setting to allow use of unstable Internet connections for data update<br>
+        	&bull; added setting to allow use of instable Internet connections for data update<br>
         <h3>0.6.3.3</h3>
         	&bull; fixed possible crash<br>
         	&bull; added fallback to default mirrors for data download<br>
@@ -76,7 +76,7 @@
 		<h3>0.6.0.9</h3>
             &bull; fixed possible crash at startup<br>
 		<h3>0.6.0.8</h3>
-            &bull; fixed missing setup message at first startup<br>
+            &bull; fixed missing setup message at frist startup<br>
 		<h3>0.6.0.7</h3>
             &bull; removed ability to disable SSL check for EPGpaid downloads<br>
             &bull; fixed bugs<br>
@@ -212,7 +212,7 @@
        	<br>
         <h3>0.5.7.2</h3>
         	&bull; sync markings can be removed<br>
-        	&bull; info about changes after version update can be deactivated<br>
+        	&bull; info about changes after version update deactivatable<br>
         	&bull; added global message for data update done (can be used by other apps)<br>
         	&bull; added global message for reminded programs (can be used by other apps)<br>
         	&bull; show number of found favorites in favorites tab<br>
@@ -719,7 +719,7 @@
 	<string name="pref_epgpaid_user_password_set_summary">********</string>
 	<string name="pref_epgpaid_user_password_title">Password</string>
 	<string name="pref_epgpaid_max_download_title">Download maximum:</string>
-    <string name="pref_epgpaid_ssl_check_title">Check SSL certificate</string>
+    <string name="pref_epgpaid_ssl_check_title">Ceck SSL certificate</string>
 	<string name="pref_epgpaid_ssl_check_summary">If your credentials cannot be validated and you are sure to have entered correct credentials and an Internet connection is available for validation, you can disable the check of the SSL certificate to circumvent possible problems.</string>
 	<string name="pref_epgpaid_purchase_title">Purchase access</string>
 	<string name="pref_epgpaid_purchase_summary">(Opens web site: https://www.epgpaid.de)</string>
@@ -729,15 +729,15 @@
 	<string name="pref_database_selection_unavailable">UNAVAILABLE</string>
 	<string name="pref_database_selection_warning_unavailable">The database is currently not available, if you change this setting now, you will lose all data.</string>
 	<string name="pref_database_selection_warning_unavailable_ok">Change it\nanyway</string>
-	<string name="pref_database_selection_warning_move">You are storing the database on an external drive.\n\nYou shouldn\'t do that.\n\nTHERE WILL BE NO SUPPORT FOR INSTALLATIONS WITH DATABASE ON EXTERNAL DRIVE.\n\nYou also might experience a crash of TV-Browser once after moving the database.</string>
+	<string name="pref_database_selection_warning_move">You are storing the database on an external drive.\n\nYou shouldn\'t do that.\n\nTHERE WILL BE NO SUPPORT FOR INSTALLATIONS WITH DATABASE ON EXTERNAL DRIVE.\n\nYou also might expierience a crash of TV-Browser once after moving the database.</string>
 	<string name="pref_database_selection_warning_move_ok">Store external\nanyway</string>
 	<string name="pref_database_selection_internal">Internal</string>
 	<string name="pref_database_copy_title">Copying database</string>
 	<string name="pref_database_copy_wait">Please wait&#8230;</string>
 	<string name="pref_summary_data_download">Settings for data download</string>
-	<string name="pref_data_update_connection_instable_accept_title">Unstable Internet connection</string>
-	<string name="pref_data_update_connection_instable_accept_summary_on">The used Internet connection is very slow or unstable. TV-Browser should download the data nonetheless even if the download needs much time.</string>
-	<string name="pref_data_update_connection_instable_accept_summary_off">The used Internet connection is fast and reliable. TV-Browser will cancel the data download if the connection seems to be unstable.</string>
+	<string name="pref_data_update_connection_instable_accept_title">Instable Internet connection</string>
+	<string name="pref_data_update_connection_instable_accept_summary_on">The used Internet connection is very slow or instable. TV-Browser should download the data nonetheless even if the download needs much time.</string>
+	<string name="pref_data_update_connection_instable_accept_summary_off">The used Internet connection is fast and reliable. TV-Browser will cancel the data download if the connection seems to be instable.</string>
     <string name="pref_load_full_data">Download full data</string>
     <string name="pref_load_picture_data">Download pictures</string>
 	<string name="pref_load_full_data_summary_on">All available data is downloaded</string>
@@ -760,11 +760,11 @@
 	<string name="pref_detail_allow_swipe">Swipe through channel programs</string>
 	<string name="pref_detail_allow_swipe_summary_on">Allows to swipe through the programs of the shown channel.</string>
 	<string name="pref_detail_allow_swipe_summary_off">Swipe through the programs of the shown channel is not possible.</string>
-	<string name="pref_detail_highlight_color">Favorite highlight color</string>
+	<string name="pref_detail_highlight_color">Favorite hightlight color</string>
 	<string name="pref_detail_picture_description_position">Position of picture description</string>
 	<string-array name="pref_detail_picture_description_entries">
 	    <item>To right of picture</item>
-	    <item>At bottom of picture</item>
+	    <item>At botton of picture</item>
 	</string-array>
 	<string name="pref_show_genre">Show genre</string>
 	<string name="pref_show_episode">Show episode title</string>
@@ -802,7 +802,7 @@
 	<string name="startTime">Start time</string>
 	<string name="titleOrginal">Original title</string>
 	<string name="year">Year</string>
-	<string name="nettoPlayTime">Net Play Time:</string>
+	<string name="nettoPlayTime">Netto Play Time:</string>
 	<string name="vps">VPS:</string>
 	<string name="script">Script:</string>
 	<string name="repetitionFrom">Repetition From:</string>
@@ -905,7 +905,7 @@
         <item>Highlight</item>
     </string-array>
     <string name="pref_i_dont_want_to_see_highlight_color">Highlight color</string>
-    <string name="pref_i_dont_want_to_see_highlight_color_summary">Highlight color for filtered programs</string>
+    <string name="pref_i_dont_want_to_see_highlight_color_summary">Hightlight color for filtered programs</string>
     <string name="action_dont_want_to_see_edit">Edit \'I don\'t want to see!\'</string>
     <string name="action_want_to_see">I do want to see!</string>
     <string name="dont_want_to_see_edit_entry">What should be excluded? (You can use the wildcard *)</string>
@@ -1095,21 +1095,7 @@
     <string name="donate_text">If you like TV-Browser and you are at least 18 years old, please consider to make a donation for the development of TV-Browser.</string>
     <string name="donation">Donation</string>
     <string name="donation_info_website">To see possible ways of donating to the TV-Browser development you can look at the website of TV-Browser for Android.</string>
-<<<<<<< HEAD
-    <string name="donation_open_website">Show website with\nways of donating</string>
-    <string name="donation_thanks_text">Thank you for considering to make a donation, you can select from the following donations (these contains 30%% Google Play transaction fee and the VAT):</string>
-    <string name="make_donation_info">You are about to make a donation of {0}.\n\nWith clicking on \'Yes, make donation\' you confirm that you are at least 18 years and therefor allowed to make donations.</string>
-    <string name="make_donation">Yes, make\ndonation</string>
-    <string name="stop_donation">No, thanks</string>
-    <string name="thanks_for_donation">Thank you for donating for TV-Browser for Android.</string>
-    <string name="in_app_error_1">Could not establish connection to Google Play.\n\nPlease try again later</string>
-    <string name="in_app_error_2">or use a different donation method.</string>
-    <string name="already_donated">You have already donated {0} on {1}. Thanks again for that donation.\n\nDo you really want to donate again?</string>
-    <string name="donate_again">Yes, donate again</string>
-    <string name="no_donation_possible">At the moment no donation is possible.\nPlease try again later.</string>
-=======
     <string name="donation_open_website">Show website</string>
->>>>>>> 8a8c3e39b869f580801ea319f64241cd9b0a5be5
     <string name="pref_running_time_selection">Time selection</string>
     <string name="pref_running_time_selection_summary">Background color of the selected time.</string>
     <string name="pref_prog_table_delayed">Delay loading until opening</string>
@@ -1206,7 +1192,7 @@
     <string name="action_backup_preferences_restore">Restore preferences/favorites</string>
     
     <string name="backup_preferences_save_text">You can upload the preferences and favorite definitions to the TV-Browser server. The selected channels and the "I don\'t want to see!" list are not saved.\n\nDo you want\'t to upload the preferences and favorite definitions now?</string>
-    <string name="backup_preferences_restore_text">If you previously had uploaded the preferences and favorite definitions to the TV-Browser server, you can restore it from there. The current preferences and favorite definitions will be overridden!\n\nDo you want\'t to restore the preferences and favorite definitions now?\n\n(TV-Browser will quit after restoring of the preferences and favorites)</string>
+    <string name="backup_preferences_restore_text">If you previously had uploaded the preferences and favorite definitions to the TV-Browser server, you can restore it from there. The current preferences and favorite defintions will be overridden!\n\nDo you want\'t to restore the preferences and favorite definitions now?\n\n(TV-Browser will quit after restoring of the preferences and favorites)</string>
     
     <string name="pref_vertical_padding_size">Free vertical space around programs</string>
     
@@ -1264,5 +1250,6 @@
     <string name="detail_date_format">%1$ta, %2$s %3$s - %4$s, %5$s</string>
     
     <string name="time_block_time_format" translatable="false">%1$02d</string>
-	<string name="channel_logo_content_description">The channel\'s logo</string>
+    <string name="channel_logo_content_description">Channel logo</string>
 </resources>
+
