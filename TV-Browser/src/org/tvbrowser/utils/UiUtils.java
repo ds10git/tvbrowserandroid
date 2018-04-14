@@ -30,6 +30,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.Plugin;
 import org.tvbrowser.devplugin.PluginHandler;
@@ -1279,9 +1280,7 @@ public class UiUtils {
                       
                       Context applicationContext = activity.getApplicationContext();
                       
-                      NotificationCompat.Builder builder;
-                      
-                      builder = new NotificationCompat.Builder(activity);
+                      NotificationCompat.Builder builder = new NotificationCompat.Builder(applicationContext, App.get().notificationChannelId());
                       builder.setSmallIcon(R.drawable.ic_stat_notify);
                       builder.setOngoing(true);
                       builder.setContentTitle(activity.getResources().getText(R.string.action_dont_want_to_see));
@@ -1289,7 +1288,7 @@ public class UiUtils {
                       
                       int notifyID = 4;
                       
-                      NotificationManager notification = (NotificationManager)activity.getSystemService(Context.NOTIFICATION_SERVICE);
+                      NotificationManager notification = (NotificationManager)applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
                       notification.notify(notifyID, builder.build());
                       
                       ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
@@ -1409,11 +1408,9 @@ public class UiUtils {
                 ((TvBrowser)activity).updateProgressIcon(true);
               }
               
-              Context applicationContext = activity.getApplicationContext();
+              final Context applicationContext = activity.getApplicationContext();
               
-              NotificationCompat.Builder builder;
-              
-              builder = new NotificationCompat.Builder(activity);
+              final NotificationCompat.Builder builder = new NotificationCompat.Builder(applicationContext, App.get().notificationChannelId());
               builder.setSmallIcon(R.drawable.ic_stat_notify);
               builder.setOngoing(true);
               builder.setContentTitle(activity.getResources().getText(R.string.action_dont_want_to_see));
@@ -1421,7 +1418,7 @@ public class UiUtils {
               
               int notifyID = 3;
               
-              NotificationManager notification = (NotificationManager)activity.getSystemService(Context.NOTIFICATION_SERVICE);
+              NotificationManager notification = (NotificationManager)applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
               notification.notify(notifyID, builder.build());
               
               ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();

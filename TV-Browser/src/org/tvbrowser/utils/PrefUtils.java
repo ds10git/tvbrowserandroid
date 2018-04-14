@@ -44,10 +44,6 @@ public class PrefUtils {
     if(context != null && mContext == null) {
       mContext = context.getApplicationContext();
       mPref = PreferenceManager.getDefaultSharedPreferences(mContext);
-      
-      String installerSource = context.getPackageManager().getInstallerPackageName(context.getPackageName());
-      
-      SettingConstants.GOOGLE_PLAY = installerSource != null && installerSource.equals("com.android.vending");
     }
   }
   

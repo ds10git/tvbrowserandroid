@@ -420,7 +420,7 @@
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_dont_show_again">Don\'t show\nagain</string>
     <string name="info_version_show">Show changes</string>
-    <string name="pref_info_version_title">Änderungen bei Versionsupdate anzeigen</string>
+    <string name="pref_info_version_title">Show changes on version update</string>
     
     <string name="tab_restoring_name">RESTORING PREFERENCES</string>
     <string name="app_name">TV-Browser</string>
@@ -1066,7 +1066,6 @@
     <string name="pref_show_progress_summary">Time progress of on air programs is shown in the background.</string>
     <string name="update_not_now">Not now</string>
     <string name="update_website">Open website</string>
-    <string name="update_google_play">Open Google Play</string>
     <string name="pref_auto_update_category">Automatically data update</string>
     <string name="pref_auto_update_type">Type</string>
     <string name="pref_auto_update_frequency">Frequency</string>
@@ -1092,14 +1091,11 @@
     </string-array>
     <string name="you_like_it">Do you like TV-Browser?</string>
     <string name="not_now">Not now{0}</string>
-    <string name="rating_button">Rate on Google Play</string>
     <string name="donate_button">More about donations</string>
-    <string name="rating_text"><![CDATA[<h3>Rating</h3>You are using TV-Browser for some time. If you want you can rate TV-Browser on Google Play.]]></string>
-    <string name="donate_text"><![CDATA[<h3>Donations</h3>If you like TV-Browser and you are at lest 18 years old, please consider to make a donation for the development of TV-Browser.]]></string>
+    <string name="donate_text">If you like TV-Browser and you are at least 18 years old, please consider to make a donation for the development of TV-Browser.</string>
     <string name="donation">Donation</string>
-    <string name="donation_info_inapp">You can donate directly with InApp payment from a list of possible amounts. (You won\'t be charged unless you accept the donation in Google Play.)</string>
-    <string name="donation_open_inapp">Open InApp Donations</string>
     <string name="donation_info_website">To see possible ways of donating to the TV-Browser development you can look at the website of TV-Browser for Android.</string>
+<<<<<<< HEAD
     <string name="donation_open_website">Show website with\nways of donating</string>
     <string name="donation_thanks_text">Thank you for considering to make a donation, you can select from the following donations (these contains 30%% Google Play transaction fee and the VAT):</string>
     <string name="make_donation_info">You are about to make a donation of {0}.\n\nWith clicking on \'Yes, make donation\' you confirm that you are at least 18 years and therefor allowed to make donations.</string>
@@ -1111,6 +1107,9 @@
     <string name="already_donated">You have already donated {0} on {1}. Thanks again for that donation.\n\nDo you really want to donate again?</string>
     <string name="donate_again">Yes, donate again</string>
     <string name="no_donation_possible">At the moment no donation is possible.\nPlease try again later.</string>
+=======
+    <string name="donation_open_website">Show website</string>
+>>>>>>> 8a8c3e39b869f580801ea319f64241cd9b0a5be5
     <string name="pref_running_time_selection">Time selection</string>
     <string name="pref_running_time_selection_summary">Background color of the selected time.</string>
     <string name="pref_prog_table_delayed">Delay loading until opening</string>
@@ -1252,7 +1251,6 @@
     
     <string name="plugin_available_title">Available Plugins</string>
     <string name="plugin_open_google_play">Show it in Google Play\u2122</string>
-    <string name="plugin_download_manually">Download and install manually</string>
     
     <string name="plugin_available_not_title">No Plugins available</string>
     <string name="plugin_available_not_message">No Plugins were found that can be installed.</string>

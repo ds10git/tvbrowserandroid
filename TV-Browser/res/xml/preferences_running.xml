@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tvb="http://schemas.android.com/apk/res/org.tvbrowser.tvbrowser" >
+    xmlns:tvb="http://schemas.android.com/apk/res-auto" >
 	<ListPreference
 		android:key="@string/PREF_RUNNING_DIVIDER_SIZE"
 		android:title="@string/divider_size"

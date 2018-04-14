@@ -56,6 +56,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.CRC32;
 import java.util.zip.GZIPInputStream;
 
+import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.CompatUtils;
@@ -325,7 +326,7 @@ public class TvDataUpdateService extends Service {
     
     mDaysToLoad = 2;
     
-    mBuilder = new NotificationCompat.Builder(this);
+    mBuilder = new NotificationCompat.Builder(this, App.get().notificationChannelId());
     mBuilder.setSmallIcon(R.drawable.ic_stat_notify);
     mBuilder.setOngoing(true);
     
