@@ -16,22 +16,23 @@
  */
 package org.tvbrowser.widgets;
 
-import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.tvbrowser.InfoActivity;
-import org.tvbrowser.tvbrowser.TvBrowser;
-
+import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+
+import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.InfoActivity;
+import org.tvbrowser.tvbrowser.TvBrowser;
 
 public class WidgetOnClickReceiver extends BroadcastReceiver {
   @Override
   public void onReceive(final Context context, final Intent intent) {
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
-    
+
     if(intent.hasExtra(SettingConstants.CHANNEL_ID_EXTRA) && intent.hasExtra(SettingConstants.EXTRA_START_TIME)) {
       Intent startTVB = new Intent(context, TvBrowser.class);
-      startTVB.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
+      startTVB.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
       startTVB.putExtra(SettingConstants.CHANNEL_ID_EXTRA, intent.getExtras().getInt(SettingConstants.CHANNEL_ID_EXTRA));
       startTVB.putExtra(SettingConstants.EXTRA_START_TIME, intent.getExtras().getLong(SettingConstants.EXTRA_START_TIME));
       startTVB.putExtra(SettingConstants.EXTRA_END_TIME, intent.getExtras().getLong(SettingConstants.EXTRA_END_TIME,-1));
@@ -39,10 +40,17 @@ public class WidgetOnClickReceiver extends BroadcastReceiver {
       
       context.getApplicationContext().startActivity(startTVB);
     }
+    else if(SettingConstants.SELECT_TIME_WIDGET_RUNNING.equals(String.valueOf(intent.getAction())) && intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
+      Intent config = new Intent(context, InfoActivity.class);
+      config.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
+      config.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,-1));
+
+      context.getApplicationContext().startActivity(config);
+    }
     else if(programID >= 0) {
       Intent startInfo = new Intent(context, InfoActivity.class);
+      startInfo.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK|Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
       startInfo.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
-      startInfo.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP);
       context.startActivity(startInfo);
     }
   }

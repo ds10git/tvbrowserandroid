@@ -1,0 +1,239 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tvb="http://schemas.android.com/apk/res-auto"
+    android:key="PREF_SCREEN_REMINDER" >
+    <ListPreference
+        android:key="@string/PREF_REMINDER_TIME"
+        android:title="@string/pref_reminder_time_first"
+        android:defaultValue="@string/pref_reminder_time_default"
+        android:entries="@array/pref_category_reminder_names"
+        android:entryValues="@array/pref_category_reminder_values"
+        android:summary="%s"/>
+    <ListPreference
+        android:key="@string/PREF_REMINDER_TIME_SECOND"
+        android:title="@string/pref_reminder_time_second"
+        android:defaultValue="@string/pref_reminder_time_second_default"
+        android:entries="@array/pref_category_reminder_names_second"
+        android:entryValues="@array/pref_category_reminder_values_second"
+        android:summary="%s"/>
+    <ListPreference
+        android:key="@string/PREF_REMINDER_PRIORITY_VALUE"
+        android:title="@string/pref_reminder_priority"
+        android:defaultValue="@string/pref_reminder_priority_default"
+        android:entries="@array/pref_reminder_priority_values_names"
+        android:entryValues="@array/pref_simple_string_value_array5"
+        android:summary="%s"/>
+    <CheckBoxPreference
+        android:key="@string/PREF_REMINDER_AS_ALARM_CLOCK"
+        android:defaultValue="@bool/pref_reminder_as_alarm_clock_default"
+        android:title="@string/pref_reminder_as_alarm_clock_title"
+        android:summaryOn="@string/pref_reminder_as_alarm_clock_summary_on"
+        android:summaryOff="@string/pref_reminder_as_alarm_clock_summary_off"/>
+    <org.tvbrowser.settings.PreferenceColorActivated
+        android:key="@string/PREF_REMINDER_COLOR_LED"
+        android:title="@string/pref_reminder_color_led"
+        android:defaultValue="@color/pref_reminder_color_led_default"
+        tvb:alwaysActivated="true"/>
+    <CheckBoxPreference android:key="@string/PREF_REMINDER_STATE_KEEP"
+        android:title="@string/pref_reminder_state_keep_title"
+        android:summary="@string/pref_reminder_state_keep_summary"
+        android:defaultValue="@bool/pref_reminder_state_keep_default"
+        />
+    <PreferenceCategory android:title="@string/pref_reminder_type">
+        <org.tvbrowser.view.PreferenceNotificationChannel
+            android:key="@string/PREF_REMINDER_CONFIG_DAY"
+            android:title="@string/pref_reminder_config"
+            android:summary="1"
+            />
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_reminder_work_mode_category">
+        <CheckBoxPreference android:key="@string/PREF_REMINDER_WORK_MODE_ACTIVATED"
+            android:title="@string/pref_activated"
+            android:defaultValue="@bool/pref_reminder_work_mode_activated_default"
+            />
+        <CheckBoxPreference android:key="@string/PREF_REMINDER_WORK_MODE_NO_REMINDER"
+            android:title="@string/pref_reminder_night_no_reminder"
+            android:defaultValue="@bool/pref_reminder_work_mode_no_reminder_default"
+            />
+        <org.tvbrowser.view.PreferenceNotificationChannel
+            android:key="@string/PREF_REMINDER_CONFIG_WORK"
+            android:title="@string/pref_reminder_config"
+            android:summary="2"
+            />
+        <!--        <ListPreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_PRIORITY_VALUE"
+                    android:title="@string/pref_reminder_priority"
+                    android:defaultValue="@string/pref_reminder_priority_default"
+                    android:entries="@array/pref_reminder_priority_values_names"
+                    android:entryValues="@array/pref_simple_string_value_array5"
+                    android:summary="%s"/>
+                <RingtonePreference android:key="@string/PREF_REMINDER_WORK_MODE_SOUND_VALUE"
+                    android:summary="@string/pref_reminder_sound_value_summary"
+                    android:ringtoneType="notification"
+                    android:defaultValue="@string/pref_reminder_work_mode_sound_value_default"
+                    />
+                <CheckBoxPreference android:key="@string/PREF_REMINDER_WORK_MODE_VIBRATE"
+                    android:title="@string/pref_reminder_vibrate"
+                    android:defaultValue="@bool/pref_reminder_work_mode_vibrate_default"
+                    />
+                <CheckBoxPreference android:key="@string/PREF_REMINDER_WORK_MODE_LED"
+                    android:title="@string/pref_reminder_led"
+                    android:defaultValue="@bool/pref_reminder_work_mode_led_default"
+                    />-->
+        <PreferenceScreen
+            android:key="@string/PREF_REMINDER_WORK_MODE_DAYS"
+            android:title="@string/pref_reminder_work_days">
+            <PreferenceCategory android:title="@string/monday">
+                <CheckBoxPreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_MONDAY_ACTIVATED"
+                    android:title="@string/pref_activated"
+                    android:defaultValue="@bool/pref_reminder_work_mode_monday_activated_default"/>
+                <org.tvbrowser.settings.TimePreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_MONDAY_START"
+                    android:defaultValue="@integer/pref_reminder_work_mode_start_default"
+                    android:summary="@string/pref_reminder_work_start"/>
+                <org.tvbrowser.settings.TimePreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_MONDAY_END"
+                    android:defaultValue="@integer/pref_reminder_work_mode_end_default"
+                    android:summary="@string/pref_reminder_work_end"
+                    />
+            </PreferenceCategory>
+            <PreferenceCategory android:title="@string/tuesday">
+                <CheckBoxPreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_TUESDAY_ACTIVATED"
+                    android:title="@string/pref_activated"
+                    android:defaultValue="@bool/pref_reminder_work_mode_tuesday_activated_default"/>
+                <org.tvbrowser.settings.TimePreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_TUESDAY_START"
+                    android:defaultValue="@integer/pref_reminder_work_mode_start_default"
+                    android:summary="@string/pref_reminder_work_start"/>
+                <org.tvbrowser.settings.TimePreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_TUESDAY_END"
+                    android:defaultValue="@integer/pref_reminder_work_mode_end_default"
+                    android:summary="@string/pref_reminder_work_end"
+                    />
+            </PreferenceCategory>
+            <PreferenceCategory android:title="@string/wednesday">
+                <CheckBoxPreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_WEDNESDAY_ACTIVATED"
+                    android:title="@string/pref_activated"
+                    android:defaultValue="@bool/pref_reminder_work_mode_wednesday_activated_default"/>
+                <org.tvbrowser.settings.TimePreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_WEDNESDAY_START"
+                    android:defaultValue="@integer/pref_reminder_work_mode_start_default"
+                    android:summary="@string/pref_reminder_work_start"/>
+                <org.tvbrowser.settings.TimePreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_WEDNESDAY_END"
+                    android:defaultValue="@integer/pref_reminder_work_mode_end_default"
+                    android:summary="@string/pref_reminder_work_end"
+                    />
+            </PreferenceCategory>
+            <PreferenceCategory android:title="@string/thursday">
+                <CheckBoxPreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_THURSDAY_ACTIVATED"
+                    android:title="@string/pref_activated"
+                    android:defaultValue="@bool/pref_reminder_work_mode_thursday_activated_default"/>
+                <org.tvbrowser.settings.TimePreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_THURSDAY_START"
+                    android:defaultValue="@integer/pref_reminder_work_mode_start_default"
+                    android:summary="@string/pref_reminder_work_start"/>
+                <org.tvbrowser.settings.TimePreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_THURSDAY_END"
+                    android:defaultValue="@integer/pref_reminder_work_mode_end_default"
+                    android:summary="@string/pref_reminder_work_end"
+                    />
+            </PreferenceCategory>
+            <PreferenceCategory android:title="@string/friday">
+                <CheckBoxPreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_FRIDAY_ACTIVATED"
+                    android:title="@string/pref_activated"
+                    android:defaultValue="@bool/pref_reminder_work_mode_friday_activated_default"/>
+                <org.tvbrowser.settings.TimePreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_FRIDAY_START"
+                    android:defaultValue="@integer/pref_reminder_work_mode_start_default"
+                    android:summary="@string/pref_reminder_work_start"/>
+                <org.tvbrowser.settings.TimePreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_FRIDAY_END"
+                    android:defaultValue="@integer/pref_reminder_work_mode_end_default"
+                    android:summary="@string/pref_reminder_work_end"
+                    />
+            </PreferenceCategory>
+            <PreferenceCategory android:title="@string/saturday">
+                <CheckBoxPreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_SATURDAY_ACTIVATED"
+                    android:title="@string/pref_activated"
+                    android:defaultValue="@bool/pref_reminder_work_mode_saturday_activated_default"/>
+                <org.tvbrowser.settings.TimePreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_SATURDAY_START"
+                    android:defaultValue="@integer/pref_reminder_work_mode_start_default"
+                    android:summary="@string/pref_reminder_work_start"/>
+                <org.tvbrowser.settings.TimePreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_SATURDAY_END"
+                    android:defaultValue="@integer/pref_reminder_work_mode_end_default"
+                    android:summary="@string/pref_reminder_work_end"
+                    />
+            </PreferenceCategory>
+            <PreferenceCategory android:title="@string/sunday">
+                <CheckBoxPreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_SUNDAY_ACTIVATED"
+                    android:title="@string/pref_activated"
+                    android:defaultValue="@bool/pref_reminder_work_mode_sunday_activated_default"/>
+                <org.tvbrowser.settings.TimePreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_SUNDAY_START"
+                    android:defaultValue="@integer/pref_reminder_work_mode_start_default"
+                    android:summary="@string/pref_reminder_work_start"/>
+                <org.tvbrowser.settings.TimePreference
+                    android:key="@string/PREF_REMINDER_WORK_MODE_SUNDAY_END"
+                    android:defaultValue="@integer/pref_reminder_work_mode_end_default"
+                    android:summary="@string/pref_reminder_work_end"
+                    />
+            </PreferenceCategory>
+        </PreferenceScreen>
+    </PreferenceCategory>
+    <PreferenceCategory android:title="@string/pref_reminder_night_type">
+        <CheckBoxPreference android:key="@string/PREF_REMINDER_NIGHT_MODE_ACTIVATED"
+            android:title="@string/pref_activated"
+            android:defaultValue="@bool/pref_reminder_night_mode_activated_default"
+            />
+        <org.tvbrowser.settings.TimePreference
+            android:key="@string/PREF_REMINDER_NIGHT_MODE_START"
+            android:defaultValue="@integer/pref_reminder_night_mode_start_default"
+            android:summary="@string/pref_reminder_night_start"/>
+        <org.tvbrowser.settings.TimePreference
+            android:key="@string/PREF_REMINDER_NIGHT_MODE_END"
+            android:defaultValue="@integer/pref_reminder_night_mode_end_default"
+            android:summary="@string/pref_reminder_night_end"
+            />
+        <CheckBoxPreference android:key="@string/PREF_REMINDER_NIGHT_MODE_NO_REMINDER"
+            android:title="@string/pref_reminder_night_no_reminder"
+            android:defaultValue="@bool/pref_reminder_night_mode_no_reminder_default"
+            />
+        <org.tvbrowser.view.PreferenceNotificationChannel
+            android:key="@string/PREF_REMINDER_CONFIG_NIGHT"
+            android:title="@string/pref_reminder_config"
+            android:summary="3"
+            />
+        <!--
+        <ListPreference
+            android:key="@string/PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE"
+            android:title="@string/pref_reminder_priority"
+            android:defaultValue="@string/pref_reminder_priority_default"
+            android:entries="@array/pref_reminder_priority_values_names"
+            android:entryValues="@array/pref_simple_string_value_array5"
+            android:summary="%s"/>
+        <RingtonePreference android:key="@string/PREF_REMINDER_NIGHT_MODE_SOUND_VALUE"
+            android:summary="@string/pref_reminder_sound_value_summary"
+            android:ringtoneType="notification"
+            android:defaultValue="@string/pref_reminder_night_mode_sound_value_default"
+            />
+        <CheckBoxPreference android:key="@string/PREF_REMINDER_NIGHT_MODE_VIBRATE"
+            android:title="@string/pref_reminder_vibrate"
+            android:defaultValue="@bool/pref_reminder_night_mode_vibrate_default"
+            />
+        <CheckBoxPreference android:key="@string/PREF_REMINDER_NIGHT_MODE_LED"
+            android:title="@string/pref_reminder_led"
+            android:defaultValue="@bool/pref_reminder_night_mode_led_default"
+            />-->
+    </PreferenceCategory>
+</PreferenceScreen>

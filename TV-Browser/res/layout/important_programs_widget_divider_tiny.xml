@@ -34,6 +34,7 @@
 	             android:layout_marginEnd="3dp"
 	             android:layout_marginRight="3dp"/>
 		     <TextView android:id="@id/important_widget_header"
+				 android:textColor="@color/widget_text_default"
 		         android:layout_width="match_parent"
 		         android:layout_height="wrap_content"
 		         android:text="@string/widget_running_title"
@@ -49,6 +50,7 @@
         android:layout_height="match_parent"
         android:layout_below="@id/important_widget_header_wrapper"/>
 	<TextView
+		android:textColor="@color/widget_text_default"
 	    android:background="@drawable/shape_widget_background_corners_straight_transparency_medium"
 	    android:id="@id/important_widget_empty_text"
 	    android:layout_width="match_parent"

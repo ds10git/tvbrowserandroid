@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string name="action_about">Über TV-Browser vP</string>
+
 	<string name="update_google_play">Öffne Google Play</string>
 
 	<string name="rating_button">Bei Google Play bewerten</string>

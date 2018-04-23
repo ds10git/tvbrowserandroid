@@ -41,7 +41,9 @@
 	    
 	    <string name="PREF_AUTO_UPDATE_START_TIME" translatable="false">PREF_AUTO_UPDATE_START_TIME</string>
 	    <item name="pref_auto_update_start_time_default" type="integer" format="integer">0</item>
-	    
+
+	    <string name="PREF_AUTO_UPDATE_JOB_ID" translatable="false">PREF_AUTO_UPDATE_JOB_ID</string>
+
 	    <string name="PREF_AUTO_CHANNEL_UPDATE_FREQUENCY" translatable="false">PREF_AUTO_CHANNEL_UPDATE_FREQUENCY</string>
 	    <item name="pref_auto_channel_update_frequency_default" type="string" format="string" translatable="false">14</item>
 	    
@@ -316,7 +318,11 @@
 	    
 	    <string name="PREF_REMINDER_NIGHT_MODE_LED" translatable="false">PREF_REMINDER_NIGHT_MODE_LED</string>
 	    <item name="pref_reminder_night_mode_led_default" type="bool" format="boolean">false</item>
-	    
+
+	    <string name="PREF_REMINDER_CONFIG_DAY" translatable="false">PREF_REMINDER_CONFIG_DAY</string>
+	    <string name="PREF_REMINDER_CONFIG_WORK" translatable="false">PREF_REMINDER_CONFIG_WORK</string>
+	    <string name="PREF_REMINDER_CONFIG_NIGHT" translatable="false">PREF_REMINDER_CONFIG_NIGHT</string>
+
 	<!-- Time buttons settings -->
 	    <string name="TIME_BUTTON_COUNT" translatable="false">TIME_BUTTON_COUNT</string>
 	    <item name="time_button_count_default" type="integer" format="integer">6</item>
@@ -347,6 +353,9 @@
     	<item name="sort_running_times_default" type="bool" format="boolean">false</item>
 	
 	<!-- Running programs settings -->
+		<string name="PREF_RUNNING_START_WITH_NEXT" translatable="false">PREF_RUNNING_START_WITH_NEXT</string>
+		<item name="pref_running_start_with_next_default" type="bool" format="boolean" translatable="false">false</item>
+
 		<string name="PREF_RUNNING_DIVIDER_SIZE" translatable="false">PREF_RUNNING_DIVIDER_SIZE</string>
 		<item name="pref_running_divider_size_default" type="string" format="string" translatable="false">@string/divider_small</item>
 		
@@ -472,7 +481,7 @@
     	<item name="show_picture_in_details_default" type="bool" format="boolean">true</item>
 
     	<string name="DETAIL_PICTURE_DESCRIPTION_POSITION" translatable="false">DETAIL_PICTURE_DESCRIPTION_POSITION</string>
-    	<item name="detail_picture_description_position_default" type="string" format="string" translatable="false">0</item>
+    	<item name="detail_picture_description_position_default" type="string" format="string" translatable="false">1</item>
     		
     	<string name="SHOW_SORT_NUMBER_IN_DETAILS" translatable="false">SHOW_SORT_NUMBER_IN_DETAILS</string>
 	    <item name="show_sort_number_in_details_default" type="bool" format="boolean">true</item>

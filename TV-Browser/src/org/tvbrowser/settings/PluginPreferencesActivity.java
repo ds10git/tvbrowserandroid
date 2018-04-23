@@ -34,11 +34,13 @@ import android.os.Handler;
  * 
  * @author René Mach
  */
-public class PluginPreferencesActivity extends ToolbarPreferencesActivity {  
+public class PluginPreferencesActivity extends ToolbarPreferencesActivity {
   private static PluginServiceConnection[] PLUGIN_SERVICE_CONNECTIONS;
   private static PluginManager PLUGIN_MANAGER;
   
   private static int LAST_POS = 0;
+
+  private static PluginPreferencesActivity INSTANCE = null;
     
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -49,8 +51,26 @@ public class PluginPreferencesActivity extends ToolbarPreferencesActivity {
     if(intent != null && intent.hasExtra(EXTRA_SHOW_FRAGMENT_ARGUMENTS)) {
       getDelegate().getSupportActionBar().setTitle(intent.getBundleExtra(EXTRA_SHOW_FRAGMENT_ARGUMENTS).getString("category"));
     }
+
+    INSTANCE = this;
   }
-  
+
+  @Override
+  protected void onDestroy() {
+    INSTANCE = null;
+
+    super.onDestroy();
+  }
+
+  static PluginPreferencesActivity getInstance() {
+    return INSTANCE;
+  }
+
+  @Override
+  public void onBackPressed() {
+    finish();
+  }
+
   @Override
   protected void onResume() {
     super.onResume();
@@ -98,7 +118,7 @@ public class PluginPreferencesActivity extends ToolbarPreferencesActivity {
             header.summary = getString(R.string.pref_plugins_author) + " " + pluginConnection.getPluginAuthor();
           }
           
-          header.fragment = PluginPreferencesFragment.class.getName();
+          header.fragment = PluginPreferencesFragment.class.getCanonicalName();
           header.id = id++;
           
           Bundle b = new Bundle();
@@ -129,19 +149,21 @@ public class PluginPreferencesActivity extends ToolbarPreferencesActivity {
     
     return result;
   }
-    
+
   @Override
   public void onHeaderClick(Header header, int position) {
     LAST_POS = position;
-    
+
     if(isMultiPane()) {
       switchToHeader(header);
     }
     else {
-      startPreferencePanel(header.fragment, header.fragmentArguments, header.titleRes, header.title, null, 0);
+      Intent startActivity = new Intent(PluginPreferencesActivity.this, ActivityPluginFragment.class);
+      startActivity.putExtra(ActivityPluginFragment.EXTRA_HEADER, header);
+      startActivity(startActivity);
     }
   }
-  
+
   @TargetApi(Build.VERSION_CODES.KITKAT)
   @Override
   protected boolean isValidFragment(String fragmentName) {

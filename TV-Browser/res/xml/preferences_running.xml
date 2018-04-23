@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tvb="http://schemas.android.com/apk/res-auto" >
+	<CheckBoxPreference android:key="@string/PREF_RUNNING_START_WITH_NEXT"
+		android:defaultValue="@bool/pref_running_start_with_next_default"
+		android:title="@string/pref_running_start_with_next"/>
 	<ListPreference
 		android:key="@string/PREF_RUNNING_DIVIDER_SIZE"
 		android:title="@string/divider_size"

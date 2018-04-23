@@ -19,6 +19,7 @@ package org.tvbrowser.settings;
 import java.util.concurrent.atomic.AtomicReference;
 
 import org.tvbrowser.devplugin.Plugin;
+import org.tvbrowser.devplugin.PluginManager;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.IOUtils;
@@ -47,7 +48,12 @@ public class PluginPreferencesFragment extends PreferenceFragment {
   public void onDetach() {
     super.onDetach();
   }
-  
+
+  @Override
+  public void onResume() {
+    super.onResume();
+  }
+
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -65,8 +71,9 @@ public class PluginPreferencesFragment extends PreferenceFragment {
     // add preferences using preferenceScreen.addPreference()
     this.setPreferenceScreen(preferenceScreen);
     preferenceScreen.setTitle("ccccc");
-    
-    final PluginServiceConnection pluginConnection = ((PluginPreferencesActivity)getActivity()).getServiceConnectionWithId(mPluginId);
+
+    final PluginManager pluginManager = PluginPreferencesActivity.getInstance().getPluginManager();
+    final PluginServiceConnection pluginConnection = PluginPreferencesActivity.getInstance().getServiceConnectionWithId(mPluginId);
     
   //  pluginConnection.unbindPlugin(getActivity().getApplicationContext());
     
@@ -108,7 +115,7 @@ public class PluginPreferencesFragment extends PreferenceFragment {
                   final Context bindContext = getActivity(); 
                   
                   if(pluginConnection.bindPlugin(bindContext, null)) {
-                    pluginConnection.getPlugin().onActivation(((PluginPreferencesActivity)getActivity()).getPluginManager());
+                    pluginConnection.getPlugin().onActivation(pluginManager);
                     pluginConnection.getPlugin().openPreferences(IOUtils.getChannelList(bindContext));
                     pluginConnection.callOnDeactivation();
                     
@@ -146,7 +153,7 @@ public class PluginPreferencesFragment extends PreferenceFragment {
                 
                 if((Boolean)newValue) {
                   try {
-                    pluginConnection.getPlugin().onActivation(((PluginPreferencesActivity)getActivity()).getPluginManager());
+                    pluginConnection.getPlugin().onActivation(pluginManager);
                   } catch (RemoteException e) {
                     e.printStackTrace();
                   }
@@ -190,6 +197,4 @@ public class PluginPreferencesFragment extends PreferenceFragment {
       }
     }
   }
-  
-  
 }

@@ -51,6 +51,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.Channel;
+import org.tvbrowser.job.JobDataUpdateAuto;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.AutoDataUpdateReceiver;
 import org.tvbrowser.tvbrowser.Logging;
@@ -60,6 +61,7 @@ import org.tvbrowser.tvbrowser.ServiceUpdateDataTable;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.app.job.JobScheduler;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -595,12 +597,12 @@ public class IOUtils {
     finally {
     	close(out);
     }
-    
+
     return bytesOut.toByteArray();
   }
   
   public static final synchronized void setDataUpdateTime(Context context, long time, SharedPreferences pref) {
-    AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+    /*AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
     Intent dataUpdate = new Intent(context, AutoDataUpdateReceiver.class);
     dataUpdate.putExtra(SettingConstants.TIME_DATA_UPDATE_EXTRA, true);
@@ -609,11 +611,12 @@ public class IOUtils {
       PendingIntent pending = PendingIntent.getBroadcast(context, DATA_UPDATE_KEY, dataUpdate, PendingIntent.FLAG_UPDATE_CURRENT);
       
       CompatUtils.setAlarmInexact(alarmManager,AlarmManager.RTC_WAKEUP, Math.max(System.currentTimeMillis()+28*60000,time), pending);
-    }
+    }*/
   }
   
   public static final synchronized void removeDataUpdateTime(Context context, SharedPreferences pref) {
-    AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+    JobDataUpdateAuto.cancelJob(context);
+    /*AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
     Intent dataUpdate = new Intent(context, AutoDataUpdateReceiver.class);
     
@@ -621,7 +624,7 @@ public class IOUtils {
     
     if(pending != null) {
       alarmManager.cancel(pending);
-    }
+    }*/
   }
   
   public static final void setDataTableRefreshTime(Context context) {
@@ -651,7 +654,8 @@ public class IOUtils {
   }
   
   public static final synchronized void handleDataUpdatePreferences(Context context, boolean fromNow) {
-    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
+    JobDataUpdateAuto.scheduleJob(context);
+    /*SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
     IOUtils.removeDataUpdateTime(context, pref);
     
     if(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("2")) {
@@ -726,7 +730,7 @@ public class IOUtils {
       }
       
       IOUtils.setDataUpdateTime(context, current, pref);
-    }
+    }*/
   }
   
   public static final String[] getStringArrayFromList(ArrayList<String> list) {

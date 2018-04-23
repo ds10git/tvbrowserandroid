@@ -27,6 +27,7 @@
 		        android:layout_height="match_parent"
 		        android:textSize="@dimen/title_font_size"
 		        android:gravity="center_horizontal"
+			 	android:textColor="@color/widget_text_default"
 		        />
  	</LinearLayout>
 	<RelativeLayout
@@ -60,6 +61,7 @@
 	        android:layout_alignParentStart="true"
 	        android:layout_alignParentLeft="true"
 	        android:layout_below="@id/running_programs_widget_row_progress"
+			android:textColor="@color/widget_text_default"
 	        />
 	    <TextView android:id="@id/running_programs_widget_row_title"
 	        android:textSize="@dimen/title_font_size"
@@ -69,6 +71,7 @@
 	        android:layout_toEndOf="@id/running_programs_widget_row_start_time"
 	        android:layout_toRightOf="@id/running_programs_widget_row_start_time"
 	        android:layout_below="@id/running_programs_widget_row_progress"
+			android:textColor="@color/widget_text_default"
 	        />
 	    <TextView android:id="@id/running_programs_widget_row_categories"
 	        android:textSize="@dimen/prog_list_categories_font_size"
@@ -77,6 +80,7 @@
 	        android:layout_toEndOf="@id/running_programs_widget_row_start_time"
 	        android:layout_toRightOf="@id/running_programs_widget_row_start_time"
 	        android:layout_below="@id/running_programs_widget_row_title"
+			android:textColor="@color/widget_text_default"
 	        />
 	    <TextView android:id="@id/running_programs_widget_row_episode"
 	        android:textSize="@dimen/episode_font_size"
@@ -86,6 +90,7 @@
 	        android:layout_toEndOf="@id/running_programs_widget_row_start_time"
 	        android:layout_toRightOf="@id/running_programs_widget_row_start_time"
 	        android:layout_below="@id/running_programs_widget_row_categories"
+			android:textColor="@color/widget_text_default"
 	        />
 	</RelativeLayout>
 </RelativeLayout>

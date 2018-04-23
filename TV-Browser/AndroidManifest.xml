@@ -54,7 +54,7 @@
             android:name=".TvBrowser"
             android:configChanges="orientation|screenSize"
             android:label="@string/app_name"
-            android:launchMode="singleTop"
+            android:launchMode="singleTask"
             android:windowSoftInputMode="stateUnspecified|adjustPan" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -68,6 +68,11 @@
             android:name=".ActivityFavoriteEdit"
             android:configChanges="orientation|screenSize"
             android:label="@string/favorite_edit"
+            android:windowSoftInputMode="adjustResize" >
+        </activity>
+        <activity
+            android:name="org.tvbrowser.settings.ActivityPluginFragment"
+            android:configChanges="orientation|screenSize"
             android:windowSoftInputMode="adjustResize" >
         </activity>
         <activity
@@ -92,23 +97,22 @@
         <activity
             android:name="org.tvbrowser.settings.TvbPreferencesActivity"
             android:label="@string/pref_summary"
-            android:parentActivityName=".TvBrowser"
-            tools:targetApi="jelly_bean">
+            android:parentActivityName="org.tvbrowser.tvbrowser.TvBrowser">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".TvBrowser" />
+                android:value="org.tvbrowser.tvbrowser.TvBrowser" />
         </activity>
         <activity
             android:name="org.tvbrowser.settings.PluginPreferencesActivity"
             android:label="@string/menu_tvbrowser_title_settings_plugins"
-            android:parentActivityName=".TvBrowser"
-            tools:targetApi="jelly_bean">
+            android:parentActivityName="org.tvbrowser.tvbrowser.TvBrowser">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
-                android:value=".TvBrowser" />
+                android:value="org.tvbrowser.tvbrowser.TvBrowser" />
         </activity>
         <activity
             android:name=".InfoActivity"
+            android:launchMode="singleTop"
             android:theme="@style/Theme.TvBrowser.Translucent" />
         <activity
             android:name="org.tvbrowser.widgets.ImportantProgramsWidgetConfigurationActivity"
@@ -146,16 +150,15 @@
             </intent-filter>
         </receiver>
         <receiver android:name=".AutoDataUpdateReceiver" >
-            <intent-filter>
+<!--            <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
-            </intent-filter>
+            </intent-filter>-->
         </receiver>
         <receiver
             android:name="org.tvbrowser.widgets.ImportantProgramsListWidget"
             android:label="@string/widget_important_widget_title" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="org.tvbrowser.UPDATE_IMPORTANT_APP_WIDGET" />
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
 
@@ -168,7 +171,6 @@
             android:label="@string/widget_running_widget_title" >
             <intent-filter>
                 <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
-                <action android:name="org.tvbrowser.UPDATE_RUNNING_APP_WIDGET" />
                 <action android:name="android.intent.action.USER_PRESENT" />
             </intent-filter>
 
@@ -180,9 +182,6 @@
             android:name="org.tvbrowser.widgets.WidgetOnClickReceiver"
             android:enabled="true"
             android:exported="false" >
-            <intent-filter>
-                <action android:name="org.tvbrowser.HANDLE_APP_WIDGET_CLICK" />
-            </intent-filter>
         </receiver>
         <receiver
             android:name="org.tvbrowser.widgets.WidgetToggleReminderState"

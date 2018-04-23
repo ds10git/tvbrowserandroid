@@ -206,10 +206,8 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
               mChannelClickToProgramsList = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_widget_click_to_channel_to_list_default);
               mTextScale = Float.valueOf(PrefUtils.getStringValue(R.string.PREF_WIDGET_TEXT_SCALE, R.string.pref_widget_text_scale_default));
               mVerticalPadding = UiUtils.convertDpToPixel((int)(Float.parseFloat(PrefUtils.getStringValue(R.string.PREF_WIDGET_VERTICAL_PADDING_SIZE, R.string.pref_widget_vertical_padding_size_default))/2),mContext.getResources());
-              
-              if(mCursor.getCount() > 0) {
-                startAlarm();
-              }
+
+              startAlarm();
             }
           }
         } finally {
@@ -219,7 +217,8 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
     }
     
     private void startAlarm() {
-      final Intent update = new Intent(SettingConstants.UPDATE_RUNNING_APP_WIDGET);
+      final Intent update = new Intent(mContext,RunningProgramsListWidget.class);
+      update.setAction(SettingConstants.UPDATE_RUNNING_APP_WIDGET);
       update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
       
       final PendingIntent pending = PendingIntent.getBroadcast(mContext, mAppWidgetId, update, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -232,7 +231,8 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
     private void removeAlarm() {
       AlarmManager alarmManager = (AlarmManager)getSystemService(Context.ALARM_SERVICE);
       
-      final Intent update = new Intent(SettingConstants.UPDATE_RUNNING_APP_WIDGET);
+      final Intent update = new Intent(mContext,RunningProgramsListWidget.class);
+      update.setAction(SettingConstants.UPDATE_RUNNING_APP_WIDGET);
       update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
       
       PendingIntent pending = PendingIntent.getBroadcast(mContext, mAppWidgetId, update, PendingIntent.FLAG_NO_CREATE);

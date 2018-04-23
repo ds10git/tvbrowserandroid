@@ -91,7 +91,7 @@ public abstract class ToolbarPreferencesActivity extends PreferenceActivity {
       case android.R.id.home:
         // Navigates to the parent activity following the style guide (up action/ up navigation).
         // Simple back navigation is done by the back button (e. g. previous preference screen).
-        NavUtils.navigateUpFromSameTask(this);
+        onBackPressed();
         return true;
     }
     return super.onOptionsItemSelected(item);

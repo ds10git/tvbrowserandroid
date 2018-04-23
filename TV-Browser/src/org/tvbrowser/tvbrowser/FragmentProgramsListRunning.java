@@ -146,6 +146,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   private Button mTimeExtra;
   private long mLastExtraClick;
   private LoaderUpdater mLoaderUpdater;
+
+  private int mStartTime = Integer.MIN_VALUE;
   
   static {
     BEFORE_GRADIENT = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[] {Color.argb(0x84, 0, 0, 0xff),Color.WHITE});
@@ -154,11 +156,20 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     AFTER_GRADIENT = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[] {Color.WHITE,Color.argb(0x84, 0, 0, 0xff)});
     AFTER_GRADIENT.setCornerRadius(0f);
   }
-  
+
+  public void setStartTime(int time) {
+    mStartTime = time;
+  }
+
   @Override
   public void onResume() {
     super.onResume();
-    
+
+    if(mStartTime != Integer.MIN_VALUE) {
+      selectTime(mStartTime);
+      mStartTime = Integer.MIN_VALUE;
+    }
+
     mLoaderUpdater.setIsRunning();
     mLoaderUpdater.startUpdate();
     /*mKeepRunning = true;
@@ -1724,36 +1735,37 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     
     for(int i = 0; i < mTimeBar.getChildCount(); i++) {
       View button = mTimeBar.getChildAt(i);
-      
+      Log.d("info8",button+" " +button.getTag());
       if(button.getTag().equals(time - 1)) {
         selectButton((Button)button);
         found = true;
         break;
       }
     }
-    
-    if(!found && time == -1) {
-      setWhereClauseTime(-2);
-    }
-    else if(time > 0) {
-      time--;
-      
-      mTimeExtra.setTag(time);
-      
-      Calendar cal = Calendar.getInstance();
-      
-      cal.set(Calendar.HOUR_OF_DAY, time/60);
-      cal.set(Calendar.MINUTE, time%60);
 
-      mLastExtraClick = System.currentTimeMillis();
-      mTimeExtra.setText(DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(cal.getTime()));
-      
-      insertTimeExtra(time);
-      
-      setWhereClauseTime(mTimeExtra.getTag());
-      
-      if(isViewNotVisible(mTimeExtra)) {
-        ((HorizontalScrollView)mTimeBar.getParent()).scrollTo(mTimeExtra.getLeft(), mTimeExtra.getTop());
+    if(!found) {
+      if (time == -1) {
+        setWhereClauseTime(-2);
+      } else if (time > 0) {
+        time--;
+
+        mTimeExtra.setTag(time);
+
+        Calendar cal = Calendar.getInstance();
+
+        cal.set(Calendar.HOUR_OF_DAY, time / 60);
+        cal.set(Calendar.MINUTE, time % 60);
+
+        mLastExtraClick = System.currentTimeMillis();
+        mTimeExtra.setText(DateFormat.getTimeFormat(getActivity().getApplicationContext()).format(cal.getTime()));
+
+        insertTimeExtra(time);
+
+        setWhereClauseTime(mTimeExtra.getTag());
+
+        if (isViewNotVisible(mTimeExtra)) {
+          ((HorizontalScrollView) mTimeBar.getParent()).scrollTo(mTimeExtra.getLeft(), mTimeExtra.getTop());
+        }
       }
     }
   }

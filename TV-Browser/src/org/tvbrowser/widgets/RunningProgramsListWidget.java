@@ -27,6 +27,7 @@ import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.UiUtils;
 
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProvider;
@@ -234,17 +235,20 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
       if(!isKeyguard) {
         Intent tvb = new Intent(context, TvBrowser.class);
         tvb.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-        
+        tvb.putExtra(SettingConstants.EXTRA_START_TIME,currentValue);
+
         PendingIntent tvbstart = PendingIntent.getActivity(context, 0, tvb, PendingIntent.FLAG_UPDATE_CURRENT);
         views.setOnClickPendingIntent(R.id.running_widget_header_info_wrapper, tvbstart);
         
-        Intent config = new Intent(context, InfoActivity.class);
+        Intent config = new Intent(context, WidgetOnClickReceiver.class);
+        config.setAction(SettingConstants.SELECT_TIME_WIDGET_RUNNING);
         config.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         
-        PendingIntent timeSelection = PendingIntent.getActivity(context, appWidgetId, config, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent timeSelection = PendingIntent.getBroadcast(context, appWidgetId, config, PendingIntent.FLAG_UPDATE_CURRENT);
         views.setOnClickPendingIntent(R.id.running_widget_time, timeSelection);
         
-        Intent templateIntent = new Intent(SettingConstants.HANDLE_APP_WIDGET_CLICK);
+        Intent templateIntent = new Intent(context, WidgetOnClickReceiver.class);
+        templateIntent.setAction(SettingConstants.HANDLE_APP_WIDGET_CLICK);
         templateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         
         PendingIntent templatePendingIntent = PendingIntent.getBroadcast(context, appWidgetId, templateIntent, PendingIntent.FLAG_UPDATE_CURRENT);

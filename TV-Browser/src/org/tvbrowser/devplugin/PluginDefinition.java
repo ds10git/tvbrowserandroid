@@ -16,12 +16,16 @@
  */
 package org.tvbrowser.devplugin;
 
+import android.util.Log;
+
 import java.io.ByteArrayInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLDecoder;
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.concurrent.TimeoutException;
 
@@ -37,7 +41,7 @@ import org.xmlpull.v1.XmlPullParserFactory;
  * @author René Mach
  */
 public class PluginDefinition implements Comparable<PluginDefinition> {
-  private static final String PLUGIN_INFO_URL = SettingConstants.URL_SYNC_BASE + "download/android-plugins.gz";
+  private static final String PLUGIN_INFO_URL = SettingConstants.URL_SYNC_BASE;
   
   private static final String XML_ELEMENT_ROOT = "plugin";
   private static final String XML_ATTRIBUTE_PACKAGE = "package";
@@ -51,9 +55,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   
   private static final String XML_ELEMENT_DESCRIPTION_DE = "description-de";
   private static final String XML_ELEMENT_DESCRIPTION_EN = "description-en";
-  
-  private static final String XML_ELEMENT_DOWNLOAD_LINK = "donwloadlink";
-  
+
   private static final String XML_ELEMENT_SERVICES = "servicelist";
   private static final String XML_ELEMENT_SERVICE = "service";
   
@@ -67,7 +69,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   private String mDescriptionDe;
   private String mDescriptionEn;
   
-  private String mDownloadLink;
+  private HashMap<String,String> mUnknownValues;
   
   private int mMinApiVersion;
   
@@ -75,12 +77,27 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   private boolean mIsUpdate;
   
   private String[] mServices;
-  
+
+  private static final Comparator<PluginDefinition> COMPARATOR_DOWN = new Comparator<PluginDefinition>() {
+    @Override
+    public int compare(PluginDefinition o1, PluginDefinition o2) {
+      if (Locale.getDefault().getLanguage().equals(new Locale("de", "", "").getLanguage())) {
+        return o2.mNameDe.compareToIgnoreCase(o1.mNameDe);
+      }
+
+      return o2.mNameEn.compareTo(o1.mNameEn);
+    }
+  };
+
+  public static Comparator<PluginDefinition> getComparatorDown() {
+    return COMPARATOR_DOWN;
+  }
+
   public PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay) {
-    this(packageName, minApiVersion, version, author, isOnGooglePlay, null, null, null, null, null, null);
+    this(packageName, minApiVersion, version, author, isOnGooglePlay, null, null, null, null, null);
   }
   
-  public PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay, String nameDe, String nameEn, String descriptionDe, String descriptionEn, String downloadLink, String[] services) {
+  public PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay, String nameDe, String nameEn, String descriptionDe, String descriptionEn, String[] services) {
     mPackageName = packageName;
     mMinApiVersion = minApiVersion;
     mVersion = version;
@@ -90,8 +107,9 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
     mNameEn = nameEn;
     mDescriptionDe = descriptionDe;
     mDescriptionEn = descriptionEn;
-    mDownloadLink = downloadLink;
     mServices = services;
+
+    mUnknownValues = new HashMap<>();
   }
   
   private String getValue(String value) {
@@ -134,22 +152,23 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
     return getValue(mDescriptionEn);
   }
     
-  public String getDownloadLink() {
-    return getValue(mDownloadLink);
+  public String getUnknownValueForName(final String name) {
+    return getValue(mUnknownValues.get(name));
   }
 
   public String[] getServices() {
     return mServices;
   }
     
-  public static PluginDefinition[] loadAvailablePluginDefinitions() {
+  public static PluginDefinition[] loadAvailablePluginDefinitions(String url) {
     ArrayList<PluginDefinition> pluginList = new ArrayList<PluginDefinition>();
     
     InputStreamReader in = null;
         
     try {
       XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
-      in = new InputStreamReader(IOUtils.decompressStream(new ByteArrayInputStream(IOUtils.loadUrl(PLUGIN_INFO_URL, 15000))),"UTF-8");
+      Log.d("info6","openURL: "+PLUGIN_INFO_URL+url);
+      in = new InputStreamReader(IOUtils.decompressStream(new ByteArrayInputStream(IOUtils.loadUrl(PLUGIN_INFO_URL+url, 15000))),"UTF-8");
       
       XmlPullParser parser = factory.newPullParser();
       parser.setInput(in);
@@ -164,7 +183,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
           case XmlPullParser.START_TAG:
           {
             tagName = parser.getName();
-            
+
             if(tagName.equals(XML_ELEMENT_ROOT)) {
               String isOnGooglePlay = parser.getAttributeValue(null, XML_ATTRIBUTE_ON_GOOGLE_PLAY);
               
@@ -213,8 +232,8 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
               else if(tagName.equals(XML_ELEMENT_DESCRIPTION_DE)) {
                 current.mDescriptionDe = URLDecoder.decode(parser.getText(), "UTF-8");
               }
-              else if(tagName.equals(XML_ELEMENT_DOWNLOAD_LINK)) {
-                current.mDownloadLink = URLDecoder.decode(parser.getText(), "UTF-8");
+              else {
+                current.mUnknownValues.put(tagName,URLDecoder.decode(parser.getText(), "UTF-8"));
               }
             }
           }break;
@@ -244,7 +263,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
       e.printStackTrace();
     } catch (TimeoutException e) {
       // TODO Auto-generated catch block
-      e.printStackTrace();
+      Log.d("info6","",e);
     }
     
     return pluginList.toArray(new PluginDefinition[pluginList.size()]);

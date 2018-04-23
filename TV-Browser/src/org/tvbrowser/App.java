@@ -6,9 +6,18 @@ import android.app.NotificationManager;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
+import com.evernote.android.job.JobManager;
+
+import org.tvbrowser.job.JobCreatorImpl;
+import org.tvbrowser.utils.CompatUtils;
+
 import org.tvbrowser.tvbrowser.R;
 
 public final class App extends Application {
+  public static final int TYPE_NOTIFICATION_DEFAULT = 0;
+  public static final int TYPE_NOTIFICATION_REMINDER_DAY = 1;
+  public static final int TYPE_NOTIFICATION_REMINDER_WORK = 2;
+  public static final int TYPE_NOTIFICATION_REMINDER_NIGHT = 3;
 
 	private static App INSTANCE = null;
 
@@ -30,25 +39,43 @@ public final class App extends Application {
 		super.onCreate();
 		INSTANCE = this;
 
-		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+		JobManager.create(this).addJobCreator(new JobCreatorImpl());
+
+		if (CompatUtils.isAtLeastAndroidO()) {
 			createNotificationChannel();
 		}
 	}
 
 	/**
-	 * Returns the app's global notification channel identifier
-	 * (which is equal to the package name of the app).
+	 * Returns the apps's appropriate priority global notification channel identifier
+	 * @param type The type of the notification, one of {@link #TYPE_NOTIFICATION_DEFAULT},
+	  * {@link #TYPE_NOTIFICATION_REMINDER_DAY}, {@link #TYPE_NOTIFICATION_REMINDER_WORK}, {@link #TYPE_NOTIFICATION_REMINDER_NIGHT}.
 	 */
-	public String notificationChannelId() {
-		return getPackageName();
-	}
+	public String getNotificationChannelId(final int type) {
+	  final StringBuilder builder = new StringBuilder(getPackageName());
+
+	  switch(type) {
+	    case TYPE_NOTIFICATION_REMINDER_DAY:builder.append(".reminderDayMode");break;
+	    case TYPE_NOTIFICATION_REMINDER_WORK:builder.append(".reminderWorkMode");break;
+	    case TYPE_NOTIFICATION_REMINDER_NIGHT:builder.append(".reminderNightMode");break;
+    }
+
+    return builder.toString();
+  }
 
 	/**
-	 * Returns the app's global notification channel name
-	 * (which is equal to the localized name of the app).
+	 * Returns the app's global high priority notification channel name
 	 */
-	public String notificationChannelName() {
-		return getString(R.string.app_name);
+	private String getNotificationChannelName(final int type) {
+	  final StringBuilder builder = new StringBuilder(getString(R.string.app_name));
+
+	  switch(type) {
+	    case TYPE_NOTIFICATION_REMINDER_DAY:builder.append(": ").append(getString(R.string.notification_channel_reminder_day));break;
+	    case TYPE_NOTIFICATION_REMINDER_WORK:builder.append(": ").append(getString(R.string.notification_channel_reminder_work));break;
+	    case TYPE_NOTIFICATION_REMINDER_NIGHT:builder.append(": ").append(getString(R.string.notification_channel_reminder_night));break;
+    }
+
+		return builder.toString();
 	}
 
 	/**
@@ -60,11 +87,29 @@ public final class App extends Application {
 	 */
 	@RequiresApi(Build.VERSION_CODES.O)
 	private void createNotificationChannel() {
-		final NotificationChannel notificationChannel = new NotificationChannel(
-			notificationChannelId(), notificationChannelName(), NotificationManager.IMPORTANCE_DEFAULT);
+		final long[] vibrationPattern = new long[] {1000,200,1000,400,1000,600};
+
+	  final NotificationChannel notificationChannelDefault = new NotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_DEFAULT),getNotificationChannelName(TYPE_NOTIFICATION_DEFAULT), NotificationManager.IMPORTANCE_DEFAULT);
+	  notificationChannelDefault.setDescription(getString(R.string.notification_channel_default_description));
+		notificationChannelDefault.setVibrationPattern(null);
+		notificationChannelDefault.setSound(null,null);
+
+		final NotificationChannel notificationChannelReminderDay = new NotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_DAY),getNotificationChannelName(TYPE_NOTIFICATION_REMINDER_DAY), NotificationManager.IMPORTANCE_DEFAULT);
+		notificationChannelReminderDay.setVibrationPattern(vibrationPattern);
+
+		final NotificationChannel notificationChannelReminderWork = new NotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_WORK),getNotificationChannelName(TYPE_NOTIFICATION_REMINDER_WORK), NotificationManager.IMPORTANCE_DEFAULT);
+		notificationChannelReminderWork.setVibrationPattern(vibrationPattern);
+
+		final NotificationChannel notificationChannelReminderNight = new NotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_NIGHT),getNotificationChannelName(TYPE_NOTIFICATION_REMINDER_NIGHT), NotificationManager.IMPORTANCE_DEFAULT);
+		notificationChannelReminderNight.setVibrationPattern(vibrationPattern);
+
 		final NotificationManager service = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+
 		if (service != null) {
-			service.createNotificationChannel(notificationChannel);
+			service.createNotificationChannel(notificationChannelDefault);
+			service.createNotificationChannel(notificationChannelReminderDay);
+			service.createNotificationChannel(notificationChannelReminderWork);
+			service.createNotificationChannel(notificationChannelReminderNight);
 		}
 	}
 }

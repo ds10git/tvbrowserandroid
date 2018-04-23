@@ -326,11 +326,16 @@ public class TvDataUpdateService extends Service {
     
     mDaysToLoad = 2;
     
-    mBuilder = new NotificationCompat.Builder(this, App.get().notificationChannelId());
+    mBuilder = new NotificationCompat.Builder(this, App.get().getNotificationChannelId(App.TYPE_NOTIFICATION_DEFAULT));
+    //mBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
     mBuilder.setSmallIcon(R.drawable.ic_stat_notify);
     mBuilder.setOngoing(true);
-    
+    mBuilder.setDefaults(0);
+    mBuilder.setSound(null);
+    mBuilder.setOnlyAlertOnce(true);
+
     mHandler = new Handler();
+    startForeground(ID_NOTIFY, mBuilder.build());
   }
   
   @Override
@@ -453,7 +458,6 @@ public class TvDataUpdateService extends Service {
           else {
             mIsConnected = false;
             mBuilder.setContentTitle(getResources().getText(R.string.update_notification_title));
-            startForeground(ID_NOTIFY, mBuilder.build());
             doLog("NO UPDATE DONE, NO INTERNET CONNECTION OR NO INTENT, PROCESS EXISTING DATA");
             handleStoredDataFromKilledUpdate(isConnected);
           }
@@ -766,6 +770,7 @@ public class TvDataUpdateService extends Service {
   
   @Override
   public void onDestroy() {
+    IOUtils.handleDataUpdatePreferences(getApplicationContext());
     doLog("onDestroy() called");
     releaseWakeLock();
     
@@ -2650,6 +2655,7 @@ public class TvDataUpdateService extends Service {
     
   private void finishUpdate(NotificationManager notification, boolean updateFavorites, boolean syncAllowed) {
     doLog("FINISH DATA UPDATE");
+    IOUtils.handleDataUpdatePreferences(getApplicationContext());
     TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
     getContentResolver().notifyChange(TvBrowserContentProvider.CONTENT_URI_DATA, null);
   

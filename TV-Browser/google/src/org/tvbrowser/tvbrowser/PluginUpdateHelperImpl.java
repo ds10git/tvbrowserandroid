@@ -6,7 +6,7 @@ import android.net.Uri;
 import org.tvbrowser.devplugin.PluginDefinition;
 
 class PluginUpdateHelperImpl extends PluginUpdateHelper {
-
+	public static final String URL = "download/android-plugins.gz";
 	PluginUpdateHelperImpl(final TvBrowser tvBrowser) {
 		super(tvBrowser);
 	}
@@ -34,5 +34,10 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
 
 	@Override
 	void cleanup() {
+	}
+
+	@Override
+	boolean pluginSupported(PluginDefinition news) {
+		return news.isOnGooglePlay();
 	}
 }

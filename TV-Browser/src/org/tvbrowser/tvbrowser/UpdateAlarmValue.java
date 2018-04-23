@@ -17,6 +17,7 @@
 package org.tvbrowser.tvbrowser;
 
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.UiUtils;
@@ -47,6 +48,6 @@ public class UpdateAlarmValue extends BroadcastReceiver {
     
     Intent updateAlarms = new Intent(context, ServiceUpdateReminders.class);
     updateAlarms.putExtra(ServiceUpdateReminders.EXTRA_FIRST_STARTUP, firstStart);
-    context.startService(updateAlarms);
+    CompatUtils.startForegroundService(context,updateAlarms);
   }
 }

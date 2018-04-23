@@ -117,6 +117,7 @@ import android.text.style.ImageSpan;
 import android.text.style.LeadingMarginSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -1280,7 +1281,7 @@ public class UiUtils {
                       
                       Context applicationContext = activity.getApplicationContext();
                       
-                      NotificationCompat.Builder builder = new NotificationCompat.Builder(applicationContext, App.get().notificationChannelId());
+                      NotificationCompat.Builder builder = new NotificationCompat.Builder(applicationContext, App.get().getNotificationChannelId(App.TYPE_NOTIFICATION_DEFAULT));
                       builder.setSmallIcon(R.drawable.ic_stat_notify);
                       builder.setOngoing(true);
                       builder.setContentTitle(activity.getResources().getText(R.string.action_dont_want_to_see));
@@ -1410,7 +1411,7 @@ public class UiUtils {
               
               final Context applicationContext = activity.getApplicationContext();
               
-              final NotificationCompat.Builder builder = new NotificationCompat.Builder(applicationContext, App.get().notificationChannelId());
+              final NotificationCompat.Builder builder = new NotificationCompat.Builder(applicationContext, App.get().getNotificationChannelId(App.TYPE_NOTIFICATION_DEFAULT));
               builder.setSmallIcon(R.drawable.ic_stat_notify);
               builder.setOngoing(true);
               builder.setContentTitle(activity.getResources().getText(R.string.action_dont_want_to_see));
@@ -1829,7 +1830,11 @@ public class UiUtils {
     
     return (int) (dp * scale + 0.5f);
   }
-  
+
+  public static boolean isHighRes(Resources res) {
+    return DisplayMetrics.DENSITY_XHIGH >= res.getDisplayMetrics().densityDpi;
+  }
+
   public static float convertPixelsToSp(float px, Context context) {
     float scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
     return px/scaledDensity;

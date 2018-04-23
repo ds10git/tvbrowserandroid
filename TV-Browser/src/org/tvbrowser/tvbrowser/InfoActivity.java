@@ -16,16 +16,6 @@
  */
 package org.tvbrowser.tvbrowser;
 
-import java.lang.reflect.Field;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-
-import org.tvbrowser.filter.ChannelFilter;
-import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.utils.PrefUtils;
-import org.tvbrowser.utils.UiUtils;
-
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -42,6 +32,17 @@ import android.text.format.DateFormat;
 import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
+
+import org.tvbrowser.filter.ChannelFilter;
+import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
+import org.tvbrowser.widgets.RunningProgramsListWidget;
+
+import java.lang.reflect.Field;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
 
 public class InfoActivity extends AppCompatActivity {
   @Override
@@ -159,7 +160,8 @@ public class InfoActivity extends AppCompatActivity {
           edit.putInt(appWidgetId + "_" + getString(R.string.WIDGET_CONFIG_RUNNING_TIME), value);
           edit.commit();
           
-          Intent update = new Intent(SettingConstants.UPDATE_RUNNING_APP_WIDGET);
+          Intent update = new Intent(getApplicationContext(), RunningProgramsListWidget.class);
+          update.setAction(SettingConstants.UPDATE_RUNNING_APP_WIDGET);
           update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
           
           sendBroadcast(update);

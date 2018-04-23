@@ -11,7 +11,9 @@ import org.tvbrowser.utils.IOUtils;
 import java.io.File;
 
 class PluginUpdateHelperImpl extends PluginUpdateHelper {
+	public static final String XML_ELEMENT_DOWNLOAD_LINK = "donwloadlink";
 
+	public static final String URL = "download/android-plugins-full.gz";
 	private File mCurrentDownloadPlugin;
 
 	PluginUpdateHelperImpl(final TvBrowser tvBrowser) {
@@ -26,9 +28,11 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
 			pluginsText.append("\">").append(tvBrowser.getString(R.string.plugin_open_google_play)).append("</a></p>");
 		}
 
-		if (news.getDownloadLink() != null && news.getDownloadLink().trim().length() > 0) {
+		final String downloadLink = news.getUnknownValueForName(XML_ELEMENT_DOWNLOAD_LINK);
+
+		if (downloadLink != null && downloadLink.trim().length() > 0) {
 			pluginsText.append("<p><a href=\"");
-			pluginsText.append(news.getDownloadLink().replace("http://", "plugin://").replace("https://", "plugins://"));
+			pluginsText.append(downloadLink.replace("http://", "plugin://").replace("https://", "plugins://"));
 			pluginsText.append("\">").append(tvBrowser.getString(R.string.plugin_download_manually)).append("</a></p>");
 		}
 	}
@@ -114,5 +118,10 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
 				mCurrentDownloadPlugin.deleteOnExit();
 			}
 		}
+	}
+
+	@Override
+	boolean pluginSupported(PluginDefinition news) {
+		return true;
 	}
 }

@@ -1,13 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.4</h2>
+        <h2>0.6.5</h2>
+            &bull; unterschiedliche Version für GooglePlay und manuelle Installation<br>
+            &bull; Senderlogo in Benachrichtigungen für Erinnerungen skalieren<br>
+            &bull; Wochentag in Benachrichtigung für Erinnerungen anzeigen<br>
+            &bull; TV-Browser wird mit der ausgewählten Zeit des Laufende-Sendungen-Widget gestartet<br>
+            &bull; Unterstützung für Android 8 und höher<br>
+            &bull; Verbesserungen/bug fixes von Thorsten1976<br>
+        <h3>0.6.4</h3>
         	&bull; fehlerhaft synchronisierte Sendungen verhindern<br>
         	&bull; verschiedene Verbesserungen/Bugfixes von Thorsten1976<br>
-        <h2>0.6.3.7</h2>
+        <h3>0.6.3.7</h3>
         	&bull; abgeschnittene Beschreibungen im Detail-Fenster korrigiert<br>
         	&bull; Versuch Standardvibration des Systems für Erinnerungen zu verhindern<br>
-        <h2>0.6.3.6</h2>
+        <h3>0.6.3.6</h3>
         	&bull; Laufzeit verlängert bis 31.12.2019<br>
         	&bull; möglichen Absturz beseitigt<br>
         <h3>0.6.3.5</h3>
@@ -425,7 +432,11 @@
     <string name="info_version_show">Änderungen anzeigen</string>
     
     <string name="tab_restoring_name">EINSTELLUNGEN WIEDERHERSTELLEN</string>
-    <string name="app_name">TV-Browser</string>
+    <string name="notification_channel_default_description">Benachrichtigungen ohne Sound und Vibration. Bitte so belassen wie dieser ist.</string>
+    <string name="notification_channel_reminder_day">Erinnerer Tages-Modus</string>
+    <string name="notification_channel_reminder_work">Erinnerer Arbeits-Modus</string>
+    <string name="notification_channel_reminder_night">Erinnerer Nacht-Modus</string>
+    <string name="notification_update_reminders">Erinnerer aktualisieren…</string>
     <string name="search_activity_name">TV-Browser-Suche</string>
     <string name="search_no_result_title">Keine Sendung gefunden</string>
     <string name="search_no_result_text">Es wurde keine Sendung für die Suche gefunden.\n\nMöchten Sie für diese Suche eine Lieblingssendung anlegen?\n\n(Lieblingssendungen finden oft mehr Sendungen als eine Schnellsuche.)</string>
@@ -830,6 +841,7 @@
 	    <item>Kompakt</item>
 	</string-array>
 	<string name="running_layout_title">Ansicht</string>
+    <string name="pref_running_start_with_next">Mit Als Nächstes starten</string>
 	<string name="pref_running_show_next_button">Als Nächstes neben Jetzt</string>
 	<string name="pref_running_show_next_button_summary_on">Der Zeitpunkt Als Nächstes kann direkt über den entsprechenden Zeitknopf, über das Zeitmenü oder langen Klick auf Jetzt ausgewählt werden.</string>
 	<string name="pref_running_show_next_button_summary_off">Der Zeitpunkt Als Nächstes kann über das Zeitmenü oder langen Klick auf Jetzt ausgewählt werden.</string>
@@ -950,6 +962,7 @@
 	    <item>Hoch</item>
 	    <item>Maximum</item>
 	</string-array>
+    <string name="pref_reminder_config">Sound, Vibration, LED einstellen&#8230;</string>
 	<string name="pref_reminder_type">Tages-Modus</string>
 	<string name="pref_reminder_sound">Sound</string>
 	<string name="pref_reminder_no_sound">Kein Sound</string>

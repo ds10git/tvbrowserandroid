@@ -29,6 +29,8 @@ import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.UiUtils;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -51,6 +53,7 @@ import android.preference.RingtonePreference;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.MenuItem;
 
 public class TvbPreferenceFragment extends PreferenceFragment implements OnSharedPreferenceChangeListener {
   @Override
@@ -148,7 +151,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     }
     else if(getString(R.string.category_reminder).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_reminder);
-      
+
       onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_TIME));
       onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED));
       onSharedPreferenceChanged(pref,getString(R.string.PREF_REMINDER_SOUND_VALUE));
@@ -690,11 +693,20 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           noReminder.setEnabled(nightMode);
           start.setEnabled(nightMode);
           end.setEnabled(nightMode);
-          
-          priority.setEnabled(nightMode && !onlyStatus);
-          sound.setEnabled(nightMode && !onlyStatus);
-          vibrate.setEnabled(nightMode && !onlyStatus);
-          led.setEnabled(nightMode && !onlyStatus);
+
+          if(sound != null) {
+            priority.setEnabled(nightMode && !onlyStatus);
+            sound.setEnabled(nightMode && !onlyStatus);
+            vibrate.setEnabled(nightMode && !onlyStatus);
+            led.setEnabled(nightMode && !onlyStatus);
+          }
+          else {
+            Preference config = findPreference(getResources().getString(R.string.PREF_REMINDER_CONFIG_NIGHT));
+
+            if(config != null) {
+              config.setEnabled(nightMode && !onlyStatus);
+            }
+          }
         }
       }
       else if(key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_ACTIVATED)) || key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_NO_REMINDER))) {
@@ -714,11 +726,20 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
           
           noReminder.setEnabled(nightMode);
           days.setEnabled(nightMode);
-          
-          priority.setEnabled(nightMode && !onlyStatus);
-          sound.setEnabled(nightMode && !onlyStatus);
-          vibrate.setEnabled(nightMode && !onlyStatus);
-          led.setEnabled(nightMode && !onlyStatus);
+
+          if(priority != null) {
+            priority.setEnabled(nightMode && !onlyStatus);
+            sound.setEnabled(nightMode && !onlyStatus);
+            vibrate.setEnabled(nightMode && !onlyStatus);
+            led.setEnabled(nightMode && !onlyStatus);
+          }
+          else {
+            Preference config = findPreference(getResources().getString(R.string.PREF_REMINDER_CONFIG_WORK));
+
+            if(config != null) {
+              config.setEnabled(nightMode && !onlyStatus);
+            }
+          }
         }
         
         if(key.equals(getResources().getString(R.string.PREF_REMINDER_WORK_MODE_ACTIVATED))) {
@@ -830,9 +851,16 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       }
     }
   }
-  
-  
-  
+
+  @Override
+  public boolean onPreferenceTreeClick(PreferenceScreen preferenceScreen, Preference preference) {
+    if(preference instanceof Preference.OnPreferenceClickListener) {
+      ((Preference.OnPreferenceClickListener)preference).onPreferenceClick(preference);
+    }
+
+    return super.onPreferenceTreeClick(preferenceScreen, preference);
+  }
+
   private void setUserColorValue(SharedPreferences pref, String key, int valueKey) {
     ListPreference currentStyle = (ListPreference)findPreference(getString(R.string.PREF_COLOR_STYLE));
     PreferenceColorActivated color = (PreferenceColorActivated)findPreference(key);

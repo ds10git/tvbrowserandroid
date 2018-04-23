@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.4</h2>
+        <h2>0.6.5</h2>
+            &bull; separate versions for GooglePlay and manually installation<br>
+            &bull; scale channel icon for reminders<br>
+            &bull; show week day in reminder notification<br>
+            &bull; start TV-Browser with selected time of running widget<br>
+        	&bull; support of Android 8 and newer<br>
+        	&bull; improvements/bug fixes of Thorsten1976<br>
+        <h3>0.6.4</h3>
         	&bull; prevent wrongly synchronized programs<br>
         	&bull; miscellaneous improvements/bug fixes of Thorsten1976<br>
-        <h2>0.6.3.7</h2>
+        <h3>0.6.3.7</h3>
         	&bull; fixed cut off descriptions in detail view<br>
         	&bull; try to prevent default vibration of system for Reminders<br>
         <h3>0.6.3.6</h3>
@@ -423,7 +430,12 @@
     <string name="pref_info_version_title">Show changes on version update</string>
     
     <string name="tab_restoring_name">RESTORING PREFERENCES</string>
-    <string name="app_name">TV-Browser</string>
+    <string name="app_name" translatable="false">TV-Browser</string>
+    <string name="notification_channel_default_description">Notifications without any sound and vibration. Please keep it the way it is.</string>
+    <string name="notification_channel_reminder_day">Reminder day mode</string>
+    <string name="notification_channel_reminder_work">Reminder work mode</string>
+    <string name="notification_channel_reminder_night">Reminder night mode</string>
+    <string name="notification_update_reminders">Update Reminders…</string>
     <string name="search_activity_name">TV-Browser Search</string>
     <string name="search_no_result_title">No program found</string>
     <string name="search_no_result_text">No program was found for the search.\n\nDo you want to create a Favorite from this search now?\n\n(Favorites might find more programs than a quick search.)</string>
@@ -842,6 +854,7 @@
 	    <item>Compact</item>
 	</string-array>
 	<string name="running_layout_title">Layout</string>
+    <string name="pref_running_start_with_next">Start with next</string>
 	<string name="pref_running_show_next_button">Show Next after now</string>
 	<string name="pref_running_show_next_button_summary_on">The moment next can be selected directly with the button Next, in the time menu or with a long click on Now.</string>
 	<string name="pref_running_show_next_button_summary_off">The moment next can be selected in the time menu or with a long click on Now.</string>
@@ -962,6 +975,7 @@
 	    <item>High</item>
 	    <item>Maximum</item>
 	</string-array>
+    <string name="pref_reminder_config">Configure sound, vibration, LED&#8230;</string>
 	<string name="pref_reminder_type">Day mode</string>
 	<string name="pref_reminder_sound">Sound</string>
 	<string name="pref_reminder_no_sound">No sound</string>

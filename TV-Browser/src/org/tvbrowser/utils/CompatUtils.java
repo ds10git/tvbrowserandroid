@@ -266,4 +266,21 @@ public class CompatUtils {
     }
     return minute;
   }
+
+  public static boolean isAtLeastAndroidO() {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
+  }
+
+  public static boolean startForegroundService(final Context context, final Intent service) {
+    boolean result = false;
+
+    if(isAtLeastAndroidO()) {
+      result = context.startForegroundService(service) != null;
+    }
+    else {
+      result = context.startService(service) != null;
+    }
+
+    return result;
+  }
 }

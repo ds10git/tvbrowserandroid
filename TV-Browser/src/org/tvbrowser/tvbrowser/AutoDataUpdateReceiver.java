@@ -38,7 +38,7 @@ import android.preference.PreferenceManager;
 
 public class AutoDataUpdateReceiver extends BroadcastReceiver {
   private static Thread UPDATE_THREAD;
-  private static final String TAG = null;
+  private static final String TAG = "info9";
   
   @Override
   public void onReceive(final Context context, Intent intent) {
@@ -129,8 +129,8 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
               Logging.openLogForDataUpdate(context);
               Logging.log(TAG, "UPDATE START INTENT " + startDownload, Logging.TYPE_DATA_UPDATE, context);
               Logging.closeLogForDataUpdate();
-              
-              context.startService(startDownload);
+
+              CompatUtils.startForegroundService(context,startDownload);
             }
           }
           else if(!isConnected && timeUpdateType) {

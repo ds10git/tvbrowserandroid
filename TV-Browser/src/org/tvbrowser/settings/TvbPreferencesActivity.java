@@ -24,6 +24,7 @@ import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Build;
+import android.os.Bundle;
 
 public class TvbPreferencesActivity extends ToolbarPreferencesActivity {
 	/**
@@ -37,7 +38,15 @@ public class TvbPreferencesActivity extends ToolbarPreferencesActivity {
 	    super.isValidFragment(fragmentName);
 	}
 
-	@Override
+  @Override
+  protected void onCreate(Bundle savedInstanceState) {
+    super.onCreate(savedInstanceState);
+
+    getDelegate().getSupportActionBar().setDisplayShowHomeEnabled(true);
+    getDelegate().getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+  }
+
+  @Override
     public void onBuildHeaders(List<Header> target) {
       loadHeadersFromResource(R.xml.tvbrowser_preferences_header, target);
       

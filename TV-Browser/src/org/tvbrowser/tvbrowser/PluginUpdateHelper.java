@@ -36,7 +36,7 @@ abstract class PluginUpdateHelper {
 				@Override
 				public void run() {
 					tvBrowser.updateProgressIcon(true);
-					PluginDefinition[] availablePlugins = PluginDefinition.loadAvailablePluginDefinitions();
+					PluginDefinition[] availablePlugins = PluginDefinition.loadAvailablePluginDefinitions(PluginUpdateHelperImpl.URL);
 
 					final List<PluginDefinition> newPlugins = new ArrayList<>();
 					final PluginServiceConnection[] connections = PluginHandler.getAvailablePlugins();
@@ -84,30 +84,38 @@ abstract class PluginUpdateHelper {
 
 					StringBuilder pluginsText = new StringBuilder();
 
-					Collections.sort(newPlugins);
+					Collections.sort(newPlugins,PluginDefinition.getComparatorDown());
 
-					for (PluginDefinition news : newPlugins) {
-						if (pluginsText.length() > 0) {
-							pluginsText.append("<line>LINE</line>");
-						}
+					for (int i = newPlugins.size()-1; i >= 0; i--) {
+					  final PluginDefinition news = newPlugins.get(i);
 
-						pluginsText.append("<h3>");
-						pluginsText.append(news.getName());
-						if (news.isUpdate()) {
-							pluginsText.append(" (Update)");
-						}
-						pluginsText.append("</h3>");
+					  if(pluginSupported(news)) {
+              if (pluginsText.length() > 0) {
+                pluginsText.append("<line>LINE</line>");
+              }
 
-						pluginsText.append(news.getDescription());
+              pluginsText.append("<h3>");
+              pluginsText.append(news.getName());
 
-						pluginsText.append("<p><i>");
-						pluginsText.append(tvBrowser.getString(R.string.author)).append(" ");
-						pluginsText.append(news.getAuthor());
-						pluginsText.append(" <right>").append(tvBrowser.getString(R.string.version)).append(" ");
-						pluginsText.append(news.getVersion());
-						pluginsText.append("</i></right></p>");
+              if (news.isUpdate()) {
+                pluginsText.append(" (Update)");
+              }
+              pluginsText.append("</h3>");
 
-						prepareLinks(pluginsText, news);
+              pluginsText.append(news.getDescription());
+
+              pluginsText.append("<p><i>");
+              pluginsText.append(tvBrowser.getString(R.string.author)).append(" ");
+              pluginsText.append(news.getAuthor());
+              pluginsText.append(" <right>").append(tvBrowser.getString(R.string.version)).append(" ");
+              pluginsText.append(news.getVersion());
+              pluginsText.append("</i></right></p>");
+
+              prepareLinks(pluginsText, news);
+            }
+            else {
+              newPlugins.remove(i);
+            }
 					}
 
 					String title = tvBrowser.getString(R.string.plugin_available_title);
@@ -162,6 +170,8 @@ abstract class PluginUpdateHelper {
 	}
 
 	abstract void prepareLinks(final StringBuilder pluginsText, final PluginDefinition news);
+
+	abstract boolean pluginSupported(final PluginDefinition news);
 
 	private void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span) {
 		int start = strBuilder.getSpanStart(span);

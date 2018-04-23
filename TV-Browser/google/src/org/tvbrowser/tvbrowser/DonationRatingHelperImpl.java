@@ -242,16 +242,17 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 		tvBrowser.updateProgressIcon(true);
 
 		if (iabHelper == null) {
-			String a2b = "2XQh0oOHnnZ2p3Ja8Xj6SlLFmI1Z/QIDAQAB";
-			String a2a = "8AMIIBCgKCAQEAqfmi767AEH+MBv+";
-			String ag2 = "Zh6iBFrN3zYpj1ikPu9jdtp+H47F8JvCzKt55xgIrzBpID58VfO";
-			String u6c = "+K1ZDlHw1rO+qN7GW177mzEO0yk+bVs0hwE/5QF2RamM+hOcCeyB7";
-			String ab2 = "6r2nGP94ai9Rgip1NLwZ1VYzFOPFC2/";
-			String hm5 = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ";
-			String ot8 = "tWvkedDMJd+4l912GuKiUa6FNw/sZLa9UIWB2ojgr2";
-			String bt4 = "TPd7Q6T9xOhHS01Ydws58YaK1NSCuIrFLG1I";
-			String ddx = "x3bLB5fJKPrWJc33MMqybm6KWIc+HVt2+HT";
-			String iz4 = "dePazzkaD5s84IG9FDe/cO3tvL/EZmSUiphDGXWl+beL2TW7D";
+			String a2b = "UpRRJ1sxrOwIDAQAB";
+			String a2a = "xUV6DkVjK0pioTw9fM27t0vj7ZKA02T1BunYV7WHLFID";
+			String ag2 = "rFxFvNvdJBrYtlQrcw";
+			String u6c = "PbMd2DTmgh5nXMr6+CR9i5+";
+			String ab2 = "BjlFAgXyKJvMGWuEI2UcMVt2K1T5ENa91XolVnIAlDzoNi9YA1";
+			String hm5 = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArgS";
+			String ot8 = "Vwf9rH6cgY7+2HXr/g6J3lPRcySSDLL";
+			String bt4 = "dixLF8/z/qUWVH36xbYURI3UZBPNkgoRGnjQTE4C+NJ0xRU09SQnaw8t2";
+			String ddx = "RsQ70MVT9fJMkFAeYs3ZnbN/J/JSRyLmmMTi8Br2J4uLh0P2hYq6R9DamUlaA/I1N3";
+			String iz4 = "CRVp1K32FczuxXMa7UdhUpyyIFu/xwz8HSrjlbx";
+
 			String hrq = hm5 + a2a + ab2 + bt4 + ddx + iz4 + u6c + ag2 + ot8 + a2b;
 
 			iabHelper = new IabHelper(tvBrowser, hrq);
@@ -300,7 +301,7 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 					tvBrowser.getHandler().post(new Runnable() {
 						@Override
 						public void run() {
-							iabHelper.launchPurchaseFlow(tvBrowser, skuDetails.getSku(), 500012, new IabHelper.OnIabPurchaseFinishedListener() {
+							iabHelper.launchPurchaseFlow(tvBrowser, skuDetails.getSku(), 200012, new IabHelper.OnIabPurchaseFinishedListener() {
 								@Override
 								public void onIabPurchaseFinished(IabResult result, Purchase info) {
 									if (result.isSuccess()) {

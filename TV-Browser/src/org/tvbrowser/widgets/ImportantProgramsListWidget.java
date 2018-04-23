@@ -234,7 +234,8 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
         PendingIntent tvbstart = PendingIntent.getActivity(context, appWidgetId, tvb, PendingIntent.FLAG_UPDATE_CURRENT);
         views.setOnClickPendingIntent(R.id.important_widget_header_info_wrapper, tvbstart);
         
-        Intent templateIntent = new Intent(SettingConstants.HANDLE_APP_WIDGET_CLICK);
+        Intent templateIntent = new Intent(context, WidgetOnClickReceiver.class);
+        templateIntent.setAction(SettingConstants.HANDLE_APP_WIDGET_CLICK);
         templateIntent.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
         
         PendingIntent templatePendingIntent = PendingIntent.getBroadcast(context, appWidgetId, templateIntent, PendingIntent.FLAG_UPDATE_CURRENT);
