@@ -54,7 +54,7 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
       UiUtils.updateRunningProgramsWidget(context);
     }
     else {
-      if(IOUtils.isInteractive(context) || AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction())) {
+      if(CompatUtils.isAtLeastAndroidO() || IOUtils.isInteractive(context) || AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction())) {
         if((AppWidgetManager.ACTION_APPWIDGET_UPDATE.equals(intent.getAction()) || SettingConstants.UPDATE_RUNNING_APP_WIDGET.equals(intent.getAction())) && intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID) && 
             (intent.getExtras().getInt(AppWidgetManager.EXTRA_APPWIDGET_ID) != AppWidgetManager.INVALID_APPWIDGET_ID || intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_IDS))) {
           AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());

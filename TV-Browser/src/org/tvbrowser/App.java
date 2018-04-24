@@ -12,6 +12,7 @@ import org.tvbrowser.job.JobCreatorImpl;
 import org.tvbrowser.utils.CompatUtils;
 
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.utils.UiUtils;
 
 public final class App extends Application {
   public static final int TYPE_NOTIFICATION_DEFAULT = 0;
@@ -43,6 +44,8 @@ public final class App extends Application {
 
 		if (CompatUtils.isAtLeastAndroidO()) {
 			createNotificationChannel();
+			UiUtils.updateImportantProgramsWidget(getApplicationContext());
+			UiUtils.updateRunningProgramsWidget(getApplicationContext());
 		}
 	}
 

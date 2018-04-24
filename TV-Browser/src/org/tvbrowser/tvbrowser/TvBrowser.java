@@ -391,8 +391,9 @@ public class TvBrowser extends AppCompatActivity implements
       //PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().remove(getString(R.string.CURRENT_FILTER_ID)).commit();
       int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
 
-      if(oldVersion < 413) {
-        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, getApplicationContext()).edit().putString(getString(R.string.DETAIL_PICTURE_DESCRIPTION_POSITION),"1").commit();
+      if(oldVersion < 416) {
+        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, getApplicationContext()).edit().remove(getString(R.string.DETAIL_PICTURE_DESCRIPTION_POSITION)).commit();
+        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().putString(getString(R.string.DETAIL_PICTURE_DESCRIPTION_POSITION),"1").commit();
       }
       if(oldVersion == 402) {
         final SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, getApplicationContext());

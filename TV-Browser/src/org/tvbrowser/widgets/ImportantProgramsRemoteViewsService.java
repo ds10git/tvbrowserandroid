@@ -237,9 +237,9 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
                   update.setAction(SettingConstants.UPDATE_IMPORTANT_APP_WIDGET);
                   update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
                   
-                  final PendingIntent pending = PendingIntent.getBroadcast(mContext, (int)(startTime/60000), update, PendingIntent.FLAG_UPDATE_CURRENT);
+                  mPendingUpdate = PendingIntent.getBroadcast(mContext, (int)(startTime/60000), update, PendingIntent.FLAG_UPDATE_CURRENT);
                   
-                  CompatUtils.setAlarmExact(mContext, alarm, AlarmManager.RTC, startTime + 100, pending);
+                  CompatUtils.setAlarmExact(mContext, alarm, AlarmManager.RTC, startTime + 100, mPendingUpdate);
                 }
                 else {
                   startRunningAlarm();
@@ -491,7 +491,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
         mPendingRunning = PendingIntent.getBroadcast(mContext, mAppWidgetId, update, PendingIntent.FLAG_UPDATE_CURRENT);
         
         AlarmManager alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
-        
+
         alarm.setRepeating(AlarmManager.RTC, ((System.currentTimeMillis()/60000) * 60000) + 60100, 60000, mPendingRunning);
       }
     }

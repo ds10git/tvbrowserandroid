@@ -54,7 +54,7 @@ public abstract class FilterValues {
   
   public static final FilterValues load(String id, String values) {
     FilterValues result = null;
-    
+    Log.d("info4","filter " + id + " " + values);
     if(id.contains(SEPARATOR_CLASS) && values != null) {
       String[] parts = id.split(SEPARATOR_CLASS);
       String[] valueParts = values.split(SEPARATOR);
@@ -74,9 +74,11 @@ public abstract class FilterValues {
     }
     else if(values != null) {
       String[] valueParts = values.split(SEPARATOR);
-      
-      result = new FilterValuesChannels(valueParts[0], valueParts[1]);
-      result.mId = id;
+
+      if(valueParts.length == 2) {
+        result = new FilterValuesChannels(valueParts[0], valueParts[1]);
+        result.mId = id;
+      }
     }
     
     return result;

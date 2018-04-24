@@ -301,7 +301,7 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 					tvBrowser.getHandler().post(new Runnable() {
 						@Override
 						public void run() {
-							iabHelper.launchPurchaseFlow(tvBrowser, skuDetails.getSku(), 200012, new IabHelper.OnIabPurchaseFinishedListener() {
+							iabHelper.launchPurchaseFlow(tvBrowser, skuDetails.getSku(), 1012, new IabHelper.OnIabPurchaseFinishedListener() {
 								@Override
 								public void onIabPurchaseFinished(IabResult result, Purchase info) {
 									if (result.isSuccess()) {

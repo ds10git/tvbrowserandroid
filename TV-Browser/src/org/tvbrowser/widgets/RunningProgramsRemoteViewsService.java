@@ -224,7 +224,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       final PendingIntent pending = PendingIntent.getBroadcast(mContext, mAppWidgetId, update, PendingIntent.FLAG_UPDATE_CURRENT);
       
       AlarmManager alarm = (AlarmManager)getSystemService(ALARM_SERVICE);
-      
+
       alarm.setRepeating(AlarmManager.RTC, ((System.currentTimeMillis()/60000) * 60000) + 60100, 60000, pending);
     }
     
