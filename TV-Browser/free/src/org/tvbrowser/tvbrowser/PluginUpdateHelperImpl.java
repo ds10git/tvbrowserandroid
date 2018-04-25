@@ -1,20 +1,27 @@
 package org.tvbrowser.tvbrowser;
 
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
+import android.os.Build;
+import android.support.v4.content.FileProvider;
 
 import org.tvbrowser.devplugin.PluginDefinition;
+import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 
 import java.io.File;
 
 class PluginUpdateHelperImpl extends PluginUpdateHelper {
+	private static final int INSTALL_PLUGIN = 3;
+	private static final int REQUEST_CODE_PERMISSION_GRANT = 94;
 	public static final String XML_ELEMENT_DOWNLOAD_LINK = "donwloadlink";
 
 	public static final String URL = "download/android-plugins-full.gz";
 	private File mCurrentDownloadPlugin;
+	private Runnable mInstallRunnable;
 
 	PluginUpdateHelperImpl(final TvBrowser tvBrowser) {
 		super(tvBrowser);
@@ -48,7 +55,7 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
 
 			mLoadingPlugin = false;
 		} else if (url.startsWith("plugin://") || url.startsWith("plugins://")) {
-			final File path = IOUtils.getDownloadDirectory(tvBrowser.getApplicationContext());
+			final File path = IOUtils.getDownloadDirectory(tvBrowser.getApplicationContext(), IOUtils.TYPE_DOWNLOAD_DIRECTORY_OTHER);
 
 			if (!path.isDirectory()) {
 				//noinspection ResultOfMethodCallIgnored
@@ -88,16 +95,44 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
 						@Override
 						protected Boolean doInBackground(String... params) {
 							mPluginFile = new File(params[0]);
+
 							return IOUtils.saveUrl(params[0], params[1], 15000);
 						}
 
 						protected void onPostExecute(Boolean result) {
 							mProgress.dismiss();
-
 							if (result) {
-								Intent intent = new Intent(Intent.ACTION_VIEW);
-								intent.setDataAndType(Uri.fromFile(mPluginFile), "application/vnd.android.package-archive");
-								tvBrowser.startActivityForResult(intent, TvBrowser.INSTALL_PLUGIN);
+								mInstallRunnable = new Runnable() {
+									@Override
+									public void run() {
+										final Uri apkUri = FileProvider.getUriForFile(tvBrowser, "org.tvbrowser.tvbrowser.provider", mPluginFile);
+
+										Intent install = new Intent(Intent.ACTION_INSTALL_PACKAGE);
+										install.setData(apkUri);
+										install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+										tvBrowser.startActivityForResult(install, INSTALL_PLUGIN);
+									}
+								};
+
+								if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+									if(!CompatUtils.canRequestPackageInstalls(tvBrowser)) {
+										final AlertDialog.Builder builder = new AlertDialog.Builder(tvBrowser);
+										builder.setTitle(R.string.dialog_permission_title);
+										builder.setCancelable(false);
+										builder.setMessage(R.string.dialog_permission_message);
+										builder.setPositiveButton(R.string.dialog_permission_ok, (dialog, which) -> tvBrowser.startActivityForResult(new Intent(android.provider.Settings.ACTION_MANAGE_UNKNOWN_APP_SOURCES).setData(Uri.parse(String.format("package:%s", tvBrowser.getPackageName()))), REQUEST_CODE_PERMISSION_GRANT));
+										builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> cleanup());
+										builder.show();
+									}
+									else {
+										mInstallRunnable.run();
+									}
+								}
+								else {
+									Intent intent = new Intent(Intent.ACTION_VIEW);
+									intent.setDataAndType(Uri.fromFile(mPluginFile), "application/vnd.android.package-archive");
+									tvBrowser.startActivityForResult(intent, INSTALL_PLUGIN);
+								}
 							}
 
 							mLoadingPlugin = false;
@@ -118,10 +153,34 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
 				mCurrentDownloadPlugin.deleteOnExit();
 			}
 		}
+
+		mInstallRunnable = null;
 	}
 
 	@Override
 	boolean pluginSupported(PluginDefinition news) {
 		return true;
+	}
+
+	@Override
+	protected boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+		boolean result = false;
+
+		if(requestCode == INSTALL_PLUGIN) {
+			cleanup();
+			result = true;
+		}
+		else if(requestCode == REQUEST_CODE_PERMISSION_GRANT) {
+		  if (mInstallRunnable != null && CompatUtils.canRequestPackageInstalls(tvBrowser)) {
+				mInstallRunnable.run();
+			} else {
+				cleanup();
+			}
+
+			result = true;
+		}
+
+
+		return result;
 	}
 }

@@ -42,7 +42,6 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
-import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
@@ -168,15 +167,13 @@ import com.example.android.listviewdragginganimation.StableArrayAdapter;
 
 import de.epgpaid.EPGpaidDataConnection;
 
-public class TvBrowser extends AppCompatActivity implements
-    ActionBar.TabListener {
+public class TvBrowser extends AppCompatActivity implements ActionBar.TabListener {
   private static final boolean TEST_VERSION = false;
 
   private static final int ID_LINKIFY_DISABLED = 0;
 
   private static final int SHOW_PREFERENCES = 1;
   private static final int OPEN_FILTER_EDIT = 2;
-  static final int INSTALL_PLUGIN = 3;
   private static final int SHOW_PLUGIN_PREFERENCES = 4;
 
   private HashSet<FilterValues> mCurrentFilter;
@@ -244,7 +241,7 @@ public class TvBrowser extends AppCompatActivity implements
   private long mCreateTime;
   private long mResumeTime;
   private DonationRatingHelper donationsRatingHelper;
-  private PluginUpdateHelper pluginUpdateHelper;
+  private PluginUpdateHelper mPluginUpdateHelper;
 
   private int mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
   private long mProgramListScrollTime = -1;
@@ -391,6 +388,9 @@ public class TvBrowser extends AppCompatActivity implements
       //PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().remove(getString(R.string.CURRENT_FILTER_ID)).commit();
       int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
 
+      if(oldVersion < 417) {
+        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().putString(getString(R.string.DETAIL_PICTURE_ZOOM),getString(R.string.detail_picture_zoom_default)).commit();
+      }
       if(oldVersion < 416) {
         PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, getApplicationContext()).edit().remove(getString(R.string.DETAIL_PICTURE_DESCRIPTION_POSITION)).commit();
         PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().putString(getString(R.string.DETAIL_PICTURE_DESCRIPTION_POSITION),"1").commit();
@@ -713,7 +713,7 @@ public class TvBrowser extends AppCompatActivity implements
     IOUtils.handleDataUpdatePreferences(TvBrowser.this);
     IOUtils.setDataTableRefreshTime(TvBrowser.this);
     donationsRatingHelper = new DonationRatingHelperImpl(this);
-    pluginUpdateHelper = new PluginUpdateHelperImpl(this);
+    mPluginUpdateHelper = new PluginUpdateHelperImpl(this);
   }
 
   @Override
@@ -4018,18 +4018,16 @@ public class TvBrowser extends AppCompatActivity implements
   @Override
   protected void onActivityResult(int requestCode, int resultCode, Intent data) {
  // Pass on the activity result to the helper for handling
+    boolean handled = false;
+
     if(donationsRatingHelper != null) {
-      if (!donationsRatingHelper.onActivityResult(requestCode, resultCode, data)) {
-          // not handled, so handle it ourselves (here's where you'd
-          // perform any handling of activity results not related to in-app
-          // billing...
-          super.onActivityResult(requestCode, resultCode, data);
-      }
-      else {
-          Log.d("info", "onActivityResult handled by IABUtil.");
-      }
+      handled = donationsRatingHelper.onActivityResult(requestCode, resultCode, data);
     }
-    else {
+    if(!handled && mPluginUpdateHelper != null) {
+      handled = mPluginUpdateHelper.onActivityResult(requestCode, resultCode, data);
+    }
+
+    if(!handled) {
       super.onActivityResult(requestCode, resultCode, data);
     }
 
@@ -4040,9 +4038,6 @@ public class TvBrowser extends AppCompatActivity implements
       updateFromFilterEdit();
 
       sendChannelFilterUpdate();
-    }
-    else if(requestCode == INSTALL_PLUGIN) {
-      pluginUpdateHelper.cleanup();
     }
     else if(requestCode == SHOW_PLUGIN_PREFERENCES) {
       PluginPreferencesActivity.clearPlugins();
@@ -4629,7 +4624,7 @@ public class TvBrowser extends AppCompatActivity implements
             public void onClick(DialogInterface dialog, int which) {
               pref.edit().putLong(getString(R.string.NEWS_DATE_LAST_SHOWN), System.currentTimeMillis()).commit();
 
-              pluginUpdateHelper.showPluginInfo();
+              mPluginUpdateHelper.showPluginInfo();
             }
           });
 
@@ -4640,11 +4635,11 @@ public class TvBrowser extends AppCompatActivity implements
             pref.edit().putLong(getString(R.string.NEWS_DATE_LAST_SHOWN), System.currentTimeMillis()).commit();
           }
 
-          pluginUpdateHelper.showPluginInfo();
+          mPluginUpdateHelper.showPluginInfo();
         }
       }
       else {
-        pluginUpdateHelper.showPluginInfo();
+        mPluginUpdateHelper.showPluginInfo();
       }
     }
   }
@@ -4781,11 +4776,9 @@ public class TvBrowser extends AppCompatActivity implements
       for(String key : filterValues.keySet()) {
         Object values = filterValues.get(key);
 
-        Log.d("info2", "key " + key);
-
         if(key.contains("filter.") && values instanceof String && values != null) {
           FilterValues filter = FilterValues.load(key, (String)values);
-          Log.d("info2", "filter " + filter + " " + values);
+
           if(filter != null) {
             channelFilterList.add(filter);
           }
@@ -4934,13 +4927,13 @@ public class TvBrowser extends AppCompatActivity implements
       case R.id.action_donation: donationsRatingHelper.showDonationInfo(); break;
       case R.id.action_search_plugins:
         if(isOnline()) {
-          pluginUpdateHelper.searchPlugins(false);
+          mPluginUpdateHelper.searchPlugins(false);
         }
         else {
           showNoInternetConnection(getString(R.string.no_network_info_data_search_plugins),new Runnable() {
             @Override
             public void run() {
-              pluginUpdateHelper.searchPlugins(false);
+              mPluginUpdateHelper.searchPlugins(false);
             }
           });
         }

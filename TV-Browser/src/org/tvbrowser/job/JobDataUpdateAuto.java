@@ -71,6 +71,7 @@ public class JobDataUpdateAuto extends Job {
     final boolean internetConnectionType = updateType.equals("1");
     boolean timeUpdateType = updateType.equals("2");
     Log.d("info9","canceled: " + JobManager.instance().cancelAllForTag(TAG));
+    long lastUpdate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE,0);
 
     if(autoUpdate) {
       JobRequest.Builder builder = new JobRequest.Builder(TAG)
@@ -78,13 +79,20 @@ public class JobDataUpdateAuto extends Job {
       long timeCurrent = PrefUtils.getLongValue(R.string.AUTO_UPDATE_CURRENT_START_TIME,0);
 
       if(timeUpdateType) {
+        final Calendar last = Calendar.getInstance();
+        last.setTimeInMillis(lastUpdate);
+
         int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default));
         int time = PrefUtils.getIntValue(R.string.PREF_AUTO_UPDATE_START_TIME, R.integer.pref_auto_update_start_time_default);
 
+        last.add(Calendar.DAY_OF_YEAR,days+1);
+
         Log.d("info9","TIME: "+time+" "+days+" " + new Date(timeCurrent));
-        if(timeCurrent == 0 || timeCurrent < System.currentTimeMillis()+1000) {
+        if(timeCurrent == 0 || timeCurrent < System.currentTimeMillis()+1000 || ((System.currentTimeMillis() - lastUpdate) < 12*60*60000L) && (timeCurrent < System.currentTimeMillis() + 60 * 60000L)) {
           if (PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, "").trim().length() > 0 &&
-              PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, "").trim().length() > 0) {
+              PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, "").trim().length() > 0 &&
+              PrefUtils.getLongValue(R.string.PREF_EPGPAID_ACCESS_UNTIL,R.integer.pref_epgpaid_access_until_default) >
+              System.currentTimeMillis()) {
             Calendar test = Calendar.getInstance(TimeZone.getTimeZone("CET"));
             test.set(Calendar.SECOND, 0);
             test.set(Calendar.MILLISECOND, 0);
@@ -103,29 +111,31 @@ public class JobDataUpdateAuto extends Job {
             time += ((int) (Math.random() * 6 * 60));
           }
 
-          final Calendar now = Calendar.getInstance();
-          int currentTime = now.get(Calendar.HOUR_OF_DAY)*60 + now.get(Calendar.MINUTE);
+          last.set(Calendar.HOUR_OF_DAY, time / 60);
+          last.set(Calendar.MINUTE, time % 60);
+          last.set(Calendar.SECOND, 0);
+          last.set(Calendar.MILLISECOND, 0);
 
-          if (currentTime > time) {
-            time = time + 24 * 60;
+          long currentTime = System.currentTimeMillis();
+
+          if(last.getTimeInMillis() < currentTime) {
+            last.setTimeInMillis(currentTime + 60000L * 30);
           }
 
-          Log.d("info9","currentTime: " + currentTime);
-
-          time = Math.max((time - currentTime) + (days * 24 * 60),1);
+        //  time = Math.max((time - currentTime) + (days * 24 * 60),1);
          // time = 1;
-          long end = (time + 60) * 60000L;
+          long end = (last.getTimeInMillis()-currentTime) + 60 * 60000L;
          // end = (time + 1) * 60000L;
-          PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), System.currentTimeMillis() + (time * 60000L)).commit();
-          Log.d("info9", "START " + new Date(System.currentTimeMillis() + (time * 60000L)) + " END " + new Date(System.currentTimeMillis() + end));
-          builder.setExecutionWindow(time * 60000L, end);
+          PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), last.getTimeInMillis()).commit();
+          Log.d("info9", "START " + last.getTime() + " END " + new Date(currentTime + end));
+          builder.setExecutionWindow((last.getTimeInMillis()-currentTime), end);
         }
         else {
           builder.setExecutionWindow(timeCurrent-System.currentTimeMillis(),timeCurrent-System.currentTimeMillis()+60000L);
         }
       }
       else {
-        long possibleFirst = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE,0) + 12 * 60 * 60000L;
+        long possibleFirst = lastUpdate + 12 * 60 * 60000L;
 Log.d("info9","possibleFirst " + new Date(possibleFirst));
         long start = 30000L;
 

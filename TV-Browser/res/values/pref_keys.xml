@@ -490,7 +490,7 @@
 	    <item name="detail_text_scale_default" type="string" format="string" translatable="false">1.0</item>
 	    
 	    <string name="DETAIL_PICTURE_ZOOM" translatable="false">DETAIL_PICTURE_ZOOM</string>
-	    <item name="detail_picture_zoom_default" type="string" format="string" translatable="false">1.4</item>
+	    <item name="detail_picture_zoom_default" type="string" format="string" translatable="false">1.0</item>
 
 	    <string name="SHOW_GENRE_IN_DETAILS" translatable="false">SHOW_GENRE_IN_DETAILS</string>
 	    <item name="show_genre_in_details_default" type="bool" format="boolean">true</item>

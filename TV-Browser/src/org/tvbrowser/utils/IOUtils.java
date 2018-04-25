@@ -916,8 +916,15 @@ public class IOUtils {
     }
     return channelList;
   }
-  
+
+  public static final int TYPE_DOWNLOAD_DIRECTORY_DATA = 0;
+  public static final int TYPE_DOWNLOAD_DIRECTORY_OTHER = 1;
+
   public static File getDownloadDirectory(Context context) {
+    return getDownloadDirectory(context,TYPE_DOWNLOAD_DIRECTORY_DATA);
+  }
+
+  public static File getDownloadDirectory(Context context, int type) {
     File parent = context.getExternalFilesDir(Environment.DIRECTORY_DOWNLOADS);
     boolean external = true;
     
@@ -925,15 +932,18 @@ public class IOUtils {
       external = false;
       parent = context.getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
     }
-    
-    File path = new File(parent,"tvbrowserdata");
+
+    final String subdirectory = type == TYPE_DOWNLOAD_DIRECTORY_DATA ? "tvbrowserdata" : "other";
+
+    File path = new File(parent,subdirectory);
     File nomedia = new File(path,".nomedia");
     
     if(!path.isDirectory()) {
       if(!path.mkdirs() && external) {
         parent = context.getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
-        
-        path = new File(parent,"tvbrowserdata");
+        external = false;
+
+        path = new File(parent,subdirectory);
         nomedia = new File(path,".nomedia");
         
         if(!path.isDirectory()) {

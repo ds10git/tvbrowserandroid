@@ -1,6 +1,7 @@
 package org.tvbrowser.tvbrowser;
 
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.os.Build;
 import android.preference.PreferenceManager;
 import android.support.v7.app.AlertDialog;
@@ -172,6 +173,8 @@ abstract class PluginUpdateHelper {
 	abstract void prepareLinks(final StringBuilder pluginsText, final PluginDefinition news);
 
 	abstract boolean pluginSupported(final PluginDefinition news);
+
+	abstract boolean onActivityResult(int requestCode, int resultCode, Intent data);
 
 	private void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span) {
 		int start = strBuilder.getSpanStart(span);

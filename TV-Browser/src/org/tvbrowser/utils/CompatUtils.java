@@ -273,6 +273,10 @@ public class CompatUtils {
     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
   }
 
+  public static boolean canRequestPackageInstalls(final Context context) {
+    return !isAtLeastAndroidO() || context.getPackageManager().canRequestPackageInstalls();
+  }
+
   public static boolean startForegroundService(final Context context, final Intent service) {
     boolean result = false;
 

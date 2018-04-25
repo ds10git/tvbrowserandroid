@@ -1,4 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 	<string name="plugin_download_manually">Manuell herunterladen und installieren</string>
+	<string name="dialog_permission_title">Installation benötigt Berechtigung</string>
+	<string name="dialog_permission_message">Um Plugins manuell installieren zu können, müssen Sie TV-Browser die Berechtigung dazu erteilen.\n\nMöchten Sie die Einstellung zum Erteilen der Berechtigung jetzt öffnen?</string>
+	<string name="dialog_permission_ok">Einstellungen öffnen</string>
 </resources>
