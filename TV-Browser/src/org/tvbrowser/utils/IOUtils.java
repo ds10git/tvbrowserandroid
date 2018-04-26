@@ -919,6 +919,7 @@ public class IOUtils {
 
   public static final int TYPE_DOWNLOAD_DIRECTORY_DATA = 0;
   public static final int TYPE_DOWNLOAD_DIRECTORY_OTHER = 1;
+  public static final int TYPE_DOWNLOAD_DIRECTORY_LOG = 2;
 
   public static File getDownloadDirectory(Context context) {
     return getDownloadDirectory(context,TYPE_DOWNLOAD_DIRECTORY_DATA);
@@ -933,7 +934,18 @@ public class IOUtils {
       parent = context.getDir(Environment.DIRECTORY_DOWNLOADS, Context.MODE_PRIVATE);
     }
 
-    final String subdirectory = type == TYPE_DOWNLOAD_DIRECTORY_DATA ? "tvbrowserdata" : "other";
+    String subdirectory = null;
+
+    switch (type) {
+      case TYPE_DOWNLOAD_DIRECTORY_OTHER:
+        subdirectory = "other";
+        break;
+      case TYPE_DOWNLOAD_DIRECTORY_LOG:
+        subdirectory = "log";
+        break;
+
+      default: subdirectory = "tvbrowserdata";
+    }
 
     File path = new File(parent,subdirectory);
     File nomedia = new File(path,".nomedia");

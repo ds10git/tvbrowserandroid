@@ -2717,8 +2717,6 @@ public class TvDataUpdateService extends Service {
     if(syncAllowed && mIsConnected) {
       syncPrograms(notification,R.string.update_data_notification_synchronize_favorites, mSyncFavorites, TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE, TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, TvBrowserContentProvider.DATA_KEY_REMOVED_SYNC);
       mSyncFavorites = null;
-
-        //syncFavorites(notification);
           
       boolean fromRemider = PrefUtils.getBooleanValue(R.string.PREF_SYNC_REMINDERS_FROM_DESKTOP, R.bool.pref_sync_reminders_from_desktop_default);
       boolean toRemider = PrefUtils.getBooleanValue(R.string.PREF_SYNC_REMINDERS_TO_DESKTOP, R.bool.pref_sync_reminders_to_desktop_default);

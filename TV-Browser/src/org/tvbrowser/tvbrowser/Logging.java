@@ -16,20 +16,21 @@
  */
 package org.tvbrowser.tvbrowser;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.RandomAccessFile;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
-import org.tvbrowser.utils.IOUtils;
-import org.tvbrowser.utils.PrefUtils;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences.Editor;
 import android.preference.PreferenceManager;
 import android.util.Log;
+
+import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
+
+import java.io.File;
+import java.io.IOException;
+import java.io.RandomAccessFile;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class Logging {
   public static final int TYPE_DATA_UPDATE = 0;
@@ -43,7 +44,7 @@ public class Logging {
   public synchronized static void log(String tag, String message, int type, Context context) {
     PrefUtils.initialize(context);
     RandomAccessFile log = getLogFileForType(type, context);
-    
+
     if(log != null) {
       try {
         log.writeBytes(DATE_FORMAT.format(new Date(System.currentTimeMillis())) + ": " + message + "\n");
@@ -63,7 +64,9 @@ public class Logging {
         }
       } catch (IOException e) {}
       finally {
-        IOUtils.close(log);
+        if(type == TYPE_REMINDER || type == TYPE_PLUGIN) {
+          IOUtils.close(log);
+        }
       }
     }
     
@@ -80,12 +83,12 @@ public class Logging {
     try {
       writeLog = PrefUtils.getBooleanValue(R.string.WRITE_DATA_UPDATE_LOG, R.bool.write_data_update_log_default);
     }catch(Exception e) {}
-    
+
     if(DATA_UPDATE_LOG == null && writeLog) {
       try {
-        final File path = IOUtils.getDownloadDirectory(context);
+        final File path = IOUtils.getDownloadDirectory(context, IOUtils.TYPE_DOWNLOAD_DIRECTORY_LOG);
         
-        File logFile = new File(path,"data-update-log.txt");
+        File logFile = new File(path, SettingConstants.LOG_FILE_NAME_DATA_UPDATE);
         
         DATA_UPDATE_LOG = new RandomAccessFile(logFile, "rw");
         
@@ -121,7 +124,7 @@ public class Logging {
       if(type == TYPE_REMINDER) {
         tag = "Reminder";
         if(PrefUtils.getBooleanValue(R.string.WRITE_REMINDER_LOG, R.bool.write_reminder_log_default)) {
-          fileName = "reminder-log.txt";
+          fileName = SettingConstants.LOG_FILE_NAME_REMINDER;
           lastPosKey = R.string.REMINDER_LOG_LAST_POS;
         }
       }
@@ -129,14 +132,14 @@ public class Logging {
         tag = "Plugin";
         
         if(PrefUtils.getBooleanValue(R.string.LOG_WRITE_PLUGIN_LOG, R.bool.log_write_plugin_log_default)) {
-          fileName = "plugin-log.txt";
+          fileName = SettingConstants.LOG_FILE_NAME_PLUGINS;
           lastPosKey = R.string.LOG_PLUGIN_LAST_POST;
         }
       }
       
       if(fileName != null) {
         try {
-          final File path = IOUtils.getDownloadDirectory(context);
+          final File path = IOUtils.getDownloadDirectory(context, IOUtils.TYPE_DOWNLOAD_DIRECTORY_LOG);
           
           File logFile = new File(path,fileName);
           boolean logFileExists = logFile.isFile();

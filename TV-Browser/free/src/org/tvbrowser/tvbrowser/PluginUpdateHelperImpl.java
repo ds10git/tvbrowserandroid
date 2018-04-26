@@ -9,6 +9,7 @@ import android.os.Build;
 import android.support.v4.content.FileProvider;
 
 import org.tvbrowser.devplugin.PluginDefinition;
+import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 
@@ -105,7 +106,7 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
 								mInstallRunnable = new Runnable() {
 									@Override
 									public void run() {
-										final Uri apkUri = FileProvider.getUriForFile(tvBrowser, "org.tvbrowser.tvbrowser.provider", mPluginFile);
+										final Uri apkUri = FileProvider.getUriForFile(tvBrowser, tvBrowser.getString(R.string.authority_file_provider), mPluginFile);
 
 										Intent install = new Intent(Intent.ACTION_INSTALL_PACKAGE);
 										install.setData(apkUri);
@@ -114,7 +115,7 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
 									}
 								};
 
-								if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+								if (CompatUtils.isAtLeastAndroidN()) {
 									if(!CompatUtils.canRequestPackageInstalls(tvBrowser)) {
 										final AlertDialog.Builder builder = new AlertDialog.Builder(tvBrowser);
 										builder.setTitle(R.string.dialog_permission_title);

@@ -424,6 +424,7 @@
 			&bull; added workaround for channel timezone GMT+01:00 instead of CET<br>
         <br>
         ]]></string>
+    <string name="authority_file_provider" translatable="false">org.tvbrowser.tvbrowser.provider</string>
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_dont_show_again">Don\'t show\nagain</string>
     <string name="info_version_show">Show changes</string>

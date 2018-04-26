@@ -109,6 +109,7 @@ import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.MenuItemCompat;
@@ -388,6 +389,25 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
       //PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().remove(getString(R.string.CURRENT_FILTER_ID)).commit();
       int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
 
+      if(oldVersion < 419) {
+        final File dir = IOUtils.getDownloadDirectory(this);
+
+        if(dir.isDirectory()) {
+          final String[] filesLog = {
+              SettingConstants.LOG_FILE_NAME_DATA_UPDATE,
+              SettingConstants.LOG_FILE_NAME_REMINDER,
+              SettingConstants.LOG_FILE_NAME_PLUGINS
+          };
+
+          for(final String fileLog : filesLog) {
+            final File log = new File(dir, fileLog);
+
+            if (log.isFile() && !log.delete()) {
+              log.deleteOnExit();
+            }
+          }
+        }
+      }
       if(oldVersion < 417) {
         PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().putString(getString(R.string.DETAIL_PICTURE_ZOOM),getString(R.string.detail_picture_zoom_default)).commit();
       }
@@ -4414,7 +4434,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
   }
 
   private void sendLogMail(String file, String type) {
-    final File path = IOUtils.getDownloadDirectory(getApplicationContext());
+    final File path = IOUtils.getDownloadDirectory(getApplicationContext(),IOUtils.TYPE_DOWNLOAD_DIRECTORY_LOG);
 
     File logFile = new File(path,file);
 
@@ -4428,7 +4448,14 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
       sendMail.putExtra(Intent.EXTRA_SUBJECT, subject);
       sendMail.putExtra(Intent.EXTRA_TEXT,text + " " + new Date().toString());
       sendMail.setType("text/rtf");
-      sendMail.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + logFile.getAbsolutePath()));
+
+      if(CompatUtils.isAtLeastAndroidN()) {
+        sendMail.putExtra(Intent.EXTRA_STREAM, FileProvider.getUriForFile(this, getString(R.string.authority_file_provider), logFile));
+      }
+      else {
+        sendMail.putExtra(Intent.EXTRA_STREAM, Uri.parse("file://" + logFile.getAbsolutePath()));
+      }
+
       startActivity(Intent.createChooser(sendMail, getResources().getString(R.string.log_send_mail)));
     }
     else {
@@ -4446,7 +4473,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
   }
 
   private void deleteLog(String type) {
-    final File path = IOUtils.getDownloadDirectory(getApplicationContext());
+    final File path = IOUtils.getDownloadDirectory(getApplicationContext(),IOUtils.TYPE_DOWNLOAD_DIRECTORY_LOG);
 
     File logFile = new File(path,type);
 
@@ -4994,12 +5021,12 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
           showNoInternetConnection(getString(R.string.no_network_info_data_sync_channels),null);
         }
         break;
-      case R.id.action_delete_data_update_log: deleteLog("data-update-log.txt");break;
-      case R.id.action_delete_reminder_log: deleteLog("reminder-log.txt");break;
-      case R.id.action_delete_plugin_log: deleteLog("plugin-log.txt");break;
-      case R.id.action_send_data_update_log:sendLogMail("data-update-log.txt",getString(R.string.log_send_data_update));break;
-      case R.id.action_send_reminder_log:sendLogMail("reminder-log.txt",getString(R.string.log_send_reminder));break;
-      case R.id.action_send_plugin_log:sendLogMail("plugin-log.txt",getString(R.string.log_send_plugin));break;
+      case R.id.action_delete_data_update_log: deleteLog(SettingConstants.LOG_FILE_NAME_DATA_UPDATE);break;
+      case R.id.action_delete_reminder_log: deleteLog(SettingConstants.LOG_FILE_NAME_REMINDER);break;
+      case R.id.action_delete_plugin_log: deleteLog(SettingConstants.LOG_FILE_NAME_PLUGINS);break;
+      case R.id.action_send_data_update_log:sendLogMail(SettingConstants.LOG_FILE_NAME_DATA_UPDATE,getString(R.string.log_send_data_update));break;
+      case R.id.action_send_reminder_log:sendLogMail(SettingConstants.LOG_FILE_NAME_REMINDER,getString(R.string.log_send_reminder));break;
+      case R.id.action_send_plugin_log:sendLogMail(SettingConstants.LOG_FILE_NAME_PLUGINS,getString(R.string.log_send_plugin));break;
       case R.id.menu_tvbrowser_action_settings_basic:
         Intent startPref = new Intent(this, TvbPreferencesActivity.class);
         startActivityForResult(startPref, SHOW_PREFERENCES);

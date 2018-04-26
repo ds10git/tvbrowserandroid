@@ -28,6 +28,17 @@
         android:largeHeap="true"
         android:name="org.tvbrowser.App"
         android:theme="@style/AppDarkTheme" >
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="@string/authority_file_provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths"/>
+        </provider>
+
         <meta-data
             android:name="android.app.default_searchable"
             android:value="org.tvbrowser.tvbrowser.ActivityTvBrowserSearchResults" />

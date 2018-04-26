@@ -269,6 +269,10 @@ public class CompatUtils {
     return minute;
   }
 
+  public static boolean isAtLeastAndroidN() {
+    return Build.VERSION.SDK_INT >= Build.VERSION_CODES.N;
+  }
+
   public static boolean isAtLeastAndroidO() {
     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
   }

@@ -41,9 +41,13 @@ import android.support.v4.util.SparseArrayCompat;
 
 public class SettingConstants {
   public static final int ACCEPTED_DAY_COUNT = 8;
-  
+
+  public static final String LOG_FILE_NAME_DATA_UPDATE = "data-update-log.txt";
+  public static final String LOG_FILE_NAME_REMINDER = "reminder-log.txt";
+  public static final String LOG_FILE_NAME_PLUGINS = "plugin-log.txt";
+
   private static final String REMINDER_PAUSE_KEY = "REMINDER_PAUSE_KEY";
-  
+
   public static final String ALL_FILTER_ID = "filter.allFilter";
   
   public static final String EPG_FREE_KEY = "EPG_FREE";
