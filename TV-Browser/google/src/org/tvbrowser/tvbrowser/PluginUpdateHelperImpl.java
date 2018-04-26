@@ -40,4 +40,9 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
 	boolean pluginSupported(PluginDefinition news) {
 		return news.isOnGooglePlay();
 	}
+
+	@Override
+	boolean onActivityResult(int requestCode, int resultCode, Intent data) {
+		return false;
+	}
 }
