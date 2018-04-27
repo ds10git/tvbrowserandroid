@@ -1,6 +1,72 @@
 apply plugin: 'com.android.application'
 
+import groovy.swing.SwingBuilder
+
+System.setProperty('java.awt.headless', 'false')
+
+gradle.taskGraph.whenReady { taskGraph ->
+	if(taskGraph.hasTask(':'+project.name+':validateSigningFreeRelease') ||
+			taskGraph.hasTask(':'+project.name+':validateSigningGoogleRelease')) {
+		def password = ""
+		def passwordKeyStore = ""
+
+		if (System.console() == null) {
+			new SwingBuilder().edt {
+				dialog(modal: true,
+						title: "Enter password",
+						alwaysOnTop: true,
+						resizable: false,
+						locationRelativeTo: null,
+						pack: true,
+						show: true
+				) {
+					vbox {
+						label(text: "Enter store password: ")
+						input1 = passwordField()
+						label(text: "Enter key password: ")
+						input = passwordField()
+						button(defaultButton: true,
+								text: 'OK',
+								actionPerformed: {
+									passwordKeyStore = new String(input1.password);
+									password = new String(input.password);
+									dispose();
+								})
+					}
+				}
+			}
+		} else {
+			password = System.console().readPassword("\nEnter keystore password: ")
+			password = new String(password)
+			passwordKeyStore = System.console().readPassword("\nEnter key password: ")
+			passwordKeyStore = new String(passwordKeyStore)
+		}
+
+		if (password.size() <= 0 || passwordKeyStore.size() <= 0) {
+			throw new InvalidUserDataException("Empty password")
+		}
+
+		// set signing config key passwords
+		android.signingConfigs.google.storePassword = passwordKeyStore
+		android.signingConfigs.google.keyPassword = password
+
+		android.signingConfigs.free.storePassword = passwordKeyStore
+		android.signingConfigs.free.keyPassword = password
+	}
+}
+
 android {
+	signingConfigs {
+		google {
+			storePassword ''
+			keyPassword ''
+		}
+		free {
+			storePassword ''
+			keyPassword ''
+		}
+	}
+
 	compileSdkVersion 27
 	defaultConfig {
 		applicationId "org.tvbrowser.tvbrowser"
@@ -10,34 +76,37 @@ android {
 		versionName "0.6.5.4"
 		vectorDrawables.useSupportLibrary = true
 	}
-	buildTypes {
-		debug {
-			debuggable true
-			minifyEnabled false
-			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
-			versionNameSuffix "-debug"
-			applicationIdSuffix ".debug"
-		}
-		release {
-			minifyEnabled true
-			proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
-		}
-	}
+
 	flavorDimensions "default"
 	productFlavors {
-
 		free {
 			dimension "default"
-			versionNameSuffix ""
 			applicationIdSuffix ""
 		}
-
 		google {
 			dimension "default"
 			versionNameSuffix "vP"
 			applicationIdSuffix ".play"
 		}
 	}
+
+    buildTypes {
+        debug {
+            debuggable true
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            versionNameSuffix "-debug"
+            applicationIdSuffix ".debug"
+        }
+        release {
+			productFlavors.free.signingConfig signingConfigs.free
+			productFlavors.google.signingConfig signingConfigs.google
+
+            minifyEnabled true
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+        }
+    }
+
 	sourceSets {
 		main {
 			manifest.srcFile 'AndroidManifest.xml'
@@ -83,9 +152,31 @@ android {
 	}
 }
 
+if (project.hasProperty("AndroidProject.signing")
+		&& new File(project.property("AndroidProject.signing").toString()).exists()) {
+	def Properties props = new Properties()
+	def propFile = new File(project.property("AndroidProject.signing").toString())
+	if(propFile.canRead()) {
+		props.load(new FileInputStream(propFile))
+		if (props!=null && props.containsKey('STORE_FILE_GOOGLE') && props.containsKey('KEY_ALIAS_GOOGLE') &&
+				props.containsKey('STORE_FILE_FREE') && props.containsKey('KEY_ALIAS_FREE')) {
+			android.signingConfigs.google.storeFile = file(props['STORE_FILE_GOOGLE'])
+			android.signingConfigs.google.keyAlias = props['KEY_ALIAS_GOOGLE']
+			android.signingConfigs.free.storeFile = file(props['STORE_FILE_FREE'])
+			android.signingConfigs.free.keyAlias = props['KEY_ALIAS_FREE']
+		} else {
+			println 'androidproject.properties found but some entries are missing'
+			android.buildTypes.release.signingConfig = null
+		}
+	} else {
+		println 'androidproject.properties file not found'
+		android.buildTypes.release.signingConfig = null
+	}
+}
+
 dependencies {
-	implementation 'com.android.support:appcompat-v7:27.1.1'
-	implementation 'com.android.support:support-vector-drawable:27.1.1'
-	implementation 'com.android.support:design:27.1.1'
-	implementation 'com.evernote:android-job:1.2.5'
+    implementation 'com.android.support:appcompat-v7:27.1.1'
+    implementation 'com.android.support:support-vector-drawable:27.1.1'
+    implementation 'com.android.support:design:27.1.1'
+    implementation 'com.evernote:android-job:1.2.5'
 }
