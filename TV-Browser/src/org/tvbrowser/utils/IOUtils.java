@@ -85,7 +85,6 @@ import android.util.Log;
  * @author René Mach
  */
 public class IOUtils {
-  private static final int DATA_UPDATE_KEY = 1234;
   private static final int REQUEST_CODE_DATA_TABLE_UPDATE = 1235;
   private static final float MIN_BATTERIE_LEVEL = 0.1f;
   

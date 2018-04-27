@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+	<string name="plugin_download_info">IMPORTANT: A plugin can only be updated by using the same installation type.</string>
 	<string name="plugin_download_manually">Download and install manually</string>
 	<string name="dialog_permission_title">Installation needs permission</string>
 	<string name="dialog_permission_message">To install plugins manually, you need to grant TV-Browser the permission to install from unknown sources.\n\nDo you want to open the settings to grant the permission now?</string>

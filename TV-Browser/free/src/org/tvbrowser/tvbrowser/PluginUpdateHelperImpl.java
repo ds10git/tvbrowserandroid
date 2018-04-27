@@ -30,13 +30,17 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
 
 	@Override
 	void prepareLinks(final StringBuilder pluginsText, final PluginDefinition news) {
+		final String downloadLink = news.getUnknownValueForName(XML_ELEMENT_DOWNLOAD_LINK);
+
+		if(news.isOnGooglePlay() && downloadLink != null && downloadLink.trim().length() > 0) {
+			pluginsText.append("<p>").append(tvBrowser.getString(R.string.plugin_download_info)).append("</p>");
+		}
+
 		if (news.isOnGooglePlay()) {
 			pluginsText.append("<p><a href=\"http://play.google.com/store/apps/details?id=");
 			pluginsText.append(news.getPackageName());
 			pluginsText.append("\">").append(tvBrowser.getString(R.string.plugin_open_google_play)).append("</a></p>");
 		}
-
-		final String downloadLink = news.getUnknownValueForName(XML_ELEMENT_DOWNLOAD_LINK);
 
 		if (downloadLink != null && downloadLink.trim().length() > 0) {
 			pluginsText.append("<p><a href=\"");

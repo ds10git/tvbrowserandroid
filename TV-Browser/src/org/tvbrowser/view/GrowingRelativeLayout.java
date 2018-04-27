@@ -16,13 +16,13 @@
  */
 package org.tvbrowser.view;
 
-import java.util.ArrayList;
-
 import android.content.Context;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
+
+import java.util.ArrayList;
 
 public class GrowingRelativeLayout extends RelativeLayout {
   public GrowingRelativeLayout(Context context) {
@@ -40,11 +40,7 @@ public class GrowingRelativeLayout extends RelativeLayout {
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
     super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-    
-    int height = Math.max(MeasureSpec.getSize(heightMeasureSpec),getMeasuredHeight());
-    
-    int childHeightSpec = MeasureSpec.makeMeasureSpec(height, MeasureSpec.EXACTLY);
-    
+
     boolean grow = getChildAt(1) instanceof LinearLayout;
     
     for(int i = 0; i < getChildCount(); i++) {
@@ -55,12 +51,8 @@ public class GrowingRelativeLayout extends RelativeLayout {
       if(child instanceof LinearLayout) {
         if(grow) {
           RelativeLayout.LayoutParams para = (RelativeLayout.LayoutParams)child.getLayoutParams();
-      
-          para.height = height;
-        }
-        else {
-          int childWidthSpec = MeasureSpec.makeMeasureSpec(child.getMeasuredWidth(), MeasureSpec.EXACTLY);
-          child.measure(childWidthSpec, childHeightSpec);
+
+          para.height = getMeasuredHeight();
         }
       }
     }

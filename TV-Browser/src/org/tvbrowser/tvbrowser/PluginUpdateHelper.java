@@ -108,9 +108,9 @@ abstract class PluginUpdateHelper {
               pluginsText.append("<p><i>");
               pluginsText.append(tvBrowser.getString(R.string.author)).append(" ");
               pluginsText.append(news.getAuthor());
-              pluginsText.append(" <right>").append(tvBrowser.getString(R.string.version)).append(" ");
+              pluginsText.append("<br>").append(tvBrowser.getString(R.string.version)).append(" ");
               pluginsText.append(news.getVersion());
-              pluginsText.append("</i></right></p>");
+              pluginsText.append("</i></p>");
 
               prepareLinks(pluginsText, news);
             }
