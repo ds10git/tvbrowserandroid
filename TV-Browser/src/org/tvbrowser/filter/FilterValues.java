@@ -54,32 +54,31 @@ public abstract class FilterValues {
   
   public static final FilterValues load(String id, String values) {
     FilterValues result = null;
-    Log.d("info4","filter " + id + " " + values);
-    if(id.contains(SEPARATOR_CLASS) && values != null) {
-      String[] parts = id.split(SEPARATOR_CLASS);
-      String[] valueParts = values.split(SEPARATOR);
-      
-      if(parts[0].equals(FilterValuesCategories.class.getCanonicalName())) {
-        result = new FilterValuesCategories(valueParts[0], valueParts[1]);
-        result.mId = parts[1];
-      }
-      else if(parts[0].equals(FilterValuesChannels.class.getCanonicalName())) {        
-        result = new FilterValuesChannels(valueParts[0], valueParts[1]);
-        result.mId = parts[1];
-      }
-      else if(parts[0].equals(FilterValuesKeyword.class.getCanonicalName())) {        
-        result = new FilterValuesKeyword(valueParts[0], valueParts[1]);
-        result.mId = parts[1];
-      }
-    }
-    else if(values != null) {
-      String[] valueParts = values.split(SEPARATOR);
 
-      if(valueParts.length == 2) {
-        result = new FilterValuesChannels(valueParts[0], valueParts[1]);
-        result.mId = id;
+    try {
+      if (id.contains(SEPARATOR_CLASS) && values != null) {
+        String[] parts = id.split(SEPARATOR_CLASS);
+        String[] valueParts = values.split(SEPARATOR);
+
+        if (parts[0].equals(FilterValuesCategories.class.getCanonicalName())) {
+          result = new FilterValuesCategories(valueParts[0], valueParts[1]);
+          result.mId = parts[1];
+        } else if (parts[0].equals(FilterValuesChannels.class.getCanonicalName())) {
+          result = new FilterValuesChannels(valueParts[0], valueParts[1]);
+          result.mId = parts[1];
+        } else if (parts[0].equals(FilterValuesKeyword.class.getCanonicalName())) {
+          result = new FilterValuesKeyword(valueParts[0], valueParts[1]);
+          result.mId = parts[1];
+        }
+      } else if (values != null) {
+        String[] valueParts = values.split(SEPARATOR);
+
+        if (valueParts.length == 2) {
+          result = new FilterValuesChannels(valueParts[0], valueParts[1]);
+          result.mId = id;
+        }
       }
-    }
+    }catch(Exception e) {}
     
     return result;
   }

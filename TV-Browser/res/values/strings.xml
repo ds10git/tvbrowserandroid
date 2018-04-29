@@ -2,6 +2,8 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.6.5</h2>
+            &bull; fixed progress of running programs tab<br>
+            &bull; speed up favorite and reminder synchronization<br>
             &bull; separate versions for GooglePlay and manually installation<br>
             &bull; scale channel icon for reminders<br>
             &bull; show week day in reminder notification<br>

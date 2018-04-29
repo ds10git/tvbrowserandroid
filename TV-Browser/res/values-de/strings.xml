@@ -2,6 +2,8 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.6.5</h2>
+            &bull; fehlende Aktualisierung der Sendungen im Tab Laufende Sendungen behoben<br>
+            &bull; Synchronisation der Lieblingssendung und Erinnerungen beschleunigt<br>
             &bull; unterschiedliche Version für GooglePlay und manuelle Installation<br>
             &bull; Senderlogo in Benachrichtigungen für Erinnerungen skalieren<br>
             &bull; Wochentag in Benachrichtigung für Erinnerungen anzeigen<br>

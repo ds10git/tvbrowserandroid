@@ -16,7 +16,9 @@
  */
 package org.tvbrowser.filter;
 
+import java.util.ArrayList;
 import java.util.Map;
+import java.util.Set;
 
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.PrefUtils;
@@ -65,8 +67,10 @@ public class ActivityFilterListEdit extends AppCompatActivity {
     SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, ActivityFilterListEdit.this);
     
     Map<String,?> filterValues = pref.getAll();
-    
-    for(String key : filterValues.keySet()) {
+    Set<String> keySet = filterValues.keySet();
+    ArrayList<String> keysToRemove = new ArrayList<>();
+
+    for(final String key : keySet) {
       Object values = filterValues.get(key);
       
       if(key.contains("filter.") && values instanceof String && values != null) {
@@ -75,7 +79,20 @@ public class ActivityFilterListEdit extends AppCompatActivity {
         if(filter != null) {
           mFilterListAdapter.add(filter);
         }
+        else {
+          keysToRemove.add(key);
+        }
       }
+    }
+
+    if(!keysToRemove.isEmpty()) {
+      final SharedPreferences.Editor edit = pref.edit();
+
+      for(final String key : keysToRemove) {
+        edit.remove(key);
+      }
+
+      edit.apply();
     }
     
     mFilterListAdapter.sort(FilterValues.COMPARATOR_FILTER_VALUES);

@@ -16,25 +16,6 @@
  */
 package org.tvbrowser.tvbrowser;
 
-import java.lang.reflect.Field;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Locale;
-
-import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.tvbrowser.LoaderUpdater.UnsupportedFragmentException;
-import org.tvbrowser.utils.CompatUtils;
-import org.tvbrowser.utils.IOUtils;
-import org.tvbrowser.utils.PrefUtils;
-import org.tvbrowser.utils.ProgramUtils;
-import org.tvbrowser.utils.UiUtils;
-import org.tvbrowser.view.SeparatorDrawable;
-
 import android.annotation.SuppressLint;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
@@ -65,7 +46,6 @@ import android.support.v4.util.LongSparseArray;
 import android.support.v4.util.SparseArrayCompat;
 import android.text.Spannable;
 import android.text.format.DateFormat;
-import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.LayoutInflater;
@@ -84,6 +64,24 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
+
+import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.LoaderUpdater.UnsupportedFragmentException;
+import org.tvbrowser.utils.CompatUtils;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.ProgramUtils;
+import org.tvbrowser.utils.UiUtils;
+import org.tvbrowser.view.SeparatorDrawable;
+
+import java.lang.reflect.Field;
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Locale;
 
 public class FragmentProgramsListRunning extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener {
   private static final String WHERE_CLAUSE_KEY = "WHERE_CLAUSE_KEY";
@@ -148,6 +146,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   private LoaderUpdater mLoaderUpdater;
 
   private int mStartTime = Integer.MIN_VALUE;
+
+  private long mNextReload;
   
   static {
     BEFORE_GRADIENT = new GradientDrawable(GradientDrawable.Orientation.LEFT_RIGHT,new int[] {Color.argb(0x84, 0, 0, 0xff),Color.WHITE});
@@ -172,14 +172,16 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
 
     mLoaderUpdater.setIsRunning();
     mLoaderUpdater.startUpdate();
+
+    //mListView.getScrollY()
     /*mKeepRunning = true;
     startUpdateThread();*/
   }
-  
+
   @Override
   public void onPause() {
     mLoaderUpdater.setIsNotRunning();
-    
+
     super.onPause();
   }
   
@@ -205,7 +207,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     mRefreshReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        if(mWhereClauseTime == -1) {
+        if((mNextReload != -1 && mNextReload < System.currentTimeMillis()) || (mNextReload ==-1 && (mStartTime == -1 || mStartTime == -2))) {
           mLoaderUpdater.startUpdate();
         }
         else {
@@ -1045,8 +1047,6 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   }
   
   private void pickTime(final View v) {
-    Log.d("info12", "pickTime " + new Date(mLastExtraClick + TIMEOUT_LAST_EXTRA_CLICK) + " " + new Date(System.currentTimeMillis()));
-    
     if(mLastExtraClick + TIMEOUT_LAST_EXTRA_CLICK < System.currentTimeMillis()) {
       if(isViewNotVisible(mTimeExtra)) {
         ((HorizontalScrollView)mTimeBar.getParent()).scrollTo(mTimeExtra.getLeft(), mTimeExtra.getTop());
@@ -1412,6 +1412,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   }
   
   private static final class ChannelProgramBlock {
+    public long mCreationTime;
     public int mChannelID;
     private String mChannelName;
     private int mChannelOrderNumber;
@@ -1458,7 +1459,6 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   @Override
   public synchronized void onLoadFinished(Loader<Cursor> loader, final Cursor c) {
-    Log.d("info6", "RUNNING PROGRAMS: onLoadFinished, searching programs " + System.currentTimeMillis());
     if(c != null) {
       SparseArrayCompat<ChannelProgramBlock> channelProgramMap = new SparseArrayCompat<ChannelProgramBlock>();
       SparseArrayCompat<ChannelProgramBlock> currentProgramMap = new SparseArrayCompat<ChannelProgramBlock>();
@@ -1497,6 +1497,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       
       if(c.getCount() > 0) {
         try {
+          final ArrayList<Long> timeList = new ArrayList<>();
+
           while(!c.isClosed() && c.moveToNext()) {
             int channelID = c.getInt(mChannelIDColumn);
             
@@ -1509,7 +1511,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
               channelProgramMap.put(channelID, block);
               mProgramBlockList.add(block);
             }
-            
+
             if(!block.mIsComplete) {
               long startTime = c.getLong(mStartTimeColumn);
               long endTime = c.getLong(mEndTimeColumn);
@@ -1621,18 +1623,49 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                 mMarkingsMap.put(programID, IOUtils.getStringArrayFromList(markedColumsList));
                 markedColumsList.clear();
               }
+            } else {
+              if(mStartTime != -1 && mStartTime != -2 && block.mPreviousStart != 0 && !timeList.contains(block.mPreviousStart)) {
+                timeList.add(block.mPreviousStart);
+              }
+              if(block.mPreviousEnd != 0 && !timeList.contains(block.mPreviousEnd)) {
+                timeList.add(block.mPreviousEnd);
+              }
+              if(block.mNowStart != 0 && !timeList.contains(block.mNowStart)) {
+                timeList.add(block.mNowStart);
+              }
+              if(block.mNowEnd != 0 && !timeList.contains(block.mNowEnd)) {
+                timeList.add(block.mNowEnd);
+              }
+              if(block.mNextStart != 0 && !timeList.contains(block.mNextStart)) {
+                timeList.add(block.mNextStart);
+              }
+            }
+          }
+
+          Collections.sort(timeList);
+          long now = System.currentTimeMillis();
+
+          mNextReload = -1;
+
+          for(Long time : timeList) {
+            if(time > now) {
+              mNextReload = time;
+              break;
             }
           }
         }catch(IllegalStateException e1) {}
       }
-      
+
       IOUtils.close(c); // FIXME should be a call to an adapter's swapCursor to reuse the loader's cursor
       currentProgramMap.clear();
       channelProgramMap.clear();
     }
-    
-    Log.d("info6", "RUNNING PROGRAMS: onLoadFinished, searching programs DONE " + System.currentTimeMillis());
+
     mRunningProgramListAdapter.notifyDataSetChanged();
+  }
+
+  public int getScrollY() {
+    return mListView.getScrollY();
   }
 
   @Override
@@ -1735,7 +1768,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     
     for(int i = 0; i < mTimeBar.getChildCount(); i++) {
       View button = mTimeBar.getChildAt(i);
-      Log.d("info8",button+" " +button.getTag());
+
       if(button.getTag().equals(time - 1)) {
         selectButton((Button)button);
         found = true;

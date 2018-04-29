@@ -248,7 +248,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
   private long mProgramListScrollTime = -1;
   private long mProgramListScrollEndTime = -1;
 
-  private int mStartTime = -1;
+  private int mStartTime = Integer.MIN_VALUE;
 
  // private int mCurrentDay;
 
@@ -907,6 +907,19 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
 
     }
 
+
+    Log.d("info8","CREATE TIMER");
+    mTimer = new Timer();
+    mTimer.scheduleAtFixedRate(new TimerTask() {
+      @Override
+      public void run() {
+        Log.d("info8","TIMER");
+        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
+      }
+    }, new Date((((long) (System.currentTimeMillis() / 60000L)) * 60000) + 62000), 60000);
+
+
+
    // LogUtils.logProgramData(getApplicationContext(), TvBrowserContentProvider.DATA_KEY_TITLE + " LIKE \"%Sportschau%\"", TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES);
   }
 
@@ -1287,14 +1300,6 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
         checkTermsAcceptedInUIThread();
       }
     }
-
-    mTimer = new Timer();
-    mTimer.scheduleAtFixedRate(new TimerTask() {
-      @Override
-      public void run() {
-        LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
-      }
-    }, new Date((((long) (System.currentTimeMillis() / 60000L)) * 60000) + 62000), 60000);
 
     final int infoType = mInfoType;
     mInfoType = INFO_TYPE_NOTHING;
@@ -5394,7 +5399,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
           if(IOUtils.isDatabaseAccessible(getApplicationContext())) {
             fragment = new FragmentProgramsListRunning();
             ((FragmentProgramsListRunning)fragment).setStartTime(mStartTime+1);
-            mStartTime = -1;
+            mStartTime = Integer.MIN_VALUE;
           }
           else {
             fragment = new Fragment();

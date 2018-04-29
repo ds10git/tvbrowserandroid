@@ -1,13 +1,12 @@
 package org.tvbrowser.tvbrowser;
 
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.HashSet;
-
 import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
-import android.util.Log;
+
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashSet;
 
 public class LoaderUpdater {
   private static final int TIME_UPDATE_DELAY = 400;
@@ -75,7 +74,6 @@ public class LoaderUpdater {
   
   public synchronized void startUpdate(long nextUpdate, final CallbackObjects callbackObjects) {
     mLastUpdateStart = System.currentTimeMillis();
-    
     if((nextUpdate == 0 || nextUpdate >= System.currentTimeMillis()) && 
         (mUpdateWaitingThread == null || !mUpdateWaitingThread.isAlive())) {
       mUpdateWaitingThread = new Thread("LoaderUpdate UPDATE WAITING THREAD") {
@@ -99,11 +97,7 @@ public class LoaderUpdater {
                 mFragment.getLoaderManager().getLoader(0).stopLoading();
               }catch(Throwable t) {}
             }
-            
-            
-            
-            Log.d("info14", "update Fragment: " + mFragment.getClass().getCanonicalName() + " " + System.currentTimeMillis());
-            
+
             mHandler.post(new Runnable() {
               @Override
               public void run() {

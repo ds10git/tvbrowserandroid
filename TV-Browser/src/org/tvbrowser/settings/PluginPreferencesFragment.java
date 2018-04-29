@@ -57,143 +57,143 @@ public class PluginPreferencesFragment extends PreferenceFragment {
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    
+
     if (savedInstanceState == null) {
       mPluginId = getArguments().getString("pluginId");
+    } else {
+      // Orientation Change
+      mPluginId = savedInstanceState.getString("pluginId");
     }
-    else {
-        // Orientation Change
-        mPluginId = savedInstanceState.getString("pluginId");
-    }
-    
+
     // Load the preferences from an XML resource
     PreferenceScreen preferenceScreen = getPreferenceManager().createPreferenceScreen(getActivity());
     // add preferences using preferenceScreen.addPreference()
     this.setPreferenceScreen(preferenceScreen);
     preferenceScreen.setTitle("ccccc");
 
-    final PluginManager pluginManager = PluginPreferencesActivity.getInstance().getPluginManager();
-    final PluginServiceConnection pluginConnection = PluginPreferencesActivity.getInstance().getServiceConnectionWithId(mPluginId);
-    
-  //  pluginConnection.unbindPlugin(getActivity().getApplicationContext());
-    
-    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
-    
-    if(pluginConnection != null) {
-      final CheckBoxPreference activated =  new CheckBoxPreference(getActivity());
-      activated.setTitle(R.string.pref_activated);
-      activated.setKey(mPluginId+"_ACTIVATED");
-      activated.setChecked(pref.getBoolean(pluginConnection.getId()+"_ACTIVATED", true));
-      
-      preferenceScreen.addPreference(activated);
-      
-      String description = pluginConnection.getPluginDescription();
-      
-      if(description != null) {
-        InfoPreference descriptionPref = new InfoPreference(getActivity());
-        descriptionPref.setTitle(R.string.pref_plugins_description);
-        descriptionPref.setSummary(description);
-        preferenceScreen.addPreference(descriptionPref);
-      }
-      
-      final AtomicReference<Preference> startSetupRef = new AtomicReference<Preference>(null);
-      if(pluginConnection != null && pluginConnection.hasPreferences()) {
-        final Preference startSetup = new Preference(getActivity());
-        startSetup.setTitle(R.string.pref_open);
-        startSetup.setKey(mPluginId);
-        startSetup.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-          @Override
-          public boolean onPreferenceClick(Preference preference) {
-            try {
-              if(pluginConnection != null ) {
-                Plugin plugin = pluginConnection.getPlugin();
-                
-                if(plugin != null && pluginConnection.isBound(getActivity().getApplicationContext())) {
-                  plugin.openPreferences(IOUtils.getChannelList(getActivity()));
-                }
-                else {
-                  final Context bindContext = getActivity(); 
-                  
-                  if(pluginConnection.bindPlugin(bindContext, null)) {
-                    pluginConnection.getPlugin().onActivation(pluginManager);
-                    pluginConnection.getPlugin().openPreferences(IOUtils.getChannelList(bindContext));
-                    pluginConnection.callOnDeactivation();
-                    
-                    pluginConnection.unbindPlugin(bindContext);
+    final PluginPreferencesActivity activity = PluginPreferencesActivity.getInstance();
+
+    if (activity != null) {
+      final PluginManager pluginManager = activity.getPluginManager();
+      final PluginServiceConnection pluginConnection = PluginPreferencesActivity.getInstance().getServiceConnectionWithId(mPluginId);
+
+      //  pluginConnection.unbindPlugin(getActivity().getApplicationContext());
+
+      SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getActivity());
+
+      if (pluginConnection != null) {
+        final CheckBoxPreference activated = new CheckBoxPreference(getActivity());
+        activated.setTitle(R.string.pref_activated);
+        activated.setKey(mPluginId + "_ACTIVATED");
+        activated.setChecked(pref.getBoolean(pluginConnection.getId() + "_ACTIVATED", true));
+
+        preferenceScreen.addPreference(activated);
+
+        String description = pluginConnection.getPluginDescription();
+
+        if (description != null) {
+          InfoPreference descriptionPref = new InfoPreference(getActivity());
+          descriptionPref.setTitle(R.string.pref_plugins_description);
+          descriptionPref.setSummary(description);
+          preferenceScreen.addPreference(descriptionPref);
+        }
+
+        final AtomicReference<Preference> startSetupRef = new AtomicReference<Preference>(null);
+        if (pluginConnection != null && pluginConnection.hasPreferences()) {
+          final Preference startSetup = new Preference(getActivity());
+          startSetup.setTitle(R.string.pref_open);
+          startSetup.setKey(mPluginId);
+          startSetup.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
+            @Override
+            public boolean onPreferenceClick(Preference preference) {
+              try {
+                if (pluginConnection != null) {
+                  Plugin plugin = pluginConnection.getPlugin();
+
+                  if (plugin != null && pluginConnection.isBound(getActivity().getApplicationContext())) {
+                    plugin.openPreferences(IOUtils.getChannelList(getActivity()));
+                  } else {
+                    final Context bindContext = getActivity();
+
+                    if (pluginConnection.bindPlugin(bindContext, null)) {
+                      pluginConnection.getPlugin().onActivation(pluginManager);
+                      pluginConnection.getPlugin().openPreferences(IOUtils.getChannelList(bindContext));
+                      pluginConnection.callOnDeactivation();
+
+                      pluginConnection.unbindPlugin(bindContext);
+                    }
                   }
+
+
                 }
-                
-                
+              } catch (Throwable e) {
               }
-            } catch (Throwable e) {
+
+              return true;
             }
-            
-            return true;
-          }
-        });
-        
-        preferenceScreen.addPreference(startSetup);
-        
-        startSetup.setEnabled(activated.isChecked());
-        startSetupRef.set(startSetup);
-      }
-      
-      activated.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-        @Override
-        public boolean onPreferenceChange(Preference preference, final Object newValue) {
-          if(pluginConnection != null) {
-            final AtomicReference<Context> mBindContextRef = new AtomicReference<Context>(null); 
-            
-            Runnable runnable = new Runnable() {
-              @Override
-              public void run() {
-                if(startSetupRef.get() != null) {
-                  startSetupRef.get().setEnabled((Boolean)newValue);
-                }
-                
-                if((Boolean)newValue) {
-                  try {
-                    pluginConnection.getPlugin().onActivation(pluginManager);
-                  } catch (RemoteException e) {
-                    e.printStackTrace();
+          });
+
+          preferenceScreen.addPreference(startSetup);
+
+          startSetup.setEnabled(activated.isChecked());
+          startSetupRef.set(startSetup);
+        }
+
+        activated.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
+          @Override
+          public boolean onPreferenceChange(Preference preference, final Object newValue) {
+            if (pluginConnection != null) {
+              final AtomicReference<Context> mBindContextRef = new AtomicReference<Context>(null);
+
+              Runnable runnable = new Runnable() {
+                @Override
+                public void run() {
+                  if (startSetupRef.get() != null) {
+                    startSetupRef.get().setEnabled((Boolean) newValue);
+                  }
+
+                  if ((Boolean) newValue) {
+                    try {
+                      pluginConnection.getPlugin().onActivation(pluginManager);
+                    } catch (RemoteException e) {
+                      e.printStackTrace();
+                    }
+                  } else {
+                    pluginConnection.callOnDeactivation();
+                  }
+
+                  if (mBindContextRef.get() != null) {
+                    pluginConnection.callOnDeactivation();
+                    pluginConnection.unbindPlugin(mBindContextRef.get());
                   }
                 }
-                else {
-                  pluginConnection.callOnDeactivation();
+              };
+
+              Plugin plugin = pluginConnection.getPlugin();
+
+              if (plugin == null) {
+                mBindContextRef.set(getActivity());
+                if (pluginConnection.bindPlugin(mBindContextRef.get(), null)) {
+                  runnable.run();
                 }
-                
-                if(mBindContextRef.get() != null) {
-                  pluginConnection.callOnDeactivation();
-                  pluginConnection.unbindPlugin(mBindContextRef.get() );
-                }
-              }
-            };
-            
-            Plugin plugin = pluginConnection.getPlugin();
-            
-            if(plugin == null) {
-              mBindContextRef.set(getActivity());
-              if(pluginConnection.bindPlugin(mBindContextRef.get(), null)) {
+              } else {
                 runnable.run();
               }
             }
-            else {
-              runnable.run();
-            }
+
+            return true;
           }
-          
-          return true;
+        });
+
+        String license = pluginConnection.getPluginLicense();
+
+        if (license != null) {
+          InfoPreference licensePref = new InfoPreference(getActivity());
+          licensePref.setTitle(R.string.pref_plugins_license);
+          licensePref.setSummary(Html.fromHtml(license));
+
+          preferenceScreen.addPreference(licensePref);
         }
-      });
-      
-      String license = pluginConnection.getPluginLicense();
-      
-      if(license != null) {
-        InfoPreference licensePref = new InfoPreference(getActivity());
-        licensePref.setTitle(R.string.pref_plugins_license);
-        licensePref.setSummary(Html.fromHtml(license));
-        
-        preferenceScreen.addPreference(licensePref);
       }
     }
   }
