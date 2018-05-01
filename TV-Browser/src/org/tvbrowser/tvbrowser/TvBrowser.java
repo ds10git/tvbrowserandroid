@@ -391,7 +391,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
       //PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().remove(getString(R.string.CURRENT_FILTER_ID)).commit();
       int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
 
-      if(oldVersion < 420) {
+      if(oldVersion < 422) {
         SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
 
         String car = pref.getString(SettingConstants.USER_NAME, null);
