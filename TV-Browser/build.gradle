@@ -72,8 +72,8 @@ android {
 		applicationId "org.tvbrowser.tvbrowser"
 		minSdkVersion 14
 		targetSdkVersion 27
-		versionCode 420
-		versionName "0.6.5.5"
+		versionCode 421
+		versionName "0.6.5.6"
 		vectorDrawables.useSupportLibrary = true
 	}
 

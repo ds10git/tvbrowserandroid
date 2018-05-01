@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <!-- MISC PREF KEYS -->
-    	<string name="PREF_MISC_LAST_KNOWN_OPEN_DATE" translatable="false">PREF_MISC_LAST_KNOWN_OPEN_DATE</string>
+	    <string name="PREF_PRIVACY_TERMS_ACCEPTED_SYNC" translatable="false">PREF_PRIVACY_TERMS_ACCEPTED_SYNC</string>
+		<string name="PREF_PRIVACY_TERMS_ACCEPTED_EPGPAID" translatable="false">PREF_PRIVACY_TERMS_ACCEPTED_EPGPAID</string>
+    	<item name="pref_privacy_terms_default" type="bool" format="boolean">false</item>
+
+		<string name="PREF_MISC_LAST_KNOWN_OPEN_DATE" translatable="false">PREF_MISC_LAST_KNOWN_OPEN_DATE</string>
     	<string name="PREF_MISC_LAST_FAVORITE_SELECTION" translatable="false">PREF_MISC_LAST_FAVORITE_SELECTION</string>
     	<string name="PREF_MISC_LAST_TIME_PICK_VALUE" translatable="false">PREF_MISC_LAST_TIME_PICK_VALUE</string>
     	<string name="PREF_MISC_LAST_TIME_EXTRA_VALUE" translatable="false">PREF_MISC_LAST_TIME_EXTRA_VALUE</string>

@@ -510,8 +510,8 @@ public class TvDataUpdateService extends Service {
   private void loadEpgPaidChannelIdsForDataUpdate() {
     final String userName = PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, null);
     final String password = PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, null);
-    
-    if(userName != null && password != null && userName.trim().length() > 0 && password.trim().length() > 0) {
+
+    if(PrefUtils.getBooleanValue(R.string.PREF_PRIVACY_TERMS_ACCEPTED_EPGPAID,R.bool.pref_privacy_terms_default) && userName != null && password != null && userName.trim().length() > 0 && password.trim().length() > 0) {
       mEpgPaidChannelIds = PrefUtils.getStringSetValue(R.string.PREF_EPGPAID_DATABASE_CHANNEL_IDS, new HashSet<String>());
     }
     else {
@@ -905,112 +905,115 @@ public class TvDataUpdateService extends Service {
   }
   
   private void startSynchronizeUp(boolean info, final String value, final String address) {
-    NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-    
-    synchronizeUp(info, value, address, notification);
-    
-    Intent synchronizeUpDone = new Intent(SettingConstants.SYNCHRONIZE_UP_DONE);
-    LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(synchronizeUpDone);
-    
+    if(PrefUtils.getBooleanValue(R.string.PREF_PRIVACY_TERMS_ACCEPTED_SYNC,R.bool.pref_privacy_terms_default)) {
+      NotificationManager notification = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+
+      synchronizeUp(info, value, address, notification);
+
+      Intent synchronizeUpDone = new Intent(SettingConstants.SYNCHRONIZE_UP_DONE);
+      LocalBroadcastManager.getInstance(TvDataUpdateService.this).sendBroadcast(synchronizeUpDone);
+    }
+
     stopSelfInternal();
   }
   
   private void synchronizeUp(boolean info, final String value, final String address, final NotificationManager notification) {
-    mBuilder.setProgress(100, 0, true);
-    mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize));
-    notification.notify(ID_NOTIFY, mBuilder.build());
-    
-    final String CrLf = "\r\n";
-    
-    SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
-    
-    String car = pref.getString(SettingConstants.USER_NAME, null);
-    String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
-    
-    if(car != null && car.trim().length() > 0 && bicycle != null && bicycle.trim().length() > 0) {
-      String userpass = car.trim() + ":" + bicycle.trim();
-      String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
-      
-      URLConnection conn = null;
-      OutputStream os = null;
-      InputStream is = null;
-  
-      try {
+    if(PrefUtils.getBooleanValue(R.string.PREF_PRIVACY_TERMS_ACCEPTED_SYNC,R.bool.pref_privacy_terms_default)) {
+      mBuilder.setProgress(100, 0, true);
+      mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize));
+      notification.notify(ID_NOTIFY, mBuilder.build());
+
+      final String CrLf = "\r\n";
+
+      SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+
+      String car = pref.getString(SettingConstants.USER_NAME, null);
+      String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+
+      if (car != null && car.trim().length() > 0 && bicycle != null && bicycle.trim().length() > 0) {
+        String userpass = car.trim() + ":" + bicycle.trim();
+        String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
+
+        URLConnection conn = null;
+        OutputStream os = null;
+        InputStream is = null;
+
+        try {
           URL url = new URL(address);
-          
+
           conn = url.openConnection();
-          
+
           IOUtils.setConnectionTimeoutDefault(conn);
-          
-          conn.setRequestProperty ("Authorization", basicAuth);
-          
+
+          conn.setRequestProperty("Authorization", basicAuth);
+
           conn.setDoOutput(true);
-          
+
           //String postData = "";
-          
+
           byte[] xmlData = value == null ? getBytesForReminders() : IOUtils.getCompressedData(value.getBytes("UTF-8"));
-          
+
           String message1 = "";
           message1 += "-----------------------------4664151417711" + CrLf;
-          message1 += "Content-Disposition: form-data; name=\"uploadedfile\"; filename=\""+car+".gz\""
-                  + CrLf;
+          message1 += "Content-Disposition: form-data; name=\"uploadedfile\"; filename=\"" + car + ".gz\""
+              + CrLf;
           message1 += "Content-Type: text/plain" + CrLf;
           message1 += CrLf;
-  
+
           // the image is sent between the messages in the multipart message.
-  
+
           String message2 = "";
           message2 += CrLf + "-----------------------------4664151417711--"
-                  + CrLf;
-  
+              + CrLf;
+
           conn.setRequestProperty("Content-Type",
-                  "multipart/form-data; boundary=---------------------------4664151417711");
+              "multipart/form-data; boundary=---------------------------4664151417711");
           // might not need to specify the content-length when sending chunked
           // data.
           conn.setRequestProperty("Content-Length", String.valueOf((message1
-                  .length() + message2.length() + xmlData.length)));
-  
-          Log.d("info8","open os");
+              .length() + message2.length() + xmlData.length)));
+
+          Log.d("info8", "open os");
           os = conn.getOutputStream();
-  
-          Log.d("info8",message1);
+
+          Log.d("info8", message1);
           os.write(message1.getBytes());
-          
+
           // SEND THE IMAGE
           int index = 0;
           int size = 1024;
           do {
-            Log.d("info8","write:" + index);
-              if ((index + size) > xmlData.length) {
-                  size = xmlData.length - index;
-              }
-              os.write(xmlData, index, size);
-              index += size;
+            Log.d("info8", "write:" + index);
+            if ((index + size) > xmlData.length) {
+              size = xmlData.length - index;
+            }
+            os.write(xmlData, index, size);
+            index += size;
           } while (index < xmlData.length);
-          
-          Log.d("info8","written:" + index);
-  
-          Log.d("info8",message2);
+
+          Log.d("info8", "written:" + index);
+
+          Log.d("info8", message2);
           os.write(message2.getBytes());
           os.flush();
-  
-          Log.d("info8","open is");
+
+          Log.d("info8", "open is");
           is = conn.getInputStream();
-  
+
           char buff = 512;
           int len;
           byte[] data = new byte[buff];
           do {
-            Log.d("info8","READ");
-              len = is.read(data);
-  
-              if (len > 0) {
-                Log.d("info8",new String(data, 0, len));
-              }
+            Log.d("info8", "READ");
+            len = is.read(data);
+
+            if (len > 0) {
+              Log.d("info8", new String(data, 0, len));
+            }
           } while (len > 0);
-  
-          Log.d("info8","DONE");
-      } catch (Exception e) {
+
+          Log.d("info8", "DONE");
+        } catch (Exception e) {
         /*int response = 0;
         
         if(conn != null) {
@@ -1021,17 +1024,18 @@ public class TvDataUpdateService extends Service {
             e1.printStackTrace();
           }
         }*/
-        
-          Log.d("info8", "" ,e);
-      } finally {
-        Log.d("info8","Close connection");
+
+          Log.d("info8", "", e);
+        } finally {
+          Log.d("info8", "Close connection");
           IOUtils.close(os);
           IOUtils.close(is);
           IOUtils.disconnect(conn);
+        }
       }
+
+      notification.cancel(ID_NOTIFY);
     }
-    
-    notification.cancel(ID_NOTIFY);
   }
   
   private byte[] getBytesForReminders() {
@@ -1404,52 +1408,55 @@ public class TvDataUpdateService extends Service {
 
               for(int i = dataSync.size()-1; i >= 0; i--) {
                 final String[] parts = dataSync.get(i).split(";");
-                int startTimeSync = Integer.parseInt(parts[0]);
 
-                if(startTimeSync > startTime) {
-                  dataSync.remove(i);
-                }
-                else if(startTime == startTimeSync && channelId == knownChannels.get(parts[1])){
-                  if(parts.length > 2) {
-                    crc.reset();
+                if (parts.length > 1 && parts[1] != null) {
+                  int startTimeSync = Integer.parseInt(parts[0]);
 
-                    try {
-                      crc.update(title.getBytes("UTF-8"));
+                  if (startTimeSync > startTime) {
+                    dataSync.remove(i);
+                  } else if (startTime == startTimeSync && channelId == knownChannels.get(parts[1])) {
+                    if (parts.length > 2) {
+                      crc.reset();
 
-                      if(Long.parseLong(parts[2]) == crc.getValue()) {
+                      try {
+                        crc.update(title.getBytes("UTF-8"));
+
+                        if (Long.parseLong(parts[2]) == crc.getValue()) {
+                          title = null;
+                        }
+                      } catch (Exception uee) {
                         title = null;
                       }
-                    } catch(Exception uee) {
+                    } else {
                       title = null;
                     }
-                  }
-                  else {
-                    title = null;
-                  }
 
-                  if(title == null) {
-                    boolean marked = program.getInt(indexMarked) == 1;
+                    if (title == null) {
+                      boolean marked = program.getInt(indexMarked) == 1;
 
-                    if(!marked) {
-                      ContentValues values = new ContentValues();
-                      values.put(columnKeySync, true);
+                      if (!marked) {
+                        ContentValues values = new ContentValues();
+                        values.put(columnKeySync, true);
 
-                      long programID = program.getLong(indexKeyProgram);
+                        long programID = program.getLong(indexKeyProgram);
 
-                      idList.add(String.valueOf(programID));
+                        idList.add(String.valueOf(programID));
 
-                      ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID));
-                      opBuilder.withValues(values);
+                        ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID));
+                        opBuilder.withValues(values);
 
-                      updateValuesList.add(opBuilder.build());
+                        updateValuesList.add(opBuilder.build());
 
-                      Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
-                      intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, programID);
+                        Intent intent = new Intent(SettingConstants.MARKINGS_CHANGED);
+                        intent.putExtra(SettingConstants.EXTRA_MARKINGS_ID, programID);
 
-                      markingIntentList.add(intent);
+                        markingIntentList.add(intent);
+                      }
                     }
-                  }
 
+                    dataSync.remove(i);
+                  }
+                } else {
                   dataSync.remove(i);
                 }
               }
@@ -3544,335 +3551,333 @@ public class TvDataUpdateService extends Service {
     }
   }
   
-  private void updateEpgPaidData(File pathBase, NotificationManager notification, long endDateTime) {    
-    final Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-    utc.set(Calendar.HOUR_OF_DAY, 0);
-    utc.set(Calendar.MINUTE, 0);
-    utc.set(Calendar.SECOND, 0);
-    utc.set(Calendar.MILLISECOND, 0);
-    
-    utc.add(Calendar.DAY_OF_YEAR, PrefUtils.getStringValueAsInt(R.string.PREF_EPGPAID_DOWNLOAD_MAX, R.string.pref_epgpaid_download_max_default)+1);
-    
-    endDateTime = Math.min(endDateTime, utc.getTimeInMillis());
-    
-    final Calendar yesterday = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-    yesterday.set(Calendar.HOUR_OF_DAY, 0);
-    yesterday.set(Calendar.MINUTE, 0);
-    yesterday.set(Calendar.SECOND, 0);
-    yesterday.set(Calendar.MILLISECOND, 0);
-    yesterday.add(Calendar.DAY_OF_YEAR, -1);
-    
-    doLog("UPDATE EPGpaidData");
-    
-    final File epgPaidPath = new File(pathBase, "epgPaidData");
-    
-    if(!epgPaidPath.isFile()) {
-      epgPaidPath.mkdirs();
-    }
-    
-    mBuilder.setProgress(100, 0, true);
-    mBuilder.setContentText(getResources().getText(R.string.update_data_notification_epgpaid_prepare));
-    notification.notify(ID_NOTIFY, mBuilder.build());
-    
-    final EPGpaidDataConnection epgPaidConnection = new EPGpaidDataConnection();
-    
-    final Hashtable<String, Long> currentDataIds = new Hashtable<String, Long>();
-    final File fileSummaryCurrent = new File(epgPaidPath,"summary.gz");
-    final Properties propertiesCurrent = IOUtils.readPropertiesFile(fileSummaryCurrent);
-    final long endCutOff = endDateTime/60000L;
-    final long startCutOff = yesterday.getTimeInMillis()/60000L;
-    
-    doLog("EPGpaidData endDate: " + new Date(endDateTime));
-    doLog("EPGpaidData propertiesCurrent path: " + fileSummaryCurrent.getAbsolutePath());
-    doLog("EPGpaidData propertiesCurrent size: " + propertiesCurrent.size());
-    
-    final String userName = PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, null);
-    final String password = PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, null);
-    
-    if(userName != null && password != null 
-        && userName.trim().length() > 0 && password.trim().length() > 0 
-        && epgPaidConnection.login(userName, password, getApplicationContext())) {
-      if(!PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE, false)) {
-        final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit();
-        edit.putBoolean(getString(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE), true);
-        edit.commit();
+  private void updateEpgPaidData(File pathBase, NotificationManager notification, long endDateTime) {
+    if(PrefUtils.getBooleanValue(R.string.PREF_PRIVACY_TERMS_ACCEPTED_EPGPAID,R.bool.pref_privacy_terms_default)) {
+      final Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+      utc.set(Calendar.HOUR_OF_DAY, 0);
+      utc.set(Calendar.MINUTE, 0);
+      utc.set(Calendar.SECOND, 0);
+      utc.set(Calendar.MILLISECOND, 0);
+
+      utc.add(Calendar.DAY_OF_YEAR, PrefUtils.getStringValueAsInt(R.string.PREF_EPGPAID_DOWNLOAD_MAX, R.string.pref_epgpaid_download_max_default) + 1);
+
+      endDateTime = Math.min(endDateTime, utc.getTimeInMillis());
+
+      final Calendar yesterday = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+      yesterday.set(Calendar.HOUR_OF_DAY, 0);
+      yesterday.set(Calendar.MINUTE, 0);
+      yesterday.set(Calendar.SECOND, 0);
+      yesterday.set(Calendar.MILLISECOND, 0);
+      yesterday.add(Calendar.DAY_OF_YEAR, -1);
+
+      doLog("UPDATE EPGpaidData");
+
+      final File epgPaidPath = new File(pathBase, "epgPaidData");
+
+      if (!epgPaidPath.isFile()) {
+        epgPaidPath.mkdirs();
       }
 
-      doLog("EPGpaid login successfull");
-      
-      final File channels = new File(epgPaidPath,"channels.gz");
-      final File oldChannels = new File(epgPaidPath,"channels.gz_old");
-      
-      if(oldChannels.isFile()) {
-        oldChannels.delete();
-      }
-      
-      channels.renameTo(oldChannels);
-      
-      if(epgPaidConnection.download(channels.getName(), channels)) {
-        readEpgPaidChannelIds(channels);
-        
-        if(oldChannels.isFile()) {
-          oldChannels.delete();
-        }
-        
-        BufferedReader channelsIn = null;
-        
-        try {
-          channelsIn = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(channels)),"UTF-8"));
-          
-          String line = null;
-          
-          final String[] projection = {
-              TvBrowserContentProvider.KEY_ID,
-              TvBrowserContentProvider.DATA_KEY_STARTTIME,
-              TvBrowserContentProvider.DATA_KEY_TITLE
-          };
-          
-          Hashtable<String, Object> currentGroups = getCurrentGroups();
-          ArrayList<String> downloadChannels = new ArrayList<String>();
-          
-          while((line = channelsIn.readLine()) != null) {
-            String[] idParts = line.split("_");
-            
-            if(idParts.length == 2) {
-              String channelIdKey = null;
-              Object groupInfo = null;
-            
-              if(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_FREE_KEY).equals(idParts[0].trim())) {
-                final String[] channelParts = idParts[1].split("-");
-                
-                final String groupKey = getGroupsKey(SettingConstants.EPG_FREE_KEY,channelParts[0]);
-                groupInfo = currentGroups.get(groupKey);
-                channelIdKey = channelParts[1];
-              }
-              else if(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_DONATE_KEY).equals(idParts[0].trim())) {
-                final String groupKey = getGroupsKey(SettingConstants.EPG_DONATE_KEY,SettingConstants.EPG_DONATE_GROUP_KEY);
-                groupInfo = currentGroups.get(groupKey);
-                channelIdKey = idParts[1].trim();
-              }
-              
-              if(channelIdKey != null && groupInfo != null) {
-                final StringBuilder selection = new StringBuilder();
-                
-                selection.append(TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID).append("='").append(channelIdKey).append("'");
-                selection.append(" AND ");
-                selection.append(TvBrowserContentProvider.GROUP_KEY_GROUP_ID).append(" IS ").append(((Integer)((Object[])groupInfo)[0]).intValue());
-                selection.append(" AND ");
-                selection.append(TvBrowserContentProvider.DATA_KEY_STARTTIME).append("<=").append(endDateTime);
-                
-                final Cursor data = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, selection.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
-                
-                try {
-                  if(IOUtils.prepareAccess(data)) {
-                    downloadChannels.add(line);
-                    
-                    final int columnIndexId = data.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-                    final int columnIndexStartTime = data.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-                    final int columnIndexTitle = data.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-                    
-                    while(data.moveToNext()) {
-                      final long id = data.getLong(columnIndexId);
-                      final long startTime = data.getLong(columnIndexStartTime);
-                      final String title = data.getString(columnIndexTitle).replaceAll("\\p{Punct}|\\s+", "_").replaceAll("_+", "_");
-                      
-                      currentDataIds.put(line.trim()+";"+startTime+";"+title, id);
-                      doLog("KEY " + line.trim()+";"+startTime+";"+title + " " + id);
-                    }
-                  }
-                }finally {
-                  IOUtils.close(data);
-                }
-              }
-            }
-          }
-          
-          if(!downloadChannels.isEmpty()) {
-            final File fileSummaryNew = new File(epgPaidPath,"summary_new.gz");
-            
-            epgPaidConnection.download(fileSummaryCurrent.getName(), fileSummaryNew);
-            
-            final Properties propertiesNew = IOUtils.readPropertiesFile(fileSummaryNew);
-            
-            final ArrayList<EPGpaidDownloadFile> downloadFiles = new ArrayList<EPGpaidDownloadFile>();
-            
-            Set<Object> newData = propertiesNew.keySet();
-            
-            for(Object key : newData) {
-              String keyString = key.toString();
-              
-              for(String channelId : downloadChannels) {
-                final long dataDate = Long.parseLong(keyString.substring(0,keyString.indexOf("_")));
-                
-                if(keyString.contains(channelId) && startCutOff <= dataDate && dataDate  <= endCutOff) {
-                  String currentVersion = propertiesCurrent.getProperty(keyString,"0,0,0");
-                  currentVersion = currentVersion.substring(0,currentVersion.indexOf(","));
-                  
-                  String newVersion = propertiesNew.getProperty(key.toString(),"0,0,0");
-                  newVersion = newVersion.substring(0,newVersion.indexOf(","));
-                  doLog(keyString + " currentVersion " + currentVersion + " newVersion " + newVersion);
-                  
-                  final EPGpaidDownloadFile downloadFile = new EPGpaidDownloadFile(Integer.parseInt(newVersion),Integer.parseInt(currentVersion),key.toString()+"base.gz");
-                  
-                  if(downloadFile.mVersion > downloadFile.mOldVersion) {
-                    downloadFiles.add(downloadFile);
-                  }
-                  
-                  break;
-                }
-              }
-            }
-            
-            mBuilder.setProgress(downloadFiles.size(), 0, false);
-            mBuilder.setContentText(getResources().getText(R.string.update_data_notification_epgpaid_download));
-            notification.notify(ID_NOTIFY, mBuilder.build());
-
-            int count = 0;
-            
-            for(EPGpaidDownloadFile download : downloadFiles) {
-              File target = new File(epgPaidPath,download.mFileName);
-              File old = new File(epgPaidPath,download.mFileName+"_old_"+(download.mOldVersion));
-              
-              for(int i = download.mOldVersion-1; i >= 0; i--) {
-                File previous = new File(epgPaidPath,download.mFileName+"_old_"+i);
-              
-                if(previous.isFile() && !previous.delete()) {
-                  previous.deleteOnExit();
-                }
-              }
-              
-              if(target.isFile()) {
-                target.renameTo(old);
-              }
-              
-              epgPaidConnection.download(download.mFileName, target);
-              
-              if(!target.isFile()) {
-                old.renameTo(target);
-              }
-              
-              count++;
-              
-              if(count % 2 == 0) {
-                mBuilder.setProgress(downloadFiles.size(), count, false);
-                notification.notify(ID_NOTIFY, mBuilder.build());
-              }
-            }
-            
-            if(fileSummaryNew.isFile()) {
-              fileSummaryNew.delete();
-            }
-          }
-        }catch(IOException ioe) {
-          
-        }finally {
-          IOUtils.close(channelsIn);
-        }
-      }
-      else if(oldChannels.isFile()) {
-        oldChannels.renameTo(channels);
-        doLog("EPGpaid channels could not be loaded");
-      }
-      
-      epgPaidConnection.logout();
-    }
-    else {
-      final File channels = new File(epgPaidPath,"channels.gz");
-      
-      if(!channels.isFile() || (System.currentTimeMillis() - channels.lastModified() > 30*24*60*60000L)) {
-        final File oldChannels = new File(epgPaidPath,"channels.gz_old");
-        
-        if(oldChannels.isFile()) {
-          oldChannels.delete();
-        }
-        
-        if(channels.isFile()) {
-          channels.renameTo(oldChannels);
-        }
-        
-        if(mIsConnected && IOUtils.saveUrl(channels.getAbsolutePath(), "https://www.epgpaid.de/download/channels.gz", mInternetConnectionTimeout)) {
-          readEpgPaidChannelIds(channels);
-        }
-        else if(oldChannels.isFile()) {
-          oldChannels.renameTo(channels);
-        }
-      }
-      
-      doLog("EPGpaid login NOT successfull");
-    }
-    
-    final File[] dataFiles = epgPaidPath.listFiles(new FileFilter() {
-      @Override
-      public boolean accept(File file) {
-        boolean result = file.getName().toLowerCase(Locale.GERMAN).contains("_base.gz");
-        
-        if(result) {
-          final long fileDate = Long.parseLong(file.getName().substring(0, file.getName().indexOf("_")));
-          
-          result = file.getName().toLowerCase(Locale.GERMAN).endsWith("_base.gz") && 
-              (startCutOff <= fileDate && fileDate <= endCutOff);
-          
-          if(fileDate < startCutOff && !file.delete()) {
-            file.deleteOnExit();
-          }
-        }
-        
-        return result;
-      }
-    });
-    
-    if(dataFiles.length > 0) {
-      mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE);
-      
-      final EPGpaidDataHandler handler = new EPGpaidDataHandler();
-      
-      int count = 0;
-      
-      mBuilder.setProgress(dataFiles.length, 0, false);
-      mBuilder.setContentText(getResources().getText(R.string.update_data_notification_epgpaid_process));
+      mBuilder.setProgress(100, 0, true);
+      mBuilder.setContentText(getResources().getText(R.string.update_data_notification_epgpaid_prepare));
       notification.notify(ID_NOTIFY, mBuilder.build());
-      
-      for(final File dataFile : dataFiles) {
-        doLog("updateDataFromFile " + dataFile.getAbsolutePath());
-        EPGpaidResult result = handler.readContentValues(dataFile, currentDataIds);
-        doLog("loadVersion " + result.mVersion);
-        
-        final int index = dataFile.getName().lastIndexOf("_base.gz");
-        
-        if(index > 0) {
-          propertiesCurrent.setProperty(dataFile.getName().substring(0,index+1), result.mVersion+",0,0");
+
+      final EPGpaidDataConnection epgPaidConnection = new EPGpaidDataConnection();
+
+      final Hashtable<String, Long> currentDataIds = new Hashtable<String, Long>();
+      final File fileSummaryCurrent = new File(epgPaidPath, "summary.gz");
+      final Properties propertiesCurrent = IOUtils.readPropertiesFile(fileSummaryCurrent);
+      final long endCutOff = endDateTime / 60000L;
+      final long startCutOff = yesterday.getTimeInMillis() / 60000L;
+
+      doLog("EPGpaidData endDate: " + new Date(endDateTime));
+      doLog("EPGpaidData propertiesCurrent path: " + fileSummaryCurrent.getAbsolutePath());
+      doLog("EPGpaidData propertiesCurrent size: " + propertiesCurrent.size());
+
+      final String userName = PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, null);
+      final String password = PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, null);
+
+      if (userName != null && password != null
+          && userName.trim().length() > 0 && password.trim().length() > 0
+          && epgPaidConnection.login(userName, password, getApplicationContext())) {
+        if (!PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE, false)) {
+          final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit();
+          edit.putBoolean(getString(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE), true);
+          edit.commit();
         }
-        
-        if(result.mHadUnknownIds) {
-          doLog("EPGpaid Missing IDs try to load old data");
-          
-          File[] oldFiles = epgPaidPath.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-              return file.getName().startsWith(dataFile.getName()) && file.getName().contains("_old_");
+
+        doLog("EPGpaid login successfull");
+
+        final File channels = new File(epgPaidPath, "channels.gz");
+        final File oldChannels = new File(epgPaidPath, "channels.gz_old");
+
+        if (oldChannels.isFile()) {
+          oldChannels.delete();
+        }
+
+        channels.renameTo(oldChannels);
+
+        if (epgPaidConnection.download(channels.getName(), channels)) {
+          readEpgPaidChannelIds(channels);
+
+          if (oldChannels.isFile()) {
+            oldChannels.delete();
+          }
+
+          BufferedReader channelsIn = null;
+
+          try {
+            channelsIn = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(channels)), "UTF-8"));
+
+            String line = null;
+
+            final String[] projection = {
+                TvBrowserContentProvider.KEY_ID,
+                TvBrowserContentProvider.DATA_KEY_STARTTIME,
+                TvBrowserContentProvider.DATA_KEY_TITLE
+            };
+
+            Hashtable<String, Object> currentGroups = getCurrentGroups();
+            ArrayList<String> downloadChannels = new ArrayList<String>();
+
+            while ((line = channelsIn.readLine()) != null) {
+              String[] idParts = line.split("_");
+
+              if (idParts.length == 2) {
+                String channelIdKey = null;
+                Object groupInfo = null;
+
+                if (SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_FREE_KEY).equals(idParts[0].trim())) {
+                  final String[] channelParts = idParts[1].split("-");
+
+                  final String groupKey = getGroupsKey(SettingConstants.EPG_FREE_KEY, channelParts[0]);
+                  groupInfo = currentGroups.get(groupKey);
+                  channelIdKey = channelParts[1];
+                } else if (SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_DONATE_KEY).equals(idParts[0].trim())) {
+                  final String groupKey = getGroupsKey(SettingConstants.EPG_DONATE_KEY, SettingConstants.EPG_DONATE_GROUP_KEY);
+                  groupInfo = currentGroups.get(groupKey);
+                  channelIdKey = idParts[1].trim();
+                }
+
+                if (channelIdKey != null && groupInfo != null) {
+                  final StringBuilder selection = new StringBuilder();
+
+                  selection.append(TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID).append("='").append(channelIdKey).append("'");
+                  selection.append(" AND ");
+                  selection.append(TvBrowserContentProvider.GROUP_KEY_GROUP_ID).append(" IS ").append(((Integer) ((Object[]) groupInfo)[0]).intValue());
+                  selection.append(" AND ");
+                  selection.append(TvBrowserContentProvider.DATA_KEY_STARTTIME).append("<=").append(endDateTime);
+
+                  final Cursor data = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, selection.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+
+                  try {
+                    if (IOUtils.prepareAccess(data)) {
+                      downloadChannels.add(line);
+
+                      final int columnIndexId = data.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                      final int columnIndexStartTime = data.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+                      final int columnIndexTitle = data.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+
+                      while (data.moveToNext()) {
+                        final long id = data.getLong(columnIndexId);
+                        final long startTime = data.getLong(columnIndexStartTime);
+                        final String title = data.getString(columnIndexTitle).replaceAll("\\p{Punct}|\\s+", "_").replaceAll("_+", "_");
+
+                        currentDataIds.put(line.trim() + ";" + startTime + ";" + title, id);
+                        doLog("KEY " + line.trim() + ";" + startTime + ";" + title + " " + id);
+                      }
+                    }
+                  } finally {
+                    IOUtils.close(data);
+                  }
+                }
+              }
             }
-          });
-          doLog("EPGpaid old data count: " + oldFiles.length);
-          
-          Arrays.sort(oldFiles, DATA_FILE_OLD_COMPARATOR);
-          
-          for(int i = oldFiles.length-1; i >= 0; i--) {
-            result = handler.readContentValues(oldFiles[i], currentDataIds);
+
+            if (!downloadChannels.isEmpty()) {
+              final File fileSummaryNew = new File(epgPaidPath, "summary_new.gz");
+
+              epgPaidConnection.download(fileSummaryCurrent.getName(), fileSummaryNew);
+
+              final Properties propertiesNew = IOUtils.readPropertiesFile(fileSummaryNew);
+
+              final ArrayList<EPGpaidDownloadFile> downloadFiles = new ArrayList<EPGpaidDownloadFile>();
+
+              Set<Object> newData = propertiesNew.keySet();
+
+              for (Object key : newData) {
+                String keyString = key.toString();
+
+                for (String channelId : downloadChannels) {
+                  final long dataDate = Long.parseLong(keyString.substring(0, keyString.indexOf("_")));
+
+                  if (keyString.contains(channelId) && startCutOff <= dataDate && dataDate <= endCutOff) {
+                    String currentVersion = propertiesCurrent.getProperty(keyString, "0,0,0");
+                    currentVersion = currentVersion.substring(0, currentVersion.indexOf(","));
+
+                    String newVersion = propertiesNew.getProperty(key.toString(), "0,0,0");
+                    newVersion = newVersion.substring(0, newVersion.indexOf(","));
+                    doLog(keyString + " currentVersion " + currentVersion + " newVersion " + newVersion);
+
+                    final EPGpaidDownloadFile downloadFile = new EPGpaidDownloadFile(Integer.parseInt(newVersion), Integer.parseInt(currentVersion), key.toString() + "base.gz");
+
+                    if (downloadFile.mVersion > downloadFile.mOldVersion) {
+                      downloadFiles.add(downloadFile);
+                    }
+
+                    break;
+                  }
+                }
+              }
+
+              mBuilder.setProgress(downloadFiles.size(), 0, false);
+              mBuilder.setContentText(getResources().getText(R.string.update_data_notification_epgpaid_download));
+              notification.notify(ID_NOTIFY, mBuilder.build());
+
+              int count = 0;
+
+              for (EPGpaidDownloadFile download : downloadFiles) {
+                File target = new File(epgPaidPath, download.mFileName);
+                File old = new File(epgPaidPath, download.mFileName + "_old_" + (download.mOldVersion));
+
+                for (int i = download.mOldVersion - 1; i >= 0; i--) {
+                  File previous = new File(epgPaidPath, download.mFileName + "_old_" + i);
+
+                  if (previous.isFile() && !previous.delete()) {
+                    previous.deleteOnExit();
+                  }
+                }
+
+                if (target.isFile()) {
+                  target.renameTo(old);
+                }
+
+                epgPaidConnection.download(download.mFileName, target);
+
+                if (!target.isFile()) {
+                  old.renameTo(target);
+                }
+
+                count++;
+
+                if (count % 2 == 0) {
+                  mBuilder.setProgress(downloadFiles.size(), count, false);
+                  notification.notify(ID_NOTIFY, mBuilder.build());
+                }
+              }
+
+              if (fileSummaryNew.isFile()) {
+                fileSummaryNew.delete();
+              }
+            }
+          } catch (IOException ioe) {
+
+          } finally {
+            IOUtils.close(channelsIn);
+          }
+        } else if (oldChannels.isFile()) {
+          oldChannels.renameTo(channels);
+          doLog("EPGpaid channels could not be loaded");
+        }
+
+        epgPaidConnection.logout();
+      } else {
+        final File channels = new File(epgPaidPath, "channels.gz");
+
+        if (!channels.isFile() || (System.currentTimeMillis() - channels.lastModified() > 30 * 24 * 60 * 60000L)) {
+          final File oldChannels = new File(epgPaidPath, "channels.gz_old");
+
+          if (oldChannels.isFile()) {
+            oldChannels.delete();
+          }
+
+          if (channels.isFile()) {
+            channels.renameTo(oldChannels);
+          }
+
+          if (mIsConnected && IOUtils.saveUrl(channels.getAbsolutePath(), "https://www.epgpaid.de/download/channels.gz", mInternetConnectionTimeout)) {
+            readEpgPaidChannelIds(channels);
+          } else if (oldChannels.isFile()) {
+            oldChannels.renameTo(channels);
           }
         }
-        
-        count++;
-        
-        if(count % 2 == 0) {
-          mBuilder.setProgress(dataFiles.length, count, false);
-          notification.notify(ID_NOTIFY, mBuilder.build());
-        }
+
+        doLog("EPGpaid login NOT successfull");
       }
-      
-      mDataDatabaseOperation.finish();
+
+      final File[] dataFiles = epgPaidPath.listFiles(new FileFilter() {
+        @Override
+        public boolean accept(File file) {
+          boolean result = file.getName().toLowerCase(Locale.GERMAN).contains("_base.gz");
+
+          if (result) {
+            final long fileDate = Long.parseLong(file.getName().substring(0, file.getName().indexOf("_")));
+
+            result = file.getName().toLowerCase(Locale.GERMAN).endsWith("_base.gz") &&
+                (startCutOff <= fileDate && fileDate <= endCutOff);
+
+            if (fileDate < startCutOff && !file.delete()) {
+              file.deleteOnExit();
+            }
+          }
+
+          return result;
+        }
+      });
+
+      if (dataFiles.length > 0) {
+        mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this, TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE);
+
+        final EPGpaidDataHandler handler = new EPGpaidDataHandler();
+
+        int count = 0;
+
+        mBuilder.setProgress(dataFiles.length, 0, false);
+        mBuilder.setContentText(getResources().getText(R.string.update_data_notification_epgpaid_process));
+        notification.notify(ID_NOTIFY, mBuilder.build());
+
+        for (final File dataFile : dataFiles) {
+          doLog("updateDataFromFile " + dataFile.getAbsolutePath());
+          EPGpaidResult result = handler.readContentValues(dataFile, currentDataIds);
+          doLog("loadVersion " + result.mVersion);
+
+          final int index = dataFile.getName().lastIndexOf("_base.gz");
+
+          if (index > 0) {
+            propertiesCurrent.setProperty(dataFile.getName().substring(0, index + 1), result.mVersion + ",0,0");
+          }
+
+          if (result.mHadUnknownIds) {
+            doLog("EPGpaid Missing IDs try to load old data");
+
+            File[] oldFiles = epgPaidPath.listFiles(new FileFilter() {
+              @Override
+              public boolean accept(File file) {
+                return file.getName().startsWith(dataFile.getName()) && file.getName().contains("_old_");
+              }
+            });
+            doLog("EPGpaid old data count: " + oldFiles.length);
+
+            Arrays.sort(oldFiles, DATA_FILE_OLD_COMPARATOR);
+
+            for (int i = oldFiles.length - 1; i >= 0; i--) {
+              result = handler.readContentValues(oldFiles[i], currentDataIds);
+            }
+          }
+
+          count++;
+
+          if (count % 2 == 0) {
+            mBuilder.setProgress(dataFiles.length, count, false);
+            notification.notify(ID_NOTIFY, mBuilder.build());
+          }
+        }
+
+        mDataDatabaseOperation.finish();
+      }
+
+      IOUtils.storeProperties(propertiesCurrent, fileSummaryCurrent, "");
     }
-    
-    IOUtils.storeProperties(propertiesCurrent, fileSummaryCurrent, "");
   }
   
   private static final class CurrentDataHolder {

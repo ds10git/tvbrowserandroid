@@ -52,12 +52,14 @@ import org.tvbrowser.filter.FilterValuesChannels;
 import org.tvbrowser.filter.FilterValuesKeyword;
 import org.tvbrowser.settings.PluginPreferencesActivity;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.settings.TvbPreferenceFragment;
 import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
+import org.w3c.dom.Text;
 import org.xml.sax.XMLReader;
 
 import android.annotation.SuppressLint;
@@ -248,7 +250,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
   private long mProgramListScrollTime = -1;
   private long mProgramListScrollEndTime = -1;
 
-  private int mStartTime = Integer.MIN_VALUE;
+  public static int START_TIME = Integer.MIN_VALUE;
 
  // private int mCurrentDay;
 
@@ -346,7 +348,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
     PrefUtils.initialize(TvBrowser.this);
 
     if(PrefUtils.getBooleanValue(R.string.PREF_RUNNING_START_WITH_NEXT,R.bool.pref_running_start_with_next_default)) {
-      mStartTime = -2;
+      START_TIME = -2;
     }
 
     PrefUtils.updateKnownOpenDate(getApplicationContext());
@@ -360,7 +362,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
         mProgramListScrollEndTime = start.getLongExtra(SettingConstants.EXTRA_END_TIME, -1);
       }
       else if(start.hasExtra(SettingConstants.EXTRA_START_TIME)) {
-        mStartTime = start.getIntExtra(SettingConstants.EXTRA_START_TIME, -1);
+        START_TIME = start.getIntExtra(SettingConstants.EXTRA_START_TIME, -1);
       }
     }
 
@@ -388,6 +390,24 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
       PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
       //PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().remove(getString(R.string.CURRENT_FILTER_ID)).commit();
       int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
+
+      if(oldVersion < 420) {
+        SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+
+        String car = pref.getString(SettingConstants.USER_NAME, null);
+        String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+
+        if(car != null && car.trim().length() > 0 && bicycle != null && bicycle.trim().length() > 0) {
+          PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit().putBoolean(getString(R.string.PREF_PRIVACY_TERMS_ACCEPTED_SYNC),true).apply();
+        }
+
+        final String userName = PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, null);
+        final String password = PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, null);
+
+        if(userName != null && password != null && userName.trim().length() > 0 && password.trim().length() > 0) {
+          PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit().putBoolean(getString(R.string.PREF_PRIVACY_TERMS_ACCEPTED_EPGPAID),true).apply();
+        }
+      }
 
       if(oldVersion < 419) {
         final File dir = IOUtils.getDownloadDirectory(this);
@@ -895,16 +915,8 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
     if(mProgramListChannelId != FragmentProgramsList.NO_CHANNEL_SELECTION_ID) {
       showProgramsListTab(false);
     }
-    else if(mStartTime != Integer.MIN_VALUE) {
-      scrollToTime(mStartTime+1);
-      /*handler.postDelayed(new Runnable() {
-        @Override
-        public void run() {
-          //scrollToTime(mStartTime+1);
-          mStartTime = -1;
-        }
-      },500);*/
-
+    else if(START_TIME != Integer.MIN_VALUE) {
+      scrollToTime(START_TIME + 1);
     }
 
 
@@ -960,7 +972,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
         }, 1000);
       }
       else if(intent.hasExtra(SettingConstants.EXTRA_START_TIME)) {
-        mStartTime = intent.getIntExtra(SettingConstants.EXTRA_START_TIME,-1);
+        START_TIME = intent.getIntExtra(SettingConstants.EXTRA_START_TIME,-1);
       }
     }
   }
@@ -1372,7 +1384,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
           final SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
 
           if(pref.getString(SettingConstants.USER_NAME, "").trim().length() == 0 || pref.getString(SettingConstants.USER_PASSWORD, "").trim().length() == 0) {
-            showUserSetting(true);
+            showAcceptTerms(true);
           }
           else {
             syncronizeChannels();
@@ -3678,6 +3690,49 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
     showUserSetting(null,null,syncChannels);
   }
 
+  private void showAcceptTerms(final boolean syncChannels) {
+    View view = getLayoutInflater().inflate(R.layout.dialog_terms_accept, getParentViewGroup(), false);
+    ((TextView)view.findViewById(R.id.dialog_terms_accept_terms)).setText(CompatUtils.fromHtml(getString(R.string.privacy_statement_text)));
+    CheckBox check = (CheckBox)view.findViewById(R.id.dialog_terms_accept_selection);
+    check.setChecked(PrefUtils.getBooleanValue(R.string.PREF_PRIVACY_TERMS_ACCEPTED_SYNC,R.bool.pref_privacy_terms_default));
+
+    final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+    builder.setCancelable(false);
+    builder.setTitle(R.string.action_privacy);
+    builder.setView(view);
+    builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit().putBoolean(getString(R.string.PREF_PRIVACY_TERMS_ACCEPTED_SYNC),check.isChecked()).apply();
+
+        if(check.isChecked()) {
+          showUserSetting(syncChannels);
+        }
+      }
+    });
+    builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+      @Override
+      public void onClick(DialogInterface dialog, int which) {
+        if(!check.isChecked()) {
+          PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit().putBoolean(getString(R.string.PREF_PRIVACY_TERMS_ACCEPTED_SYNC), false).apply();
+          updateSynchroMenu();
+        }
+      }
+    });
+
+    AlertDialog d = builder.create();
+    d.show();
+
+    Button ok =  d.getButton(AlertDialog.BUTTON_POSITIVE);
+    ok.setEnabled(check.isChecked());
+    check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+      @Override
+      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+        ok.setEnabled(isChecked);
+      }
+    });
+  }
+
   private void showUserSetting(final String initiateUserName, final String initiatePassword, final boolean syncChannels) {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     builder.setCancelable(false);
@@ -3993,7 +4048,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
     }
   }
 
-  public void showAlertDialog(String title, String message, View view, String positiveText, final Runnable positive, String negativeText, final Runnable negative, boolean link, boolean notCancelable) {
+  public void showAlertDialog(String title, CharSequence message, View view, String positiveText, final Runnable positive, String negativeText, final Runnable negative, boolean link, boolean notCancelable) {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     builder.setCancelable(!notCancelable);
 
@@ -4259,27 +4314,28 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
     else {
       new Thread("CHECK EPGPAID CREDENTIALS") {
         public void run() {
-          final String userName = PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, null);
-          final String password = PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, null);
+          if(PrefUtils.getBooleanValue(R.string.PREF_PRIVACY_TERMS_ACCEPTED_EPGPAID,R.bool.pref_privacy_terms_default)) {
+            final String userName = PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, null);
+            final String password = PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, null);
 
-          if(userName != null && password != null && userName.trim().length() > 0 && password.trim().length() > 0) {
-            final EPGpaidDataConnection epgPaidTest = new EPGpaidDataConnection();
+            if (userName != null && password != null && userName.trim().length() > 0 && password.trim().length() > 0) {
+              final EPGpaidDataConnection epgPaidTest = new EPGpaidDataConnection();
 
-            if(epgPaidTest.login(userName, password, getApplicationContext())) {
-              epgPaidTest.logout();
-            }
-            else {
-              handler.post(new Runnable() {
-                @Override
-                public void run() {
-                  final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-                  builder.setTitle(R.string.dialog_epgpaid_invalid_title);
-                  builder.setMessage(R.string.dialog_epgpaid_invalid_message);
-                  builder.setPositiveButton(android.R.string.ok, null);
+              if (epgPaidTest.login(userName, password, getApplicationContext())) {
+                epgPaidTest.logout();
+              } else {
+                handler.post(new Runnable() {
+                  @Override
+                  public void run() {
+                    final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+                    builder.setTitle(R.string.dialog_epgpaid_invalid_title);
+                    builder.setMessage(R.string.dialog_epgpaid_invalid_message);
+                    builder.setPositiveButton(android.R.string.ok, null);
 
-                  showAlertDialog(builder);
-                }
-              });
+                    showAlertDialog(builder);
+                  }
+                });
+              }
             }
           }
         }
@@ -4322,7 +4378,13 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
   }
 
   private void showPrivacyStatement() {
-    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingConstants.URL_SYNC_BASE + "index.php?id=privacystatement")));
+    showAlertDialog(getString(R.string.action_privacy), CompatUtils.fromHtml(getString(R.string.privacy_statement_text)), null, getString(android.R.string.ok), new Runnable() {
+      @Override
+      public void run() {
+
+      }
+    }, null, null, false, true);
+//    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingConstants.URL_SYNC_BASE + "index.php?id=privacystatement")));
   }
 
   private void showAbout() {
@@ -4949,7 +5011,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
     switch (item.getItemId()) {
       case R.id.action_username_password:
       {
-        showUserSetting(false);
+          showAcceptTerms(false);
       }
       break;
       case R.id.action_show_markings: showMarkingData();break;
@@ -5278,7 +5340,8 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
     String car = pref.getString(SettingConstants.USER_NAME, null);
     String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
 
-    boolean isAccount = (car != null && car.trim().length() > 0 && bicycle != null && bicycle.trim().length() > 0);
+    boolean isAccount = (car != null && car.trim().length() > 0 && bicycle != null && bicycle.trim().length() > 0)
+        && PrefUtils.getBooleanValue(R.string.PREF_PRIVACY_TERMS_ACCEPTED_SYNC,R.bool.pref_privacy_terms_default);
 
     if(mOptionsMenu != null) {
       mOptionsMenu.findItem(R.id.action_synchronize_channels).setEnabled(isAccount);
@@ -5398,8 +5461,10 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
         if(position == 0) {
           if(IOUtils.isDatabaseAccessible(getApplicationContext())) {
             fragment = new FragmentProgramsListRunning();
-            ((FragmentProgramsListRunning)fragment).setStartTime(mStartTime+1);
-            mStartTime = Integer.MIN_VALUE;
+            if(START_TIME != Integer.MIN_VALUE) {
+              ((FragmentProgramsListRunning) fragment).setStartTime(START_TIME + 1);
+              START_TIME = Integer.MIN_VALUE;
+            }
           }
           else {
             fragment = new Fragment();

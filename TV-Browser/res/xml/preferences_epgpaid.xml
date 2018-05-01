@@ -17,37 +17,47 @@
 	    	android:action="android.intent.action.VIEW"
 	   		android:data="https://www.epgpaid.de/index.php?id=order" />
 	</Preference>
-	<PreferenceCategory
-	    android:key="@string/PREF_EPGPAID_CATEGORY_CREDENTIALS" 
-	    android:title="@string/pref_epgpaid_settings_category">
-	    <EditTextPreference
-	    	android:key="@string/PREF_EPGPAID_USER"
-	    	android:summary="@string/pref_epgpaid_user_empty_summary"
-	    	android:title="@string/pref_epgpaid_user_name_title" />
-	    <EditTextPreference
-	    	android:key="@string/PREF_EPGPAID_PASSWORD"
-	    	android:summary="@string/pref_epgpaid_user_empty_summary"
-	    	android:title="@string/pref_epgpaid_user_password_title"
-	    	android:inputType="textPassword" />
-	    <org.tvbrowser.settings.DateUntilPreference
-	    	android:key="@string/PREF_EPGPAID_ACCESS_UNTIL"
-	    	android:defaultValue="@integer/pref_epgpaid_access_until_default"
-	    	android:summary="@string/pref_epgpaid_until_summary"
-	    	android:title="@string/pref_epgpaid_until_title" />
-	    <ListPreference
-		    android:key="@string/PREF_EPGPAID_DOWNLOAD_MAX"
-		    android:title="@string/pref_epgpaid_max_download_title"
-		    android:defaultValue="@string/pref_epgpaid_download_max_default"
-		    android:entries="@array/download_selections"
-		    android:entryValues="@array/download_days"
-		    android:summary="%s"/>
-	    <CheckBoxPreference android:key="@string/PREF_EPGPAID_DESCRIPTION_MISSING_INFO" 
-			android:title="@string/pref_epgpaid_show_missing_info_title"
-			android:summary="@string/pref_epgpaid_show_missing_info_summary"
-			android:defaultValue="@bool/pref_epgpaid_description_missing_default"/>
-<!-- 	<CheckBoxPreference android:key="@string/PREF_EPGPAID_CHECK_SSL" 
-			android:title="@string/pref_epgpaid_ssl_check_title"
-			android:summary="@string/pref_epgpaid_ssl_check_summary"
-			android:defaultValue="@bool/pref_epgpaid_check_ssl_default"/> -->
+	<org.tvbrowser.view.InfoPreference
+		android:key="info"
+		android:title="@string/action_privacy"
+		android:summary="@string/epg_paid_terms">
+	</org.tvbrowser.view.InfoPreference>
+	<CheckBoxPreference android:key="@string/PREF_PRIVACY_TERMS_ACCEPTED_EPGPAID"
+		android:title="@string/terms_accept_epgpaid_title"
+		android:summary="@string/terms_accept_epgpaid"
+		android:defaultValue="@bool/pref_privacy_terms_default"/>
+
+        <PreferenceCategory
+            android:key="@string/PREF_EPGPAID_CATEGORY_CREDENTIALS"
+            android:title="@string/pref_epgpaid_settings_category">
+            <EditTextPreference
+                android:key="@string/PREF_EPGPAID_USER"
+                android:summary="@string/pref_epgpaid_user_empty_summary"
+                android:title="@string/pref_epgpaid_user_name_title" />
+            <EditTextPreference
+                android:key="@string/PREF_EPGPAID_PASSWORD"
+                android:summary="@string/pref_epgpaid_user_empty_summary"
+                android:title="@string/pref_epgpaid_user_password_title"
+                android:inputType="textPassword" />
+            <org.tvbrowser.settings.DateUntilPreference
+                android:key="@string/PREF_EPGPAID_ACCESS_UNTIL"
+                android:defaultValue="@integer/pref_epgpaid_access_until_default"
+                android:summary="@string/pref_epgpaid_until_summary"
+                android:title="@string/pref_epgpaid_until_title" />
+            <ListPreference
+                android:key="@string/PREF_EPGPAID_DOWNLOAD_MAX"
+                android:title="@string/pref_epgpaid_max_download_title"
+                android:defaultValue="@string/pref_epgpaid_download_max_default"
+                android:entries="@array/download_selections"
+                android:entryValues="@array/download_days"
+                android:summary="%s"/>
+            <CheckBoxPreference android:key="@string/PREF_EPGPAID_DESCRIPTION_MISSING_INFO"
+                android:title="@string/pref_epgpaid_show_missing_info_title"
+                android:summary="@string/pref_epgpaid_show_missing_info_summary"
+                android:defaultValue="@bool/pref_epgpaid_description_missing_default"/>
+    <!-- 	<CheckBoxPreference android:key="@string/PREF_EPGPAID_CHECK_SSL"
+                android:title="@string/pref_epgpaid_ssl_check_title"
+                android:summary="@string/pref_epgpaid_ssl_check_summary"
+                android:defaultValue="@bool/pref_epgpaid_check_ssl_default"/> -->
     </PreferenceCategory>
 </PreferenceScreen>

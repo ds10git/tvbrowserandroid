@@ -102,6 +102,7 @@ public class SettingConstants {
   
   public static final String WIDGET_CHANNEL_SELECTION_EXTRA = "WIDGET_CHANNEL_SELECTION_EXTRA";
 
+  public static final String START_WITH_TIME_WIDGET_RUNNING = "org.tvbrowser.START_WITH_TIME";
   public static final String SELECT_TIME_WIDGET_RUNNING = "org.tvbrowser.SELECT_TIME_WIDGET_RUNNING";
   public static final String HANDLE_APP_WIDGET_CLICK = "org.tvbrowser.HANDLE_APP_WIDGET_CLICK";
   public static final String UPDATE_RUNNING_APP_WIDGET = "org.tvbrowser.UPDATE_RUNNING_APP_WIDGET";

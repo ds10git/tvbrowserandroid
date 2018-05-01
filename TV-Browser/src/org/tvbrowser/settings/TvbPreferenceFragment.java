@@ -73,7 +73,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       
       final DateUntilPreference p = (DateUntilPreference)findPreference(getString(R.string.PREF_EPGPAID_ACCESS_UNTIL));
       final PreferenceCategory credentials = (PreferenceCategory)findPreference(getString(R.string.PREF_EPGPAID_CATEGORY_CREDENTIALS));
-      
+
       if(p != null && credentials != null && p.getValue() == 0) {
         credentials.removePreference(p);
       }
@@ -81,6 +81,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       onSharedPreferenceChanged(pref,getString(R.string.PREF_EPGPAID_DOWNLOAD_MAX));
       onSharedPreferenceChanged(pref,getString(R.string.PREF_EPGPAID_USER));
       onSharedPreferenceChanged(pref,getString(R.string.PREF_EPGPAID_PASSWORD));
+
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_PRIVACY_TERMS_ACCEPTED_EPGPAID));
     }
     else if(getString(R.string.category_database).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_database);
@@ -268,6 +270,25 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         }
         else if(textPref != null) {
           textPref.setSummary(getString(R.string.pref_epgpaid_user_empty_summary));
+        }
+      }
+      else if(key.equals(getString(R.string.PREF_PRIVACY_TERMS_ACCEPTED_EPGPAID))) {
+        CheckBoxPreference terms = (CheckBoxPreference) findPreference(getString(R.string.PREF_PRIVACY_TERMS_ACCEPTED_EPGPAID));
+
+        if(terms != null) {
+          Preference user = findPreference(getString(R.string.PREF_EPGPAID_USER));
+          Preference password = findPreference(getString(R.string.PREF_EPGPAID_PASSWORD));
+          Preference download = findPreference(getString(R.string.PREF_EPGPAID_DOWNLOAD_MAX));
+
+          if(user != null) {
+            user.setEnabled(terms.isChecked());
+          }
+          if(password != null) {
+            password.setEnabled(terms.isChecked());
+          }
+          if(download != null) {
+            download.setEnabled(terms.isChecked());
+          }
         }
       }
       else if(key.equals(getString(R.string.PREF_AUTO_UPDATE_START_TIME))) {

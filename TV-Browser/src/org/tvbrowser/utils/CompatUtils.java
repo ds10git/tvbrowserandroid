@@ -39,6 +39,8 @@ import android.os.Environment;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.text.Html;
+import android.text.Spanned;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -292,5 +294,14 @@ public class CompatUtils {
     }
 
     return result;
+  }
+
+  @SuppressWarnings("deprecation")
+  public static Spanned fromHtml(String html){
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      return Html.fromHtml(html, Html.FROM_HTML_MODE_LEGACY);
+    } else {
+      return Html.fromHtml(html);
+    }
   }
 }

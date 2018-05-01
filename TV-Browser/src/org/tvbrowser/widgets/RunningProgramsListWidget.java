@@ -233,11 +233,11 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
       }
 
       if(!isKeyguard) {
-        Intent tvb = new Intent(context, TvBrowser.class);
-        tvb.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Intent tvb = new Intent(context, WidgetOnClickReceiver.class);
+        tvb.setAction(SettingConstants.START_WITH_TIME_WIDGET_RUNNING);
         tvb.putExtra(SettingConstants.EXTRA_START_TIME,currentValue);
 
-        PendingIntent tvbstart = PendingIntent.getActivity(context, 0, tvb, PendingIntent.FLAG_UPDATE_CURRENT);
+        PendingIntent tvbstart = PendingIntent.getBroadcast(context, 0, tvb, PendingIntent.FLAG_UPDATE_CURRENT);
         views.setOnClickPendingIntent(R.id.running_widget_header_info_wrapper, tvbstart);
         
         Intent config = new Intent(context, WidgetOnClickReceiver.class);

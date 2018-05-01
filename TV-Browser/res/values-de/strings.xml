@@ -1249,5 +1249,25 @@
     
     <string name="waiting_detail_show">Öffne Detail-Fenster&#8230;</string>
     <string name="channel_logo_content_description">Senderlogo</string>
+
+    <string name="privacy_statement_text"><![CDATA[<p>In der Standardeinstellung wird TV-Browser keine Daten über Sie oder Ihre Nutzung von TV-Browser erheben und es werden ebenso keine Daten über Sie oder Ihre Nutzung von TV-Browser versendet.</p>
+
+    <p>Sollten Sie die Synchronisationsfunktion von TV-Browser nutzen, werden folgende Daten übertragen:</p>
+
+    <ul>
+    <li><b>Allgemein:</b> Um die Synchronisationsfunktion von TV-Browser nutzen zu können, müssen Sie sich mit einer gültigen E-Mail-Adresse registrieren, um einen Zugang zu erhalten, der Ihre Daten identifiziert. An die verwendete E-Mail-Adresse werden nur Informationen gesendet, die für die Synchronisationsfunktion zwingend notwendig sind. Die E-Mail-Adresse wird ausdrücklich nicht an Dritte weitergegeben und nur zu Ihrer Identifizierung in der Datenbank des Synchronisationsservers gespeichert. Sämtliche Daten die auf den Synchronisationsserver hochgeladen werden, werden ausschließlich verwendet, um die Synchronisationsfunktion anzubieten. Die Daten werden ausschließlich über eine sichere Internetverbindung übertragen.</li><br>
+    <li><b>Sender:</b> Wenn Sie sich entscheiden Ihre Senderliste zu synchronisieren, so wird diese permanent auf dem Synchronisationsserver gespeichert.</li><br>
+    <li><b>Lieblingssendungen/Einstellungen:</b> Wenn Sie sich entscheiden Ihre Lieblingssendungen/Einstellungen zu synchronisieren, so werden diese Informationen permanent auf dem Synchronisationsserver gespeichert.</li><br>
+    <li><b>Will ich nicht sehen!:</b> Wenn Sie sich entscheiden die Liste mit den Ausschlüssen von "Will ich nicht sehen!" zu synchronisieren, so wird diese permanent auf dem Synchronisationsserver gespeichert.</li><br>
+    <li><b>Markierte Sendungen/Erinnerungen:</b> Nachdem die Synchronisationsfunktion aktiviert wurde, werden alle markierten Sendungen, sowie die Erinnerungen automatisch bei einem Datenupdate an den Synchronisationsserver übertragen und dort mindestens bis zum Ablauf der aufgeführten Sendungen aufbewahrt. Diese automatische Übertragung kann in den Einstellungen deaktiviert werden.</li><br>
+    </ul>
+    <p>Wenn Sie die EPGpaid-Daten nutzen, gelten weiterhin folgende Bedingungen:</p>
+    <p>Aus Gründen der Datensparsamkeit werden für EPGpaid nur die unbedingt notwendigen Daten erhoben, Sie müssen beispielsweise weder Ihren Namen, noch Ihre Anschrift eingeben. Die erhobenen Daten (E-Mail- und IP-Adressen) werden ausschließlich zur Bereitstellung des Dienstes EPGpaid verwendet und nur an, für die Vertragserfüllung zwingend erforderliche, Dritte weitergeben. Diese Daten werden sicher in einer Datenbank gespeichert und nur über eine sichere Internetverbindung übertragen. In keinem Fall werden die Daten zu Werbezwecken oder Datensammlungen genutzt.</p>
+    <p>Um die EPGpaid-Daten nutzen zu können, müssen Sie zuvor diesen Bedingungen zugestimmt haben.</p>
+    ]]></string>
+    <string name="epg_paid_terms">Aus Gründen der Datensparsamkeit werden für EPGpaid nur die unbedingt notwendigen Daten erhoben, Sie müssen beispielsweise weder Ihren Namen, noch Ihre Anschrift eingeben. Die erhobenen Daten (E-Mail- und IP-Adressen) werden ausschließlich zur Bereitstellung des Dienstes EPGpaid verwendet und nur an, für die Vertragserfüllung zwingend erforderliche, Dritte weitergeben. In keinem Fall werden die Daten zu Werbezwecken oder Datensammlungen genutzt.</string>
+    <string name="terms_accept_sync">Ich akzeptiere die Bedinungen zur Nutzung der Synchronisationsfunktion.</string>
+    <string name="terms_accept_epgpaid_title">Bedingungen akzeptieren</string>
+    <string name="terms_accept_epgpaid">Ich akzeptiere die Bedingungen zur Nutzung der EPGpaid-Daten.</string>
 </resources>
 

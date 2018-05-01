@@ -1268,5 +1268,26 @@
     
     <string name="time_block_time_format" translatable="false">%1$02d</string>
     <string name="channel_logo_content_description">Channel logo</string>
+
+    <string name="privacy_statement_text"><![CDATA[    <p>TV-Browser will not log or send any data about you or your usage of TV-Browser to anyone in the default configuration.</p>
+
+    <p>Data will be send, if you use the synchronization function:</p>
+
+    <ul>
+    <li><b>In general:</b> To use the synchronization function you have the register with a valid email address, to get an account that is used to assign your data to. The provided email address will not be used to send any information to you, that is not related to the use of the synchronization function. It will not be given to third parties and is stored in the database of the synchronization server to identify your synchronization data. All data uploaded to the synchronization server will only be used to provide the synchronization function. All data is send through a secure Internet connection.</li><br>
+    <li><b>Channels:</b> If you decide to synchronize your channel list, your channel list will permanently be stored at the synchronization server.</li><br>
+    <li><b>Favorites/Preferences:</b> If you decide to synchronize your favorites and preferences, those will permanently be stored at the synchronization server.</li><br>
+    <li><b>I don\'t want to see:</b> If you decide to synchronize the list with exclusions, the list with your exclusions will permanently be stored at the synchronization server.</li><br>
+    <li><b>Marked programs/Reminders:</b> If the synchronization function is enabled your list with marked programs and reminders will automatically be send to the synchronization server at every data update and will be stored there at least until the contained programs are expired. This can be deactivated in the settings of the synchronization function.</li>
+    </ul>
+    <p>To use the synchronization you further have to accept these terms.</p>
+    <p>By using EPGpaid data the following additional terms apply:</p>
+    <p>EPGpaid uses as little of your personal data for providing EPGpaid as possible, you don\'t need to enter your name or address. The needed personal data email and IP addresses are used only to providing EPGpaid. Those data is stored securely in a database and are transferred only over a save Internet connection. In no case are your data used for advertisement or to give you data to 3rd parties.</p>
+    <p>To use the EPGpaid data you further have to accept the EPGpaid terms terms.</p>]]></string>
+
+    <string name="epg_paid_terms">EPGpaid uses as little of your personal data for providing EPGpaid as possible, you don\'t need to enter your name or address. The needed personal data email and IP addresses are used only to providing EPGpaid. Those data is stored securely on a server and are transferred only over a save Internet connection. In no case are your data used for advertisement or to give you data to 3rd parties.</string>
+    <string name="terms_accept_sync">I accept the terms for the synchronization function.</string>
+    <string name="terms_accept_epgpaid_title">Accept terms</string>
+    <string name="terms_accept_epgpaid">I accept the terms for the EPGpaid data.</string>
 </resources>
 

@@ -22,6 +22,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.settings.TvbPreferenceFragment;
 import org.tvbrowser.tvbrowser.InfoActivity;
 import org.tvbrowser.tvbrowser.TvBrowser;
 
@@ -30,13 +31,19 @@ public class WidgetOnClickReceiver extends BroadcastReceiver {
   public void onReceive(final Context context, final Intent intent) {
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
 
-    if(intent.hasExtra(SettingConstants.CHANNEL_ID_EXTRA) && intent.hasExtra(SettingConstants.EXTRA_START_TIME)) {
+    if(intent.hasExtra(SettingConstants.EXTRA_START_TIME)) {
       Intent startTVB = new Intent(context, TvBrowser.class);
       startTVB.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK|Intent.FLAG_ACTIVITY_CLEAR_TOP);
-      startTVB.putExtra(SettingConstants.CHANNEL_ID_EXTRA, intent.getExtras().getInt(SettingConstants.CHANNEL_ID_EXTRA));
-      startTVB.putExtra(SettingConstants.EXTRA_START_TIME, intent.getExtras().getLong(SettingConstants.EXTRA_START_TIME));
-      startTVB.putExtra(SettingConstants.EXTRA_END_TIME, intent.getExtras().getLong(SettingConstants.EXTRA_END_TIME,-1));
-      startTVB.putExtra(SettingConstants.NO_BACK_STACKUP_EXTRA, true);
+
+      if(intent.hasExtra(SettingConstants.CHANNEL_ID_EXTRA)) {
+        startTVB.putExtra(SettingConstants.CHANNEL_ID_EXTRA, intent.getExtras().getInt(SettingConstants.CHANNEL_ID_EXTRA));
+        startTVB.putExtra(SettingConstants.EXTRA_START_TIME, intent.getExtras().getLong(SettingConstants.EXTRA_START_TIME));
+        startTVB.putExtra(SettingConstants.EXTRA_END_TIME, intent.getExtras().getLong(SettingConstants.EXTRA_END_TIME, -1));
+        startTVB.putExtra(SettingConstants.NO_BACK_STACKUP_EXTRA, true);
+      }
+      else {
+        TvBrowser.START_TIME = intent.getExtras().getInt(SettingConstants.EXTRA_START_TIME);
+      }
       
       context.getApplicationContext().startActivity(startTVB);
     }
