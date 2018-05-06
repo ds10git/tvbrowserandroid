@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.6.5</h2>
+            &bull; verwendet neues Layout für Tabs<br>
             &bull; fehlende Aktualisierung der Sendungen im Tab Laufende Sendungen behoben<br>
             &bull; Synchronisation der Lieblingssendung und Erinnerungen beschleunigt<br>
             &bull; unterschiedliche Version für GooglePlay und manuelle Installation<br>
@@ -432,7 +433,8 @@
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_dont_show_again">Nicht wieder\nanzeigen</string>
     <string name="info_version_show">Änderungen anzeigen</string>
-    
+    <string name="pref_info_version_title">Änderungen beim Versionsupdate anzeigen</string>
+
     <string name="tab_restoring_name">EINSTELLUNGEN WIEDERHERSTELLEN</string>
     <string name="notification_channel_default_description">Benachrichtigungen ohne Sound und Vibration. Bitte so belassen wie dieser ist.</string>
     <string name="notification_channel_reminder_day">Erinnerer Tages-Modus</string>

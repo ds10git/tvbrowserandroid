@@ -68,15 +68,8 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
   @Override
   protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
     PrefUtils.initialize(ActivityTvBrowserSearchResults.this);
-    
-    if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default)) {
-      resid = R.style.AppDarkTheme;
-    }
-    else {
-      resid = R.style.AppTheme;
-    }
-    
-    super.onApplyThemeResource(theme, resid, first);
+
+    super.onApplyThemeResource(theme, UiUtils.getThemeResourceId(true), first);
   }
   
   private ListView getListView() {

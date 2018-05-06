@@ -18,7 +18,7 @@ public abstract class ToolbarPreferencesActivity extends PreferenceActivity {
   private AppCompatDelegate mDelegate;
   @Override
   protected void onCreate(final Bundle savedInstanceState) {
-    setTheme(UiUtils.getThemeResourceId());
+    setTheme(UiUtils.getThemeResourceId(true));
     getDelegate().installViewFactory();
     getDelegate().onCreate(savedInstanceState);
     super.onCreate(savedInstanceState);

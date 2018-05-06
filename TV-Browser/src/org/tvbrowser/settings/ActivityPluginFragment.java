@@ -41,7 +41,7 @@ public class ActivityPluginFragment extends AppCompatActivity {
 
   @Override
   protected void onApplyThemeResource(Resources.Theme theme, int resid, boolean first) {
-    resid = UiUtils.getThemeResourceId();
+    resid = UiUtils.getThemeResourceId(true);
 
     super.onApplyThemeResource(theme, resid, first);
   }

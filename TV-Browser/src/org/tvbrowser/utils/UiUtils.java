@@ -2636,12 +2636,19 @@ public class UiUtils {
     }
   }
   
-  public static final int getThemeResourceId() {
+  public static final int getThemeResourceId(final boolean includeToolbar) {
+    int style = includeToolbar ? R.style.AppBaseThemePref : R.style.AppTheme;
+
     if(SettingConstants.IS_DARK_THEME) {
-      return R.style.AppDarkTheme;
+      if(includeToolbar) {
+        style = R.style.AppDarkThemePref;
+      }
+      else {
+        style = R.style.AppDarkTheme;
+      }
     }
     
-    return R.style.AppTheme;
+    return style;
   }
   
   public static final ImageSpan createImageSpan(Context context, int drawable) {

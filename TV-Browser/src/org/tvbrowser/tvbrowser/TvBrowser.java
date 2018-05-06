@@ -52,14 +52,12 @@ import org.tvbrowser.filter.FilterValuesChannels;
 import org.tvbrowser.filter.FilterValuesKeyword;
 import org.tvbrowser.settings.PluginPreferencesActivity;
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.settings.TvbPreferenceFragment;
 import org.tvbrowser.settings.TvbPreferencesActivity;
 import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
-import org.w3c.dom.Text;
 import org.xml.sax.XMLReader;
 
 import android.annotation.SuppressLint;
@@ -105,10 +103,10 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
@@ -116,11 +114,10 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.ActionBar.Tab;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
+import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html;
 import android.text.Html.TagHandler;
@@ -170,7 +167,7 @@ import com.example.android.listviewdragginganimation.StableArrayAdapter;
 
 import de.epgpaid.EPGpaidDataConnection;
 
-public class TvBrowser extends AppCompatActivity implements ActionBar.TabListener {
+public class TvBrowser extends AppCompatActivity {
   private static final boolean TEST_VERSION = false;
 
   private static final int ID_LINKIFY_DISABLED = 0;
@@ -194,7 +191,8 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
 
   private boolean updateRunning;
   private boolean selectingChannels;
-  private ActionBar actionBar;
+  private TabLayout mTabLayout;
+  //private ActionBar actionBar;
   private boolean mSearchExpanded;
 
   /**
@@ -290,7 +288,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
 
     SettingConstants.IS_DARK_THEME = PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default);
 
-    resid = UiUtils.getThemeResourceId();
+    resid = UiUtils.getThemeResourceId(false);
 
     super.onApplyThemeResource(theme, resid, first);
   }
@@ -661,6 +659,25 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
     SettingConstants.initializeLogoMap(TvBrowser.this,false);
 
     setContentView(R.layout.activity_tv_browser);
+    final Toolbar toolbar = (Toolbar)findViewById(R.id.activity_tvbrowser_toolbar);
+    setSupportActionBar(toolbar);
+
+    // Create the adapter that will return a fragment for each of the three
+    // primary sections of the app.
+    mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+
+    mTabLayout = (TabLayout) findViewById(R.id.activity_tvbrowser_tabs);
+
+    // For each of the sections in the app, add a tab to the action bar.
+    for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
+      // Create a tab with text corresponding to the page title defined by
+      // the adapter. Also specify this Activity object, which implements
+      // the TabListener interface, as the callback (listener) for when
+      // this tab is selected.
+      mTabLayout.addTab(mTabLayout.newTab().setText(mSectionsPagerAdapter.getPageTitle(i)));
+    }
+
+    mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
     mProgamListStateStack = new Stack<ProgramsListState>();
 
@@ -671,69 +688,78 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
       selectingChannels = savedInstanceState.getBoolean(SettingConstants.SELECTION_CHANNELS_KEY, false);
     }
 
-    // Set up the action bar.
-    actionBar = getSupportActionBar();
-    actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_TABS);
-
     if(SettingConstants.isReminderPaused(TvBrowser.this)) {
-      actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#4e0002")));
+      toolbar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#4e0002")));
     }
     else {
-      actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#212021")));
+      toolbar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#212021")));
     }
 
-    // Create the adapter that will return a fragment for each of the three
-    // primary sections of the app.
-    mSectionsPagerAdapter = new SectionsPagerAdapter(
-        getSupportFragmentManager());
 
     // Set up the ViewPager with the sections adapter.
-    mViewPager = (ViewPager) findViewById(R.id.pager);
+    mViewPager = (ViewPager) findViewById(R.id.activity_tvbrowser_pager);
     mViewPager.setAdapter(mSectionsPagerAdapter);
     mViewPager.setOffscreenPageLimit(3);
+    mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
 
     // When swiping between different sections, select the corresponding
     // tab. We can also use ActionBar.Tab#select() to do this if we have
     // a reference to the Tab.
-    mViewPager
-        .setOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-          @Override
-          public void onPageSelected(int position) {
-            if(position < actionBar.getTabCount()) {
-            actionBar.setSelectedNavigationItem(position);
+    mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+      @Override
+      public void onTabSelected(TabLayout.Tab tab) {
+        mViewPager.setCurrentItem(tab.getPosition());
 
-            Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(position);
+        if(tab.getPosition() < mTabLayout.getTabCount() && mTabLayout.getTabCount() > 1) {
+          Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(tab.getPosition());
 
-            if(fragment instanceof FragmentProgramTable) {
-              ((FragmentProgramTable)fragment).firstLoad(getLayoutInflater());
-              ((FragmentProgramTable)fragment).scrollToTime(0, mScrollTimeItem);
-            }
+          if(fragment instanceof FragmentProgramTable) {
+            ((FragmentProgramTable)fragment).firstLoad(getLayoutInflater());
+            ((FragmentProgramTable)fragment).scrollToTime(0, mScrollTimeItem);
+          }
 
-            if(mFilterItem != null) {
-              mFilterItem.setVisible(!(fragment instanceof FragmentFavorites) && !mSearchExpanded);
-            }
-            if(mCreateFavorite != null) {
-              mCreateFavorite.setVisible(fragment instanceof FragmentFavorites && !mSearchExpanded);
-            }
+          if(mFilterItem != null) {
+            mFilterItem.setVisible(!(fragment instanceof FragmentFavorites) && !mSearchExpanded);
+          }
+          if(mCreateFavorite != null) {
+            mCreateFavorite.setVisible(fragment instanceof FragmentFavorites && !mSearchExpanded);
+          }
 
-            mProgramsListWasShow = false;
+          mProgramsListWasShow = false;
 
-            if(position != 1) {
-              mProgamListStateStack.clear();
-            }
+          if(tab.getPosition() != 1) {
+            mProgamListStateStack.clear();
+          }
+
+          if(mScrollTimeItem != null) {
+            switch(tab.getPosition()) {
+              case 2:mScrollTimeItem.setVisible(false);break;
+
+              default:mScrollTimeItem.setVisible(true && !mSearchExpanded);break;
             }
           }
-        });
+        }
+      }
 
-    // For each of the sections in the app, add a tab to the action bar.
-    for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-      // Create a tab with text corresponding to the page title defined by
-      // the adapter. Also specify this Activity object, which implements
-      // the TabListener interface, as the callback (listener) for when
-      // this tab is selected.
-      actionBar.addTab(actionBar.newTab()
-          .setText(mSectionsPagerAdapter.getPageTitle(i)).setTabListener(this));
-    }
+      /*
+    if(mScrollTimeItem != null) {
+      switch(tab.getPosition()) {
+        case 2:mScrollTimeItem.setVisible(false);break;
+
+        default:mScrollTimeItem.setVisible(true && !mSearchExpanded);break;
+      }
+    }*/
+
+      @Override
+      public void onTabUnselected(TabLayout.Tab tab) {
+
+      }
+
+      @Override
+      public void onTabReselected(TabLayout.Tab tab) {
+
+      }
+    });
 
     int startTab = Integer.parseInt(PrefUtils.getStringValue(R.string.TAB_TO_SHOW_AT_START, R.string.tab_to_show_at_start_default));
 
@@ -1955,22 +1981,13 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
           mSectionsPagerAdapter.notifyDataSetChanged();
 
           try {
-            actionBar.removeTabAt(i);
+            mTabLayout.removeTabAt(i);
           }catch(NullPointerException npe) {
 
           }
         }
 
-        actionBar.addTab(actionBar.newTab().setText(getString(R.string.tab_restoring_name)).setTabListener(new ActionBar.TabListener() {
-          @Override
-          public void onTabUnselected(Tab arg0, FragmentTransaction arg1) {}
-
-          @Override
-          public void onTabSelected(Tab arg0, FragmentTransaction arg1) {}
-
-          @Override
-          public void onTabReselected(Tab arg0, FragmentTransaction arg1) {}
-        }));
+        mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.tab_restoring_name)));
 
         new Thread("RESTORE PREFERENCES") {
           @Override
@@ -4155,12 +4172,12 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
       ((FragmentProgramTable)test).removed();
       mSectionsPagerAdapter.destroyItem(mViewPager, 3, mSectionsPagerAdapter.getRegisteredFragment(3));
       mSectionsPagerAdapter.notifyDataSetChanged();
-      actionBar.removeTabAt(3);
+      mTabLayout.removeTabAt(3);
     }
     else if(!(test instanceof FragmentProgramTable) && programTableActivated) {
       try {
-        actionBar.addTab(actionBar.newTab()
-            .setText(mSectionsPagerAdapter.getPageTitle(3)).setTabListener(this));
+        mTabLayout.addTab(mTabLayout.newTab()
+            .setText(mSectionsPagerAdapter.getPageTitle(3)));
         mSectionsPagerAdapter.notifyDataSetChanged();
         mSectionsPagerAdapter.instantiateItem(mViewPager, 3);
       }catch(Throwable t) {}
@@ -4486,7 +4503,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
         mPauseReminder.setVisible(false);
         mContinueReminder.setVisible(true);
 
-        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#4e0002")));
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#4e0002")));
         UiUtils.updateToggleReminderStateWidget(getApplicationContext());
       }
     });
@@ -5035,7 +5052,7 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
       case R.id.action_pause_reminder: pauseReminder(); break;
       case R.id.action_continue_reminder: {
         SettingConstants.setReminderPaused(TvBrowser.this, false);
-        actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#212021")));
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#212021")));
         mPauseReminder.setVisible(true);
         mContinueReminder.setVisible(false);
         UiUtils.updateToggleReminderStateWidget(getApplicationContext());
@@ -5411,32 +5428,6 @@ public class TvBrowser extends AppCompatActivity implements ActionBar.TabListene
         subMenu.add(100, SCROLL_IDS[i], i+1, DateFormat.getTimeFormat(TvBrowser.this).format(cal.getTime()));
       }
     }
-  }
-
-  @Override
-  public void onTabSelected(ActionBar.Tab tab,
-      FragmentTransaction fragmentTransaction) {
-    // When the given tab is selected, switch to the corresponding page in
-    // the ViewPager.
-    mViewPager.setCurrentItem(tab.getPosition());
-
-    if(mScrollTimeItem != null) {
-      switch(tab.getPosition()) {
-        case 2:mScrollTimeItem.setVisible(false);break;
-
-        default:mScrollTimeItem.setVisible(true && !mSearchExpanded);break;
-      }
-    }
-  }
-
-  @Override
-  public void onTabUnselected(ActionBar.Tab tab,
-      FragmentTransaction fragmentTransaction) {
-  }
-
-  @Override
-  public void onTabReselected(ActionBar.Tab tab,
-      FragmentTransaction fragmentTransaction) {
   }
 
   /**

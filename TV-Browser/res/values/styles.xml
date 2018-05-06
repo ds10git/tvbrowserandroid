@@ -9,27 +9,48 @@
             Theme customizations available in newer API levels can go in
             res/values-vXX/styles.xml, while customizations related to
             backward-compatibility can go here.
-        -->
-    
+-->
+
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
         <item name="android:textViewStyle">@style/MyTextViewStyle</item>
-    	<item name="actionBarWidgetTheme">@style/Theme.AppCompat</item>
+    	<item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     	<item name="ic_back_icon" >@drawable/ic_action_back_light</item>
     	<item name="ic_forward_icon" >@drawable/ic_action_forward_light</item>
     </style>
-        
+-->
     <style name="MyTextViewStyle" parent="android:Widget.TextView">
     	<item name="android:textColor">@color/text_appcompat_light</item>
 	</style>
     
     <style name="AppDarkTheme" parent="Theme.AppCompat">
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat</item>
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
         <item name="ic_back_icon" >@drawable/ic_action_back</item>
     	<item name="ic_forward_icon" >@drawable/ic_action_forward</item>
     </style>
-        
+
+    <style name="AppDarkThemePref" parent="AppDarkTheme">
+        <item name="windowActionBar">true</item>
+        <item name="windowNoTitle">false</item>
+    </style>
+
     <!-- Application theme. -->
     <style name="AppTheme" parent="AppBaseTheme">
         <!-- All customizations that are NOT specific to a particular API-level can go here. -->
     </style>
+
+    <style name="AppBaseThemePref" parent="AppTheme">
+        <!--
+            Theme customizations available in newer API levels can go in
+            res/values-vXX/styles.xml, while customizations related to
+            backward-compatibility can go here.
+        -->
+        <item name="windowActionBar">true</item>
+        <item name="windowNoTitle">false</item>
+    </style>
+
     <style name="Theme.TvBrowser.Translucent" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
