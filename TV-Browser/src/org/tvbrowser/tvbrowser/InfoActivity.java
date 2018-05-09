@@ -198,20 +198,20 @@ public class InfoActivity extends AppCompatActivity {
       UiUtils.showChannelFilterSelection(InfoActivity.this, new ChannelFilter() {
         @Override
         public void setFilterValues(String name, int[] filteredChannelIds) {
-          String value = "";
+          StringBuilder value = new StringBuilder();
           
           if(filteredChannelIds != null) {
             for(int i = 0; i < filteredChannelIds.length-1; i++) {
-              value += filteredChannelIds[i] + ",";
+              value.append(filteredChannelIds[i]).append(",");
             }
             
             if(filteredChannelIds.length > 0) {
-              value += String.valueOf(filteredChannelIds[filteredChannelIds.length-1]);
+              value.append(String.valueOf(filteredChannelIds[filteredChannelIds.length - 1]));
             }
           }
           
           Editor edit = pref.edit();
-          edit.putString(appWidgetId+"_"+getString(R.string.WIDGET_CONFIG_PROGRAM_LIST_CHANNELS), value);
+          edit.putString(appWidgetId+"_"+getString(R.string.WIDGET_CONFIG_PROGRAM_LIST_CHANNELS), value.toString());
           edit.commit();
           
           AppWidgetManager.getInstance(getApplicationContext()).notifyAppWidgetViewDataChanged(appWidgetId, R.id.important_widget_list_view);

@@ -585,20 +585,20 @@ public class TvDataUpdateService extends Service {
           
           String[] fileParts = file.getName().split("_");
           
-          String key = "";
+          StringBuilder key = new StringBuilder();
           
           for(String filePart : fileParts) {
             if(filePart.equals("base") || filePart.contains("16-00") || filePart.contains("00-16")) {
               break;
             }
             
-            key += filePart + "_";
+            key.append(filePart).append("_");
           }
           
-          if(key.trim().length() > 0) {
-            key = key.substring(0,key.length()-1);
+          if(key.toString().trim().length() > 0) {
+            key = new StringBuilder(key.substring(0, key.length() - 1));
             
-            ChannelUpdate update = updateMap.get(key);
+            ChannelUpdate update = updateMap.get(key.toString());
             
             if(update == null) {
               final int firstUnderline = key.indexOf("_");
@@ -639,7 +639,7 @@ public class TvDataUpdateService extends Service {
                     
                     update = new ChannelUpdate(toUse, channelIntId, timezone, date.getTimeInMillis());
                     
-                    updateMap.put(key, update);
+                    updateMap.put(key.toString(), update);
                   } catch (Exception e) {
                     deleteFile(file);
                   }
@@ -3072,7 +3072,7 @@ public class TvDataUpdateService extends Service {
                 group.moveToFirst();
                 
                 groupId = group.getString(columnIndexId);
-                String mirrorURL = group.getString(columnIndexMirrors);
+                StringBuilder mirrorURL = new StringBuilder(group.getString(columnIndexMirrors));
                 String mirrorURLsDefault = group.isNull(columnIndexMirrorsDefault) ? "" : group.getString(columnIndexMirrorsDefault);
                 
                 Log.d("info21", "GROUPID " + groupId + " " + mirrorURL);
@@ -3080,9 +3080,9 @@ public class TvDataUpdateService extends Service {
                 doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
                 doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
                 
-                if(!mirrorURL.toLowerCase(Locale.GERMAN).startsWith("http://") && !mirrorURL.toLowerCase(Locale.GERMAN).startsWith("https://")) {
+                if(!mirrorURL.toString().toLowerCase(Locale.GERMAN).startsWith("http://") && !mirrorURL.toString().toLowerCase(Locale.GERMAN).startsWith("https://")) {
                   doLog("RELOAD MIRRORS FOR '" + groupId);
-                  mirrorURL = reloadMirrors(groupId, path);
+                  mirrorURL = new StringBuilder(reloadMirrors(groupId, path));
                   
                   doLog("Available mirrorURLs for group '" + groupId + "': " + mirrorURL);
                   doLog("Group info for '" + groupId + "'  groupKey: " + groupKey + " group name: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_NAME)) + " group provider: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_PROVIDER)) + " group description: " + group.getString(group.getColumnIndex(TvBrowserContentProvider.GROUP_KEY_GROUP_DESCRIPTION)));
@@ -3097,12 +3097,12 @@ public class TvDataUpdateService extends Service {
                 String[] defaultMirrors = mirrorURLsDefault.split(";");
                 
                 for(String defaultMirror : defaultMirrors) {
-                  if(!mirrorURL.contains(defaultMirror)) {
-                    mirrorURL += ";" + defaultMirror;
+                  if(!mirrorURL.toString().contains(defaultMirror)) {
+                    mirrorURL.append(";").append(defaultMirror);
                   }
                 }
                 
-                Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL);
+                Mirror[] mirrors = Mirror.getMirrorsFor(mirrorURL.toString());
                 Log.d("info21", "MIRRORS AVAILABLE " + Arrays.toString(mirrors));
                 mirror = Mirror.getMirrorToUseForGroup(mirrors, groupId, this, checkOnlyConnection);                
                 doLog("Chosen mirror for group '" + groupId + "': " + mirror);
