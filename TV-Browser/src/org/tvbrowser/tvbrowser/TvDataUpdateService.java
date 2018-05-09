@@ -432,28 +432,30 @@ public class TvDataUpdateService extends Service {
               }
             };
             registerReceiver(mReceiverConnectivityChange, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
-            
-            if(intent.getIntExtra(KEY_TYPE, TYPE_TV_DATA) == TYPE_TV_DATA) {
-              mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(getResources().getString(R.string.days_to_download_default)));
-              updateTvData();
-            }
-            else if(intent.getIntExtra(KEY_TYPE, TYPE_TV_DATA) == TYPE_CHANNEL) {
-              updateChannels(false);
-            }
-            else if(intent.getIntExtra(KEY_TYPE, TYPE_TV_DATA) == TYPE_REMINDER_DOWN) {
-              startSynchronizeRemindersDown(intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true));
-            }
-            else if(intent.getIntExtra(KEY_TYPE, TYPE_TV_DATA) == TYPE_SYNCHRONIZE_UP) {
-              if(intent.hasExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA)) {
-                String address = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA);
-                String value = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_VALUE_EXTRA);
-                boolean showInfo = intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true);
-                
-                startSynchronizeUp(showInfo, value, address);
-              }
-            }
-            else {
-              stopSelfInternal();
+
+            switch (intent.getIntExtra(KEY_TYPE, TYPE_TV_DATA)) {
+              case TYPE_TV_DATA:
+                mDaysToLoad = intent.getIntExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(getResources().getString(R.string.days_to_download_default)));
+                updateTvData();
+                break;
+              case TYPE_CHANNEL:
+                updateChannels(false);
+                break;
+              case TYPE_REMINDER_DOWN:
+                startSynchronizeRemindersDown(intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true));
+                break;
+              case TYPE_SYNCHRONIZE_UP:
+                if (intent.hasExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA)) {
+                  String address = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_URL_EXTRA);
+                  String value = intent.getStringExtra(SettingConstants.SYNCHRONIZE_UP_VALUE_EXTRA);
+                  boolean showInfo = intent.getBooleanExtra(SettingConstants.SYNCHRONIZE_SHOW_INFO_EXTRA, true);
+
+                  startSynchronizeUp(showInfo, value, address);
+                }
+                break;
+              default:
+                stopSelfInternal();
+                break;
             }
           }
           else {

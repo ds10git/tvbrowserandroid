@@ -197,24 +197,27 @@ public class IOUtils {
   
   private static int getDefaultCategoryColorKeyForColorKey(int colorKey) {
     int defaultColorCategoryKey = R.string.pref_color_categories_default;
-    
-    if(colorKey == R.string.PREF_COLOR_CATEGORY_FILM) {
-      defaultColorCategoryKey = R.string.pref_color_category_film_default;
-    }
-    else if(colorKey == R.string.PREF_COLOR_CATEGORY_SERIES) {
-      defaultColorCategoryKey = R.string.pref_color_category_series_default;
-    }
-    else if(colorKey == R.string.PREF_COLOR_CATEGORY_NEW) {
-      defaultColorCategoryKey = R.string.pref_color_category_new_default;
-    }
-    else if(colorKey == R.string.PREF_COLOR_CATEGORY_DOCU || colorKey == R.string.PREF_COLOR_CATEGORY_MAGAZIN) {
-      defaultColorCategoryKey = R.string.pref_color_category_docu_default;
-    }
-    else if(colorKey == R.string.PREF_COLOR_CATEGORY_CHILDREN) {
-      defaultColorCategoryKey = R.string.pref_color_category_children_default;
-    }
-    else if(colorKey == R.string.PREF_COLOR_CATEGORY_SHOW) {
-      defaultColorCategoryKey = R.string.pref_color_category_show_default;
+
+    switch (colorKey) {
+      case R.string.PREF_COLOR_CATEGORY_FILM:
+        defaultColorCategoryKey = R.string.pref_color_category_film_default;
+        break;
+      case R.string.PREF_COLOR_CATEGORY_SERIES:
+        defaultColorCategoryKey = R.string.pref_color_category_series_default;
+        break;
+      case R.string.PREF_COLOR_CATEGORY_NEW:
+        defaultColorCategoryKey = R.string.pref_color_category_new_default;
+        break;
+      case R.string.PREF_COLOR_CATEGORY_DOCU:
+      case R.string.PREF_COLOR_CATEGORY_MAGAZIN:
+        defaultColorCategoryKey = R.string.pref_color_category_docu_default;
+        break;
+      case R.string.PREF_COLOR_CATEGORY_CHILDREN:
+        defaultColorCategoryKey = R.string.pref_color_category_children_default;
+        break;
+      case R.string.PREF_COLOR_CATEGORY_SHOW:
+        defaultColorCategoryKey = R.string.pref_color_category_show_default;
+        break;
     }
     
     return defaultColorCategoryKey;

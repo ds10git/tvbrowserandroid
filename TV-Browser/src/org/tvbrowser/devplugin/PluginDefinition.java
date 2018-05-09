@@ -184,56 +184,59 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
           {
             tagName = parser.getName();
 
-            if(tagName.equals(XML_ELEMENT_ROOT)) {
-              String isOnGooglePlay = parser.getAttributeValue(null, XML_ATTRIBUTE_ON_GOOGLE_PLAY);
-              
-              if(isOnGooglePlay == null) {
-                isOnGooglePlay = "false";
-              }
-              
-              String author = parser.getAttributeValue(null, XML_ATTRIBUTE_AUTHOR);
-              
-              if(author != null) {
-                author = URLDecoder.decode(author, "UTF-8");
-              }
-              else {
-                author = "Unknown";
-              }
-              
-              int minApi = 11;
-              
-              String readApi = parser.getAttributeValue(null, XML_ATTRIBUTE_MIN_API);
-              
-              if(readApi != null) {
-                minApi = Integer.parseInt(readApi);
-              }
-              
-              current = new PluginDefinition(parser.getAttributeValue(null, XML_ATTRIBUTE_PACKAGE), minApi, parser.getAttributeValue(null, XML_ATTRIBUTE_VERSION), author, isOnGooglePlay.equals("true"));
-            }             
-            else if(tagName.equals(XML_ELEMENT_SERVICES)) {
-              serviceList.clear();
-            }
-            else if(tagName.equals(XML_ELEMENT_SERVICE)) {
-              serviceList.add(parser.getAttributeValue(null, XML_ATTRIBUTE_PACKAGE));
+            switch (tagName) {
+              case XML_ELEMENT_ROOT:
+                String isOnGooglePlay = parser.getAttributeValue(null, XML_ATTRIBUTE_ON_GOOGLE_PLAY);
+
+                if (isOnGooglePlay == null) {
+                  isOnGooglePlay = "false";
+                }
+
+                String author = parser.getAttributeValue(null, XML_ATTRIBUTE_AUTHOR);
+
+                if (author != null) {
+                  author = URLDecoder.decode(author, "UTF-8");
+                } else {
+                  author = "Unknown";
+                }
+
+                int minApi = 11;
+
+                String readApi = parser.getAttributeValue(null, XML_ATTRIBUTE_MIN_API);
+
+                if (readApi != null) {
+                  minApi = Integer.parseInt(readApi);
+                }
+
+                current = new PluginDefinition(parser.getAttributeValue(null, XML_ATTRIBUTE_PACKAGE), minApi, parser.getAttributeValue(null, XML_ATTRIBUTE_VERSION), author, isOnGooglePlay.equals("true"));
+                break;
+              case XML_ELEMENT_SERVICES:
+                serviceList.clear();
+                break;
+              case XML_ELEMENT_SERVICE:
+                serviceList.add(parser.getAttributeValue(null, XML_ATTRIBUTE_PACKAGE));
+                break;
             }
           }break;
           case XmlPullParser.TEXT:
           {
             if(current != null) {
-              if(tagName.equals(XML_ELEMENT_NAME_EN)) {
-                current.mNameEn = URLDecoder.decode(parser.getText(), "UTF-8");
-              }
-              else if(tagName.equals(XML_ELEMENT_NAME_DE)) {
-                current.mNameDe = URLDecoder.decode(parser.getText(), "UTF-8");
-              }
-              else if(tagName.equals(XML_ELEMENT_DESCRIPTION_EN)) {
-                current.mDescriptionEn = URLDecoder.decode(parser.getText(), "UTF-8");
-              }
-              else if(tagName.equals(XML_ELEMENT_DESCRIPTION_DE)) {
-                current.mDescriptionDe = URLDecoder.decode(parser.getText(), "UTF-8");
-              }
-              else {
-                current.mUnknownValues.put(tagName,URLDecoder.decode(parser.getText(), "UTF-8"));
+              switch (tagName) {
+                case XML_ELEMENT_NAME_EN:
+                  current.mNameEn = URLDecoder.decode(parser.getText(), "UTF-8");
+                  break;
+                case XML_ELEMENT_NAME_DE:
+                  current.mNameDe = URLDecoder.decode(parser.getText(), "UTF-8");
+                  break;
+                case XML_ELEMENT_DESCRIPTION_EN:
+                  current.mDescriptionEn = URLDecoder.decode(parser.getText(), "UTF-8");
+                  break;
+                case XML_ELEMENT_DESCRIPTION_DE:
+                  current.mDescriptionDe = URLDecoder.decode(parser.getText(), "UTF-8");
+                  break;
+                default:
+                  current.mUnknownValues.put(tagName, URLDecoder.decode(parser.getText(), "UTF-8"));
+                  break;
               }
             }
           }break;

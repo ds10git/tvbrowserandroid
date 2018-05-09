@@ -1351,14 +1351,16 @@ public class TvBrowser extends AppCompatActivity {
             @Override
             public void run() {
               Log.d("info6", "Runnable " + infoType);
-              if (infoType == INFO_TYPE_NOTHING) {
-                showChannelUpdateInfo();
-                }
-                else if(infoType == INFO_TYPE_VERSION) {
-                showVersionInfo(true);
-                }
-                else if(infoType == INFO_TYPE_NEWS) {
-                showNews();
+              switch (infoType) {
+                case INFO_TYPE_NOTHING:
+                  showChannelUpdateInfo();
+                  break;
+                case INFO_TYPE_VERSION:
+                  showVersionInfo(true);
+                  break;
+                case INFO_TYPE_NEWS:
+                  showNews();
+                  break;
               }
             }
           });
@@ -2030,77 +2032,76 @@ public class TvBrowser extends AppCompatActivity {
                     String[] parts = line.substring(index+1).split("=");
 
                     if(parts != null && parts.length > 1) {
-                      if(type.equals("boolean")) {
-                        boolean boolValue = Boolean.valueOf(parts[1].trim());
+                      switch (type) {
+                        case "boolean":
+                          boolean boolValue = Boolean.valueOf(parts[1].trim());
 
-                        if(!getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(parts[0]) || boolValue) {
-                          edit.putBoolean(parts[0], boolValue);
-                        }
-                      }
-                      else if(type.equals("int")) {
-                        if(!getString(R.string.OLD_VERSION).equals(parts[0])) {
-                          edit.putInt(parts[0], Integer.valueOf(parts[1].trim()));
-                        }
-                      }
-                      else if(type.equals("float")) {
-                        edit.putFloat(parts[0], Float.valueOf(parts[1].trim()));
-                      }
-                      else if(type.equals("long")) {
-                        edit.putLong(parts[0], Long.valueOf(parts[1].trim()));
-                      }
-                      else if(type.equals("string")) {
-                        if(getString(R.string.CURRENT_FILTER_ID).equals(parts[0])) {
-                          HashSet<String> set = new HashSet<>();
-                          set.add(parts[1].trim());
-
-                          edit.putStringSet(parts[0], set);
-                        }
-                        else if(getString(R.string.PREF_DATABASE_PATH).equals(parts[0])) {
-                          final File test = new File(parts[1].trim());
-
-                          if(test.isFile()) {
-                            edit.putString(parts[0], parts[1].trim());
+                          if (!getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(parts[0]) || boolValue) {
+                            edit.putBoolean(parts[0], boolValue);
                           }
-                        }
-                        else {
-                          edit.putString(parts[0], parts[1].trim());
-                        }
-                      }
-                      else if(type.equals("set")) {
-                        HashSet<String> set = new HashSet<>();
-
-                        String[] setParts = parts[1].split("#,#");
-
-                        if(setParts != null && setParts.length > 0) {
-                          if(parts[0].equals("FAVORITE_LIST")) {
-                            Favorite.deleteAllFavorites(getApplicationContext());
-                            int id = 1000;
-
-                            for(String setPart : setParts) {
-                              Favorite favorite = new Favorite(id++,setPart);
-                              favorite.loadChannelRestrictionIdsFromUniqueChannelRestriction(getApplicationContext());
-                              Favorite.handleFavoriteMarking(getApplicationContext(), favorite, Favorite.TYPE_MARK_ADD);
-                            }
+                          break;
+                        case "int":
+                          if (!getString(R.string.OLD_VERSION).equals(parts[0])) {
+                            edit.putInt(parts[0], Integer.valueOf(parts[1].trim()));
                           }
-                          else {
-                            Collections.addAll(set, setParts);
+                          break;
+                        case "float":
+                          edit.putFloat(parts[0], Float.valueOf(parts[1].trim()));
+                          break;
+                        case "long":
+                          edit.putLong(parts[0], Long.valueOf(parts[1].trim()));
+                          break;
+                        case "string":
+                          if (getString(R.string.CURRENT_FILTER_ID).equals(parts[0])) {
+                            HashSet<String> set = new HashSet<>();
+                            set.add(parts[1].trim());
 
                             edit.putStringSet(parts[0], set);
-                          }
-                        }
-                      }
-                      else if(type.equals("favorite")) {
-                        Favorite favorite = new Favorite(Long.parseLong(parts[0]),parts[1].replace("\\n", "\n"));
+                          } else if (getString(R.string.PREF_DATABASE_PATH).equals(parts[0])) {
+                            final File test = new File(parts[1].trim());
 
-                        for(Favorite test : existingFavorites) {
-                          if(test.getFavoriteId() == favorite.getFavoriteId()) {
-                            Favorite.deleteFavorite(getApplicationContext(), favorite);
-                            break;
+                            if (test.isFile()) {
+                              edit.putString(parts[0], parts[1].trim());
+                            }
+                          } else {
+                            edit.putString(parts[0], parts[1].trim());
                           }
-                        }
+                          break;
+                        case "set":
+                          HashSet<String> set = new HashSet<>();
 
-                        favorite.loadChannelRestrictionIdsFromUniqueChannelRestriction(getApplicationContext());
-                        Favorite.handleFavoriteMarking(getApplicationContext(), favorite, Favorite.TYPE_MARK_ADD);
+                          String[] setParts = parts[1].split("#,#");
+
+                          if (setParts != null && setParts.length > 0) {
+                            if (parts[0].equals("FAVORITE_LIST")) {
+                              Favorite.deleteAllFavorites(getApplicationContext());
+                              int id = 1000;
+
+                              for (String setPart : setParts) {
+                                Favorite favorite = new Favorite(id++, setPart);
+                                favorite.loadChannelRestrictionIdsFromUniqueChannelRestriction(getApplicationContext());
+                                Favorite.handleFavoriteMarking(getApplicationContext(), favorite, Favorite.TYPE_MARK_ADD);
+                              }
+                            } else {
+                              Collections.addAll(set, setParts);
+
+                              edit.putStringSet(parts[0], set);
+                            }
+                          }
+                          break;
+                        case "favorite":
+                          Favorite favorite = new Favorite(Long.parseLong(parts[0]), parts[1].replace("\\n", "\n"));
+
+                          for (Favorite test : existingFavorites) {
+                            if (test.getFavoriteId() == favorite.getFavoriteId()) {
+                              Favorite.deleteFavorite(getApplicationContext(), favorite);
+                              break;
+                            }
+                          }
+
+                          favorite.loadChannelRestrictionIdsFromUniqueChannelRestriction(getApplicationContext());
+                          Favorite.handleFavoriteMarking(getApplicationContext(), favorite, Favorite.TYPE_MARK_ADD);
+                          break;
                       }
                     }
                   }
@@ -3425,25 +3426,27 @@ public class TvBrowser extends AppCompatActivity {
           String currentAutoUpdateValue = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
           String currentAutoUpdateFrequency = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default);
 
-          if(currentAutoUpdateValue.equals("0")) {
-            frequency.setEnabled(false);
-            onlyWiFi.setEnabled(false);
-            timeLabel.setEnabled(false);
-            time.setEnabled(false);
-            frequency.setVisibility(View.GONE);
-            onlyWiFi.setVisibility(View.GONE);
-            timeLabel.setVisibility(View.GONE);
-            time.setVisibility(View.GONE);
-          }
-          else if(currentAutoUpdateValue.equals("1")) {
-            autoUpdate.setSelection(1);
-            timeLabel.setEnabled(false);
-            time.setEnabled(false);
-            timeLabel.setVisibility(View.GONE);
-            time.setVisibility(View.GONE);
-          }
-          else if(currentAutoUpdateValue.equals("2")) {
-            autoUpdate.setSelection(2);
+          switch (currentAutoUpdateValue) {
+            case "0":
+              frequency.setEnabled(false);
+              onlyWiFi.setEnabled(false);
+              timeLabel.setEnabled(false);
+              time.setEnabled(false);
+              frequency.setVisibility(View.GONE);
+              onlyWiFi.setVisibility(View.GONE);
+              timeLabel.setVisibility(View.GONE);
+              time.setVisibility(View.GONE);
+              break;
+            case "1":
+              autoUpdate.setSelection(1);
+              timeLabel.setEnabled(false);
+              time.setEnabled(false);
+              timeLabel.setVisibility(View.GONE);
+              time.setVisibility(View.GONE);
+              break;
+            case "2":
+              autoUpdate.setSelection(2);
+              break;
           }
 
           final String[] autoFrequencyPossibleValues = getResources().getStringArray(R.array.pref_auto_update_frequency_values);
@@ -4123,24 +4126,26 @@ public class TvBrowser extends AppCompatActivity {
       super.onActivityResult(requestCode, resultCode, data);
     }
 
-    if(requestCode == SHOW_PREFERENCES) {
-      updateFromPreferences(false);
-    }
-    else if(requestCode == OPEN_FILTER_EDIT) {
-      updateFromFilterEdit();
+    switch (requestCode) {
+      case SHOW_PREFERENCES:
+        updateFromPreferences(false);
+        break;
+      case OPEN_FILTER_EDIT:
+        updateFromFilterEdit();
 
-      sendChannelFilterUpdate();
-    }
-    else if(requestCode == SHOW_PLUGIN_PREFERENCES) {
-      PluginPreferencesActivity.clearPlugins();
+        sendChannelFilterUpdate();
+        break;
+      case SHOW_PLUGIN_PREFERENCES:
+        PluginPreferencesActivity.clearPlugins();
 
-      PluginServiceConnection[] plugins = PluginHandler.getAvailablePlugins();
+        PluginServiceConnection[] plugins = PluginHandler.getAvailablePlugins();
 
-      if(plugins != null) {
-        for(PluginServiceConnection plugin : plugins) {
-          plugin.loadIcon();
+        if (plugins != null) {
+          for (PluginServiceConnection plugin : plugins) {
+            plugin.loadIcon();
+          }
         }
-      }
+        break;
     }
   }
 
@@ -5183,26 +5188,31 @@ public class TvBrowser extends AppCompatActivity {
    */
   private void scrollToTime(int time) {
     Log.d("info8", "scrollToTime " + time);
-    if(mViewPager.getCurrentItem() == 0) {
-      Fragment test = mSectionsPagerAdapter.getRegisteredFragment(0);
-      Log.d("info8",""+test);
-      if(test instanceof FragmentProgramsListRunning && time >= 0) {
-        ((FragmentProgramsListRunning)test).selectTime(time);
+    switch (mViewPager.getCurrentItem()) {
+      case 0: {
+        Fragment test = mSectionsPagerAdapter.getRegisteredFragment(0);
+        Log.d("info8", "" + test);
+        if (test instanceof FragmentProgramsListRunning && time >= 0) {
+          ((FragmentProgramsListRunning) test).selectTime(time);
+        }
+        break;
       }
-    }
-    else if(mViewPager.getCurrentItem() == 1) {
-      Fragment test = mSectionsPagerAdapter.getRegisteredFragment(1);
+      case 1: {
+        Fragment test = mSectionsPagerAdapter.getRegisteredFragment(1);
 
-      if(test instanceof FragmentProgramsList && time >= 0) {
-        ((FragmentProgramsList)test).setScrollTime(time);
-        ((FragmentProgramsList)test).scrollToTime();
+        if (test instanceof FragmentProgramsList && time >= 0) {
+          ((FragmentProgramsList) test).setScrollTime(time);
+          ((FragmentProgramsList) test).scrollToTime();
+        }
+        break;
       }
-    }
-    else if(mViewPager.getCurrentItem() == 3) {
-      Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
+      case 3: {
+        Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
 
-      if(test instanceof FragmentProgramTable) {
-        ((FragmentProgramTable)test).scrollToTime(time, mScrollTimeItem);
+        if (test instanceof FragmentProgramTable) {
+          ((FragmentProgramTable) test).scrollToTime(time, mScrollTimeItem);
+        }
+        break;
       }
     }
   }
@@ -5444,29 +5454,30 @@ public class TvBrowser extends AppCompatActivity {
       Fragment fragment = registeredFragments.get(position);
 
       if(fragment == null) {
-        if(position == 0) {
-          if(IOUtils.isDatabaseAccessible(getApplicationContext())) {
-            fragment = new FragmentProgramsListRunning();
-            if(START_TIME != Integer.MIN_VALUE) {
-              ((FragmentProgramsListRunning) fragment).setStartTime(START_TIME + 1);
-              START_TIME = Integer.MIN_VALUE;
+        switch (position) {
+          case 0:
+            if (IOUtils.isDatabaseAccessible(getApplicationContext())) {
+              fragment = new FragmentProgramsListRunning();
+              if (START_TIME != Integer.MIN_VALUE) {
+                ((FragmentProgramsListRunning) fragment).setStartTime(START_TIME + 1);
+                START_TIME = Integer.MIN_VALUE;
+              }
+            } else {
+              fragment = new Fragment();
             }
-          }
-          else {
-            fragment = new Fragment();
-          }
-        }
-        else if(position == 1) {
-          fragment = new FragmentProgramsList(mProgramListChannelId, mProgramListScrollTime, mProgramListScrollEndTime);
-          mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
-          mProgramListScrollTime = -1;
-          mProgramListScrollEndTime = -1;
-        }
-        else if(position == 2) {
-          fragment = new FragmentFavorites();
-        }
-        else if(position == 3) {
-          fragment = new FragmentProgramTable();
+            break;
+          case 1:
+            fragment = new FragmentProgramsList(mProgramListChannelId, mProgramListScrollTime, mProgramListScrollEndTime);
+            mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
+            mProgramListScrollTime = -1;
+            mProgramListScrollEndTime = -1;
+            break;
+          case 2:
+            fragment = new FragmentFavorites();
+            break;
+          case 3:
+            fragment = new FragmentProgramTable();
+            break;
         }
       }
 

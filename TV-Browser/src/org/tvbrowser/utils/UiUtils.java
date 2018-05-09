@@ -1163,350 +1163,344 @@ public class UiUtils {
         IOUtils.close(info);
       }
       ContentValues values = new ContentValues();
-      
-      if(item.getItemId() == R.id.create_favorite_item) {
-        UiUtils.editFavorite(null, activity, title);
-        return true;
-      }
-      else if(item.getItemId() == R.id.edit_favorite_item) {
-        final Favorite[] exludeFavorites = Favorite.getFavoritesForUniqueId(activity, programID);
-        
-        if(exludeFavorites.length == 1) {
-          UiUtils.editFavorite(exludeFavorites[0], activity, null);
-        }
-        else if(exludeFavorites.length > 1) {
-          final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-          builder.setTitle(R.string.dialog_edit_favorite_select_title);
-          
-          final ArrayList<String> items = new ArrayList<>();
-          
-          for(Favorite favorite : exludeFavorites) {
-            items.add(favorite.getName());
-          }
-          
-          builder.setItems(items.toArray(new String[items.size()]), new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {              
-              UiUtils.editFavorite(exludeFavorites[which], activity, null);
+
+      switch (item.getItemId()) {
+        case R.id.create_favorite_item:
+          UiUtils.editFavorite(null, activity, title);
+          return true;
+        case R.id.edit_favorite_item:
+          final Favorite[] exludeFavorites = Favorite.getFavoritesForUniqueId(activity, programID);
+
+          if (exludeFavorites.length == 1) {
+            UiUtils.editFavorite(exludeFavorites[0], activity, null);
+          } else if (exludeFavorites.length > 1) {
+            final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+            builder.setTitle(R.string.dialog_edit_favorite_select_title);
+
+            final ArrayList<String> items = new ArrayList<>();
+
+            for (Favorite favorite : exludeFavorites) {
+              items.add(favorite.getName());
             }
-          });
-                    
-          builder.setNegativeButton(android.R.string.cancel, null);
-          
-          final AlertDialog d = builder.create();
-          d.show();
-        }
-        
-        return true;
-      }
-      else if(item.getItemId() == R.id.program_popup_search_repetition) {
-        searchForRepetition(activity,title,episode,parent);
-      }
-      else if(item.getItemId() == R.id.prog_add_reminder) {
-        if(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) || markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) {
-          return true;
-        }
-        else {
-          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, true);
-        }
-        
-        ProgramUtils.addReminderId(activity, programID);
-        //addReminder(activity.getApplicationContext(),programID,0,UiUtils.class,true);
-      }
-      else if(item.getItemId() == R.id.prog_remove_reminder) {
-        if(!(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) || markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER))) {
-          return true;
-        }
-        
-        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, false);
-        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, 0);
-        values.put(TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER, true);
-        
-        ProgramUtils.removeReminderId(activity, programID);
-        
-        if(menuView != null) {
-          markedColumns.remove(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
-          markedColumns.remove(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
-          
-          if(markedColumns.isEmpty()) {
-            menuView.setBackgroundResource(android.R.drawable.list_selector_background);  
+
+            builder.setItems(items.toArray(new String[items.size()]), new OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                UiUtils.editFavorite(exludeFavorites[which], activity, null);
+              }
+            });
+
+            builder.setNegativeButton(android.R.string.cancel, null);
+
+            final AlertDialog d = builder.create();
+            d.show();
           }
-          else {
-            handleMarkings(activity, null, menuView, IOUtils.getStringArrayFromList(markedColumns));
+
+          return true;
+        case R.id.program_popup_search_repetition:
+          searchForRepetition(activity, title, episode, parent);
+          break;
+        case R.id.prog_add_reminder:
+          if (markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) || markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER)) {
+            return true;
+          } else {
+            values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, true);
           }
-        }
-        
-        IOUtils.removeReminder(activity.getApplicationContext(),programID);
-      }
-      else if(item.getItemId() == R.id.program_popup_dont_want_to_see) {
-        if(title != null) {
-          AlertDialog.Builder builder = new AlertDialog.Builder(activity);
-          
-          builder.setTitle(R.string.action_dont_want_to_see);
-          
-          View view = ((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.dont_want_to_see_edit, parent instanceof ViewGroup ? (ViewGroup)parent : null, false);
-          
-          final TextView exclusion = (TextView)view.findViewById(R.id.dont_want_to_see_value);
-          final CheckBox caseSensitive = (CheckBox)view.findViewById(R.id.dont_want_to_see_case_sensitve);
-          exclusion.setText(title);
-          
-          builder.setView(view);
-          
-          builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-              if(!SettingConstants.UPDATING_FILTER) {
-                SettingConstants.UPDATING_FILTER = true;
-                
-                String key = activity.getResources().getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES);
-                Set<String> dontWantToSeeSet = PreferenceManager.getDefaultSharedPreferences(activity).getStringSet(key, null);
-                
-                HashSet<String> newDontWantToSeeSet = new HashSet<>();
-                            
-                String exclusionText = exclusion.getText().toString().trim();
-                boolean caseSensitiveValue = caseSensitive.isChecked();
-                
-                if(exclusionText.length() > 0) {
-                  if(dontWantToSeeSet != null) {
-                    newDontWantToSeeSet.addAll(dontWantToSeeSet);
-                  }
-                  
-                  final String exclusion = exclusionText + ";;" + (caseSensitiveValue ? "1" : "0");
-                  
-                  new Thread() {
-                    public void run() {
-                      if(activity instanceof TvBrowser) {
-                        ((TvBrowser)activity).updateProgressIcon(true);
-                      }
-                      
-                      Context applicationContext = activity.getApplicationContext();
-                      
-                      NotificationCompat.Builder builder = new NotificationCompat.Builder(applicationContext, App.get().getNotificationChannelId(App.TYPE_NOTIFICATION_DEFAULT));
-                      builder.setSmallIcon(R.drawable.ic_stat_notify);
-                      builder.setOngoing(true);
-                      builder.setContentTitle(activity.getResources().getText(R.string.action_dont_want_to_see));
-                      builder.setContentText(activity.getResources().getText(R.string.dont_want_to_see_refresh_notification_text));
-                      
-                      int notifyID = 4;
-                      
-                      NotificationManager notification = (NotificationManager)applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
-                      notification.notify(notifyID, builder.build());
-                      
-                      ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
-                      String title = null;
-                      
-                      Cursor c = null;
-                      
-                      try {
-                        c = activity.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, " NOT " +TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.KEY_ID);
-                        
-                        if(IOUtils.prepareAccess(c)) {
-                          int size = c.getCount();
-                          int count = 0;
-                          
-                          builder.setProgress(100, 0, true);
-                          notification.notify(notifyID, builder.build());
-    
-                          int keyColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-                          int titleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-                          DontWantToSeeExclusion exclusionValue = new DontWantToSeeExclusion(exclusion);
-                          
-                          int lastPercent = 0;
-                          
-                          while(c.moveToNext()) {
-                            int percent = (int)(count++/(float)size * 100);
-                            
-                            if(lastPercent != percent) {
-                              lastPercent = percent;
-                              builder.setProgress(100,percent, false);
-                              notification.notify(notifyID, builder.build());
-                            }
-                            
-                            title = c.getString(titleColumn);
-                            
-                            if(UiUtils.filter(title, exclusionValue)) {
-                              ContentValues values = new ContentValues();
-                              values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, 1);
-                              
-                              ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, c.getLong(keyColumn)));
-                              opBuilder.withValues(values);
-                              
-                              updateValuesList.add(opBuilder.build());
-                            }
-                            else {
-                              try {
-                                sleep(1);
-                              } catch (InterruptedException e) {
-                                e.printStackTrace();
+
+          ProgramUtils.addReminderId(activity, programID);
+          //addReminder(activity.getApplicationContext(),programID,0,UiUtils.class,true);
+          break;
+        case R.id.prog_remove_reminder:
+          if (!(markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER) || markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER))) {
+            return true;
+          }
+
+          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, false);
+          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, 0);
+          values.put(TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER, true);
+
+          ProgramUtils.removeReminderId(activity, programID);
+
+          if (menuView != null) {
+            markedColumns.remove(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
+            markedColumns.remove(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
+
+            if (markedColumns.isEmpty()) {
+              menuView.setBackgroundResource(android.R.drawable.list_selector_background);
+            } else {
+              handleMarkings(activity, null, menuView, IOUtils.getStringArrayFromList(markedColumns));
+            }
+          }
+
+          IOUtils.removeReminder(activity.getApplicationContext(), programID);
+          break;
+        case R.id.program_popup_dont_want_to_see:
+          if (title != null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+
+            builder.setTitle(R.string.action_dont_want_to_see);
+
+            View view = ((LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.dont_want_to_see_edit, parent instanceof ViewGroup ? (ViewGroup) parent : null, false);
+
+            final TextView exclusion = (TextView) view.findViewById(R.id.dont_want_to_see_value);
+            final CheckBox caseSensitive = (CheckBox) view.findViewById(R.id.dont_want_to_see_case_sensitve);
+            exclusion.setText(title);
+
+            builder.setView(view);
+
+            builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
+                if (!SettingConstants.UPDATING_FILTER) {
+                  SettingConstants.UPDATING_FILTER = true;
+
+                  String key = activity.getResources().getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES);
+                  Set<String> dontWantToSeeSet = PreferenceManager.getDefaultSharedPreferences(activity).getStringSet(key, null);
+
+                  HashSet<String> newDontWantToSeeSet = new HashSet<>();
+
+                  String exclusionText = exclusion.getText().toString().trim();
+                  boolean caseSensitiveValue = caseSensitive.isChecked();
+
+                  if (exclusionText.length() > 0) {
+                    if (dontWantToSeeSet != null) {
+                      newDontWantToSeeSet.addAll(dontWantToSeeSet);
+                    }
+
+                    final String exclusion = exclusionText + ";;" + (caseSensitiveValue ? "1" : "0");
+
+                    new Thread() {
+                      public void run() {
+                        if (activity instanceof TvBrowser) {
+                          ((TvBrowser) activity).updateProgressIcon(true);
+                        }
+
+                        Context applicationContext = activity.getApplicationContext();
+
+                        NotificationCompat.Builder builder = new NotificationCompat.Builder(applicationContext, App.get().getNotificationChannelId(App.TYPE_NOTIFICATION_DEFAULT));
+                        builder.setSmallIcon(R.drawable.ic_stat_notify);
+                        builder.setOngoing(true);
+                        builder.setContentTitle(activity.getResources().getText(R.string.action_dont_want_to_see));
+                        builder.setContentText(activity.getResources().getText(R.string.dont_want_to_see_refresh_notification_text));
+
+                        int notifyID = 4;
+
+                        NotificationManager notification = (NotificationManager) applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                        notification.notify(notifyID, builder.build());
+
+                        ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
+                        String title = null;
+
+                        Cursor c = null;
+
+                        try {
+                          c = activity.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[]{TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.DATA_KEY_TITLE}, " NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.KEY_ID);
+
+                          if (IOUtils.prepareAccess(c)) {
+                            int size = c.getCount();
+                            int count = 0;
+
+                            builder.setProgress(100, 0, true);
+                            notification.notify(notifyID, builder.build());
+
+                            int keyColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                            int titleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+                            DontWantToSeeExclusion exclusionValue = new DontWantToSeeExclusion(exclusion);
+
+                            int lastPercent = 0;
+
+                            while (c.moveToNext()) {
+                              int percent = (int) (count++ / (float) size * 100);
+
+                              if (lastPercent != percent) {
+                                lastPercent = percent;
+                                builder.setProgress(100, percent, false);
+                                notification.notify(notifyID, builder.build());
+                              }
+
+                              title = c.getString(titleColumn);
+
+                              if (UiUtils.filter(title, exclusionValue)) {
+                                ContentValues values = new ContentValues();
+                                values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, 1);
+
+                                ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, c.getLong(keyColumn)));
+                                opBuilder.withValues(values);
+
+                                updateValuesList.add(opBuilder.build());
+                              } else {
+                                try {
+                                  sleep(1);
+                                } catch (InterruptedException e) {
+                                  e.printStackTrace();
+                                }
                               }
                             }
                           }
+                        } finally {
+                          IOUtils.close(c);
                         }
-                      } finally {
-                        IOUtils.close(c);
-                      }
-                      if(!updateValuesList.isEmpty()) {
-                        try {
-                          activity.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
-                          sendDontWantToSeeChangedBroadcast(applicationContext,true);
-                        } catch (RemoteException e) {
-                          e.printStackTrace();
-                        } catch (OperationApplicationException e) {
-                          e.printStackTrace();
+                        if (!updateValuesList.isEmpty()) {
+                          try {
+                            activity.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+                            sendDontWantToSeeChangedBroadcast(applicationContext, true);
+                          } catch (RemoteException e) {
+                            e.printStackTrace();
+                          } catch (OperationApplicationException e) {
+                            e.printStackTrace();
+                          }
                         }
+
+                        notification.cancel(notifyID);
+
+                        if (activity instanceof TvBrowser) {
+                          ((TvBrowser) activity).updateProgressIcon(false);
+                        }
+
+                        SettingConstants.UPDATING_FILTER = false;
                       }
-                      
-                      notification.cancel(notifyID);
-                      
-                      if(activity instanceof TvBrowser) {
-                        ((TvBrowser)activity).updateProgressIcon(false);
-                      }
-                      
-                      SettingConstants.UPDATING_FILTER = false;
-                    }
-                  }.start();
-                  
-                  newDontWantToSeeSet.add(exclusion);
-                  
-                  Editor edit = PreferenceManager.getDefaultSharedPreferences(activity).edit();
-                  
-                  edit.putStringSet(key, newDontWantToSeeSet);
-                  edit.commit();
-                }
-              }
-            }
-          });
-          
-          builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {}
-          });
-          
-          builder.show();
-        }
-        
-        return true;
-      }
-      else if(item.getItemId() == R.id.program_popup_want_to_see) {
-        if(title != null && !SettingConstants.UPDATING_FILTER) {
-          SettingConstants.UPDATING_FILTER = true;
-          
-          Set<String> exclusionValues = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
-          //ArrayList<>
-          HashSet<String> newExclusionSet = new HashSet<>();
-          final ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<>();
-          
-          for(String exclusion : exclusionValues) {
-            if(!filter(title, new DontWantToSeeExclusion(exclusion))) {
-              newExclusionSet.add(exclusion);
-              exclusionList.add(new DontWantToSeeExclusion(exclusion));
-            }
-          }
-          
-          new Thread() {
-            public void run() {
-              if(activity instanceof TvBrowser) {
-                ((TvBrowser)activity).updateProgressIcon(true);
-              }
-              
-              final Context applicationContext = activity.getApplicationContext();
-              
-              final NotificationCompat.Builder builder = new NotificationCompat.Builder(applicationContext, App.get().getNotificationChannelId(App.TYPE_NOTIFICATION_DEFAULT));
-              builder.setSmallIcon(R.drawable.ic_stat_notify);
-              builder.setOngoing(true);
-              builder.setContentTitle(activity.getResources().getText(R.string.action_dont_want_to_see));
-              builder.setContentText(activity.getResources().getText(R.string.dont_want_to_see_refresh_notification_text));
-              
-              int notifyID = 3;
-              
-              NotificationManager notification = (NotificationManager)applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
-              notification.notify(notifyID, builder.build());
-              
-              ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
-              Cursor c = null;
-              
-              try {
-                c = activity.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.KEY_ID);
-                
-                if(IOUtils.prepareAccess(c)) {
-                  int size = c.getCount();
-                  int count = 0;
-                  
-                  builder.setProgress(size, 0, true);
-                  notification.notify(notifyID, builder.build());
-    
-                  int keyColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-                  int titleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-                  
-                  DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
-                  
-                  while(c.moveToNext()) {
-                    builder.setProgress(size, count++, false);
-                    notification.notify(notifyID, builder.build());
-                    
-                    String title = c.getString(titleColumn);
-                    
-                    ContentValues values = new ContentValues();
-                    values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, (UiUtils.filter(activity, title, exclusionArr) ? 1 : 0));
-                    
-                    ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, c.getLong(keyColumn)));
-                    opBuilder.withValues(values);
-                    
-                    updateValuesList.add(opBuilder.build());
+                    }.start();
+
+                    newDontWantToSeeSet.add(exclusion);
+
+                    Editor edit = PreferenceManager.getDefaultSharedPreferences(activity).edit();
+
+                    edit.putStringSet(key, newDontWantToSeeSet);
+                    edit.commit();
                   }
-                  
-                  notification.cancel(notifyID);
-                }
-              } finally {
-               IOUtils.close(c);
-              }
-              if(!updateValuesList.isEmpty()) {
-                try {
-                  activity.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
-                  sendDontWantToSeeChangedBroadcast(applicationContext,false);
-                } catch (RemoteException e) {
-                  e.printStackTrace();
-                } catch (OperationApplicationException e) {
-                  e.printStackTrace();
                 }
               }
-              
-              if(activity instanceof TvBrowser) {
-                ((TvBrowser)activity).updateProgressIcon(false);
+            });
+
+            builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
+              @Override
+              public void onClick(DialogInterface dialog, int which) {
               }
-              
-              SettingConstants.UPDATING_FILTER = false;
-            }
-          }.start();
-          
-          Editor edit = PreferenceManager.getDefaultSharedPreferences(activity).edit();
-          
-          edit.putStringSet(activity.getResources().getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES), newExclusionSet);
-          edit.commit();
-        }
-        
-        return true;
-      }
-      else {
-        if(!markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC)) {
+            });
+
+            builder.show();
+          }
+
           return true;
-        }
-        
-        values.put(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, false);
-        values.put(TvBrowserContentProvider.DATA_KEY_REMOVED_SYNC, true);
-        
-        ProgramUtils.removeSyncId(activity, programID);
-        
-        if(menuView != null) {
-          markedColumns.remove(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC);
-          
-          if(markedColumns.isEmpty()) {
-            menuView.setBackgroundResource(android.R.drawable.list_selector_background);  
+        case R.id.program_popup_want_to_see:
+          if (title != null && !SettingConstants.UPDATING_FILTER) {
+            SettingConstants.UPDATING_FILTER = true;
+
+            Set<String> exclusionValues = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
+            //ArrayList<>
+            HashSet<String> newExclusionSet = new HashSet<>();
+            final ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<>();
+
+            for (String exclusion : exclusionValues) {
+              if (!filter(title, new DontWantToSeeExclusion(exclusion))) {
+                newExclusionSet.add(exclusion);
+                exclusionList.add(new DontWantToSeeExclusion(exclusion));
+              }
+            }
+
+            new Thread() {
+              public void run() {
+                if (activity instanceof TvBrowser) {
+                  ((TvBrowser) activity).updateProgressIcon(true);
+                }
+
+                final Context applicationContext = activity.getApplicationContext();
+
+                final NotificationCompat.Builder builder = new NotificationCompat.Builder(applicationContext, App.get().getNotificationChannelId(App.TYPE_NOTIFICATION_DEFAULT));
+                builder.setSmallIcon(R.drawable.ic_stat_notify);
+                builder.setOngoing(true);
+                builder.setContentTitle(activity.getResources().getText(R.string.action_dont_want_to_see));
+                builder.setContentText(activity.getResources().getText(R.string.dont_want_to_see_refresh_notification_text));
+
+                int notifyID = 3;
+
+                NotificationManager notification = (NotificationManager) applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
+                notification.notify(notifyID, builder.build());
+
+                ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
+                Cursor c = null;
+
+                try {
+                  c = activity.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[]{TvBrowserContentProvider.KEY_ID, TvBrowserContentProvider.DATA_KEY_TITLE}, TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, null, TvBrowserContentProvider.KEY_ID);
+
+                  if (IOUtils.prepareAccess(c)) {
+                    int size = c.getCount();
+                    int count = 0;
+
+                    builder.setProgress(size, 0, true);
+                    notification.notify(notifyID, builder.build());
+
+                    int keyColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                    int titleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+
+                    DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
+
+                    while (c.moveToNext()) {
+                      builder.setProgress(size, count++, false);
+                      notification.notify(notifyID, builder.build());
+
+                      String title = c.getString(titleColumn);
+
+                      ContentValues values = new ContentValues();
+                      values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, (UiUtils.filter(activity, title, exclusionArr) ? 1 : 0));
+
+                      ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, c.getLong(keyColumn)));
+                      opBuilder.withValues(values);
+
+                      updateValuesList.add(opBuilder.build());
+                    }
+
+                    notification.cancel(notifyID);
+                  }
+                } finally {
+                  IOUtils.close(c);
+                }
+                if (!updateValuesList.isEmpty()) {
+                  try {
+                    activity.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
+                    sendDontWantToSeeChangedBroadcast(applicationContext, false);
+                  } catch (RemoteException e) {
+                    e.printStackTrace();
+                  } catch (OperationApplicationException e) {
+                    e.printStackTrace();
+                  }
+                }
+
+                if (activity instanceof TvBrowser) {
+                  ((TvBrowser) activity).updateProgressIcon(false);
+                }
+
+                SettingConstants.UPDATING_FILTER = false;
+              }
+            }.start();
+
+            Editor edit = PreferenceManager.getDefaultSharedPreferences(activity).edit();
+
+            edit.putStringSet(activity.getResources().getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES), newExclusionSet);
+            edit.commit();
           }
-          else {
-            handleMarkings(activity, null, menuView, IOUtils.getStringArrayFromList(markedColumns));
+
+          return true;
+        default:
+          if (!markedColumns.contains(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC)) {
+            return true;
           }
-        }
+
+          values.put(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, false);
+          values.put(TvBrowserContentProvider.DATA_KEY_REMOVED_SYNC, true);
+
+          ProgramUtils.removeSyncId(activity, programID);
+
+          if (menuView != null) {
+            markedColumns.remove(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC);
+
+            if (markedColumns.isEmpty()) {
+              menuView.setBackgroundResource(android.R.drawable.list_selector_background);
+            } else {
+              handleMarkings(activity, null, menuView, IOUtils.getStringArrayFromList(markedColumns));
+            }
+          }
+          break;
       }
       
       if(values.size() > 0) {

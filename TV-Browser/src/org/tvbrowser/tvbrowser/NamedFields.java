@@ -19,114 +19,116 @@ public final class NamedFields {
   
   public NamedFields(Context context, String column) {
     mColumn = column;
-    
-    if(TvBrowserContentProvider.DATA_KEY_ACTORS.equals(column)) {
-      mName = context.getString(R.string.actors);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO.equals(column)) {
-      mName = context.getString(R.string.additionalInfo);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_AGE_LIMIT.equals(column)) {
-      mName = context.getString(R.string.ageLimit);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_AGE_LIMIT_STRING.equals(column)) {
-      mName = context.getString(R.string.ageLimitString);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_CAMERA.equals(column)) {
-      mName = context.getString(R.string.camera);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_CATEGORIES.equals(column)) {
-      mName = context.getString(R.string.categories);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_CUSTOM_INFO.equals(column)) {
-      mName = context.getString(R.string.customInfo);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_CUT.equals(column)) {
-      mName = context.getString(R.string.cut);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_DESCRIPTION.equals(column)) {
-      mName = context.getString(R.string.description);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES.equals(column)) {
-      mName = context.getString(R.string.duration);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_ENDTIME.equals(column)) {
-      mName = context.getString(R.string.endtime);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT.equals(column)) {
-      mName = context.getString(R.string.episodeCount);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER.equals(column)) {
-      mName = context.getString(R.string.episodeNumber);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE.equals(column)) {
-      mName = context.getString(R.string.episodeTitle);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL.equals(column)) {
-      mName = context.getString(R.string.episodeTitleOriginal);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_GENRE.equals(column)) {
-      mName = context.getString(R.string.genre);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR.equals(column)) {
-      mName = context.getString(R.string.lastProductionYear);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_MODERATION.equals(column)) {
-      mName = context.getString(R.string.moderation);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_MUSIC.equals(column)) {
-      mName = context.getString(R.string.music);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME.equals(column)) {
-      mName = context.getString(R.string.nettoPlayTime);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_ORIGIN.equals(column)) {
-      mName = context.getString(R.string.origin);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_OTHER_PERSONS.equals(column)) {
-      mName = context.getString(R.string.otherPersons);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION.equals(column)) {
-      mName = context.getString(R.string.pictureDescription);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_PRODUCER.equals(column)) {
-      mName = context.getString(R.string.producer);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_PRODUCTION_FIRM.equals(column)) {
-      mName = context.getString(R.string.productionFirm);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_RATING.equals(column)) {
-      mName = context.getString(R.string.rating);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_REGIE.equals(column)) {
-      mName = context.getString(R.string.regie);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_REPETITION_FROM.equals(column)) {
-      mName = context.getString(R.string.repetitionFrom);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_REPETITION_ON.equals(column)) {
-      mName = context.getString(R.string.repetitionOn);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_SCRIPT.equals(column)) {
-      mName = context.getString(R.string.script);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_SERIES.equals(column)) {
-      mName = context.getString(R.string.series);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION.equals(column)) {
-      mName = context.getString(R.string.shortDescription);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_STARTTIME.equals(column)) {
-      mName = context.getString(R.string.startTime);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_TITLE.equals(column)) {
-      mName = context.getString(R.string.title);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL.equals(column)) {
-      mName = context.getString(R.string.titleOrginal);
-    }
-    else if(TvBrowserContentProvider.DATA_KEY_YEAR.equals(column)) {
-      mName = context.getString(R.string.year);
+
+    switch (column) {
+      case TvBrowserContentProvider.DATA_KEY_ACTORS:
+        mName = context.getString(R.string.actors);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO:
+        mName = context.getString(R.string.additionalInfo);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_AGE_LIMIT:
+        mName = context.getString(R.string.ageLimit);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_AGE_LIMIT_STRING:
+        mName = context.getString(R.string.ageLimitString);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_CAMERA:
+        mName = context.getString(R.string.camera);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_CATEGORIES:
+        mName = context.getString(R.string.categories);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_CUSTOM_INFO:
+        mName = context.getString(R.string.customInfo);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_CUT:
+        mName = context.getString(R.string.cut);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_DESCRIPTION:
+        mName = context.getString(R.string.description);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES:
+        mName = context.getString(R.string.duration);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_ENDTIME:
+        mName = context.getString(R.string.endtime);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_EPISODE_COUNT:
+        mName = context.getString(R.string.episodeCount);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_EPISODE_NUMBER:
+        mName = context.getString(R.string.episodeNumber);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE:
+        mName = context.getString(R.string.episodeTitle);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE_ORIGINAL:
+        mName = context.getString(R.string.episodeTitleOriginal);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_GENRE:
+        mName = context.getString(R.string.genre);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR:
+        mName = context.getString(R.string.lastProductionYear);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_MODERATION:
+        mName = context.getString(R.string.moderation);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_MUSIC:
+        mName = context.getString(R.string.music);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_NETTO_PLAY_TIME:
+        mName = context.getString(R.string.nettoPlayTime);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_ORIGIN:
+        mName = context.getString(R.string.origin);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_OTHER_PERSONS:
+        mName = context.getString(R.string.otherPersons);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_PICTURE_DESCRIPTION:
+        mName = context.getString(R.string.pictureDescription);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_PRODUCER:
+        mName = context.getString(R.string.producer);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_PRODUCTION_FIRM:
+        mName = context.getString(R.string.productionFirm);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_RATING:
+        mName = context.getString(R.string.rating);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_REGIE:
+        mName = context.getString(R.string.regie);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_REPETITION_FROM:
+        mName = context.getString(R.string.repetitionFrom);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_REPETITION_ON:
+        mName = context.getString(R.string.repetitionOn);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_SCRIPT:
+        mName = context.getString(R.string.script);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_SERIES:
+        mName = context.getString(R.string.series);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION:
+        mName = context.getString(R.string.shortDescription);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_STARTTIME:
+        mName = context.getString(R.string.startTime);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_TITLE:
+        mName = context.getString(R.string.title);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_TITLE_ORIGINAL:
+        mName = context.getString(R.string.titleOrginal);
+        break;
+      case TvBrowserContentProvider.DATA_KEY_YEAR:
+        mName = context.getString(R.string.year);
+        break;
     }
     
     if(mName == null) {
