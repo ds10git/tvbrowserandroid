@@ -551,16 +551,14 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
       
       toFormat = now.getTime();
     }
-    
-    StringBuilder timeString = new StringBuilder();
-    
-    timeString.append(timeFormat.format(fromFormat));
-    timeString.append(" ");
-    timeString.append(getString(R.string.favorite_time_to));
-    timeString.append(" ");
-    timeString.append(timeFormat.format(toFormat));
-    
-    mTime.setText(timeString.toString());
+
+    final String timeString = timeFormat.format(fromFormat) +
+      " " +
+      getString(R.string.favorite_time_to) +
+      " " +
+      timeFormat.format(toFormat);
+
+    mTime.setText(timeString);
   }
   
   private void handleDayView() {

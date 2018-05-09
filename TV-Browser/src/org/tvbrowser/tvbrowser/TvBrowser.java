@@ -3051,9 +3051,6 @@ public class TvBrowser extends AppCompatActivity {
     if(IOUtils.isDatabaseAccessible(TvBrowser.this)) {
       ContentResolver cr = getContentResolver();
 
-      StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
-      where.append("=1");
-
       LinearLayout main = (LinearLayout)getLayoutInflater().inflate(R.layout.channel_sort_list, getParentViewGroup(), false);
 
       Button sortAlphabetically = (Button)main.findViewById(R.id.channel_sort_alpabetically);
@@ -3071,7 +3068,7 @@ public class TvBrowser extends AppCompatActivity {
 
       final ArrayList<SortInterface> channelSource = new ArrayList<>();
 
-      Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+      Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
 
       try {
         if(IOUtils.prepareAccessFirst(channels)) {

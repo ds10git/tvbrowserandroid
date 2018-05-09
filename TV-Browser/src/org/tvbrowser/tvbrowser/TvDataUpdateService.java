@@ -3524,13 +3524,11 @@ public class TvDataUpdateService extends Service {
           }
           
           if(channelIdKey != null && groupInfo != null) {
-            final StringBuilder selection = new StringBuilder();
-            
-            selection.append(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID).append("='").append(channelIdKey).append("'");
-            selection.append(" AND ");
-            selection.append(TvBrowserContentProvider.GROUP_KEY_GROUP_ID).append(" IS ").append(((Integer)((Object[])groupInfo)[0]).intValue());
-            
-            final Cursor data = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, selection.toString(), null, null);
+            final String selection = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "='" + channelIdKey + "'" +
+              " AND " +
+              TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + ((Integer) ((Object[]) groupInfo)[0]).intValue();
+
+            final Cursor data = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, selection, null, null);
             
             try {
               if(IOUtils.prepareAccessFirst(data)) {
@@ -3661,15 +3659,13 @@ public class TvDataUpdateService extends Service {
                 }
 
                 if (channelIdKey != null && groupInfo != null) {
-                  final StringBuilder selection = new StringBuilder();
+                  final String selection = (TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID) + "='" + channelIdKey + "'" +
+                    " AND " +
+                    TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + ((Integer) ((Object[]) groupInfo)[0]).intValue() +
+                    " AND " +
+                    TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + endDateTime;
 
-                  selection.append(TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID).append("='").append(channelIdKey).append("'");
-                  selection.append(" AND ");
-                  selection.append(TvBrowserContentProvider.GROUP_KEY_GROUP_ID).append(" IS ").append(((Integer) ((Object[]) groupInfo)[0]).intValue());
-                  selection.append(" AND ");
-                  selection.append(TvBrowserContentProvider.DATA_KEY_STARTTIME).append("<=").append(endDateTime);
-
-                  final Cursor data = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, selection.toString(), null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
+                  final Cursor data = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, selection, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
 
                   try {
                     if (IOUtils.prepareAccess(data)) {

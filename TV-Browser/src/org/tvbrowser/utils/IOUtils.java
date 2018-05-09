@@ -1004,7 +1004,7 @@ public class IOUtils {
   }
   
   public static String getUniqueChannelKey(String groupKey, String channelKey) {
-    return new StringBuilder(groupKey.trim()).append("_##_").append(channelKey.trim()).toString();
+    return groupKey.trim() + "_##_" + channelKey.trim();
   }
   
   public static String[] getUniqueChannelKeyParts(String uniqueKey) {

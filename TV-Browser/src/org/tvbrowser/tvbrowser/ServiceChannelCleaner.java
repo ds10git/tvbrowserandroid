@@ -87,6 +87,6 @@ public class ServiceChannelCleaner extends Service {
   }
   
   private static String getChannelGroupKey(String channelKey, int groupKey) {
-    return new StringBuilder(channelKey).append(";").append(groupKey).toString();
+    return channelKey + ";" + groupKey;
   }
 }

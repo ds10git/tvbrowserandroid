@@ -62,11 +62,8 @@ public class FilterValuesKeyword extends FilterValues implements KeywordFilter {
 
   @Override
   public WhereClause getWhereClause(Context context) {
-    final StringBuilder where = new StringBuilder(" ");
-    
-    where.append(" AND ( ").append(mColumn).append(" LIKE \"%").append(mKeyword.replaceAll("\\s+OR\\s+", "%\" OR "+mColumn+" LIKE \"%").replaceAll("\\s+AND\\s+", "%\" AND "+mColumn+" LIKE \"%")).append("%\" ) ");
-    
-    return new WhereClause(where.toString(), null);
+
+    return new WhereClause(" " + " AND ( " + mColumn + " LIKE \"%" + mKeyword.replaceAll("\\s+OR\\s+", "%\" OR " + mColumn + " LIKE \"%").replaceAll("\\s+AND\\s+", "%\" AND " + mColumn + " LIKE \"%") + "%\" ) ", null);
   }
 
   @Override
