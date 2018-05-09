@@ -1183,7 +1183,7 @@ public class TvBrowserContentProvider extends ContentProvider {
         + VERSION_KEY_PICTURE0016_VERSION + " INTEGER, "
         + VERSION_KEY_PICTURE1600_VERSION + " INTEGER);";
     
-    private Context mContext;
+    private final Context mContext;
     
     TvBrowserDataBaseHelper(Context context, String name,
                             CursorFactory factory, int version) {

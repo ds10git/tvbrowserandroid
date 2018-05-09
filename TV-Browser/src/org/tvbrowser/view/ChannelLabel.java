@@ -22,12 +22,12 @@ import android.graphics.Canvas;
 import android.view.View;
 
 public class ChannelLabel extends View {
-  private String mChannelName;
+  private final String mChannelName;
   private String mMeasuredChannelName;
   private int mTextMeasuredWidth;
-  private int mOrderNumber;
+  private final int mOrderNumber;
   
-  private Bitmap mLogo;
+  private final Bitmap mLogo;
   
   public ChannelLabel(Context context, String channelName, Bitmap logo, int orderNumber) {
     super(context);

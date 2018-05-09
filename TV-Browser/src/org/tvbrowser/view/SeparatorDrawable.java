@@ -28,8 +28,8 @@ import android.graphics.drawable.Drawable;
 import android.support.v4.content.ContextCompat;
 
 public class SeparatorDrawable extends Drawable {
-  private Paint mLineColor = new Paint();
-  private Paint mDividerColor = new Paint();
+  private final Paint mLineColor = new Paint();
+  private final Paint mDividerColor = new Paint();
   
   public SeparatorDrawable(Context context) {
     updateColors(context);

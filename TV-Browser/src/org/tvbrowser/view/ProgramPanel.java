@@ -39,7 +39,7 @@ import android.view.View;
 
 public class ProgramPanel extends View {
   private Date mStartTime;
-  private long mEndTime;
+  private final long mEndTime;
   private String mTitle;
   private String mEpisode;
   private String mGenre;
@@ -49,7 +49,7 @@ public class ProgramPanel extends View {
 
   private boolean mIsExpired;
   
-  private int mChannelID;
+  private final int mChannelID;
   
   private Rect mStartTimeBounds = new Rect();
   private int mBigRowCount;
@@ -429,9 +429,9 @@ public class ProgramPanel extends View {
   }
   
   private static final class ColorEntry {
-    private Integer mColor;
-    private String mText;
-    private boolean mNeedsSeparator;
+    private final Integer mColor;
+    private final String mText;
+    private final boolean mNeedsSeparator;
     
     ColorEntry(Integer color, String text, boolean needsSeparator) {
       mColor = color;
@@ -457,7 +457,7 @@ public class ProgramPanel extends View {
   }
   
   private static final class ColorLine {
-    private ArrayList<ColorEntry> mEntryList;
+    private final ArrayList<ColorEntry> mEntryList;
     
     ColorLine() {
       mEntryList = new ArrayList<ProgramPanel.ColorEntry>();

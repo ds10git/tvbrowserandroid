@@ -298,7 +298,7 @@ public class TvBrowser extends AppCompatActivity {
   private int mInfoType;
 
   private static final class HandlerWrapper {
-    private Handler mHandler;
+    private final Handler mHandler;
 
     public HandlerWrapper(Handler handler) {
       mHandler = handler;
@@ -2317,14 +2317,14 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private static final class ChannelSelection {
-    private int mChannelID;
-    private int mCategory;
-    private Bitmap mChannelLogo;
-    private String mCountry;
-    private String mName;
+    private final int mChannelID;
+    private final int mCategory;
+    private final Bitmap mChannelLogo;
+    private final String mCountry;
+    private final String mName;
     private boolean mIsSelected;
-    private boolean mWasSelected;
-    private boolean mIsEpgDonateChannel;
+    private final boolean mWasSelected;
+    private final boolean mIsEpgDonateChannel;
 
     ChannelSelection(int channelID, String name, int category, String country, Bitmap channelLogo, boolean isSelected, boolean isEpgDonateChannel) {
       mChannelID = channelID;
@@ -2489,7 +2489,7 @@ public class TvBrowser extends AppCompatActivity {
    * @author René Mach
    */
   private final static class Country {
-    Locale mLocale;
+    final Locale mLocale;
 
     Country(Locale locale) {
       mLocale = locale;
@@ -2906,12 +2906,12 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private static class ChannelSort implements SortInterface {
-    private String mName;
-    private int mKey;
+    private final String mName;
+    private final int mKey;
     private int mSortNumber;
-    private int mOldSortNumber;
-    private Bitmap mChannelLogo;
-    private boolean mIsEpgDonateChannel;
+    private final int mOldSortNumber;
+    private final Bitmap mChannelLogo;
+    private final boolean mIsEpgDonateChannel;
 
     ChannelSort(int key, String name, int sortNumber, Bitmap channelLogo, String dataServiceId) {
       mKey = key;
@@ -4639,7 +4639,7 @@ public class TvBrowser extends AppCompatActivity {
     final static int LINE_TYPE = 1;
 
     private int mWidth;
-    private int mSpanType;
+    private final int mSpanType;
 
     SpecialSpan(int type) {
       mSpanType = type;
@@ -5430,7 +5430,7 @@ public class TvBrowser extends AppCompatActivity {
    * of the sections/tabs/pages.
    */
   class SectionsPagerAdapter extends FragmentPagerAdapter {
-    SparseArrayCompat<Fragment> registeredFragments = new SparseArrayCompat<Fragment>();
+    final SparseArrayCompat<Fragment> registeredFragments = new SparseArrayCompat<Fragment>();
 
     SectionsPagerAdapter(FragmentManager fm) {
       super(fm);
@@ -5609,10 +5609,10 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private static final class ProgramsListState {
-    int mDayPos;
-    int mChannelID;
-    int mFilterPos;
-    int mScrollPos;
+    final int mDayPos;
+    final int mChannelID;
+    final int mFilterPos;
+    final int mScrollPos;
 
     ProgramsListState(int dayPos, int channelID, int filterPos, int scrollPos) {
       mDayPos = dayPos;

@@ -1544,11 +1544,11 @@ public class UiUtils {
   }
     
   private static class RunningDrawable extends Drawable {
-    private Paint mBase;
-    private Paint mSecond;
-    private long mStartTime;
-    private long mEndTime;
-    private boolean mVertical;
+    private final Paint mBase;
+    private final Paint mSecond;
+    private final long mStartTime;
+    private final long mEndTime;
+    private final boolean mVertical;
     
     RunningDrawable(Paint base, Paint second, long startTime, long endTime, boolean vertical) {
       mBase = base;
@@ -2580,8 +2580,8 @@ public class UiUtils {
   
   
   private static final class AdapterCategory {
-    int mIndex;
-    Spannable mName;
+    final int mIndex;
+    final Spannable mName;
     boolean mSelected;
     
     AdapterCategory(int index, Spannable name, boolean selected) {
@@ -2623,9 +2623,9 @@ public class UiUtils {
   }
   
   private static final class AdapterChannel {
-    int mChannelID;
-    String mName;
-    Bitmap mChannelLogo;
+    final int mChannelID;
+    final String mName;
+    final Bitmap mChannelLogo;
     boolean mSelected; 
     
     AdapterChannel(int channelID, String name, Bitmap channelLogo, boolean selected) {
@@ -2669,11 +2669,11 @@ public class UiUtils {
   }
   
   private static final class ActorColumnSpan implements LeadingMarginSpan {
-    private String[] mActorParts;
-    private int mMargin;
+    private final String[] mActorParts;
+    private final int mMargin;
     private int mFirstBaseline;
     private boolean mHighlight;
-    private int mHighlightColor;
+    private final int mHighlightColor;
     
     ActorColumnSpan(String actor, int leadingMargin, ArrayList<FavoriteTypePattern> patternList, int color) {
       mHighlight = false;
@@ -2749,8 +2749,8 @@ public class UiUtils {
   }
   
   static final class FavoriteTypePattern {
-    private int mType;
-    private Pattern mPattern;
+    private final int mType;
+    private final Pattern mPattern;
     
     FavoriteTypePattern(int type, Pattern pattern) {
       mType = type;

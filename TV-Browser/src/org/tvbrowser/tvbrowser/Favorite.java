@@ -103,7 +103,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   
   private static Hashtable<Long, boolean[]> DATA_REFRESH_TABLE = null;
   
-  private long mFavoriteId;
+  private final long mFavoriteId;
   
   public Favorite() {
     this(null, "", KEYWORD_ONLY_TITLE_TYPE, true, VALUE_RESTRICTION_TIME_DEFAULT, VALUE_RESTRICTION_TIME_DEFAULT, null, null, null, VALUE_RESTRICTION_TIME_DEFAULT, VALUE_RESTRICTION_TIME_DEFAULT, null, null);

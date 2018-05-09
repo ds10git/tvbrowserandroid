@@ -157,7 +157,7 @@ public class LoaderUpdater {
   }
   
   public static final class CallbackObjects {
-    private HashSet<CallbackObject<?>> mCallbackObjects;
+    private final HashSet<CallbackObject<?>> mCallbackObjects;
     
     public CallbackObjects(CallbackObject<?>... initialObjects) {
       mCallbackObjects = new HashSet<LoaderUpdater.CallbackObject<?>>();

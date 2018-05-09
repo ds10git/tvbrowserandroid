@@ -978,7 +978,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   private static final class FavoriteSpinnerEntry implements Comparable<FavoriteSpinnerEntry> {
     private String mName;
     private WhereClause mEntryWhereClause;
-    private Favorite mFavorite;
+    private final Favorite mFavorite;
     
     FavoriteSpinnerEntry(String name, WhereClause whereClause) {
       mName = name;

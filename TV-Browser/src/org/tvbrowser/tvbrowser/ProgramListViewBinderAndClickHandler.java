@@ -48,11 +48,11 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBinder{
-  private Activity mActivity;
-  private int mDefaultTextColor;
-  private ShowDateInterface mDateShowInterface;
-  private float mZoom;
-  private Handler mHandler;
+  private final Activity mActivity;
+  private final int mDefaultTextColor;
+  private final ShowDateInterface mDateShowInterface;
+  private final float mZoom;
+  private final Handler mHandler;
   
   public ProgramListViewBinderAndClickHandler(Activity act, ShowDateInterface showDateInterface, Handler handler) {
     mActivity = act;

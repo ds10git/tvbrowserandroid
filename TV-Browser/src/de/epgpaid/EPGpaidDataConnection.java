@@ -50,7 +50,7 @@ public class EPGpaidDataConnection {
   private static final String REQUEST_METHOD_POST = "POST";
   
   private HttpURLConnection mHttpConnection;
-  private Authenticator mAuthenticator;
+  private final Authenticator mAuthenticator;
   
   public EPGpaidDataConnection() {
     if(!(CookieHandler.getDefault() instanceof CookieManager)) {

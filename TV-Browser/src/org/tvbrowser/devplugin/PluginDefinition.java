@@ -59,9 +59,9 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   private static final String XML_ELEMENT_SERVICES = "servicelist";
   private static final String XML_ELEMENT_SERVICE = "service";
   
-  private String mPackageName;
-  private String mVersion;
-  private String mAuthor;
+  private final String mPackageName;
+  private final String mVersion;
+  private final String mAuthor;
   
   private String mNameDe;
   private String mNameEn;
@@ -69,11 +69,11 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   private String mDescriptionDe;
   private String mDescriptionEn;
   
-  private HashMap<String,String> mUnknownValues;
+  private final HashMap<String,String> mUnknownValues;
   
-  private int mMinApiVersion;
+  private final int mMinApiVersion;
   
-  private boolean mIsOnGooglePlay;
+  private final boolean mIsOnGooglePlay;
   private boolean mIsUpdate;
   
   private String[] mServices;

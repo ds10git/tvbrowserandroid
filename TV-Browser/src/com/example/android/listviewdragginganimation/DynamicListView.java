@@ -142,7 +142,7 @@ public class DynamicListView extends ListView {
      * Listens for long clicks on any items in the listview. When a cell has
      * been selected, the hover cell is created and set up.
      */
-    private AdapterView.OnItemLongClickListener mOnItemLongClickListener =
+    private final AdapterView.OnItemLongClickListener mOnItemLongClickListener =
             new AdapterView.OnItemLongClickListener() {
                 public boolean onItemLongClick(AdapterView<?> arg0, View arg1, int pos, long id) {
                     mTotalOffset = 0;
@@ -551,7 +551,7 @@ public class DynamicListView extends ListView {
      * scrolling takes place, the listview continuously checks if new cells became visible
      * and determines whether they are potential candidates for a cell swap.
      */
-    private AbsListView.OnScrollListener mScrollListener = new AbsListView.OnScrollListener () {
+    private final AbsListView.OnScrollListener mScrollListener = new AbsListView.OnScrollListener () {
 
         private int mPreviousFirstVisibleItem = -1;
         private int mPreviousVisibleItemCount = -1;

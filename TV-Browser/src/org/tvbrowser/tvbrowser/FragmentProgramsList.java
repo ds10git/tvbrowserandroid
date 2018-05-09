@@ -1051,10 +1051,10 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   }
   
   private static final class ChannelSelection {
-    private int mID;
-    private String mOrderNumber;
-    private String mName;
-    private Drawable mLogo;
+    private final int mID;
+    private final String mOrderNumber;
+    private final String mName;
+    private final Drawable mLogo;
     
     ChannelSelection(int ID, String orderNumber, String name, Drawable logo) {
       mID = ID;

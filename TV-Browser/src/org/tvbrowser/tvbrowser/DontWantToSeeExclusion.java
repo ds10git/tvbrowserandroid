@@ -25,8 +25,8 @@ import java.util.regex.Pattern;
  */
 public class DontWantToSeeExclusion {
   private String mExclusion;
-  private Pattern mPrecompiledPattern;
-  private boolean mIsCaseSensitive;
+  private final Pattern mPrecompiledPattern;
+  private final boolean mIsCaseSensitive;
   
   public DontWantToSeeExclusion(String exclusion) {
     String[] parts = exclusion.split(";;");

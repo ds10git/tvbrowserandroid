@@ -2065,14 +2065,14 @@ public class TvDataUpdateService extends Service {
   }
   
   private class GroupInfo {
-    private String[] mUrlArr;
-    private int mUniqueGroupID;
-    private String mFileName;
-    private String mUrlFileName;
-    private String mMirrorFileName;
-    private String mMirrorUrlFileName;
+    private final String[] mUrlArr;
+    private final int mUniqueGroupID;
+    private final String mFileName;
+    private final String mUrlFileName;
+    private final String mMirrorFileName;
+    private final String mMirrorUrlFileName;
     
-    private String mDataServiceId;
+    private final String mDataServiceId;
     
     GroupInfo(String dataServiceId, String[] urls, String urlFileName, String fileName, String mirrorUrlFileName, String mirrorFileName, int uniqueGroupID) {
       mDataServiceId = dataServiceId;
@@ -2913,8 +2913,8 @@ public class TvDataUpdateService extends Service {
   }
     
   private static final class MirrorDownload {
-    private String mDownloadURL;
-    private String mFileName;
+    private final String mDownloadURL;
+    private final String mFileName;
     
     MirrorDownload(String downloadURL, String fileName) {
       mDownloadURL = downloadURL;
@@ -4148,8 +4148,8 @@ public class TvDataUpdateService extends Service {
   }
   
   private class UrlFileHolder {
-    private File mDownloadFile;
-    private String mDownloadURL;
+    private final File mDownloadFile;
+    private final String mDownloadURL;
     
     UrlFileHolder(File downloadFile, String downloadURL) {
       mDownloadFile = downloadFile;
@@ -4192,9 +4192,9 @@ public class TvDataUpdateService extends Service {
   }
   
   private class DataInfo {
-    private byte mFileVersion;
-    private byte mDataVersion;
-    private short mFrameCount;
+    private final byte mFileVersion;
+    private final byte mDataVersion;
+    private final short mFrameCount;
     
     DataInfo(byte fileVersion, byte dataVersion, short frameCount) {
       mFileVersion = fileVersion;
@@ -4983,17 +4983,17 @@ public class TvDataUpdateService extends Service {
    * @author René Mach
    */
   private class ChannelUpdate {
-    private ArrayList<String> mUrlList;
-    private long mChannelID;
-    private String mTimeZone;
-    private long mDate;
+    private final ArrayList<String> mUrlList;
+    private final long mChannelID;
+    private final String mTimeZone;
+    private final long mDate;
     private HashMap<String, ContentValues> mContentValueList; 
     private HashMap<String, Byte> mVersionMap;
     private ArrayList<ContentValues> mInsertValuesList;
     private LongSparseArray<ContentValues> mUpdateValueMap;
     private boolean mContainsPicture;
     private boolean mContainsDescription;
-    private DataHandler mDataHandler;
+    private final DataHandler mDataHandler;
     
     /**
      * 
@@ -5477,11 +5477,11 @@ public class TvDataUpdateService extends Service {
    */
   @SuppressLint("UseSparseArrays")
   private static class ChannelFrame {
-    private String mCountry;
-    private String mChannelID;
-    private int mDayCount;
+    private final String mCountry;
+    private final String mChannelID;
+    private final int mDayCount;
     
-    private HashMap<Integer,int[]> mLevelVersions;
+    private final HashMap<Integer,int[]> mLevelVersions;
     
     ChannelFrame(String country, String channelID, int dayCount) {
       mCountry = country;
@@ -5527,7 +5527,7 @@ public class TvDataUpdateService extends Service {
     /**
      * List with available ChannelFrames for the server.
      */
-    private ArrayList<ChannelFrame> mFrameList;
+    private final ArrayList<ChannelFrame> mFrameList;
     
     EPGfreeSummary() {
       mFrameList = new ArrayList<ChannelFrame>();
@@ -5578,9 +5578,9 @@ public class TvDataUpdateService extends Service {
   private static final class EPGdonateSummary extends Properties implements Summary {}
   
   private static final class EPGpaidDownloadFile {
-    private int mVersion;
-    private int mOldVersion;
-    private String mFileName;
+    private final int mVersion;
+    private final int mOldVersion;
+    private final String mFileName;
     
     private EPGpaidDownloadFile(int version, int oldVersion, String fileName) {
       mVersion = version;
@@ -5610,9 +5610,9 @@ public class TvDataUpdateService extends Service {
   }
 
   private static final class QueryChannelCreator {
-    private String mGroupId;
-    private HashSet<String> mIdSet;
-    private StringBuilder mQuery;
+    private final String mGroupId;
+    private final HashSet<String> mIdSet;
+    private final StringBuilder mQuery;
 
     private QueryChannelCreator(final String groupId) {
       mGroupId = groupId;

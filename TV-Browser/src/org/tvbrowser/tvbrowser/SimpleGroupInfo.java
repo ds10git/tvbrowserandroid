@@ -17,8 +17,8 @@
 package org.tvbrowser.tvbrowser;
 
 final class SimpleGroupInfo {
-  public String mDataServiceID;
-  public String mGroupID;
+  public final String mDataServiceID;
+  public final String mGroupID;
   
   public SimpleGroupInfo(String dataServiceID, String groupID) {
     mDataServiceID = dataServiceID;

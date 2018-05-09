@@ -269,7 +269,7 @@ public class FragmentProgramTable extends Fragment {
   }
 
   
-  private Handler handler = new Handler();
+  private final Handler handler = new Handler();
   
   @Override
   public void onResume() {

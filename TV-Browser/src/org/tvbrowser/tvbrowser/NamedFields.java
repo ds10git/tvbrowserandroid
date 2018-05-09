@@ -15,7 +15,7 @@ public final class NamedFields {
   }; 
   
   private String mName;
-  private String mColumn;
+  private final String mColumn;
   
   public NamedFields(Context context, String column) {
     mColumn = column;

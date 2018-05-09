@@ -24,8 +24,8 @@ class DateSelection {
   public static final int VALUE_DATE_ALL = -1;
   public static final int VALUE_DATE_TODAY_TOMORROW = -2;
   
-  private long mTime;
-  private Context mContext;
+  private final long mTime;
+  private final Context mContext;
   
   public DateSelection(long time, Context context) {
     mTime = time;

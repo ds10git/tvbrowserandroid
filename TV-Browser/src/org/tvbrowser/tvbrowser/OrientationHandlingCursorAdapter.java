@@ -44,8 +44,8 @@ class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
   private View.OnClickListener mChannelSwitchListener;
   private View.OnCreateContextMenuListener mContextMenuListener;
   private AdapterView.AdapterContextMenuInfo mContextMenuInfo;
-  private Context mContext;
-  private Handler mHandler;
+  private final Context mContext;
+  private final Handler mHandler;
   
   public OrientationHandlingCursorAdapter(final Context context, int layout, Cursor c, String[] from, int[] to, int flags, boolean handleClicks, Handler handler) {
     super(context, layout, c, from, to, flags);

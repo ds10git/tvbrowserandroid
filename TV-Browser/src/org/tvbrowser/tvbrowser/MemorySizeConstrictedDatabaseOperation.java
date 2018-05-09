@@ -42,13 +42,13 @@ class MemorySizeConstrictedDatabaseOperation {
   private ArrayList<ContentValues> mInsertList;
   private ArrayList<ContentProviderOperation> mUpdateList;
   
-  private Uri mInsertUri;
+  private final Uri mInsertUri;
   private int mMinOperationDivider;
-  private int mOperationDivider;
+  private final int mOperationDivider;
   
   private boolean mOperationsAvailable;
   private boolean mOperationsAdded;
-  private AtomicBoolean mSuccess;
+  private final AtomicBoolean mSuccess;
   
   public MemorySizeConstrictedDatabaseOperation(Context context, Uri insertUri) {
     this(context,insertUri,1);

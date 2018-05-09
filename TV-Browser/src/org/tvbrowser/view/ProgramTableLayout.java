@@ -23,7 +23,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 public abstract class ProgramTableLayout extends ViewGroup {
-  private ArrayList<Integer> mChannelIDsOrdered;
+  private final ArrayList<Integer> mChannelIDsOrdered;
   
   ProgramTableLayout(Context context, ArrayList<Integer> channelIDsOrdered) {
     super(context);

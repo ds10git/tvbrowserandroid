@@ -24,7 +24,7 @@ import android.database.CursorWrapper;
 class FilterCursorWrapper extends CursorWrapper {
   private Integer[] filterMap = null;
   private int mPos = -1;
-  private Cursor mCursor;
+  private final Cursor mCursor;
 
   @Override
   public int getCount() { 

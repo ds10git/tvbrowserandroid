@@ -60,12 +60,12 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
   }
 
   class ImportantProgramsRemoteViewsFactory implements RemoteViewsFactory {
-    private Context mContext;
+    private final Context mContext;
     private Cursor mCursor;
     private HashMap<String, Integer> mMarkingColumsIndexMap;
     private PendingIntent mPendingUpdate;
     private PendingIntent mPendingRunning;
-    private int mAppWidgetId;
+    private final int mAppWidgetId;
     
     private int mIdIndex;
     private int mStartTimeIndex;

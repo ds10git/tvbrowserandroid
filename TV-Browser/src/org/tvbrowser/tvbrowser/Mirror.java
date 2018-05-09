@@ -36,8 +36,8 @@ import org.tvbrowser.utils.IOUtils;
  * @author René Mach
  */
 public class Mirror implements Comparable<Mirror> {
-  private String mUrl;
-  private int mWeight;
+  private final String mUrl;
+  private final int mWeight;
   
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
   

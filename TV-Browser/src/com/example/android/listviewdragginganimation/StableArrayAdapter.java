@@ -29,7 +29,7 @@ public class StableArrayAdapter<T> extends ArrayAdapter<T> {
 
     private final int INVALID_ID = -1;
 
-    private HashMap<T, Integer> mIdMap = new HashMap<T, Integer>();
+    private final HashMap<T, Integer> mIdMap = new HashMap<T, Integer>();
 
     public StableArrayAdapter(Context context, int textViewResourceId, List<T> objects) {
         super(context, textViewResourceId, objects);

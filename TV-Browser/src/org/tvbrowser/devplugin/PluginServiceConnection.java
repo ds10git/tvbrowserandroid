@@ -47,9 +47,9 @@ import android.text.style.ImageSpan;
  */
 public class PluginServiceConnection implements ServiceConnection, Comparable<PluginServiceConnection> {
   private Plugin mPlugin;
-  private String mPackageId;
-  private String mPluginId;
-  private Context mContext;
+  private final String mPackageId;
+  private final String mPluginId;
+  private final Context mContext;
   
   private String mPluginName;
   private String mPluginVersion;
@@ -61,7 +61,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   
   private Runnable mBindCallback;
   
-  private ArrayList<Context> mBindContextList;
+  private final ArrayList<Context> mBindContextList;
   
   public PluginServiceConnection(String packageId, String id, Context context) {
     mPackageId = packageId;

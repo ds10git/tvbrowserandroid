@@ -53,9 +53,9 @@ import android.widget.ListView;
 public class ActivityTvBrowserSearchResults extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, MarkingsUpdateListener {
   private SimpleCursorAdapter mProgramsListAdapter;
 
-  private static String QUERY_EXTRA_KEY = "QUERY_EXTRA_KEY";
-  private static String QUERY_EXTRA_ID_KEY = "QUERY_EXTRA_ID_KEY";
-  public static String QUERY_EXTRA_EPISODE_KEY = "QUERY_EXTRA_EPISODE_KEY";
+  private static final String QUERY_EXTRA_KEY = "QUERY_EXTRA_KEY";
+  private static final String QUERY_EXTRA_ID_KEY = "QUERY_EXTRA_ID_KEY";
+  public static final String QUERY_EXTRA_EPISODE_KEY = "QUERY_EXTRA_EPISODE_KEY";
   
   private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
   
