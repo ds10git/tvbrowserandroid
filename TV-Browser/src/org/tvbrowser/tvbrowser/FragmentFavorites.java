@@ -193,8 +193,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
   
   private void startUpdateThread(final boolean updateFavoritesMenu, final boolean editDeleteEnabled) {
-    mCallback.addOrReplace(new LoaderUpdater.CallbackObject<Boolean>(KEY_UPDATE_FAVORITES_MENU, updateFavoritesMenu));
-    mCallback.addOrReplace(new LoaderUpdater.CallbackObject<Boolean>(KEY_EDIT_DELETE_ENABLED, editDeleteEnabled));
+    mCallback.addOrReplace(new LoaderUpdater.CallbackObject<>(KEY_UPDATE_FAVORITES_MENU, updateFavoritesMenu));
+    mCallback.addOrReplace(new LoaderUpdater.CallbackObject<>(KEY_EDIT_DELETE_ENABLED, editDeleteEnabled));
     
     mLoaderUpdate.startUpdate(mCallback);
   }
@@ -223,7 +223,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     
     mWhereClause = new WhereClause();
     
-    mFavoriteList = new ArrayList<FavoriteSpinnerEntry>();
+    mFavoriteList = new ArrayList<>();
     
     SharedPreferences prefs = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getActivity());
     
@@ -310,7 +310,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     
     addMarkingSelections();
     
-    final AtomicReference<Object> backgroundRef = new AtomicReference<Object>(null);
+    final AtomicReference<Object> backgroundRef = new AtomicReference<>(null);
     
     TypedValue a = new TypedValue();
     getActivity().getTheme().resolveAttribute(android.R.attr.windowBackground, a, true);

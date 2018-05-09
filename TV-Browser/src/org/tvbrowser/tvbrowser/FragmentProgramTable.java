@@ -247,8 +247,8 @@ public class FragmentProgramTable extends Fragment {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-    mShowInfos = new ArrayList<Integer>();
-    mMarkingsMap = new HashMap<String, Integer>();
+    mShowInfos = new ArrayList<>();
+    mMarkingsMap = new HashMap<>();
     
     mUpdatingRunningPrograms = false;
     mUpdatingLayout = false;
@@ -520,7 +520,7 @@ public class FragmentProgramTable extends Fragment {
                 int statTimeColumnIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
                 int endTimeColumnIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
                 
-                HashMap<String, Integer> markingColumsIndexMap = new HashMap<String, Integer>();
+                HashMap<String, Integer> markingColumsIndexMap = new HashMap<>();
                 
                 for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
                   int index = c.getColumnIndex(column);
@@ -539,7 +539,7 @@ public class FragmentProgramTable extends Fragment {
                     long startTime = c.getLong(statTimeColumnIndex);
                     long endTime = c.getLong(endTimeColumnIndex);
                     
-                    ArrayList<String> markedColumns = new ArrayList<String>();
+                    ArrayList<String> markedColumns = new ArrayList<>();
                     
                     for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
                       Integer index = markingColumsIndexMap.get(column);
@@ -685,7 +685,7 @@ public class FragmentProgramTable extends Fragment {
           System.arraycopy(TvBrowserContentProvider.MARKING_COLUMNS, 0, projection, 8 + infoCategories.length, TvBrowserContentProvider.MARKING_COLUMNS.length);
           
           LinearLayout channelBar = (LinearLayout)programTable.findViewById(R.id.program_table_channel_bar);
-          ArrayList<Integer> channelIDsOrdered = new ArrayList<Integer>();
+          ArrayList<Integer> channelIDsOrdered = new ArrayList<>();
           
           while(channels.moveToNext()) {
             channelIDsOrdered.add(channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
@@ -1083,7 +1083,7 @@ public class FragmentProgramTable extends Fragment {
     
     layout.addView(panel);
     
-    ArrayList<String> markedColumns = new ArrayList<String>();
+    ArrayList<String> markedColumns = new ArrayList<>();
     
     for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
       Integer value = mMarkingsMap.get(column);

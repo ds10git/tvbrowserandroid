@@ -161,7 +161,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   }
     
   public static PluginDefinition[] loadAvailablePluginDefinitions(String url) {
-    ArrayList<PluginDefinition> pluginList = new ArrayList<PluginDefinition>();
+    ArrayList<PluginDefinition> pluginList = new ArrayList<>();
     
     InputStreamReader in = null;
         
@@ -176,7 +176,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
       String tagName = null;
       PluginDefinition current = null;
       int event = parser.getEventType();
-      ArrayList<String> serviceList = new ArrayList<String>();
+      ArrayList<String> serviceList = new ArrayList<>();
       
       while(event != XmlPullParser.END_DOCUMENT) {
         switch(parser.getEventType()) {

@@ -96,8 +96,8 @@ public class ProgramUtils {
   }
   
   public static Program[] createProgramsFromDataCursor(Context context, Cursor cursor) {
-    ArrayList<Program> programsList = new ArrayList<Program>();
-    SparseArrayCompat<Channel> channelMap = new SparseArrayCompat<Channel>();
+    ArrayList<Program> programsList = new ArrayList<>();
+    SparseArrayCompat<Channel> channelMap = new SparseArrayCompat<>();
     
     if(cursor != null && !cursor.isClosed() && cursor.moveToFirst() && cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME) != -1) {
       Calendar test = Calendar.getInstance();
@@ -544,7 +544,7 @@ public class ProgramUtils {
         mMarkingsListener.clear();
       }
       else {
-        mMarkingsListener = new ArrayList<MarkingsUpdateListener>();
+        mMarkingsListener = new ArrayList<>();
       }
       
       mRefreshReceiver = new BroadcastReceiver() {

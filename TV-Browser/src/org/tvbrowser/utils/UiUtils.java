@@ -159,7 +159,7 @@ public class UiUtils {
   public static final int I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR_KEY = 8;
   
   static {
-    VALUE_MAP = new HashMap<String, Integer>();
+    VALUE_MAP = new HashMap<>();
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_ACTORS, R.id.detail_actors);
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_REGIE, R.id.detail_regie);
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_CUSTOM_INFO, R.id.detail_custom);
@@ -334,7 +334,7 @@ public class UiUtils {
                   final int favoriteMatchHighlightColor = PrefUtils.getIntValue(R.string.PREF_DETAIL_HIGHLIGHT_COLOR, ContextCompat.getColor(context, R.color.pref_detail_highlight_color_default));
                   
                   final Favorite[] markedFromFavorites = Favorite.getFavoritesForUniqueId(context, id);
-                  final ArrayList<FavoriteTypePattern> patternList = new ArrayList<FavoriteTypePattern>();
+                  final ArrayList<FavoriteTypePattern> patternList = new ArrayList<>();
                   final BackgroundColorSpan backgroundColorSpan = new BackgroundColorSpan(favoriteMatchHighlightColor);
                   
                   if(markedFromFavorites.length > 0) {
@@ -573,7 +573,7 @@ public class UiUtils {
                   boolean showEpgPaidInfo = PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_DESCRIPTION_MISSING_INFO, R.bool.pref_epgpaid_description_missing_default);
                   
                   if(showEpgPaidInfo) {
-                    final Set<String> channelIds = PrefUtils.getStringSetValue(R.string.PREF_EPGPAID_DATABASE_CHANNEL_IDS, new HashSet<String>());
+                    final Set<String> channelIds = PrefUtils.getStringSetValue(R.string.PREF_EPGPAID_DATABASE_CHANNEL_IDS, new HashSet<>());
                     
                     showEpgPaidInfo = channelIds.contains(String.valueOf(channelID));
                     
@@ -1138,7 +1138,7 @@ public class UiUtils {
     if(IOUtils.isDatabaseAccessible(activity)) {
       String title = null;
       String episode = null;  
-      ArrayList<String> markedColumns = new ArrayList<String>();
+      ArrayList<String> markedColumns = new ArrayList<>();
       Cursor info = null;
       
       try {
@@ -1178,7 +1178,7 @@ public class UiUtils {
           final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
           builder.setTitle(R.string.dialog_edit_favorite_select_title);
           
-          final ArrayList<String> items = new ArrayList<String>();
+          final ArrayList<String> items = new ArrayList<>();
           
           for(Favorite favorite : exludeFavorites) {
             items.add(favorite.getName());
@@ -1261,7 +1261,7 @@ public class UiUtils {
                 String key = activity.getResources().getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES);
                 Set<String> dontWantToSeeSet = PreferenceManager.getDefaultSharedPreferences(activity).getStringSet(key, null);
                 
-                HashSet<String> newDontWantToSeeSet = new HashSet<String>();
+                HashSet<String> newDontWantToSeeSet = new HashSet<>();
                             
                 String exclusionText = exclusion.getText().toString().trim();
                 boolean caseSensitiveValue = caseSensitive.isChecked();
@@ -1292,7 +1292,7 @@ public class UiUtils {
                       NotificationManager notification = (NotificationManager)applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
                       notification.notify(notifyID, builder.build());
                       
-                      ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+                      ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
                       String title = null;
                       
                       Cursor c = null;
@@ -1393,8 +1393,8 @@ public class UiUtils {
           
           Set<String> exclusionValues = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
           //ArrayList<>
-          HashSet<String> newExclusionSet = new HashSet<String>();
-          final ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<DontWantToSeeExclusion>();
+          HashSet<String> newExclusionSet = new HashSet<>();
+          final ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<>();
           
           for(String exclusion : exclusionValues) {
             if(!filter(title, new DontWantToSeeExclusion(exclusion))) {
@@ -1422,7 +1422,7 @@ public class UiUtils {
               NotificationManager notification = (NotificationManager)applicationContext.getSystemService(Context.NOTIFICATION_SERVICE);
               notification.notify(notifyID, builder.build());
               
-              ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+              ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
               Cursor c = null;
               
               try {
@@ -1629,7 +1629,7 @@ public class UiUtils {
   
   private static LayerDrawable getMarkingsDrawable(Context context, Cursor cursor, long startTime, long endTime, String[] markedColumns, boolean vertical) {
     if(markedColumns == null && cursor != null) {
-      ArrayList<String> markedColumnList = new ArrayList<String>();
+      ArrayList<String> markedColumnList = new ArrayList<>();
       
       for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
         int index = cursor.getColumnIndex(column);
@@ -1661,7 +1661,7 @@ public class UiUtils {
       base = null;
     }
     
-    final ArrayList<Drawable> draw = new ArrayList<Drawable>();
+    final ArrayList<Drawable> draw = new ArrayList<>();
     
     if(base != null) {
       RunningDrawable running = new RunningDrawable(base, second, startTime, endTime, vertical);
@@ -2250,7 +2250,7 @@ public class UiUtils {
       builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
         @Override
         public void onClick(DialogInterface dialog, int which) {
-          ArrayList<Integer> channelIDList = new ArrayList<Integer>();
+          ArrayList<Integer> channelIDList = new ArrayList<>();
           boolean allSelected = true;
           
           for(int i = 0; i < channelAdapter.getCount(); i++) {
@@ -2420,7 +2420,7 @@ public class UiUtils {
     builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
       @Override
       public void onClick(DialogInterface dialog, int which) {
-        ArrayList<Integer> channelIDList = new ArrayList<Integer>();
+        ArrayList<Integer> channelIDList = new ArrayList<>();
         boolean allSelected = true;
         
         for(int i = 0; i < categoryAdapter.getCount(); i++) {
@@ -2510,7 +2510,7 @@ public class UiUtils {
     nameInput.setText(keywordFilter.getName());
     keywordInput.setText(keywordFilter.getKeyword());
     
-    final ArrayAdapter<NamedFields> columnSelectionAdatper = new ArrayAdapter<NamedFields>(context, android.R.layout.simple_list_item_1);
+    final ArrayAdapter<NamedFields> columnSelectionAdatper = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1);
     columnSelection.setAdapter(columnSelectionAdatper);
     
     for(int i = 0; i < TvBrowserContentProvider.TEXT_SEARCHABLE_COLUMN_ARRAY.length; i++) {

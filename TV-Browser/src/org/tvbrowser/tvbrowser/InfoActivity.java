@@ -75,7 +75,7 @@ public class InfoActivity extends AppCompatActivity {
       final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(InfoActivity.this);
       final int appWidgetId = intent.getIntExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, AppWidgetManager.INVALID_APPWIDGET_ID);
       
-      final ArrayList<Integer> values = new ArrayList<Integer>();
+      final ArrayList<Integer> values = new ArrayList<>();
       
       int[] defaultValues = getResources().getIntArray(R.array.time_button_defaults);
       
@@ -125,7 +125,7 @@ public class InfoActivity extends AppCompatActivity {
         }
       }
       
-      ArrayList<String> formatedTimes = new ArrayList<String>();
+      ArrayList<String> formatedTimes = new ArrayList<>();
       formatedTimes.add(getString(R.string.button_now));
       
       if(hasNext) {

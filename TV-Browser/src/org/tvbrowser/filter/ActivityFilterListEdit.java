@@ -57,7 +57,7 @@ public class ActivityFilterListEdit extends AppCompatActivity {
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-    mFilterListAdapter = new ArrayAdapter<FilterValues>(ActivityFilterListEdit.this, android.R.layout.simple_list_item_1);
+    mFilterListAdapter = new ArrayAdapter<>(ActivityFilterListEdit.this, android.R.layout.simple_list_item_1);
     
     setContentView(R.layout.activity_filter_list_edit);
     

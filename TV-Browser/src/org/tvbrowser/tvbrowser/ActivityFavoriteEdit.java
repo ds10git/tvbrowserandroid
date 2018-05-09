@@ -572,7 +572,7 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
       
       Calendar dayNames = Calendar.getInstance();
       
-      ArrayList<String> days = new ArrayList<String>();
+      ArrayList<String> days = new ArrayList<>();
       
       String sunday = null;
       
@@ -618,7 +618,7 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
         Cursor channelNames = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.CHANNEL_KEY_NAME);
         
         if(IOUtils.prepareAccess(channelNames)) {
-          ArrayList<String> nameList = new ArrayList<String>();
+          ArrayList<String> nameList = new ArrayList<>();
           
           int nameColumn = channelNames.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
           
@@ -643,7 +643,7 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
   
   private void handleAttributeView() {
     if(mFavorite.isAttributeRestricted()) {
-      ArrayList<String> selectedAttributes = new ArrayList<String>();
+      ArrayList<String> selectedAttributes = new ArrayList<>();
       
       int[] restrictionIndices = mFavorite.getAttributeRestrictionIndices();
       String[] names = IOUtils.getInfoStringArrayNames(getResources());

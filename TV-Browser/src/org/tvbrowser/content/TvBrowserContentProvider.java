@@ -216,7 +216,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   private static final HashMap<String, String> MAP_DATA_KEY_TYPE = createDataKeyTypeMap();
   
   private static HashMap<String, String> createDataKeyTypeMap () {
-    final HashMap<String, String> mapDataKeyType = new HashMap<String, String>();
+    final HashMap<String, String> mapDataKeyType = new HashMap<>();
     
     mapDataKeyType.put(DATA_KEY_STARTTIME ," INTEGER NOT NULL");
     mapDataKeyType.put(DATA_KEY_ENDTIME ," INTEGER NOT NULL");
@@ -375,7 +375,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   };
   
   static {
-    SEARCH_PROJECTION_MAP = new HashMap<String, String>();
+    SEARCH_PROJECTION_MAP = new HashMap<>();
     SEARCH_PROJECTION_MAP.put(SearchManager.SUGGEST_COLUMN_TEXT_1, DATA_KEY_TITLE + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
     SEARCH_PROJECTION_MAP.put(SearchManager.SUGGEST_COLUMN_TEXT_2, DATA_KEY_EPISODE_TITLE + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_2);
     SEARCH_PROJECTION_MAP.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID,KEY_ID + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
@@ -520,7 +520,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   
   @Override
   public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
-    ArrayList<ContentProviderResult> result = new ArrayList<ContentProviderResult>(0);
+    ArrayList<ContentProviderResult> result = new ArrayList<>(0);
     
     try {
       SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
@@ -529,7 +529,7 @@ public class TvBrowserContentProvider extends ContentProvider {
         try {
           database.beginTransaction();
           
-          HashMap<Uri, Uri> updateUris = new HashMap<Uri, Uri>();
+          HashMap<Uri, Uri> updateUris = new HashMap<>();
           
           for(ContentProviderOperation op : operations) {
             Uri uri = op.getUri();
@@ -1241,7 +1241,7 @@ public class TvBrowserContentProvider extends ContentProvider {
           try {
           markings = db.query(DATA_TABLE, new String[] {KEY_ID,DATA_KEY_MARKING_VALUES}, "ifnull("+DATA_KEY_MARKING_VALUES+", '') != ''", null, null, null, KEY_ID);
           if(markings.moveToFirst()) {
-            ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+            ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
             
             do {
               long id = markings.getLong(0);
@@ -1364,7 +1364,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       }
       
       if(oldVersion < 7) {
-        ArrayList<String> addColumnList = new ArrayList<String>();
+        ArrayList<String> addColumnList = new ArrayList<>();
         
         addColumnList.add(DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT);
         addColumnList.add(DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT);
@@ -1434,7 +1434,7 @@ public class TvBrowserContentProvider extends ContentProvider {
             
             try {
               if(all.moveToFirst()) {
-                final ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+                final ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
                 
                 final int keyColumn = all.getColumnIndex(KEY_ID);
                 final int startTimeColumn = all.getColumnIndex(DATA_KEY_STARTTIME);
@@ -1505,7 +1505,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       }
       
       if(oldVersion < 10) {
-        final ArrayList<String> dataKeysList = new ArrayList<String>(MAP_DATA_KEY_TYPE.size());
+        final ArrayList<String> dataKeysList = new ArrayList<>(MAP_DATA_KEY_TYPE.size());
         
         final Set<String> dataKeySet = MAP_DATA_KEY_TYPE.keySet();
         

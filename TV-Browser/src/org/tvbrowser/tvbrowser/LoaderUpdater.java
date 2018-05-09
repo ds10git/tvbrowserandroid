@@ -160,7 +160,7 @@ public class LoaderUpdater {
     private final HashSet<CallbackObject<?>> mCallbackObjects;
     
     public CallbackObjects(CallbackObject<?>... initialObjects) {
-      mCallbackObjects = new HashSet<LoaderUpdater.CallbackObject<?>>();
+      mCallbackObjects = new HashSet<>();
       
       if(initialObjects != null) {
         Collections.addAll(mCallbackObjects, initialObjects);

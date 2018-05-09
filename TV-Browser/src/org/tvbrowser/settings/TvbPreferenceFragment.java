@@ -90,8 +90,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       
       File external = Environment.getExternalStorageDirectory();
       Log.d("info22", "external "+external);
-      final ArrayList<String> entries = new ArrayList<String>();
-      final ArrayList<String> entryValues = new ArrayList<String>();
+      final ArrayList<String> entries = new ArrayList<>();
+      final ArrayList<String> entryValues = new ArrayList<>();
       
       String defaultValue = getString(R.string.pref_database_path_default);
       

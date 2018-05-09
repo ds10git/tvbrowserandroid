@@ -114,7 +114,7 @@ public abstract class FilterValues {
     
     final SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context);
     
-    final Set<String> test = pref.getStringSet(context.getString(R.string.CURRENT_FILTER_ID), new HashSet<String>());
+    final Set<String> test = pref.getStringSet(context.getString(R.string.CURRENT_FILTER_ID), new HashSet<>());
     
     final String[] idValues = test.toArray(new String[test.size()]);
     boolean removed = false;

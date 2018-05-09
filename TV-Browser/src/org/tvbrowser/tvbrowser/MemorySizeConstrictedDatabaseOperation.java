@@ -75,10 +75,10 @@ class MemorySizeConstrictedDatabaseOperation {
     mOperationDivider = TABLE_OPERATION_MIN_SIZE/mMinOperationDivider;
     
     if(insertUri != null) {
-      mInsertList = new ArrayList<ContentValues>();
+      mInsertList = new ArrayList<>();
     }
     
-    mUpdateList = new ArrayList<ContentProviderOperation>();
+    mUpdateList = new ArrayList<>();
     
     mOperationsAvailable = false;
   }

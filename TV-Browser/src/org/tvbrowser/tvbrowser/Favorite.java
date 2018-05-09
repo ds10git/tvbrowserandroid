@@ -263,7 +263,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     if(isUniqueChannelRestricted()) { 
       String[] parts = mUniqueChannelIds.split(",");
       
-      ArrayList<Integer> parsed = new ArrayList<Integer>();
+      ArrayList<Integer> parsed = new ArrayList<>();
       
       String[] projection = {
           TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.KEY_ID
@@ -1009,9 +1009,9 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         //  int startTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
           int removedReminderIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER);
           
-          ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
-          ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
-          ArrayList<String> reminderIdList = new ArrayList<String>();
+          ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
+          ArrayList<Intent> markingIntentList = new ArrayList<>();
+          ArrayList<String> reminderIdList = new ArrayList<>();
           
           while(!cursor.isClosed() && cursor.moveToNext()) {
             long id = cursor.getLong(idColumnIndex);
@@ -1134,9 +1134,9 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           int favoriteReminderColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
           int reminderColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
           
-          ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
-          ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
-          ArrayList<String> removedReminderIdList = new ArrayList<String>();
+          ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
+          ArrayList<Intent> markingIntentList = new ArrayList<>();
+          ArrayList<String> removedReminderIdList = new ArrayList<>();
           
           do {
             long id = cursor.getLong(idColumnIndex);
@@ -1213,7 +1213,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   }
     
   public static void handleDataUpdateStarted() {
-    DATA_REFRESH_TABLE = new Hashtable<Long, boolean[]>();
+    DATA_REFRESH_TABLE = new Hashtable<>();
   }
   
   public static void handleDataUpdateFinished() {
@@ -1249,9 +1249,9 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           
           int count = 0;
           
-          ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
-          ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
-          ArrayList<String> reminderIdList = new ArrayList<String>();
+          ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
+          ArrayList<Intent> markingIntentList = new ArrayList<>();
+          ArrayList<String> reminderIdList = new ArrayList<>();
           
           long[] uniqueProgramIds = new long[cursor.getCount()];
           
@@ -1356,7 +1356,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   public static Favorite[] getAllFavorites(Context context) {
     SharedPreferences prefFavorites = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FAVORITES, context);
     
-    ArrayList<Favorite> favoriteList = new ArrayList<Favorite>();
+    ArrayList<Favorite> favoriteList = new ArrayList<>();
     
     if(prefFavorites != null) {
       Map<String,?> favorites = prefFavorites.getAll();
@@ -1466,7 +1466,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   
   public static Favorite[] getFavoritesForUniqueId(Context context, long uniqueId) {
     final Favorite[] allFavorites = getAllFavorites(context);
-    final ArrayList<Favorite> uniqueIdFavoriteList = new ArrayList<Favorite>(); 
+    final ArrayList<Favorite> uniqueIdFavoriteList = new ArrayList<>();
     
     for(Favorite test : allFavorites) {
       if(test.containsUniqueProgramId(uniqueId)) {

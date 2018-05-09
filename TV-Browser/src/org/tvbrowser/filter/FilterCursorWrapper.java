@@ -106,7 +106,7 @@ class FilterCursorWrapper extends CursorWrapper {
   }
 
   public void updateFilter(CursorFilter filter) {
-    ArrayList<Integer> newFilterMap = new ArrayList<Integer>();
+    ArrayList<Integer> newFilterMap = new ArrayList<>();
     
     for(int i = 0; i < super.getCount(); i++) {
       if(mCursor.moveToNext()) {

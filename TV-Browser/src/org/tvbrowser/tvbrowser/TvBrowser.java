@@ -338,8 +338,8 @@ public class TvBrowser extends AppCompatActivity {
     checkAppReplacingState();
 
     handler = new Handler();
-    mCurrentFilter = new HashSet<FilterValues>();
-    mCurrentFilterId = new HashSet<String>();
+    mCurrentFilter = new HashSet<>();
+    mCurrentFilterId = new HashSet<>();
     mInfoType = INFO_TYPE_NOTHING;
     PrefUtils.initialize(TvBrowser.this);
 
@@ -472,7 +472,7 @@ public class TvBrowser extends AppCompatActivity {
               try {
                 if(IOUtils.prepareAccess(synced)) {
                   int idColumn = synced.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-                  ArrayList<String> syncIdList = new ArrayList<String>();
+                  ArrayList<String> syncIdList = new ArrayList<>();
 
                   while(synced.moveToNext()) {
                     syncIdList.add(String.valueOf(synced.getLong(idColumn)));
@@ -497,7 +497,7 @@ public class TvBrowser extends AppCompatActivity {
               try {
                 if(IOUtils.prepareAccess(reminders)) {
                   int idColumn = reminders.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-                  ArrayList<String> reminderIdList = new ArrayList<String>();
+                  ArrayList<String> reminderIdList = new ArrayList<>();
 
                   while(reminders.moveToNext()) {
                     reminderIdList.add(String.valueOf(reminders.getLong(idColumn)));
@@ -513,7 +513,7 @@ public class TvBrowser extends AppCompatActivity {
         }.start();
       }
       if(oldVersion < 304) {
-        Set<String> favoritesSet = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).getStringSet("FAVORITE_LIST", new HashSet<String>());
+        Set<String> favoritesSet = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).getStringSet("FAVORITE_LIST", new HashSet<>());
 
         int id = 1000;
 
@@ -608,7 +608,7 @@ public class TvBrowser extends AppCompatActivity {
         edit.commit();
       }
       if(oldVersion < 379) {
-        final HashSet<String> values = new HashSet<String>();
+        final HashSet<String> values = new HashSet<>();
         final String currentFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, null);
 
         if(currentFilterId != null) {
@@ -677,7 +677,7 @@ public class TvBrowser extends AppCompatActivity {
 
     mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-    mProgamListStateStack = new Stack<ProgramsListState>();
+    mProgamListStateStack = new Stack<>();
 
     ALL_VALUE = getResources().getString(R.string.filter_channel_all);
 
@@ -904,7 +904,7 @@ public class TvBrowser extends AppCompatActivity {
 
     TvBrowser.this.registerReceiver(mUpdateDoneBroadcastReceiver, filter);
 
-    mCurrentFilterId = PrefUtils.getStringSetValue(R.string.CURRENT_FILTER_ID, new HashSet<String>());
+    mCurrentFilterId = PrefUtils.getStringSetValue(R.string.CURRENT_FILTER_ID, new HashSet<>());
     mCurrentFilter.clear();
 
     if(!mCurrentFilterId.isEmpty()) {
@@ -1533,7 +1533,7 @@ public class TvBrowser extends AppCompatActivity {
               final String[] projection = {TvBrowserContentProvider.KEY_ID};
               final ContentResolver resolver = getContentResolver();
 
-              HashMap<String, Integer> groupMap = new HashMap<String, Integer>();
+              HashMap<String, Integer> groupMap = new HashMap<>();
 
               Cursor group = resolver.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, null, null, null);
 
@@ -1555,7 +1555,7 @@ public class TvBrowser extends AppCompatActivity {
                 IOUtils.close(group);
               }
 
-              ArrayList<ContentProviderOperation> updateList = new ArrayList<ContentProviderOperation>();
+              ArrayList<ContentProviderOperation> updateList = new ArrayList<>();
 
               while((line = read.readLine()) != null) {
                 if(line.trim().length() > 0) {
@@ -1732,8 +1732,8 @@ public class TvBrowser extends AppCompatActivity {
               String line = null;
 
               StringBuilder exclusionBuilder = new StringBuilder();
-              HashSet<String> exclusions = new HashSet<String>();
-              HashSet<String> newExclusions = new HashSet<String>();
+              HashSet<String> exclusions = new HashSet<>();
+              HashSet<String> newExclusions = new HashSet<>();
 
               while((line = read.readLine()) != null) {
                 if(line.contains(";;") && line.trim().length() > 0) {
@@ -1761,7 +1761,7 @@ public class TvBrowser extends AppCompatActivity {
                   }
                 }
 
-                ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<DontWantToSeeExclusion>();
+                ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<>();
 
                 for(String exclusion : newExclusions) {
                   exclusionList.add(new DontWantToSeeExclusion(exclusion));
@@ -2050,7 +2050,7 @@ public class TvBrowser extends AppCompatActivity {
                       }
                       else if(type.equals("string")) {
                         if(getString(R.string.CURRENT_FILTER_ID).equals(parts[0])) {
-                          HashSet<String> set = new HashSet<String>();
+                          HashSet<String> set = new HashSet<>();
                           set.add(parts[1].trim());
 
                           edit.putStringSet(parts[0], set);
@@ -2067,7 +2067,7 @@ public class TvBrowser extends AppCompatActivity {
                         }
                       }
                       else if(type.equals("set")) {
-                        HashSet<String> set = new HashSet<String>();
+                        HashSet<String> set = new HashSet<>();
 
                         String[] setParts = parts[1].split("#,#");
 
@@ -2184,7 +2184,7 @@ public class TvBrowser extends AppCompatActivity {
           TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER
       };
 
-      SparseArrayCompat<String> groupKeys = new SparseArrayCompat<String>();
+      SparseArrayCompat<String> groupKeys = new SparseArrayCompat<>();
       StringBuilder uploadChannels = new StringBuilder();
 
       Cursor channels = null;
@@ -2409,7 +2409,7 @@ public class TvBrowser extends AppCompatActivity {
     }
 
     void setFilter(ChannelFilter filter) {
-      ArrayList<Integer> map = new ArrayList<Integer>();
+      ArrayList<Integer> map = new ArrayList<>();
 
       for(int i = 0; i < super.size(); i++) {
         ChannelSelection selection = super.get(i);
@@ -2541,7 +2541,7 @@ public class TvBrowser extends AppCompatActivity {
       Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, selection, null, TvBrowserContentProvider.CHANNEL_KEY_NAME);
 
       final ArrayListWrapper channelSelectionList = new ArrayListWrapper();
-      ArrayList<Country> countryList = new ArrayList<Country>();
+      ArrayList<Country> countryList = new ArrayList<>();
 
       try {
         if(IOUtils.prepareAccess(channels)) {
@@ -2621,8 +2621,8 @@ public class TvBrowser extends AppCompatActivity {
       // create default logo for channels without logo
       final Bitmap defaultLogo = BitmapFactory.decodeResource( getResources(), R.drawable.ic_launcher);
 
-      final Set<String> firstDeletedChannels = PrefUtils.getStringSetValue(R.string.PREF_FIRST_DELETED_CHANNELS, new HashSet<String>());
-      final Set<String> keptDeletedChannels = PrefUtils.getStringSetValue(R.string.PREF_KEPT_DELETED_CHANNELS, new HashSet<String>());
+      final Set<String> firstDeletedChannels = PrefUtils.getStringSetValue(R.string.PREF_FIRST_DELETED_CHANNELS, new HashSet<>());
+      final Set<String> keptDeletedChannels = PrefUtils.getStringSetValue(R.string.PREF_KEPT_DELETED_CHANNELS, new HashSet<>());
 
       final int firstDeletedColor = ContextCompat.getColor(this, R.color.pref_first_deleted_channels);
       final int keptDeletedColor = ContextCompat.getColor(this, R.color.pref_kept_deleted_channels);
@@ -2700,7 +2700,7 @@ public class TvBrowser extends AppCompatActivity {
       // get spinner for country filtering and create array adapter with all available countries
       Spinner country = (Spinner)channelSelectionView.findViewById(R.id.channel_country_value);
 
-      final ArrayAdapter<Country> countryListAdapter = new ArrayAdapter<Country>(this, android.R.layout.simple_spinner_item, countryList);
+      final ArrayAdapter<Country> countryListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, countryList);
       countryListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       country.setAdapter(countryListAdapter);
 
@@ -2788,7 +2788,7 @@ public class TvBrowser extends AppCompatActivity {
             Iterator<ChannelSelection> it = channelSelectionList.superIterator();
 
             StringBuilder deleteWhere = new StringBuilder();
-            HashSet<String> keep = new HashSet<String>();
+            HashSet<String> keep = new HashSet<>();
 
             while(it.hasNext()) {
               ChannelSelection sel = it.next();
@@ -2882,7 +2882,7 @@ public class TvBrowser extends AppCompatActivity {
           @Override
           public void onClick(DialogInterface dialog, int which) {
             if(delete) {
-              HashSet<String> keep = new HashSet<String>();
+              HashSet<String> keep = new HashSet<>();
               Iterator<ChannelSelection> it = channelSelectionList.superIterator();
 
               while(it.hasNext()) {
@@ -3068,7 +3068,7 @@ public class TvBrowser extends AppCompatActivity {
           TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER
           };
 
-      final ArrayList<SortInterface> channelSource = new ArrayList<SortInterface>();
+      final ArrayList<SortInterface> channelSource = new ArrayList<>();
 
       Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
 
@@ -3879,7 +3879,7 @@ public class TvBrowser extends AppCompatActivity {
     if(!SettingConstants.UPDATING_FILTER) {
       Set<String> currentExclusions = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
 
-      final ArrayList<ExclusionEdit> mCurrentExclusionList = new ArrayList<TvBrowser.ExclusionEdit>();
+      final ArrayList<ExclusionEdit> mCurrentExclusionList = new ArrayList<>();
 
       if(currentExclusions != null && !currentExclusions.isEmpty()) {
         for(String exclusion : currentExclusions) {
@@ -3889,7 +3889,7 @@ public class TvBrowser extends AppCompatActivity {
 
       Collections.sort(mCurrentExclusionList);
 
-      final ArrayAdapter<ExclusionEdit> exclusionAdapter = new ArrayAdapter<TvBrowser.ExclusionEdit>(TvBrowser.this, android.R.layout.simple_list_item_1, mCurrentExclusionList);
+      final ArrayAdapter<ExclusionEdit> exclusionAdapter = new ArrayAdapter<>(TvBrowser.this, android.R.layout.simple_list_item_1, mCurrentExclusionList);
 
       View view = getLayoutInflater().inflate(R.layout.dont_want_to_see_exclusion_edit_list, getParentViewGroup(), false);
 
@@ -3971,8 +3971,8 @@ public class TvBrowser extends AppCompatActivity {
 
           updateProgressIcon(true);
 
-          HashSet<String> newExclusions = new HashSet<String>();
-          final ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<DontWantToSeeExclusion>();
+          HashSet<String> newExclusions = new HashSet<>();
+          final ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<>();
 
           for(ExclusionEdit edit : mCurrentExclusionList) {
             String exclusion = edit.getExclusion();
@@ -4784,7 +4784,7 @@ public class TvBrowser extends AppCompatActivity {
           showChannelSelectionInternal(selection.toString(), getString(R.string.dialog_select_channels_update_title), getString(R.string.dialog_select_channels_update_help), false);
         }
         else if(IOUtils.isDatabaseAccessible(TvBrowser.this)) {
-          Set<String> deletedChannels = PrefUtils.getStringSetValue(R.string.PREF_SECOND_DELETED_CHANNELS, new HashSet<String>());
+          Set<String> deletedChannels = PrefUtils.getStringSetValue(R.string.PREF_SECOND_DELETED_CHANNELS, new HashSet<>());
 
           edit.remove(getString(R.string.PREF_SECOND_DELETED_CHANNELS));
           edit.commit();
@@ -4875,7 +4875,7 @@ public class TvBrowser extends AppCompatActivity {
         filters.removeItem(i);
       }
 
-      ArrayList<FilterValues> channelFilterList = new ArrayList<FilterValues>();
+      ArrayList<FilterValues> channelFilterList = new ArrayList<>();
       SharedPreferences filterPreferences = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, TvBrowser.this);
       Map<String,?> filterValues = filterPreferences.getAll();
 
@@ -5377,7 +5377,7 @@ public class TvBrowser extends AppCompatActivity {
 
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
 
-      ArrayList<Integer> values = new ArrayList<Integer>();
+      ArrayList<Integer> values = new ArrayList<>();
 
       int[] defaultValues = getResources().getIntArray(R.array.time_button_defaults);
 
@@ -5430,7 +5430,7 @@ public class TvBrowser extends AppCompatActivity {
    * of the sections/tabs/pages.
    */
   class SectionsPagerAdapter extends FragmentPagerAdapter {
-    final SparseArrayCompat<Fragment> registeredFragments = new SparseArrayCompat<Fragment>();
+    final SparseArrayCompat<Fragment> registeredFragments = new SparseArrayCompat<>();
 
     SectionsPagerAdapter(FragmentManager fm) {
       super(fm);

@@ -233,7 +233,7 @@ public final class PluginHandler {
       PLUGIN_MANAGER = createPluginManager(context);
       
       if(PLUGIN_LIST == null) {
-        PLUGIN_LIST = new ArrayList<PluginServiceConnection>();
+        PLUGIN_LIST = new ArrayList<>();
         RELOAD = true;
       }
       
@@ -281,7 +281,7 @@ public final class PluginHandler {
   }
   
   public static PluginServiceConnection[] onlyLoadAndGetPlugins(Context context, Handler handler) {
-    final ArrayList<PluginServiceConnection> pluginList = new ArrayList<PluginServiceConnection>();
+    final ArrayList<PluginServiceConnection> pluginList = new ArrayList<>();
     
     PackageManager packageManager = context.getPackageManager();
     Intent baseIntent = new Intent( PluginHandler.PLUGIN_ACTION );

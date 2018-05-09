@@ -460,7 +460,7 @@ public class ProgramPanel extends View {
     private final ArrayList<ColorEntry> mEntryList;
     
     ColorLine() {
-      mEntryList = new ArrayList<ProgramPanel.ColorEntry>();
+      mEntryList = new ArrayList<>();
     }
     
     Iterator<ColorEntry> getEntries() {

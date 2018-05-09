@@ -69,7 +69,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     mContext = context;
     mHasPreferences = false;
     
-    mBindContextList = new ArrayList<Context>();
+    mBindContextList = new ArrayList<>();
     
     doLog(mContext, "Plugin connection created: " + packageId + " " + id);
   }

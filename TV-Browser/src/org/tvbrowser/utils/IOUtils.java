@@ -221,7 +221,7 @@ public class IOUtils {
   }
   
   public static HashMap<String,Integer> loadCategoryColorMap(Context context) {
-    HashMap<String, Integer> categoryColorMap = new HashMap<String, Integer>();
+    HashMap<String, Integer> categoryColorMap = new HashMap<>();
     String[] names = getInfoStringArrayNames(context.getResources());
     
     for(int i = 0; i < SettingConstants.CATEGORY_COLOR_PREF_KEY_ARR.length; i++) {
@@ -325,7 +325,7 @@ public class IOUtils {
   
   public static byte[] loadUrl(final String urlString, final int timeout) throws TimeoutException {
     final AtomicInteger count = new AtomicInteger(0);
-    final AtomicReference<byte[]> loadData = new AtomicReference<byte[]>(null);
+    final AtomicReference<byte[]> loadData = new AtomicReference<>(null);
     
     new Thread("LOAD URL THREAD") {
       public void run() {
@@ -887,7 +887,7 @@ public class IOUtils {
   }
 
   public static List<Channel> getChannelList(Context context) {
-    ArrayList<Channel> channelList = new ArrayList<Channel>();
+    ArrayList<Channel> channelList = new ArrayList<>();
     
     if(IOUtils.isDatabaseAccessible(context)) {
       final long token = Binder.clearCallingIdentity();
@@ -1054,7 +1054,7 @@ public class IOUtils {
       
       int last = fieldValue & 0x3FFF;
       
-      ArrayList<Integer> valueList = new ArrayList<Integer>();
+      ArrayList<Integer> valueList = new ArrayList<>();
       valueList.add(last);
       
       for(int i = 0; i < num; i++) {

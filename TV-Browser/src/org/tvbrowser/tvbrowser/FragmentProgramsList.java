@@ -469,9 +469,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     mDateSelection = (Spinner)rootView.findViewById(R.id.date_selection);
     
-    ArrayList<DateSelection> dateEntries = new ArrayList<DateSelection>();
+    ArrayList<DateSelection> dateEntries = new ArrayList<>();
     
-    mDateAdapter = new ArrayAdapter<DateSelection>(getActivity(), android.R.layout.simple_spinner_item, dateEntries);
+    mDateAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, dateEntries);
     mDateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     mDateSelection.setAdapter(mDateAdapter);
     
@@ -497,7 +497,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     final Button plus = (Button)rootView.findViewById(R.id.channel_plus);
     CompatUtils.setBackground(plus, ContextCompat.getDrawable(getActivity(),android.R.drawable.list_selector_background));
             
-    final ArrayList<ChannelSelection> channelEntries = new ArrayList<ChannelSelection>();
+    final ArrayList<ChannelSelection> channelEntries = new ArrayList<>();
     
     final ArrayAdapter<ChannelSelection> channelAdapter = new ArrayAdapter<ChannelSelection>(getActivity(), android.R.layout.simple_spinner_item, channelEntries) {
       @Override
@@ -604,7 +604,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     final Spinner filter = (Spinner)rootView.findViewById(R.id.program_selection);
     
-    ArrayList<String> filterEntries = new ArrayList<String>();
+    ArrayList<String> filterEntries = new ArrayList<>();
     
     final ArrayAdapter<String> filterAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, filterEntries) {
       @Override

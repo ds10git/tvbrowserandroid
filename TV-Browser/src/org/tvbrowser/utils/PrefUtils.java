@@ -170,7 +170,7 @@ public class PrefUtils {
     if(mContext != null) {
       String[] tempValues = mContext.getResources().getStringArray(defaultKey);
       
-      HashSet<String> defaultValues = new HashSet<String>();
+      HashSet<String> defaultValues = new HashSet<>();
       
       
       Collections.addAll(defaultValues, tempValues);
@@ -277,7 +277,7 @@ public class PrefUtils {
   }
   
   private static String getFilterSelection(final Context context, final Set<String> filterIds) {
-    final HashSet<FilterValues> filterValues = new HashSet<FilterValues>();
+    final HashSet<FilterValues> filterValues = new HashSet<>();
     
     for(String filterId : filterIds) {
       final FilterValues filter = FilterValues.load(filterId, context);
@@ -325,7 +325,7 @@ public class PrefUtils {
         
     int oldVersion = pref.getInt(context.getString(R.string.OLD_VERSION), 379);
     
-    Set<String> currentFilterIds = new HashSet<String>();
+    Set<String> currentFilterIds = new HashSet<>();
     
     if(oldVersion < 379) {
       final String currentFilterId = pref.getString(context.getString(R.string.CURRENT_FILTER_ID), null);

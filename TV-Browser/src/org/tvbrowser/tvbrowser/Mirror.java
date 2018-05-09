@@ -61,7 +61,7 @@ public class Mirror implements Comparable<Mirror> {
    * @return The array with Mirrors.
    */
   public static Mirror[] getMirrorsFor(String value) {
-    ArrayList<Mirror> mirrors = new ArrayList<Mirror>();
+    ArrayList<Mirror> mirrors = new ArrayList<>();
     String[] mirrorParts = value.split(";");
     
     for(String part : mirrorParts) {
@@ -105,7 +105,7 @@ public class Mirror implements Comparable<Mirror> {
   }
   
   public static Mirror getMirrorToUseForGroup(Mirror[] mirrors, String group, TvDataUpdateService update, boolean checkOnlyConnection) {
-    ArrayList<Mirror> toChooseFrom = new ArrayList<Mirror>(Arrays.asList(mirrors));
+    ArrayList<Mirror> toChooseFrom = new ArrayList<>(Arrays.asList(mirrors));
     
     Mirror choosen = null;
     
@@ -119,7 +119,7 @@ public class Mirror implements Comparable<Mirror> {
       int limit = new Random().nextInt(weightSum + 1);
       update.doLog("Mirror weight limit for group '" + group + "': " + limit);
       
-      final ArrayList<Mirror> mirrorsWithAcceptedWeight = new ArrayList<Mirror>();
+      final ArrayList<Mirror> mirrorsWithAcceptedWeight = new ArrayList<>();
       
       for(int i = toChooseFrom.size()-1; i >= 0; i--) {
         if(toChooseFrom.get(i).getWeight() >= limit) {

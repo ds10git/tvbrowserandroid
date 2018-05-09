@@ -98,7 +98,7 @@ public class PluginPreferencesFragment extends PreferenceFragment {
           preferenceScreen.addPreference(descriptionPref);
         }
 
-        final AtomicReference<Preference> startSetupRef = new AtomicReference<Preference>(null);
+        final AtomicReference<Preference> startSetupRef = new AtomicReference<>(null);
         if (pluginConnection != null && pluginConnection.hasPreferences()) {
           final Preference startSetup = new Preference(getActivity());
           startSetup.setTitle(R.string.pref_open);
@@ -143,7 +143,7 @@ public class PluginPreferencesFragment extends PreferenceFragment {
           @Override
           public boolean onPreferenceChange(Preference preference, final Object newValue) {
             if (pluginConnection != null) {
-              final AtomicReference<Context> mBindContextRef = new AtomicReference<Context>(null);
+              final AtomicReference<Context> mBindContextRef = new AtomicReference<>(null);
 
               Runnable runnable = new Runnable() {
                 @Override

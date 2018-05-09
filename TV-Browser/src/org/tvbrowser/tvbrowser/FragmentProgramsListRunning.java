@@ -277,7 +277,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                   final View view = getListView().findViewWithTag(programID);
                   
                   if(view != null) {
-                    ArrayList<String> markedColumns = new ArrayList<String>();
+                    ArrayList<String> markedColumns = new ArrayList<>();
                     
                     for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
                       int index = c.getColumnIndex(column);
@@ -875,8 +875,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       mDayStart = -1;
     }
         
-    mMarkingsMap = new LongSparseArray<String[]>();
-    mTitleMap = new LongSparseArray<String>();
+    mMarkingsMap = new LongSparseArray<>();
+    mTitleMap = new LongSparseArray<>();
     
     mOnClickListener = new View.OnClickListener() {
       @Override
@@ -951,8 +951,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       }
     };
         
-    mProgramBlockList = new ArrayList<FragmentProgramsListRunning.ChannelProgramBlock>();
-    mCurrentViewList = new ArrayList<FragmentProgramsListRunning.ChannelProgramBlock>();
+    mProgramBlockList = new ArrayList<>();
+    mCurrentViewList = new ArrayList<>();
     
     java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(getActivity());
     String value = ((SimpleDateFormat)mTimeFormat).toLocalizedPattern();
@@ -1152,7 +1152,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
             }
           });
           
-          ArrayList<Integer> values = new ArrayList<Integer>();
+          ArrayList<Integer> values = new ArrayList<>();
           
           int[] defaultValues = getResources().getIntArray(R.array.time_button_defaults);
           
@@ -1245,9 +1245,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     localBroadcastManager.registerReceiver(receiver, timeButtonsUpdateFilter);
     receiver.onReceive(null, null);
     
-    ArrayList<DateSelection> dateEntries = new ArrayList<DateSelection>();
+    ArrayList<DateSelection> dateEntries = new ArrayList<>();
     
-    mDateAdapter = new ArrayAdapter<DateSelection>(getActivity(), android.R.layout.simple_spinner_item, dateEntries);
+    mDateAdapter = new ArrayAdapter<>(getActivity(), android.R.layout.simple_spinner_item, dateEntries);
     mDateAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     mDateSelection.setAdapter(mDateAdapter);
 
@@ -1460,8 +1460,8 @@ String mPreviousEpisode;
   @Override
   public synchronized void onLoadFinished(Loader<Cursor> loader, final Cursor c) {
     if(c != null) {
-      SparseArrayCompat<ChannelProgramBlock> channelProgramMap = new SparseArrayCompat<ChannelProgramBlock>();
-      SparseArrayCompat<ChannelProgramBlock> currentProgramMap = new SparseArrayCompat<ChannelProgramBlock>();
+      SparseArrayCompat<ChannelProgramBlock> channelProgramMap = new SparseArrayCompat<>();
+      SparseArrayCompat<ChannelProgramBlock> currentProgramMap = new SparseArrayCompat<>();
       boolean showDontWantToSee = PrefUtils.getStringValue(R.string.PREF_I_DONT_WANT_TO_SEE_FILTER_TYPE, R.string.pref_i_dont_want_to_see_filter_type_default).equals(getResources().getStringArray(R.array.pref_simple_string_value_array2)[1]);
       
       mProgramBlockList.clear();
@@ -1483,7 +1483,7 @@ String mPreviousEpisode;
       int channelOrderColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
       int dontWantToSeeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE);
       
-      HashMap<String, Integer> markingColumnsMap = new HashMap<String, Integer>();
+      HashMap<String, Integer> markingColumnsMap = new HashMap<>();
       
       c.moveToPosition(-1);
       
@@ -1503,7 +1503,7 @@ String mPreviousEpisode;
             int channelID = c.getInt(mChannelIDColumn);
             
             ChannelProgramBlock block = channelProgramMap.get(channelID);
-            ArrayList<String> markedColumsList = new ArrayList<String>();
+            ArrayList<String> markedColumsList = new ArrayList<>();
             
             if(block == null) {
               block = new ChannelProgramBlock();
