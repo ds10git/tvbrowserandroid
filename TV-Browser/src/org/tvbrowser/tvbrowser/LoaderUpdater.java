@@ -204,7 +204,7 @@ public class LoaderUpdater {
     }
   }
   
-  public static interface Callback {
-    public void handleCallback(CallbackObjects callbackObjects);
+  public interface Callback {
+    void handleCallback(CallbackObjects callbackObjects);
   }
 }

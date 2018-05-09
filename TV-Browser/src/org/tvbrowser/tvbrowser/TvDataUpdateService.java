@@ -4216,11 +4216,11 @@ public class TvDataUpdateService extends Service {
   }
   
   private interface DataHandler {
-    public Object[] readValuesFromDataFile(ChannelUpdate update, DataInputStream in, int level) throws Throwable;
+    Object[] readValuesFromDataFile(ChannelUpdate update, DataInputStream in, int level) throws Throwable;
     
-    public DataInfo readDataInfo(ChannelUpdate update, DataInputStream in, UrlFileHolder dataUrlFileHolder) throws IOException;
+    DataInfo readDataInfo(ChannelUpdate update, DataInputStream in, UrlFileHolder dataUrlFileHolder) throws IOException;
     
-    public void updateVersionTableInternal(ChannelUpdate update);
+    void updateVersionTableInternal(ChannelUpdate update);
   }
   
   private class EPGfreeDataHandler implements DataHandler {
@@ -5512,7 +5512,7 @@ public class TvDataUpdateService extends Service {
     }
   }
   
-  private static interface Summary {}
+  private interface Summary {}
   
   /**
    * Helper class that stores informations about the available data

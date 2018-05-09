@@ -19,5 +19,5 @@ package org.tvbrowser.filter;
 import android.database.Cursor;
 
 public interface CursorFilter {
-  public boolean accept(Cursor cursor);
+  boolean accept(Cursor cursor);
 }

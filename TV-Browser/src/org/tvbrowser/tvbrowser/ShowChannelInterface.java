@@ -17,5 +17,5 @@
 package org.tvbrowser.tvbrowser;
 
 public interface ShowChannelInterface {
-  public boolean showChannel();
+  boolean showChannel();
 }
