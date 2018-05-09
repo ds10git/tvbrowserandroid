@@ -410,7 +410,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataversion/#", DATA_VERSION_ID);
   }
   
-  public static final String[] getColumnArrayWithMarkingColums(String... columns) {
+  public static String[] getColumnArrayWithMarkingColums(String... columns) {
     String[] projection = new String[columns.length + TvBrowserContentProvider.MARKING_COLUMNS.length];
     
     System.arraycopy(TvBrowserContentProvider.MARKING_COLUMNS, 0, projection, 0, TvBrowserContentProvider.MARKING_COLUMNS.length);

@@ -471,7 +471,7 @@ public class TvDataUpdateService extends Service {
     return Service.START_STICKY;
   }
   
-  public static final boolean isRunning() {
+  public static boolean isRunning() {
     return ON_START_COMMAND_THEAD != null && ON_START_COMMAND_THEAD.isAlive();
   }
   

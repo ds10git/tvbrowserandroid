@@ -52,7 +52,7 @@ public abstract class FilterValues {
     return getName();
   }
   
-  public static final FilterValues load(String id, String values) {
+  public static FilterValues load(String id, String values) {
     FilterValues result = null;
 
     try {
@@ -83,7 +83,7 @@ public abstract class FilterValues {
     return result;
   }
   
-  public static final FilterValues load(String id, Context context) {
+  public static FilterValues load(String id, Context context) {
     FilterValues result = null;
 
     SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, context);
@@ -107,7 +107,7 @@ public abstract class FilterValues {
     edit.commit();
   }
   
-  public static final void deleteFilter(Context context, FilterValues filter) {
+  public static void deleteFilter(Context context, FilterValues filter) {
     final String filterId = filter.getClass().getCanonicalName() + SEPARATOR_CLASS + filter.getId();
     
     PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, context).edit().remove(filterId).remove(filter.getId()).commit();

@@ -56,7 +56,7 @@ public final class PluginHandler {
   
   private static final AtomicInteger BLOG_COUNT = new AtomicInteger(0);
   
-  public static final boolean pluginsAvailable() {
+  public static boolean pluginsAvailable() {
     return PLUGIN_LIST != null && !PLUGIN_LIST.isEmpty();
   }
   
@@ -224,7 +224,7 @@ public final class PluginHandler {
     Logging.log(null, message, Logging.TYPE_PLUGIN, context);
   }
   
-  public static final synchronized void loadPlugins(Context context1/*, Handler handler*/) {
+  public static synchronized void loadPlugins(Context context1/*, Handler handler*/) {
     try {
       doLog(context1, "loadPlugins");
       
@@ -313,7 +313,7 @@ public final class PluginHandler {
     return pluginList.toArray(new PluginServiceConnection[pluginList.size()]);
   }
   
-  public static final void shutdownPlugins(Context context) {
+  public static void shutdownPlugins(Context context) {
     doLog(context, "shutdownPlugins: reference count " + BLOG_COUNT.get());
     if(BLOG_COUNT.get() == 1) {
       doLog(context, "do Plugin shutdown");

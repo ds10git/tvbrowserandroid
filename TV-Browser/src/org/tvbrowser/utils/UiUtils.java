@@ -1880,7 +1880,7 @@ public class UiUtils {
     return found;
   }
   
-  public static final int getColor(int key, Context context) throws NullPointerException {
+  public static int getColor(int key, Context context) throws NullPointerException {
     if(context == null) {
       throw new NullPointerException("Context parameter is null.");
     }
@@ -1888,7 +1888,7 @@ public class UiUtils {
     return getColor(key, PreferenceManager.getDefaultSharedPreferences(context),context);
   }
   
-  public static final int getColor(int key, SharedPreferences pref, Context context) throws NullPointerException {
+  public static int getColor(int key, SharedPreferences pref, Context context) throws NullPointerException {
     if(pref == null) {
       throw new NullPointerException("Preferences parameter is null.");
     }
@@ -2040,7 +2040,7 @@ public class UiUtils {
     }catch(Throwable t) {Log.d("info2", "", t);}
   }
   
-  public static final void reloadWidgets(Context context) {
+  public static void reloadWidgets(Context context) {
     AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
 
     ComponentName programsWidget = new ComponentName(context.getApplicationContext(), ImportantProgramsListWidget.class);
@@ -2636,7 +2636,7 @@ public class UiUtils {
     }
   }
   
-  public static final int getThemeResourceId(final boolean includeToolbar) {
+  public static int getThemeResourceId(final boolean includeToolbar) {
     int style = includeToolbar ? R.style.AppBaseThemePref : R.style.AppTheme;
 
     if(SettingConstants.IS_DARK_THEME) {
@@ -2651,7 +2651,7 @@ public class UiUtils {
     return style;
   }
   
-  public static final ImageSpan createImageSpan(Context context, int drawable) {
+  public static ImageSpan createImageSpan(Context context, int drawable) {
     Drawable icon = ContextCompat.getDrawable(context, drawable); 
     
     float zoom = 16f/icon.getIntrinsicHeight() * context.getResources().getDisplayMetrics().density;

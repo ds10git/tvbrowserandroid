@@ -1353,7 +1353,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     return mName.compareToIgnoreCase(another.mName);
   }
   
-  public static final Favorite[] getAllFavorites(Context context) {
+  public static Favorite[] getAllFavorites(Context context) {
     SharedPreferences prefFavorites = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FAVORITES, context);
     
     ArrayList<Favorite> favoriteList = new ArrayList<Favorite>();
@@ -1376,7 +1376,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     return favoriteList.toArray(new Favorite[favoriteList.size()]);
   }
   
-  public static final void deleteFavorite(Context context, Favorite favorite) {
+  public static void deleteFavorite(Context context, Favorite favorite) {
     Favorite.removeFavoriteMarkingInternal(context, context.getContentResolver(), favorite, false);
     
     Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FAVORITES, context).edit();
@@ -1384,7 +1384,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     edit.commit();
   }
   
-  public static final void deleteAllFavorites(Context context) {
+  public static void deleteAllFavorites(Context context) {
     Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FAVORITES, context).edit();
     Favorite[] favorites = getAllFavorites(context);
     
@@ -1396,7 +1396,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     edit.commit();
   }
   
-  public static final int getFavoriteMarkIconType(Context context, long programId) {
+  public static int getFavoriteMarkIconType(Context context, long programId) {
     int result = 0;
     
     Favorite[] favorites = getAllFavorites(context);
@@ -1443,7 +1443,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     }
   }
   
-  public static final ImageSpan getMarkIcon(Context context, int type) {
+  public static ImageSpan getMarkIcon(Context context, int type) {
     ImageSpan result = null;
     
     if(type > 1) {

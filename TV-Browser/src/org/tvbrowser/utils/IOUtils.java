@@ -162,7 +162,7 @@ public class IOUtils {
     INFO_BLACK_SECOND_SIGN_LANGUAGE,
   };
   
-  public static final String[] getInfoStringArrayNames(Resources res) {
+  public static String[] getInfoStringArrayNames(Resources res) {
     return new String[]{
         res.getString(R.string.info_black_and_white),
         res.getString(R.string.info_four_to_three),
@@ -600,7 +600,7 @@ public class IOUtils {
     return bytesOut.toByteArray();
   }
   
-  public static final synchronized void setDataUpdateTime(Context context, long time, SharedPreferences pref) {
+  public static synchronized void setDataUpdateTime(Context context, long time, SharedPreferences pref) {
     /*AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
     Intent dataUpdate = new Intent(context, AutoDataUpdateReceiver.class);
@@ -613,7 +613,7 @@ public class IOUtils {
     }*/
   }
   
-  public static final synchronized void removeDataUpdateTime(Context context, SharedPreferences pref) {
+  public static synchronized void removeDataUpdateTime(Context context, SharedPreferences pref) {
     JobDataUpdateAuto.cancelJob(context);
     /*AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
@@ -626,7 +626,7 @@ public class IOUtils {
     }*/
   }
   
-  public static final void setDataTableRefreshTime(Context context) {
+  public static void setDataTableRefreshTime(Context context) {
     Calendar now = Calendar.getInstance();
     
     now.add(Calendar.DAY_OF_YEAR, 1);
@@ -648,11 +648,11 @@ public class IOUtils {
     CompatUtils.setExactAlarmAndAllowWhileIdle(context, alarmManager,AlarmManager.RTC_WAKEUP, now.getTimeInMillis(), pending);
   }
   
-  public static final synchronized void handleDataUpdatePreferences(Context context) {
+  public static synchronized void handleDataUpdatePreferences(Context context) {
     handleDataUpdatePreferences(context,false);
   }
   
-  public static final synchronized void handleDataUpdatePreferences(Context context, boolean fromNow) {
+  public static synchronized void handleDataUpdatePreferences(Context context, boolean fromNow) {
     JobDataUpdateAuto.scheduleJob(context);
     /*SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);
     IOUtils.removeDataUpdateTime(context, pref);
@@ -732,7 +732,7 @@ public class IOUtils {
     }*/
   }
   
-  public static final String[] getStringArrayFromList(ArrayList<String> list) {
+  public static String[] getStringArrayFromList(ArrayList<String> list) {
     if(list != null) {
       return list.toArray(new String[list.size()]);
     }
@@ -1005,15 +1005,15 @@ public class IOUtils {
     return result;
   }
   
-  public static final String getUniqueChannelKey(String groupKey, String channelKey) {
+  public static String getUniqueChannelKey(String groupKey, String channelKey) {
     return new StringBuilder(groupKey.trim()).append("_##_").append(channelKey.trim()).toString();
   }
   
-  public static final String[] getUniqueChannelKeyParts(String uniqueKey) {
+  public static String[] getUniqueChannelKeyParts(String uniqueKey) {
     return uniqueKey.split("_##_");
   }
   
-  public static final boolean isInteractive(Context context) {
+  public static boolean isInteractive(Context context) {
     return CompatUtils.isInteractive((PowerManager)context.getSystemService(Context.POWER_SERVICE));
   }
   
@@ -1101,7 +1101,7 @@ public class IOUtils {
     return epis.toString();
   }
   
-  public static final void deleteOldData(Context context) {
+  public static void deleteOldData(Context context) {
     Calendar cal2 = Calendar.getInstance();
     cal2.add(Calendar.DAY_OF_YEAR, -2);
     cal2.set(Calendar.HOUR_OF_DAY, 0);
@@ -1180,7 +1180,7 @@ public class IOUtils {
     * @return <code>true</code> if the cursor could be moved to the first entry,
     * <code>false</code> otherwise.
     */
-  public static final boolean prepareAccessFirst(Cursor cursor) {
+  public static boolean prepareAccessFirst(Cursor cursor) {
     boolean result = false;
     
     if(cursor != null && cursor.getCount() > 0 && !cursor.isClosed()) {
@@ -1191,7 +1191,7 @@ public class IOUtils {
     return result;
   }
   
-  public static final boolean prepareAccess(Cursor cursor) {
+  public static boolean prepareAccess(Cursor cursor) {
     boolean result = false;
     
     if(cursor != null && cursor.getCount() > 0 && !cursor.isClosed()) {
@@ -1221,7 +1221,7 @@ public class IOUtils {
     }
   }
   
-  public static final boolean isDatabaseAccessible(Context context) {
+  public static boolean isDatabaseAccessible(Context context) {
     boolean result = true;
     
     if(context != null) {
@@ -1243,7 +1243,7 @@ public class IOUtils {
    * @param target The target file.
    * @return <code>true</code> if the file could be copied, <code>false</code> otherwise.
    */
-  public static final boolean copyFile(File source, File target) {
+  public static boolean copyFile(File source, File target) {
     boolean result = false;
     
     if(source.isFile()) {
@@ -1281,7 +1281,7 @@ public class IOUtils {
     return result;
   }
   
-  public static final boolean isBatterySufficient(Context context) {
+  public static boolean isBatterySufficient(Context context) {
     boolean result = false;
     
     if(context != null && context.getApplicationContext() != null) {
