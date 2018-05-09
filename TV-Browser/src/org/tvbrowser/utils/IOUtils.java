@@ -324,11 +324,11 @@ public class IOUtils {
     return categories;
   }*/
   
-  public static byte[] loadUrl(String urlString) throws MalformedURLException, IOException, TimeoutException {
+  public static byte[] loadUrl(String urlString) throws IOException, TimeoutException {
     return loadUrl(urlString, 30000);
   }
   
-  public static byte[] loadUrl(final String urlString, final int timeout) throws MalformedURLException, IOException, TimeoutException {
+  public static byte[] loadUrl(final String urlString, final int timeout) throws IOException, TimeoutException {
     final AtomicInteger count = new AtomicInteger(0);
     final AtomicReference<byte[]> loadData = new AtomicReference<byte[]>(null);
     
@@ -371,7 +371,7 @@ public class IOUtils {
     return loadData.get();
   }
   
-  private static byte[] loadUrl(final String urlString, final AtomicInteger timeoutCount) throws MalformedURLException, IOException {
+  private static byte[] loadUrl(final String urlString, final AtomicInteger timeoutCount) throws IOException {
     BufferedInputStream in = null;
     ByteArrayOutputStream out = new ByteArrayOutputStream();
     
