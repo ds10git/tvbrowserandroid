@@ -1528,7 +1528,7 @@ public class TvDataUpdateService extends Service {
         
         while(currentChannels.moveToNext()) {
           String key = IOUtils.getUniqueChannelKey(currentChannels.getString(groupKeyIndex), currentChannels.getString(channelKeyIndex));
-          mCurrentChannelData.put(key, new Object[] {Integer.valueOf(currentChannels.getInt(idIndex)) , currentChannels.getString(channelNameIndex), Integer.valueOf(currentChannels.getInt(channelSelectionIndex))});
+          mCurrentChannelData.put(key, new Object[] {currentChannels.getInt(idIndex), currentChannels.getString(channelNameIndex), currentChannels.getInt(channelSelectionIndex)});
         }
       }
     }finally {
@@ -1704,7 +1704,7 @@ public class TvDataUpdateService extends Service {
       while(currentGroupsQuery.moveToNext()) {
         String key = getGroupsKey(currentGroupsQuery.getString(dataServiceIndex),currentGroupsQuery.getString(groupIndex));
         
-        currentGroups.put(key, new Object[] {Integer.valueOf(currentGroupsQuery.getInt(keyIndex)), currentGroupsQuery.getString(mirrorIndex)});
+        currentGroups.put(key, new Object[] {currentGroupsQuery.getInt(keyIndex), currentGroupsQuery.getString(mirrorIndex)});
       }
     }finally {
       IOUtils.close(currentGroupsQuery);
