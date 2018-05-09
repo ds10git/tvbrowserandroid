@@ -5295,10 +5295,8 @@ public class TvDataUpdateService extends Service {
             Set<String> keySet = current.keySet();
             
             missingFrameIDs = new ArrayList<>(keySet.size());
-            
-            for(String frameID : keySet) {
-              missingFrameIDs.add(frameID);
-            }
+
+            missingFrameIDs.addAll(keySet);
             
             doLog("CURRENT FRAMES COUNT FOR '" + dataFile.getName() + "' " + missingFrameIDs.size());
           }

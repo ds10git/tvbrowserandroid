@@ -1508,10 +1508,8 @@ public class TvBrowserContentProvider extends ContentProvider {
         final ArrayList<String> dataKeysList = new ArrayList<>(MAP_DATA_KEY_TYPE.size());
         
         final Set<String> dataKeySet = MAP_DATA_KEY_TYPE.keySet();
-        
-        for(String dataKey : dataKeySet) {
-          dataKeysList.add(dataKey);
-        }
+
+        dataKeysList.addAll(dataKeySet);
         
         final Cursor columnNames = db.rawQuery("PRAGMA table_info(" + DATA_TABLE + ")", null);
         
