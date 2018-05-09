@@ -117,7 +117,7 @@ public class ProgramPanel extends View {
   /*
    * Breaks the given String into string with line breaks at needed positions.
    */
-  private static final Object[] getBreakerText(String temp, int width, Paint toCheck) {
+  private static Object[] getBreakerText(String temp, int width, Paint toCheck) {
     StringBuilder parts = new StringBuilder();
     
     temp = temp.trim().replace("\u00AD", "");

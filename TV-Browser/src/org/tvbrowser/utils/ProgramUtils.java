@@ -383,7 +383,7 @@ public class ProgramUtils {
     handleKnownIdInternal(context, firstProgramId, lastProgramId, PrefUtils.TYPE_PREFERENCES_MARKING_SYNC);
   }
   
-  private static final void handleKnownIdInternal(Context context, long firstProgramId, long lastProgramId, int prefType) {
+  private static void handleKnownIdInternal(Context context, long firstProgramId, long lastProgramId, int prefType) {
     SharedPreferences pref = PrefUtils.getSharedPreferences(prefType, context);
     Editor edit = pref.edit();
     
@@ -606,7 +606,7 @@ public class ProgramUtils {
     removeMarkId(context, programId, PrefUtils.TYPE_PREFERENCES_MARKING_SYNC);
   }
     
-  private static final void addMarkId(Context context, long programId, int type) {
+  private static void addMarkId(Context context, long programId, int type) {
     Editor edit = PrefUtils.getSharedPreferences(type, context).edit();
     
     edit.putBoolean(String.valueOf(programId), true);
@@ -614,7 +614,7 @@ public class ProgramUtils {
     edit.commit();
   }
   
-  private static final void addMarkIds(Context context, ArrayList<String> idList, int type) {
+  private static void addMarkIds(Context context, ArrayList<String> idList, int type) {
     Editor edit = PrefUtils.getSharedPreferences(type, context).edit();
     
     for(String programId : idList) {
@@ -624,7 +624,7 @@ public class ProgramUtils {
     edit.commit();
   }
   
-  private static final void removeMarkId(Context context, long programId, int type) {
+  private static void removeMarkId(Context context, long programId, int type) {
     Editor edit = PrefUtils.getSharedPreferences(type, context).edit();
     
     edit.remove(String.valueOf(programId));
@@ -632,7 +632,7 @@ public class ProgramUtils {
     edit.commit();
   }
   
-  private static final void removeMarkIds(Context context, ArrayList<String> idList, int type) {
+  private static void removeMarkIds(Context context, ArrayList<String> idList, int type) {
     Editor edit = PrefUtils.getSharedPreferences(type, context).edit();
     
     for(String programId : idList) {

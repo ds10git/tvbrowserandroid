@@ -265,7 +265,7 @@ public class TvBrowser extends AppCompatActivity {
     super.onSaveInstanceState(outState);
   }
 
-  private final boolean addUserColor(SharedPreferences pref, Editor edit, int defaultColorKey, int colorKey, int userColorKey) {
+  private boolean addUserColor(SharedPreferences pref, Editor edit, int defaultColorKey, int colorKey, int userColorKey) {
     int defaultColor = ContextCompat.getColor(this, defaultColorKey);
     int color = pref.getInt(getString(colorKey), defaultColor);
 

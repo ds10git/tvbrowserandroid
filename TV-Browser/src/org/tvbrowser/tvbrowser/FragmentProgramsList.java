@@ -907,7 +907,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     }
   }*/
   
-  private static final String[] getProjection() {
+  private static String[] getProjection() {
     String[] projection = null;
     String[] infoCategories = TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY;
     

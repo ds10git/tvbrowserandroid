@@ -86,7 +86,7 @@ public class ServiceChannelCleaner extends Service {
     return Service.START_NOT_STICKY;
   }
   
-  private static final String getChannelGroupKey(String channelKey, int groupKey) {
+  private static String getChannelGroupKey(String channelKey, int groupKey) {
     return new StringBuilder(channelKey).append(";").append(groupKey).toString();
   }
 }

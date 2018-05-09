@@ -1208,7 +1208,7 @@ public class TvDataUpdateService extends Service {
     }
   }
   
-  private static final String getGroupChannelKey(String groupKey, String channelId) {
+  private static String getGroupChannelKey(String groupKey, String channelId) {
     return groupKey + "_##_" + channelId;
   }
 
@@ -1681,7 +1681,7 @@ public class TvDataUpdateService extends Service {
     return result;
   }
   
-  private static final String getGroupsKey(String dataServiceId, String groupId) {
+  private static String getGroupsKey(String dataServiceId, String groupId) {
     return dataServiceId.trim() + "_##_" + groupId.trim();
   }
   
@@ -4133,13 +4133,13 @@ public class TvDataUpdateService extends Service {
     return summary;
   }
   
-  private static final void addArrayToList(ArrayList<String> list, String[] values) {
+  private static void addArrayToList(ArrayList<String> list, String[] values) {
     if(values != null && list != null) {
       Collections.addAll(list, values);
     }
   }
   
-  private static final void removeEpgPaidFieldsIfNecessary(ArrayList<String> columnList, String channelId, Set<String> epgPaidChannelIds) {
+  private static void removeEpgPaidFieldsIfNecessary(ArrayList<String> columnList, String channelId, Set<String> epgPaidChannelIds) {
     if(columnList != null && channelId != null && epgPaidChannelIds != null && epgPaidChannelIds.contains(channelId)) {
       for(String field : FIELDS_EPGPAID_POSSIBLE) {
         columnList.remove(field);

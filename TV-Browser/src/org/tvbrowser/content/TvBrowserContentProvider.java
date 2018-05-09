@@ -1155,7 +1155,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     private static final String CREATE_DATA_TABLE = sqlCreateDataTable(); 
     
-    private static final String sqlCreateDataTable() {
+    private static String sqlCreateDataTable() {
       final StringBuilder builder = new StringBuilder();
       
       builder.append("create table ").append(DATA_TABLE).append(" (").append(KEY_ID).append(" INTEGER primary key autoincrement, ");
@@ -1559,11 +1559,11 @@ public class TvBrowserContentProvider extends ContentProvider {
     }
   }
   
-  private static final boolean columnExists(SQLiteDatabase db, String columnName) {
+  private static boolean columnExists(SQLiteDatabase db, String columnName) {
     return columnExists(db, CHANNEL_TABLE, columnName);
   }
   
-  private static final boolean columnExists(SQLiteDatabase db, String table, String columnName) {
+  private static boolean columnExists(SQLiteDatabase db, String table, String columnName) {
     boolean result = false;
     
     Cursor c = db.rawQuery("PRAGMA table_info(" + table + ")", null);
