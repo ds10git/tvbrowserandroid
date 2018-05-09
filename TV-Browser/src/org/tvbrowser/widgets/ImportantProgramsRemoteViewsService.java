@@ -253,7 +253,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
       }
     }
     
-    public ImportantProgramsRemoteViewsFactory(Context context, Bundle extras) {
+    ImportantProgramsRemoteViewsFactory(Context context, Bundle extras) {
       PrefUtils.initialize(context);
       mContext = context;
       

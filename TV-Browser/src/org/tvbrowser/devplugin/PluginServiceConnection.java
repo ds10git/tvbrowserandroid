@@ -147,7 +147,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     readPluginMetaData();
   }
   
-  public void callOnActivation() {
+  private void callOnActivation() {
     if(isConnected()) {
       try {
         if(PluginHandler.getPluginManager() != null) {
@@ -202,7 +202,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     }
   }
   
-  public void readPluginMetaData() {
+  private void readPluginMetaData() {
     if(isConnected()) {
       try {
         mPluginName = mPlugin.getName();

@@ -148,7 +148,7 @@ public class ProgramUtils {
     return programsList.isEmpty() ? null : programsList.toArray(new Program[programsList.size()]);
   }
   
-  public static Channel createChannelFromCursor(Context context, Cursor cursor) {
+  private static Channel createChannelFromCursor(Context context, Cursor cursor) {
     Channel result = null;
     
     if(IOUtils.isDatabaseAccessible(context) && cursor != null && !cursor.isClosed() && cursor.moveToFirst()) {

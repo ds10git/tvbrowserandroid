@@ -172,7 +172,7 @@ public class ProgramPanel extends View {
     }
   }
   
-  public int getTextWidth() {
+  private int getTextWidth() {
     return ProgramTableLayoutConstants.COLUMN_WIDTH - ProgramTableLayoutConstants.PADDING_SIDE * 3;
   }
   
@@ -375,7 +375,7 @@ public class ProgramPanel extends View {
     return mStartTime.getTime() <= System.currentTimeMillis() && mEndTime > System.currentTimeMillis();
   }
   
-  public boolean isExpired() {
+  private boolean isExpired() {
     if(!mIsExpired) {
       mIsExpired = mEndTime < System.currentTimeMillis();
     }
@@ -433,25 +433,25 @@ public class ProgramPanel extends View {
     private String mText;
     private boolean mNeedsSeparator;
     
-    public ColorEntry(Integer color, String text, boolean needsSeparator) {
+    ColorEntry(Integer color, String text, boolean needsSeparator) {
       mColor = color;
       mText = text;
       mNeedsSeparator = needsSeparator;
     }
     
-    public float measure(Paint paint) {
+    float measure(Paint paint) {
       return paint.measureText(mText);
     }
     
-    public String getText() {
+    String getText() {
       return mText;
     }
     
-    public Integer getColor() {
+    Integer getColor() {
       return mColor;
     }
     
-    public boolean needsSeparator() {
+    boolean needsSeparator() {
       return mNeedsSeparator;
     }
   }
@@ -459,15 +459,15 @@ public class ProgramPanel extends View {
   private static final class ColorLine {
     private ArrayList<ColorEntry> mEntryList;
     
-    public ColorLine() {
+    ColorLine() {
       mEntryList = new ArrayList<ProgramPanel.ColorEntry>();
     }
     
-    public Iterator<ColorEntry> getEntries() {
+    Iterator<ColorEntry> getEntries() {
       return mEntryList.iterator();
     }
     
-    public void addEntry(ColorEntry entry) {
+    void addEntry(ColorEntry entry) {
       mEntryList.add(entry);
     }
   }

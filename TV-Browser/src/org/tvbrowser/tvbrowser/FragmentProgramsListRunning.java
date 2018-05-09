@@ -113,17 +113,17 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   private long mCurrentTime;
   
-  int mProgramIDColumn;
-  int mStartTimeColumn;
-  int mEndTimeColumn;
-  int mTitleColumn;
-  int mPictureColumn;
-  int mPictureCopyrightColumn;
-  int mCategoryColumn;
-  int mGenreColumn;
-  int mEpsiodeColumn;
-  int mChannelNameColumn;
-  int mChannelIDColumn;
+  private int mProgramIDColumn;
+  private int mStartTimeColumn;
+  private int mEndTimeColumn;
+  private int mTitleColumn;
+  private int mPictureColumn;
+  private int mPictureCopyrightColumn;
+  private int mCategoryColumn;
+  private int mGenreColumn;
+  private int mEpsiodeColumn;
+  private int mChannelNameColumn;
+  private int mChannelIDColumn;
   
   private boolean showEpisode;
   private boolean showInfo;
@@ -326,7 +326,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMarkingChangeReceiver, markingsFilter);
   }
   
-  public void setDay(long start) {
+  private void setDay(long start) {
     if(start != mDayStart) {
       mDayStart = start;
       
@@ -375,7 +375,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     }
   }
   
-  public void setWhereClauseTime(Object time) {
+  private void setWhereClauseTime(Object time) {
     if(time instanceof Integer) {
       int testValue = (Integer) time;
       
@@ -483,7 +483,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     TextView mNextInfos;
     TextView mNextEpisode;
     
-    public void setVisibility(int type, int visibility) {
+    void setVisibility(int type, int visibility) {
       switch(type) {
         case PREVIOUS:
           mPrevious.setVisibility(visibility);
@@ -506,18 +506,18 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       }
     }
     
-    public void setSeparatorVisibility(int visibility) {
+    void setSeparatorVisibility(int visibility) {
        if(mSeparator1 != null) {
          mSeparator1.setVisibility(visibility);
          mSeparator2.setVisibility(visibility);
        }
     }
     
-    public boolean orientationChanged(int orientation) {
+    boolean orientationChanged(int orientation) {
       return mCurrentOrientation != orientation;
     }
     
-    public void setColor(int type, int color) {
+    void setColor(int type, int color) {
       switch (type) {
         case PREVIOUS:
           mPreviousEpisode.setTextColor(color);
@@ -1413,46 +1413,46 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   
   private static final class ChannelProgramBlock {
     public long mCreationTime;
-    public int mChannelID;
+    int mChannelID;
     private String mChannelName;
     private int mChannelOrderNumber;
     
-    public int mPreviousPosition;
-    public long mPreviousStart;
-    public long mPreviousEnd;
-    public long mPreviousProgramID;
+    int mPreviousPosition;
+    long mPreviousStart;
+    long mPreviousEnd;
+    long mPreviousProgramID;
 //    public String mPreviousTitle;
-    public String mPreviousEpisode;
-    public String mPreviousGenre;
-    public Spannable mPreviousCategory;
-    public String mPreviousPictureCopyright;
-    public byte[] mPreviousPicture;
+String mPreviousEpisode;
+    String mPreviousGenre;
+    Spannable mPreviousCategory;
+    String mPreviousPictureCopyright;
+    byte[] mPreviousPicture;
 
-    public int mNowPosition;
-    public long mNowStart;
-    public long mNowEnd;
-    public long mNowProgramID;
+    int mNowPosition;
+    long mNowStart;
+    long mNowEnd;
+    long mNowProgramID;
    // public String mNowTitle;
-    public String mNowEpisode;
-    public String mNowGenre;
-    public Spannable mNowCategory;
-    public String mNowPictureCopyright;
-    public byte[] mNowPicture;
+   String mNowEpisode;
+    String mNowGenre;
+    Spannable mNowCategory;
+    String mNowPictureCopyright;
+    byte[] mNowPicture;
     
-    public int mNextPosition;
-    public long mNextStart;
-    public long mNextEnd;
-    public long mNextProgramID;
+    int mNextPosition;
+    long mNextStart;
+    long mNextEnd;
+    long mNextProgramID;
    // public String mNextTitle;
-    public String mNextEpisode;
-    public String mNextGenre;
-    public Spannable mNextCategory;
-    public String mNextPictureCopyright;
-    public byte[] mNextPicture;
+   String mNextEpisode;
+    String mNextGenre;
+    Spannable mNextCategory;
+    String mNextPictureCopyright;
+    byte[] mNextPicture;
 
-    public boolean mIsComplete;
+    boolean mIsComplete;
     
-    public ChannelProgramBlock() {
+    ChannelProgramBlock() {
       mIsComplete = false;
     }
   }

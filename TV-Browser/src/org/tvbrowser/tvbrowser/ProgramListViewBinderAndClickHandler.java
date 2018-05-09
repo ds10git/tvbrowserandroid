@@ -47,7 +47,7 @@ import android.widget.ListView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
 
-public class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBinder{
+class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBinder{
   private Activity mActivity;
   private int mDefaultTextColor;
   private ShowDateInterface mDateShowInterface;

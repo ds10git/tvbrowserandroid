@@ -75,7 +75,7 @@ public class DynamicListView extends ListView {
     private final int LINE_THICKNESS = 15;
 
     // Changed generic type for channel sort
-    public ArrayList<SortInterface> mItemList;
+    private ArrayList<SortInterface> mItemList;
 
     private int mLastEventY = -1;
 
@@ -125,7 +125,7 @@ public class DynamicListView extends ListView {
         init(context);
     }
 
-    public void init(Context context) {
+    private void init(Context context) {
         setOnItemLongClickListener(mOnItemLongClickListener);
         setOnScrollListener(mScrollListener);
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
@@ -228,7 +228,7 @@ public class DynamicListView extends ListView {
     }
 
     /** Retrieves the view in the list corresponding to itemID */
-    public View getViewForID (long itemID) {
+    private View getViewForID(long itemID) {
         int firstVisiblePosition = getFirstVisiblePosition();
         // changed to use generic type
         StableArrayAdapter<SortInterface> adapter = ((StableArrayAdapter<SortInterface>)getAdapter());
@@ -244,7 +244,7 @@ public class DynamicListView extends ListView {
     }
 
     /** Retrieves the position in the list corresponding to itemID */
-    public int getPositionForID (long itemID) {
+    private int getPositionForID(long itemID) {
         View v = getViewForID(itemID);
         if (v == null) {
             return -1;
@@ -496,7 +496,7 @@ public class DynamicListView extends ListView {
                     interpolate(startValue.bottom, endValue.bottom, fraction));
         }
 
-        public int interpolate(int start, int end, float fraction) {
+        int interpolate(int start, int end, float fraction) {
             return (int)(start + fraction * (end - start));
         }
     };
@@ -514,7 +514,7 @@ public class DynamicListView extends ListView {
      * or below the bounds of the listview. If so, the listview does an appropriate
      * upward or downward smooth scroll so as to reveal new items.
      */
-    public boolean handleMobileCellScroll(Rect r) {
+    private boolean handleMobileCellScroll(Rect r) {
         int offset = computeVerticalScrollOffset();
         int height = getHeight();
         int extent = computeVerticalScrollExtent();
@@ -605,7 +605,7 @@ public class DynamicListView extends ListView {
          * Determines if the listview scrolled up enough to reveal a new cell at the
          * top of the list. If so, then the appropriate parameters are updated.
          */
-        public void checkAndHandleFirstVisibleCellChange() {
+        void checkAndHandleFirstVisibleCellChange() {
             if (mCurrentFirstVisibleItem != mPreviousFirstVisibleItem) {
                 if (mCellIsMobile && mMobileItemId != INVALID_ID) {
                     updateNeighborViewsForID(mMobileItemId);
@@ -618,7 +618,7 @@ public class DynamicListView extends ListView {
          * Determines if the listview scrolled down enough to reveal a new cell at the
          * bottom of the list. If so, then the appropriate parameters are updated.
          */
-        public void checkAndHandleLastVisibleCellChange() {
+        void checkAndHandleLastVisibleCellChange() {
             int currentLastVisibleItem = mCurrentFirstVisibleItem + mCurrentVisibleItemCount;
             int previousLastVisibleItem = mPreviousFirstVisibleItem + mPreviousVisibleItemCount;
             if (currentLastVisibleItem != previousLastVisibleItem) {

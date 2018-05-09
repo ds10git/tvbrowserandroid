@@ -35,7 +35,7 @@ import android.util.Log;
  * 
  * @author René Mach
  */
-public class MemorySizeConstrictedDatabaseOperation {
+class MemorySizeConstrictedDatabaseOperation {
   private static final int TABLE_OPERATION_MIN_SIZE = Math.max(100, (int)(Runtime.getRuntime().maxMemory()/1000000));
   private Context mContext;
   

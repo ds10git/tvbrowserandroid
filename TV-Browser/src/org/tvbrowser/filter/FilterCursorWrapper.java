@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 
-public class FilterCursorWrapper extends CursorWrapper {
+class FilterCursorWrapper extends CursorWrapper {
   private Integer[] filterMap = null;
   private int mPos = -1;
   private Cursor mCursor;

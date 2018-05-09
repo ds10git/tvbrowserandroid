@@ -20,7 +20,7 @@ import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;
 
-public class DateSelection {
+class DateSelection {
   public static final int VALUE_DATE_ALL = -1;
   public static final int VALUE_DATE_TODAY_TOMORROW = -2;
   

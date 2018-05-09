@@ -93,11 +93,11 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
     return COMPARATOR_DOWN;
   }
 
-  public PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay) {
+  private PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay) {
     this(packageName, minApiVersion, version, author, isOnGooglePlay, null, null, null, null, null);
   }
   
-  public PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay, String nameDe, String nameEn, String descriptionDe, String descriptionEn, String[] services) {
+  private PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay, String nameDe, String nameEn, String descriptionDe, String descriptionEn, String[] services) {
     mPackageName = packageName;
     mMinApiVersion = minApiVersion;
     mVersion = version;

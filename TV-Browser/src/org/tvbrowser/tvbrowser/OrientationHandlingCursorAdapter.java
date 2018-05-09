@@ -39,7 +39,7 @@ import android.widget.AdapterView;
  * <p>
  * @author René Mach
  */
-public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
+class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
   private View.OnClickListener mOnClickListener;
   private View.OnClickListener mChannelSwitchListener;
   private View.OnCreateContextMenuListener mContextMenuListener;
@@ -115,15 +115,15 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
   }
 
   private static final class ChannelProgInfo {
-    public int mID;
-    public long mStartTime;
+    int mID;
+    long mStartTime;
   }
   
   private static final class ProgTag {
-    public int mOrientation;
-    public float mTextScale;
-    public int mPadding;
-    public View mPaddingView;
+    int mOrientation;
+    float mTextScale;
+    int mPadding;
+    View mPaddingView;
   }
   
   @Override

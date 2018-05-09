@@ -269,7 +269,7 @@ public class FragmentProgramTable extends Fragment {
   }
 
   
-  Handler handler = new Handler();
+  private Handler handler = new Handler();
   
   @Override
   public void onResume() {
@@ -563,7 +563,7 @@ public class FragmentProgramTable extends Fragment {
     }
   }
   
-  public void updateView(LayoutInflater inflater, ViewGroup container) {
+  private void updateView(LayoutInflater inflater, ViewGroup container) {
     if(mUpdatingRunningPrograms) {
       Thread t = new Thread() {
         public void run() {
@@ -882,7 +882,7 @@ public class FragmentProgramTable extends Fragment {
     }
   }
   
-  void updateView(LayoutInflater inflater) {
+  private void updateView(LayoutInflater inflater) {
     RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
     
     if(layout != null && inflater != null) {
@@ -1104,7 +1104,7 @@ public class FragmentProgramTable extends Fragment {
   }*/
   
   @SuppressLint("NewApi")
-  public void selectDate(View view) {try {
+  private void selectDate(View view) {try {
     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
     
     long testDay = System.currentTimeMillis() / 1000 / 60 / 60 / 24;

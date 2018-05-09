@@ -126,7 +126,7 @@ public class ActivityFilterListEdit extends AppCompatActivity {
   
   private FilterValues mCurrentFilter = null;
   
-  public void addFilter(FilterValues filter) {
+  private void addFilter(FilterValues filter) {
     mCurrentFilter = filter;
     
     mCurrentFilter.edit(ActivityFilterListEdit.this, new Runnable() {

@@ -153,8 +153,8 @@ public class UiUtils {
   public static final int MARKED_FAVORITE_COLOR_KEY = 2;
   public static final int MARKED_REMINDER_COLOR_KEY = 3;
   public static final int MARKED_SYNC_COLOR_KEY = 4;
-  public static final int ON_AIR_BACKGROUND_KEY = 5;
-  public static final int ON_AIR_PROGRESS_KEY = 6;
+  private static final int ON_AIR_BACKGROUND_KEY = 5;
+  private static final int ON_AIR_PROGRESS_KEY = 6;
   public static final int RUNNING_TIME_SELECTION_KEY = 7;
   public static final int I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR_KEY = 8;
   
@@ -1089,7 +1089,7 @@ public class UiUtils {
     }
   }
   
-  public static void searchForRepetition(final Context activity, String title, String episode, View parent) {
+  private static void searchForRepetition(final Context activity, String title, String episode, View parent) {
     final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     final RelativeLayout layout = (RelativeLayout)((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.search_repetition_layout, parent instanceof ViewGroup ? (ViewGroup)parent : null, false);
     final Resources resources = activity.getResources();
@@ -1550,7 +1550,7 @@ public class UiUtils {
     private long mEndTime;
     private boolean mVertical;
     
-    public RunningDrawable(Paint base, Paint second, long startTime, long endTime, boolean vertical) {
+    RunningDrawable(Paint base, Paint second, long startTime, long endTime, boolean vertical) {
       mBase = base;
       mSecond = second;
       mStartTime = startTime;
@@ -1627,7 +1627,7 @@ public class UiUtils {
     }
   }
   
-  public static LayerDrawable getMarkingsDrawable(Context context, Cursor cursor, long startTime, long endTime, String[] markedColumns,boolean vertical) {
+  private static LayerDrawable getMarkingsDrawable(Context context, Cursor cursor, long startTime, long endTime, String[] markedColumns, boolean vertical) {
     if(markedColumns == null && cursor != null) {
       ArrayList<String> markedColumnList = new ArrayList<String>();
       
@@ -1721,7 +1721,7 @@ public class UiUtils {
     activity.startActivity(startEditFavorite);
   }
   
-  public static String formatDate(long date, Context context, boolean onlyDays) {
+  private static String formatDate(long date, Context context, boolean onlyDays) {
     return formatDate(date, context, onlyDays, false);
   }
   
@@ -1840,7 +1840,7 @@ public class UiUtils {
     return px/scaledDensity;
   }
   
-  public static boolean filter(String title, DontWantToSeeExclusion exclusion) {
+  private static boolean filter(String title, DontWantToSeeExclusion exclusion) {
     return exclusion.matches(title);
   }
   
@@ -1888,7 +1888,7 @@ public class UiUtils {
     return getColor(key, PreferenceManager.getDefaultSharedPreferences(context),context);
   }
   
-  public static int getColor(int key, SharedPreferences pref, Context context) throws NullPointerException {
+  private static int getColor(int key, SharedPreferences pref, Context context) throws NullPointerException {
     if(pref == null) {
       throw new NullPointerException("Preferences parameter is null.");
     }
@@ -2584,7 +2584,7 @@ public class UiUtils {
     Spannable mName;
     boolean mSelected;
     
-    public AdapterCategory(int index, Spannable name, boolean selected) {
+    AdapterCategory(int index, Spannable name, boolean selected) {
       mIndex = index;
       mName = name;
       mSelected = selected;
@@ -2628,7 +2628,7 @@ public class UiUtils {
     Bitmap mChannelLogo;
     boolean mSelected; 
     
-    public AdapterChannel(int channelID, String name, Bitmap channelLogo, boolean selected) {
+    AdapterChannel(int channelID, String name, Bitmap channelLogo, boolean selected) {
       mChannelID = channelID;
       mName = name;
       mChannelLogo = channelLogo;
@@ -2675,7 +2675,7 @@ public class UiUtils {
     private boolean mHighlight;
     private int mHighlightColor;
     
-    public ActorColumnSpan(String actor, int leadingMargin, ArrayList<FavoriteTypePattern> patternList, int color) {
+    ActorColumnSpan(String actor, int leadingMargin, ArrayList<FavoriteTypePattern> patternList, int color) {
       mHighlight = false;
       
       for(FavoriteTypePattern pattern : patternList) {
@@ -2748,16 +2748,16 @@ public class UiUtils {
     view.setText(string);
   }
   
-  public static final class FavoriteTypePattern {
+  static final class FavoriteTypePattern {
     private int mType;
     private Pattern mPattern;
     
-    public FavoriteTypePattern(int type, Pattern pattern) {
+    FavoriteTypePattern(int type, Pattern pattern) {
       mType = type;
       mPattern = pattern;
     }
     
-    public SpannableStringBuilder addHighlighting(SpannableStringBuilder text, BackgroundColorSpan backgroundColorSpan) {
+    SpannableStringBuilder addHighlighting(SpannableStringBuilder text, BackgroundColorSpan backgroundColorSpan) {
       final Matcher m = mPattern.matcher(text);
       
       int pos = 0;
@@ -2771,7 +2771,7 @@ public class UiUtils {
       return text;
     }
     
-    public boolean isNotOnlyTitleType() {
+    boolean isNotOnlyTitleType() {
       return mType != Favorite.KEYWORD_ONLY_TITLE_TYPE;
     }
   }

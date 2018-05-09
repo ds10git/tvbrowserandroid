@@ -277,7 +277,7 @@ public class PrefUtils {
     return getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).getBoolean(context.getString(R.string.CHANNELS_SELECTED), context.getResources().getBoolean(R.bool.channels_selected_default));
   }
   
-  public static String getFilterSelection(final Context context, final Set<String> filterIds) {
+  private static String getFilterSelection(final Context context, final Set<String> filterIds) {
     final HashSet<FilterValues> filterValues = new HashSet<FilterValues>();
     
     for(String filterId : filterIds) {

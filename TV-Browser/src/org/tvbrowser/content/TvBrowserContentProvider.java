@@ -125,10 +125,10 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String CHANNEL_KEY_JOINED_CHANNEL_ID = "joinedChannelID";
   public static final String CHANNEL_KEY_ORDER_NUMBER = "orderNumber";
   public static final String CHANNEL_KEY_SELECTION = "isSelected";
-  public static final String CHANNEL_KEY_USER_CHANNEL_NAME = "userChannelName";
-  public static final String CHANNEL_KEY_USER_ICON = "userChannelIcon";
-  public static final String CHANNEL_KEY_USER_START_TIME = "userStartTime";
-  public static final String CHANNEL_KEY_USER_END_TIME = "userEndTime";
+  private static final String CHANNEL_KEY_USER_CHANNEL_NAME = "userChannelName";
+  private static final String CHANNEL_KEY_USER_ICON = "userChannelIcon";
+  private static final String CHANNEL_KEY_USER_START_TIME = "userStartTime";
+  private static final String CHANNEL_KEY_USER_END_TIME = "userEndTime";
   
   // Column names for the data table
   public static final String DATA_KEY_STARTTIME = "startTime";
@@ -302,7 +302,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   }
   
   // Artificial key for creating column at selection
-  public static final String DATA_KEY_START_DAY_LOCAL = "startDayLocal";
+  private static final String DATA_KEY_START_DAY_LOCAL = "startDayLocal";
   
   public static final String[] INFO_CATEGORIES_COLUMNS_ARRAY = {
     DATA_KEY_INFO_BLACK_AND_WHITE,
@@ -1185,8 +1185,8 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     private Context mContext;
     
-    public TvBrowserDataBaseHelper(Context context, String name,
-        CursorFactory factory, int version) {
+    TvBrowserDataBaseHelper(Context context, String name,
+                            CursorFactory factory, int version) {
       super(context,name, factory, version);
       mContext = context.getApplicationContext();
     }

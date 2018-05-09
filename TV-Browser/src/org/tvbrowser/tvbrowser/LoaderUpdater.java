@@ -72,7 +72,7 @@ public class LoaderUpdater {
     startUpdate(nextUpdate, null);
   }
   
-  public synchronized void startUpdate(long nextUpdate, final CallbackObjects callbackObjects) {
+  private synchronized void startUpdate(long nextUpdate, final CallbackObjects callbackObjects) {
     mLastUpdateStart = System.currentTimeMillis();
     if((nextUpdate == 0 || nextUpdate >= System.currentTimeMillis()) && 
         (mUpdateWaitingThread == null || !mUpdateWaitingThread.isAlive())) {
@@ -115,7 +115,7 @@ public class LoaderUpdater {
   
   
   public static final class UnsupportedFragmentException extends Exception {
-    public UnsupportedFragmentException() {
+    UnsupportedFragmentException() {
       super("Fragment not supported, must implement android.support.v4.app.LoaderManager.LoaderCallbacks<Cursor>");
     }
   }
@@ -190,7 +190,7 @@ public class LoaderUpdater {
       return defaultValue;
     }
     
-    public CallbackObject<?> getCallbackObject(String name, CallbackObject<?> defaultValue) {
+    CallbackObject<?> getCallbackObject(String name, CallbackObject<?> defaultValue) {
       synchronized (mCallbackObjects) {
         for(CallbackObject<?> test : mCallbackObjects) {
           if(name.equals(test.mName)) {

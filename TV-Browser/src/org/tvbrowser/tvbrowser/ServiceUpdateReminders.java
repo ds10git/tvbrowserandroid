@@ -171,11 +171,11 @@ public class ServiceUpdateReminders extends Service {
     startReminderUpdate(context,false);
   }
   
-  public static void startReminderUpdate(Context context, boolean firstStart) {
+  private static void startReminderUpdate(Context context, boolean firstStart) {
     startReminderUpdate(context,false,-1);
   }
   
-  public static void startReminderUpdate(Context context, boolean firstStart, long ignoreId) {
+  private static void startReminderUpdate(Context context, boolean firstStart, long ignoreId) {
     Intent updateAlarms = new Intent(context, ServiceUpdateReminders.class);
     updateAlarms.putExtra(ServiceUpdateReminders.EXTRA_FIRST_STARTUP, firstStart);
     context.startService(updateAlarms);

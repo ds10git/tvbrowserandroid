@@ -21,9 +21,9 @@ public abstract class FilterValues {
   private static final String SEPARATOR = "##_##";
   
   private String mId;
-  protected String mName;
+  String mName;
   
-  public FilterValues(String name) {
+  FilterValues(String name) {
     mId = String.valueOf(System.currentTimeMillis());
     mName = name;
   }
@@ -39,7 +39,7 @@ public abstract class FilterValues {
     return getClass().getCanonicalName() + SEPARATOR_CLASS + mId;
   }
   
-  public final String getName() {
+  private String getName() {
     return mName;
   }
   

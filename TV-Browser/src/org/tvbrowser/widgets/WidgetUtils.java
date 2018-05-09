@@ -27,7 +27,7 @@ import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.text.style.RelativeSizeSpan;
 
-public final class WidgetUtils {
+final class WidgetUtils {
   @SuppressLint("UseSparseArrays")
   public static Spannable getMarkings(Context context, Cursor cursor, boolean showMarkings, int pluginMarkingIndex, int favoriteMarkingIndex, int reminderMarkingIndex, int favoriteReminderMarkingIndex, int syncMarkingIndex) {
     SpannableStringBuilder markings = new SpannableStringBuilder();

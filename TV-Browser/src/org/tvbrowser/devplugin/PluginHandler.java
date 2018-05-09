@@ -48,7 +48,7 @@ import android.os.RemoteException;
  * @author René Mach
  */
 public final class PluginHandler {
-  public static final String PLUGIN_ACTION = "org.tvbrowser.intent.action.PLUGIN";
+  private static final String PLUGIN_ACTION = "org.tvbrowser.intent.action.PLUGIN";
   private static ArrayList<PluginServiceConnection> PLUGIN_LIST;
   
   private static PluginManager PLUGIN_MANAGER;
@@ -401,7 +401,7 @@ public final class PluginHandler {
     }
   }
   
-  public static void incrementBlogCountIfZero() {
+  private static void incrementBlogCountIfZero() {
     if(BLOG_COUNT.get() == 0) {
       BLOG_COUNT.incrementAndGet();
     }

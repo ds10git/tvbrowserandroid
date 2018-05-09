@@ -27,9 +27,9 @@ import java.util.List;
  */
 public class StableArrayAdapter<T> extends ArrayAdapter<T> {
 
-    final int INVALID_ID = -1;
+    private final int INVALID_ID = -1;
 
-    HashMap<T, Integer> mIdMap = new HashMap<T, Integer>();
+    private HashMap<T, Integer> mIdMap = new HashMap<T, Integer>();
 
     public StableArrayAdapter(Context context, int textViewResourceId, List<T> objects) {
         super(context, textViewResourceId, objects);

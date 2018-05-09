@@ -41,7 +41,7 @@ public class Mirror implements Comparable<Mirror> {
   
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
   
-  public Mirror(String url, int weight) {
+  private Mirror(String url, int weight) {
     mUrl = url;
     mWeight = weight;
   }
@@ -50,7 +50,7 @@ public class Mirror implements Comparable<Mirror> {
     return mUrl;
   }
   
-  public int getWeight() {
+  private int getWeight() {
     return mWeight;
   }
   

@@ -41,7 +41,7 @@ import android.text.format.DateFormat;
  * @author René Mach
  */
 @SuppressLint("SimpleDateFormat")
-public class NewsReader {
+class NewsReader {
   private static final String NEWS_URL = "http://www.tvbrowser.org/newsplugin/static-news.xml";
   private static final SimpleDateFormat NEWS_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   
@@ -191,7 +191,7 @@ public class NewsReader {
       return mDate + " " + mAuthor + " " + mDeNewsTitle + " " + mEnNewsTitle + " " + mDeNewsText + " " + mEnNewsText;
     }
     
-    public String getTitle(boolean de) {
+    String getTitle(boolean de) {
       if((de || mEnNewsTitle == null) && mDeNewsTitle != null) {
         return mDeNewsTitle;
       }
@@ -199,7 +199,7 @@ public class NewsReader {
       return mEnNewsTitle;
     }
     
-    public String getText(boolean de) {
+    String getText(boolean de) {
       if((de || mEnNewsText == null) && mDeNewsText != null) {
         return mDeNewsText;
       }

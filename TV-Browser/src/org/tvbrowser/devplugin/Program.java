@@ -56,7 +56,7 @@ public final class Program implements Parcelable {
    * <p>
    * @param source The Parcel to read the values of this Program.
    */
-  public Program(Parcel source) {
+  private Program(Parcel source) {
     readFromParcel(source);
   }
   

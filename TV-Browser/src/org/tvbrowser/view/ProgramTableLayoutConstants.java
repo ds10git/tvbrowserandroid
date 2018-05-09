@@ -36,7 +36,7 @@ import android.widget.TextView;
 public class ProgramTableLayoutConstants {
   static final int HOURS = 28;
   
-  static final int GRAY_VALUE = 100;
+  private static final int GRAY_VALUE = 100;
   
   static final Paint BLOCK_PAINT = new Paint();
   static final Paint LINE_PAINT = new Paint();
@@ -89,7 +89,7 @@ public class ProgramTableLayoutConstants {
   private static int RAW_COLUMN_WIDTH;
   private static float TEXT_SCALE;
   
-  static float ZOOM = 1.0f;
+  private static float ZOOM = 1.0f;
   
   static {
     NOT_EXPIRED_TITLE_PAINT.setTypeface(Typeface.DEFAULT_BOLD);
@@ -133,7 +133,7 @@ public class ProgramTableLayoutConstants {
     SHOW_ORDER_NUMBER = PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_PROGRAM_TABLE, R.bool.show_sort_number_in_program_table_default);
   }
   
-  public static void update(Context context) {
+  private static void update(Context context) {
     updateChannelLogoName(context);
     RAW_COLUMN_WIDTH = PrefUtils.getIntValueWithDefaultKey(R.string.PROG_TABLE_COLUMN_WIDTH, R.integer.prog_table_column_width_default);
     

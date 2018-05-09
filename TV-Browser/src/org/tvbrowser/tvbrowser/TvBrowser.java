@@ -1269,7 +1269,7 @@ public class TvBrowser extends AppCompatActivity {
     return result;
   }
 
-  int getEpgDonateChannelsCount() {
+  private int getEpgDonateChannelsCount() {
     int result = 0;
     Log.d("info6", "getEpgDonateChannelsCount");
     try {
@@ -2326,7 +2326,7 @@ public class TvBrowser extends AppCompatActivity {
     private boolean mWasSelected;
     private boolean mIsEpgDonateChannel;
 
-    public ChannelSelection(int channelID, String name, int category, String country, Bitmap channelLogo, boolean isSelected, boolean isEpgDonateChannel) {
+    ChannelSelection(int channelID, String name, int category, String country, Bitmap channelLogo, boolean isSelected, boolean isEpgDonateChannel) {
       mChannelID = channelID;
       mCategory = category;
       mCountry = country;
@@ -2336,27 +2336,27 @@ public class TvBrowser extends AppCompatActivity {
       mIsEpgDonateChannel = isEpgDonateChannel;
     }
 
-    public boolean isCategory(int category) {
+    boolean isCategory(int category) {
       return category == 0 || (mCategory & category) == category;
     }
 
-    public boolean isCountry(String value) {
+    boolean isCountry(String value) {
       return value == null || mCountry.toLowerCase().contains(value.toLowerCase());
     }
 
-    public boolean isSelected() {
+    boolean isSelected() {
       return mIsSelected;
     }
 
-    public boolean wasSelected() {
+    boolean wasSelected() {
       return mWasSelected;
     }
 
-    public void setSelected(boolean value) {
+    void setSelected(boolean value) {
       mIsSelected = value;
     }
 
-    public Bitmap getLogo() {
+    Bitmap getLogo() {
       return mChannelLogo;
     }
 
@@ -2364,11 +2364,11 @@ public class TvBrowser extends AppCompatActivity {
       return mName;
     }
 
-    public boolean isEpgDonateChannel() {
+    boolean isEpgDonateChannel() {
       return mIsEpgDonateChannel;
     }
 
-    public int getChannelID() {
+    int getChannelID() {
       return mChannelID;
     }
   }
@@ -2408,7 +2408,7 @@ public class TvBrowser extends AppCompatActivity {
       return super.get(index);
     }
 
-    public void setFilter(ChannelFilter filter) {
+    void setFilter(ChannelFilter filter) {
       ArrayList<Integer> map = new ArrayList<Integer>();
 
       for(int i = 0; i < super.size(); i++) {
@@ -2435,7 +2435,7 @@ public class TvBrowser extends AppCompatActivity {
       return super.get(index);
     }
 
-    public Iterator<ChannelSelection> superIterator() {
+    Iterator<ChannelSelection> superIterator() {
       return super.iterator();
     }
 
@@ -2474,10 +2474,10 @@ public class TvBrowser extends AppCompatActivity {
    * @author René Mach
    */
   private final static class ChannelFilter {
-    public int mCategory;
-    public String mCountry;
+    int mCategory;
+    String mCountry;
 
-    public ChannelFilter(int category, String country) {
+    ChannelFilter(int category, String country) {
       mCategory = category;
       mCountry = country;
     }
@@ -2489,9 +2489,9 @@ public class TvBrowser extends AppCompatActivity {
    * @author René Mach
    */
   private final static class Country {
-    public Locale mLocale;
+    Locale mLocale;
 
-    public Country(Locale locale) {
+    Country(Locale locale) {
       mLocale = locale;
     }
 
@@ -2503,7 +2503,7 @@ public class TvBrowser extends AppCompatActivity {
       return mLocale.getDisplayCountry();
     }
 
-    public String getCountry() {
+    String getCountry() {
       if(mLocale == null) {
         return null;
       }
@@ -2913,7 +2913,7 @@ public class TvBrowser extends AppCompatActivity {
     private Bitmap mChannelLogo;
     private boolean mIsEpgDonateChannel;
 
-    public ChannelSort(int key, String name, int sortNumber, Bitmap channelLogo, String dataServiceId) {
+    ChannelSort(int key, String name, int sortNumber, Bitmap channelLogo, String dataServiceId) {
       mKey = key;
       mName = name;
       mOldSortNumber = mSortNumber = sortNumber;
@@ -2921,7 +2921,7 @@ public class TvBrowser extends AppCompatActivity {
       mIsEpgDonateChannel = SettingConstants.EPG_DONATE_KEY.equals(dataServiceId);
     }
 
-    public int getKey() {
+    int getKey() {
       return mKey;
     }
 
@@ -2944,15 +2944,15 @@ public class TvBrowser extends AppCompatActivity {
       return mName;
     }
 
-    public Bitmap getLogo() {
+    Bitmap getLogo() {
       return mChannelLogo;
     }
 
-    public boolean wasChanged() {
+    boolean wasChanged() {
       return mOldSortNumber != mSortNumber;
     }
 
-    public boolean isEpgDonateChannel() {
+    boolean isEpgDonateChannel() {
       return mIsEpgDonateChannel;
     }
   }
@@ -3853,7 +3853,7 @@ public class TvBrowser extends AppCompatActivity {
     String mExclusion;
     boolean mIsCaseSensitive;
 
-    public ExclusionEdit(String exclusion) {
+    ExclusionEdit(String exclusion) {
       String[] parts = exclusion.split(";;");
 
       mExclusion = parts[0];
@@ -3870,7 +3870,7 @@ public class TvBrowser extends AppCompatActivity {
       return mExclusion.replace("*", "").compareToIgnoreCase(another.mExclusion.replace("*", ""));
     }
 
-    public String getExclusion() {
+    String getExclusion() {
       return mExclusion + ";;" + (mIsCaseSensitive ? "1" : "0");
     }
   }
@@ -4060,7 +4060,7 @@ public class TvBrowser extends AppCompatActivity {
     }
   }
 
-  public void showAlertDialog(String title, CharSequence message, View view, String positiveText, final Runnable positive, String negativeText, final Runnable negative, boolean link, boolean notCancelable) {
+  private void showAlertDialog(String title, CharSequence message, View view, String positiveText, final Runnable positive, String negativeText, final Runnable negative, boolean link, boolean notCancelable) {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     builder.setCancelable(!notCancelable);
 
@@ -4641,7 +4641,7 @@ public class TvBrowser extends AppCompatActivity {
     private int mWidth;
     private int mSpanType;
 
-    public SpecialSpan(int type) {
+    SpecialSpan(int type) {
       mSpanType = type;
     }
 
@@ -5429,10 +5429,10 @@ public class TvBrowser extends AppCompatActivity {
    * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one
    * of the sections/tabs/pages.
    */
-  public class SectionsPagerAdapter extends FragmentPagerAdapter {
+  class SectionsPagerAdapter extends FragmentPagerAdapter {
     SparseArrayCompat<Fragment> registeredFragments = new SparseArrayCompat<Fragment>();
 
-    public SectionsPagerAdapter(FragmentManager fm) {
+    SectionsPagerAdapter(FragmentManager fm) {
       super(fm);
     }
 
@@ -5517,7 +5517,7 @@ public class TvBrowser extends AppCompatActivity {
         super.destroyItem(container, position, object);
     }
 
-    public Fragment getRegisteredFragment(int position) {
+    Fragment getRegisteredFragment(int position) {
         return registeredFragments.get(position);
     }
   }
@@ -5609,12 +5609,12 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private static final class ProgramsListState {
-    public int mDayPos;
-    public int mChannelID;
-    public int mFilterPos;
-    public int mScrollPos;
+    int mDayPos;
+    int mChannelID;
+    int mFilterPos;
+    int mScrollPos;
 
-    public ProgramsListState(int dayPos, int channelID, int filterPos, int scrollPos) {
+    ProgramsListState(int dayPos, int channelID, int filterPos, int scrollPos) {
       mDayPos = dayPos;
       mChannelID = channelID;
       mFilterPos = filterPos;

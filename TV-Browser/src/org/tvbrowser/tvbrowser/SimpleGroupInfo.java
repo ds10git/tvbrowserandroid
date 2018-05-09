@@ -16,7 +16,7 @@
  */
 package org.tvbrowser.tvbrowser;
 
-public final class SimpleGroupInfo {
+final class SimpleGroupInfo {
   public String mDataServiceID;
   public String mGroupID;
   

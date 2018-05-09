@@ -31,7 +31,7 @@ import javax.net.ssl.X509TrustManager;
 import android.test.MoreAsserts;
 import android.util.Log;
 */
-public class SSLTool {
+class SSLTool {
   /*private static SSLSocketFactory mOriginalSSLSocketFactory;
   private static HostnameVerifier mOriginalHostnameVerifier;
   

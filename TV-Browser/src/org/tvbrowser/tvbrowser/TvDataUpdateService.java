@@ -1609,19 +1609,19 @@ public class TvDataUpdateService extends Service {
   private final class ChangeableFinalBoolean {
     private boolean mValue;
     
-    public ChangeableFinalBoolean(boolean value) {
+    ChangeableFinalBoolean(boolean value) {
       mValue = value;
     }
     
-    public synchronized boolean getBoolean() {
+    synchronized boolean getBoolean() {
       return mValue;
     }
     
-    public synchronized void andUpdateBoolean(boolean value) {
+    synchronized void andUpdateBoolean(boolean value) {
       mValue = mValue && value;
     }
     
-    public void setBoolean(boolean value) {
+    void setBoolean(boolean value) {
       mValue = value;
     }
   }
@@ -2074,7 +2074,7 @@ public class TvDataUpdateService extends Service {
     
     private String mDataServiceId;
     
-    public GroupInfo(String dataServiceId, String[] urls, String urlFileName, String fileName, String mirrorUrlFileName, String mirrorFileName, int uniqueGroupID) {
+    GroupInfo(String dataServiceId, String[] urls, String urlFileName, String fileName, String mirrorUrlFileName, String mirrorFileName, int uniqueGroupID) {
       mDataServiceId = dataServiceId;
       mUrlArr = urls;
       mUniqueGroupID = uniqueGroupID;
@@ -2084,37 +2084,37 @@ public class TvDataUpdateService extends Service {
       mMirrorFileName = mirrorFileName;
     }
     
-    public String[] getUrls() {
+    String[] getUrls() {
       return mUrlArr;
     }
     
-    public int getUniqueGroupID() {
+    int getUniqueGroupID() {
       return mUniqueGroupID;
     }
     
-    public String getFileName() {
+    String getFileName() {
       return mFileName;
     }
     
-    public String getUrlFileName() {
+    String getUrlFileName() {
       return mUrlFileName;
     }
     
-    public String getMirrorFileName() {
+    String getMirrorFileName() {
       return mMirrorFileName;
     }
     
-    public String getMirrorUrlFileName() {
+    String getMirrorUrlFileName() {
       return mMirrorUrlFileName;
     }
     
-    public String getDataServiceId() {
+    String getDataServiceId() {
       return mDataServiceId;
     }
   }
   
   // Cursor contains the channel group
-  public boolean addChannels(File group, GroupInfo info) {
+  private boolean addChannels(File group, GroupInfo info) {
     boolean returnValue = false;
     
     if(group.isFile()) {
@@ -2408,7 +2408,7 @@ public class TvDataUpdateService extends Service {
     return IOUtils.getCompressedData(dat.toString().getBytes());
   }
   
-  public void backSyncPrograms(final NotificationManager notification) {
+  private void backSyncPrograms(final NotificationManager notification) {
     mBuilder.setProgress(100, 0, true);
     mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize));
     notification.notify(ID_NOTIFY, mBuilder.build());
@@ -2844,7 +2844,7 @@ public class TvDataUpdateService extends Service {
     doLog(value, null);
   }
   
-  public void doLog(String value, Throwable t) {
+  private void doLog(String value, Throwable t) {
     if(t != null) {
       final StringBuilder message = new StringBuilder(value).append("\n");
       
@@ -2916,16 +2916,16 @@ public class TvDataUpdateService extends Service {
     private String mDownloadURL;
     private String mFileName;
     
-    public MirrorDownload(String downloadURL, String fileName) {
+    MirrorDownload(String downloadURL, String fileName) {
       mDownloadURL = downloadURL;
       mFileName = fileName;
     }
     
-    public String getDownloadURL() {
+    String getDownloadURL() {
       return mDownloadURL;
     }
     
-    public String getFileName() {
+    String getFileName() {
       return mFileName;
     }
   }
@@ -4151,16 +4151,16 @@ public class TvDataUpdateService extends Service {
     private File mDownloadFile;
     private String mDownloadURL;
     
-    public UrlFileHolder(File downloadFile, String downloadURL) {
+    UrlFileHolder(File downloadFile, String downloadURL) {
       mDownloadFile = downloadFile;
       mDownloadURL = downloadURL;
     }
     
-    public File getDownloadFile() {
+    File getDownloadFile() {
       return mDownloadFile;
     }
     
-    public short getFrameCount(short currentCount) {
+    short getFrameCount(short currentCount) {
       if(currentCount == 254 && mDownloadURL != null && mIsConnected) {
         final String url = mDownloadURL.substring(0, mDownloadURL.indexOf(".prog.gz")) +  "_additional.prog.gz";
         final String fileName = mDownloadFile.getAbsolutePath().substring(0, mDownloadFile.getAbsolutePath().indexOf(".prog.gz"))  +  "_additional.prog.gz";
@@ -4196,7 +4196,7 @@ public class TvDataUpdateService extends Service {
     private byte mDataVersion;
     private short mFrameCount;
     
-    public DataInfo(byte fileVersion, byte dataVersion, short frameCount) {
+    DataInfo(byte fileVersion, byte dataVersion, short frameCount) {
       mFileVersion = fileVersion;
       mDataVersion = dataVersion;
       mFrameCount = frameCount;
@@ -4206,11 +4206,11 @@ public class TvDataUpdateService extends Service {
       return mFileVersion;
     }
     
-    public byte getDataVersion() {
+    byte getDataVersion() {
       return mDataVersion;
     }
     
-    public short getFrameCount() {
+    short getFrameCount() {
       return mFrameCount;
     }
   }
@@ -4536,7 +4536,7 @@ public class TvDataUpdateService extends Service {
   }
   
   private class EPGpaidDataHandler {
-    public final EPGpaidResult readContentValues(File file, Hashtable<String, Long> currentDataIds) {
+    final EPGpaidResult readContentValues(File file, Hashtable<String, Long> currentDataIds) {
       DataInputStream in = null;
       final EPGpaidResult result = new EPGpaidResult((byte)0);
       
@@ -5002,7 +5002,7 @@ public class TvDataUpdateService extends Service {
      * @param timezone
      * @param date Start time in milliseconds since 1970 for UTC 0 o'clock.
      */
-    public ChannelUpdate(DataHandler dataHandler, long channelID, String timezone, long date) {
+    ChannelUpdate(DataHandler dataHandler, long channelID, String timezone, long date) {
       mDataHandler = dataHandler;
       mChannelID = channelID;
       
@@ -5026,36 +5026,36 @@ public class TvDataUpdateService extends Service {
       mContainsPicture = false;
     }
     
-    public void addURL(String url) {
+    void addURL(String url) {
       mUrlList.add(url);
       
       mContainsDescription = url.contains("_more");
       mContainsPicture = url.contains("_picture");
     }
     
-    public long getChannelID() {
+    long getChannelID() {
       return mChannelID;
     }
     
-    public TimeZone getTimeZone() {
+    TimeZone getTimeZone() {
       return TimeZone.getTimeZone(mTimeZone);
     }
     
-    public long getDate() {
+    long getDate() {
       return mDate;
     }
     
-    public boolean toDownload() {
+    boolean toDownload() {
       return !mUrlList.isEmpty();
     }
     
-    public int size() {
+    int size() {
       return mUrlList.size();
     }
     
     private ArrayList<UrlFileHolder> mDownloadList;
     
-    public void addDownloadedFile(File file) {
+    void addDownloadedFile(File file) {
       if(mDownloadList == null) {
         mDownloadList = new ArrayList<UrlFileHolder>();
       }
@@ -5063,7 +5063,7 @@ public class TvDataUpdateService extends Service {
       mDownloadList.add(new UrlFileHolder(file, null));
     }
     
-    public void startUpdate(final NotificationManager notification, final int downloadCount, final UncaughtExceptionHandler handleExc) {
+    void startUpdate(final NotificationManager notification, final int downloadCount, final UncaughtExceptionHandler handleExc) {
       if(!mDataUpdatePool.isShutdown()) {
         mDataUpdatePool.execute(new Thread("CHANNEL UPDATE HANDLE START UPDATE") {
           @Override
@@ -5086,7 +5086,7 @@ public class TvDataUpdateService extends Service {
       }
     }
     
-    public void download(File path, final NotificationManager notification, final int downloadCount) {
+    void download(File path, final NotificationManager notification, final int downloadCount) {
       final ArrayList<UrlFileHolder> downloadList = new ArrayList<UrlFileHolder>();
       
       for(String url : mUrlList) {
@@ -5223,7 +5223,7 @@ public class TvDataUpdateService extends Service {
        clear();
     }
     
-    public void clear() {
+    void clear() {
       mContentValueList.clear();
       mVersionMap.clear();
       mUpdateValueMap.clear();
@@ -5483,7 +5483,7 @@ public class TvDataUpdateService extends Service {
     
     private HashMap<Integer,int[]> mLevelVersions;
     
-    public ChannelFrame(String country, String channelID, int dayCount) {
+    ChannelFrame(String country, String channelID, int dayCount) {
       mCountry = country;
       mChannelID = channelID;
       mDayCount = dayCount;
@@ -5491,23 +5491,23 @@ public class TvDataUpdateService extends Service {
       mLevelVersions = new HashMap<Integer, int[]>();
     }
     
-    public void add(int day, int[] levelVersions) {
+    void add(int day, int[] levelVersions) {
       mLevelVersions.put(day, levelVersions);
     }
     
-    public int[] getVersionForDay(int day) {
+    int[] getVersionForDay(int day) {
       return mLevelVersions.get(day);
     }
     
-    public int getDayCount() {
+    int getDayCount() {
       return mDayCount;
     }
     
-    public String getCountry() {
+    String getCountry() {
       return mCountry;
     }
     
-    public String getChannelID() {
+    String getChannelID() {
       return mChannelID;
     }
   }
@@ -5529,27 +5529,27 @@ public class TvDataUpdateService extends Service {
      */
     private ArrayList<ChannelFrame> mFrameList;
     
-    public EPGfreeSummary() {
+    EPGfreeSummary() {
       mFrameList = new ArrayList<ChannelFrame>();
     }
     
-    public void setStartDaySince1970(long days) {
+    void setStartDaySince1970(long days) {
       mStartDaySince1970 = days-1;
     }
     
-    public void setLevels(int levels) {
+    void setLevels(int levels) {
       mLevels = levels;
     }
     
-    public void addChannelFrame(ChannelFrame frame) {
+    void addChannelFrame(ChannelFrame frame) {
       mFrameList.add(frame);
     }
     
-    public int getLevels() {
+    int getLevels() {
       return mLevels;
     }
         
-    public Calendar getStartDate() {
+    Calendar getStartDate() {
       Calendar cal = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
       
       // calculate the number of milliseconds since 1970 to get to the UNIX time
@@ -5564,7 +5564,7 @@ public class TvDataUpdateService extends Service {
      * @param channelID The channel ID to get the ChannelFrame for.
      * @return The requested ChannelFrame or <code>null</code> if there is no ChannelFrame for given ID.
      */
-    public ChannelFrame getChannelFrame(String channelID) {
+    ChannelFrame getChannelFrame(String channelID) {
       for(ChannelFrame frame : mFrameList) {
         if(frame.mChannelID.equals(channelID)) {
           return frame;

@@ -60,7 +60,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   
   public static final String OLD_NAME_KEY = "OLD_NAME_KEY";
   
-  public static final String START_DAY_COLUMN = "startDayOfWeek";
+  private static final String START_DAY_COLUMN = "startDayOfWeek";
   
   public static final String KEY_MARKING_ICON = "org.tvbrowser.tvbrowser.Favorite";
   
@@ -317,7 +317,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     this(name, search, onlyTitle, remind, -1, -1, null, null);
   }*/
   
-  public Favorite(String name, String search, int type, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions, int durationRestrictionMinimum, int durationRestrictionMaximum, int[] attributeRestriction, long[] uniqueProgramIds) {
+  private Favorite(String name, String search, int type, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions, int durationRestrictionMinimum, int durationRestrictionMaximum, int[] attributeRestriction, long[] uniqueProgramIds) {
     mFavoriteId = System.currentTimeMillis();
     setValues(name, search, type, remind, timeRestrictionStart, timeRestrictionEnd, days, channelIDs, exclusions, durationRestrictionMinimum, durationRestrictionMaximum, attributeRestriction, uniqueProgramIds);
   }
@@ -462,7 +462,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     return mUniqueProgramIds;
   }
   
-  public boolean containsUniqueProgramId(long uniqueId) {
+  private boolean containsUniqueProgramId(long uniqueId) {
     boolean result = false;
     
     if(mUniqueProgramIds != null) {
@@ -793,7 +793,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     return mFavoriteId;
   }
   
-  public String getSaveString() {
+  private String getSaveString() {
     return getSaveString(null);
   }
   
@@ -855,7 +855,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     return saveString.toString();
   }
   
-  final static String[] UNIQUE_CHANNEL_RESTRICTION_PROJECTION = {
+  private final static String[] UNIQUE_CHANNEL_RESTRICTION_PROJECTION = {
       TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID,
       TvBrowserContentProvider.GROUP_KEY_GROUP_ID,
       TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID

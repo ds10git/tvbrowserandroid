@@ -108,31 +108,31 @@ public class IOUtils {
     return result;
   }
   
-  public static int INFO_BLACK_AND_WHITE = 1 << 1;
-  public static int INFO_BLACK_FOUR_TO_THREE = 1 << 2;
-  public static int INFO_BLACK_SIXTEEN_TO_NINE = 1 << 3;
-  public static int INFO_BLACK_MONO = 1 << 4;
-  public static int INFO_BLACK_STEREO = 1 << 5;
-  public static int INFO_BLACK_DOLBY_SOURROUND = 1 << 6;
-  public static int INFO_BLACK_DOLBY_DIGITAL = 1 << 7;
-  public static int INFO_BLACK_SECOND_AUDIO_PROGRAM = 1 << 8;
-  public static int INFO_BLACK_SECOND_CLOSED_CAPTION = 1 << 9;
-  public static int INFO_BLACK_SECOND_LIVE = 1 << 10;
-  public static int INFO_BLACK_SECOND_OMU = 1 << 11;
-  public static int INFO_BLACK_SECOND_FILM = 1 << 12;
-  public static int INFO_BLACK_SECOND_SERIES = 1 << 13;
-  public static int INFO_BLACK_SECOND_NEW = 1 << 14;
-  public static int INFO_BLACK_SECOND_AUDIO_DESCRIPTION = 1 << 15;
-  public static int INFO_BLACK_SECOND_NEWS = 1 << 16;
-  public static int INFO_BLACK_SECOND_SHOW = 1 << 17;
-  public static int INFO_BLACK_SECOND_MAGAZIN = 1 << 18;
-  public static int INFO_BLACK_SECOND_HD = 1 << 19;
-  public static int INFO_BLACK_SECOND_DOCU = 1 << 20;
-  public static int INFO_BLACK_SECOND_ART = 1 << 21;
-  public static int INFO_BLACK_SECOND_SPORT = 1 << 22;
-  public static int INFO_BLACK_SECOND_CHILDREN = 1 << 23;
-  public static int INFO_BLACK_SECOND_OTHER = 1 << 24;
-  public static int INFO_BLACK_SECOND_SIGN_LANGUAGE = 1 << 25;
+  private static int INFO_BLACK_AND_WHITE = 1 << 1;
+  private static int INFO_BLACK_FOUR_TO_THREE = 1 << 2;
+  private static int INFO_BLACK_SIXTEEN_TO_NINE = 1 << 3;
+  private static int INFO_BLACK_MONO = 1 << 4;
+  private static int INFO_BLACK_STEREO = 1 << 5;
+  private static int INFO_BLACK_DOLBY_SOURROUND = 1 << 6;
+  private static int INFO_BLACK_DOLBY_DIGITAL = 1 << 7;
+  private static int INFO_BLACK_SECOND_AUDIO_PROGRAM = 1 << 8;
+  private static int INFO_BLACK_SECOND_CLOSED_CAPTION = 1 << 9;
+  private static int INFO_BLACK_SECOND_LIVE = 1 << 10;
+  private static int INFO_BLACK_SECOND_OMU = 1 << 11;
+  private static int INFO_BLACK_SECOND_FILM = 1 << 12;
+  private static int INFO_BLACK_SECOND_SERIES = 1 << 13;
+  private static int INFO_BLACK_SECOND_NEW = 1 << 14;
+  private static int INFO_BLACK_SECOND_AUDIO_DESCRIPTION = 1 << 15;
+  private static int INFO_BLACK_SECOND_NEWS = 1 << 16;
+  private static int INFO_BLACK_SECOND_SHOW = 1 << 17;
+  private static int INFO_BLACK_SECOND_MAGAZIN = 1 << 18;
+  private static int INFO_BLACK_SECOND_HD = 1 << 19;
+  private static int INFO_BLACK_SECOND_DOCU = 1 << 20;
+  private static int INFO_BLACK_SECOND_ART = 1 << 21;
+  private static int INFO_BLACK_SECOND_SPORT = 1 << 22;
+  private static int INFO_BLACK_SECOND_CHILDREN = 1 << 23;
+  private static int INFO_BLACK_SECOND_OTHER = 1 << 24;
+  private static int INFO_BLACK_SECOND_SIGN_LANGUAGE = 1 << 25;
   
   public static final int[] INFO_CATEGORIES_ARRAY = {
     INFO_BLACK_AND_WHITE,
@@ -495,7 +495,7 @@ public class IOUtils {
    * <p> 
    * @return <code>true</code> if the file was downloaded successfully, <code>false</code> otherwise.
    */
-  public static boolean saveStream(final String filename, final InputStream in, final int timeout) {
+  private static boolean saveStream(final String filename, final InputStream in, final int timeout) {
     final AtomicBoolean wasSaved = new AtomicBoolean(false);
     final AtomicInteger count = new AtomicInteger(0);
     
@@ -916,7 +916,7 @@ public class IOUtils {
     return channelList;
   }
 
-  public static final int TYPE_DOWNLOAD_DIRECTORY_DATA = 0;
+  private static final int TYPE_DOWNLOAD_DIRECTORY_DATA = 0;
   public static final int TYPE_DOWNLOAD_DIRECTORY_OTHER = 1;
   public static final int TYPE_DOWNLOAD_DIRECTORY_LOG = 2;
 
@@ -1024,7 +1024,7 @@ public class IOUtils {
    * @return An array with the contained episode numbers.
    * @since 0.5.7.3
    */
-  public static Integer[] decodeSingleFieldValueToMultipleEpisodeNumers(int fieldValue) {
+  private static Integer[] decodeSingleFieldValueToMultipleEpisodeNumers(int fieldValue) {
     int encodingMask = (fieldValue >> 30) & 0x3;
     
     if(encodingMask == 0) {

@@ -64,7 +64,7 @@ import android.widget.TextView;
 public class FragmentProgramsList extends Fragment implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, ShowChannelInterface, MarkingsUpdateListener {
   public static final int NO_CHANNEL_SELECTION_ID = -1;
   
-  public static final int INDEX_DATE_TODAY = 3;
+  private static final int INDEX_DATE_TODAY = 3;
   public static final int INDEX_DATE_YESTERDAY = 2;
   public static final int INDEX_DATE_TODAY_TOMORROW = 0;
   
@@ -107,7 +107,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     this(NO_CHANNEL_SELECTION_ID,-1);
   }
   
-  public FragmentProgramsList(int channelId, long startTime) {
+  private FragmentProgramsList(int channelId, long startTime) {
     this(channelId, startTime, -1);
   }
   
@@ -259,7 +259,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     super.onDetach();
   }
   
-  public void setDay(long dayStart) {
+  private void setDay(long dayStart) {
     if(dayStart >= 0) {
       mDayStart = dayStart;
       mDayClause = " AND ( " + TvBrowserContentProvider.DATA_KEY_STARTTIME + ">=" + dayStart + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "<" + (dayStart + (24 * 60 * 60000)) + " ) ";
@@ -286,7 +286,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   
   private boolean mIsShowingMarkings = false;
   
-  public void setMarkFilter(int pos) {
+  private void setMarkFilter(int pos) {
     switch(pos) {
       case 0: mFilterClause = new WhereClause("",null);break;
       case 1: mFilterClause = new WhereClause(" AND ( " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE + " ) ",null);break;
@@ -444,7 +444,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     }
   }
   
-  public void setChannelID(long id) {
+  private void setChannelID(long id) {
     mChannelID = id;
     
     mLoaderUpdate.startUpdate();
@@ -1030,11 +1030,11 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     }
   }
   
-  public void setScrollPos(int pos) {
+  private void setScrollPos(int pos) {
     mScrollPos = pos;
   }
   
-  public int getCurrentScrollIndex() {
+  private int getCurrentScrollIndex() {
     int pos = mListView.getFirstVisiblePosition();
     
     View view = mListView.getChildAt(0);
@@ -1056,26 +1056,26 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     private String mName;
     private Drawable mLogo;
     
-    public ChannelSelection(int ID, String orderNumber, String name, Drawable logo) {
+    ChannelSelection(int ID, String orderNumber, String name, Drawable logo) {
       mID = ID;
       mOrderNumber = orderNumber;
       mName = name;
       mLogo = logo;
     }
     
-    public int getID() {
+    int getID() {
       return mID;
     }
     
-    public String getOrderNumber() {
+    String getOrderNumber() {
       return mOrderNumber;
     }
     
-    public String getName() {
+    String getName() {
       return mName;
     }
     
-    public Drawable getLogo() {
+    Drawable getLogo() {
       return mLogo;
     }
     

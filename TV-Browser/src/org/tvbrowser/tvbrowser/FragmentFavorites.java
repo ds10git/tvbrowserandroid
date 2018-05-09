@@ -329,7 +329,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
         return getView(position, convertView, parent, false);
       }
       
-      public View getView(int position, View convertView, ViewGroup parent, boolean popup) {
+      View getView(int position, View convertView, ViewGroup parent, boolean popup) {
         if(position < getCount()) {
           FavoriteSpinnerEntry entry = getItem(position);
           
@@ -980,25 +980,25 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     private WhereClause mEntryWhereClause;
     private Favorite mFavorite;
     
-    public FavoriteSpinnerEntry(String name, WhereClause whereClause) {
+    FavoriteSpinnerEntry(String name, WhereClause whereClause) {
       mName = name;
       mEntryWhereClause = whereClause;
       mFavorite = null;
     }
     
-    public FavoriteSpinnerEntry(Favorite fav) {
+    FavoriteSpinnerEntry(Favorite fav) {
       mFavorite = fav;
     }
     
-    public boolean containsFavorite() {
+    boolean containsFavorite() {
       return mFavorite != null;
     }
     
-    public Favorite getFavorite() {
+    Favorite getFavorite() {
       return mFavorite;
     }
     
-    public WhereClause getWhereClause() { 
+    WhereClause getWhereClause() {
       if(containsFavorite()) {
         return mFavorite.getExternalWhereClause();
       }

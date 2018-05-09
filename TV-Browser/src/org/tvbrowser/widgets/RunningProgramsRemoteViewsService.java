@@ -242,7 +242,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       }
     }
     
-    public RunningProgramsRemoteViewsFactory(Context context, Bundle extras) {
+    RunningProgramsRemoteViewsFactory(Context context, Bundle extras) {
       mContext = context;
       PrefUtils.initialize(context);
       SettingConstants.initializeLogoMap(context, false);

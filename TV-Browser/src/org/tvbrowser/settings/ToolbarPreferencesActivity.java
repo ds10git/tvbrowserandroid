@@ -97,7 +97,7 @@ public abstract class ToolbarPreferencesActivity extends PreferenceActivity {
     return super.onOptionsItemSelected(item);
   }
 
-  protected final AppCompatDelegate getDelegate() {
+  final AppCompatDelegate getDelegate() {
     if (mDelegate == null) {
       mDelegate = AppCompatDelegate.create(this, null);
     }
