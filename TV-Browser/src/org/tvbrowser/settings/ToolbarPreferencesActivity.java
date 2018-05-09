@@ -7,7 +7,6 @@ import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import android.support.annotation.LayoutRes;
 import android.support.annotation.NonNull;
-import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatDelegate;
 import android.view.MenuInflater;
 import android.view.MenuItem;

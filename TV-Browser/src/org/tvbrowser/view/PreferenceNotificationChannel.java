@@ -3,10 +3,8 @@ package org.tvbrowser.view;
 import android.content.Context;
 import android.content.Intent;
 import android.preference.Preference;
-import android.preference.Preference;
 import android.provider.Settings;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 

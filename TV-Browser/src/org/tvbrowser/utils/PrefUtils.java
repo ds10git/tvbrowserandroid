@@ -24,7 +24,6 @@ import java.util.Set;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.filter.FilterValues;
 import org.tvbrowser.filter.FilterValuesChannels;
-import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.R;
 
 import android.content.Context;
