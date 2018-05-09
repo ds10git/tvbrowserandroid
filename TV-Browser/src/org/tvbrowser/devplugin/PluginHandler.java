@@ -63,12 +63,12 @@ public final class PluginHandler {
   private static PluginManager createPluginManager(final Context context) {
     return new PluginManager.Stub() {
       @Override
-      public List<Channel> getSubscribedChannels() throws RemoteException {
+      public List<Channel> getSubscribedChannels() {
         return IOUtils.getChannelList(context);
       }
       
       @Override
-      public Program getProgramWithId(long programId) throws RemoteException {
+      public Program getProgramWithId(long programId) {
         Program result = null;
         
         final long token = Binder.clearCallingIdentity();
@@ -88,7 +88,7 @@ public final class PluginHandler {
       }
       
       @Override
-      public Program getProgramForChannelAndTime(int channelId, long startTimeInUTC) throws RemoteException {
+      public Program getProgramForChannelAndTime(int channelId, long startTimeInUTC) {
         Program result = null;
         
         String where = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + channelId + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "=" + startTimeInUTC;
@@ -110,7 +110,7 @@ public final class PluginHandler {
       }
 
       @Override
-      public TvBrowserSettings getTvBrowserSettings() throws RemoteException {
+      public TvBrowserSettings getTvBrowserSettings() {
         String version = "Unknown";
         int versionCode = -1;
 
@@ -134,12 +134,12 @@ public final class PluginHandler {
       }
 
       @Override
-      public boolean markProgramWithIcon(Program program, String pluginCanonicalClassName) throws RemoteException {
+      public boolean markProgramWithIcon(Program program, String pluginCanonicalClassName) {
         return program != null && ProgramUtils.markProgram(context, program, pluginCanonicalClassName);
       }
 
       @Override
-      public boolean unmarkProgramWithIcon(Program program, String pluginCanonicalClassName) throws RemoteException {
+      public boolean unmarkProgramWithIcon(Program program, String pluginCanonicalClassName) {
         return program != null && ProgramUtils.unmarkProgram(context, program, pluginCanonicalClassName);
       }
 
@@ -175,7 +175,7 @@ public final class PluginHandler {
       }
 
       @Override
-      public void setRatingForProgram(Program program, int rating) throws RemoteException {
+      public void setRatingForProgram(Program program, int rating) {
         // TODO Create rating function.
       }
 

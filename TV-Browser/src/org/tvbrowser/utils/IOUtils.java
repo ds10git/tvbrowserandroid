@@ -328,7 +328,7 @@ public class IOUtils {
     return loadUrl(urlString, 30000);
   }
   
-  public static byte[] loadUrl(final String urlString, final int timeout) throws IOException, TimeoutException {
+  public static byte[] loadUrl(final String urlString, final int timeout) throws TimeoutException {
     final AtomicInteger count = new AtomicInteger(0);
     final AtomicReference<byte[]> loadData = new AtomicReference<byte[]>(null);
     

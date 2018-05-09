@@ -325,7 +325,7 @@ public class EPGpaidDataConnection {
     return result.toString();
   }
   
-  private boolean saveStream(InputStream in, File target) throws IOException {
+  private boolean saveStream(InputStream in, File target) {
     return IOUtils.saveStream(target.getAbsolutePath(), in);
   }
 }
