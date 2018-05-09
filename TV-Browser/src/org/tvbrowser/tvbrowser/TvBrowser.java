@@ -16,7 +16,6 @@
  */
 package org.tvbrowser.tvbrowser;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -299,33 +298,6 @@ public class TvBrowser extends AppCompatActivity {
 
   private int mInfoType;
 
-  private static final class HandlerWrapper {
-    private final Handler mHandler;
-
-    public HandlerWrapper(Handler handler) {
-      mHandler = handler;
-    }
-
-    public boolean post(Runnable r) {
-      Log.d("info6", "post: " + r);
-
-      StackTraceElement[] els = Thread.currentThread().getStackTrace();
-
-      for(StackTraceElement el : els) {
-        Log.d("info6", el.toString());
-      }
-
-
-      return mHandler.post(r);
-    }
-
-    public boolean postDelayed(Runnable r, int delayMillis) {
-      Log.d("info6", "postDelayed: " + r);
-
-      return false;//mHandler.postDelayed(r, delayMillis);
-    }
-  }
-
   private void checkAppReplacingState() {
     Log.d("info6", System.currentTimeMillis()+" checkAppReplacingState START");
     if (getResources() == null) {
@@ -472,7 +444,7 @@ public class TvBrowser extends AppCompatActivity {
               Cursor synced = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, null, TvBrowserContentProvider.KEY_ID);
 
               try {
-                if(IOUtils.prepareAccess(synced)) {
+                if(synced!=null && IOUtils.prepareAccess(synced)) {
                   int idColumn = synced.getColumnIndex(TvBrowserContentProvider.KEY_ID);
                   ArrayList<String> syncIdList = new ArrayList<>();
 
@@ -1283,7 +1255,7 @@ public class TvBrowser extends AppCompatActivity {
       Cursor groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, projection, TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + "=\"" + SettingConstants.EPG_DONATE_KEY +"\"", null, null);
       Log.d("info6", "groups loaded");
       try {
-        if(IOUtils.prepareAccessFirst(groups)) {
+        if(groups!=null && IOUtils.prepareAccessFirst(groups)) {
           epgDonateKey = groups.getInt(groups.getColumnIndex(TvBrowserContentProvider.KEY_ID));
         }
       } finally {
@@ -1932,8 +1904,7 @@ public class TvBrowser extends AppCompatActivity {
             else if(value instanceof Long) {
               backup.append("long:").append(key).append("=").append(value).append("\n");
             }
-            else if(value instanceof String && value != null && ((String)value).trim().length() > 0
-                && !getString(R.string.PREF_EPGPAID_USER).equals(key) && !getString(R.string.PREF_EPGPAID_PASSWORD).equals(key)) {
+            else if(value instanceof String && ((String) value).trim().length() > 0 && !getString(R.string.PREF_EPGPAID_USER).equals(key) && !getString(R.string.PREF_EPGPAID_PASSWORD).equals(key)) {
               backup.append("string:").append(key).append("=").append(value).append("\n");
             }
             else if(value instanceof Set<?>){
@@ -2018,7 +1989,7 @@ public class TvBrowser extends AppCompatActivity {
 
                 read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
 
-                String line = null;
+                String line;
                 Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
 
                 TvBrowserContentProvider.INFORM_FOR_CHANGES = false;
@@ -2548,7 +2519,7 @@ public class TvBrowser extends AppCompatActivity {
       ArrayList<Country> countryList = new ArrayList<>();
 
       try {
-        if(IOUtils.prepareAccess(channels)) {
+        if(channels!=null && IOUtils.prepareAccess(channels)) {
           // populate array list with all available channels
           int channelIdColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
           int categoryColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CATEGORY);
@@ -3593,7 +3564,7 @@ public class TvBrowser extends AppCompatActivity {
         else {
           Cursor test2 = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null);
 
-          boolean loadAgain = true;
+          boolean loadAgain;
 
           try {
             loadAgain = (test2 == null || test2.getCount() < 1);
@@ -3994,7 +3965,7 @@ public class TvBrowser extends AppCompatActivity {
                 Cursor programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.KEY_ID);
 
                 try {
-                  if(IOUtils.prepareAccess(programs)) {
+                  if(programs!=null && IOUtils.prepareAccess(programs)) {
                     int count = programs.getCount()/10;
 
                     builder.setProgress(count, 0, false);
@@ -4210,7 +4181,7 @@ public class TvBrowser extends AppCompatActivity {
     updateScrollMenu();
 
     if(mUpdateItem != null && !TvDataUpdateService.isRunning()) {
-      if(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+      if("0".equals(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
         mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
       }
       else {
@@ -4242,8 +4213,8 @@ public class TvBrowser extends AppCompatActivity {
     final String oldPath = PrefUtils.getStringValue(R.string.PREF_DATABASE_OLD_PATH, R.string.pref_database_path_default);
 
     if(!oldPath.equals(databasePath)) {
-      File source = null;
-      File target = null;
+      File source;
+      File target;
 
       if(oldPath.equals(getString(R.string.pref_database_path_default))) {
         source = getDatabasePath(TvBrowserContentProvider.DATABASE_TVB_NAME);
@@ -4252,7 +4223,7 @@ public class TvBrowser extends AppCompatActivity {
         source = new File(oldPath, TvBrowserContentProvider.DATABASE_TVB_NAME);
       }
 
-      if(databasePath.equals(getString(R.string.pref_database_path_default))) {
+      if(getString(R.string.pref_database_path_default).equals(databasePath)) {
         target = getDatabasePath(TvBrowserContentProvider.DATABASE_TVB_NAME);
       }
       else {
@@ -4889,7 +4860,7 @@ public class TvBrowser extends AppCompatActivity {
       for(String key : filterValues.keySet()) {
         Object values = filterValues.get(key);
 
-        if(key.contains("filter.") && values instanceof String && values != null) {
+        if(key.contains("filter.") && values instanceof String) {
           FilterValues filter = FilterValues.load(key, (String)values);
 
           if(filter != null) {
@@ -5234,7 +5205,7 @@ public class TvBrowser extends AppCompatActivity {
 
     mUpdateItem = menu.findItem(R.id.menu_tvbrowser_action_update_data);
 
-    if(!PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+    if(!"0".equals(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
       mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
     }
 
@@ -5320,7 +5291,7 @@ public class TvBrowser extends AppCompatActivity {
         public boolean onMenuItemActionExpand(MenuItem item) {
           mSearchExpanded = true;
 
-          if(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+          if("0".equals(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
             mUpdateItem.setVisible(false);
           }
 
@@ -5338,7 +5309,7 @@ public class TvBrowser extends AppCompatActivity {
 
           Fragment fragment = mSectionsPagerAdapter.getItem(mViewPager.getCurrentItem());
 
-          if(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+          if("0".equals(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
             mUpdateItem.setVisible(true);
           }
           if(!(fragment instanceof FragmentFavorites)) {
@@ -5546,7 +5517,7 @@ public class TvBrowser extends AppCompatActivity {
             mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
           }
           else {
-            if(!PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+            if(!"0".equals(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
               mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
               invalidateOptionsMenu();
             }
