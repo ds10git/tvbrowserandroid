@@ -61,7 +61,7 @@ public class ActivityFilterListEdit extends AppCompatActivity {
     
     setContentView(R.layout.activity_filter_list_edit);
     
-    mFilterList = (ListView)findViewById(R.id.activity_edit_filter_list_list);
+    mFilterList = findViewById(R.id.activity_edit_filter_list_list);
     mFilterList.setAdapter(mFilterListAdapter);
     
     SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, ActivityFilterListEdit.this);

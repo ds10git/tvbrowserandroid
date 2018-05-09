@@ -408,7 +408,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
             });
           }
           else if(mScrollTime == 0 || mScrollTime < -1) {
-            Spinner test = (Spinner)((ViewGroup)getView().getParent()).findViewById(R.id.date_selection);
+            Spinner test = ((ViewGroup)getView().getParent()).findViewById(R.id.date_selection);
             
             if(test != null && test.getSelectedItemPosition() > 0) {
               test.setSelection(0);
@@ -456,7 +456,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
                            Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.program_list_fragment, container, false);
     
-    mListView = (ListView)view.findViewById(R.id.program_list_fragment_list_view);
+    mListView = view.findViewById(R.id.program_list_fragment_list_view);
     
     initialize(view);
     
@@ -468,7 +468,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     IntentFilter channelUpdateFilter = new IntentFilter(SettingConstants.CHANNEL_UPDATE_DONE);
     
-    mDateSelection = (Spinner)rootView.findViewById(R.id.date_selection);
+    mDateSelection = rootView.findViewById(R.id.date_selection);
     
     ArrayList<DateSelection> dateEntries = new ArrayList<>();
     
@@ -490,12 +490,12 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       }
     });
     
-    mChannelSelection = (Spinner)rootView.findViewById(R.id.channel_selection);
+    mChannelSelection = rootView.findViewById(R.id.channel_selection);
     
-    final Button minus = (Button)rootView.findViewById(R.id.channel_minus);
+    final Button minus = rootView.findViewById(R.id.channel_minus);
     CompatUtils.setBackground(minus, ContextCompat.getDrawable(getActivity(),android.R.drawable.list_selector_background));
     
-    final Button plus = (Button)rootView.findViewById(R.id.channel_plus);
+    final Button plus = rootView.findViewById(R.id.channel_plus);
     CompatUtils.setBackground(plus, ContextCompat.getDrawable(getActivity(),android.R.drawable.list_selector_background));
             
     final ArrayList<ChannelSelection> channelEntries = new ArrayList<>();
@@ -604,7 +604,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     minus.setOnClickListener(onClick);
     plus.setOnClickListener(onClick);
     
-    final Spinner filter = (Spinner)rootView.findViewById(R.id.program_selection);
+    final Spinner filter = rootView.findViewById(R.id.program_selection);
     
     ArrayList<String> filterEntries = new ArrayList<>();
     

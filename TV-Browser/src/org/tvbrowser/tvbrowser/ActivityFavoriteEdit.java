@@ -87,16 +87,16 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
     
     setContentView(R.layout.activity_favorite_edit);
     
-    mSearchValue = (EditText)findViewById(R.id.activity_edit_favorite_input_id_search_value);
-    mName = (EditText)findViewById(R.id.activity_edit_favorite_input_id_name);
-    mTypeSelection = (Spinner)findViewById(R.id.activity_edit_favorite_input_id_type);
-    mRemind = (CheckBox)findViewById(R.id.activity_edit_favorite_input_id_remind);
-    mDuration = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_duration);
-    mTime = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_time);
-    mDays = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_day);
-    mChannels = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_channel);
-    mAttributes = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_attributes);
-    mExclusions = (EditText)findViewById(R.id.activity_edit_favorite_input_id_restriction_exclusion);
+    mSearchValue = findViewById(R.id.activity_edit_favorite_input_id_search_value);
+    mName = findViewById(R.id.activity_edit_favorite_input_id_name);
+    mTypeSelection = findViewById(R.id.activity_edit_favorite_input_id_type);
+    mRemind = findViewById(R.id.activity_edit_favorite_input_id_remind);
+    mDuration = findViewById(R.id.activity_edit_favorite_input_id_restriction_duration);
+    mTime = findViewById(R.id.activity_edit_favorite_input_id_restriction_time);
+    mDays = findViewById(R.id.activity_edit_favorite_input_id_restriction_day);
+    mChannels = findViewById(R.id.activity_edit_favorite_input_id_restriction_channel);
+    mAttributes = findViewById(R.id.activity_edit_favorite_input_id_restriction_attributes);
+    mExclusions = findViewById(R.id.activity_edit_favorite_input_id_restriction_exclusion);
     
     int color = ContextCompat.getColor(this, R.color.abc_primary_text_material_light);
     
@@ -222,10 +222,10 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
     
     View timeSelection = getLayoutInflater().inflate(R.layout.dialog_favorite_selection_duration, (ViewGroup)mSearchValue.getRootView(), false);
     
-    final CheckBox minimumSelected = (CheckBox)timeSelection.findViewById(R.id.dialog_favorite_selection_id_selection_duration_minimum);
-    final CheckBox maximumSelected = (CheckBox)timeSelection.findViewById(R.id.dialog_favorite_selection_id_selection_duration_maximum);
-    final TimePicker minimum = (TimePicker)timeSelection.findViewById(R.id.dialog_favorite_selection_id_input_duration_minimum);
-    final TimePicker maximum = (TimePicker)timeSelection.findViewById(R.id.dialog_favorite_selection_id_input_duration_maximum);
+    final CheckBox minimumSelected = timeSelection.findViewById(R.id.dialog_favorite_selection_id_selection_duration_minimum);
+    final CheckBox maximumSelected = timeSelection.findViewById(R.id.dialog_favorite_selection_id_selection_duration_maximum);
+    final TimePicker minimum = timeSelection.findViewById(R.id.dialog_favorite_selection_id_input_duration_minimum);
+    final TimePicker maximum = timeSelection.findViewById(R.id.dialog_favorite_selection_id_input_duration_maximum);
     
     minimum.setIs24HourView(true);
     maximum.setIs24HourView(true);
@@ -327,8 +327,8 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
     
     View timeSelection = getLayoutInflater().inflate(R.layout.favorite_time_selection, (ViewGroup)mSearchValue.getRootView(), false);
     
-    final TimePicker from = (TimePicker)timeSelection.findViewById(R.id.favorite_time_selection_from);
-    final TimePicker to = (TimePicker)timeSelection.findViewById(R.id.favorite_time_selection_to);
+    final TimePicker from = timeSelection.findViewById(R.id.favorite_time_selection_from);
+    final TimePicker to = timeSelection.findViewById(R.id.favorite_time_selection_to);
     
     from.setIs24HourView(DateFormat.is24HourFormat(ActivityFavoriteEdit.this));
     to.setIs24HourView(DateFormat.is24HourFormat(ActivityFavoriteEdit.this));

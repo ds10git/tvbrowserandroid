@@ -233,7 +233,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     
     Collections.sort(mFavoriteList);
     
-    mFavoriteSelection = (AdapterView<ArrayAdapter<FavoriteSpinnerEntry>>)getView().findViewById(R.id.favorite_fragment_selection);
+    mFavoriteSelection = getView().findViewById(R.id.favorite_fragment_selection);
     
     final AtomicInteger rowLayout = new AtomicInteger(android.R.layout.simple_list_item_1);
     
@@ -242,7 +242,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     if(mFavoriteSelection.getClass().getCanonicalName().equals("android.widget.ListView")) {
       rowLayout.set(android.R.layout.simple_list_item_activated_1);
       
-      mMarkingsList = (ListView)getView().findViewById(R.id.favorite_fragment_selection_markings);
+      mMarkingsList = getView().findViewById(R.id.favorite_fragment_selection_markings);
       
       if(mMarkingsList != null) {
         mMarkingsAdapter = new ArrayAdapter<FavoriteSpinnerEntry>(getActivity(), android.R.layout.simple_list_item_1) {
@@ -400,7 +400,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       }
     };
     
-    mHelp = (TextView)getView().findViewById(R.id.favorite_fragment_help);
+    mHelp = getView().findViewById(R.id.favorite_fragment_help);
     
     mFavoriteSelectionObserver = new DataSetObserver() {
       @Override
@@ -497,7 +497,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     
     updateSynchroButton(null);
  
-    mFavoriteProgramList = (ListView)getView().findViewById(R.id.favorite_program_list);
+    mFavoriteProgramList = getView().findViewById(R.id.favorite_program_list);
     mFavoriteProgramList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
       @Override
       public void onItemClick(AdapterView<?> adapterView, View v, int position,

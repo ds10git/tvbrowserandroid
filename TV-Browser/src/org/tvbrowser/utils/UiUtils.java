@@ -252,7 +252,7 @@ public class UiUtils {
                   
                   final long startTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
                   final long endTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
-                  final ImageButton handleReminder = (ImageButton)mLayout.findViewById(R.id.detail_handle_reminder);
+                  final ImageButton handleReminder = mLayout.findViewById(R.id.detail_handle_reminder);
                   
                   if(startTime <= System.currentTimeMillis()) {
                     handleReminder.setVisibility(View.GONE);
@@ -346,16 +346,16 @@ public class UiUtils {
                     }
                   }
                   
-                  TextView date = (TextView)mLayout.findViewById(R.id.detail_date_channel);
-                  TextView title = (TextView)mLayout.findViewById(R.id.detail_title);
-                  TextView genre = (TextView)mLayout.findViewById(R.id.detail_genre);
-                  TextView info = (TextView)mLayout.findViewById(R.id.detail_info);
-                  TextView episode = (TextView)mLayout.findViewById(R.id.detail_episode_title);
-                  TextView shortDescription = (TextView)mLayout.findViewById(R.id.detail_short_description);
-                  TextView description = (TextView)mLayout.findViewById(R.id.detail_description);
-                  TextView link = (TextView)mLayout.findViewById(R.id.detail_link);
-                  TextView pictureDescription = (TextView)mLayout.findViewById(R.id.detail_picture_description);
-                  TextView pictureCopyright = (TextView)mLayout.findViewById(R.id.detail_picture_copyright);
+                  TextView date = mLayout.findViewById(R.id.detail_date_channel);
+                  TextView title = mLayout.findViewById(R.id.detail_title);
+                  TextView genre = mLayout.findViewById(R.id.detail_genre);
+                  TextView info = mLayout.findViewById(R.id.detail_info);
+                  TextView episode = mLayout.findViewById(R.id.detail_episode_title);
+                  TextView shortDescription = mLayout.findViewById(R.id.detail_short_description);
+                  TextView description = mLayout.findViewById(R.id.detail_description);
+                  TextView link = mLayout.findViewById(R.id.detail_link);
+                  TextView pictureDescription = mLayout.findViewById(R.id.detail_picture_description);
+                  TextView pictureCopyright = mLayout.findViewById(R.id.detail_picture_copyright);
                   
                   date.setTextSize(TypedValue.COMPLEX_UNIT_PX, date.getTextSize() * textScale);
                   title.setTextSize(TypedValue.COMPLEX_UNIT_PX, date.getTextSize() * textScale);
@@ -669,7 +669,7 @@ public class UiUtils {
                   
                   for(String key : keys) {
                     boolean enabled = pref.getBoolean("details_" + key, true);
-                    TextView textView = (TextView)mLayout.findViewById(VALUE_MAP.get(key));
+                    TextView textView = mLayout.findViewById(VALUE_MAP.get(key));
                     textView.setTextSize(TypedValue.COMPLEX_UNIT_PX, textView.getTextSize() * textScale);
                     
                     if(textView != null && enabled && !c.isNull(c.getColumnIndex(key))) {
@@ -1094,8 +1094,8 @@ public class UiUtils {
     final AlertDialog.Builder builder = new AlertDialog.Builder(activity);
     final RelativeLayout layout = (RelativeLayout)((LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.search_repetition_layout, parent instanceof ViewGroup ? (ViewGroup)parent : null, false);
     final Resources resources = activity.getResources();
-    final EditText titleText = (EditText)layout.findViewById(R.id.search_repetition_title);
-    final EditText episodeText = (EditText)layout.findViewById(R.id.search_repetition_episode);
+    final EditText titleText = layout.findViewById(R.id.search_repetition_title);
+    final EditText episodeText = layout.findViewById(R.id.search_repetition_episode);
     
     if(title != null) {
       titleText.setText(title);
@@ -1793,7 +1793,7 @@ public class UiUtils {
     
     SimpleDateFormat day = new SimpleDateFormat("EEE", Locale.getDefault());
     
-    TextView startDay = (TextView)((View)view.getParent()).findViewById(/*R.id.startDayLabelPL*/startDayLabelID);
+    TextView startDay = ((View)view.getParent()).findViewById(/*R.id.startDayLabelPL*/startDayLabelID);
     startDay.setText(day.format(new Date(date)));
     
     CharSequence startDayValue = formatDate(date, activity, true);
@@ -2101,7 +2101,7 @@ public class UiUtils {
       channelSelectionView.findViewById(R.id.channel_category_label).setVisibility(View.GONE);
       channelSelectionView.findViewById(R.id.channel_category_value).setVisibility(View.GONE);
       
-      final EditText filterName = (EditText)channelSelectionView.findViewById(R.id.channel_selection_input_id_name);
+      final EditText filterName = channelSelectionView.findViewById(R.id.channel_selection_input_id_name);
       
       if(channelFilter.getName() == null) {
         channelSelectionView.findViewById(R.id.channel_selection_label_id_name).setVisibility(View.GONE);
@@ -2111,7 +2111,7 @@ public class UiUtils {
         filterName.setText(channelFilter.getName());
       }
       
-      final ListView list = (ListView)channelSelectionView.findViewById(R.id.channel_selection_list);
+      final ListView list = channelSelectionView.findViewById(R.id.channel_selection_list);
       
       final Bitmap defaultLogo = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher);
       
@@ -2126,9 +2126,9 @@ public class UiUtils {
             
             convertView = inflater.inflate(R.layout.channel_row, parent, false);
             
-            holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_text);
-            holder.mCheckBox = (CheckBox)convertView.findViewById(R.id.row_of_channel_selection);
-            holder.mLogo = (ImageView)convertView.findViewById(R.id.row_of_channel_icon);
+            holder.mTextView = convertView.findViewById(R.id.row_of_channel_text);
+            holder.mCheckBox = convertView.findViewById(R.id.row_of_channel_selection);
+            holder.mLogo = convertView.findViewById(R.id.row_of_channel_icon);
             
             convertView.setTag(holder);
             
@@ -2228,7 +2228,7 @@ public class UiUtils {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position,
             long id) {
-          CheckBox check = (CheckBox)view.findViewById(R.id.row_of_channel_selection);
+          CheckBox check = view.findViewById(R.id.row_of_channel_selection);
           
           if(check != null) {
             check.setChecked(!check.isChecked());
@@ -2325,9 +2325,9 @@ public class UiUtils {
     
     View selectionView = inflater.inflate(R.layout.dialog_filter_categories, parent, false);
     
-    final EditText nameInput = (EditText)selectionView.findViewById(R.id.dialog_filter_categories_input_name);
-    final Spinner operationSelection = (Spinner)selectionView.findViewById(R.id.dialog_filter_categories_selection_operation);
-    final ListView listView = (ListView)selectionView.findViewById(R.id.dialog_filter_categories_list);
+    final EditText nameInput = selectionView.findViewById(R.id.dialog_filter_categories_input_name);
+    final Spinner operationSelection = selectionView.findViewById(R.id.dialog_filter_categories_selection_operation);
+    final ListView listView = selectionView.findViewById(R.id.dialog_filter_categories_list);
     
     if(categoryFilter.getName() == null) {
       selectionView.findViewById(R.id.dialog_filter_categories_label_name).setVisibility(View.GONE);
@@ -2351,8 +2351,8 @@ public class UiUtils {
           
           convertView = inflater.inflate(R.layout.list_row_selection, parent, false);
           
-          holder.mTextView = (TextView)convertView.findViewById(R.id.row_selection_text);
-          holder.mCheckBox = (CheckBox)convertView.findViewById(R.id.row_selection_selection);
+          holder.mTextView = convertView.findViewById(R.id.row_selection_text);
+          holder.mCheckBox = convertView.findViewById(R.id.row_selection_selection);
           
           convertView.setTag(holder);
         }
@@ -2399,7 +2399,7 @@ public class UiUtils {
       @Override
       public void onItemClick(AdapterView<?> parent, View view, int position,
           long id) {
-        CheckBox check = (CheckBox)view.findViewById(R.id.row_selection_selection);
+        CheckBox check = view.findViewById(R.id.row_selection_selection);
         
         if(check != null) {
           check.setChecked(!check.isChecked());
@@ -2500,9 +2500,9 @@ public class UiUtils {
     
     View selectionView = inflater.inflate(R.layout.dialog_filter_keyword, parent, false);
     
-    final EditText nameInput = (EditText)selectionView.findViewById(R.id.dialog_filter_keyword_input_name);
-    final EditText keywordInput = (EditText)selectionView.findViewById(R.id.dialog_filter_keyword_input_keyword);
-    final Spinner columnSelection = (Spinner)selectionView.findViewById(R.id.dialog_filter_keyword_selection_column);
+    final EditText nameInput = selectionView.findViewById(R.id.dialog_filter_keyword_input_name);
+    final EditText keywordInput = selectionView.findViewById(R.id.dialog_filter_keyword_input_keyword);
+    final Spinner columnSelection = selectionView.findViewById(R.id.dialog_filter_keyword_selection_column);
     
     nameInput.setText(keywordFilter.getName());
     keywordInput.setText(keywordFilter.getKeyword());

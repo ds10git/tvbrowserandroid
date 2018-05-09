@@ -89,14 +89,14 @@ class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBi
         }
       }
       if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)) {
-        TextView title = (TextView)((ViewGroup)view.getParent()).findViewById(R.id.titleLabelPL);
+        TextView title = ((ViewGroup)view.getParent()).findViewById(R.id.titleLabelPL);
         String titleValue = cursor.getString(columnIndex);
         title.setText(ProgramUtils.getMarkIcons(mActivity, cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), titleValue));
         
         return true;
       }
       else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
-        TextView until = (TextView)((ViewGroup)view.getParent()).findViewById(R.id.untilLabelPL);
+        TextView until = ((ViewGroup)view.getParent()).findViewById(R.id.untilLabelPL);
         
         if(showEndTime) {
           TextView text = (TextView)view;
@@ -131,7 +131,7 @@ class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBi
         return true;
       } 
       else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_UNIX_DATE)) {
-        TextView date = (TextView)((ViewGroup)view.getParent()).findViewById(R.id.startDayLabelPL);
+        TextView date = ((ViewGroup)view.getParent()).findViewById(R.id.startDayLabelPL);
         
         if(mDateShowInterface.showDate()) {
           UiUtils.formatDayView(mActivity, cursor, view, R.id.startDayLabelPL);
@@ -204,7 +204,7 @@ class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBi
             }
           }
           
-          ImageView logoView = (ImageView)((ViewGroup)view.getParent()).findViewById(R.id.program_list_channel_logo);
+          ImageView logoView = ((ViewGroup)view.getParent()).findViewById(R.id.program_list_channel_logo);
           
           if(logo != null) {
             logoView.setImageDrawable(logo);
@@ -296,7 +296,7 @@ class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBi
       }
       else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)) {
         TextView text = (TextView)view;
-        ImageView picture = (ImageView)((RelativeLayout)text.getParent()).findViewById(R.id.picture_pl);
+        ImageView picture = ((RelativeLayout)text.getParent()).findViewById(R.id.picture_pl);
         
         int pictureIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
         

@@ -88,7 +88,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
     
     setContentView(R.layout.list_view);
     
-    mListView = (ListView)findViewById(R.id.list_view);
+    mListView = findViewById(R.id.list_view);
     
     String[] projection = {
         TvBrowserContentProvider.DATA_KEY_UNIX_DATE,

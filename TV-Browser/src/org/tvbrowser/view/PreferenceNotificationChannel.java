@@ -31,7 +31,7 @@ public class PreferenceNotificationChannel extends Preference implements Prefere
 
     mTypeId = Integer.parseInt(getSummary().toString());
 
-    TextView summaryView = (TextView) view.findViewById(android.R.id.summary);
+    TextView summaryView = view.findViewById(android.R.id.summary);
     summaryView.setVisibility(View.GONE);
   }
 

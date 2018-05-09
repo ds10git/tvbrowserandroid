@@ -658,14 +658,14 @@ public class TvBrowser extends AppCompatActivity {
     SettingConstants.initializeLogoMap(TvBrowser.this,false);
 
     setContentView(R.layout.activity_tv_browser);
-    final Toolbar toolbar = (Toolbar)findViewById(R.id.activity_tvbrowser_toolbar);
+    final Toolbar toolbar = findViewById(R.id.activity_tvbrowser_toolbar);
     setSupportActionBar(toolbar);
 
     // Create the adapter that will return a fragment for each of the three
     // primary sections of the app.
     mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-    mTabLayout = (TabLayout) findViewById(R.id.activity_tvbrowser_tabs);
+    mTabLayout = findViewById(R.id.activity_tvbrowser_tabs);
 
     // For each of the sections in the app, add a tab to the action bar.
     for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
@@ -696,7 +696,7 @@ public class TvBrowser extends AppCompatActivity {
 
 
     // Set up the ViewPager with the sections adapter.
-    mViewPager = (ViewPager) findViewById(R.id.activity_tvbrowser_pager);
+    mViewPager = findViewById(R.id.activity_tvbrowser_pager);
     mViewPager.setAdapter(mSectionsPagerAdapter);
     mViewPager.setOffscreenPageLimit(3);
     mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
@@ -953,7 +953,7 @@ public class TvBrowser extends AppCompatActivity {
         Log.d("info8","TIMER");
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
       }
-    }, new Date((((long) (System.currentTimeMillis() / 60000L)) * 60000) + 62000), 60000);
+    }, new Date((System.currentTimeMillis() / 60000L * 60000) + 62000), 60000);
 
 
 
@@ -1046,7 +1046,7 @@ public class TvBrowser extends AppCompatActivity {
         dialog.show();
 
         if(linkifyId != ID_LINKIFY_DISABLED) {
-          final TextView test = ((TextView)dialog.findViewById(linkifyId));
+          final TextView test = dialog.findViewById(linkifyId);
 
           if(test != null) {
             test.setMovementMethod(LinkMovementMethod.getInstance());
@@ -1183,14 +1183,14 @@ public class TvBrowser extends AppCompatActivity {
 
           final View view = getLayoutInflater().inflate(R.layout.dialog_epg_donate_info, getParentViewGroup(), false);
 
-          final TextView message = (TextView)view.findViewById(R.id.dialog_epg_donate_message);
+          final TextView message = view.findViewById(R.id.dialog_epg_donate_message);
           message.setText(Html.fromHtml(info));
           message.setMovementMethod(LinkMovementMethod.getInstance());
 
-          final TextView percentInfoView = (TextView)view.findViewById(R.id.dialog_epg_donate_percent_info);
+          final TextView percentInfoView = view.findViewById(R.id.dialog_epg_donate_percent_info);
           percentInfoView.setText(Html.fromHtml(percentInfo, null, new NewsTagHandler()));
 
-          final SeekBar percent = (SeekBar)view.findViewById(R.id.dialog_epg_donate_percent);
+          final SeekBar percent = view.findViewById(R.id.dialog_epg_donate_percent);
           percent.setEnabled(false);
 
           if(percentValue >= 0) {
@@ -1201,10 +1201,10 @@ public class TvBrowser extends AppCompatActivity {
             percent.setVisibility(View.GONE);
           }
 
-          final Spinner reason = (Spinner)view.findViewById(R.id.dialog_epg_donate_reason_selection);
+          final Spinner reason = view.findViewById(R.id.dialog_epg_donate_reason_selection);
           reason.setEnabled(false);
 
-          final CheckBox dontShowAgain = (CheckBox)view.findViewById(R.id.dialog_epg_donate_dont_show_again);
+          final CheckBox dontShowAgain = view.findViewById(R.id.dialog_epg_donate_dont_show_again);
           dontShowAgain.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
@@ -2644,9 +2644,9 @@ public class TvBrowser extends AppCompatActivity {
 
             convertView = mInflater.inflate(R.layout.channel_row, getParentViewGroup(), false);
 
-            holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_text);
-            holder.mCheckBox = (CheckBox)convertView.findViewById(R.id.row_of_channel_selection);
-            holder.mLogo = (ImageView)convertView.findViewById(R.id.row_of_channel_icon);
+            holder.mTextView = convertView.findViewById(R.id.row_of_channel_text);
+            holder.mCheckBox = convertView.findViewById(R.id.row_of_channel_selection);
+            holder.mLogo = convertView.findViewById(R.id.row_of_channel_icon);
 
             convertView.setTag(holder);
           }
@@ -2691,7 +2691,7 @@ public class TvBrowser extends AppCompatActivity {
       channelSelectionView.findViewById(R.id.channel_selection_selection_buttons).setVisibility(View.GONE);
       channelSelectionView.findViewById(R.id.channel_selection_input_id_name).setVisibility(View.GONE);
 
-      TextView infoView = (TextView)channelSelectionView.findViewById(R.id.channel_selection_label_id_name);
+      TextView infoView = channelSelectionView.findViewById(R.id.channel_selection_label_id_name);
 
       if(help != null) {
         infoView.setText(help);
@@ -2702,7 +2702,7 @@ public class TvBrowser extends AppCompatActivity {
       }
 
       // get spinner for country filtering and create array adapter with all available countries
-      Spinner country = (Spinner)channelSelectionView.findViewById(R.id.channel_country_value);
+      Spinner country = channelSelectionView.findViewById(R.id.channel_country_value);
 
       final ArrayAdapter<Country> countryListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, countryList);
       countryListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
@@ -2724,7 +2724,7 @@ public class TvBrowser extends AppCompatActivity {
       });
 
       // get spinner for category selection and add listener to react to user category selection
-      Spinner category = (Spinner)channelSelectionView.findViewById(R.id.channel_category_value);
+      Spinner category = channelSelectionView.findViewById(R.id.channel_category_value);
       category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected (AdapterView<?> parent, View view, int position, long id) {
@@ -2753,7 +2753,7 @@ public class TvBrowser extends AppCompatActivity {
       }
 
       // get the list view of the layout and add adapter with available channels
-      ListView list = (ListView)channelSelectionView.findViewById(R.id.channel_selection_list);
+      ListView list = channelSelectionView.findViewById(R.id.channel_selection_list);
       list.setAdapter(channelSelectionAdapter);
 
       // add listener to react to user selection of channels
@@ -2761,7 +2761,7 @@ public class TvBrowser extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position,
             long id) {
-          CheckBox check = (CheckBox)view.findViewById(R.id.row_of_channel_selection);
+          CheckBox check = view.findViewById(R.id.row_of_channel_selection);
 
           if(check != null) {
             check.setChecked(!check.isChecked());
@@ -3056,9 +3056,9 @@ public class TvBrowser extends AppCompatActivity {
 
       LinearLayout main = (LinearLayout)getLayoutInflater().inflate(R.layout.channel_sort_list, getParentViewGroup(), false);
 
-      Button sortAlphabetically = (Button)main.findViewById(R.id.channel_sort_alpabetically);
+      Button sortAlphabetically = main.findViewById(R.id.channel_sort_alpabetically);
 
-      final DynamicListView channelSort = (DynamicListView)main.findViewById(R.id.channel_sort);
+      final DynamicListView channelSort = main.findViewById(R.id.channel_sort);
 
       final String[] projection = {
           TvBrowserContentProvider.CHANNEL_TABLE+"."+TvBrowserContentProvider.KEY_ID +" AS "+TvBrowserContentProvider.KEY_ID,
@@ -3142,9 +3142,9 @@ public class TvBrowser extends AppCompatActivity {
 
                 convertView = mInflater.inflate(R.layout.channel_sort_row, getParentViewGroup(), false);
 
-                holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_sort_text);
-                holder.mSortNumber = (TextView)convertView.findViewById(R.id.row_of_channel_sort_number);
-                holder.mLogo = (ImageView)convertView.findViewById(R.id.row_of_channel_sort_icon);
+                holder.mTextView = convertView.findViewById(R.id.row_of_channel_sort_text);
+                holder.mSortNumber = convertView.findViewById(R.id.row_of_channel_sort_number);
+                holder.mLogo = convertView.findViewById(R.id.row_of_channel_sort_icon);
 
                 convertView.setTag(holder);
               }
@@ -3237,7 +3237,7 @@ public class TvBrowser extends AppCompatActivity {
 
               mSelectionNumberChanged = false;
 
-              final NumberPicker number = (NumberPicker)numberSelection.findViewById(R.id.sort_picker);
+              final NumberPicker number = numberSelection.findViewById(R.id.sort_picker);
               number.setMinValue(1);
               number.setMaxValue(channelSource.size());
               number.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
@@ -3248,13 +3248,13 @@ public class TvBrowser extends AppCompatActivity {
                 }
               });
 
-              final EditText numberAlternative = (EditText)numberSelection.findViewById(R.id.sort_entered_number);
+              final EditText numberAlternative = numberSelection.findViewById(R.id.sort_entered_number);
 
               builder.setView(numberSelection);
 
               final ChannelSort selection = (ChannelSort)channelSource.get(position);
 
-              TextView name = (TextView)numberSelection.findViewById(R.id.sort_picker_channel_name);
+              TextView name = numberSelection.findViewById(R.id.sort_picker_channel_name);
               name.setText(selection.getName());
 
               if(selection.getSortNumber() > 0) {
@@ -3401,14 +3401,14 @@ public class TvBrowser extends AppCompatActivity {
 
           RelativeLayout dataDownload = (RelativeLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection, getParentViewGroup(), false);
 
-          final Spinner days = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_selection_download_days);
-          final CheckBox pictures = (CheckBox)dataDownload.findViewById(R.id.dialog_data_update_selection_download_picture);
+          final Spinner days = dataDownload.findViewById(R.id.dialog_data_update_selection_download_days);
+          final CheckBox pictures = dataDownload.findViewById(R.id.dialog_data_update_selection_download_picture);
 
-          final Spinner autoUpdate = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_type);
-          final Spinner frequency = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_frequency);
-          final CheckBox onlyWiFi = (CheckBox)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_type_connection);
-          final TextView timeLabel = (TextView)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time_label);
-          final TextView time = (TextView)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time);
+          final Spinner autoUpdate = dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_type);
+          final Spinner frequency = dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_frequency);
+          final CheckBox onlyWiFi = dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_type_connection);
+          final TextView timeLabel = dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time_label);
+          final TextView time = dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time);
           time.setTextColor(onlyWiFi.getTextColors());
 
           String currentDownloadDays = PrefUtils.getStringValue(R.string.DAYS_TO_DOWNLOAD, R.string.days_to_download_default);
@@ -3513,7 +3513,7 @@ public class TvBrowser extends AppCompatActivity {
 
               LinearLayout timeSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection_auto_update_time, getParentViewGroup(), false);
 
-              final TimePicker timePick = (TimePicker)timeSelection.findViewById(R.id.dialog_data_update_selection_auto_update_selection_time);
+              final TimePicker timePick = timeSelection.findViewById(R.id.dialog_data_update_selection_auto_update_selection_time);
               timePick.setIs24HourView(DateFormat.is24HourFormat(TvBrowser.this));
               CompatUtils.setTimePickerHour(timePick, currentAutoUpdateTime.get()/60);
               CompatUtils.setTimePickerMinute(timePick, currentAutoUpdateTime.get()%60);
@@ -3709,7 +3709,7 @@ public class TvBrowser extends AppCompatActivity {
   private void showAcceptTerms(final boolean syncChannels) {
     View view = getLayoutInflater().inflate(R.layout.dialog_terms_accept, getParentViewGroup(), false);
     ((TextView)view.findViewById(R.id.dialog_terms_accept_terms)).setText(CompatUtils.fromHtml(getString(R.string.privacy_statement_text)));
-    CheckBox check = (CheckBox)view.findViewById(R.id.dialog_terms_accept_selection);
+    CheckBox check = view.findViewById(R.id.dialog_terms_accept_selection);
     check.setChecked(PrefUtils.getBooleanValue(R.string.PREF_PRIVACY_TERMS_ACCEPTED_SYNC,R.bool.pref_privacy_terms_default));
 
     final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -3757,8 +3757,8 @@ public class TvBrowser extends AppCompatActivity {
 
     final SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
 
-    final EditText userName = (EditText)username_password_setup.findViewById(R.id.username_entry);
-    final EditText password = (EditText)username_password_setup.findViewById(R.id.password_entry);
+    final EditText userName = username_password_setup.findViewById(R.id.username_entry);
+    final EditText password = username_password_setup.findViewById(R.id.password_entry);
 
     userName.setText(pref.getString(SettingConstants.USER_NAME, initiateUserName != null ? initiateUserName : ""));
     password.setText(pref.getString(SettingConstants.USER_PASSWORD, initiatePassword != null? initiatePassword : ""));
@@ -3897,7 +3897,7 @@ public class TvBrowser extends AppCompatActivity {
 
       View view = getLayoutInflater().inflate(R.layout.dont_want_to_see_exclusion_edit_list, getParentViewGroup(), false);
 
-      ListView list = (ListView)view.findViewById(R.id.dont_want_to_see_exclusion_list);
+      ListView list = view.findViewById(R.id.dont_want_to_see_exclusion_list);
 
       list.setAdapter(exclusionAdapter);
 
@@ -3913,8 +3913,8 @@ public class TvBrowser extends AppCompatActivity {
 
           View editView = getLayoutInflater().inflate(R.layout.dont_want_to_see_edit, getParentViewGroup(), false);
 
-          final TextView exclusion = (TextView)editView.findViewById(R.id.dont_want_to_see_value);
-          final CheckBox caseSensitive = (CheckBox)editView.findViewById(R.id.dont_want_to_see_case_sensitve);
+          final TextView exclusion = editView.findViewById(R.id.dont_want_to_see_value);
+          final CheckBox caseSensitive = editView.findViewById(R.id.dont_want_to_see_case_sensitve);
 
           exclusion.setText(edit.mExclusion);
           caseSensitive.setSelected(edit.mIsCaseSensitive);
@@ -4412,7 +4412,7 @@ public class TvBrowser extends AppCompatActivity {
 
     try {
       PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-      TextView version = (TextView)about.findViewById(R.id.version);
+      TextView version = about.findViewById(R.id.version);
       version.setText(pInfo.versionName);
     } catch (NameNotFoundException e) {
       e.printStackTrace();
@@ -4420,13 +4420,13 @@ public class TvBrowser extends AppCompatActivity {
 
     ((TextView)about.findViewById(R.id.license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
 
-    TextView androidVersion = (TextView)about.findViewById(R.id.android_version);
+    TextView androidVersion = about.findViewById(R.id.android_version);
     androidVersion.setText(Build.VERSION.RELEASE);
 
-    TextView lastUpdate = (TextView)about.findViewById(R.id.data_update);
+    TextView lastUpdate = about.findViewById(R.id.data_update);
     lastUpdate.setText(DateFormat.getLongDateFormat(TvBrowser.this).format(new Date(PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, 0))));
 
-    TextView nextUpdate = (TextView)about.findViewById(R.id.next_data_update);
+    TextView nextUpdate = about.findViewById(R.id.next_data_update);
 
     switch(Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
       case 0: nextUpdate.setText(R.string.next_data_update_manually);break;
@@ -4437,7 +4437,7 @@ public class TvBrowser extends AppCompatActivity {
       } break;
     }
 
-    TextView dataRange = (TextView)about.findViewById(R.id.data_range);
+    TextView dataRange = about.findViewById(R.id.data_range);
     dataRange.setText(DateFormat.getMediumDateFormat(TvBrowser.this).format(new Date(PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_FIRST_KNOWN, R.integer.meta_data_date_known_default))) + " - " + DateFormat.getMediumDateFormat(TvBrowser.this).format(new Date(PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_LAST_KNOWN, R.integer.meta_data_date_known_default))));
 
     ((TextView)about.findViewById(R.id.rundate_value)).setText(DateFormat.getLongDateFormat(getApplicationContext()).format(mRundate.getTime()));

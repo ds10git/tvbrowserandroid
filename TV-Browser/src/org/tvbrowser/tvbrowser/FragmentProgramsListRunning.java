@@ -338,9 +338,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       today.set(Calendar.MILLISECOND, 0);
       
       if((mDayStart > System.currentTimeMillis() || mDayStart < today.getTimeInMillis()) && mWhereClauseTime < System.currentTimeMillis()) {
-        Button time = (Button)((ViewGroup) getView().getParent().getParent()).findViewWithTag(mWhereClauseTime);
-        Button now = (Button)((ViewGroup) getView().getParent().getParent()).findViewById(R.id.now_button);
-        Button next = (Button)((ViewGroup) getView().getParent().getParent()).findViewById(R.id.button_after1);
+        Button time = ((ViewGroup) getView().getParent().getParent()).findViewWithTag(mWhereClauseTime);
+        Button now = ((ViewGroup) getView().getParent().getParent()).findViewById(R.id.now_button);
+        Button next = ((ViewGroup) getView().getParent().getParent()).findViewById(R.id.button_after1);
         
         if(time != null && !time.equals(now) && (next == null || !time.equals(next))) {
           time.performClick();
@@ -405,7 +405,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
           int test1 = now.get(Calendar.HOUR_OF_DAY) * 60 + now.get(Calendar.MINUTE);
           
           if((test1 - mWhereClauseTime) > 180 && mDayStart < System.currentTimeMillis() && mDayStart >= today.getTimeInMillis()) {
-            Spinner date = (Spinner)((ViewGroup)getView().getParent()).findViewById(R.id.running_date_selection);
+            Spinner date = ((ViewGroup)getView().getParent()).findViewById(R.id.running_date_selection);
             
             if(date.getCount() > 2) {
               date.setSelection(2);
@@ -416,7 +416,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
           }
         }
         else if(oldWhereClauseTime != -1 && (mWhereClauseTime == -1 || mWhereClauseTime == -2)) {
-          Spinner date = (Spinner)((ViewGroup)getView().getParent()).findViewById(R.id.running_date_selection);
+          Spinner date = ((ViewGroup)getView().getParent()).findViewById(R.id.running_date_selection);
           
           if(date.getCount() > 1) {
             date.setSelection(1);
@@ -775,9 +775,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       viewHolder.mCurrentOrientation = SettingConstants.ORIENTATION;
       viewHolder.mCurrentScale = textScale;
       
-      viewHolder.mChannelInfo = (ViewGroup)convertView.findViewById(R.id.running_list_channel_info);
-      viewHolder.mChannelLogo = (ImageView)convertView.findViewById(R.id.running_list_channel_logo);
-      viewHolder.mChannel = (TextView)convertView.findViewById(R.id.running_compact_channel_label);
+      viewHolder.mChannelInfo = convertView.findViewById(R.id.running_list_channel_info);
+      viewHolder.mChannelLogo = convertView.findViewById(R.id.running_list_channel_logo);
+      viewHolder.mChannel = convertView.findViewById(R.id.running_compact_channel_label);
       
       viewHolder.mSeparator1 = convertView.findViewById(R.id.running_separator_1);
       viewHolder.mSeparator2 = convertView.findViewById(R.id.running_separator_2);
@@ -790,21 +790,21 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       registerForContextMenu(viewHolder.mNow);
       registerForContextMenu(viewHolder.mNext);
       
-      viewHolder.mPreviousStartTime = (TextView)convertView.findViewById(R.id.running_compact_previous_start);
-      viewHolder.mNowStartTime = (TextView)convertView.findViewById(R.id.running_compact_now_start);
-      viewHolder.mNextStartTime = (TextView)convertView.findViewById(R.id.running_compact_next_start);
+      viewHolder.mPreviousStartTime = convertView.findViewById(R.id.running_compact_previous_start);
+      viewHolder.mNowStartTime = convertView.findViewById(R.id.running_compact_now_start);
+      viewHolder.mNextStartTime = convertView.findViewById(R.id.running_compact_next_start);
       
-      viewHolder.mPreviousTitle = (TextView)convertView.findViewById(R.id.running_compact_previous_title);
-      viewHolder.mNowTitle = (TextView)convertView.findViewById(R.id.running_compact_now_title);
-      viewHolder.mNextTitle = (TextView)convertView.findViewById(R.id.running_compact_next_title);
+      viewHolder.mPreviousTitle = convertView.findViewById(R.id.running_compact_previous_title);
+      viewHolder.mNowTitle = convertView.findViewById(R.id.running_compact_now_title);
+      viewHolder.mNextTitle = convertView.findViewById(R.id.running_compact_next_title);
       
-      viewHolder.mPreviousInfos = (TextView)convertView.findViewById(R.id.running_compact_previous_infos);
-      viewHolder.mNowInfos = (TextView)convertView.findViewById(R.id.running_compact_now_infos);
-      viewHolder.mNextInfos = (TextView)convertView.findViewById(R.id.running_compact_next_infos);
+      viewHolder.mPreviousInfos = convertView.findViewById(R.id.running_compact_previous_infos);
+      viewHolder.mNowInfos = convertView.findViewById(R.id.running_compact_now_infos);
+      viewHolder.mNextInfos = convertView.findViewById(R.id.running_compact_next_infos);
       
-      viewHolder.mPreviousEpisode = (TextView)convertView.findViewById(R.id.running_compact_previous_episode);
-      viewHolder.mNowEpisode = (TextView)convertView.findViewById(R.id.running_compact_now_episode);
-      viewHolder.mNextEpisode = (TextView)convertView.findViewById(R.id.running_compact_next_episode);
+      viewHolder.mPreviousEpisode = convertView.findViewById(R.id.running_compact_previous_episode);
+      viewHolder.mNowEpisode = convertView.findViewById(R.id.running_compact_now_episode);
+      viewHolder.mNextEpisode = convertView.findViewById(R.id.running_compact_next_episode);
       
       convertView.setTag(viewHolder);
     }
@@ -1040,8 +1040,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.running_program_fragment, container, false);
     
-    mListView = (ListView)view.findViewById(R.id.running_list_fragment_list_view);
-    mTimeBar = (LinearLayout)view.findViewById(R.id.runnning_time_bar);
+    mListView = view.findViewById(R.id.running_list_fragment_list_view);
+    mTimeBar = view.findViewById(R.id.runnning_time_bar);
     
     initialize(view);
     
@@ -1085,9 +1085,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   }
   
   private void initialize(View rootView) {
-    final Button now = (Button)rootView.findViewById(R.id.now_button);
-    final Button next = (Button)rootView.findViewById(R.id.button_after1);
-    mDateSelection = (Spinner)rootView.findViewById(R.id.running_date_selection);
+    final Button now = rootView.findViewById(R.id.now_button);
+    final Button next = rootView.findViewById(R.id.button_after1);
+    mDateSelection = rootView.findViewById(R.id.running_date_selection);
     now.setTag(-1);
     next.setTag(-2);
     
@@ -1712,7 +1712,7 @@ String mPreviousEpisode;
     int insertIndex = 1;
     
     if(mTimeBar.getChildCount() > 1) {
-      final Button next = (Button)((ViewGroup) getView().getParent().getParent()).findViewById(R.id.button_after1);
+      final Button next = ((ViewGroup) getView().getParent().getParent()).findViewById(R.id.button_after1);
       
       if(next != null && next.getVisibility() == View.VISIBLE) {
         if(mTimeBar.getChildCount() > 2) {
