@@ -78,7 +78,7 @@ public abstract class FilterValues {
           result.mId = id;
         }
       }
-    }catch(Exception e) {}
+    }catch(Exception ignored) {}
     
     return result;
   }

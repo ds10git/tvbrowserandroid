@@ -151,7 +151,7 @@ class NewsReader {
       edit.putLong(context.getString(R.string.NEWS_DATE_LAST_DOWNLOAD), System.currentTimeMillis());
       
       edit.commit();
-    } catch (Exception e) {}
+    } catch (Exception ignored) {}
   }
   
   private static final class News {

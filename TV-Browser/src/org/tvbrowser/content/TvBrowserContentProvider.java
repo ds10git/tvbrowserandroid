@@ -573,7 +573,7 @@ public class TvBrowserContentProvider extends ContentProvider {
               }
             }
           }
-        }catch(SQLiteDatabaseLockedException e) {}
+        }catch(SQLiteDatabaseLockedException ignored) {}
       }
     }catch(RuntimeException rte) {
       throw new OperationApplicationException(rte);
@@ -811,7 +811,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     try {
       databasePath = pref.getString(getContext().getString(R.string.PREF_DATABASE_PATH), getContext().getString(R.string.pref_database_path_default));
-    }catch(NotFoundException nfe) {}
+    }catch(NotFoundException ignored) {}
     
     createDataBaseHelper(databasePath);
     
@@ -1552,7 +1552,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       if(IOUtils.isDatabaseAccessible(mContext)) {
         try {
           db = super.getWritableDatabase();
-        }catch(SQLiteException sqle) {}
+        }catch(SQLiteException ignored) {}
       }
       
       return db;

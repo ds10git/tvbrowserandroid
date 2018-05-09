@@ -199,7 +199,7 @@ public class TvDataUpdateService extends Service {
           else if(lVersion - rVersion > 0) {
             result = 1;
           }
-        }catch(NumberFormatException nfe) {}
+        }catch(NumberFormatException ignored) {}
       }
       else if(lIndex != -1) {
         result = -1;
@@ -388,7 +388,7 @@ public class TvDataUpdateService extends Service {
           if(isInternetConnectionAutoUpdate) {
             try {
               sleep(15000);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException ignored) {}
           }
           
           final ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
@@ -1952,7 +1952,7 @@ public class TvDataUpdateService extends Service {
         
         try {
           mThreadPool.awaitTermination(30, TimeUnit.MINUTES);
-        } catch (InterruptedException e) {}
+        } catch (InterruptedException ignored) {}
         
         if(!mThreadPool.isTerminated()) {
           final List<Runnable> unstartedThreads = mThreadPool.shutdownNow();
@@ -2234,7 +2234,7 @@ public class TvDataUpdateService extends Service {
                 byte[] blob = IOUtils.loadUrl(logoUrl, 10000);
                 
                 values.put(TvBrowserContentProvider.CHANNEL_KEY_LOGO, blob);
-              }catch(Exception e1) {}
+              }catch(Exception ignored) {}
             }
             
             if(channelValues == null) {
@@ -2574,14 +2574,14 @@ public class TvDataUpdateService extends Service {
                 else if(value1 > value2) {
                   result = -1;
                 }
-              }catch(NumberFormatException nfe) {}
+              }catch(NumberFormatException ignored) {}
             }
 
             return  result;
           });
         }
       }
-    }catch(Throwable t) {
+    }catch(Throwable ignored) {
     }finally {
 		IOUtils.close(read);
 		IOUtils.disconnect(connection);
@@ -2833,7 +2833,7 @@ public class TvDataUpdateService extends Service {
     
     try {
       updateFavorites.awaitTermination(favorites.length, TimeUnit.MINUTES);
-    } catch (InterruptedException e) {}
+    } catch (InterruptedException ignored) {}
     
     notification.cancel(ID_NOTIFY);
     
@@ -3546,7 +3546,7 @@ public class TvDataUpdateService extends Service {
       final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvDataUpdateService.this).edit();
       edit.putStringSet(getString(R.string.PREF_EPGPAID_DATABASE_CHANNEL_IDS), epgPaidChannelDatabaseKeys);
       edit.commit();
-    }catch(Exception e2) {
+    }catch(Exception ignored) {
       
     }
   }
@@ -3770,7 +3770,7 @@ public class TvDataUpdateService extends Service {
                 fileSummaryNew.delete();
               }
             }
-          } catch (IOException ioe) {
+          } catch (IOException ignored) {
 
           } finally {
             IOUtils.close(channelsIn);
@@ -3997,8 +3997,8 @@ public class TvDataUpdateService extends Service {
               current.put(frameID, holder);
             }
           }
-        }catch(IllegalStateException e) {
-        }catch(NullPointerException e) {}
+        }catch(IllegalStateException ignored) {
+        }catch(NullPointerException ignored) {}
       }
     }finally {
       IOUtils.close(data);

@@ -650,7 +650,7 @@ public class TvBrowser extends AppCompatActivity {
         edit.putInt(getString(R.string.OLD_VERSION), pInfo.versionCode);
         edit.commit();
       }
-    } catch (NameNotFoundException e) {}
+    } catch (NameNotFoundException ignored) {}
 
     super.onCreate(savedInstanceState);
 
@@ -799,7 +799,7 @@ public class TvBrowser extends AppCompatActivity {
       // stupid workaround for not available receiver registered check
       try {
         TvBrowser.this.unregisterReceiver(mUpdateDoneBroadcastReceiver);
-      }catch(IllegalArgumentException e) {}
+      }catch(IllegalArgumentException ignored) {}
     }
     super.onPause();
   }
@@ -1362,7 +1362,7 @@ public class TvBrowser extends AppCompatActivity {
               }
             }
           });
-        } catch (BadTokenException e) {
+        } catch (BadTokenException ignored) {
         }
       }
     }, 3000);
@@ -1597,7 +1597,7 @@ public class TvBrowser extends AppCompatActivity {
                         if(sortNumber != null) {
                           try {
                             sort = Integer.parseInt(sortNumber);
-                          }catch(NumberFormatException e) {}
+                          }catch(NumberFormatException ignored) {}
                         }
 
                         values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
@@ -1980,7 +1980,7 @@ public class TvBrowser extends AppCompatActivity {
 
           try {
             mTabLayout.removeTabAt(i);
-          }catch(NullPointerException npe) {
+          }catch(NullPointerException ignored) {
 
           }
         }
@@ -3275,7 +3275,7 @@ public class TvBrowser extends AppCompatActivity {
                   else {
                     try {
                       selection.setSortNumber(Integer.parseInt(test));
-                    }catch(NumberFormatException e1) {}
+                    }catch(NumberFormatException ignored) {}
                   }
 
                   Collections.sort(channelSource, sortComparator);
@@ -4175,7 +4175,7 @@ public class TvBrowser extends AppCompatActivity {
             .setText(mSectionsPagerAdapter.getPageTitle(3)));
         mSectionsPagerAdapter.notifyDataSetChanged();
         mSectionsPagerAdapter.instantiateItem(mViewPager, 3);
-      }catch(Throwable t) {}
+      }catch(Throwable ignored) {}
     }
     else if(test instanceof FragmentProgramTable) {
       if(!((FragmentProgramTable)test).checkTimeBlockSize() && !((FragmentProgramTable)test).updateTable()) {
@@ -5394,7 +5394,7 @@ public class TvBrowser extends AppCompatActivity {
           if(value >= -1 && !values.contains(value)) {
             values.add(value);
           }
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
       }
 
       for(int i = 7; i <= timeButtonCount; i++) {

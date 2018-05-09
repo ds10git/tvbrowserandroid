@@ -1179,7 +1179,7 @@ public class FragmentProgramTable extends Fragment {
     
     builder.setView(scroll);
     
-    builder.show();}catch(Throwable t) {}
+    builder.show();}catch(Throwable ignored) {}
   }
   
   public boolean checkTimeBlockSize() {

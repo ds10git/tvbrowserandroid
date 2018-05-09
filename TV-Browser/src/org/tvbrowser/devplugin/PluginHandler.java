@@ -118,7 +118,7 @@ public final class PluginHandler {
           PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
           version = pInfo.versionName;
           versionCode = pInfo.versionCode;
-        } catch (NameNotFoundException e) {}
+        } catch (NameNotFoundException ignored) {}
         
         return new TvBrowserSettings(SettingConstants.IS_DARK_THEME, version, versionCode, PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_FIRST_KNOWN, R.integer.meta_data_id_default), PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_LAST_KNOWN, R.integer.meta_data_id_default), PrefUtils.getLongValue(R.string.PREF_LAST_KNOWN_DATA_DATE, SettingConstants.DATA_LAST_DATE_NO_DATA));
       }
@@ -275,7 +275,7 @@ public final class PluginHandler {
       incrementBlogCountIfZero();
       
       doLog(context1, "Plugin reference count " + BLOG_COUNT.get());
-    }catch(Throwable t) {
+    }catch(Throwable ignored) {
       
     }
   }
@@ -354,7 +354,7 @@ public final class PluginHandler {
             result = true;
             break;
           }
-        } catch (RemoteException e) {}
+        } catch (RemoteException ignored) {}
       }
     }
     

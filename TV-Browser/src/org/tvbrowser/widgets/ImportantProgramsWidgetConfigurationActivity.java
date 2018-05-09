@@ -145,7 +145,7 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
         try {
           int value = Integer.parseInt(mLimitNumber.getText().toString());
           edit.putInt(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT), value);  
-        }catch(NumberFormatException e) {}
+        }catch(NumberFormatException ignored) {}
       }
     }
     else {

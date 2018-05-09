@@ -299,7 +299,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                       }
                     });
                   }
-                }catch(NullPointerException npe) {}
+                }catch(NullPointerException ignored) {}
               }
                             
               } finally {IOUtils.close(c);}
@@ -1169,7 +1169,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
               if(value >= -1 && !values.contains(value)) {
                 values.add(value);
               }
-            } catch (Exception e) {}
+            } catch (Exception ignored) {}
           }
           
           for(int i = 7; i <= timeButtonCount; i++) {
@@ -1653,7 +1653,7 @@ String mPreviousEpisode;
               break;
             }
           }
-        }catch(IllegalStateException e1) {}
+        }catch(IllegalStateException ignored) {}
       }
 
       IOUtils.close(c); // FIXME should be a call to an adapter's swapCursor to reuse the loader's cursor

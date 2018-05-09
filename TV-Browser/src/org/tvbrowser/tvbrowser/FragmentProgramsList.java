@@ -380,7 +380,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
                     }
                   }while(c.moveToNext());
                 }
-              }catch(IllegalStateException e) {}
+              }catch(IllegalStateException ignored) {}
             }
             
             mScrollTime = -1;

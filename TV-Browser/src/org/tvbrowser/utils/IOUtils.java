@@ -341,7 +341,7 @@ public class IOUtils {
           
           loadData.set(byteArr);
         }
-        catch(IOException e) {
+        catch(IOException ignored) {
         }
         finally {
           close(fout);
@@ -354,7 +354,7 @@ public class IOUtils {
         while(loadData.get() == null && count.getAndIncrement() < (timeout / 100)) {
           try {
             sleep(100);
-          } catch (InterruptedException e) {}
+          } catch (InterruptedException ignored) {}
         }
       }
     };
@@ -362,7 +362,7 @@ public class IOUtils {
     
     try {
       wait.join();
-    } catch (InterruptedException e) {}
+    } catch (InterruptedException ignored) {}
     
     if(loadData.get() == null) {
       throw new TimeoutException("URL '"+urlString+"' could not be saved.");
@@ -446,7 +446,7 @@ public class IOUtils {
           
           wasSaved.set(true);
         }
-        catch(IOException e) {
+        catch(IOException ignored) {
         }
         finally {
           close(fout);
@@ -459,7 +459,7 @@ public class IOUtils {
         while(!wasSaved.get() && count.getAndIncrement() < (timeout / 100)) {
           try {
             sleep(100);
-          } catch (InterruptedException e) {}
+          } catch (InterruptedException ignored) {}
         }
       }
     };
@@ -518,7 +518,7 @@ public class IOUtils {
           
           wasSaved.set(true);
         }
-        catch(IOException e) {
+        catch(IOException ignored) {
         }
         finally {
           close(fout);
@@ -531,7 +531,7 @@ public class IOUtils {
         while(!wasSaved.get() && count.getAndIncrement() < (timeout / 100)) {
           try {
             sleep(100);
-          } catch (InterruptedException e) {}
+          } catch (InterruptedException ignored) {}
         }
       }
     };
@@ -776,7 +776,7 @@ public class IOUtils {
         while(!isConnected.get() && count++ <= (timeout / 100)) {
           try {
             sleep(100);
-          } catch (InterruptedException e) {}
+          } catch (InterruptedException ignored) {}
         }
       }
     };
@@ -784,7 +784,7 @@ public class IOUtils {
         
     try {
       check.join();
-    } catch (InterruptedException e) {}
+    } catch (InterruptedException ignored) {}
     
     return isConnected.get();
   }
@@ -966,7 +966,7 @@ public class IOUtils {
     if(!nomedia.isFile()) {
       try {
         nomedia.createNewFile();
-      } catch (IOException e) {}
+      } catch (IOException ignored) {}
     }
     
     return path;
@@ -1116,7 +1116,7 @@ public class IOUtils {
           TvBrowserContentProvider.CONTENT_URI_DATA,
           TvBrowserContentProvider.DATA_KEY_STARTTIME + "<"
               + cal2.getTimeInMillis(), null);
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException ignored) {
     }
 
     try {
@@ -1124,7 +1124,7 @@ public class IOUtils {
           TvBrowserContentProvider.CONTENT_URI_DATA_VERSION,
           TvBrowserContentProvider.VERSION_KEY_DAYS_SINCE_1970 + "<"
               + daysSince1970, null);
-    } catch (IllegalArgumentException e) {
+    } catch (IllegalArgumentException ignored) {
     }
     
     final File pathBase = getDownloadDirectory(context);
@@ -1148,7 +1148,7 @@ public class IOUtils {
               if(index > 0) {
                 try {
                   result = Long.parseLong(file.getName().substring(0,index)) < startMinute;
-                }catch(NumberFormatException nfe) {}
+                }catch(NumberFormatException ignored) {}
               }
               
               return result;
@@ -1329,7 +1329,7 @@ public class IOUtils {
       try {
         in = new GZIPInputStream(new FileInputStream(propertiesFile));
         properties.load(in);
-      } catch(IOException e) {
+      } catch(IOException ignored) {
         
       } finally {
         close(in);

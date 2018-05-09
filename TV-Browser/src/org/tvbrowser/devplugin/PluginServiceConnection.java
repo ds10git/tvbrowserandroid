@@ -90,7 +90,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
         if(bound) {
           mBindContextList.add(context);
         }
-      }catch(Throwable t) {}
+      }catch(Throwable ignored) {}
     }
     
     return bound;
@@ -158,7 +158,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
               SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, mContext);
               long value = pref.getLong(mContext.getString(R.string.META_DATA_ID_FIRST_KNOWN), mContext.getResources().getInteger(R.integer.meta_data_id_default));
               mPlugin.handleFirstKnownProgramId(value);
-            }catch(Throwable iae) {}
+            }catch(Throwable ignored) {}
           }
         }
         

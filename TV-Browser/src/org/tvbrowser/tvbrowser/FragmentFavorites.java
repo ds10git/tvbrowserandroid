@@ -167,7 +167,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           }
         });
       }
-    }catch(Throwable t) {
+    }catch(Throwable ignored) {
       
     }
     
@@ -281,7 +281,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           try {
             Method setItemChecked = mFavoriteSelection.getClass().getMethod("setItemChecked", int.class,boolean.class);
             setItemChecked.invoke(mFavoriteSelection, -1,true);
-          } catch (Exception e) {
+          } catch (Exception ignored) {
           }
           
           mCurrentFavoriteSelection = mMarkingsAdapter.getItem(position);
@@ -302,7 +302,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       try {
         Method setChoiceMode = mFavoriteSelection.getClass().getMethod("setChoiceMode", int.class);
         setChoiceMode.invoke(mFavoriteSelection, ListView.CHOICE_MODE_SINGLE);
-      } catch (Exception e) {
+      } catch (Exception ignored) {
       }
       
       mContainsListViewFavoriteSelection = true;
@@ -452,7 +452,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
                       selectFavorite(position.get());
                       mFavoriteSelection.setSelection(position.get());
                     }
-                  } catch (Exception e) {
+                  } catch (Exception ignored) {
                   }
                 }
                 else {
@@ -788,7 +788,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
             }
           });
         }
-      }catch(IllegalStateException ise) {}
+      }catch(IllegalStateException ignored) {}
     }
   }
   

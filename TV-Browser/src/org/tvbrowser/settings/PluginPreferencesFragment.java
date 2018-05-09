@@ -126,7 +126,7 @@ public class PluginPreferencesFragment extends PreferenceFragment {
 
 
                 }
-              } catch (Throwable e) {
+              } catch (Throwable ignored) {
               }
 
               return true;

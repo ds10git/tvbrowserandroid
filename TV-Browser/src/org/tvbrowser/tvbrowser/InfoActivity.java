@@ -94,7 +94,7 @@ public class InfoActivity extends AppCompatActivity {
           if(value >= -1 && !values.contains(value)) {
             values.add(value);
           }
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
       }
       
       for(int i = 7; i <= timeButtonCount; i++) {

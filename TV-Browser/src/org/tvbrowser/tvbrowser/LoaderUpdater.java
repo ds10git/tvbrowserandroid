@@ -95,7 +95,7 @@ public class LoaderUpdater {
             if(mFragment.getLoaderManager().hasRunningLoaders()) {
               try {
                 mFragment.getLoaderManager().getLoader(0).stopLoading();
-              }catch(Throwable t) {}
+              }catch(Throwable ignored) {}
             }
 
             mHandler.post(new Runnable() {

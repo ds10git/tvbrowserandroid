@@ -224,7 +224,7 @@ public class UiUtils {
                   if(mShowWaitingDialog) {
                     try {
                       mProgress.show();
-                    }catch(BadTokenException e) {}
+                    }catch(BadTokenException ignored) {}
                   }
                 }
               };
@@ -890,7 +890,7 @@ public class UiUtils {
               if(mProgress != null && mProgress.isShowing()) {
                 try {
                   mProgress.dismiss();
-                }catch(IllegalArgumentException e) {}
+                }catch(IllegalArgumentException ignored) {}
               }
               
               if(result) {
@@ -961,7 +961,7 @@ public class UiUtils {
                 
                 try {
                   test.show();
-                }catch(BadTokenException e) {}
+                }catch(BadTokenException ignored) {}
               }
               
               new Thread("SHOW PROGRAM INFO ALLOWING THREAD") {
@@ -1820,7 +1820,7 @@ public class UiUtils {
     
     text.setText(mdf.format(progDate.getTime()));
     
-    UiUtils.handleMarkings(activity, cursor, ((RelativeLayout)view.getParent()), null);}catch(Throwable t) {}
+    UiUtils.handleMarkings(activity, cursor, ((RelativeLayout)view.getParent()), null);}catch(Throwable ignored) {}
   }
   
   public static int convertDpToPixel(float dp, Resources res) {
@@ -2001,7 +2001,7 @@ public class UiUtils {
     if(data != null && data.length > 0) {
       try {
         logoBitmap = BitmapFactory.decodeByteArray(data, 0, data.length);
-      }catch(NullPointerException e) {}
+      }catch(NullPointerException ignored) {}
     }
     
     return logoBitmap;

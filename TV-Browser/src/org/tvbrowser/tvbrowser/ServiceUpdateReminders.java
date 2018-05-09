@@ -99,7 +99,7 @@ public class ServiceUpdateReminders extends Service {
           else {
             try {
               sleep(500);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException ignored) {}
           }
           
           stopSelf();
