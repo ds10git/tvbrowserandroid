@@ -42,8 +42,7 @@ import android.text.Html;
  * @author René Mach
  */
 public class PluginPreferencesFragment extends PreferenceFragment {
-  private String mPluginId;
-  
+
   @Override
   public void onDetach() {
     super.onDetach();
@@ -58,6 +57,7 @@ public class PluginPreferencesFragment extends PreferenceFragment {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
+    final String mPluginId;
     if (savedInstanceState == null) {
       mPluginId = getArguments().getString("pluginId");
     } else {

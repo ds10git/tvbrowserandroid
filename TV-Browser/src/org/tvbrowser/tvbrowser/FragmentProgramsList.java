@@ -83,9 +83,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   
   private String mDayClause;
   private WhereClause mFilterClause;
-  
-  private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
-  
+
   private BroadcastReceiver mDataUpdateReceiver;
   private BroadcastReceiver mRefreshReceiver;
   private BroadcastReceiver mDontWantToSeeReceiver;
@@ -860,8 +858,8 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
         TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT,
         TvBrowserContentProvider.DATA_KEY_CATEGORIES
     };
-    
-    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity(),this,handler);
+
+    final ProgramListViewBinderAndClickHandler mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(getActivity(), this, handler);
     
     // Create a new Adapter an bind it to the List View
     mProgramListAdapter = new OrientationHandlingCursorAdapter(getActivity(),/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,

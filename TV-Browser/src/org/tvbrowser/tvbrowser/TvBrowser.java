@@ -208,8 +208,6 @@ public class TvBrowser extends AppCompatActivity {
   private MenuItem mCreateFavorite;
 
   private MenuItem mUpdateItem;
-  private MenuItem mSendDataUpdateLogItem;
-  private MenuItem mDeleteDataUpdateLogItem;
   private MenuItem mSendReminderLogItem;
   private MenuItem mDeleteReminderLogItem;
   private MenuItem mSendPluginLogItem;
@@ -5268,8 +5266,8 @@ public class TvBrowser extends AppCompatActivity {
     }
 
     mDebugMenuItem = menu.findItem(R.id.action_debug);
-    mSendDataUpdateLogItem = menu.findItem(R.id.action_send_data_update_log);
-    mDeleteDataUpdateLogItem = menu.findItem(R.id.action_delete_data_update_log);
+    final MenuItem mSendDataUpdateLogItem = menu.findItem(R.id.action_send_data_update_log);
+    final MenuItem mDeleteDataUpdateLogItem = menu.findItem(R.id.action_delete_data_update_log);
     mSendReminderLogItem = menu.findItem(R.id.action_send_reminder_log);
     mDeleteReminderLogItem = menu.findItem(R.id.action_delete_reminder_log);
     mSendPluginLogItem = menu.findItem(R.id.action_send_plugin_log);
