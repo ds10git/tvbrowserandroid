@@ -10,11 +10,11 @@ public class FilterValuesKeyword extends FilterValues implements KeywordFilter {
   private String mKeyword;
   private String mColumn;
   
-  public FilterValuesKeyword() {
+  FilterValuesKeyword() {
     this("","");
   }
   
-  public FilterValuesKeyword(String name, String values) {
+  FilterValuesKeyword(String name, String values) {
     super(name);
     
     final String[] parts = values.split(";");

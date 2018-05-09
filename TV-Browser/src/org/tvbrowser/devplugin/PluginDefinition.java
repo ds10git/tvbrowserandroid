@@ -16,7 +16,6 @@
  */
 package org.tvbrowser.devplugin;
 
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -94,11 +93,13 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
     return COMPARATOR_DOWN;
   }
 
-  private PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay) {
+  @SuppressWarnings("WeakerAccess")
+  public PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay) {
     this(packageName, minApiVersion, version, author, isOnGooglePlay, null, null, null, null, null);
   }
   
-  private PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay, String nameDe, String nameEn, String descriptionDe, String descriptionEn, String[] services) {
+  @SuppressWarnings("WeakerAccess")
+  public PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay, String nameDe, String nameEn, String descriptionDe, String descriptionEn, String[] services) {
     mPackageName = packageName;
     mMinApiVersion = minApiVersion;
     mVersion = version;
@@ -274,7 +275,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   }
 
   @Override
-  public int compareTo(@NonNull PluginDefinition o) {
+  public int compareTo(@SuppressWarnings("NullableProblems") PluginDefinition o) {
     if (Locale.getDefault().getLanguage().equals(new Locale("de", "", "").getLanguage())) {
       return mNameDe.compareToIgnoreCase(o.mNameDe);
     }

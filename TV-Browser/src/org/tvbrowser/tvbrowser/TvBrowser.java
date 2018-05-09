@@ -168,6 +168,7 @@ import com.example.android.listviewdragginganimation.StableArrayAdapter;
 
 import de.epgpaid.EPGpaidDataConnection;
 
+@SuppressLint("ApplySharedPref")
 public class TvBrowser extends AppCompatActivity {
   private static final boolean TEST_VERSION = false;
 
@@ -1270,7 +1271,7 @@ public class TvBrowser extends AppCompatActivity {
     return result;
   }
 
-  private int getEpgDonateChannelsCount() {
+  int getEpgDonateChannelsCount() {
     int result = 0;
     Log.d("info6", "getEpgDonateChannelsCount");
     try {

@@ -30,6 +30,7 @@ import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.ProgramUtils;
 
+import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -48,7 +49,8 @@ import android.os.RemoteException;
  * @author René Mach
  */
 public final class PluginHandler {
-  private static final String PLUGIN_ACTION = "org.tvbrowser.intent.action.PLUGIN";
+  @SuppressWarnings("WeakerAccess")
+  public static final String PLUGIN_ACTION = "org.tvbrowser.intent.action.PLUGIN";
   private static ArrayList<PluginServiceConnection> PLUGIN_LIST;
   
   private static PluginManager PLUGIN_MANAGER;
@@ -124,12 +126,12 @@ public final class PluginHandler {
       }
 
       @Override
-      public boolean markProgram(Program program) throws RemoteException {
+      public boolean markProgram(Program program) {
         return program != null && markProgramWithIcon(program, null);
       }
 
       @Override
-      public boolean unmarkProgram(Program program) throws RemoteException {
+      public boolean unmarkProgram(Program program) {
         return program != null && unmarkProgramWithIcon(program, null);
       }
 
@@ -262,6 +264,7 @@ public final class PluginHandler {
         }
         
         IOUtils.postDelayedInSeparateThread("LAST ID INFO DATE SAVE THREAD", new Runnable() {
+          @SuppressLint("ApplySharedPref")
           @Override
           public void run() {
             if(PLUGIN_LIST != null) {
@@ -304,6 +307,7 @@ public final class PluginHandler {
     IOUtils.postDelayedInSeparateThread("SORT PLUGINS WAITING THREAD", new Runnable() {
       @Override
       public void run() {
+        //noinspection ConstantConditions
         if(pluginList != null) {
           Collections.sort(pluginList);
         }
@@ -401,7 +405,8 @@ public final class PluginHandler {
     }
   }
   
-  private static void incrementBlogCountIfZero() {
+  @SuppressWarnings("WeakerAccess")
+  public static void incrementBlogCountIfZero() {
     if(BLOG_COUNT.get() == 0) {
       BLOG_COUNT.incrementAndGet();
     }

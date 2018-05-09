@@ -38,7 +38,6 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
 import android.text.style.ImageSpan;
 
 /**
@@ -148,7 +147,8 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     readPluginMetaData();
   }
   
-  private void callOnActivation() {
+  @SuppressWarnings("WeakerAccess")
+  public void callOnActivation() {
     if(isConnected()) {
       try {
         if(PluginHandler.getPluginManager() != null) {
@@ -203,7 +203,8 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     }
   }
   
-  private void readPluginMetaData() {
+  @SuppressWarnings("WeakerAccess")
+  public void readPluginMetaData() {
     if(isConnected()) {
       try {
         mPluginName = mPlugin.getName();
@@ -283,7 +284,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   }
 
   @Override
-  public int compareTo(@NonNull PluginServiceConnection another) {
+  public int compareTo(@SuppressWarnings("NullableProblems") PluginServiceConnection another) {
     if(mPluginName != null && another.mPluginName != null) {
       return mPluginName.compareToIgnoreCase(another.mPluginName);
     }
