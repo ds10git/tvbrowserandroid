@@ -25,6 +25,7 @@ import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
 import android.graphics.drawable.Drawable;
+import android.support.annotation.NonNull;
 import android.support.v4.content.ContextCompat;
 
 public class SeparatorDrawable extends Drawable {
@@ -46,7 +47,7 @@ public class SeparatorDrawable extends Drawable {
   }
   
   @Override
-  public void draw(Canvas canvas) {
+  public void draw(@NonNull Canvas canvas) {
     canvas.drawLine(getBounds().left, getBounds().top, getBounds().width(), getBounds().top, mLineColor);
     
     if(getBounds().height() > 2) {

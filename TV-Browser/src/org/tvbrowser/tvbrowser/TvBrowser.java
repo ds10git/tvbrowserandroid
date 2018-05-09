@@ -103,6 +103,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -2440,6 +2441,7 @@ public class TvBrowser extends AppCompatActivity {
       return super.iterator();
     }
 
+    @NonNull
     @Override
     public Iterator<ChannelSelection> iterator() {
       if(mValueMap != null) {
@@ -2630,7 +2632,8 @@ public class TvBrowser extends AppCompatActivity {
 
       // Custom array adapter for channel selection
       final ArrayAdapter<ChannelSelection> channelSelectionAdapter = new ArrayAdapter<ChannelSelection>(TvBrowser.this, R.layout.channel_row, channelSelectionList) {
-        public View getView(int position, View convertView, ViewGroup parent) {
+        @NonNull
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
           ChannelSelection value = getItem(position);
           ViewHolder holder = null;
 
@@ -3127,7 +3130,8 @@ public class TvBrowser extends AppCompatActivity {
           final Bitmap defaultLogo = BitmapFactory.decodeResource( getResources(), R.drawable.ic_launcher);
 
           final StableArrayAdapter<SortInterface> aa = new StableArrayAdapter<SortInterface>(TvBrowser.this, R.layout.channel_sort_row, channelSource) {
-            public View getView(int position, View convertView, ViewGroup parent) {
+            @NonNull
+            public View getView(int position, View convertView, @NonNull ViewGroup parent) {
               final ChannelSort value = (ChannelSort)getItem(position);
               ViewHolder holder = null;
 
@@ -4648,7 +4652,7 @@ public class TvBrowser extends AppCompatActivity {
     }
 
     @Override
-    public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
+    public void draw(@NonNull Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, @NonNull Paint paint) {
       if(mSpanType == LINE_TYPE) {
         canvas.drawLine(canvas.getClipBounds().left, top + (bottom-top)/2, canvas.getClipBounds().right, top + (bottom-top)/2, paint);
       }
@@ -5512,6 +5516,7 @@ public class TvBrowser extends AppCompatActivity {
       return null;
     }
 
+    @NonNull
     @Override
     public synchronized Object instantiateItem(ViewGroup container, int position) {
         Fragment fragment = (Fragment) super.instantiateItem(container, position);

@@ -16,6 +16,7 @@
  */
 package org.tvbrowser.devplugin;
 
+import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -273,7 +274,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   }
 
   @Override
-  public int compareTo(PluginDefinition o) {
+  public int compareTo(@NonNull PluginDefinition o) {
     if (Locale.getDefault().getLanguage().equals(new Locale("de", "", "").getLanguage())) {
       return mNameDe.compareToIgnoreCase(o.mNameDe);
     }

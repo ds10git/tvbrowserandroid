@@ -47,6 +47,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -420,7 +421,7 @@ public class TvBrowserContentProvider extends ContentProvider {
  }
 
   @Override
-  public int delete(Uri uri, String where, String[] whereArgs) {
+  public int delete(@NonNull Uri uri, String where, String[] whereArgs) {
     int count = 0;
     
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
@@ -468,7 +469,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   }
 
   @Override
-  public String getType(Uri uri) {
+  public String getType(@NonNull Uri uri) {
     switch(uriMatcher.match(uri)) {
       // FIXME vnd.andorid.cursor.* should be vnd.android.cursor.
       case GROUPS: return "vnd.andorid.cursor.dir/vnd.tvbrowser.groups";
@@ -490,7 +491,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   }
 
   @Override
-  public Uri insert(Uri uri, ContentValues values) {
+  public Uri insert(@NonNull Uri uri, ContentValues values) {
     if(IOUtils.isDatabaseAccessible(getContext())) {
       switch(uriMatcher.match(uri)) {
         case GROUPS: return insertGroup(uri, values);
@@ -505,7 +506,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   }
   
   @Override
-  public int bulkInsert(Uri uri, ContentValues[] values) {
+  public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
     if(IOUtils.isDatabaseAccessible(getContext())) {
       switch(uriMatcher.match(uri)) {
         case DATA: return bulkInsertData(uri, values);
@@ -518,8 +519,9 @@ public class TvBrowserContentProvider extends ContentProvider {
     throw new SQLException("Failed to insert row into " + uri);
   }
   
+  @NonNull
   @Override
-  public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
+  public ContentProviderResult[] applyBatch(@NonNull ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
     ArrayList<ContentProviderResult> result = new ArrayList<>(0);
     
     try {
@@ -897,7 +899,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   }
   
   @Override
-  public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+  public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
     Cursor result = null;
     
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
@@ -1066,7 +1068,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   }
   
   @Override
-  public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+  public int update(@NonNull Uri uri, ContentValues values, String where, String[] whereArgs) {
     int count = 0;
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     

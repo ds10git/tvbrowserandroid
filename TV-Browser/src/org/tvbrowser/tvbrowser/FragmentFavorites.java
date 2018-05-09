@@ -47,6 +47,7 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -100,8 +101,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   private boolean mContainsListViewFavoriteSelection;
   
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container,
-      Bundle savedInstanceState) {
+  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                           Bundle savedInstanceState) {
     int layout = R.layout.favorite_fragment_layout;
     
     if(PrefUtils.getStringValue(R.string.PREF_FAVORITE_TAB_LAYOUT, R.string.pref_favorite_tab_layout_default).equals("1")) {
@@ -245,7 +246,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       
       if(mMarkingsList != null) {
         mMarkingsAdapter = new ArrayAdapter<FavoriteSpinnerEntry>(getActivity(), android.R.layout.simple_list_item_1) {
-          public View getView(int position, View convertView, ViewGroup parent) {
+          @NonNull
+          public View getView(int position, View convertView, @NonNull ViewGroup parent) {
             if(convertView == null) {
               convertView = getActivity().getLayoutInflater().inflate(android.R.layout.simple_list_item_1, parent, false);
             }
@@ -324,8 +326,9 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     }
     
     mFavoriteAdapter = new ArrayAdapter<FavoriteSpinnerEntry>(getActivity(), rowLayout.get(), mFavoriteList){
+      @NonNull
       @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
+      public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         return getView(position, convertView, parent, false);
       }
       
@@ -392,7 +395,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       }
       
       @Override
-      public View getDropDownView(int position, View convertView, ViewGroup parent) {
+      public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
         return getView(position, convertView, parent, true);
       }
     };
@@ -811,6 +814,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     super.onDetach();
   }
   
+  @NonNull
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     String[] projection = null;
@@ -927,8 +931,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
   
   @Override
-  public void onLoadFinished(Loader<Cursor> loader,
-      Cursor c) {
+  public void onLoadFinished(@NonNull Loader<Cursor> loader,
+                             Cursor c) {
     if(c != null && c.getCount() > 0) {
       mHelp.setVisibility(View.GONE);
     }
@@ -940,7 +944,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
 
   @Override
-  public void onLoaderReset(Loader<Cursor> loader) {
+  public void onLoaderReset(@NonNull Loader<Cursor> loader) {
     mProgramListAdapter.swapCursor(null);
     mHelp.setVisibility(View.VISIBLE);
   }

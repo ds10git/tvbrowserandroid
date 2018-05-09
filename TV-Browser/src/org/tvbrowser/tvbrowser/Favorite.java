@@ -44,6 +44,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.style.ImageSpan;
 import android.util.Log;
@@ -1349,7 +1350,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   }
 
   @Override
-  public int compareTo(Favorite another) {
+  public int compareTo(@NonNull Favorite another) {
     return mName.compareToIgnoreCase(another.mName);
   }
   

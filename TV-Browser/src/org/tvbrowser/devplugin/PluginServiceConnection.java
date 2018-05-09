@@ -38,6 +38,7 @@ import android.graphics.drawable.BitmapDrawable;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.text.style.ImageSpan;
 
 /**
@@ -282,7 +283,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   }
 
   @Override
-  public int compareTo(PluginServiceConnection another) {
+  public int compareTo(@NonNull PluginServiceConnection another) {
     if(mPluginName != null && another.mPluginName != null) {
       return mPluginName.compareToIgnoreCase(another.mPluginName);
     }

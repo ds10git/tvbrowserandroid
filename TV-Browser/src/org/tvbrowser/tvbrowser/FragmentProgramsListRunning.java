@@ -36,6 +36,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -431,7 +432,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   }
     
   @Override
-  public void onSaveInstanceState(Bundle outState) {
+  public void onSaveInstanceState(@NonNull Bundle outState) {
     outState.putInt(WHERE_CLAUSE_KEY, mWhereClauseTime);
     outState.putLong(DAY_CLAUSE_KEY, mDayStart);
     super.onSaveInstanceState(outState);
@@ -965,8 +966,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     final int DEFAULT_TEXT_COLOR = new TextView(getActivity()).getTextColors().getDefaultColor();
         
     mRunningProgramListAdapter = new ArrayAdapter<FragmentProgramsListRunning.ChannelProgramBlock>(getActivity(), R.layout.running_list_entries, mCurrentViewList) {
+      @NonNull
       @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
+      public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         ChannelProgramBlock block = getItem(position);
         
        // if(mIsCompactLayout) {
@@ -1035,7 +1037,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   }
   */
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.running_program_fragment, container, false);
     
     mListView = (ListView)view.findViewById(R.id.running_list_fragment_list_view);
@@ -1332,6 +1334,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     return mListView;
   }
   
+  @NonNull
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     String[] infoCategories = TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY;
@@ -1458,7 +1461,7 @@ String mPreviousEpisode;
   }
   
   @Override
-  public synchronized void onLoadFinished(Loader<Cursor> loader, final Cursor c) {
+  public synchronized void onLoadFinished(@NonNull Loader<Cursor> loader, final Cursor c) {
     if(c != null) {
       SparseArrayCompat<ChannelProgramBlock> channelProgramMap = new SparseArrayCompat<>();
       SparseArrayCompat<ChannelProgramBlock> currentProgramMap = new SparseArrayCompat<>();
@@ -1669,7 +1672,7 @@ String mPreviousEpisode;
   }
 
   @Override
-  public void onLoaderReset(Loader<Cursor> loader) {
+  public void onLoaderReset(@NonNull Loader<Cursor> loader) {
     mCurrentViewList.clear();
     mProgramBlockList.clear();
   }

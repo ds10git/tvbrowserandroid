@@ -43,6 +43,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.ContextCompat;
@@ -169,7 +170,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   }
   
   @Override
-  public void onSaveInstanceState(Bundle outState) {
+  public void onSaveInstanceState(@NonNull Bundle outState) {
     super.onSaveInstanceState(outState);
     
     outState.putLong(EXTRA_NEXT_UPDATE, mNextUpdate);
@@ -451,8 +452,8 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   }
   
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container,
-      Bundle savedInstanceState) {
+  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
+                           Bundle savedInstanceState) {
     View view = inflater.inflate(R.layout.program_list_fragment, container, false);
     
     mListView = (ListView)view.findViewById(R.id.program_list_fragment_list_view);
@@ -501,7 +502,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     final ArrayAdapter<ChannelSelection> channelAdapter = new ArrayAdapter<ChannelSelection>(getActivity(), android.R.layout.simple_spinner_item, channelEntries) {
       @Override
-      public View getDropDownView(int position, View convertView, ViewGroup parent) {
+      public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
         return getView(position, convertView, parent, android.R.layout.simple_spinner_dropdown_item);
       }
       
@@ -554,8 +555,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
         return convertView;
       }
       
+      @NonNull
       @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
+      public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         return getView(position, convertView, parent, android.R.layout.simple_spinner_item);
       }
     };
@@ -608,7 +610,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     
     final ArrayAdapter<String> filterAdapter = new ArrayAdapter<String>(getActivity(), android.R.layout.simple_spinner_item, filterEntries) {
       @Override
-      public View getDropDownView(int position, View convertView, ViewGroup parent) {
+      public View getDropDownView(int position, View convertView, @NonNull ViewGroup parent) {
         return getView(position, convertView, parent, android.R.layout.simple_spinner_dropdown_item);
       }
       
@@ -637,8 +639,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
         return convertView;
       }
       
+      @NonNull
       @Override
-      public View getView(int position, View convertView, ViewGroup parent) {
+      public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         return getView(position, convertView, parent, android.R.layout.simple_spinner_item);
       }
     };
@@ -959,6 +962,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
 
   private boolean mIsLoading;
   
+  @NonNull
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     mIsLoading = true;
@@ -966,7 +970,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   }
 
   @Override
-  public void onLoadFinished(Loader<Cursor> loader, Cursor c) {
+  public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor c) {
     mIsLoading = false;
     mNextUpdate = 0;
     mProgramListAdapter.swapCursor(c);
@@ -1001,7 +1005,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   }
 
   @Override
-  public void onLoaderReset(Loader<Cursor> loader) {
+  public void onLoaderReset(@NonNull Loader<Cursor> loader) {
     mIsLoading = false;
     mProgramListAdapter.changeCursor(null);
   }

@@ -97,6 +97,7 @@ import android.os.Build;
 import android.os.Handler;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
@@ -1553,7 +1554,7 @@ public class UiUtils {
     }
     
     @Override
-    public void draw(Canvas canvas) {
+    public void draw(@NonNull Canvas canvas) {
       if(mStartTime <= System.currentTimeMillis() && System.currentTimeMillis() < mEndTime) {
         long expiredSeconds = System.currentTimeMillis() - mStartTime;
         float percent = expiredSeconds/(float)(mEndTime - mStartTime);
@@ -2115,7 +2116,8 @@ public class UiUtils {
       final Bitmap defaultLogo = BitmapFactory.decodeResource(context.getResources(), R.drawable.ic_launcher);
       
       final ArrayAdapter<AdapterChannel> channelAdapter = new ArrayAdapter<AdapterChannel>(context, android.R.layout.simple_list_item_1) {
-        public View getView(int position, View convertView, ViewGroup parent) {
+        @NonNull
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
           AdapterChannel value = getItem(position);
           ChannelViewHolder holder = null;
           
@@ -2339,7 +2341,8 @@ public class UiUtils {
     }
     
     final ArrayAdapter<AdapterCategory> categoryAdapter = new ArrayAdapter<AdapterCategory>(context, android.R.layout.simple_list_item_1) {
-      public View getView(int position, View convertView, ViewGroup parent) {
+      @NonNull
+      public View getView(int position, View convertView, @NonNull ViewGroup parent) {
         AdapterCategory value = getItem(position);
         CategoryViewHolder holder = null;
         

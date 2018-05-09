@@ -891,7 +891,7 @@ public class FragmentProgramTable extends Fragment {
   }
   
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     RelativeLayout programTableLayout = (RelativeLayout)inflater.inflate(R.layout.program_table_layout, container, false);
     
     if(mCurrentDate == null) {

@@ -37,6 +37,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.LoaderManager;
 import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
@@ -213,6 +214,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
     }
   }
   
+  @NonNull
   @Override
   public Loader<Cursor> onCreateLoader(int id, Bundle args) {
     String query = "0";
@@ -283,7 +285,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
   }
 
   @Override
-  public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
+  public void onLoadFinished(@NonNull Loader<Cursor> loader, Cursor cursor) {
     mProgramsListAdapter.swapCursor(cursor);
     
     if(cursor == null || cursor.getCount() < 1) {
@@ -318,7 +320,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
   }
 
   @Override
-  public void onLoaderReset(Loader<Cursor> loader) {
+  public void onLoaderReset(@NonNull Loader<Cursor> loader) {
     mProgramsListAdapter.swapCursor(null);
   }
 

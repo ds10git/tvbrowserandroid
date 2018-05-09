@@ -16,6 +16,8 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import android.support.annotation.NonNull;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -93,7 +95,7 @@ public class Mirror implements Comparable<Mirror> {
   }
 
   @Override
-  public int compareTo(Mirror another) {
+  public int compareTo(@NonNull Mirror another) {
     if(mWeight < another.mWeight) {
       return -1;
     }
