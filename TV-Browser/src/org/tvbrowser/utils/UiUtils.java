@@ -1243,8 +1243,8 @@ public class UiUtils {
 
             View view = ((LayoutInflater) activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE)).inflate(R.layout.dont_want_to_see_edit, parent instanceof ViewGroup ? (ViewGroup) parent : null, false);
 
-            final TextView exclusion = (TextView) view.findViewById(R.id.dont_want_to_see_value);
-            final CheckBox caseSensitive = (CheckBox) view.findViewById(R.id.dont_want_to_see_case_sensitve);
+            final TextView exclusion = view.findViewById(R.id.dont_want_to_see_value);
+            final CheckBox caseSensitive = view.findViewById(R.id.dont_want_to_see_case_sensitve);
             exclusion.setText(title);
 
             builder.setView(view);
