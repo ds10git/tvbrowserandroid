@@ -113,19 +113,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   private LongSparseArray<String> mTitleMap;
   
   private long mCurrentTime;
-  
-  private int mProgramIDColumn;
-  private int mStartTimeColumn;
-  private int mEndTimeColumn;
-  private int mTitleColumn;
-  private int mPictureColumn;
-  private int mPictureCopyrightColumn;
-  private int mCategoryColumn;
-  private int mGenreColumn;
-  private int mEpsiodeColumn;
-  private int mChannelNameColumn;
-  private int mChannelIDColumn;
-  
+
   private boolean showEpisode;
   private boolean showInfo;
   private boolean mShowOrderNumber;
@@ -1471,18 +1459,18 @@ String mPreviousEpisode;
       mCurrentViewList.clear();
       mMarkingsMap.clear();
       mTitleMap.clear();
-      
-      mProgramIDColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-      mStartTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-      mEndTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
-      mTitleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
-      mPictureColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
-      mPictureCopyrightColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT);
-      mCategoryColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
-      mGenreColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE);
-      mEpsiodeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
-      mChannelNameColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
-      mChannelIDColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+
+      final int mProgramIDColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+      final int mStartTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+      final int mEndTimeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+      final int mTitleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
+      final int mPictureColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
+      final int mPictureCopyrightColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT);
+      final int mCategoryColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
+      final int mGenreColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE);
+      final int mEpsiodeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
+      final int mChannelNameColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
+      final int mChannelIDColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
       int channelOrderColumn = c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
       int dontWantToSeeColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE);
       
