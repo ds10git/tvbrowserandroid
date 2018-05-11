@@ -3526,7 +3526,7 @@ public class TvDataUpdateService extends Service {
           if(channelIdKey != null && groupInfo != null) {
             final String selection = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "='" + channelIdKey + "'" +
               " AND " +
-              TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + ((Integer) ((Object[]) groupInfo)[0]).intValue();
+              TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + (Integer) ((Object[]) groupInfo)[0];
 
             final Cursor data = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, selection, null, null);
             
@@ -3661,7 +3661,7 @@ public class TvDataUpdateService extends Service {
                 if (channelIdKey != null && groupInfo != null) {
                   final String selection = (TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID) + "='" + channelIdKey + "'" +
                     " AND " +
-                    TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + ((Integer) ((Object[]) groupInfo)[0]).intValue() +
+                    TvBrowserContentProvider.GROUP_KEY_GROUP_ID + " IS " + (Integer) ((Object[]) groupInfo)[0] +
                     " AND " +
                     TvBrowserContentProvider.DATA_KEY_STARTTIME + "<=" + endDateTime;
 
