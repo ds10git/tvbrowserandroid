@@ -35,7 +35,6 @@ import org.tvbrowser.view.SeparatorDrawable;
 import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -124,12 +123,9 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     if(getActivity() != null) {
       ProgramUtils.registerMarkingsListener(getActivity(), this);
       
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          if(!isDetached() && !isRemoving()) {
-            mFavoriteAdapter.notifyDataSetChanged();
-          }
+      handler.post(() -> {
+        if(!isDetached() && !isRemoving()) {
+          mFavoriteAdapter.notifyDataSetChanged();
         }
       });
     }
@@ -161,12 +157,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           }
         }
         
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            mIsStarted = true;
-          }
-        });
+        handler.post(() -> mIsStarted = true);
       }
     }catch(Throwable ignored) {
       
@@ -277,27 +268,24 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
         mMarkingsList.setAdapter(mMarkingsAdapter);
       }
       
-      mMarkingsList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-          try {
-            Method setItemChecked = mFavoriteSelection.getClass().getMethod("setItemChecked", int.class,boolean.class);
-            setItemChecked.invoke(mFavoriteSelection, -1,true);
-          } catch (Exception ignored) {
-          }
-          
-          mCurrentFavoriteSelection = mMarkingsAdapter.getItem(position);
-          mWhereClause = getWhereClause();
-          
-          final TvBrowser tvb = (TvBrowser)getActivity();
-          
-          if(tvb != null) {
-            tvb.updateFavoritesMenu(false);
-            
-            startUpdateThread();
-                        
-            saveCurrentSelection(tvb, (position * -1));
-          }
+      mMarkingsList.setOnItemClickListener((parent, view, position, id) -> {
+        try {
+          Method setItemChecked = mFavoriteSelection.getClass().getMethod("setItemChecked", int.class,boolean.class);
+          setItemChecked.invoke(mFavoriteSelection, -1,true);
+        } catch (Exception ignored) {
+        }
+
+        mCurrentFavoriteSelection = mMarkingsAdapter.getItem(position);
+        mWhereClause = getWhereClause();
+
+        final TvBrowser tvb = (TvBrowser)getActivity();
+
+        if(tvb != null) {
+          tvb.updateFavoritesMenu(false);
+
+          startUpdateThread();
+
+          saveCurrentSelection(tvb, (position * -1));
         }
       });
       
@@ -443,24 +431,21 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           }
           
           if(/*currentValue != position.get() &&*/ position.get() >= 0) {
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                if(mContainsListViewFavoriteSelection) {
-                  try {
-                    Method setItemChecked = mFavoriteSelection.getClass().getMethod("setItemChecked", int.class,boolean.class);
-                    setItemChecked.invoke(mFavoriteSelection, position.get(),true);
-                    
-                    if(position.get() < mFavoriteList.size()) {
-                      selectFavorite(position.get());
-                      mFavoriteSelection.setSelection(position.get());
-                    }
-                  } catch (Exception ignored) {
+            handler.post(() -> {
+              if(mContainsListViewFavoriteSelection) {
+                try {
+                  Method setItemChecked = mFavoriteSelection.getClass().getMethod("setItemChecked", int.class,boolean.class);
+                  setItemChecked.invoke(mFavoriteSelection, position.get(),true);
+
+                  if(position.get() < mFavoriteList.size()) {
+                    selectFavorite(position.get());
+                    mFavoriteSelection.setSelection(position.get());
                   }
+                } catch (Exception ignored) {
                 }
-                else {
-                  mFavoriteSelection.setSelection(position.get());
-                }
+              }
+              else {
+                mFavoriteSelection.setSelection(position.get());
               }
             });
           }
@@ -487,24 +472,13 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     });
     
     if(mContainsListViewFavoriteSelection) {
-      mFavoriteSelection.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> adapterView, View v, int position, long id) {
-          selectFavorite(position);
-        }
-      });
+      mFavoriteSelection.setOnItemClickListener((adapterView, v, position, id) -> selectFavorite(position));
     }
     
     updateSynchroButton(null);
  
     mFavoriteProgramList = getView().findViewById(R.id.favorite_program_list);
-    mFavoriteProgramList.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-      @Override
-      public void onItemClick(AdapterView<?> adapterView, View v, int position,
-          long id) {
-        mViewAndClickHandler.onListItemClick(null, v, position, id);
-      }
-    });
+    mFavoriteProgramList.setOnItemClickListener((adapterView, v, position, id) -> mViewAndClickHandler.onListItemClick(null, v, position, id));
     
     registerForContextMenu(mFavoriteSelection);
             
@@ -626,12 +600,9 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
                   fav.getFavorite().setValues(temp.getName(), temp.getSearchValue(), temp.getType(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs(), temp.getExclusions(), temp.getDurationRestrictionMinimum(), temp.getDurationRestrictionMaximum(), temp.getAttributeRestrictionIndices(), temp.getUniqueProgramIds());
                 }
                 
-                handler.post(new Runnable() {
-                  @Override
-                  public void run() {
-                    mFavoriteAdapter.notifyDataSetChanged();
-                    mFavoriteSelectionObserver.onChanged();
-                  }
+                handler.post(() -> {
+                  mFavoriteAdapter.notifyDataSetChanged();
+                  mFavoriteSelectionObserver.onChanged();
                 });
               }
               else {
@@ -647,17 +618,14 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
                 }
               }
               
-              handler.post(new Runnable() {
-                @Override
-                public void run() {
-                  mFavoriteAdapter.notifyDataSetChanged();
-                  
-                  removeMarkingSelections();
-                  
-                  Collections.sort(mFavoriteList);
-                  
-                  addMarkingSelections();
-                }
+              handler.post(() -> {
+                mFavoriteAdapter.notifyDataSetChanged();
+
+                removeMarkingSelections();
+
+                Collections.sort(mFavoriteList);
+
+                addMarkingSelections();
               });
             }
           };
@@ -669,21 +637,18 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     mDataUpdateReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            if(!isDetached() && !isRemoving()) {
-              mFavoriteList.clear();
-              updateFavoriteList(false);
-              
-              removeMarkingSelections();
-              
-              Collections.sort(mFavoriteList);
-              
-              addMarkingSelections();
-              
-              mFavoriteAdapter.notifyDataSetChanged();
-            }
+        handler.post(() -> {
+          if(!isDetached() && !isRemoving()) {
+            mFavoriteList.clear();
+            updateFavoriteList(false);
+
+            removeMarkingSelections();
+
+            Collections.sort(mFavoriteList);
+
+            addMarkingSelections();
+
+            mFavoriteAdapter.notifyDataSetChanged();
           }
         });
       }
@@ -693,11 +658,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       @Override
       public void onReceive(Context context, Intent intent) {
         if(!isDetached() && !isRemoving()) {
-          handler.post(new Runnable() {
-            public void run() {
-              mFavoriteAdapter.notifyDataSetChanged();
-            }
-          });
+          handler.post(() -> mFavoriteAdapter.notifyDataSetChanged());
         }
       }
     };
@@ -735,12 +696,9 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       }
     }
     else {
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          mMarkingsAdapter.clear();
-          mMarkingsAdapter.notifyDataSetChanged();
-        }
+      handler.post(() -> {
+        mMarkingsAdapter.clear();
+        mMarkingsAdapter.notifyDataSetChanged();
       });
     }
   }
@@ -777,18 +735,15 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           }
         }
         else {
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              mMarkingsAdapter.add(marked);
-              mMarkingsAdapter.add(reminder);
-              
-              if(sync != null) {
-                mMarkingsAdapter.add(sync);
-              }
-              
-              mMarkingsAdapter.notifyDataSetChanged();
+          handler.post(() -> {
+            mMarkingsAdapter.add(marked);
+            mMarkingsAdapter.add(reminder);
+
+            if(sync != null) {
+              mMarkingsAdapter.add(sync);
             }
+
+            mMarkingsAdapter.notifyDataSetChanged();
           });
         }
       }catch(IllegalStateException ignored) {}
@@ -882,12 +837,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
   
   private void updateFavorites() {
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        mFavoriteAdapter.notifyDataSetChanged();
-      }
-    });
+    handler.post(() -> mFavoriteAdapter.notifyDataSetChanged());
   }
   
   private void editFavorite(final Favorite fav) {
@@ -1038,24 +988,21 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       builder.setTitle(R.string.dialog_favorite_delete_title);
       builder.setMessage(getString(R.string.dialog_favorite_delete_message).replace("{0}", mCurrentSelection.getFavorite().getName()));
       
-      builder.setPositiveButton(R.string.dialog_favorite_delete_button, new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          mFavoriteList.remove(mCurrentSelection);
-          updateFavorites();
-          
-          if(mCurrentSelection != null) {
-            final Favorite current = mCurrentSelection.getFavorite();
-            mCurrentSelection = null;
-            final Context context = getActivity().getApplicationContext();
-            
-            new Thread("DELETE FAVORITE REMOVE MARKING THREAD") {
-              public void run() {
-                Favorite.deleteFavorite(context, current);
-                mCurrentSelection = null;
-              }
-            }.start();
-          }
+      builder.setPositiveButton(R.string.dialog_favorite_delete_button, (dialog, which) -> {
+        mFavoriteList.remove(mCurrentSelection);
+        updateFavorites();
+
+        if(mCurrentSelection != null) {
+          final Favorite current = mCurrentSelection.getFavorite();
+          mCurrentSelection = null;
+          final Context context = getActivity().getApplicationContext();
+
+          new Thread("DELETE FAVORITE REMOVE MARKING THREAD") {
+            public void run() {
+              Favorite.deleteFavorite(context, current);
+              mCurrentSelection = null;
+            }
+          }.start();
         }
       });
       
@@ -1067,24 +1014,21 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   @Override
   public void refreshMarkings() {
     
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          if(mCurrentFavoriteSelection != null) {
-            if(mLoaderUpdate.isRunning() && !isDetached() && !isRemoving()) {
-              WhereClause test = mCurrentFavoriteSelection.getWhereClause();
-              
-              if(test == null) {
-                mWhereClause = getWhereClause();
-                
-                startUpdateThread();
-                
-                return;
-              }
+      handler.post(() -> {
+        if(mCurrentFavoriteSelection != null) {
+          if(mLoaderUpdate.isRunning() && !isDetached() && !isRemoving()) {
+            WhereClause test = mCurrentFavoriteSelection.getWhereClause();
+
+            if(test == null) {
+              mWhereClause = getWhereClause();
+
+              startUpdateThread();
+
+              return;
             }
-            
-            mFavoriteProgramList.invalidateViews();
           }
+
+          mFavoriteProgramList.invalidateViews();
         }
       });
     

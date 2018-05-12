@@ -30,7 +30,6 @@ import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.ProgramUtils;
 
-import android.annotation.SuppressLint;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.Intent;
@@ -263,14 +262,10 @@ public final class PluginHandler {
           }
         }
         
-        IOUtils.postDelayedInSeparateThread("LAST ID INFO DATE SAVE THREAD", new Runnable() {
-          @SuppressLint("ApplySharedPref")
-          @Override
-          public void run() {
-            if(PLUGIN_LIST != null) {
-              Collections.sort(PLUGIN_LIST);
-              PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putInt(context.getString(R.string.PLUGIN_LAST_ID_INFO_DATE), Calendar.getInstance().get(Calendar.DAY_OF_YEAR)).commit();
-            }
+        IOUtils.postDelayedInSeparateThread("LAST ID INFO DATE SAVE THREAD", () -> {
+          if(PLUGIN_LIST != null) {
+            Collections.sort(PLUGIN_LIST);
+            PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putInt(context.getString(R.string.PLUGIN_LAST_ID_INFO_DATE), Calendar.getInstance().get(Calendar.DAY_OF_YEAR)).commit();
           }
         }, 2000);
       }
@@ -304,13 +299,10 @@ public final class PluginHandler {
       }
     }
     
-    IOUtils.postDelayedInSeparateThread("SORT PLUGINS WAITING THREAD", new Runnable() {
-      @Override
-      public void run() {
-        //noinspection ConstantConditions
-        if(pluginList != null) {
-          Collections.sort(pluginList);
-        }
+    IOUtils.postDelayedInSeparateThread("SORT PLUGINS WAITING THREAD", () -> {
+      //noinspection ConstantConditions
+      if(pluginList != null) {
+        Collections.sort(pluginList);
       }
     }, 2000);
     

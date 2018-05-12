@@ -129,16 +129,13 @@ public class ActivityFilterListEdit extends AppCompatActivity {
   private void addFilter(FilterValues filter) {
     mCurrentFilter = filter;
     
-    mCurrentFilter.edit(ActivityFilterListEdit.this, new Runnable() {
-      @Override
-      public void run() {
-        mFilterListAdapter.add(mCurrentFilter);
-        
-        mCurrentFilter.save(getApplicationContext());
-        mCurrentFilter = null;
-        mFilterListAdapter.sort(FilterValues.COMPARATOR_FILTER_VALUES);
-        mFilterListAdapter.notifyDataSetChanged();
-      }
+    mCurrentFilter.edit(ActivityFilterListEdit.this, () -> {
+      mFilterListAdapter.add(mCurrentFilter);
+
+      mCurrentFilter.save(getApplicationContext());
+      mCurrentFilter = null;
+      mFilterListAdapter.sort(FilterValues.COMPARATOR_FILTER_VALUES);
+      mFilterListAdapter.notifyDataSetChanged();
     }, mFilterList);
   }
     
@@ -153,16 +150,13 @@ public class ActivityFilterListEdit extends AppCompatActivity {
   public boolean onContextItemSelected(MenuItem item) {
     if(mCurrentFilter != null) {
       if(item.getItemId() == R.id.activity_edit_filter_list_action_edit) {
-        mCurrentFilter.edit(ActivityFilterListEdit.this, new Runnable() {
-          @Override
-          public void run() {
-            mCurrentFilter.save(getApplicationContext());
-            
-            mCurrentFilter = null;
-            mFilterListAdapter.sort(FilterValues.COMPARATOR_FILTER_VALUES);
-            mFilterListAdapter.notifyDataSetChanged();
-          }
-        }, mFilterList);      
+        mCurrentFilter.edit(ActivityFilterListEdit.this, () -> {
+          mCurrentFilter.save(getApplicationContext());
+
+          mCurrentFilter = null;
+          mFilterListAdapter.sort(FilterValues.COMPARATOR_FILTER_VALUES);
+          mFilterListAdapter.notifyDataSetChanged();
+        }, mFilterList);
       }
       else if(item.getItemId() == R.id.activity_edit_filter_list_action_delete) {
         mFilterListAdapter.remove(mCurrentFilter);

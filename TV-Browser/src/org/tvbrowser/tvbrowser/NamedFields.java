@@ -7,12 +7,7 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import android.content.Context;
 
 public final class NamedFields {
-  public static final Comparator<NamedFields> COMPARATOR = new Comparator<NamedFields>() {
-    @Override
-    public int compare(NamedFields lhs, NamedFields rhs) {
-      return lhs.mName.compareToIgnoreCase(rhs.mName);
-    }
-  }; 
+  public static final Comparator<NamedFields> COMPARATOR = (lhs, rhs) -> lhs.mName.compareToIgnoreCase(rhs.mName);
   
   private String mName;
   private final String mColumn;

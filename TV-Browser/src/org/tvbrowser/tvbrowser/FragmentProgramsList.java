@@ -196,13 +196,11 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     mDataUpdateReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(final Context context, final Intent intent) {
-        handler.post(new Runnable() {
-          public void run() {
-            updateDateSelection();
-            
-            if(intent != null) {
-              mLoaderUpdate.startUpdate();
-            }
+        handler.post(() -> {
+          updateDateSelection();
+
+          if(intent != null) {
+            mLoaderUpdate.startUpdate();
           }
         });
       }
@@ -224,12 +222,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
           mLoaderUpdate.startUpdate();
         }
         else {
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              if(!mIsLoading) {
-                mProgramListAdapter.notifyDataSetChanged();
-              }
+          handler.post(() -> {
+            if(!mIsLoading) {
+              mProgramListAdapter.notifyDataSetChanged();
             }
           });
         }
@@ -392,18 +387,10 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
             
             final int scollIndex = testIndex;
             
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                if(mListView != null) {
-                  mListView.setSelection(scollIndex);
-                  handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                      mListView.setSelection(scollIndex);
-                    }
-                  });
-                }
+            handler.post(() -> {
+              if(mListView != null) {
+                mListView.setSelection(scollIndex);
+                handler.post(() -> mListView.setSelection(scollIndex));
               }
             });
           }
@@ -430,12 +417,9 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
               
               mScrollTime = -1;
               
-              handler.post(new Runnable() {
-                @Override
-                public void run() {
-                  if(getView() != null) {
-                    mListView.setSelection(scrollIndex.get());
-                  }
+              handler.post(() -> {
+                if(getView() != null) {
+                  mListView.setSelection(scrollIndex.get());
                 }
               });
             }
@@ -579,25 +563,22 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       }
     });
     
-    View.OnClickListener onClick = new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        int pos = mChannelSelection.getSelectedItemPosition();
-        
-        if(v.equals(minus)) {
-          if(--pos < 0) {
-            pos = mChannelSelection.getCount()-1;
-          }
-          
-          mChannelSelection.setSelection(pos);
+    View.OnClickListener onClick = v -> {
+      int pos = mChannelSelection.getSelectedItemPosition();
+
+      if(v.equals(minus)) {
+        if(--pos < 0) {
+          pos = mChannelSelection.getCount()-1;
         }
-        else {
-          if(++pos >= mChannelSelection.getCount()) {
-            pos = 0;
-          }
-          
-          mChannelSelection.setSelection(pos);
+
+        mChannelSelection.setSelection(pos);
+      }
+      else {
+        if(++pos >= mChannelSelection.getCount()) {
+          pos = 0;
         }
+
+        mChannelSelection.setSelection(pos);
       }
     };
     
@@ -1120,16 +1101,13 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
 
   @Override
   public void refreshMarkings() {
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        if(!isDetached() && !mIsLoading && !isRemoving() && mLoaderUpdate.isRunning()) {
-          if(mIsShowingMarkings) {
-            setMarkFilter(2);
-          }
-          else {
-            mListView.invalidateViews();
-          }
+    handler.post(() -> {
+      if(!isDetached() && !mIsLoading && !isRemoving() && mLoaderUpdate.isRunning()) {
+        if(mIsShowingMarkings) {
+          setMarkFilter(2);
+        }
+        else {
+          mListView.invalidateViews();
         }
       }
     });

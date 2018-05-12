@@ -14,7 +14,6 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 
@@ -57,12 +56,7 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
     mLimitNumber = findViewById(R.id.important_programs_widget_config_limit_selection_edit);
     mLimitNumber.setText(String.valueOf(15));
     
-    mLimit.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      @Override
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        mLimitNumber.setEnabled(isChecked);
-      }
-    });
+    mLimit.setOnCheckedChangeListener((buttonView, isChecked) -> mLimitNumber.setEnabled(isChecked));
     
     mTypeSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override

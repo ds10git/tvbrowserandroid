@@ -78,15 +78,12 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   
   private String[] mServices;
 
-  private static final Comparator<PluginDefinition> COMPARATOR_DOWN = new Comparator<PluginDefinition>() {
-    @Override
-    public int compare(PluginDefinition o1, PluginDefinition o2) {
-      if (Locale.getDefault().getLanguage().equals(new Locale("de", "", "").getLanguage())) {
-        return o2.mNameDe.compareToIgnoreCase(o1.mNameDe);
-      }
-
-      return o2.mNameEn.compareTo(o1.mNameEn);
+  private static final Comparator<PluginDefinition> COMPARATOR_DOWN = (o1, o2) -> {
+    if (Locale.getDefault().getLanguage().equals(new Locale("de", "", "").getLanguage())) {
+      return o2.mNameDe.compareToIgnoreCase(o1.mNameDe);
     }
+
+    return o2.mNameEn.compareTo(o1.mNameEn);
   };
 
   public static Comparator<PluginDefinition> getComparatorDown() {

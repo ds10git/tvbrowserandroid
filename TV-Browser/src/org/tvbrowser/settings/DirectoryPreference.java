@@ -19,7 +19,6 @@ package org.tvbrowser.settings;
 import org.tvbrowser.tvbrowser.R;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.preference.ListPreference;
 import android.support.v7.app.AlertDialog;
 import android.util.AttributeSet;
@@ -32,13 +31,7 @@ public class DirectoryPreference extends ListPreference {
   @Override
   protected void onClick() {
     if(getSummary().equals(getContext().getString(R.string.pref_database_selection_unavailable))) {
-      new AlertDialog.Builder(getContext()).setTitle(R.string.warning_title).setMessage(R.string.pref_database_selection_warning_unavailable).setPositiveButton(R.string.pref_database_selection_warning_unavailable_ok, new DialogInterface.OnClickListener() {
-        
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          DirectoryPreference.super.onClick();
-        }
-      }).setNegativeButton(android.R.string.cancel, null).setCancelable(false).show();
+      new AlertDialog.Builder(getContext()).setTitle(R.string.warning_title).setMessage(R.string.pref_database_selection_warning_unavailable).setPositiveButton(R.string.pref_database_selection_warning_unavailable_ok, (dialog, which) -> DirectoryPreference.super.onClick()).setNegativeButton(android.R.string.cancel, null).setCancelable(false).show();
     }
     else {
       super.onClick();
@@ -56,12 +49,7 @@ public class DirectoryPreference extends ListPreference {
       
       if(!newValue.equals(getContext().getString(org.tvbrowser.tvbrowser.R.string.pref_database_path_default))) {
         new AlertDialog.Builder(getContext()).setTitle(R.string.warning_title).setMessage(R.string.pref_database_selection_warning_move).setPositiveButton(R.string.pref_database_selection_warning_move_ok, null)
-        .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            setValue(oldValue);
-          }
-        }).setCancelable(false).show();
+        .setNegativeButton(android.R.string.cancel, (dialog, which) -> setValue(oldValue)).setCancelable(false).show();
       }
     }
   }

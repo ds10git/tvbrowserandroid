@@ -360,14 +360,11 @@ public class ProgramPanel extends View {
         mPicture.setColorFilter(ContextCompat.getColor(getContext(), android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
       }
       
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            invalidate();
-          }catch(Throwable ignored) {}
-        }
-      });  
+      handler.post(() -> {
+        try {
+          invalidate();
+        }catch(Throwable ignored) {}
+      });
     }
   }
   

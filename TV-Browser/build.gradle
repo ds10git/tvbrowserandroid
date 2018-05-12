@@ -28,9 +28,9 @@ gradle.taskGraph.whenReady { taskGraph ->
 						button(defaultButton: true,
 								text: 'OK',
 								actionPerformed: {
-									passwordKeyStore = new String(input1.password);
-									password = new String(input.password);
-									dispose();
+									passwordKeyStore = new String(input1.password)
+									password = new String(input.password)
+									dispose()
 								})
 					}
 				}
@@ -154,7 +154,7 @@ android {
 
 if (project.hasProperty("AndroidProject.signing")
 		&& new File(project.property("AndroidProject.signing").toString()).exists()) {
-	def Properties props = new Properties()
+	Properties props = new Properties()
 	def propFile = new File(project.property("AndroidProject.signing").toString())
 	if(propFile.canRead()) {
 		props.load(new FileInputStream(propFile))

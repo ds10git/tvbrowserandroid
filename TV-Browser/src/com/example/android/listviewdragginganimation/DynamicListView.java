@@ -25,7 +25,6 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.animation.TypeEvaluator;
-import android.animation.ValueAnimator;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
@@ -70,9 +69,7 @@ import android.widget.ListView;
 /* Taken from http://developer.android.com/shareables/devbytes/ListViewDraggingAnimation.zip */
 public class DynamicListView extends ListView {
 
-    private final int SMOOTH_SCROLL_AMOUNT_AT_EDGE = 15;
     private final int MOVE_DURATION = 150;
-    private final int LINE_THICKNESS = 15;
 
     // Changed generic type for channel sort
     private ArrayList<SortInterface> mItemList;
@@ -129,6 +126,7 @@ public class DynamicListView extends ListView {
         setOnItemLongClickListener(mOnItemLongClickListener);
         setOnScrollListener(mScrollListener);
         DisplayMetrics metrics = context.getResources().getDisplayMetrics();
+        final int SMOOTH_SCROLL_AMOUNT_AT_EDGE = 15;
         mSmoothScrollAmountAtEdge = (int)(SMOOTH_SCROLL_AMOUNT_AT_EDGE / metrics.density);
         mHandler = new Handler();
     }
@@ -196,6 +194,7 @@ public class DynamicListView extends ListView {
 
         Paint paint = new Paint();
         paint.setStyle(Paint.Style.STROKE);
+        final int LINE_THICKNESS = 15;
         paint.setStrokeWidth(LINE_THICKNESS);
         paint.setColor(Color.BLACK);
 
@@ -430,12 +429,7 @@ public class DynamicListView extends ListView {
 
             ObjectAnimator hoverViewAnimator = ObjectAnimator.ofObject(mHoverCell, "bounds",
                     sBoundEvaluator, mHoverCellCurrentBounds);
-            hoverViewAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
-                @Override
-                public void onAnimationUpdate(ValueAnimator valueAnimator) {
-                    invalidate();
-                }
-            });
+            hoverViewAnimator.addUpdateListener(valueAnimator -> invalidate());
             hoverViewAnimator.addListener(new AnimatorListenerAdapter() {
                 @Override
                 public void onAnimationStart(Animator animation) {

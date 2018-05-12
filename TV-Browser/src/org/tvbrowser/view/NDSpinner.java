@@ -7,7 +7,6 @@ import android.support.v4.app.Fragment;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.view.View;
 
 /** Spinner extension that calls onItemSelected even when the selection is the same as its previous value 
  * 
@@ -36,12 +35,7 @@ public class NDSpinner extends android.support.v7.widget.AppCompatSpinner {
   }
   
   private void setClickDetector(Context context) {
-    setOnTouchListener(new OnTouchListener() {
-      @Override
-      public boolean onTouch(View v, MotionEvent event) {
-        return mClickDetector.onTouchEvent(event);
-      }
-    });
+    setOnTouchListener((v, event) -> mClickDetector.onTouchEvent(event));
     
     mClickDetector = new GestureDetector(context, new GestureDetector.SimpleOnGestureListener() {
       public void onLongPress(MotionEvent e) {

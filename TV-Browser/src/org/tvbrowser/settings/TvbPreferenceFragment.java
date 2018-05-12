@@ -17,7 +17,6 @@
 package org.tvbrowser.settings;
 
 import java.io.File;
-import java.io.FileFilter;
 import java.util.ArrayList;
 import java.util.Arrays;
 
@@ -106,12 +105,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       }
       
       if(external != null && external.isDirectory()) {
-        File[] sdcards = new File(external.getAbsolutePath().substring(0, external.getAbsolutePath().indexOf(File.separator, 1))).listFiles(new FileFilter() {
-          @Override
-          public boolean accept(File pathname) {
-            return CompatUtils.acceptFileAsSdCard(pathname);
-          }
-        });
+        File[] sdcards = new File(external.getAbsolutePath().substring(0, external.getAbsolutePath().indexOf(File.separator, 1))).listFiles(CompatUtils::acceptFileAsSdCard);
         
         File appExternal = getActivity().getExternalFilesDir(null);
         String appFilePathPart = appExternal.getAbsolutePath().replace(external.getAbsolutePath(), "") + File.separator;

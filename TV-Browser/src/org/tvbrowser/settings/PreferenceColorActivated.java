@@ -165,16 +165,13 @@ public class PreferenceColorActivated extends DialogPreference {
     final EditText hex = view.findViewById(R.id.color_pref_hex_input);
     
     final Button reset = view.findViewById(R.id.color_pref_reset);
-    reset.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        int[] colors = UiUtils.getColorValues(mDefaultColor);
-        
-        red.setProgress(colors[1]);
-        green.setProgress(colors[2]);
-        blue.setProgress(colors[3]);
-        alpha.setProgress(colors[0]);
-      }
+    reset.setOnClickListener(v -> {
+      int[] colors1 = UiUtils.getColorValues(mDefaultColor);
+
+      red.setProgress(colors1[1]);
+      green.setProgress(colors1[2]);
+      blue.setProgress(colors1[3]);
+      alpha.setProgress(colors1[0]);
     });
     
     red.setProgress(colors[1]);
@@ -223,17 +220,14 @@ public class PreferenceColorActivated extends DialogPreference {
     blue.setOnSeekBarChangeListener(changeListener);
     alpha.setOnSeekBarChangeListener(changeListener);
     
-    CompoundButton.OnCheckedChangeListener checkChangeListener = new CompoundButton.OnCheckedChangeListener() {
-      @Override
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        mDialogColorView.setEnabled(isChecked);
-        hex.setEnabled(isChecked);
-        reset.setEnabled(isChecked);
-        red.setEnabled(isChecked);
-        green.setEnabled(isChecked);
-        blue.setEnabled(isChecked);
-        alpha.setEnabled(isChecked);
-      }
+    CompoundButton.OnCheckedChangeListener checkChangeListener = (buttonView, isChecked) -> {
+      mDialogColorView.setEnabled(isChecked);
+      hex.setEnabled(isChecked);
+      reset.setEnabled(isChecked);
+      red.setEnabled(isChecked);
+      green.setEnabled(isChecked);
+      blue.setEnabled(isChecked);
+      alpha.setEnabled(isChecked);
     };
     
     hex.addTextChangedListener(new TextWatcher() {

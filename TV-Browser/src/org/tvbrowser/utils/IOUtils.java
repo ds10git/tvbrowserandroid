@@ -21,7 +21,6 @@ import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
-import java.io.FileFilter;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -321,7 +320,7 @@ public class IOUtils {
     return categories;
   }*/
   
-  public static byte[] loadUrl(String urlString) throws IOException, TimeoutException {
+  public static byte[] loadUrl(String urlString) throws TimeoutException {
     return loadUrl(urlString, 30000);
   }
   
@@ -1136,20 +1135,17 @@ public class IOUtils {
         if(!currentProperties.isEmpty()) {
           final long startMinute = cal2.getTimeInMillis() / 60000;
           
-          final File[] toDelete = pathBase.listFiles(new FileFilter() {
-            @Override
-            public boolean accept(File file) {
-              boolean result = false;
-              int index = file.getName().indexOf("_");
-              
-              if(index > 0) {
-                try {
-                  result = Long.parseLong(file.getName().substring(0,index)) < startMinute;
-                }catch(NumberFormatException ignored) {}
-              }
-              
-              return result;
+          final File[] toDelete = pathBase.listFiles(file -> {
+            boolean result = false;
+            int index = file.getName().indexOf("_");
+
+            if(index > 0) {
+              try {
+                result = Long.parseLong(file.getName().substring(0,index)) < startMinute;
+              }catch(NumberFormatException ignored) {}
             }
+
+            return result;
           });
           
           for(final File file : toDelete) {

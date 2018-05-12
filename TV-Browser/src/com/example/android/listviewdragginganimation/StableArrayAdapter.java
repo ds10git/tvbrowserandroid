@@ -27,9 +27,7 @@ import java.util.List;
  */
 public class StableArrayAdapter<T> extends ArrayAdapter<T> {
 
-    private final int INVALID_ID = -1;
-
-    private final HashMap<T, Integer> mIdMap = new HashMap<>();
+  private final HashMap<T, Integer> mIdMap = new HashMap<>();
 
     public StableArrayAdapter(Context context, int textViewResourceId, List<T> objects) {
         super(context, textViewResourceId, objects);
@@ -41,7 +39,7 @@ public class StableArrayAdapter<T> extends ArrayAdapter<T> {
     @Override
     public long getItemId(int position) {
         if (position < 0 || position >= mIdMap.size()) {
-            return INVALID_ID;
+          return -1;
         }
         T item = getItem(position);
         return mIdMap.get(item);

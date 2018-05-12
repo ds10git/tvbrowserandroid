@@ -28,12 +28,7 @@ public abstract class FilterValues {
     mName = name;
   }
     
-  public static final Comparator<FilterValues> COMPARATOR_FILTER_VALUES = new Comparator<FilterValues>() {
-    @Override
-    public int compare(FilterValues lhs, FilterValues rhs) {
-      return lhs.toString().compareToIgnoreCase(rhs.toString());
-    }
-  };
+  public static final Comparator<FilterValues> COMPARATOR_FILTER_VALUES = (lhs, rhs) -> lhs.toString().compareToIgnoreCase(rhs.toString());
   
   public final String getId() {
     return getClass().getCanonicalName() + SEPARATOR_CLASS + mId;

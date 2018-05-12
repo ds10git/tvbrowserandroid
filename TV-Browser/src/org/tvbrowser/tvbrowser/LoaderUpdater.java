@@ -98,12 +98,9 @@ public class LoaderUpdater {
               }catch(Throwable ignored) {}
             }
 
-            mHandler.post(new Runnable() {
-              @Override
-              public void run() {
-                if(!mFragment.isDetached() && mFragment.getActivity() != null && mIsRunning) {
-                  mFragment.getLoaderManager().restartLoader(0, null, (LoaderManager.LoaderCallbacks<?>)mFragment);
-                }
+            mHandler.post(() -> {
+              if(!mFragment.isDetached() && mFragment.getActivity() != null && mIsRunning) {
+                mFragment.getLoaderManager().restartLoader(0, null, (LoaderManager.LoaderCallbacks<?>)mFragment);
               }
             });
           }

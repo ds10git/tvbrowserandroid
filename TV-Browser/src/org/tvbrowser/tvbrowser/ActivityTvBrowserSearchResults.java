@@ -26,7 +26,6 @@ import org.tvbrowser.view.SeparatorDrawable;
 
 import android.app.SearchManager;
 import android.content.ContentUris;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
@@ -115,13 +114,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
     
     getListView().setAdapter(mProgramsListAdapter);
     
-    mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-      @Override
-      public void onItemClick(AdapterView<?> l, View v, int position,
-          long id) {
-          mViewAndClickHandler.onListItemClick((ListView)l, v, position, id);
-      }
-    });
+    mListView.setOnItemClickListener((l, v, position, id) -> mViewAndClickHandler.onListItemClick((ListView)l, v, position, id));
     
     // Initiate the Cursor Loader
     getSupportLoaderManager().initLoader(0, null, this);
@@ -294,26 +287,13 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
       info.setTitle(R.string.search_no_result_title);
       info.setMessage(R.string.search_no_result_text);
       
-      info.setPositiveButton(R.string.dialog_search_create_favorite, new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          mHandler.post(new Runnable() {
-            @Override
-            public void run() {
-              UiUtils.editFavorite(null, getApplicationContext(), mSearchString + (mEpisodeString != null ? " AND " + mEpisodeString : ""));
-            }
-          });
-          
-          finish();
-        }
+      info.setPositiveButton(R.string.dialog_search_create_favorite, (dialog, which) -> {
+        mHandler.post(() -> UiUtils.editFavorite(null, getApplicationContext(), mSearchString + (mEpisodeString != null ? " AND " + mEpisodeString : "")));
+
+        finish();
       });
       
-      info.setNegativeButton(R.string.dialog_close, new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          finish();
-        }
-      });
+      info.setNegativeButton(R.string.dialog_close, (dialog, which) -> finish());
       
       info.show();
     }
@@ -362,11 +342,6 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
 
   @Override
   public void refreshMarkings() {
-    mHandler.post(new Runnable() {
-      @Override
-      public void run() {
-        getListView().invalidateViews();
-      }
-    });
+    mHandler.post(() -> getListView().invalidateViews());
   }
 }

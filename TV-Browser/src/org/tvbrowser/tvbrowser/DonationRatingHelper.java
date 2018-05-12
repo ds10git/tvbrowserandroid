@@ -1,6 +1,5 @@
 package org.tvbrowser.tvbrowser;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.preference.PreferenceManager;
@@ -44,33 +43,24 @@ abstract class DonationRatingHelper {
 			openWeb.setVisibility(View.GONE);
 		}
 
-		alert.setNegativeButton(tvBrowser.getString(R.string.not_now).replace("{0}", ""), new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-			}
-		});
+		alert.setNegativeButton(tvBrowser.getString(R.string.not_now).replace("{0}", ""), (dialog, which) -> {
+    });
 
 		final AlertDialog d = alert.create();
 
 		Button inAppDonation = view.findViewById(R.id.donation_in_app_button);
 		if (inAppDonation!=null) {
-			inAppDonation.setOnClickListener(new View.OnClickListener() {
-				@Override
-				public void onClick(View v) {
-					d.dismiss();
-					prepareInAppPayment();
-				}
-			});
+			inAppDonation.setOnClickListener(v -> {
+        d.dismiss();
+        prepareInAppPayment();
+      });
 		}
 
-		openWeb.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				d.dismiss();
+		openWeb.setOnClickListener(v -> {
+      d.dismiss();
 
-				tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingConstants.URL_SYNC_BASE + "index.php?id=donations")));
-			}
-		});
+      tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingConstants.URL_SYNC_BASE + "index.php?id=donations")));
+    });
 
 		tvBrowser.showAlertDialog(d);
 	}

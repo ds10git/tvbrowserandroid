@@ -18,7 +18,6 @@ package org.tvbrowser.tvbrowser;
 
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -144,38 +143,30 @@ public class InfoActivity extends AppCompatActivity {
       
       builder.setTitle(R.string.widget_running_select_time_title);
       
-      builder.setSingleChoiceItems(formatedTimes.toArray(new String[formatedTimes.size()]), selection, new DialogInterface.OnClickListener() {        
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          int value = -1;
-          
-          if(which == 1 && hasNext) {
-            value = -2;
-          }
-          else if(which > 1 || (!hasNext && which > 0)) {
-            value = values.get(which-1-indexOffset);
-          }
-          
-          Editor edit = pref.edit();
-          edit.putInt(appWidgetId + "_" + getString(R.string.WIDGET_CONFIG_RUNNING_TIME), value);
-          edit.commit();
-          
-          Intent update = new Intent(getApplicationContext(), RunningProgramsListWidget.class);
-          update.setAction(SettingConstants.UPDATE_RUNNING_APP_WIDGET);
-          update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
-          
-          sendBroadcast(update);
-          
-          dialog.dismiss();
-          finish();
+      builder.setSingleChoiceItems(formatedTimes.toArray(new String[formatedTimes.size()]), selection, (dialog, which) -> {
+        int value = -1;
+
+        if(which == 1 && hasNext) {
+          value = -2;
         }
-      });
-      builder.setOnCancelListener(new DialogInterface.OnCancelListener() {
-        @Override
-        public void onCancel(DialogInterface dialog) {
-          finish();
+        else if(which > 1 || (!hasNext && which > 0)) {
+          value = values.get(which-1-indexOffset);
         }
+
+        Editor edit = pref.edit();
+        edit.putInt(appWidgetId + "_" + getString(R.string.WIDGET_CONFIG_RUNNING_TIME), value);
+        edit.commit();
+
+        Intent update = new Intent(getApplicationContext(), RunningProgramsListWidget.class);
+        update.setAction(SettingConstants.UPDATE_RUNNING_APP_WIDGET);
+        update.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, appWidgetId);
+
+        sendBroadcast(update);
+
+        dialog.dismiss();
+        finish();
       });
+      builder.setOnCancelListener(dialog -> finish());
       
       if(appWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
         builder.show();
@@ -239,12 +230,7 @@ public class InfoActivity extends AppCompatActivity {
           
           return result;
         }
-      }, mViewParent, new Runnable() {
-        @Override
-        public void run() {
-          finish();
-        }
-      });
+      }, mViewParent, this::finish);
     }
     else {
       finish();
