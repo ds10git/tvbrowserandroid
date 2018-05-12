@@ -11,7 +11,7 @@
 	     <ImageButton android:id="@id/important_widget_config"
 	         android:layout_width="wrap_content"
 	         android:layout_height="wrap_content"
-	         android:contentDescription="button"
+	         android:contentDescription="@string/widget_settings_button"
 	         android:layout_centerVertical="true"
 	         android:src="@drawable/ic_action_settings"
 	         android:layout_alignParentRight="true"
@@ -29,7 +29,7 @@
 	             android:id="@id/important_widget_header_icon"
 	             android:layout_width="wrap_content"
 	             android:layout_height="wrap_content"
-	             android:contentDescription="TVB"
+	             android:contentDescription="@string/widget_open_app_button"
 	             android:src="@drawable/ic_widget"
 	             android:layout_marginEnd="3dp"
 	             android:layout_marginRight="3dp"/>

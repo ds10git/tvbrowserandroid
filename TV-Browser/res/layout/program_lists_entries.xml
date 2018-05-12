@@ -98,7 +98,7 @@
         android:layout_toRightOf="@id/startTimeLabelPL"
         android:layout_below="@id/startDateLabelPL"/>
     <ImageView android:id="@id/picture_pl"
-        android:contentDescription="picture"
+        android:contentDescription="@string/program_picture"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toRightOf="@id/startTimeLabelPL"
