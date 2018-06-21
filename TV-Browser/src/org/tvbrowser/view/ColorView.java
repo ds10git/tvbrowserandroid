@@ -17,11 +17,16 @@
 package org.tvbrowser.view;
 
 import android.content.Context;
+import android.graphics.Bitmap;
+import android.graphics.BitmapShader;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.util.AttributeSet;
 import android.view.View;
 import android.widget.TextView;
+import org.tvbrowser.utils.UiUtils;
 
 /**
  * A view that displays a color with a border.
@@ -29,6 +34,7 @@ import android.widget.TextView;
  * @author René Mach
  */
 public class ColorView extends View {
+  private Paint mCheckerBoardPaint;
   private final Paint mColorPaint = new Paint();
   private final Paint mBorderPaint = new Paint();
   
@@ -53,6 +59,7 @@ public class ColorView extends View {
   private void init(Context context) {
     mColorPaint.setStyle(Paint.Style.FILL_AND_STROKE);
     
+    mCheckerBoardPaint = createCheckerBoard(UiUtils.convertDpToPixel(16, context.getResources()));
     mBorderPaint.setStyle(Paint.Style.STROKE);
     mBorderPaint.setColor(new TextView(context).getTextColors().getDefaultColor());
   }
@@ -64,11 +71,32 @@ public class ColorView extends View {
   
   @Override
   protected void onDraw(Canvas canvas) {
+    canvas.drawRect(getPaddingLeft() + 2, getPaddingTop() + 2, getWidth() - getPaddingLeft() - getPaddingRight() - 1, getHeight() - getPaddingTop() - getPaddingBottom() - 1, mCheckerBoardPaint);
     canvas.drawRect(getPaddingLeft() + 1, getPaddingTop() + 1, getWidth() - getPaddingLeft() - getPaddingRight() - 1, getHeight() - getPaddingTop() - getPaddingBottom() - 1, mColorPaint);
     canvas.drawRect(getPaddingLeft() + 1, getPaddingTop() + 1, getWidth() - getPaddingLeft() - getPaddingRight() - 1, getHeight() - getPaddingTop() - getPaddingBottom() - 1, mBorderPaint);
   }
   
   public int getColor() {
     return mColorPaint.getColor();
+  }
+
+  private static Paint createCheckerBoard(final int pixelSize)
+  {
+    final Bitmap bitmap = Bitmap.createBitmap(pixelSize * 2, pixelSize * 2, Bitmap.Config.ARGB_8888);
+    final Canvas canvas = new Canvas(bitmap);
+    final Paint paint = new Paint();
+    final Rect rect = new Rect(0, 0, pixelSize, pixelSize);
+
+    paint.setColor(Color.WHITE);
+    canvas.drawPaint(paint);
+    paint.setColor(Color.GRAY);
+    canvas.drawRect(rect, paint);
+    rect.offset(pixelSize, pixelSize);
+    canvas.drawRect(rect, paint);
+
+    paint.reset();
+    paint.setShader(new BitmapShader(bitmap, BitmapShader.TileMode.REPEAT, BitmapShader.TileMode.REPEAT));
+
+    return paint;
   }
 }
