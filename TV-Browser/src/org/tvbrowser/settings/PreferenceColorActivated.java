@@ -93,8 +93,8 @@ public class PreferenceColorActivated extends DialogPreference {
   protected void onBindView(View view) {
     super.onBindView(view);
     
-    mActivatedSelection = (CheckBox)view.findViewById(R.id.widget_color_activated_selection);
-    mColorView = (ColorView)view.findViewById(R.id.widget_color_activated_color);
+    mActivatedSelection = view.findViewById(R.id.widget_color_activated_selection);
+    mColorView = view.findViewById(R.id.widget_color_activated_color);
     
     mActivatedSelection.setChecked(mActivated);
     mColorView.setColor(mColor);
@@ -142,7 +142,7 @@ public class PreferenceColorActivated extends DialogPreference {
   protected void onBindDialogView(View view) {
     super.onBindDialogView(view);
     
-    mDialogActivatedSelection = (CheckBox)view.findViewById(R.id.color_pref_color_activated);
+    mDialogActivatedSelection = view.findViewById(R.id.color_pref_color_activated);
     
     if(mAlwaysActivated) {
       mDialogActivatedSelection.setVisibility(View.GONE);
@@ -153,28 +153,25 @@ public class PreferenceColorActivated extends DialogPreference {
       mDialogActivatedSelection.setChecked(mActivated);
     }
     
-    mDialogColorView = (ColorView)view.findViewById(R.id.color_pref_color_view);
+    mDialogColorView = view.findViewById(R.id.color_pref_color_view);
     mDialogColorView.setColor(mColor);
     
     int[] colors = UiUtils.getColorValues(mColor);
     
-    final SeekBar red = (SeekBar)view.findViewById(R.id.color_pref_red1);
-    final SeekBar green = (SeekBar)view.findViewById(R.id.color_pref_green1);
-    final SeekBar blue = (SeekBar)view.findViewById(R.id.color_pref_blue1);
-    final SeekBar alpha = (SeekBar)view.findViewById(R.id.color_pref_alpha1);
-    final EditText hex = (EditText)view.findViewById(R.id.color_pref_hex_input);
+    final SeekBar red = view.findViewById(R.id.color_pref_red1);
+    final SeekBar green = view.findViewById(R.id.color_pref_green1);
+    final SeekBar blue = view.findViewById(R.id.color_pref_blue1);
+    final SeekBar alpha = view.findViewById(R.id.color_pref_alpha1);
+    final EditText hex = view.findViewById(R.id.color_pref_hex_input);
     
-    final Button reset = (Button)view.findViewById(R.id.color_pref_reset);
-    reset.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        int[] colors = UiUtils.getColorValues(mDefaultColor);
-        
-        red.setProgress(colors[1]);
-        green.setProgress(colors[2]);
-        blue.setProgress(colors[3]);
-        alpha.setProgress(colors[0]);
-      }
+    final Button reset = view.findViewById(R.id.color_pref_reset);
+    reset.setOnClickListener(v -> {
+      int[] colors1 = UiUtils.getColorValues(mDefaultColor);
+
+      red.setProgress(colors1[1]);
+      green.setProgress(colors1[2]);
+      blue.setProgress(colors1[3]);
+      alpha.setProgress(colors1[0]);
     });
     
     red.setProgress(colors[1]);
@@ -223,17 +220,14 @@ public class PreferenceColorActivated extends DialogPreference {
     blue.setOnSeekBarChangeListener(changeListener);
     alpha.setOnSeekBarChangeListener(changeListener);
     
-    CompoundButton.OnCheckedChangeListener checkChangeListener = new CompoundButton.OnCheckedChangeListener() {
-      @Override
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        mDialogColorView.setEnabled(isChecked);
-        hex.setEnabled(isChecked);
-        reset.setEnabled(isChecked);
-        red.setEnabled(isChecked);
-        green.setEnabled(isChecked);
-        blue.setEnabled(isChecked);
-        alpha.setEnabled(isChecked);
-      }
+    CompoundButton.OnCheckedChangeListener checkChangeListener = (buttonView, isChecked) -> {
+      mDialogColorView.setEnabled(isChecked);
+      hex.setEnabled(isChecked);
+      reset.setEnabled(isChecked);
+      red.setEnabled(isChecked);
+      green.setEnabled(isChecked);
+      blue.setEnabled(isChecked);
+      alpha.setEnabled(isChecked);
     };
     
     hex.addTextChangedListener(new TextWatcher() {

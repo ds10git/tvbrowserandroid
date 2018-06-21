@@ -27,8 +27,8 @@ public class NumberPreference extends DialogPreference {
   private NumberPicker mNumberPicker;
   private int mCurrentNumber;
   
-  private int mMinValue;
-  private int mMaxValue;
+  private final int mMinValue;
+  private final int mMaxValue;
 
   public NumberPreference(Context context, AttributeSet attrs) {
     super(context, attrs);

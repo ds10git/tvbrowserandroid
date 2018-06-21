@@ -41,7 +41,7 @@ import android.text.format.DateFormat;
  * @author René Mach
  */
 @SuppressLint("SimpleDateFormat")
-public class NewsReader {
+class NewsReader {
   private static final String NEWS_URL = "http://www.tvbrowser.org/newsplugin/static-news.xml";
   private static final SimpleDateFormat NEWS_DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
   
@@ -59,7 +59,7 @@ public class NewsReader {
       XmlPullParser myParser = xmlPullParserFactory.newPullParser();
       myParser.setInput(new InputStreamReader(new ByteArrayInputStream(IOUtils.loadUrl(NEWS_URL, 10000)),"ISO-8859-15"));
       
-      ArrayList<News> newsList = new ArrayList<News>();
+      ArrayList<News> newsList = new ArrayList<>();
       
       int event = myParser.getEventType();
       News currentNews = null;
@@ -68,49 +68,55 @@ public class NewsReader {
       long newestNewsDate = PreferenceManager.getDefaultSharedPreferences(context).getLong(context.getString(R.string.NEWS_DATE_LAST_KNOWN), 0);
       
       while (event != XmlPullParser.END_DOCUMENT) {
-        if(event == XmlPullParser.START_TAG) {
-          name = myParser.getName();
-          
-          if(name.equals("news")) {
-            currentNews = new News();
-            
-            for(int i = 0; i < myParser.getAttributeCount(); i++) {
-              String attrName = myParser.getAttributeName(i);
-              
-              if(attrName.equals("date")) {
-                currentNews.mDate = NEWS_DATE_FORMAT.parse(myParser.getAttributeValue(i));
-                newestNewsDate = Math.max(newestNewsDate, currentNews.mDate.getTime());
-              }
-              else if(attrName.equals("author")) {
-                currentNews.mAuthor = myParser.getAttributeValue(i);
-              }
-              else if(attrName.equals("type")) {
-                currentNews.mType = myParser.getAttributeValue(i);
+        switch (event) {
+          case XmlPullParser.START_TAG:
+            name = myParser.getName();
+
+            if (name.equals("news")) {
+              currentNews = new News();
+
+              for (int i = 0; i < myParser.getAttributeCount(); i++) {
+                String attrName = myParser.getAttributeName(i);
+
+                switch (attrName) {
+                  case "date":
+                    currentNews.mDate = NEWS_DATE_FORMAT.parse(myParser.getAttributeValue(i));
+                    newestNewsDate = Math.max(newestNewsDate, currentNews.mDate.getTime());
+                    break;
+                  case "author":
+                    currentNews.mAuthor = myParser.getAttributeValue(i);
+                    break;
+                  case "type":
+                    currentNews.mType = myParser.getAttributeValue(i);
+                    break;
+                }
               }
             }
-          }
+            break;
+          case XmlPullParser.END_TAG:
+            if (myParser.getName().equals("news")) {
+              if (currentNews != null && !currentNews.isOutdated()) {
+                newsList.add(currentNews);
+              }
+            }
+            break;
+          case XmlPullParser.TEXT:
+            switch (name) {
+              case "title":
+                currentNews.mDeNewsTitle = URLDecoder.decode(myParser.getText(), "ISO-8859-15");
+                break;
+              case "title-en":
+                currentNews.mEnNewsTitle = URLDecoder.decode(myParser.getText(), "ISO-8859-15");
+                break;
+              case "text":
+                currentNews.mDeNewsText = URLDecoder.decode(myParser.getText(), "ISO-8859-15");
+                break;
+              case "text-en":
+                currentNews.mEnNewsText = URLDecoder.decode(myParser.getText(), "ISO-8859-15");
+                break;
+            }
+            break;
         }
-        else if(event == XmlPullParser.END_TAG) {
-           if(myParser.getName().equals("news")) {
-             if(currentNews != null && !currentNews.isOutdated()) {
-               newsList.add(currentNews);
-             }
-           }
-         }
-         else if(event == XmlPullParser.TEXT) {
-           if(name.equals("title")) {
-             currentNews.mDeNewsTitle = URLDecoder.decode(myParser.getText(),"ISO-8859-15");
-           }
-           else if(name.equals("title-en")) {
-             currentNews.mEnNewsTitle = URLDecoder.decode(myParser.getText(),"ISO-8859-15");
-           }
-           else if(name.equals("text")) {
-             currentNews.mDeNewsText = URLDecoder.decode(myParser.getText(),"ISO-8859-15");
-           }
-           else if(name.equals("text-en")) {
-             currentNews.mEnNewsText = URLDecoder.decode(myParser.getText(),"ISO-8859-15");
-           }
-         }
          
          event = myParser.next();
       }
@@ -151,7 +157,7 @@ public class NewsReader {
       edit.putLong(context.getString(R.string.NEWS_DATE_LAST_DOWNLOAD), System.currentTimeMillis());
       
       edit.commit();
-    } catch (Exception e) {}
+    } catch (Exception ignored) {}
   }
   
   private static final class News {
@@ -191,7 +197,7 @@ public class NewsReader {
       return mDate + " " + mAuthor + " " + mDeNewsTitle + " " + mEnNewsTitle + " " + mDeNewsText + " " + mEnNewsText;
     }
     
-    public String getTitle(boolean de) {
+    String getTitle(boolean de) {
       if((de || mEnNewsTitle == null) && mDeNewsTitle != null) {
         return mDeNewsTitle;
       }
@@ -199,7 +205,7 @@ public class NewsReader {
       return mEnNewsTitle;
     }
     
-    public String getText(boolean de) {
+    String getText(boolean de) {
       if((de || mEnNewsText == null) && mDeNewsText != null) {
         return mDeNewsText;
       }

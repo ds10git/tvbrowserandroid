@@ -39,7 +39,7 @@ public class InfoPreference extends Preference {
   protected void onBindView(View view) {
     super.onBindView(view);
     
-    TextView summaryView = (TextView) view.findViewById(android.R.id.summary);
+    TextView summaryView = view.findViewById(android.R.id.summary);
     summaryView.setMaxLines(Integer.MAX_VALUE);
   }
   

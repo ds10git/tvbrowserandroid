@@ -16,7 +16,6 @@
  */
 package org.tvbrowser.tvbrowser;
 
-
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
@@ -74,8 +73,6 @@ import android.content.ContentResolver;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.DialogInterface.OnClickListener;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -103,6 +100,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -133,8 +131,6 @@ import android.text.style.ReplacementSpan;
 import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -148,7 +144,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -167,6 +162,7 @@ import com.example.android.listviewdragginganimation.StableArrayAdapter;
 
 import de.epgpaid.EPGpaidDataConnection;
 
+@SuppressLint("ApplySharedPref")
 public class TvBrowser extends AppCompatActivity {
   private static final boolean TEST_VERSION = false;
 
@@ -208,8 +204,6 @@ public class TvBrowser extends AppCompatActivity {
   private MenuItem mCreateFavorite;
 
   private MenuItem mUpdateItem;
-  private MenuItem mSendDataUpdateLogItem;
-  private MenuItem mDeleteDataUpdateLogItem;
   private MenuItem mSendReminderLogItem;
   private MenuItem mDeleteReminderLogItem;
   private MenuItem mSendPluginLogItem;
@@ -267,7 +261,7 @@ public class TvBrowser extends AppCompatActivity {
     super.onSaveInstanceState(outState);
   }
 
-  private final boolean addUserColor(SharedPreferences pref, Editor edit, int defaultColorKey, int colorKey, int userColorKey) {
+  private boolean addUserColor(SharedPreferences pref, Editor edit, int defaultColorKey, int colorKey, int userColorKey) {
     int defaultColor = ContextCompat.getColor(this, defaultColorKey);
     int color = pref.getInt(getString(colorKey), defaultColor);
 
@@ -299,33 +293,6 @@ public class TvBrowser extends AppCompatActivity {
 
   private int mInfoType;
 
-  private static final class HandlerWrapper {
-    private Handler mHandler;
-
-    public HandlerWrapper(Handler handler) {
-      mHandler = handler;
-    }
-
-    public boolean post(Runnable r) {
-      Log.d("info6", "post: " + r);
-
-      StackTraceElement[] els = Thread.currentThread().getStackTrace();
-
-      for(StackTraceElement el : els) {
-        Log.d("info6", el.toString());
-      }
-
-
-      return mHandler.post(r);
-    }
-
-    public boolean postDelayed(Runnable r, int delayMillis) {
-      Log.d("info6", "postDelayed: " + r);
-
-      return false;//mHandler.postDelayed(r, delayMillis);
-    }
-  }
-
   private void checkAppReplacingState() {
     Log.d("info6", System.currentTimeMillis()+" checkAppReplacingState START");
     if (getResources() == null) {
@@ -340,8 +307,8 @@ public class TvBrowser extends AppCompatActivity {
     checkAppReplacingState();
 
     handler = new Handler();
-    mCurrentFilter = new HashSet<FilterValues>();
-    mCurrentFilterId = new HashSet<String>();
+    mCurrentFilter = new HashSet<>();
+    mCurrentFilterId = new HashSet<>();
     mInfoType = INFO_TYPE_NOTHING;
     PrefUtils.initialize(TvBrowser.this);
 
@@ -472,9 +439,9 @@ public class TvBrowser extends AppCompatActivity {
               Cursor synced = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, null, TvBrowserContentProvider.KEY_ID);
 
               try {
-                if(IOUtils.prepareAccess(synced)) {
+                if(synced!=null && IOUtils.prepareAccess(synced)) {
                   int idColumn = synced.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-                  ArrayList<String> syncIdList = new ArrayList<String>();
+                  ArrayList<String> syncIdList = new ArrayList<>();
 
                   while(synced.moveToNext()) {
                     syncIdList.add(String.valueOf(synced.getLong(idColumn)));
@@ -499,7 +466,7 @@ public class TvBrowser extends AppCompatActivity {
               try {
                 if(IOUtils.prepareAccess(reminders)) {
                   int idColumn = reminders.getColumnIndex(TvBrowserContentProvider.KEY_ID);
-                  ArrayList<String> reminderIdList = new ArrayList<String>();
+                  ArrayList<String> reminderIdList = new ArrayList<>();
 
                   while(reminders.moveToNext()) {
                     reminderIdList.add(String.valueOf(reminders.getLong(idColumn)));
@@ -515,7 +482,7 @@ public class TvBrowser extends AppCompatActivity {
         }.start();
       }
       if(oldVersion < 304) {
-        Set<String> favoritesSet = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).getStringSet("FAVORITE_LIST", new HashSet<String>());
+        Set<String> favoritesSet = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).getStringSet("FAVORITE_LIST", new HashSet<>());
 
         int id = 1000;
 
@@ -610,7 +577,7 @@ public class TvBrowser extends AppCompatActivity {
         edit.commit();
       }
       if(oldVersion < 379) {
-        final HashSet<String> values = new HashSet<String>();
+        final HashSet<String> values = new HashSet<>();
         final String currentFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, null);
 
         if(currentFilterId != null) {
@@ -652,21 +619,21 @@ public class TvBrowser extends AppCompatActivity {
         edit.putInt(getString(R.string.OLD_VERSION), pInfo.versionCode);
         edit.commit();
       }
-    } catch (NameNotFoundException e) {}
+    } catch (NameNotFoundException ignored) {}
 
     super.onCreate(savedInstanceState);
 
     SettingConstants.initializeLogoMap(TvBrowser.this,false);
 
     setContentView(R.layout.activity_tv_browser);
-    final Toolbar toolbar = (Toolbar)findViewById(R.id.activity_tvbrowser_toolbar);
+    final Toolbar toolbar = findViewById(R.id.activity_tvbrowser_toolbar);
     setSupportActionBar(toolbar);
 
     // Create the adapter that will return a fragment for each of the three
     // primary sections of the app.
     mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
 
-    mTabLayout = (TabLayout) findViewById(R.id.activity_tvbrowser_tabs);
+    mTabLayout = findViewById(R.id.activity_tvbrowser_tabs);
 
     // For each of the sections in the app, add a tab to the action bar.
     for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
@@ -679,7 +646,7 @@ public class TvBrowser extends AppCompatActivity {
 
     mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
-    mProgamListStateStack = new Stack<ProgramsListState>();
+    mProgamListStateStack = new Stack<>();
 
     ALL_VALUE = getResources().getString(R.string.filter_channel_all);
 
@@ -697,7 +664,7 @@ public class TvBrowser extends AppCompatActivity {
 
 
     // Set up the ViewPager with the sections adapter.
-    mViewPager = (ViewPager) findViewById(R.id.activity_tvbrowser_pager);
+    mViewPager = findViewById(R.id.activity_tvbrowser_pager);
     mViewPager.setAdapter(mSectionsPagerAdapter);
     mViewPager.setOffscreenPageLimit(3);
     mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
@@ -735,7 +702,7 @@ public class TvBrowser extends AppCompatActivity {
             switch(tab.getPosition()) {
               case 2:mScrollTimeItem.setVisible(false);break;
 
-              default:mScrollTimeItem.setVisible(true && !mSearchExpanded);break;
+              default:mScrollTimeItem.setVisible(!mSearchExpanded);break;
             }
           }
         }
@@ -769,12 +736,7 @@ public class TvBrowser extends AppCompatActivity {
 
     mCreateTime = System.currentTimeMillis();
 
-    IOUtils.postDelayedInSeparateThread("LOAD PLUGINS WAITING THREAD", new Runnable() {
-      @Override
-      public void run() {
-        PluginHandler.loadPlugins(getApplicationContext());
-      }
-    }, 2000);
+    IOUtils.postDelayedInSeparateThread("LOAD PLUGINS WAITING THREAD", () -> PluginHandler.loadPlugins(getApplicationContext()), 2000);
 
     IOUtils.handleDataUpdatePreferences(TvBrowser.this);
     IOUtils.setDataTableRefreshTime(TvBrowser.this);
@@ -801,7 +763,7 @@ public class TvBrowser extends AppCompatActivity {
       // stupid workaround for not available receiver registered check
       try {
         TvBrowser.this.unregisterReceiver(mUpdateDoneBroadcastReceiver);
-      }catch(IllegalArgumentException e) {}
+      }catch(IllegalArgumentException ignored) {}
     }
     super.onPause();
   }
@@ -816,22 +778,14 @@ public class TvBrowser extends AppCompatActivity {
       ((TextView)layout.findViewById(R.id.terms_license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
 
       builder.setView(layout);
-      builder.setPositiveButton(R.string.terms_of_use_accept, new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-          edit.putBoolean(SettingConstants.EULA_ACCEPTED, true);
-          edit.commit();
+      builder.setPositiveButton(R.string.terms_of_use_accept, (dialog, which) -> {
+        Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
+        edit.putBoolean(SettingConstants.EULA_ACCEPTED, true);
+        edit.commit();
 
-          handleResume();
-        }
+        handleResume();
       });
-      builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          System.exit(0);
-        }
-      });
+      builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> System.exit(0));
       builder.setCancelable(false);
 
       showAlertDialog(builder);
@@ -854,12 +808,7 @@ public class TvBrowser extends AppCompatActivity {
     }
 
     if(mResumeTime - mCreateTime > 5000) {
-      IOUtils.postDelayedInSeparateThread("LOAD PLUGINS WAITING THREAD", new Runnable() {
-        @Override
-        public void run() {
-          PluginHandler.loadPlugins(getApplicationContext());
-        }
-      }, 2000);
+      IOUtils.postDelayedInSeparateThread("LOAD PLUGINS WAITING THREAD", () -> PluginHandler.loadPlugins(getApplicationContext()), 2000);
     }
 
    /* if(TEST_VERSION) {
@@ -880,23 +829,15 @@ public class TvBrowser extends AppCompatActivity {
 
         updateProgressIcon(false);
 
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            showNews();
-          }
-        });
+        handler.post(() -> showNews());
       }
     };
 
     if(PrefUtils.isNewDate(getApplicationContext())) {
-      handler.postDelayed(new Runnable() {
-        @Override
-        public void run() {
-          Log.d("info6", "SEND DATA UPDATE DONE AFTER DATE CHANGE " + System.currentTimeMillis());
-          Intent refresh = new Intent(SettingConstants.DATA_UPDATE_DONE);
-          TvBrowser.this.sendBroadcast(refresh);
-        }
+      handler.postDelayed(() -> {
+        Log.d("info6", "SEND DATA UPDATE DONE AFTER DATE CHANGE " + System.currentTimeMillis());
+        Intent refresh = new Intent(SettingConstants.DATA_UPDATE_DONE);
+        TvBrowser.this.sendBroadcast(refresh);
       }, 2000);
 
       PrefUtils.updateKnownOpenDate(getApplicationContext());
@@ -906,7 +847,7 @@ public class TvBrowser extends AppCompatActivity {
 
     TvBrowser.this.registerReceiver(mUpdateDoneBroadcastReceiver, filter);
 
-    mCurrentFilterId = PrefUtils.getStringSetValue(R.string.CURRENT_FILTER_ID, new HashSet<String>());
+    mCurrentFilterId = PrefUtils.getStringSetValue(R.string.CURRENT_FILTER_ID, new HashSet<>());
     mCurrentFilter.clear();
 
     if(!mCurrentFilterId.isEmpty()) {
@@ -954,7 +895,7 @@ public class TvBrowser extends AppCompatActivity {
         Log.d("info8","TIMER");
         LocalBroadcastManager.getInstance(getApplicationContext()).sendBroadcast(new Intent(SettingConstants.REFRESH_VIEWS));
       }
-    }, new Date((((long) (System.currentTimeMillis() / 60000L)) * 60000) + 62000), 60000);
+    }, new Date((System.currentTimeMillis() / 60000L * 60000) + 62000), 60000);
 
 
 
@@ -990,12 +931,7 @@ public class TvBrowser extends AppCompatActivity {
         showChannel.putExtra(SettingConstants.EXTRA_END_TIME, intent.getLongExtra(SettingConstants.EXTRA_END_TIME, -1));
         showChannel.putExtra(SettingConstants.NO_BACK_STACKUP_EXTRA, true);
 
-        handler.postDelayed(new Runnable() {
-          @Override
-          public void run() {
-            LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcastSync(showChannel);
-          }
-        }, 1000);
+        handler.postDelayed(() -> LocalBroadcastManager.getInstance(TvBrowser.this).sendBroadcastSync(showChannel), 1000);
       }
       else if(intent.hasExtra(SettingConstants.EXTRA_START_TIME)) {
         START_TIME = intent.getIntExtra(SettingConstants.EXTRA_START_TIME,-1);
@@ -1047,7 +983,7 @@ public class TvBrowser extends AppCompatActivity {
         dialog.show();
 
         if(linkifyId != ID_LINKIFY_DISABLED) {
-          final TextView test = ((TextView)dialog.findViewById(linkifyId));
+          final TextView test = dialog.findViewById(linkifyId);
 
           if(test != null) {
             test.setMovementMethod(LinkMovementMethod.getInstance());
@@ -1089,30 +1025,19 @@ public class TvBrowser extends AppCompatActivity {
 
       builder.setMessage(text);
       builder.setCancelable(false);
-      builder.setPositiveButton(R.string.update_website, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          SHOWING_EPGPAID_INFO = false;
+      builder.setPositiveButton(R.string.update_website, (dialog, which) -> {
+        SHOWING_EPGPAID_INFO = false;
 
-          startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://www.epgpaid.de")));
-        }
+        startActivity(new Intent(Intent.ACTION_VIEW).setData(Uri.parse("https://www.epgpaid.de")));
       });
-      builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          SHOWING_EPGPAID_INFO = false;
-        }
-      });
+      builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> SHOWING_EPGPAID_INFO = false);
 
-      showAlertDialog(builder, true, new Runnable() {
-        @Override
-        public void run() {
-          SHOWING_EPGPAID_INFO = true;
+      showAlertDialog(builder, true, () -> {
+        SHOWING_EPGPAID_INFO = true;
 
-          final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
-          edit.putBoolean(getString(R.string.PREF_EPGPAID_INFO_SHOWN), true);
-          edit.commit();
-        }
+        final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
+        edit.putBoolean(getString(R.string.PREF_EPGPAID_INFO_SHOWN), true);
+        edit.commit();
       });
     } else if(PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, "").trim().length() > 0 && PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, "").trim().length() > 0) {
       final long dateUntil = PrefUtils.getLongValueWithDefaultKey(R.string.PREF_EPGPAID_ACCESS_UNTIL, R.integer.pref_epgpaid_access_until_default);
@@ -1121,12 +1046,7 @@ public class TvBrowser extends AppCompatActivity {
       if(dateUntil != 0 && (dateUntil > System.currentTimeMillis()) && (dateUntil - (14 * 24 * 60 * 60000L)) < System.currentTimeMillis() && (expirationShown + (180 * 24 * 60 * 60000L))  < System.currentTimeMillis()) {
         String message = getString(R.string.dialog_epgpaid_info_expiration_message).replace("{0}", DateFormat.getMediumDateFormat(getApplicationContext()).format(new java.util.Date(dateUntil)));
 
-        showAlertDialog(getString(R.string.dialog_epgpaid_info_expiration_title), message, null, null, new Runnable() {
-          @Override
-          public void run() {
-            PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().putLong(getString(R.string.PREF_EPGPAID_EXPIRATION_SHOWN), System.currentTimeMillis()).commit();
-          }
-        }, null, null, false, true);
+        showAlertDialog(getString(R.string.dialog_epgpaid_info_expiration_title), message, null, null, () -> PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().putLong(getString(R.string.PREF_EPGPAID_EXPIRATION_SHOWN), System.currentTimeMillis()).commit(), null, null, false, true);
       }
     }
   }
@@ -1184,14 +1104,14 @@ public class TvBrowser extends AppCompatActivity {
 
           final View view = getLayoutInflater().inflate(R.layout.dialog_epg_donate_info, getParentViewGroup(), false);
 
-          final TextView message = (TextView)view.findViewById(R.id.dialog_epg_donate_message);
+          final TextView message = view.findViewById(R.id.dialog_epg_donate_message);
           message.setText(Html.fromHtml(info));
           message.setMovementMethod(LinkMovementMethod.getInstance());
 
-          final TextView percentInfoView = (TextView)view.findViewById(R.id.dialog_epg_donate_percent_info);
+          final TextView percentInfoView = view.findViewById(R.id.dialog_epg_donate_percent_info);
           percentInfoView.setText(Html.fromHtml(percentInfo, null, new NewsTagHandler()));
 
-          final SeekBar percent = (SeekBar)view.findViewById(R.id.dialog_epg_donate_percent);
+          final SeekBar percent = view.findViewById(R.id.dialog_epg_donate_percent);
           percent.setEnabled(false);
 
           if(percentValue >= 0) {
@@ -1202,39 +1122,26 @@ public class TvBrowser extends AppCompatActivity {
             percent.setVisibility(View.GONE);
           }
 
-          final Spinner reason = (Spinner)view.findViewById(R.id.dialog_epg_donate_reason_selection);
+          final Spinner reason = view.findViewById(R.id.dialog_epg_donate_reason_selection);
           reason.setEnabled(false);
 
-          final CheckBox dontShowAgain = (CheckBox)view.findViewById(R.id.dialog_epg_donate_dont_show_again);
-          dontShowAgain.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-            @Override
-            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-              reason.setEnabled(isChecked);
-            }
-          });
+          final CheckBox dontShowAgain = view.findViewById(R.id.dialog_epg_donate_dont_show_again);
+          dontShowAgain.setOnCheckedChangeListener((buttonView, isChecked) -> reason.setEnabled(isChecked));
 
           builder.setView(view);
-          builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-              SHOWING_DONATION_INFO = false;
-              final Editor edit = pref.edit();
-              edit.putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now);
+          builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+            SHOWING_DONATION_INFO = false;
+            final Editor edit = pref.edit();
+            edit.putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now);
 
-              if(dontShowAgain.isChecked()) {
-                edit.putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), year);
-              }
-
-              edit.commit();
+            if(dontShowAgain.isChecked()) {
+              edit.putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), year);
             }
+
+            edit.commit();
           });
 
-          showAlertDialog(builder, false, new Runnable() {
-            @Override
-            public void run() {
-              SHOWING_DONATION_INFO = true;
-            }
-          });
+          showAlertDialog(builder, false, () -> SHOWING_DONATION_INFO = true);
         }
         else {
           showEpgPaidInfo();
@@ -1283,7 +1190,7 @@ public class TvBrowser extends AppCompatActivity {
       Cursor groups = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_GROUPS, projection, TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID + "=\"" + SettingConstants.EPG_DONATE_KEY +"\"", null, null);
       Log.d("info6", "groups loaded");
       try {
-        if(IOUtils.prepareAccessFirst(groups)) {
+        if(groups!=null && IOUtils.prepareAccessFirst(groups)) {
           epgDonateKey = groups.getInt(groups.getColumnIndex(TvBrowserContentProvider.KEY_ID));
         }
       } finally {
@@ -1343,29 +1250,25 @@ public class TvBrowser extends AppCompatActivity {
     mInfoType = INFO_TYPE_NOTHING;
 
 
-    IOUtils.postDelayedInSeparateThread("INFO WAITING THREAD", new Runnable() {
-      @Override
-      public void run() {
-        try {
-          Log.d("info6", "infoType " + infoType);
+    IOUtils.postDelayedInSeparateThread("INFO WAITING THREAD", () -> {
+      try {
+        Log.d("info6", "infoType " + infoType);
 
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              Log.d("info6", "Runnable " + infoType);
-              if (infoType == INFO_TYPE_NOTHING) {
-                showChannelUpdateInfo();
-                }
-                else if(infoType == INFO_TYPE_VERSION) {
-                showVersionInfo(true);
-                }
-                else if(infoType == INFO_TYPE_NEWS) {
-                showNews();
-              }
-            }
-          });
-        } catch (BadTokenException e) {
-        }
+        handler.post(() -> {
+          Log.d("info6", "Runnable " + infoType);
+          switch (infoType) {
+            case INFO_TYPE_NOTHING:
+              showChannelUpdateInfo();
+              break;
+            case INFO_TYPE_VERSION:
+              showVersionInfo(true);
+              break;
+            case INFO_TYPE_NEWS:
+              showNews();
+              break;
+          }
+        });
+      } catch (BadTokenException ignored) {
       }
     }, 3000);
   }
@@ -1375,18 +1278,10 @@ public class TvBrowser extends AppCompatActivity {
     selectingChannels = true;
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     builder.setMessage(R.string.no_channels);
-    builder.setPositiveButton(positiveButton, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        selectChannels(false);
-      }
-    });
+    builder.setPositiveButton(positiveButton, (dialog, which) -> selectChannels(false));
 
-    builder.setNegativeButton(R.string.dont_select_channels, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
+    builder.setNegativeButton(R.string.dont_select_channels, (dialog, which) -> {
 
-      }
     });
 
     showAlertDialog(builder);
@@ -1404,30 +1299,17 @@ public class TvBrowser extends AppCompatActivity {
       builder.setMessage(R.string.synchronize_text);
       builder.setCancelable(false);
 
-      builder.setPositiveButton(R.string.synchronize_ok, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          final SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+      builder.setPositiveButton(R.string.synchronize_ok, (dialog, which) -> {
+        final SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
 
-          if(pref.getString(SettingConstants.USER_NAME, "").trim().length() == 0 || pref.getString(SettingConstants.USER_PASSWORD, "").trim().length() == 0) {
-            showAcceptTerms(true);
-          }
-          else {
-            syncronizeChannels();
-          }
+        if(pref.getString(SettingConstants.USER_NAME, "").trim().length() == 0 || pref.getString(SettingConstants.USER_PASSWORD, "").trim().length() == 0) {
+          showAcceptTerms(true);
+        }
+        else {
+          syncronizeChannels();
         }
       });
-      builder.setNegativeButton(R.string.synchronize_cancel, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              showChannelSelectionInternal();
-            }
-          });
-        }
-      });
+      builder.setNegativeButton(R.string.synchronize_cancel, (dialog, which) -> handler.post(this::showChannelSelectionInternal));
 
       showAlertDialog(builder,true);
     }
@@ -1459,18 +1341,8 @@ public class TvBrowser extends AppCompatActivity {
         builder.setTitle(R.string.synchronize_replace_add_title);
         builder.setMessage(R.string.synchronize_replace_add_text);
 
-        builder.setPositiveButton(R.string.synchronize_add, new OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            synchronizeChannels(false);
-          }
-        });
-        builder.setNegativeButton(R.string.synchronize_replace, new OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            synchronizeChannels(true);
-          }
-        });
+        builder.setPositiveButton(R.string.synchronize_add, (dialog, which) -> synchronizeChannels(false));
+        builder.setNegativeButton(R.string.synchronize_replace, (dialog, which) -> synchronizeChannels(true));
 
         showAlertDialog(builder);
       }
@@ -1535,7 +1407,7 @@ public class TvBrowser extends AppCompatActivity {
               final String[] projection = {TvBrowserContentProvider.KEY_ID};
               final ContentResolver resolver = getContentResolver();
 
-              HashMap<String, Integer> groupMap = new HashMap<String, Integer>();
+              HashMap<String, Integer> groupMap = new HashMap<>();
 
               Cursor group = resolver.query(TvBrowserContentProvider.CONTENT_URI_GROUPS, null, null, null, null);
 
@@ -1557,7 +1429,7 @@ public class TvBrowser extends AppCompatActivity {
                 IOUtils.close(group);
               }
 
-              ArrayList<ContentProviderOperation> updateList = new ArrayList<ContentProviderOperation>();
+              ArrayList<ContentProviderOperation> updateList = new ArrayList<>();
 
               while((line = read.readLine()) != null) {
                 if(line.trim().length() > 0) {
@@ -1599,7 +1471,7 @@ public class TvBrowser extends AppCompatActivity {
                         if(sortNumber != null) {
                           try {
                             sort = Integer.parseInt(sortNumber);
-                          }catch(NumberFormatException e) {}
+                          }catch(NumberFormatException ignored) {}
                         }
 
                         values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
@@ -1631,42 +1503,26 @@ public class TvBrowser extends AppCompatActivity {
               }
 
               if(somethingSynchonized) {
-                handler.post(new Runnable() {
-                  @Override
-                  public void run() {
-                    SettingConstants.initializeLogoMap(TvBrowser.this, true);
-                    updateProgramListChannelBar();
-                    PrefUtils.updateChannelSelectionState(getApplicationContext());
-                    Toast.makeText(getApplicationContext(), R.string.synchronize_done, Toast.LENGTH_LONG).show();
-                    checkTermsAccepted();
-                  }
+                handler.post(() -> {
+                  SettingConstants.initializeLogoMap(TvBrowser.this, true);
+                  updateProgramListChannelBar();
+                  PrefUtils.updateChannelSelectionState(getApplicationContext());
+                  Toast.makeText(getApplicationContext(), R.string.synchronize_done, Toast.LENGTH_LONG).show();
+                  checkTermsAccepted();
                 });
               }
               else {
-                handler.post(new Runnable() {
-                  @Override
-                  public void run() {
-                    Toast.makeText(getApplicationContext(), R.string.synchronize_error, Toast.LENGTH_LONG).show();
-                    showChannelSelectionInternal();
-                  }
+                handler.post(() -> {
+                  Toast.makeText(getApplicationContext(), R.string.synchronize_error, Toast.LENGTH_LONG).show();
+                  showChannelSelectionInternal();
                 });
               }
             }
             else {
-              handler.post(new Runnable() {
-                @Override
-                public void run() {
-                  showChannelSelectionInternal();
-                }
-              });
+              handler.post(() -> showChannelSelectionInternal());
             }
           } catch (Exception e) {
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                showChannelSelectionInternal();
-              }
-            });
+            handler.post(() -> showChannelSelectionInternal());
           } finally {
         	  IOUtils.disconnect(connection);
           }
@@ -1734,8 +1590,8 @@ public class TvBrowser extends AppCompatActivity {
               String line = null;
 
               StringBuilder exclusionBuilder = new StringBuilder();
-              HashSet<String> exclusions = new HashSet<String>();
-              HashSet<String> newExclusions = new HashSet<String>();
+              HashSet<String> exclusions = new HashSet<>();
+              HashSet<String> newExclusions = new HashSet<>();
 
               while((line = read.readLine()) != null) {
                 if(line.contains(";;") && line.trim().length() > 0) {
@@ -1763,7 +1619,7 @@ public class TvBrowser extends AppCompatActivity {
                   }
                 }
 
-                ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<DontWantToSeeExclusion>();
+                ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<>();
 
                 for(String exclusion : newExclusions) {
                   exclusionList.add(new DontWantToSeeExclusion(exclusion));
@@ -1833,24 +1689,14 @@ public class TvBrowser extends AppCompatActivity {
                     dontWantToSeeUpdate.finish();
                     //getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
                     UiUtils.sendDontWantToSeeChangedBroadcast(applicationContext,true);
-                    handler.post(new Runnable() {
-                      @Override
-                      public void run() {
-                        Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show();
-                      }
-                    });
+                    handler.post(() -> Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show());
                   }
                   else {
                     dontWantToSeeUpdate.cancel();
                   }
                 }
                 else if(newExclusions.isEmpty()) {
-                  handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                      Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show();
-                    }
-                  });
+                  handler.post(() -> Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show());
                 }
 
                 if(!replace && exclusionBuilder.length() > 0) {
@@ -1866,21 +1712,11 @@ public class TvBrowser extends AppCompatActivity {
                   startSynchronizeUp(false, exclusionBuilder.toString(), SettingConstants.URL_SYNC_BASE + "data/scripts/syncUp.php?type=dontWantToSee", null, null);
                 }
 
-                handler.post(new Runnable() {
-                  @Override
-                  public void run() {
-                    Toast.makeText(getApplicationContext(), R.string.no_dont_want_to_see_sync, Toast.LENGTH_LONG).show();
-                  }
-                });
+                handler.post(() -> Toast.makeText(getApplicationContext(), R.string.no_dont_want_to_see_sync, Toast.LENGTH_LONG).show());
               }
             }
           }catch(Throwable t) {
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                Toast.makeText(getApplicationContext(), R.string.no_dont_want_to_see_sync, Toast.LENGTH_LONG).show();
-              }
-            });
+            handler.post(() -> Toast.makeText(getApplicationContext(), R.string.no_dont_want_to_see_sync, Toast.LENGTH_LONG).show());
           } finally {
         	  IOUtils.disconnect(connection);
           }
@@ -1901,64 +1737,60 @@ public class TvBrowser extends AppCompatActivity {
       builder.setTitle(R.string.action_backup_preferences_save);
       builder.setMessage(R.string.backup_preferences_save_text);
 
-      builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-          Map<String,?> preferences = pref.getAll();
+      builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        Map<String,?> preferences = pref.getAll();
 
-          StringBuilder backup = new StringBuilder();
+        StringBuilder backup = new StringBuilder();
 
-          Set<String> keys = preferences.keySet();
+        Set<String> keys = preferences.keySet();
 
-          for(String key : keys) {
-            Object value = preferences.get(key);
+        for(String key : keys) {
+          Object value = preferences.get(key);
 
-            if(value instanceof Boolean) {
-              if(!getString(R.string.PREF_EPGPAID_INFO_SHOWN).equals(key) || !getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(key) || (Boolean) value) {
-                backup.append("boolean:").append(key).append("=").append(value).append("\n");
-              }
-            }
-            else if(value instanceof Integer) {
-              if(!getString(R.string.OLD_VERSION).equals(key)) {
-                backup.append("int:").append(key).append("=").append(value).append("\n");
-              }
-            }
-            else if(value instanceof Float) {
-              backup.append("float:").append(key).append("=").append(value).append("\n");
-            }
-            else if(value instanceof Long) {
-              backup.append("long:").append(key).append("=").append(value).append("\n");
-            }
-            else if(value instanceof String && value != null && ((String)value).trim().length() > 0
-                && !getString(R.string.PREF_EPGPAID_USER).equals(key) && !getString(R.string.PREF_EPGPAID_PASSWORD).equals(key)) {
-              backup.append("string:").append(key).append("=").append(value).append("\n");
-            }
-            else if(value instanceof Set<?>){
-              if(!key.equals(getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES))) {
-                Set<String> valueSet = (Set<String>)value;
-
-                backup.append("set:").append(key).append("=");
-
-                backup.append(TextUtils.join("#,#", valueSet));
-
-                backup.append("\n");
-              }
+          if(value instanceof Boolean) {
+            if(!getString(R.string.PREF_EPGPAID_INFO_SHOWN).equals(key) || !getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(key) || (Boolean) value) {
+              backup.append("boolean:").append(key).append("=").append(value).append("\n");
             }
           }
-
-          Favorite[] favorites = Favorite.getAllFavorites(getApplicationContext());
-
-          for(Favorite favorite : favorites) {
-            backup.append("favorite:");
-            backup.append(favorite.getFavoriteId());
-            backup.append("=");
-            backup.append(favorite.getSaveString(TvBrowser.this).replace("\n", "\\n"));
-            backup.append("\n");
+          else if(value instanceof Integer) {
+            if(!getString(R.string.OLD_VERSION).equals(key)) {
+              backup.append("int:").append(key).append("=").append(value).append("\n");
+            }
           }
+          else if(value instanceof Float) {
+            backup.append("float:").append(key).append("=").append(value).append("\n");
+          }
+          else if(value instanceof Long) {
+            backup.append("long:").append(key).append("=").append(value).append("\n");
+          }
+          else if(value instanceof String && ((String) value).trim().length() > 0 && !getString(R.string.PREF_EPGPAID_USER).equals(key) && !getString(R.string.PREF_EPGPAID_PASSWORD).equals(key)) {
+            backup.append("string:").append(key).append("=").append(value).append("\n");
+          }
+          else if(value instanceof Set<?>){
+            if(!key.equals(getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES))) {
+              Set<String> valueSet = (Set<String>)value;
 
-          startSynchronizeUp(true, backup.toString(), SettingConstants.URL_SYNC_BASE + "data/scripts/syncUp.php?type=preferencesBackup", SettingConstants.SYNCHRONIZE_UP_DONE, getString(R.string.backup_preferences_success));
+              backup.append("set:").append(key).append("=");
+
+              backup.append(TextUtils.join("#,#", valueSet));
+
+              backup.append("\n");
+            }
+          }
         }
+
+        Favorite[] favorites = Favorite.getAllFavorites(getApplicationContext());
+
+        for(Favorite favorite : favorites) {
+          backup.append("favorite:");
+          backup.append(favorite.getFavoriteId());
+          backup.append("=");
+          backup.append(favorite.getSaveString(TvBrowser.this).replace("\n", "\\n"));
+          backup.append("\n");
+        }
+
+        startSynchronizeUp(true, backup.toString(), SettingConstants.URL_SYNC_BASE + "data/scripts/syncUp.php?type=preferencesBackup", SettingConstants.SYNCHRONIZE_UP_DONE, getString(R.string.backup_preferences_success));
       });
 
       builder.setNegativeButton(android.R.string.cancel,null);
@@ -1971,131 +1803,127 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private void restorePreferencesInternal() {
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        mViewPager.setCurrentItem(0,true);
+    handler.post(() -> {
+      mViewPager.setCurrentItem(0,true);
 
-        for(int i = mSectionsPagerAdapter.getCount()-1; i >= 0; i--) {
-          mSectionsPagerAdapter.destroyItem(mViewPager, i, mSectionsPagerAdapter.getRegisteredFragment(i));
-          mSectionsPagerAdapter.notifyDataSetChanged();
+      for(int i = mSectionsPagerAdapter.getCount()-1; i >= 0; i--) {
+        mSectionsPagerAdapter.destroyItem(mViewPager, i, mSectionsPagerAdapter.getRegisteredFragment(i));
+        mSectionsPagerAdapter.notifyDataSetChanged();
+
+        try {
+          mTabLayout.removeTabAt(i);
+        }catch(NullPointerException ignored) {
+
+        }
+      }
+
+      mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.tab_restoring_name)));
+
+      new Thread("RESTORE PREFERENCES") {
+        @Override
+        public void run() {
+          updateProgressIcon(true);
+
+          URLConnection connection = null;
+          BufferedReader read = null;
+          boolean restored = false;
 
           try {
-            mTabLayout.removeTabAt(i);
-          }catch(NullPointerException npe) {
+            URL documentUrl = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/syncDown.php?type=preferencesBackup");
+            connection = documentUrl.openConnection();
+            IOUtils.setConnectionTimeoutDefault(connection);
 
-          }
-        }
+            SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
 
-        mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.tab_restoring_name)));
+            String car = pref.getString(SettingConstants.USER_NAME, null);
+            String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
 
-        new Thread("RESTORE PREFERENCES") {
-          @Override
-          public void run() {
-            updateProgressIcon(true);
+            if(car != null && bicycle != null) {
+              String userpass = car + ":" + bicycle;
+              String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
 
-            URLConnection connection = null;
-            BufferedReader read = null;
-            boolean restored = false;
+              connection.setRequestProperty ("Authorization", basicAuth);
 
-            try {
-              URL documentUrl = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/syncDown.php?type=preferencesBackup");
-              connection = documentUrl.openConnection();
-              IOUtils.setConnectionTimeoutDefault(connection);
+              read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
 
-              SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+              String line;
+              Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
 
-              String car = pref.getString(SettingConstants.USER_NAME, null);
-              String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+              TvBrowserContentProvider.INFORM_FOR_CHANGES = false;
 
-              if(car != null && bicycle != null) {
-                String userpass = car + ":" + bicycle;
-                String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
+              final Favorite[] existingFavorites = Favorite.getAllFavorites(getApplicationContext());
 
-                connection.setRequestProperty ("Authorization", basicAuth);
+              while((line = read.readLine()) != null) {
+                int index = line.indexOf(":");
 
-                read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+                if(index > 0) {
+                  restored = true;
+                  String type = line.substring(0,index);
+                  String[] parts = line.substring(index+1).split("=");
 
-                String line = null;
-                Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
-
-                TvBrowserContentProvider.INFORM_FOR_CHANGES = false;
-
-                final Favorite[] existingFavorites = Favorite.getAllFavorites(getApplicationContext());
-
-                while((line = read.readLine()) != null) {
-                  int index = line.indexOf(":");
-
-                  if(index > 0) {
-                    restored = true;
-                    String type = line.substring(0,index);
-                    String[] parts = line.substring(index+1).split("=");
-
-                    if(parts != null && parts.length > 1) {
-                      if(type.equals("boolean")) {
+                  if(parts != null && parts.length > 1) {
+                    switch (type) {
+                      case "boolean":
                         boolean boolValue = Boolean.valueOf(parts[1].trim());
 
-                        if(!getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(parts[0]) || boolValue) {
+                        if (!getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(parts[0]) || boolValue) {
                           edit.putBoolean(parts[0], boolValue);
                         }
-                      }
-                      else if(type.equals("int")) {
-                        if(!getString(R.string.OLD_VERSION).equals(parts[0])) {
+                        break;
+                      case "int":
+                        if (!getString(R.string.OLD_VERSION).equals(parts[0])) {
                           edit.putInt(parts[0], Integer.valueOf(parts[1].trim()));
                         }
-                      }
-                      else if(type.equals("float")) {
+                        break;
+                      case "float":
                         edit.putFloat(parts[0], Float.valueOf(parts[1].trim()));
-                      }
-                      else if(type.equals("long")) {
+                        break;
+                      case "long":
                         edit.putLong(parts[0], Long.valueOf(parts[1].trim()));
-                      }
-                      else if(type.equals("string")) {
-                        if(getString(R.string.CURRENT_FILTER_ID).equals(parts[0])) {
-                          HashSet<String> set = new HashSet<String>();
+                        break;
+                      case "string":
+                        if (getString(R.string.CURRENT_FILTER_ID).equals(parts[0])) {
+                          HashSet<String> set = new HashSet<>();
                           set.add(parts[1].trim());
 
                           edit.putStringSet(parts[0], set);
-                        }
-                        else if(getString(R.string.PREF_DATABASE_PATH).equals(parts[0])) {
+                        } else if (getString(R.string.PREF_DATABASE_PATH).equals(parts[0])) {
                           final File test = new File(parts[1].trim());
 
-                          if(test.isFile()) {
+                          if (test.isFile()) {
                             edit.putString(parts[0], parts[1].trim());
                           }
-                        }
-                        else {
+                        } else {
                           edit.putString(parts[0], parts[1].trim());
                         }
-                      }
-                      else if(type.equals("set")) {
-                        HashSet<String> set = new HashSet<String>();
+                        break;
+                      case "set":
+                        HashSet<String> set = new HashSet<>();
 
                         String[] setParts = parts[1].split("#,#");
 
-                        if(setParts != null && setParts.length > 0) {
-                          if(parts[0].equals("FAVORITE_LIST")) {
+                        if (setParts != null && setParts.length > 0) {
+                          if (parts[0].equals("FAVORITE_LIST")) {
                             Favorite.deleteAllFavorites(getApplicationContext());
                             int id = 1000;
 
-                            for(String setPart : setParts) {
-                              Favorite favorite = new Favorite(id++,setPart);
+                            for (String setPart : setParts) {
+                              Favorite favorite = new Favorite(id++, setPart);
                               favorite.loadChannelRestrictionIdsFromUniqueChannelRestriction(getApplicationContext());
                               Favorite.handleFavoriteMarking(getApplicationContext(), favorite, Favorite.TYPE_MARK_ADD);
                             }
-                          }
-                          else {
+                          } else {
                             Collections.addAll(set, setParts);
 
                             edit.putStringSet(parts[0], set);
                           }
                         }
-                      }
-                      else if(type.equals("favorite")) {
-                        Favorite favorite = new Favorite(Long.parseLong(parts[0]),parts[1].replace("\\n", "\n"));
+                        break;
+                      case "favorite":
+                        Favorite favorite = new Favorite(Long.parseLong(parts[0]), parts[1].replace("\\n", "\n"));
 
-                        for(Favorite test : existingFavorites) {
-                          if(test.getFavoriteId() == favorite.getFavoriteId()) {
+                        for (Favorite test : existingFavorites) {
+                          if (test.getFavoriteId() == favorite.getFavoriteId()) {
                             Favorite.deleteFavorite(getApplicationContext(), favorite);
                             break;
                           }
@@ -2103,55 +1931,40 @@ public class TvBrowser extends AppCompatActivity {
 
                         favorite.loadChannelRestrictionIdsFromUniqueChannelRestriction(getApplicationContext());
                         Favorite.handleFavoriteMarking(getApplicationContext(), favorite, Favorite.TYPE_MARK_ADD);
-                      }
+                        break;
                     }
                   }
                 }
-
-                TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
-
-                if(restored) {
-                  edit.commit();
-                  handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                      updateFromPreferences(true);
-                    }
-                  });
-
-                  IOUtils.handleDataUpdatePreferences(getApplicationContext());
-                }
               }
-            }catch(Exception e) {
-              Log.d("info22", "", e);
-              restored = false;
-            }
-            finally {
-              IOUtils.close(read);
-              IOUtils.disconnect(connection);
-            }
 
-            if(restored) {
-              handler.post(new Runnable() {
-                @Override
-                public void run() {
-                  Toast.makeText(TvBrowser.this, getString(R.string.backup_preferences_restore_success), Toast.LENGTH_LONG).show();
-                }
-              });
-            }
-            else {
-              handler.post(new Runnable() {
-                @Override
-                public void run() {
-                  Toast.makeText(TvBrowser.this, getString(R.string.backup_preferences_restore_failure), Toast.LENGTH_LONG).show();
-                }
-              });
-            }
+              TvBrowserContentProvider.INFORM_FOR_CHANGES = true;
 
-            updateProgressIcon(false);
+              if(restored) {
+                edit.commit();
+                handler.post(() -> updateFromPreferences(true));
+
+                IOUtils.handleDataUpdatePreferences(getApplicationContext());
+              }
+            }
+          }catch(Exception e) {
+            Log.d("info22", "", e);
+            restored = false;
           }
-        }.start();
-      }
+          finally {
+            IOUtils.close(read);
+            IOUtils.disconnect(connection);
+          }
+
+          if(restored) {
+            handler.post(() -> Toast.makeText(TvBrowser.this, getString(R.string.backup_preferences_restore_success), Toast.LENGTH_LONG).show());
+          }
+          else {
+            handler.post(() -> Toast.makeText(TvBrowser.this, getString(R.string.backup_preferences_restore_failure), Toast.LENGTH_LONG).show());
+          }
+
+          updateProgressIcon(false);
+        }
+      }.start();
     });
   }
 
@@ -2162,12 +1975,7 @@ public class TvBrowser extends AppCompatActivity {
       builder.setTitle(R.string.action_backup_preferences_restore);
       builder.setMessage(R.string.backup_preferences_restore_text);
 
-      builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          restorePreferencesInternal();
-        }
-      });
+      builder.setPositiveButton(android.R.string.ok, (dialog, which) -> restorePreferencesInternal());
 
       builder.setNegativeButton(android.R.string.cancel,null);
 
@@ -2186,7 +1994,7 @@ public class TvBrowser extends AppCompatActivity {
           TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER
       };
 
-      SparseArrayCompat<String> groupKeys = new SparseArrayCompat<String>();
+      SparseArrayCompat<String> groupKeys = new SparseArrayCompat<>();
       StringBuilder uploadChannels = new StringBuilder();
 
       Cursor channels = null;
@@ -2279,12 +2087,7 @@ public class TvBrowser extends AppCompatActivity {
           LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(this);
 
           if(userInfo != null) {
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                Toast.makeText(TvBrowser.this, userInfo, Toast.LENGTH_LONG).show();
-              }
-            });
+            handler.post(() -> Toast.makeText(TvBrowser.this, userInfo, Toast.LENGTH_LONG).show());
           }
         }
       };
@@ -2319,16 +2122,16 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private static final class ChannelSelection {
-    private int mChannelID;
-    private int mCategory;
-    private Bitmap mChannelLogo;
-    private String mCountry;
-    private String mName;
+    private final int mChannelID;
+    private final int mCategory;
+    private final Bitmap mChannelLogo;
+    private final String mCountry;
+    private final String mName;
     private boolean mIsSelected;
-    private boolean mWasSelected;
-    private boolean mIsEpgDonateChannel;
+    private final boolean mWasSelected;
+    private final boolean mIsEpgDonateChannel;
 
-    public ChannelSelection(int channelID, String name, int category, String country, Bitmap channelLogo, boolean isSelected, boolean isEpgDonateChannel) {
+    ChannelSelection(int channelID, String name, int category, String country, Bitmap channelLogo, boolean isSelected, boolean isEpgDonateChannel) {
       mChannelID = channelID;
       mCategory = category;
       mCountry = country;
@@ -2338,27 +2141,27 @@ public class TvBrowser extends AppCompatActivity {
       mIsEpgDonateChannel = isEpgDonateChannel;
     }
 
-    public boolean isCategory(int category) {
+    boolean isCategory(int category) {
       return category == 0 || (mCategory & category) == category;
     }
 
-    public boolean isCountry(String value) {
+    boolean isCountry(String value) {
       return value == null || mCountry.toLowerCase().contains(value.toLowerCase());
     }
 
-    public boolean isSelected() {
+    boolean isSelected() {
       return mIsSelected;
     }
 
-    public boolean wasSelected() {
+    boolean wasSelected() {
       return mWasSelected;
     }
 
-    public void setSelected(boolean value) {
+    void setSelected(boolean value) {
       mIsSelected = value;
     }
 
-    public Bitmap getLogo() {
+    Bitmap getLogo() {
       return mChannelLogo;
     }
 
@@ -2366,11 +2169,11 @@ public class TvBrowser extends AppCompatActivity {
       return mName;
     }
 
-    public boolean isEpgDonateChannel() {
+    boolean isEpgDonateChannel() {
       return mIsEpgDonateChannel;
     }
 
-    public int getChannelID() {
+    int getChannelID() {
       return mChannelID;
     }
   }
@@ -2410,8 +2213,8 @@ public class TvBrowser extends AppCompatActivity {
       return super.get(index);
     }
 
-    public void setFilter(ChannelFilter filter) {
-      ArrayList<Integer> map = new ArrayList<Integer>();
+    void setFilter(ChannelFilter filter) {
+      ArrayList<Integer> map = new ArrayList<>();
 
       for(int i = 0; i < super.size(); i++) {
         ChannelSelection selection = super.get(i);
@@ -2437,10 +2240,11 @@ public class TvBrowser extends AppCompatActivity {
       return super.get(index);
     }
 
-    public Iterator<ChannelSelection> superIterator() {
+    Iterator<ChannelSelection> superIterator() {
       return super.iterator();
     }
 
+    @NonNull
     @Override
     public Iterator<ChannelSelection> iterator() {
       if(mValueMap != null) {
@@ -2476,10 +2280,10 @@ public class TvBrowser extends AppCompatActivity {
    * @author René Mach
    */
   private final static class ChannelFilter {
-    public int mCategory;
-    public String mCountry;
+    int mCategory;
+    String mCountry;
 
-    public ChannelFilter(int category, String country) {
+    ChannelFilter(int category, String country) {
       mCategory = category;
       mCountry = country;
     }
@@ -2491,9 +2295,9 @@ public class TvBrowser extends AppCompatActivity {
    * @author René Mach
    */
   private final static class Country {
-    public Locale mLocale;
+    final Locale mLocale;
 
-    public Country(Locale locale) {
+    Country(Locale locale) {
       mLocale = locale;
     }
 
@@ -2505,7 +2309,7 @@ public class TvBrowser extends AppCompatActivity {
       return mLocale.getDisplayCountry();
     }
 
-    public String getCountry() {
+    String getCountry() {
       if(mLocale == null) {
         return null;
       }
@@ -2543,10 +2347,10 @@ public class TvBrowser extends AppCompatActivity {
       Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, selection, null, TvBrowserContentProvider.CHANNEL_KEY_NAME);
 
       final ArrayListWrapper channelSelectionList = new ArrayListWrapper();
-      ArrayList<Country> countryList = new ArrayList<Country>();
+      ArrayList<Country> countryList = new ArrayList<>();
 
       try {
-        if(IOUtils.prepareAccess(channels)) {
+        if(channels!=null && IOUtils.prepareAccess(channels)) {
           // populate array list with all available channels
           int channelIdColumn = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
           int categoryColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CATEGORY);
@@ -2604,12 +2408,7 @@ public class TvBrowser extends AppCompatActivity {
           }
 
           // sort countries for filtering
-          Collections.sort(countryList, new Comparator<Country>() {
-            @Override
-            public int compare(Country lhs, Country rhs) {
-              return lhs.toString().compareToIgnoreCase(rhs.toString());
-            }
-          });
+          Collections.sort(countryList, (lhs, rhs) -> lhs.toString().compareToIgnoreCase(rhs.toString()));
 
           countryList.add(0,new Country(null));
         }
@@ -2623,15 +2422,16 @@ public class TvBrowser extends AppCompatActivity {
       // create default logo for channels without logo
       final Bitmap defaultLogo = BitmapFactory.decodeResource( getResources(), R.drawable.ic_launcher);
 
-      final Set<String> firstDeletedChannels = PrefUtils.getStringSetValue(R.string.PREF_FIRST_DELETED_CHANNELS, new HashSet<String>());
-      final Set<String> keptDeletedChannels = PrefUtils.getStringSetValue(R.string.PREF_KEPT_DELETED_CHANNELS, new HashSet<String>());
+      final Set<String> firstDeletedChannels = PrefUtils.getStringSetValue(R.string.PREF_FIRST_DELETED_CHANNELS, new HashSet<>());
+      final Set<String> keptDeletedChannels = PrefUtils.getStringSetValue(R.string.PREF_KEPT_DELETED_CHANNELS, new HashSet<>());
 
       final int firstDeletedColor = ContextCompat.getColor(this, R.color.pref_first_deleted_channels);
       final int keptDeletedColor = ContextCompat.getColor(this, R.color.pref_kept_deleted_channels);
 
       // Custom array adapter for channel selection
       final ArrayAdapter<ChannelSelection> channelSelectionAdapter = new ArrayAdapter<ChannelSelection>(TvBrowser.this, R.layout.channel_row, channelSelectionList) {
-        public View getView(int position, View convertView, ViewGroup parent) {
+        @NonNull
+        public View getView(int position, View convertView, @NonNull ViewGroup parent) {
           ChannelSelection value = getItem(position);
           ViewHolder holder = null;
 
@@ -2642,9 +2442,9 @@ public class TvBrowser extends AppCompatActivity {
 
             convertView = mInflater.inflate(R.layout.channel_row, getParentViewGroup(), false);
 
-            holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_text);
-            holder.mCheckBox = (CheckBox)convertView.findViewById(R.id.row_of_channel_selection);
-            holder.mLogo = (ImageView)convertView.findViewById(R.id.row_of_channel_icon);
+            holder.mTextView = convertView.findViewById(R.id.row_of_channel_text);
+            holder.mCheckBox = convertView.findViewById(R.id.row_of_channel_selection);
+            holder.mLogo = convertView.findViewById(R.id.row_of_channel_icon);
 
             convertView.setTag(holder);
           }
@@ -2689,7 +2489,7 @@ public class TvBrowser extends AppCompatActivity {
       channelSelectionView.findViewById(R.id.channel_selection_selection_buttons).setVisibility(View.GONE);
       channelSelectionView.findViewById(R.id.channel_selection_input_id_name).setVisibility(View.GONE);
 
-      TextView infoView = (TextView)channelSelectionView.findViewById(R.id.channel_selection_label_id_name);
+      TextView infoView = channelSelectionView.findViewById(R.id.channel_selection_label_id_name);
 
       if(help != null) {
         infoView.setText(help);
@@ -2700,9 +2500,9 @@ public class TvBrowser extends AppCompatActivity {
       }
 
       // get spinner for country filtering and create array adapter with all available countries
-      Spinner country = (Spinner)channelSelectionView.findViewById(R.id.channel_country_value);
+      Spinner country = channelSelectionView.findViewById(R.id.channel_country_value);
 
-      final ArrayAdapter<Country> countryListAdapter = new ArrayAdapter<Country>(this, android.R.layout.simple_spinner_item, countryList);
+      final ArrayAdapter<Country> countryListAdapter = new ArrayAdapter<>(this, android.R.layout.simple_spinner_item, countryList);
       countryListAdapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
       country.setAdapter(countryListAdapter);
 
@@ -2722,7 +2522,7 @@ public class TvBrowser extends AppCompatActivity {
       });
 
       // get spinner for category selection and add listener to react to user category selection
-      Spinner category = (Spinner)channelSelectionView.findViewById(R.id.channel_category_value);
+      Spinner category = channelSelectionView.findViewById(R.id.channel_category_value);
       category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected (AdapterView<?> parent, View view, int position, long id) {
@@ -2751,20 +2551,16 @@ public class TvBrowser extends AppCompatActivity {
       }
 
       // get the list view of the layout and add adapter with available channels
-      ListView list = (ListView)channelSelectionView.findViewById(R.id.channel_selection_list);
+      ListView list = channelSelectionView.findViewById(R.id.channel_selection_list);
       list.setAdapter(channelSelectionAdapter);
 
       // add listener to react to user selection of channels
-      list.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position,
-            long id) {
-          CheckBox check = (CheckBox)view.findViewById(R.id.row_of_channel_selection);
+      list.setOnItemClickListener((parent, view, position, id) -> {
+        CheckBox check = view.findViewById(R.id.row_of_channel_selection);
 
-          if(check != null) {
-            check.setChecked(!check.isChecked());
-            channelSelectionAdapter.getItem(position).setSelected(check.isChecked());
-          }
+        if(check != null) {
+          check.setChecked(!check.isChecked());
+          channelSelectionAdapter.getItem(position).setSelected(check.isChecked());
         }
       });
 
@@ -2781,122 +2577,106 @@ public class TvBrowser extends AppCompatActivity {
 
         builder.setView(channelSelectionView);
 
-        builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            boolean somethingSelected = false;
-            boolean somethingChanged = false;
+        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+          boolean somethingSelected = false;
+          boolean somethingChanged = false;
 
+          Iterator<ChannelSelection> it = channelSelectionList.superIterator();
+
+          StringBuilder deleteWhere = new StringBuilder();
+          HashSet<String> keep = new HashSet<>();
+
+          while(it.hasNext()) {
+            ChannelSelection sel = it.next();
+
+            if(sel.isSelected() && !sel.wasSelected()) {
+              somethingChanged = somethingSelected = true;
+
+              if(delete) {
+                if(deleteWhere.length() > 0) {
+                  deleteWhere.append(", ");
+                }
+
+                deleteWhere.append(sel.getChannelID());
+              }
+              else {
+                ContentValues values = new ContentValues();
+
+                values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
+
+                getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, sel.getChannelID()), values, null, null);
+              }
+            }
+            else if(!sel.isSelected() && sel.wasSelected()) {
+              somethingChanged = true;
+
+              ContentValues values = new ContentValues();
+
+              values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 0);
+
+              getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, sel.getChannelID()), values, null, null);
+
+              getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + sel.getChannelID(), null);
+              getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + sel.getChannelID(), null);
+            }
+            else if(delete && !sel.isSelected()) {
+              keep.add(String.valueOf(sel.getChannelID()));
+            }
+          }
+
+          if(delete) {
+            if(deleteWhere.length() > 0) {
+              deleteWhere.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
+              deleteWhere.append(" ) ");
+
+              Log.d("info2", "DELETE WHERE FOR REMOVED CHANNELS " + deleteWhere.toString());
+
+              int count = getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_CHANNELS, deleteWhere.toString(), null);
+
+              Log.d("info2", "REMOVED CHANNELS COUNT " + count);
+            }
+
+            Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+            edit.putStringSet(getString(R.string.PREF_KEPT_DELETED_CHANNELS), keep);
+            edit.commit();
+          }
+
+          // if something was changed we need to update channel list bar in program list and the complete program table
+          if(somethingChanged) {
+            SettingConstants.initializeLogoMap(TvBrowser.this, true);
+            updateProgramListChannelBar();
+            PrefUtils.updateChannelSelectionState(getApplicationContext());
+          }
+
+          // if something was selected we need to download new data
+          if(somethingSelected && !delete) {
+            AlertDialog.Builder builder1 = new AlertDialog.Builder(TvBrowser.this);
+
+            builder1.setTitle(R.string.dialog_info_channels_sort_title);
+            builder1.setMessage(R.string.dialog_info_channels_sort_message);
+
+            builder1.setPositiveButton(R.string.dialog_info_channels_sort_ok, (dialog12, which12) -> sortChannels(true));
+
+            builder1.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), (dialog1, which1) -> checkTermsAccepted());
+
+            showAlertDialog(builder1);
+          }
+        });
+
+        builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+          if(delete) {
+            HashSet<String> keep = new HashSet<>();
             Iterator<ChannelSelection> it = channelSelectionList.superIterator();
-
-            StringBuilder deleteWhere = new StringBuilder();
-            HashSet<String> keep = new HashSet<String>();
 
             while(it.hasNext()) {
               ChannelSelection sel = it.next();
 
-              if(sel.isSelected() && !sel.wasSelected()) {
-                somethingChanged = somethingSelected = true;
-
-                if(delete) {
-                  if(deleteWhere.length() > 0) {
-                    deleteWhere.append(", ");
-                  }
-
-                  deleteWhere.append(sel.getChannelID());
-                }
-                else {
-                  ContentValues values = new ContentValues();
-
-                  values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 1);
-
-                  getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, sel.getChannelID()), values, null, null);
-                }
-              }
-              else if(!sel.isSelected() && sel.wasSelected()) {
-                somethingChanged = true;
-
-                ContentValues values = new ContentValues();
-
-                values.put(TvBrowserContentProvider.CHANNEL_KEY_SELECTION, 0);
-
-                getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, sel.getChannelID()), values, null, null);
-
-                getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA_VERSION, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + sel.getChannelID(), null);
-                getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_DATA, TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + sel.getChannelID(), null);
-              }
-              else if(delete && !sel.isSelected()) {
-                keep.add(String.valueOf(sel.getChannelID()));
-              }
+              keep.add(String.valueOf(sel.getChannelID()));
             }
 
-            if(delete) {
-              if(deleteWhere.length() > 0) {
-                deleteWhere.insert(0, TvBrowserContentProvider.KEY_ID + " IN ( ");
-                deleteWhere.append(" ) ");
-
-                Log.d("info2", "DELETE WHERE FOR REMOVED CHANNELS " + deleteWhere.toString());
-
-                int count = getContentResolver().delete(TvBrowserContentProvider.CONTENT_URI_CHANNELS, deleteWhere.toString(), null);
-
-                Log.d("info2", "REMOVED CHANNELS COUNT " + count);
-              }
-
-              Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
-              edit.putStringSet(getString(R.string.PREF_KEPT_DELETED_CHANNELS), keep);
-              edit.commit();
-            }
-
-            // if something was changed we need to update channel list bar in program list and the complete program table
-            if(somethingChanged) {
-              SettingConstants.initializeLogoMap(TvBrowser.this, true);
-              updateProgramListChannelBar();
-              PrefUtils.updateChannelSelectionState(getApplicationContext());
-            }
-
-            // if something was selected we need to download new data
-            if(somethingSelected && !delete) {
-              AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-
-              builder.setTitle(R.string.dialog_info_channels_sort_title);
-              builder.setMessage(R.string.dialog_info_channels_sort_message);
-
-              builder.setPositiveButton(R.string.dialog_info_channels_sort_ok, new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                  sortChannels(true);
-                }
-              });
-
-              builder.setNegativeButton(getString(R.string.not_now).replace("{0}", ""), new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                  checkTermsAccepted();
-                }
-              });
-
-              showAlertDialog(builder);
-            }
-          }
-        });
-
-        builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            if(delete) {
-              HashSet<String> keep = new HashSet<String>();
-              Iterator<ChannelSelection> it = channelSelectionList.superIterator();
-
-              while(it.hasNext()) {
-                ChannelSelection sel = it.next();
-
-                keep.add(String.valueOf(sel.getChannelID()));
-              }
-
-              Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
-              edit.putStringSet(getString(R.string.PREF_KEPT_DELETED_CHANNELS), keep);
-              edit.commit();
-            }
+            Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+            edit.putStringSet(getString(R.string.PREF_KEPT_DELETED_CHANNELS), keep);
+            edit.commit();
           }
         });
 
@@ -2908,14 +2688,14 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private static class ChannelSort implements SortInterface {
-    private String mName;
-    private int mKey;
+    private final String mName;
+    private final int mKey;
     private int mSortNumber;
-    private int mOldSortNumber;
-    private Bitmap mChannelLogo;
-    private boolean mIsEpgDonateChannel;
+    private final int mOldSortNumber;
+    private final Bitmap mChannelLogo;
+    private final boolean mIsEpgDonateChannel;
 
-    public ChannelSort(int key, String name, int sortNumber, Bitmap channelLogo, String dataServiceId) {
+    ChannelSort(int key, String name, int sortNumber, Bitmap channelLogo, String dataServiceId) {
       mKey = key;
       mName = name;
       mOldSortNumber = mSortNumber = sortNumber;
@@ -2923,7 +2703,7 @@ public class TvBrowser extends AppCompatActivity {
       mIsEpgDonateChannel = SettingConstants.EPG_DONATE_KEY.equals(dataServiceId);
     }
 
-    public int getKey() {
+    int getKey() {
       return mKey;
     }
 
@@ -2946,15 +2726,15 @@ public class TvBrowser extends AppCompatActivity {
       return mName;
     }
 
-    public Bitmap getLogo() {
+    Bitmap getLogo() {
       return mChannelLogo;
     }
 
-    public boolean wasChanged() {
+    boolean wasChanged() {
       return mOldSortNumber != mSortNumber;
     }
 
-    public boolean isEpgDonateChannel() {
+    boolean isEpgDonateChannel() {
       return mIsEpgDonateChannel;
     }
   }
@@ -2978,12 +2758,7 @@ public class TvBrowser extends AppCompatActivity {
 
           if(mIsActive) {
             if(success) {
-              handler.post(new Runnable() {
-                @Override
-                public void run() {
-                  showChannelSelection();
-                }
-              });
+              handler.post(() -> showChannelSelection());
             }
             else {
               AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -2991,17 +2766,7 @@ public class TvBrowser extends AppCompatActivity {
               builder.setTitle(R.string.channel_download_warning_title);
               builder.setMessage(R.string.channel_download_warning_text);
 
-              builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                  handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                      showChannelSelection();
-                    }
-                  });
-                }
-              });
+              builder.setPositiveButton(android.R.string.ok, (dialog, which) -> handler.post(() -> showChannelSelection()));
 
               showAlertDialog(builder);
             }
@@ -3026,21 +2791,11 @@ public class TvBrowser extends AppCompatActivity {
             runChannelDownload();
           }
           else {
-            showNoInternetConnection(getString(R.string.no_network_info_data_channel_download), new Runnable() {
-              @Override
-              public void run() {
-                checkTermsAccepted();
-              }
-            });
+            showNoInternetConnection(getString(R.string.no_network_info_data_channel_download), this::checkTermsAccepted);
           }
         }
         else {
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              showChannelSelection();
-            }
-          });
+          handler.post(this::showChannelSelection);
         }
       }finally {
         IOUtils.close(channels);
@@ -3052,14 +2807,11 @@ public class TvBrowser extends AppCompatActivity {
     if(IOUtils.isDatabaseAccessible(TvBrowser.this)) {
       ContentResolver cr = getContentResolver();
 
-      StringBuilder where = new StringBuilder(TvBrowserContentProvider.CHANNEL_KEY_SELECTION);
-      where.append("=1");
-
       LinearLayout main = (LinearLayout)getLayoutInflater().inflate(R.layout.channel_sort_list, getParentViewGroup(), false);
 
-      Button sortAlphabetically = (Button)main.findViewById(R.id.channel_sort_alpabetically);
+      Button sortAlphabetically = main.findViewById(R.id.channel_sort_alpabetically);
 
-      final DynamicListView channelSort = (DynamicListView)main.findViewById(R.id.channel_sort);
+      final DynamicListView channelSort = main.findViewById(R.id.channel_sort);
 
       final String[] projection = {
           TvBrowserContentProvider.CHANNEL_TABLE+"."+TvBrowserContentProvider.KEY_ID +" AS "+TvBrowserContentProvider.KEY_ID,
@@ -3070,9 +2822,9 @@ public class TvBrowser extends AppCompatActivity {
           TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER
           };
 
-      final ArrayList<SortInterface> channelSource = new ArrayList<SortInterface>();
+      final ArrayList<SortInterface> channelSource = new ArrayList<>();
 
-      Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
+      Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + "=1", null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
 
       try {
         if(IOUtils.prepareAccessFirst(channels)) {
@@ -3111,18 +2863,15 @@ public class TvBrowser extends AppCompatActivity {
             channelSource.add(new ChannelSort(key, name, order, channelLogo, channels.getString(indexDataService)));
           } while(channels.moveToNext());
 
-          final Comparator<SortInterface> sortComparator = new Comparator<SortInterface>() {
-            @Override
-            public int compare(SortInterface lhs, SortInterface rhs) {
-              if(lhs.getSortNumber() < rhs.getSortNumber()) {
-                return -1;
-              }
-              else if(lhs.getSortNumber() > rhs.getSortNumber()) {
-                return 1;
-              }
-
-              return 0;
+          final Comparator<SortInterface> sortComparator = (lhs, rhs) -> {
+            if(lhs.getSortNumber() < rhs.getSortNumber()) {
+              return -1;
             }
+            else if(lhs.getSortNumber() > rhs.getSortNumber()) {
+              return 1;
+            }
+
+            return 0;
           };
 
           Collections.sort(channelSource, sortComparator);
@@ -3131,7 +2880,8 @@ public class TvBrowser extends AppCompatActivity {
           final Bitmap defaultLogo = BitmapFactory.decodeResource( getResources(), R.drawable.ic_launcher);
 
           final StableArrayAdapter<SortInterface> aa = new StableArrayAdapter<SortInterface>(TvBrowser.this, R.layout.channel_sort_row, channelSource) {
-            public View getView(int position, View convertView, ViewGroup parent) {
+            @NonNull
+            public View getView(int position, View convertView, @NonNull ViewGroup parent) {
               final ChannelSort value = (ChannelSort)getItem(position);
               ViewHolder holder = null;
 
@@ -3142,9 +2892,9 @@ public class TvBrowser extends AppCompatActivity {
 
                 convertView = mInflater.inflate(R.layout.channel_sort_row, getParentViewGroup(), false);
 
-                holder.mTextView = (TextView)convertView.findViewById(R.id.row_of_channel_sort_text);
-                holder.mSortNumber = (TextView)convertView.findViewById(R.id.row_of_channel_sort_number);
-                holder.mLogo = (ImageView)convertView.findViewById(R.id.row_of_channel_sort_icon);
+                holder.mTextView = convertView.findViewById(R.id.row_of_channel_sort_text);
+                holder.mSortNumber = convertView.findViewById(R.id.row_of_channel_sort_number);
+                holder.mLogo = convertView.findViewById(R.id.row_of_channel_sort_icon);
 
                 convertView.setTag(holder);
               }
@@ -3185,140 +2935,114 @@ public class TvBrowser extends AppCompatActivity {
           };
           channelSort.setAdapter(aa);
           channelSort.setArrayList(channelSource);
-          channelSort.setSortDropListener(new SortDropListener() {
-            @Override
-            public void dropped(int originalPosition, int position) {
-              int startIndex = originalPosition;
-              int endIndex = position;
+          channelSort.setSortDropListener((originalPosition, position) -> {
+            int startIndex = originalPosition;
+            int endIndex = position;
 
-              if(originalPosition > position) {
-                startIndex = position;
-                endIndex = originalPosition;
-              }
+            if(originalPosition > position) {
+              startIndex = position;
+              endIndex = originalPosition;
+            }
 
-              int previousNumber = 0;
+            int previousNumber = 0;
 
-              if(startIndex > 0) {
-                previousNumber = aa.getItem(startIndex-1).getSortNumber();
-              }
+            if(startIndex > 0) {
+              previousNumber = aa.getItem(startIndex-1).getSortNumber();
+            }
 
-              int firstVisible = channelSort.getFirstVisiblePosition();
+            int firstVisible = channelSort.getFirstVisiblePosition();
 
-              boolean changed = false;
+            boolean changed = false;
 
-              for(int i = startIndex; i <= endIndex; i++) {
-                if(i == position || aa.getItem(i).getSortNumber() != 0) {
-                  changed = true;
-                  aa.getItem(i).setSortNumber(++previousNumber);
+            for(int i = startIndex; i <= endIndex; i++) {
+              if(i == position || aa.getItem(i).getSortNumber() != 0) {
+                changed = true;
+                aa.getItem(i).setSortNumber(++previousNumber);
 
-                  if(i >= firstVisible) {
-                    View line = channelSort.getChildAt(i-firstVisible);
+                if(i >= firstVisible) {
+                  View line = channelSort.getChildAt(i-firstVisible);
 
-                    if(line != null) {
-                      ((TextView)line.findViewById(R.id.row_of_channel_sort_number)).setText(String.valueOf(previousNumber)+".");
-                    }
+                  if(line != null) {
+                    ((TextView)line.findViewById(R.id.row_of_channel_sort_number)).setText(String.valueOf(previousNumber)+".");
                   }
                 }
               }
+            }
 
-              if(!changed) {
-                aa.getItem(position).setSortNumber(position+1);
-              }
+            if(!changed) {
+              aa.getItem(position).setSortNumber(position+1);
             }
           });
 
-          channelSort.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(final AdapterView<?> adapterView, final View view, final int position,
-                long id) {
-              AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+          channelSort.setOnItemClickListener((adapterView, view, position, id) -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
 
-              LinearLayout numberSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.sort_number_selection, getParentViewGroup(), false);
+            LinearLayout numberSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.sort_number_selection, getParentViewGroup(), false);
 
-              mSelectionNumberChanged = false;
+            mSelectionNumberChanged = false;
 
-              final NumberPicker number = (NumberPicker)numberSelection.findViewById(R.id.sort_picker);
-              number.setMinValue(1);
-              number.setMaxValue(channelSource.size());
-              number.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
-              number.setOnValueChangedListener(new NumberPicker.OnValueChangeListener() {
-                @Override
-                public void onValueChange(NumberPicker picker, int oldVal, int newVal) {
-                  mSelectionNumberChanged = true;
-                }
-              });
+            final NumberPicker number = numberSelection.findViewById(R.id.sort_picker);
+            number.setMinValue(1);
+            number.setMaxValue(channelSource.size());
+            number.setDescendantFocusability(NumberPicker.FOCUS_BLOCK_DESCENDANTS);
+            number.setOnValueChangedListener((picker, oldVal, newVal) -> mSelectionNumberChanged = true);
 
-              final EditText numberAlternative = (EditText)numberSelection.findViewById(R.id.sort_entered_number);
+            final EditText numberAlternative = numberSelection.findViewById(R.id.sort_entered_number);
 
-              builder.setView(numberSelection);
+            builder.setView(numberSelection);
 
-              final ChannelSort selection = (ChannelSort)channelSource.get(position);
+            final ChannelSort selection = (ChannelSort)channelSource.get(position);
 
-              TextView name = (TextView)numberSelection.findViewById(R.id.sort_picker_channel_name);
-              name.setText(selection.getName());
+            TextView name = numberSelection.findViewById(R.id.sort_picker_channel_name);
+            name.setText(selection.getName());
 
-              if(selection.getSortNumber() > 0) {
-                if(selection.getSortNumber() < channelSource.size()+1) {
-                  number.setValue(selection.getSortNumber());
-                }
-                else {
-                  numberAlternative.setText(String.valueOf(selection.getSortNumber()));
+            if(selection.getSortNumber() > 0) {
+              if(selection.getSortNumber() < channelSource.size()+1) {
+                number.setValue(selection.getSortNumber());
+              }
+              else {
+                numberAlternative.setText(String.valueOf(selection.getSortNumber()));
+              }
+            }
+
+            builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+              String test = numberAlternative.getText().toString().trim();
+
+              if (test.length() == 0 || mSelectionNumberChanged) {
+                selection.setSortNumber(number.getValue());
+              } else {
+                try {
+                  selection.setSortNumber(Integer.parseInt(test));
+                } catch (NumberFormatException ignored) {
                 }
               }
 
-              builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                  String test = numberAlternative.getText().toString().trim();
+              Collections.sort(channelSource, sortComparator);
+              aa.notifyDataSetChanged();
+            });
 
-                  if(test.length() == 0 || mSelectionNumberChanged) {
-                    selection.setSortNumber(number.getValue());
-                  }
-                  else {
-                    try {
-                      selection.setSortNumber(Integer.parseInt(test));
-                    }catch(NumberFormatException e1) {}
-                  }
+            builder.setNegativeButton(android.R.string.cancel, null);
 
-                  Collections.sort(channelSource, sortComparator);
-                  aa.notifyDataSetChanged();
-                }
-              });
-
-              builder.setNegativeButton(android.R.string.cancel, null);
-
-              showAlertDialog(builder);
-            }
+            showAlertDialog(builder);
           });
 
-          sortAlphabetically.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-              AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-              builder.setCancelable(false);
-              builder.setTitle(getString(R.string.sort_alphabetically)+"?");
-              builder.setMessage(R.string.dialog_sort_alphabetically_message);
-              builder.setPositiveButton(android.R.string.yes, new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                  Collections.sort(channelSource, new Comparator<SortInterface>() {
-                    @Override
-                    public int compare(SortInterface lhs, SortInterface rhs) {
-                      return lhs.getName().compareToIgnoreCase(rhs.getName());
-                    }
-                  });
+          sortAlphabetically.setOnClickListener(v -> {
+            AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+            builder.setCancelable(false);
+            builder.setTitle(getString(R.string.sort_alphabetically)+"?");
+            builder.setMessage(R.string.dialog_sort_alphabetically_message);
+            builder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
+              Collections.sort(channelSource, (lhs, rhs) -> lhs.getName().compareToIgnoreCase(rhs.getName()));
 
-                  for(int i = 0; i < channelSource.size(); i++) {
-                    channelSource.get(i).setSortNumber(i+1);
-                  }
+              for (int i = 0; i < channelSource.size(); i++) {
+                channelSource.get(i).setSortNumber(i + 1);
+              }
 
-                  aa.notifyDataSetChanged();
-                }
-              });
-              builder.setNegativeButton(android.R.string.cancel, null);
+              aa.notifyDataSetChanged();
+            });
+            builder.setNegativeButton(android.R.string.cancel, null);
 
-              showAlertDialog(builder);
-            }
+            showAlertDialog(builder);
           });
 
           AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -3326,37 +3050,31 @@ public class TvBrowser extends AppCompatActivity {
           builder.setTitle(R.string.action_sort_channels);
           builder.setView(main);
 
-          builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-              boolean somethingChanged = false;
+          builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+            boolean somethingChanged = false;
 
-              for(SortInterface selection : channelSource) {
-                if(((ChannelSort)selection).wasChanged()) {
-                  somethingChanged = true;
+            for(SortInterface selection : channelSource) {
+              if(((ChannelSort)selection).wasChanged()) {
+                somethingChanged = true;
 
-                  ContentValues values = new ContentValues();
-                  values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, selection.getSortNumber());
+                ContentValues values = new ContentValues();
+                values.put(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER, selection.getSortNumber());
 
-                  getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, ((ChannelSort)selection).getKey()), values, null, null);
-                }
-              }
-
-              if(somethingChanged) {
-                updateProgramListChannelBar();
-              }
-
-              if(showDownload) {
-                checkTermsAccepted();
+                getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_CHANNELS, ((ChannelSort)selection).getKey()), values, null, null);
               }
             }
+
+            if(somethingChanged) {
+              updateProgramListChannelBar();
+            }
+
+            if(showDownload) {
+              checkTermsAccepted();
+            }
           });
-          builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-              if(showDownload) {
-                checkTermsAccepted();
-              }
+          builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+            if(showDownload) {
+              checkTermsAccepted();
             }
           });
 
@@ -3372,11 +3090,8 @@ public class TvBrowser extends AppCompatActivity {
     ConnectivityManager cm = (ConnectivityManager) getSystemService(Context.CONNECTIVITY_SERVICE);
     NetworkInfo netInfo = cm.getActiveNetworkInfo();
 
-    if(netInfo != null && netInfo.isConnectedOrConnecting()) {
-      return true;
-    }
+    return netInfo != null && netInfo.isConnectedOrConnecting();
 
-    return false;
   }
 
   private void updateTvData(boolean checkBatterie) {
@@ -3385,12 +3100,7 @@ public class TvBrowser extends AppCompatActivity {
 
       builder.setTitle(R.string.data_update_battery_insufficient_title);
       builder.setMessage(R.string.data_update_battery_insufficient_message);
-      builder.setPositiveButton(R.string.data_update_battery_insufficient_ok, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          updateTvData(false);
-        }
-      });
+      builder.setPositiveButton(R.string.data_update_battery_insufficient_ok, (dialog, which) -> updateTvData(false));
       builder.setNegativeButton(android.R.string.cancel, null);
 
       showAlertDialog(builder);
@@ -3404,14 +3114,14 @@ public class TvBrowser extends AppCompatActivity {
 
           RelativeLayout dataDownload = (RelativeLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection, getParentViewGroup(), false);
 
-          final Spinner days = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_selection_download_days);
-          final CheckBox pictures = (CheckBox)dataDownload.findViewById(R.id.dialog_data_update_selection_download_picture);
+          final Spinner days = dataDownload.findViewById(R.id.dialog_data_update_selection_download_days);
+          final CheckBox pictures = dataDownload.findViewById(R.id.dialog_data_update_selection_download_picture);
 
-          final Spinner autoUpdate = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_type);
-          final Spinner frequency = (Spinner)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_frequency);
-          final CheckBox onlyWiFi = (CheckBox)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_type_connection);
-          final TextView timeLabel = (TextView)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time_label);
-          final TextView time = (TextView)dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time);
+          final Spinner autoUpdate = dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_type);
+          final Spinner frequency = dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_frequency);
+          final CheckBox onlyWiFi = dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_type_connection);
+          final TextView timeLabel = dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time_label);
+          final TextView time = dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time);
           time.setTextColor(onlyWiFi.getTextColors());
 
           String currentDownloadDays = PrefUtils.getStringValue(R.string.DAYS_TO_DOWNLOAD, R.string.days_to_download_default);
@@ -3430,25 +3140,27 @@ public class TvBrowser extends AppCompatActivity {
           String currentAutoUpdateValue = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
           String currentAutoUpdateFrequency = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default);
 
-          if(currentAutoUpdateValue.equals("0")) {
-            frequency.setEnabled(false);
-            onlyWiFi.setEnabled(false);
-            timeLabel.setEnabled(false);
-            time.setEnabled(false);
-            frequency.setVisibility(View.GONE);
-            onlyWiFi.setVisibility(View.GONE);
-            timeLabel.setVisibility(View.GONE);
-            time.setVisibility(View.GONE);
-          }
-          else if(currentAutoUpdateValue.equals("1")) {
-            autoUpdate.setSelection(1);
-            timeLabel.setEnabled(false);
-            time.setEnabled(false);
-            timeLabel.setVisibility(View.GONE);
-            time.setVisibility(View.GONE);
-          }
-          else if(currentAutoUpdateValue.equals("2")) {
-            autoUpdate.setSelection(2);
+          switch (currentAutoUpdateValue) {
+            case "0":
+              frequency.setEnabled(false);
+              onlyWiFi.setEnabled(false);
+              timeLabel.setEnabled(false);
+              time.setEnabled(false);
+              frequency.setVisibility(View.GONE);
+              onlyWiFi.setVisibility(View.GONE);
+              timeLabel.setVisibility(View.GONE);
+              time.setVisibility(View.GONE);
+              break;
+            case "1":
+              autoUpdate.setSelection(1);
+              timeLabel.setEnabled(false);
+              time.setEnabled(false);
+              timeLabel.setVisibility(View.GONE);
+              time.setVisibility(View.GONE);
+              break;
+            case "2":
+              autoUpdate.setSelection(2);
+              break;
           }
 
           final String[] autoFrequencyPossibleValues = getResources().getStringArray(R.array.pref_auto_update_frequency_values);
@@ -3507,39 +3219,33 @@ public class TvBrowser extends AppCompatActivity {
             }
           });
 
-          View.OnClickListener onClickListener = new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-              AlertDialog.Builder b2 = new AlertDialog.Builder(TvBrowser.this);
+          View.OnClickListener onClickListener = v -> {
+            AlertDialog.Builder b2 = new AlertDialog.Builder(TvBrowser.this);
 
-              LinearLayout timeSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection_auto_update_time, getParentViewGroup(), false);
+            LinearLayout timeSelection = (LinearLayout)getLayoutInflater().inflate(R.layout.dialog_data_update_selection_auto_update_time, getParentViewGroup(), false);
 
-              final TimePicker timePick = (TimePicker)timeSelection.findViewById(R.id.dialog_data_update_selection_auto_update_selection_time);
-              timePick.setIs24HourView(DateFormat.is24HourFormat(TvBrowser.this));
-              CompatUtils.setTimePickerHour(timePick, currentAutoUpdateTime.get()/60);
-              CompatUtils.setTimePickerMinute(timePick, currentAutoUpdateTime.get()%60);
+            final TimePicker timePick = timeSelection.findViewById(R.id.dialog_data_update_selection_auto_update_selection_time);
+            timePick.setIs24HourView(DateFormat.is24HourFormat(TvBrowser.this));
+            CompatUtils.setTimePickerHour(timePick, currentAutoUpdateTime.get()/60);
+            CompatUtils.setTimePickerMinute(timePick, currentAutoUpdateTime.get()%60);
 
-              b2.setView(timeSelection);
+            b2.setView(timeSelection);
 
-              b2.setPositiveButton(android.R.string.ok, new OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                  currentAutoUpdateTime.set(CompatUtils.getTimePickerHour(timePick) * 60 + CompatUtils.getTimePickerMinute(timePick));
+            b2.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+              currentAutoUpdateTime.set(CompatUtils.getTimePickerHour(timePick) * 60 + CompatUtils.getTimePickerMinute(timePick));
 
-                  Calendar now = Calendar.getInstance();
+              Calendar now1 = Calendar.getInstance();
 
-                  now.set(Calendar.HOUR_OF_DAY, currentAutoUpdateTime.get()/60);
-                  now.set(Calendar.MINUTE, currentAutoUpdateTime.get()%60);
-                  now.set(Calendar.SECOND, 0);
-                  now.set(Calendar.MILLISECOND, 0);
+              now1.set(Calendar.HOUR_OF_DAY, currentAutoUpdateTime.get() / 60);
+              now1.set(Calendar.MINUTE, currentAutoUpdateTime.get() % 60);
+              now1.set(Calendar.SECOND, 0);
+              now1.set(Calendar.MILLISECOND, 0);
 
-                  time.setText(DateFormat.getTimeFormat(TvBrowser.this).format(now.getTime()));
-                }
-              });
-              b2.setNegativeButton(android.R.string.cancel, null);
+              time.setText(DateFormat.getTimeFormat(TvBrowser.this).format(now1.getTime()));
+            });
+            b2.setNegativeButton(android.R.string.cancel, null);
 
-              showAlertDialog(b2);
-            }
+            showAlertDialog(b2);
           };
 
           time.setOnClickListener(onClickListener);
@@ -3548,43 +3254,40 @@ public class TvBrowser extends AppCompatActivity {
           builder.setTitle(R.string.download_data);
           builder.setView(dataDownload);
 
-          builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-              String value = possibleDownloadDays[days.getSelectedItemPosition()];
+          builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+            String value = possibleDownloadDays[days.getSelectedItemPosition()];
 
-              Editor settings = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+            Editor settings = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
 
-              if(PrefUtils.getStringValueAsInt(R.string.PREF_AUTO_UPDATE_RANGE, R.string.pref_auto_update_range_default) < Integer.parseInt(value)) {
-                settings.putString(getString(R.string.PREF_AUTO_UPDATE_RANGE), value);
-              }
-
-              settings.putString(getString(R.string.DAYS_TO_DOWNLOAD), value);
-              settings.putBoolean(getString(R.string.LOAD_PICTURE_DATA), pictures.isChecked());
-              settings.putString(getString(R.string.PREF_AUTO_UPDATE_TYPE), String.valueOf(autoUpdate.getSelectedItemPosition()));
-
-              if(autoUpdate.getSelectedItemPosition() == 1 || autoUpdate.getSelectedItemPosition() == 2) {
-                settings.putString(getString(R.string.PREF_AUTO_UPDATE_FREQUENCY), autoFrequencyPossibleValues[frequency.getSelectedItemPosition()]);
-                settings.putBoolean(getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI), onlyWiFi.isChecked());
-
-                if(autoUpdate.getSelectedItemPosition() == 2) {
-                  settings.putInt(getString(R.string.PREF_AUTO_UPDATE_START_TIME), currentAutoUpdateTime.get());
-                }
-              }
-
-              settings.commit();
-
-              IOUtils.handleDataUpdatePreferences(TvBrowser.this);
-
-              Intent startDownload = new Intent(TvBrowser.this, TvDataUpdateService.class);
-              startDownload.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.TYPE_UPDATE_MANUELL);
-              startDownload.putExtra(TvDataUpdateService.KEY_TYPE, TvDataUpdateService.TYPE_TV_DATA);
-              startDownload.putExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(value));
-
-              startService(startDownload);
-
-              updateProgressIcon(true);
+            if(PrefUtils.getStringValueAsInt(R.string.PREF_AUTO_UPDATE_RANGE, R.string.pref_auto_update_range_default) < Integer.parseInt(value)) {
+              settings.putString(getString(R.string.PREF_AUTO_UPDATE_RANGE), value);
             }
+
+            settings.putString(getString(R.string.DAYS_TO_DOWNLOAD), value);
+            settings.putBoolean(getString(R.string.LOAD_PICTURE_DATA), pictures.isChecked());
+            settings.putString(getString(R.string.PREF_AUTO_UPDATE_TYPE), String.valueOf(autoUpdate.getSelectedItemPosition()));
+
+            if(autoUpdate.getSelectedItemPosition() == 1 || autoUpdate.getSelectedItemPosition() == 2) {
+              settings.putString(getString(R.string.PREF_AUTO_UPDATE_FREQUENCY), autoFrequencyPossibleValues[frequency.getSelectedItemPosition()]);
+              settings.putBoolean(getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI), onlyWiFi.isChecked());
+
+              if(autoUpdate.getSelectedItemPosition() == 2) {
+                settings.putInt(getString(R.string.PREF_AUTO_UPDATE_START_TIME), currentAutoUpdateTime.get());
+              }
+            }
+
+            settings.commit();
+
+            IOUtils.handleDataUpdatePreferences(TvBrowser.this);
+
+            Intent startDownload = new Intent(TvBrowser.this, TvDataUpdateService.class);
+            startDownload.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.TYPE_UPDATE_MANUELL);
+            startDownload.putExtra(TvDataUpdateService.KEY_TYPE, TvDataUpdateService.TYPE_TV_DATA);
+            startDownload.putExtra(getResources().getString(R.string.DAYS_TO_DOWNLOAD), Integer.parseInt(value));
+
+            startService(startDownload);
+
+            updateProgressIcon(true);
           });
           builder.setNegativeButton(android.R.string.cancel, null);
 
@@ -3593,7 +3296,7 @@ public class TvBrowser extends AppCompatActivity {
         else {
           Cursor test2 = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, null, null, null, null);
 
-          boolean loadAgain = true;
+          boolean loadAgain;
 
           try {
             loadAgain = (test2 == null || test2.getCount() < 1);
@@ -3631,35 +3334,17 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private void showUserError(final String userName, final String password, final boolean syncChannels) {
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+    handler.post(() -> {
+      AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
 
-        builder.setTitle(R.string.userpass_error_title);
-        builder.setMessage(R.string.userpass_error);
+      builder.setTitle(R.string.userpass_error_title);
+      builder.setMessage(R.string.userpass_error);
 
-        builder.setPositiveButton(getResources().getString(R.string.userpass_reenter), new OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                showUserSetting(userName,password,syncChannels);
-              }
-            });
-          }
-        });
+      builder.setPositiveButton(getResources().getString(R.string.userpass_reenter), (dialog, which) -> handler.post(() -> showUserSetting(userName, password, syncChannels)));
 
-        builder.setNegativeButton(getResources().getString(R.string.userpass_save_anyway), new OnClickListener() {
-          @Override
-          public void onClick(DialogInterface dialog, int which) {
-            storeUserName(userName,password,syncChannels);
-          }
-        });
+      builder.setNegativeButton(getResources().getString(R.string.userpass_save_anyway), (dialog, which) -> storeUserName(userName, password, syncChannels));
 
-        showAlertDialog(builder);
-      }
+      showAlertDialog(builder);
     });
   }
 
@@ -3682,12 +3367,7 @@ public class TvBrowser extends AppCompatActivity {
               showUserError(userName,password,syncChannels);
             }
             else {
-              handler.post(new Runnable() {
-                @Override
-                public void run() {
-                  storeUserName(userName,password,syncChannels);
-                }
-              });
+              handler.post(() -> storeUserName(userName,password,syncChannels));
             }
 
           }catch(Throwable t) {
@@ -3710,30 +3390,24 @@ public class TvBrowser extends AppCompatActivity {
   private void showAcceptTerms(final boolean syncChannels) {
     View view = getLayoutInflater().inflate(R.layout.dialog_terms_accept, getParentViewGroup(), false);
     ((TextView)view.findViewById(R.id.dialog_terms_accept_terms)).setText(CompatUtils.fromHtml(getString(R.string.privacy_statement_text)));
-    CheckBox check = (CheckBox)view.findViewById(R.id.dialog_terms_accept_selection);
+    CheckBox check = view.findViewById(R.id.dialog_terms_accept_selection);
     check.setChecked(PrefUtils.getBooleanValue(R.string.PREF_PRIVACY_TERMS_ACCEPTED_SYNC,R.bool.pref_privacy_terms_default));
 
     final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     builder.setCancelable(false);
     builder.setTitle(R.string.action_privacy);
     builder.setView(view);
-    builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit().putBoolean(getString(R.string.PREF_PRIVACY_TERMS_ACCEPTED_SYNC),check.isChecked()).apply();
+    builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+      PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit().putBoolean(getString(R.string.PREF_PRIVACY_TERMS_ACCEPTED_SYNC),check.isChecked()).apply();
 
-        if(check.isChecked()) {
-          showUserSetting(syncChannels);
-        }
+      if(check.isChecked()) {
+        showUserSetting(syncChannels);
       }
     });
-    builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        if(!check.isChecked()) {
-          PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit().putBoolean(getString(R.string.PREF_PRIVACY_TERMS_ACCEPTED_SYNC), false).apply();
-          updateSynchroMenu();
-        }
+    builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+      if(!check.isChecked()) {
+        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit().putBoolean(getString(R.string.PREF_PRIVACY_TERMS_ACCEPTED_SYNC), false).apply();
+        updateSynchroMenu();
       }
     });
 
@@ -3742,12 +3416,7 @@ public class TvBrowser extends AppCompatActivity {
 
     Button ok =  d.getButton(AlertDialog.BUTTON_POSITIVE);
     ok.setEnabled(check.isChecked());
-    check.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      @Override
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        ok.setEnabled(isChecked);
-      }
-    });
+    check.setOnCheckedChangeListener((buttonView, isChecked) -> ok.setEnabled(isChecked));
   }
 
   private void showUserSetting(final String initiateUserName, final String initiatePassword, final boolean syncChannels) {
@@ -3758,31 +3427,18 @@ public class TvBrowser extends AppCompatActivity {
 
     final SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
 
-    final EditText userName = (EditText)username_password_setup.findViewById(R.id.username_entry);
-    final EditText password = (EditText)username_password_setup.findViewById(R.id.password_entry);
+    final EditText userName = username_password_setup.findViewById(R.id.username_entry);
+    final EditText password = username_password_setup.findViewById(R.id.password_entry);
 
     userName.setText(pref.getString(SettingConstants.USER_NAME, initiateUserName != null ? initiateUserName : ""));
     password.setText(pref.getString(SettingConstants.USER_PASSWORD, initiatePassword != null? initiatePassword : ""));
 
     builder.setView(username_password_setup);
 
-    builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        setUserName(userName.getText().toString().trim(), password.getText().toString().trim(), syncChannels);
-      }
-    });
-    builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        if(syncChannels) {
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              showChannelSelectionInternal();
-            }
-          });
-        }
+    builder.setPositiveButton(android.R.string.ok, (dialog, which) -> setUserName(userName.getText().toString().trim(), password.getText().toString().trim(), syncChannels));
+    builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+      if(syncChannels) {
+        handler.post(this::showChannelSelectionInternal);
       }
     });
 
@@ -3795,12 +3451,9 @@ public class TvBrowser extends AppCompatActivity {
     builder.setTitle(R.string.no_network);
     builder.setMessage(getString(R.string.no_network_info).replace("{0}", type));
 
-    builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        if(callback != null && isOnline()) {
-          callback.run();
-        }
+    builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+      if(callback != null && isOnline()) {
+        callback.run();
       }
     });
 
@@ -3808,12 +3461,7 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private void checkTermsAccepted() {
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        checkTermsAcceptedInUIThread();
-      }
-    });
+    handler.post(this::checkTermsAcceptedInUIThread);
   }
 
   private void checkTermsAcceptedInUIThread() {
@@ -3830,24 +3478,18 @@ public class TvBrowser extends AppCompatActivity {
       builder.setTitle(R.string.terms_of_use_data);
       builder.setMessage(R.string.terms_of_use_text);
 
-      builder.setPositiveButton(R.string.terms_of_use_accept, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          Editor edit = pref.edit();
+      builder.setPositiveButton(R.string.terms_of_use_accept, (dialog, which) -> {
+        Editor edit = pref.edit();
 
-          edit.putString(SettingConstants.TERMS_ACCEPTED, "EPG_FREE");
+        edit.putString(SettingConstants.TERMS_ACCEPTED, "EPG_FREE");
 
-          edit.commit();
+        edit.commit();
 
-          updateTvData(true);
-        }
+        updateTvData(true);
       });
 
-      builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
+      builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
 
-        }
       });
 
       showAlertDialog(builder, true);
@@ -3858,7 +3500,7 @@ public class TvBrowser extends AppCompatActivity {
     String mExclusion;
     boolean mIsCaseSensitive;
 
-    public ExclusionEdit(String exclusion) {
+    ExclusionEdit(String exclusion) {
       String[] parts = exclusion.split(";;");
 
       mExclusion = parts[0];
@@ -3875,7 +3517,7 @@ public class TvBrowser extends AppCompatActivity {
       return mExclusion.replace("*", "").compareToIgnoreCase(another.mExclusion.replace("*", ""));
     }
 
-    public String getExclusion() {
+    String getExclusion() {
       return mExclusion + ";;" + (mIsCaseSensitive ? "1" : "0");
     }
   }
@@ -3884,7 +3526,7 @@ public class TvBrowser extends AppCompatActivity {
     if(!SettingConstants.UPDATING_FILTER) {
       Set<String> currentExclusions = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
 
-      final ArrayList<ExclusionEdit> mCurrentExclusionList = new ArrayList<TvBrowser.ExclusionEdit>();
+      final ArrayList<ExclusionEdit> mCurrentExclusionList = new ArrayList<>();
 
       if(currentExclusions != null && !currentExclusions.isEmpty()) {
         for(String exclusion : currentExclusions) {
@@ -3894,67 +3536,52 @@ public class TvBrowser extends AppCompatActivity {
 
       Collections.sort(mCurrentExclusionList);
 
-      final ArrayAdapter<ExclusionEdit> exclusionAdapter = new ArrayAdapter<TvBrowser.ExclusionEdit>(TvBrowser.this, android.R.layout.simple_list_item_1, mCurrentExclusionList);
+      final ArrayAdapter<ExclusionEdit> exclusionAdapter = new ArrayAdapter<>(TvBrowser.this, android.R.layout.simple_list_item_1, mCurrentExclusionList);
 
       View view = getLayoutInflater().inflate(R.layout.dont_want_to_see_exclusion_edit_list, getParentViewGroup(), false);
 
-      ListView list = (ListView)view.findViewById(R.id.dont_want_to_see_exclusion_list);
+      ListView list = view.findViewById(R.id.dont_want_to_see_exclusion_list);
 
       list.setAdapter(exclusionAdapter);
 
-      final Runnable cancel = new Runnable() {
-        @Override
-        public void run() {}
-      };
+      final Runnable cancel = () -> {};
 
-      AdapterView.OnItemClickListener onClickListener = new AdapterView.OnItemClickListener() {
-        @Override
-        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-          final ExclusionEdit edit = exclusionAdapter.getItem(position);
+      AdapterView.OnItemClickListener onClickListener = (parent, view1, position, id) -> {
+        final ExclusionEdit edit = exclusionAdapter.getItem(position);
 
-          View editView = getLayoutInflater().inflate(R.layout.dont_want_to_see_edit, getParentViewGroup(), false);
+        View editView = getLayoutInflater().inflate(R.layout.dont_want_to_see_edit, getParentViewGroup(), false);
 
-          final TextView exclusion = (TextView)editView.findViewById(R.id.dont_want_to_see_value);
-          final CheckBox caseSensitive = (CheckBox)editView.findViewById(R.id.dont_want_to_see_case_sensitve);
+        final TextView exclusion = editView.findViewById(R.id.dont_want_to_see_value);
+        final CheckBox caseSensitive = editView.findViewById(R.id.dont_want_to_see_case_sensitve);
 
-          exclusion.setText(edit.mExclusion);
-          caseSensitive.setSelected(edit.mIsCaseSensitive);
+        exclusion.setText(edit.mExclusion);
+        caseSensitive.setSelected(edit.mIsCaseSensitive);
 
-          Runnable editPositive = new Runnable() {
-            @Override
-            public void run() {
-              if(exclusion.getText().toString().trim().length() > 0) {
-                edit.mExclusion = exclusion.getText().toString();
-                edit.mIsCaseSensitive = caseSensitive.isSelected();
+        Runnable editPositive = () -> {
+          if (exclusion.getText().toString().trim().length() > 0) {
+            edit.mExclusion = exclusion.getText().toString();
+            edit.mIsCaseSensitive = caseSensitive.isSelected();
 
-                exclusionAdapter.notifyDataSetChanged();
-              }
-            }
-          };
+            exclusionAdapter.notifyDataSetChanged();
+          }
+        };
 
-          showAlertDialog(getString(R.string.action_dont_want_to_see), null, editView, null, editPositive, null, cancel, false, false);
-        }
+        showAlertDialog(getString(R.string.action_dont_want_to_see), null, editView, null, editPositive, null, cancel, false, false);
       };
 
       list.setOnItemClickListener(onClickListener);
-      list.setOnCreateContextMenuListener(new View.OnCreateContextMenuListener() {
-        @Override
-        public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
-          getMenuInflater().inflate(R.menu.don_want_to_see_context, menu);
+      list.setOnCreateContextMenuListener((menu, v, menuInfo) -> {
+        getMenuInflater().inflate(R.menu.don_want_to_see_context, menu);
 
-          MenuItem item = menu.findItem(R.id.dont_want_to_see_delete);
+        MenuItem item = menu.findItem(R.id.dont_want_to_see_delete);
 
-          item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-              ExclusionEdit edit = exclusionAdapter.getItem(((AdapterView.AdapterContextMenuInfo)item.getMenuInfo()).position);
-              exclusionAdapter.remove(edit);
-              exclusionAdapter.notifyDataSetChanged();
+        item.setOnMenuItemClickListener(item1 -> {
+          ExclusionEdit edit = exclusionAdapter.getItem(((AdapterView.AdapterContextMenuInfo) item1.getMenuInfo()).position);
+          exclusionAdapter.remove(edit);
+          exclusionAdapter.notifyDataSetChanged();
 
-              return true;
-            }
-          });
-        }
+          return true;
+        });
       });
 
       Thread positive = new Thread() {
@@ -3976,8 +3603,8 @@ public class TvBrowser extends AppCompatActivity {
 
           updateProgressIcon(true);
 
-          HashSet<String> newExclusions = new HashSet<String>();
-          final ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<DontWantToSeeExclusion>();
+          HashSet<String> newExclusions = new HashSet<>();
+          final ArrayList<DontWantToSeeExclusion> exclusionList = new ArrayList<>();
 
           for(ExclusionEdit edit : mCurrentExclusionList) {
             String exclusion = edit.getExclusion();
@@ -3994,7 +3621,7 @@ public class TvBrowser extends AppCompatActivity {
                 Cursor programs = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_TITLE}, null, null, TvBrowserContentProvider.KEY_ID);
 
                 try {
-                  if(IOUtils.prepareAccess(programs)) {
+                  if(programs!=null && IOUtils.prepareAccess(programs)) {
                     int count = programs.getCount()/10;
 
                     builder.setProgress(count, 0, false);
@@ -4038,12 +3665,7 @@ public class TvBrowser extends AppCompatActivity {
                   dontWantToSeeUpdate.finish();
                     //getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
                   UiUtils.sendDontWantToSeeChangedBroadcast(getApplicationContext(),true);
-                  handler.post(new Runnable() {
-                    @Override
-                    public void run() {
-                      Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show();
-                    }
-                  });
+                  handler.post(() -> Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show());
                 }
                 else {
                   dontWantToSeeUpdate.cancel();
@@ -4065,7 +3687,7 @@ public class TvBrowser extends AppCompatActivity {
     }
   }
 
-  public void showAlertDialog(String title, CharSequence message, View view, String positiveText, final Runnable positive, String negativeText, final Runnable negative, boolean link, boolean notCancelable) {
+  private void showAlertDialog(String title, CharSequence message, View view, String positiveText, final Runnable positive, String negativeText, final Runnable negative, boolean link, boolean notCancelable) {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
     builder.setCancelable(!notCancelable);
 
@@ -4084,12 +3706,9 @@ public class TvBrowser extends AppCompatActivity {
         positiveText = getString(android.R.string.ok);
       }
 
-      builder.setPositiveButton(positiveText, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          if(positive != null) {
-            positive.run();
-          }
+      builder.setPositiveButton(positiveText, (dialog, which) -> {
+        if(positive != null) {
+          positive.run();
         }
       });
     }
@@ -4099,12 +3718,9 @@ public class TvBrowser extends AppCompatActivity {
         negativeText = getString(android.R.string.cancel);
       }
 
-      builder.setNegativeButton(negativeText, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          if(negative != null) {
-            negative.run();
-          }
+      builder.setNegativeButton(negativeText, (dialog, which) -> {
+        if(negative != null) {
+          negative.run();
         }
       });
     }
@@ -4128,24 +3744,26 @@ public class TvBrowser extends AppCompatActivity {
       super.onActivityResult(requestCode, resultCode, data);
     }
 
-    if(requestCode == SHOW_PREFERENCES) {
-      updateFromPreferences(false);
-    }
-    else if(requestCode == OPEN_FILTER_EDIT) {
-      updateFromFilterEdit();
+    switch (requestCode) {
+      case SHOW_PREFERENCES:
+        updateFromPreferences(false);
+        break;
+      case OPEN_FILTER_EDIT:
+        updateFromFilterEdit();
 
-      sendChannelFilterUpdate();
-    }
-    else if(requestCode == SHOW_PLUGIN_PREFERENCES) {
-      PluginPreferencesActivity.clearPlugins();
+        sendChannelFilterUpdate();
+        break;
+      case SHOW_PLUGIN_PREFERENCES:
+        PluginPreferencesActivity.clearPlugins();
 
-      PluginServiceConnection[] plugins = PluginHandler.getAvailablePlugins();
+        PluginServiceConnection[] plugins = PluginHandler.getAvailablePlugins();
 
-      if(plugins != null) {
-        for(PluginServiceConnection plugin : plugins) {
-          plugin.loadIcon();
+        if (plugins != null) {
+          for (PluginServiceConnection plugin : plugins) {
+            plugin.loadIcon();
+          }
         }
-      }
+        break;
     }
   }
 
@@ -4180,7 +3798,7 @@ public class TvBrowser extends AppCompatActivity {
             .setText(mSectionsPagerAdapter.getPageTitle(3)));
         mSectionsPagerAdapter.notifyDataSetChanged();
         mSectionsPagerAdapter.instantiateItem(mViewPager, 3);
-      }catch(Throwable t) {}
+      }catch(Throwable ignored) {}
     }
     else if(test instanceof FragmentProgramTable) {
       if(!((FragmentProgramTable)test).checkTimeBlockSize() && !((FragmentProgramTable)test).updateTable()) {
@@ -4208,7 +3826,7 @@ public class TvBrowser extends AppCompatActivity {
     updateScrollMenu();
 
     if(mUpdateItem != null && !TvDataUpdateService.isRunning()) {
-      if(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+      if("0".equals(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
         mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
       }
       else {
@@ -4240,8 +3858,8 @@ public class TvBrowser extends AppCompatActivity {
     final String oldPath = PrefUtils.getStringValue(R.string.PREF_DATABASE_OLD_PATH, R.string.pref_database_path_default);
 
     if(!oldPath.equals(databasePath)) {
-      File source = null;
-      File target = null;
+      File source;
+      File target;
 
       if(oldPath.equals(getString(R.string.pref_database_path_default))) {
         source = getDatabasePath(TvBrowserContentProvider.DATABASE_TVB_NAME);
@@ -4250,7 +3868,7 @@ public class TvBrowser extends AppCompatActivity {
         source = new File(oldPath, TvBrowserContentProvider.DATABASE_TVB_NAME);
       }
 
-      if(databasePath.equals(getString(R.string.pref_database_path_default))) {
+      if(getString(R.string.pref_database_path_default).equals(databasePath)) {
         target = getDatabasePath(TvBrowserContentProvider.DATABASE_TVB_NAME);
       }
       else {
@@ -4341,16 +3959,13 @@ public class TvBrowser extends AppCompatActivity {
               if (epgPaidTest.login(userName, password, getApplicationContext())) {
                 epgPaidTest.logout();
               } else {
-                handler.post(new Runnable() {
-                  @Override
-                  public void run() {
-                    final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
-                    builder.setTitle(R.string.dialog_epgpaid_invalid_title);
-                    builder.setMessage(R.string.dialog_epgpaid_invalid_message);
-                    builder.setPositiveButton(android.R.string.ok, null);
+                handler.post(() -> {
+                  final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
+                  builder.setTitle(R.string.dialog_epgpaid_invalid_title);
+                  builder.setMessage(R.string.dialog_epgpaid_invalid_message);
+                  builder.setPositiveButton(android.R.string.ok, null);
 
-                    showAlertDialog(builder);
-                  }
+                  showAlertDialog(builder);
                 });
               }
             }
@@ -4374,32 +3989,23 @@ public class TvBrowser extends AppCompatActivity {
     builder.setPositiveButton(android.R.string.ok, null);
 
     if(showDisable) {
-      builder.setNegativeButton(R.string.info_version_dont_show_again, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
-          edit.putBoolean(getString(R.string.PREF_INFO_VERSION_UPDATE_SHOW), false);
-          edit.commit();
-        }
-      });
-    }
-
-    showAlertDialog(builder, false, null, new Runnable() {
-      @Override
-      public void run() {
+      builder.setNegativeButton(R.string.info_version_dont_show_again, (dialog, which) -> {
         Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
         edit.putBoolean(getString(R.string.PREF_INFO_VERSION_UPDATE_SHOW), false);
         edit.commit();
-      }
+      });
+    }
+
+    showAlertDialog(builder, false, null, () -> {
+      Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
+      edit.putBoolean(getString(R.string.PREF_INFO_VERSION_UPDATE_SHOW), false);
+      edit.commit();
     });
   }
 
   private void showPrivacyStatement() {
-    showAlertDialog(getString(R.string.action_privacy), CompatUtils.fromHtml(getString(R.string.privacy_statement_text)), null, getString(android.R.string.ok), new Runnable() {
-      @Override
-      public void run() {
+    showAlertDialog(getString(R.string.action_privacy), CompatUtils.fromHtml(getString(R.string.privacy_statement_text)), null, getString(android.R.string.ok), () -> {
 
-      }
     }, null, null, false, true);
 //    startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingConstants.URL_SYNC_BASE + "index.php?id=privacystatement")));
   }
@@ -4411,7 +4017,7 @@ public class TvBrowser extends AppCompatActivity {
 
     try {
       PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
-      TextView version = (TextView)about.findViewById(R.id.version);
+      TextView version = about.findViewById(R.id.version);
       version.setText(pInfo.versionName);
     } catch (NameNotFoundException e) {
       e.printStackTrace();
@@ -4419,13 +4025,13 @@ public class TvBrowser extends AppCompatActivity {
 
     ((TextView)about.findViewById(R.id.license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
 
-    TextView androidVersion = (TextView)about.findViewById(R.id.android_version);
+    TextView androidVersion = about.findViewById(R.id.android_version);
     androidVersion.setText(Build.VERSION.RELEASE);
 
-    TextView lastUpdate = (TextView)about.findViewById(R.id.data_update);
+    TextView lastUpdate = about.findViewById(R.id.data_update);
     lastUpdate.setText(DateFormat.getLongDateFormat(TvBrowser.this).format(new Date(PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, 0))));
 
-    TextView nextUpdate = (TextView)about.findViewById(R.id.next_data_update);
+    TextView nextUpdate = about.findViewById(R.id.next_data_update);
 
     switch(Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
       case 0: nextUpdate.setText(R.string.next_data_update_manually);break;
@@ -4436,7 +4042,7 @@ public class TvBrowser extends AppCompatActivity {
       } break;
     }
 
-    TextView dataRange = (TextView)about.findViewById(R.id.data_range);
+    TextView dataRange = about.findViewById(R.id.data_range);
     dataRange.setText(DateFormat.getMediumDateFormat(TvBrowser.this).format(new Date(PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_FIRST_KNOWN, R.integer.meta_data_date_known_default))) + " - " + DateFormat.getMediumDateFormat(TvBrowser.this).format(new Date(PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_LAST_KNOWN, R.integer.meta_data_date_known_default))));
 
     ((TextView)about.findViewById(R.id.rundate_value)).setText(DateFormat.getLongDateFormat(getApplicationContext()).format(mRundate.getTime()));
@@ -4445,17 +4051,7 @@ public class TvBrowser extends AppCompatActivity {
     builder.setView(about);
 
     builder.setPositiveButton(android.R.string.ok, null);
-    builder.setNegativeButton(R.string.info_version_show, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            showVersionInfo(false);
-          }
-        });
-      }
-    });
+    builder.setNegativeButton(R.string.info_version_show, (dialog, which) -> handler.post(() -> showVersionInfo(false)));
 
     showAlertDialog(builder);
   }
@@ -4466,19 +4062,9 @@ public class TvBrowser extends AppCompatActivity {
     builder.setTitle(R.string.synchronize_replace_add_title);
     builder.setMessage(R.string.synchronize_replace_exclusion_add_text);
 
-    builder.setPositiveButton(R.string.synchronize_add_exclusion, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        synchronizeDontWantToSee(false);
-      }
-    });
+    builder.setPositiveButton(R.string.synchronize_add_exclusion, (dialog, which) -> synchronizeDontWantToSee(false));
 
-    builder.setNegativeButton(R.string.synchronize_replace_exclusion, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        synchronizeDontWantToSee(true);
-      }
-    });
+    builder.setNegativeButton(R.string.synchronize_replace_exclusion, (dialog, which) -> synchronizeDontWantToSee(true));
 
     showAlertDialog(builder);
   }
@@ -4495,23 +4081,17 @@ public class TvBrowser extends AppCompatActivity {
       builder.setMessage(R.string.action_pause_reminder_text);
     }
 
-    builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        SettingConstants.setReminderPaused(TvBrowser.this, true);
+    builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+      SettingConstants.setReminderPaused(TvBrowser.this, true);
 
-        mPauseReminder.setVisible(false);
-        mContinueReminder.setVisible(true);
+      mPauseReminder.setVisible(false);
+      mContinueReminder.setVisible(true);
 
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#4e0002")));
-        UiUtils.updateToggleReminderStateWidget(getApplicationContext());
-      }
+      getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#4e0002")));
+      UiUtils.updateToggleReminderStateWidget(getApplicationContext());
     });
 
-    builder.setNegativeButton(android.R.string.cancel, new OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-      }
+    builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
     });
 
     showAlertDialog(builder);
@@ -4547,10 +4127,7 @@ public class TvBrowser extends AppCompatActivity {
 
       builder.setTitle(R.string.no_log_file_title);
       builder.setMessage(R.string.no_log_file_message);
-      builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-        @Override
-        public void onClick(DialogInterface arg0, int arg1) {}
-      });
+      builder.setPositiveButton(android.R.string.ok, (arg0, arg1) -> {});
 
       showAlertDialog(builder);
     }
@@ -4579,10 +4156,7 @@ public class TvBrowser extends AppCompatActivity {
       builder.setMessage(R.string.no_log_file_delete_message);
     }
 
-    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface arg0, int arg1) {}
-    });
+    builder.setPositiveButton(android.R.string.ok, (arg0, arg1) -> {});
 
     showAlertDialog(builder);
   }
@@ -4644,14 +4218,14 @@ public class TvBrowser extends AppCompatActivity {
     final static int LINE_TYPE = 1;
 
     private int mWidth;
-    private int mSpanType;
+    private final int mSpanType;
 
-    public SpecialSpan(int type) {
+    SpecialSpan(int type) {
       mSpanType = type;
     }
 
     @Override
-    public void draw(Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, Paint paint) {
+    public void draw(@NonNull Canvas canvas, CharSequence text, int start, int end, float x, int top, int y, int bottom, @NonNull Paint paint) {
       if(mSpanType == LINE_TYPE) {
         canvas.drawLine(canvas.getClipBounds().left, top + (bottom-top)/2, canvas.getClipBounds().right, top + (bottom-top)/2, paint);
       }
@@ -4730,13 +4304,10 @@ public class TvBrowser extends AppCompatActivity {
           builder.setCancelable(false);
           builder.setMessage(Html.fromHtml(news,null,new NewsTagHandler()));
 
-          builder.setPositiveButton(android.R.string.ok, new OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-              pref.edit().putLong(getString(R.string.NEWS_DATE_LAST_SHOWN), System.currentTimeMillis()).commit();
+          builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+            pref.edit().putLong(getString(R.string.NEWS_DATE_LAST_SHOWN), System.currentTimeMillis()).commit();
 
-              mPluginUpdateHelper.showPluginInfo();
-            }
+            mPluginUpdateHelper.showPluginInfo();
           });
 
           showAlertDialog(builder, true);
@@ -4789,7 +4360,7 @@ public class TvBrowser extends AppCompatActivity {
           showChannelSelectionInternal(selection.toString(), getString(R.string.dialog_select_channels_update_title), getString(R.string.dialog_select_channels_update_help), false);
         }
         else if(IOUtils.isDatabaseAccessible(TvBrowser.this)) {
-          Set<String> deletedChannels = PrefUtils.getStringSetValue(R.string.PREF_SECOND_DELETED_CHANNELS, new HashSet<String>());
+          Set<String> deletedChannels = PrefUtils.getStringSetValue(R.string.PREF_SECOND_DELETED_CHANNELS, new HashSet<>());
 
           edit.remove(getString(R.string.PREF_SECOND_DELETED_CHANNELS));
           edit.commit();
@@ -4844,23 +4415,17 @@ public class TvBrowser extends AppCompatActivity {
       builder.setTitle(R.string.dialog_warning_timezone_title);
       builder.setMessage(R.string.dialog_warning_timezone_message);
 
-      builder.setPositiveButton(R.string.dialog_warning_timezone_change, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          startActivity(new Intent(android.provider.Settings.ACTION_DATE_SETTINGS));
-          finish();
-        }
+      builder.setPositiveButton(R.string.dialog_warning_timezone_change, (dialog, which) -> {
+        startActivity(new Intent(android.provider.Settings.ACTION_DATE_SETTINGS));
+        finish();
       });
 
       builder.setNegativeButton(android.R.string.cancel, null);
 
-      builder.setNeutralButton(R.string.info_version_dont_show_again, new OnClickListener() {
-        @Override
-        public void onClick(DialogInterface dialog, int which) {
-          Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
-          edit.putBoolean(getString(R.string.PREF_WARNING_TIMEZONE_SHOW), false);
-          edit.commit();
-        }
+      builder.setNeutralButton(R.string.info_version_dont_show_again, (dialog, which) -> {
+        Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit();
+        edit.putBoolean(getString(R.string.PREF_WARNING_TIMEZONE_SHOW), false);
+        edit.commit();
       });
 
       showAlertDialog(builder);
@@ -4880,14 +4445,14 @@ public class TvBrowser extends AppCompatActivity {
         filters.removeItem(i);
       }
 
-      ArrayList<FilterValues> channelFilterList = new ArrayList<FilterValues>();
+      ArrayList<FilterValues> channelFilterList = new ArrayList<>();
       SharedPreferences filterPreferences = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, TvBrowser.this);
       Map<String,?> filterValues = filterPreferences.getAll();
 
       for(String key : filterValues.keySet()) {
         Object values = filterValues.get(key);
 
-        if(key.contains("filter.") && values instanceof String && values != null) {
+        if(key.contains("filter.") && values instanceof String) {
           FilterValues filter = FilterValues.load(key, (String)values);
 
           if(filter != null) {
@@ -4902,24 +4467,21 @@ public class TvBrowser extends AppCompatActivity {
       int id = 1;
 
       MenuItem all = filters.add(groupId, id++, groupId, getString(R.string.activity_edit_filter_list_text_all));
-      all.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-        @Override
-        public boolean onMenuItemClick(MenuItem item) {
-          mCurrentFilterId.clear();
-          mCurrentFilter.clear();
+      all.setOnMenuItemClickListener(item -> {
+        mCurrentFilterId.clear();
+        mCurrentFilter.clear();
 
-          for(int i = 0; i < FILTER_MAX_ID; i++) {
-            final MenuItem filterItem = filters.findItem(i);
+        for(int i = 0; i < FILTER_MAX_ID; i++) {
+          final MenuItem filterItem = filters.findItem(i);
 
-            if(filterItem != null) {
-              filterItem.setChecked(false);
-            }
+          if(filterItem != null) {
+            filterItem.setChecked(false);
           }
-
-          updateFilter(true);
-
-          return true;
         }
+
+        updateFilter(true);
+
+        return true;
       });
 
       boolean isActiveFilter = false;
@@ -4933,23 +4495,20 @@ public class TvBrowser extends AppCompatActivity {
           isActiveFilter = true;
         }
 
-        item.setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-          @Override
-          public boolean onMenuItemClick(MenuItem item) {
-            if(item.isChecked()) {
-              mCurrentFilterId.remove(filter.getId());
-              mCurrentFilter.remove(filter);
-            }
-            else {
-              mCurrentFilterId.add(filter.getId());
-              mCurrentFilter.add(filter);
-            }
-
-            item.setChecked(!item.isChecked());
-            updateFilter(true);
-
-            return true;
+        item.setOnMenuItemClickListener(item1 -> {
+          if(item1.isChecked()) {
+            mCurrentFilterId.remove(filter.getId());
+            mCurrentFilter.remove(filter);
           }
+          else {
+            mCurrentFilterId.add(filter.getId());
+            mCurrentFilter.add(filter);
+          }
+
+          item1.setChecked(!item1.isChecked());
+          updateFilter(true);
+
+          return true;
         });
       }
 
@@ -4989,15 +4548,12 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   public void updateFavoritesMenu(final boolean editDeleteEnabled) {
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        if(mCreateFavorite != null) {
-          SubMenu menu = mCreateFavorite.getSubMenu();
+    handler.post(() -> {
+      if(mCreateFavorite != null) {
+        SubMenu menu = mCreateFavorite.getSubMenu();
 
-          menu.findItem(R.id.menu_tvbrowser_action_favorite_edit).setEnabled(editDeleteEnabled);
-          menu.findItem(R.id.menu_tvbrowser_action_favorite_delete).setEnabled(editDeleteEnabled);
-        }
+        menu.findItem(R.id.menu_tvbrowser_action_favorite_edit).setEnabled(editDeleteEnabled);
+        menu.findItem(R.id.menu_tvbrowser_action_favorite_delete).setEnabled(editDeleteEnabled);
       }
     });
   }
@@ -5041,12 +4597,7 @@ public class TvBrowser extends AppCompatActivity {
           mPluginUpdateHelper.searchPlugins(false);
         }
         else {
-          showNoInternetConnection(getString(R.string.no_network_info_data_search_plugins),new Runnable() {
-            @Override
-            public void run() {
-              mPluginUpdateHelper.searchPlugins(false);
-            }
-          });
+          showNoInternetConnection(getString(R.string.no_network_info_data_search_plugins), () -> mPluginUpdateHelper.searchPlugins(false));
         }
         break;
       case R.id.action_pause_reminder: pauseReminder(); break;
@@ -5171,12 +4722,9 @@ public class TvBrowser extends AppCompatActivity {
   private void scrollToTimePick() {
     final int lastExtraTime = PrefUtils.getIntValue(R.string.PREF_MISC_LAST_TIME_PICK_VALUE, PrefUtils.getIntValueWithDefaultKey(R.string.PREF_MISC_LAST_TIME_EXTRA_VALUE, R.integer.pref_misc_last_time_extra_value_default));
 
-    final TimePickerDialog pick = new TimePickerDialog(TvBrowser.this, TimePickerDialog.THEME_HOLO_DARK, new TimePickerDialog.OnTimeSetListener() {
-      @Override
-      public void onTimeSet(TimePicker view, int hourOfDay, int minute) {
-        scrollToTime(hourOfDay*60+minute+1);
-        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit().putInt(getString(R.string.PREF_MISC_LAST_TIME_PICK_VALUE), hourOfDay*60+minute).commit();
-      }
+    final TimePickerDialog pick = new TimePickerDialog(TvBrowser.this, TimePickerDialog.THEME_HOLO_DARK, (view, hourOfDay, minute) -> {
+      scrollToTime(hourOfDay*60+minute+1);
+      PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit().putInt(getString(R.string.PREF_MISC_LAST_TIME_PICK_VALUE), hourOfDay*60+minute).commit();
     }, lastExtraTime/60, lastExtraTime%60, DateFormat.is24HourFormat(TvBrowser.this));
 
     pick.show();
@@ -5188,26 +4736,31 @@ public class TvBrowser extends AppCompatActivity {
    */
   private void scrollToTime(int time) {
     Log.d("info8", "scrollToTime " + time);
-    if(mViewPager.getCurrentItem() == 0) {
-      Fragment test = mSectionsPagerAdapter.getRegisteredFragment(0);
-      Log.d("info8",""+test);
-      if(test instanceof FragmentProgramsListRunning && time >= 0) {
-        ((FragmentProgramsListRunning)test).selectTime(time);
+    switch (mViewPager.getCurrentItem()) {
+      case 0: {
+        Fragment test = mSectionsPagerAdapter.getRegisteredFragment(0);
+        Log.d("info8", "" + test);
+        if (test instanceof FragmentProgramsListRunning && time >= 0) {
+          ((FragmentProgramsListRunning) test).selectTime(time);
+        }
+        break;
       }
-    }
-    else if(mViewPager.getCurrentItem() == 1) {
-      Fragment test = mSectionsPagerAdapter.getRegisteredFragment(1);
+      case 1: {
+        Fragment test = mSectionsPagerAdapter.getRegisteredFragment(1);
 
-      if(test instanceof FragmentProgramsList && time >= 0) {
-        ((FragmentProgramsList)test).setScrollTime(time);
-        ((FragmentProgramsList)test).scrollToTime();
+        if (test instanceof FragmentProgramsList && time >= 0) {
+          ((FragmentProgramsList) test).setScrollTime(time);
+          ((FragmentProgramsList) test).scrollToTime();
+        }
+        break;
       }
-    }
-    else if(mViewPager.getCurrentItem() == 3) {
-      Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
+      case 3: {
+        Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
 
-      if(test instanceof FragmentProgramTable) {
-        ((FragmentProgramTable)test).scrollToTime(time, mScrollTimeItem);
+        if (test instanceof FragmentProgramTable) {
+          ((FragmentProgramTable) test).scrollToTime(time, mScrollTimeItem);
+        }
+        break;
       }
     }
   }
@@ -5227,7 +4780,7 @@ public class TvBrowser extends AppCompatActivity {
 
     mUpdateItem = menu.findItem(R.id.menu_tvbrowser_action_update_data);
 
-    if(!PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+    if(!"0".equals(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
       mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
     }
 
@@ -5244,12 +4797,7 @@ public class TvBrowser extends AppCompatActivity {
 
     mPluginPreferencesMenuItem = menu.findItem(R.id.menu_tvbrowser_action_settings_plugins);
 
-    handler.postDelayed(new Runnable() {
-      @Override
-      public void run() {
-        mPluginPreferencesMenuItem.setEnabled(PluginHandler.pluginsAvailable());
-      }
-    },3000);
+    handler.postDelayed(() -> mPluginPreferencesMenuItem.setEnabled(PluginHandler.pluginsAvailable()),3000);
 
     menu.findItem(R.id.action_reset).setVisible(TEST_VERSION);
     menu.findItem(R.id.action_show_markings).setVisible(TEST_VERSION);
@@ -5268,8 +4816,8 @@ public class TvBrowser extends AppCompatActivity {
     }
 
     mDebugMenuItem = menu.findItem(R.id.action_debug);
-    mSendDataUpdateLogItem = menu.findItem(R.id.action_send_data_update_log);
-    mDeleteDataUpdateLogItem = menu.findItem(R.id.action_delete_data_update_log);
+    final MenuItem mSendDataUpdateLogItem = menu.findItem(R.id.action_send_data_update_log);
+    final MenuItem mDeleteDataUpdateLogItem = menu.findItem(R.id.action_delete_data_update_log);
     mSendReminderLogItem = menu.findItem(R.id.action_send_reminder_log);
     mDeleteReminderLogItem = menu.findItem(R.id.action_delete_reminder_log);
     mSendPluginLogItem = menu.findItem(R.id.action_send_plugin_log);
@@ -5313,7 +4861,7 @@ public class TvBrowser extends AppCompatActivity {
         public boolean onMenuItemActionExpand(MenuItem item) {
           mSearchExpanded = true;
 
-          if(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+          if("0".equals(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
             mUpdateItem.setVisible(false);
           }
 
@@ -5331,7 +4879,7 @@ public class TvBrowser extends AppCompatActivity {
 
           Fragment fragment = mSectionsPagerAdapter.getItem(mViewPager.getCurrentItem());
 
-          if(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
+          if("0".equals(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
             mUpdateItem.setVisible(true);
           }
           if(!(fragment instanceof FragmentFavorites)) {
@@ -5382,7 +4930,7 @@ public class TvBrowser extends AppCompatActivity {
 
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
 
-      ArrayList<Integer> values = new ArrayList<Integer>();
+      ArrayList<Integer> values = new ArrayList<>();
 
       int[] defaultValues = getResources().getIntArray(R.array.time_button_defaults);
 
@@ -5399,7 +4947,7 @@ public class TvBrowser extends AppCompatActivity {
           if(value >= -1 && !values.contains(value)) {
             values.add(value);
           }
-        } catch (Exception e) {}
+        } catch (Exception ignored) {}
       }
 
       for(int i = 7; i <= timeButtonCount; i++) {
@@ -5434,10 +4982,10 @@ public class TvBrowser extends AppCompatActivity {
    * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one
    * of the sections/tabs/pages.
    */
-  public class SectionsPagerAdapter extends FragmentPagerAdapter {
-    SparseArrayCompat<Fragment> registeredFragments = new SparseArrayCompat<Fragment>();
+  class SectionsPagerAdapter extends FragmentPagerAdapter {
+    final SparseArrayCompat<Fragment> registeredFragments = new SparseArrayCompat<>();
 
-    public SectionsPagerAdapter(FragmentManager fm) {
+    SectionsPagerAdapter(FragmentManager fm) {
       super(fm);
     }
 
@@ -5449,29 +4997,30 @@ public class TvBrowser extends AppCompatActivity {
       Fragment fragment = registeredFragments.get(position);
 
       if(fragment == null) {
-        if(position == 0) {
-          if(IOUtils.isDatabaseAccessible(getApplicationContext())) {
-            fragment = new FragmentProgramsListRunning();
-            if(START_TIME != Integer.MIN_VALUE) {
-              ((FragmentProgramsListRunning) fragment).setStartTime(START_TIME + 1);
-              START_TIME = Integer.MIN_VALUE;
+        switch (position) {
+          case 0:
+            if (IOUtils.isDatabaseAccessible(getApplicationContext())) {
+              fragment = new FragmentProgramsListRunning();
+              if (START_TIME != Integer.MIN_VALUE) {
+                ((FragmentProgramsListRunning) fragment).setStartTime(START_TIME + 1);
+                START_TIME = Integer.MIN_VALUE;
+              }
+            } else {
+              fragment = new Fragment();
             }
-          }
-          else {
-            fragment = new Fragment();
-          }
-        }
-        else if(position == 1) {
-          fragment = new FragmentProgramsList(mProgramListChannelId, mProgramListScrollTime, mProgramListScrollEndTime);
-          mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
-          mProgramListScrollTime = -1;
-          mProgramListScrollEndTime = -1;
-        }
-        else if(position == 2) {
-          fragment = new FragmentFavorites();
-        }
-        else if(position == 3) {
-          fragment = new FragmentProgramTable();
+            break;
+          case 1:
+            fragment = new FragmentProgramsList(mProgramListChannelId, mProgramListScrollTime, mProgramListScrollEndTime);
+            mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
+            mProgramListScrollTime = -1;
+            mProgramListScrollEndTime = -1;
+            break;
+          case 2:
+            fragment = new FragmentFavorites();
+            break;
+          case 3:
+            fragment = new FragmentProgramTable();
+            break;
         }
       }
 
@@ -5509,6 +5058,7 @@ public class TvBrowser extends AppCompatActivity {
       return null;
     }
 
+    @NonNull
     @Override
     public synchronized Object instantiateItem(ViewGroup container, int position) {
         Fragment fragment = (Fragment) super.instantiateItem(container, position);
@@ -5522,28 +5072,25 @@ public class TvBrowser extends AppCompatActivity {
         super.destroyItem(container, position, object);
     }
 
-    public Fragment getRegisteredFragment(int position) {
+    Fragment getRegisteredFragment(int position) {
         return registeredFragments.get(position);
     }
   }
 
   public void updateProgressIcon(final boolean progress) {
-    handler.post(new Runnable() {
-      @Override
-      public void run() {
-        if(mUpdateItem != null) {
-          if(progress) {
-            mUpdateItem.setActionView(R.layout.progressbar);
-            mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+    handler.post(() -> {
+      if(mUpdateItem != null) {
+        if(progress) {
+          mUpdateItem.setActionView(R.layout.progressbar);
+          mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
+        }
+        else {
+          if(!"0".equals(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
+            mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
+            invalidateOptionsMenu();
           }
-          else {
-            if(!PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default).equals("0")) {
-              mUpdateItem.setShowAsAction(MenuItem.SHOW_AS_ACTION_NEVER);
-              invalidateOptionsMenu();
-            }
 
-            mUpdateItem.setActionView(null);
-          }
+          mUpdateItem.setActionView(null);
         }
       }
     });
@@ -5555,12 +5102,7 @@ public class TvBrowser extends AppCompatActivity {
       mLastSelectedTab = mViewPager.getCurrentItem();
       mViewPager.setCurrentItem(1,true);
 
-      if(remember) {
-        mProgramsListWasShow = true;
-      }
-      else {
-        mProgramsListWasShow = false;
-      }
+      mProgramsListWasShow = remember;
     }
   }
 
@@ -5619,12 +5161,12 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private static final class ProgramsListState {
-    public int mDayPos;
-    public int mChannelID;
-    public int mFilterPos;
-    public int mScrollPos;
+    final int mDayPos;
+    final int mChannelID;
+    final int mFilterPos;
+    final int mScrollPos;
 
-    public ProgramsListState(int dayPos, int channelID, int filterPos, int scrollPos) {
+    ProgramsListState(int dayPos, int channelID, int filterPos, int scrollPos) {
       mDayPos = dayPos;
       mChannelID = channelID;
       mFilterPos = filterPos;
@@ -5656,11 +5198,9 @@ public class TvBrowser extends AppCompatActivity {
    */
   @Override
   public boolean onKeyDown(int keyCode, KeyEvent event) {
-    if (keyCode == KeyEvent.KEYCODE_MENU/* && "LGE".equalsIgnoreCase(Build.BRAND)*/) {
-      return true;
-    }
+    /* && "LGE".equalsIgnoreCase(Build.BRAND)*/
+    return keyCode == KeyEvent.KEYCODE_MENU || super.onKeyDown(keyCode, event);
 
-    return super.onKeyDown(keyCode, event);
   }
 
   @Override

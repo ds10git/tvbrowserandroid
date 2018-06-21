@@ -35,20 +35,20 @@ import android.util.Log;
  * 
  * @author René Mach
  */
-public class MemorySizeConstrictedDatabaseOperation {
+class MemorySizeConstrictedDatabaseOperation {
   private static final int TABLE_OPERATION_MIN_SIZE = Math.max(100, (int)(Runtime.getRuntime().maxMemory()/1000000));
   private Context mContext;
   
   private ArrayList<ContentValues> mInsertList;
   private ArrayList<ContentProviderOperation> mUpdateList;
   
-  private Uri mInsertUri;
+  private final Uri mInsertUri;
   private int mMinOperationDivider;
-  private int mOperationDivider;
+  private final int mOperationDivider;
   
   private boolean mOperationsAvailable;
   private boolean mOperationsAdded;
-  private AtomicBoolean mSuccess;
+  private final AtomicBoolean mSuccess;
   
   public MemorySizeConstrictedDatabaseOperation(Context context, Uri insertUri) {
     this(context,insertUri,1);
@@ -75,10 +75,10 @@ public class MemorySizeConstrictedDatabaseOperation {
     mOperationDivider = TABLE_OPERATION_MIN_SIZE/mMinOperationDivider;
     
     if(insertUri != null) {
-      mInsertList = new ArrayList<ContentValues>();
+      mInsertList = new ArrayList<>();
     }
     
-    mUpdateList = new ArrayList<ContentProviderOperation>();
+    mUpdateList = new ArrayList<>();
     
     mOperationsAvailable = false;
   }

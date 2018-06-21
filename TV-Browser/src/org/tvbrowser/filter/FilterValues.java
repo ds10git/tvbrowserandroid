@@ -23,23 +23,18 @@ public abstract class FilterValues {
   private String mId;
   protected String mName;
   
-  public FilterValues(String name) {
+  FilterValues(String name) {
     mId = String.valueOf(System.currentTimeMillis());
     mName = name;
   }
     
-  public static final Comparator<FilterValues> COMPARATOR_FILTER_VALUES = new Comparator<FilterValues>() {
-    @Override
-    public int compare(FilterValues lhs, FilterValues rhs) {
-      return lhs.toString().compareToIgnoreCase(rhs.toString());
-    }
-  };
+  public static final Comparator<FilterValues> COMPARATOR_FILTER_VALUES = (lhs, rhs) -> lhs.toString().compareToIgnoreCase(rhs.toString());
   
   public final String getId() {
     return getClass().getCanonicalName() + SEPARATOR_CLASS + mId;
   }
   
-  public final String getName() {
+  public String getName() {
     return mName;
   }
   
@@ -52,7 +47,7 @@ public abstract class FilterValues {
     return getName();
   }
   
-  public static final FilterValues load(String id, String values) {
+  public static FilterValues load(String id, String values) {
     FilterValues result = null;
 
     try {
@@ -78,12 +73,12 @@ public abstract class FilterValues {
           result.mId = id;
         }
       }
-    }catch(Exception e) {}
+    }catch(Exception ignored) {}
     
     return result;
   }
   
-  public static final FilterValues load(String id, Context context) {
+  public static FilterValues load(String id, Context context) {
     FilterValues result = null;
 
     SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, context);
@@ -107,14 +102,14 @@ public abstract class FilterValues {
     edit.commit();
   }
   
-  public static final void deleteFilter(Context context, FilterValues filter) {
+  public static void deleteFilter(Context context, FilterValues filter) {
     final String filterId = filter.getClass().getCanonicalName() + SEPARATOR_CLASS + filter.getId();
     
     PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, context).edit().remove(filterId).remove(filter.getId()).commit();
     
     final SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context);
     
-    final Set<String> test = pref.getStringSet(context.getString(R.string.CURRENT_FILTER_ID), new HashSet<String>());
+    final Set<String> test = pref.getStringSet(context.getString(R.string.CURRENT_FILTER_ID), new HashSet<>());
     
     final String[] idValues = test.toArray(new String[test.size()]);
     boolean removed = false;

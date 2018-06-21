@@ -742,7 +742,6 @@
 	<string name="pref_database_selection_internal">Intern</string>
 	<string name="pref_database_copy_title">Datenbank kopieren</string>
 	<string name="pref_database_copy_wait">Bitte warten&#8230;</string>
-	<string name="pref_programs_list_category">Datendownload</string>
 	<string name="pref_summary_data_download">Einstellungen für den Datendownload</string>
 	<string name="pref_data_update_connection_instable_accept_title">Instabile Internetverbindung</string>
 	<string name="pref_data_update_connection_instable_accept_summary_on">Die Internetverbindung ist sehr langsam bzw. instabil. TV-Browser wird die Daten trotzdem laden, auch wenn das Datenupdate dadurch sehr lange dauert.</string>
@@ -779,7 +778,7 @@
 	<string name="pref_show_episode">Episodentitel anzeigen</string>
 	<string name="pref_show_program_categories">Sendungskategorien anzeigen</string>
 	<string name="pref_title_program_information_selection">Angezeigte Informationen auswählen</string>
-	<string name="pref_summary_program_categories_selection">Welche Informationen sollen angezeigt werden, wenn sie vorhanden sind?</string>
+	<string name="pref_summary_program_information_selection">Welche Programminformationen sollen, falls verfügbar, angezeigt werden?</string>
 	<string name="pref_start_category">Starten</string>
 	<string name="pref_start_tab">Mit folgenden Tab:</string>
 	<string name="pref_show_link">Link zur Webseite:</string>
@@ -878,7 +877,6 @@
 	<string name="log_send_mail">E-Mail verschicken</string>
 	<string name="log_send_data_update">Datenupdate</string>
 	<string name="log_send_reminder">Erinnerer</string>
-	<string name="log_send_plugins">Plugins</string>
 	<string name="log_send_mail_subject">{0} Log-Datei für TV-Browser für Android</string>
 	<string name="log_send_mail_content">Der Anhang enthält die {0} Log-Datei für TV-Browser für Android vom </string>
 	<string name="pref_misc">Sonstiges</string>
@@ -1250,6 +1248,7 @@
     <string name="plugin_info_donwload">Lade \'{0}\' herunter</string>
     
     <string name="waiting_detail_show">Öffne Detail-Fenster&#8230;</string>
+	<string name="detail_date_format">%1$ta, %2$s %3$s - %4$s, %5$s</string>
     <string name="channel_logo_content_description">Senderlogo</string>
 
     <string name="privacy_statement_text"><![CDATA[<p>In der Standardeinstellung wird TV-Browser keine Daten über Sie oder Ihre Nutzung von TV-Browser erheben und es werden ebenso keine Daten über Sie oder Ihre Nutzung von TV-Browser versendet.</p>
@@ -1271,5 +1270,14 @@
     <string name="terms_accept_sync">Ich akzeptiere die Bedinungen zur Nutzung der Synchronisationsfunktion.</string>
     <string name="terms_accept_epgpaid_title">Bedingungen akzeptieren</string>
     <string name="terms_accept_epgpaid">Ich akzeptiere die Bedingungen zur Nutzung der EPGpaid-Daten.</string>
+
+	<string name="color_preference_hex_label">HEX #</string>
+	<string name="program_picture">Vorschaubild der Sendung</string>
+	<string name="reset_data_update_date">Datum der Datenaktualisierung zurücksetzen</string>
+	<string name="show_plugin_marking_data">Plugin-Markierungsdaten anzeigen</string>
+	<string name="reminder">Erinnerung</string>
+	<string name="widget_settings_button">Einstellungen</string>
+	<string name="widget_open_app_button">App öffnen</string>
+	<string name="widget_toggle_reminder_state">Erinnerungen aktivieren/deaktivieren</string>
 </resources>
 

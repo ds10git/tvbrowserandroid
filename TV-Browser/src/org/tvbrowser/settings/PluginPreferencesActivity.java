@@ -75,17 +75,14 @@ public class PluginPreferencesActivity extends ToolbarPreferencesActivity {
   protected void onResume() {
     super.onResume();
     
-    new Handler().postDelayed(new Runnable() {
-      @Override
-      public void run() {        
-        if(getListAdapter() != null && LAST_POS < getListAdapter().getCount()) {
-          Object header = getListAdapter().getItem(LAST_POS);
-          
-          if(header != null) {
-            if(isMultiPane()) {
-              switchToHeader(((Header)header).fragment, ((Header)header).fragmentArguments);
-              onHeaderClick((Header)header, LAST_POS);
-            }
+    new Handler().postDelayed(() -> {
+      if(getListAdapter() != null && LAST_POS < getListAdapter().getCount()) {
+        Object header = getListAdapter().getItem(LAST_POS);
+
+        if(header != null) {
+          if(isMultiPane()) {
+            switchToHeader(((Header)header).fragment, ((Header)header).fragmentArguments);
+            onHeaderClick((Header)header, LAST_POS);
           }
         }
       }

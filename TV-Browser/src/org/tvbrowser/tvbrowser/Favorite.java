@@ -44,6 +44,7 @@ import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.os.RemoteException;
+import android.support.annotation.NonNull;
 import android.support.v4.content.LocalBroadcastManager;
 import android.text.style.ImageSpan;
 import android.util.Log;
@@ -60,7 +61,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   
   public static final String OLD_NAME_KEY = "OLD_NAME_KEY";
   
-  public static final String START_DAY_COLUMN = "startDayOfWeek";
+  private static final String START_DAY_COLUMN = "startDayOfWeek";
   
   public static final String KEY_MARKING_ICON = "org.tvbrowser.tvbrowser.Favorite";
   
@@ -103,7 +104,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   
   private static Hashtable<Long, boolean[]> DATA_REFRESH_TABLE = null;
   
-  private long mFavoriteId;
+  private final long mFavoriteId;
   
   public Favorite() {
     this(null, "", KEYWORD_ONLY_TITLE_TYPE, true, VALUE_RESTRICTION_TIME_DEFAULT, VALUE_RESTRICTION_TIME_DEFAULT, null, null, null, VALUE_RESTRICTION_TIME_DEFAULT, VALUE_RESTRICTION_TIME_DEFAULT, null, null);
@@ -263,7 +264,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     if(isUniqueChannelRestricted()) { 
       String[] parts = mUniqueChannelIds.split(",");
       
-      ArrayList<Integer> parsed = new ArrayList<Integer>();
+      ArrayList<Integer> parsed = new ArrayList<>();
       
       String[] projection = {
           TvBrowserContentProvider.CHANNEL_TABLE + "." + TvBrowserContentProvider.KEY_ID
@@ -317,7 +318,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     this(name, search, onlyTitle, remind, -1, -1, null, null);
   }*/
   
-  public Favorite(String name, String search, int type, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions, int durationRestrictionMinimum, int durationRestrictionMaximum, int[] attributeRestriction, long[] uniqueProgramIds) {
+  private Favorite(String name, String search, int type, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions, int durationRestrictionMinimum, int durationRestrictionMaximum, int[] attributeRestriction, long[] uniqueProgramIds) {
     mFavoriteId = System.currentTimeMillis();
     setValues(name, search, type, remind, timeRestrictionStart, timeRestrictionEnd, days, channelIDs, exclusions, durationRestrictionMinimum, durationRestrictionMaximum, attributeRestriction, uniqueProgramIds);
   }
@@ -462,7 +463,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     return mUniqueProgramIds;
   }
   
-  public boolean containsUniqueProgramId(long uniqueId) {
+  private boolean containsUniqueProgramId(long uniqueId) {
     boolean result = false;
     
     if(mUniqueProgramIds != null) {
@@ -793,7 +794,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     return mFavoriteId;
   }
   
-  public String getSaveString() {
+  private String getSaveString() {
     return getSaveString(null);
   }
   
@@ -855,7 +856,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     return saveString.toString();
   }
   
-  final static String[] UNIQUE_CHANNEL_RESTRICTION_PROJECTION = {
+  private final static String[] UNIQUE_CHANNEL_RESTRICTION_PROJECTION = {
       TvBrowserContentProvider.GROUP_KEY_DATA_SERVICE_ID,
       TvBrowserContentProvider.GROUP_KEY_GROUP_ID,
       TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID
@@ -1009,9 +1010,9 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
         //  int startTimeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
           int removedReminderIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_REMOVED_REMINDER);
           
-          ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
-          ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
-          ArrayList<String> reminderIdList = new ArrayList<String>();
+          ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
+          ArrayList<Intent> markingIntentList = new ArrayList<>();
+          ArrayList<String> reminderIdList = new ArrayList<>();
           
           while(!cursor.isClosed() && cursor.moveToNext()) {
             long id = cursor.getLong(idColumnIndex);
@@ -1134,9 +1135,9 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           int favoriteReminderColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER);
           int reminderColumnIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER);
           
-          ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
-          ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
-          ArrayList<String> removedReminderIdList = new ArrayList<String>();
+          ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
+          ArrayList<Intent> markingIntentList = new ArrayList<>();
+          ArrayList<String> removedReminderIdList = new ArrayList<>();
           
           do {
             long id = cursor.getLong(idColumnIndex);
@@ -1213,7 +1214,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   }
     
   public static void handleDataUpdateStarted() {
-    DATA_REFRESH_TABLE = new Hashtable<Long, boolean[]>();
+    DATA_REFRESH_TABLE = new Hashtable<>();
   }
   
   public static void handleDataUpdateFinished() {
@@ -1249,9 +1250,9 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
           
           int count = 0;
           
-          ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
-          ArrayList<Intent> markingIntentList = new ArrayList<Intent>();
-          ArrayList<String> reminderIdList = new ArrayList<String>();
+          ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
+          ArrayList<Intent> markingIntentList = new ArrayList<>();
+          ArrayList<String> reminderIdList = new ArrayList<>();
           
           long[] uniqueProgramIds = new long[cursor.getCount()];
           
@@ -1349,14 +1350,14 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   }
 
   @Override
-  public int compareTo(Favorite another) {
+  public int compareTo(@NonNull Favorite another) {
     return mName.compareToIgnoreCase(another.mName);
   }
   
-  public static final Favorite[] getAllFavorites(Context context) {
+  public static Favorite[] getAllFavorites(Context context) {
     SharedPreferences prefFavorites = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FAVORITES, context);
     
-    ArrayList<Favorite> favoriteList = new ArrayList<Favorite>();
+    ArrayList<Favorite> favoriteList = new ArrayList<>();
     
     if(prefFavorites != null) {
       Map<String,?> favorites = prefFavorites.getAll();
@@ -1376,7 +1377,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     return favoriteList.toArray(new Favorite[favoriteList.size()]);
   }
   
-  public static final void deleteFavorite(Context context, Favorite favorite) {
+  public static void deleteFavorite(Context context, Favorite favorite) {
     Favorite.removeFavoriteMarkingInternal(context, context.getContentResolver(), favorite, false);
     
     Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FAVORITES, context).edit();
@@ -1384,7 +1385,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     edit.commit();
   }
   
-  public static final void deleteAllFavorites(Context context) {
+  public static void deleteAllFavorites(Context context) {
     Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FAVORITES, context).edit();
     Favorite[] favorites = getAllFavorites(context);
     
@@ -1396,7 +1397,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     edit.commit();
   }
   
-  public static final int getFavoriteMarkIconType(Context context, long programId) {
+  public static int getFavoriteMarkIconType(Context context, long programId) {
     int result = 0;
     
     Favorite[] favorites = getAllFavorites(context);
@@ -1443,7 +1444,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     }
   }
   
-  public static final ImageSpan getMarkIcon(Context context, int type) {
+  public static ImageSpan getMarkIcon(Context context, int type) {
     ImageSpan result = null;
     
     if(type > 1) {
@@ -1466,7 +1467,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   
   public static Favorite[] getFavoritesForUniqueId(Context context, long uniqueId) {
     final Favorite[] allFavorites = getAllFavorites(context);
-    final ArrayList<Favorite> uniqueIdFavoriteList = new ArrayList<Favorite>(); 
+    final ArrayList<Favorite> uniqueIdFavoriteList = new ArrayList<>();
     
     for(Favorite test : allFavorites) {
       if(test.containsUniqueProgramId(uniqueId)) {

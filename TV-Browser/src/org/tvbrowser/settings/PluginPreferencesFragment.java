@@ -42,8 +42,7 @@ import android.text.Html;
  * @author René Mach
  */
 public class PluginPreferencesFragment extends PreferenceFragment {
-  private String mPluginId;
-  
+
   @Override
   public void onDetach() {
     super.onDetach();
@@ -58,6 +57,7 @@ public class PluginPreferencesFragment extends PreferenceFragment {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
 
+    final String mPluginId;
     if (savedInstanceState == null) {
       mPluginId = getArguments().getString("pluginId");
     } else {
@@ -98,39 +98,36 @@ public class PluginPreferencesFragment extends PreferenceFragment {
           preferenceScreen.addPreference(descriptionPref);
         }
 
-        final AtomicReference<Preference> startSetupRef = new AtomicReference<Preference>(null);
+        final AtomicReference<Preference> startSetupRef = new AtomicReference<>(null);
         if (pluginConnection != null && pluginConnection.hasPreferences()) {
           final Preference startSetup = new Preference(getActivity());
           startSetup.setTitle(R.string.pref_open);
           startSetup.setKey(mPluginId);
-          startSetup.setOnPreferenceClickListener(new Preference.OnPreferenceClickListener() {
-            @Override
-            public boolean onPreferenceClick(Preference preference) {
-              try {
-                if (pluginConnection != null) {
-                  Plugin plugin = pluginConnection.getPlugin();
+          startSetup.setOnPreferenceClickListener(preference -> {
+            try {
+              if (pluginConnection != null) {
+                Plugin plugin = pluginConnection.getPlugin();
 
-                  if (plugin != null && pluginConnection.isBound(getActivity().getApplicationContext())) {
-                    plugin.openPreferences(IOUtils.getChannelList(getActivity()));
-                  } else {
-                    final Context bindContext = getActivity();
+                if (plugin != null && pluginConnection.isBound(getActivity().getApplicationContext())) {
+                  plugin.openPreferences(IOUtils.getChannelList(getActivity()));
+                } else {
+                  final Context bindContext = getActivity();
 
-                    if (pluginConnection.bindPlugin(bindContext, null)) {
-                      pluginConnection.getPlugin().onActivation(pluginManager);
-                      pluginConnection.getPlugin().openPreferences(IOUtils.getChannelList(bindContext));
-                      pluginConnection.callOnDeactivation();
+                  if (pluginConnection.bindPlugin(bindContext, null)) {
+                    pluginConnection.getPlugin().onActivation(pluginManager);
+                    pluginConnection.getPlugin().openPreferences(IOUtils.getChannelList(bindContext));
+                    pluginConnection.callOnDeactivation();
 
-                      pluginConnection.unbindPlugin(bindContext);
-                    }
+                    pluginConnection.unbindPlugin(bindContext);
                   }
-
-
                 }
-              } catch (Throwable e) {
-              }
 
-              return true;
+
+              }
+            } catch (Throwable ignored) {
             }
+
+            return true;
           });
 
           preferenceScreen.addPreference(startSetup);
@@ -139,50 +136,44 @@ public class PluginPreferencesFragment extends PreferenceFragment {
           startSetupRef.set(startSetup);
         }
 
-        activated.setOnPreferenceChangeListener(new Preference.OnPreferenceChangeListener() {
-          @Override
-          public boolean onPreferenceChange(Preference preference, final Object newValue) {
-            if (pluginConnection != null) {
-              final AtomicReference<Context> mBindContextRef = new AtomicReference<Context>(null);
+        activated.setOnPreferenceChangeListener((preference, newValue) -> {
+          if (pluginConnection != null) {
+            final AtomicReference<Context> mBindContextRef = new AtomicReference<>(null);
 
-              Runnable runnable = new Runnable() {
-                @Override
-                public void run() {
-                  if (startSetupRef.get() != null) {
-                    startSetupRef.get().setEnabled((Boolean) newValue);
-                  }
+            Runnable runnable = () -> {
+              if (startSetupRef.get() != null) {
+                startSetupRef.get().setEnabled((Boolean) newValue);
+              }
 
-                  if ((Boolean) newValue) {
-                    try {
-                      pluginConnection.getPlugin().onActivation(pluginManager);
-                    } catch (RemoteException e) {
-                      e.printStackTrace();
-                    }
-                  } else {
-                    pluginConnection.callOnDeactivation();
-                  }
-
-                  if (mBindContextRef.get() != null) {
-                    pluginConnection.callOnDeactivation();
-                    pluginConnection.unbindPlugin(mBindContextRef.get());
-                  }
-                }
-              };
-
-              Plugin plugin = pluginConnection.getPlugin();
-
-              if (plugin == null) {
-                mBindContextRef.set(getActivity());
-                if (pluginConnection.bindPlugin(mBindContextRef.get(), null)) {
-                  runnable.run();
+              if ((Boolean) newValue) {
+                try {
+                  pluginConnection.getPlugin().onActivation(pluginManager);
+                } catch (RemoteException e) {
+                  e.printStackTrace();
                 }
               } else {
+                pluginConnection.callOnDeactivation();
+              }
+
+              if (mBindContextRef.get() != null) {
+                pluginConnection.callOnDeactivation();
+                pluginConnection.unbindPlugin(mBindContextRef.get());
+              }
+            };
+
+            Plugin plugin = pluginConnection.getPlugin();
+
+            if (plugin == null) {
+              mBindContextRef.set(getActivity());
+              if (pluginConnection.bindPlugin(mBindContextRef.get(), null)) {
                 runnable.run();
               }
+            } else {
+              runnable.run();
             }
-
-            return true;
           }
+
+          return true;
         });
 
         String license = pluginConnection.getPluginLicense();

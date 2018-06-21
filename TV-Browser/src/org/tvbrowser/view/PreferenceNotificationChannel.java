@@ -3,10 +3,8 @@ package org.tvbrowser.view;
 import android.content.Context;
 import android.content.Intent;
 import android.preference.Preference;
-import android.preference.Preference;
 import android.provider.Settings;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 
@@ -33,7 +31,7 @@ public class PreferenceNotificationChannel extends Preference implements Prefere
 
     mTypeId = Integer.parseInt(getSummary().toString());
 
-    TextView summaryView = (TextView) view.findViewById(android.R.id.summary);
+    TextView summaryView = view.findViewById(android.R.id.summary);
     summaryView.setVisibility(View.GONE);
   }
 

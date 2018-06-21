@@ -99,7 +99,7 @@ public class ServiceUpdateReminders extends Service {
           else {
             try {
               sleep(500);
-            } catch (InterruptedException e) {}
+            } catch (InterruptedException ignored) {}
           }
           
           stopSelf();
@@ -167,15 +167,15 @@ public class ServiceUpdateReminders extends Service {
   }catch(Throwable t) {t.printStackTrace();}
   }
     
-  public static final void startReminderUpdate(Context context) {
+  public static void startReminderUpdate(Context context) {
     startReminderUpdate(context,false);
   }
   
-  public static final void startReminderUpdate(Context context, boolean firstStart) {
+  private static void startReminderUpdate(Context context, boolean firstStart) {
     startReminderUpdate(context,false,-1);
   }
   
-  public static final void startReminderUpdate(Context context, boolean firstStart, long ignoreId) {
+  private static void startReminderUpdate(Context context, boolean firstStart, long ignoreId) {
     Intent updateAlarms = new Intent(context, ServiceUpdateReminders.class);
     updateAlarms.putExtra(ServiceUpdateReminders.EXTRA_FIRST_STARTUP, firstStart);
     context.startService(updateAlarms);

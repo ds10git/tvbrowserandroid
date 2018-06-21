@@ -72,7 +72,7 @@ public class LoaderUpdater {
     startUpdate(nextUpdate, null);
   }
   
-  public synchronized void startUpdate(long nextUpdate, final CallbackObjects callbackObjects) {
+  private synchronized void startUpdate(long nextUpdate, final CallbackObjects callbackObjects) {
     mLastUpdateStart = System.currentTimeMillis();
     if((nextUpdate == 0 || nextUpdate >= System.currentTimeMillis()) && 
         (mUpdateWaitingThread == null || !mUpdateWaitingThread.isAlive())) {
@@ -95,15 +95,12 @@ public class LoaderUpdater {
             if(mFragment.getLoaderManager().hasRunningLoaders()) {
               try {
                 mFragment.getLoaderManager().getLoader(0).stopLoading();
-              }catch(Throwable t) {}
+              }catch(Throwable ignored) {}
             }
 
-            mHandler.post(new Runnable() {
-              @Override
-              public void run() {
-                if(!mFragment.isDetached() && mFragment.getActivity() != null && mIsRunning) {
-                  mFragment.getLoaderManager().restartLoader(0, null, (LoaderManager.LoaderCallbacks<?>)mFragment);
-                }
+            mHandler.post(() -> {
+              if(!mFragment.isDetached() && mFragment.getActivity() != null && mIsRunning) {
+                mFragment.getLoaderManager().restartLoader(0, null, (LoaderManager.LoaderCallbacks<?>)mFragment);
               }
             });
           }
@@ -115,7 +112,7 @@ public class LoaderUpdater {
   
   
   public static final class UnsupportedFragmentException extends Exception {
-    public UnsupportedFragmentException() {
+    UnsupportedFragmentException() {
       super("Fragment not supported, must implement android.support.v4.app.LoaderManager.LoaderCallbacks<Cursor>");
     }
   }
@@ -157,10 +154,10 @@ public class LoaderUpdater {
   }
   
   public static final class CallbackObjects {
-    private HashSet<CallbackObject<?>> mCallbackObjects;
+    private final HashSet<CallbackObject<?>> mCallbackObjects;
     
     public CallbackObjects(CallbackObject<?>... initialObjects) {
-      mCallbackObjects = new HashSet<LoaderUpdater.CallbackObject<?>>();
+      mCallbackObjects = new HashSet<>();
       
       if(initialObjects != null) {
         Collections.addAll(mCallbackObjects, initialObjects);
@@ -190,7 +187,7 @@ public class LoaderUpdater {
       return defaultValue;
     }
     
-    public CallbackObject<?> getCallbackObject(String name, CallbackObject<?> defaultValue) {
+    CallbackObject<?> getCallbackObject(String name, CallbackObject<?> defaultValue) {
       synchronized (mCallbackObjects) {
         for(CallbackObject<?> test : mCallbackObjects) {
           if(name.equals(test.mName)) {
@@ -204,7 +201,7 @@ public class LoaderUpdater {
     }
   }
   
-  public static interface Callback {
-    public void handleCallback(CallbackObjects callbackObjects);
+  public interface Callback {
+    void handleCallback(CallbackObjects callbackObjects);
   }
 }

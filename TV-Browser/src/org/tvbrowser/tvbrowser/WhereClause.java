@@ -22,8 +22,8 @@ package org.tvbrowser.tvbrowser;
  * @author René Mach
  */
 public class WhereClause {
-  private String mWhere;
-  private String[] mSelectionArgs;
+  private final String mWhere;
+  private final String[] mSelectionArgs;
   
   public WhereClause() {
     this(null,null);

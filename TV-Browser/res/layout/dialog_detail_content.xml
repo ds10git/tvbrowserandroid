@@ -29,7 +29,7 @@
             android:layout_marginLeft="3dp"
             android:layout_marginStart="3dp"
             android:layout_weight="0"
-            android:contentDescription="REMINDER"
+            android:contentDescription="@string/reminder"
             android:padding="0dp"
             android:src="@drawable/ic_action_add_alarm" />
     </LinearLayout>

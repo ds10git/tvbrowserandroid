@@ -50,7 +50,7 @@ public class EPGpaidDataConnection {
   private static final String REQUEST_METHOD_POST = "POST";
   
   private HttpURLConnection mHttpConnection;
-  private Authenticator mAuthenticator;
+  private final Authenticator mAuthenticator;
   
   public EPGpaidDataConnection() {
     if(!(CookieHandler.getDefault() instanceof CookieManager)) {
@@ -83,7 +83,7 @@ public class EPGpaidDataConnection {
         closeHttpConnection();
         
         if(!pageContent.isEmpty()) {
-          HashMap<String, String> nameValueMap = new HashMap<String, String>();
+          HashMap<String, String> nameValueMap = new HashMap<>();
           
           String[] lines = pageContent.split("\n");
           
@@ -325,7 +325,7 @@ public class EPGpaidDataConnection {
     return result.toString();
   }
   
-  private boolean saveStream(InputStream in, File target) throws IOException {
+  private boolean saveStream(InputStream in, File target) {
     return IOUtils.saveStream(target.getAbsolutePath(), in);
   }
 }

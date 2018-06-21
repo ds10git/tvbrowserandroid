@@ -5,5 +5,5 @@
     android:layout_height="wrap_content"
     android:paddingLeft="10dp"
     android:paddingRight="10dp"
-    android:contentDescription="T"
+    android:contentDescription="@string/widget_toggle_reminder_state"
     android:src="@drawable/ic_stat_reminder"/>

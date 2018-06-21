@@ -22,7 +22,6 @@ import android.content.Context;
 import android.content.Intent;
 
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.settings.TvbPreferenceFragment;
 import org.tvbrowser.tvbrowser.InfoActivity;
 import org.tvbrowser.tvbrowser.TvBrowser;
 

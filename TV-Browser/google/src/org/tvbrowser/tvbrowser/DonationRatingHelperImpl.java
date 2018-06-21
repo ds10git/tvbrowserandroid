@@ -81,23 +81,15 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 		alert.setNegativeButton(tvBrowser.getString(R.string.not_now).replace("{0}", ""), null);
 
 		if (Locale.getDefault().getCountry().equals("DE")) {
-			alert.setPositiveButton(R.string.donation_info_website, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(URL_SYNC_BASE + "index.php?id=donations")));
-				}
-			});
+			alert.setPositiveButton(R.string.donation_info_website, (dialog, which) -> tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(URL_SYNC_BASE + "index.php?id=donations"))));
 		}
 
 		final AlertDialog d = alert.create();
 
-		View.OnClickListener onDonationClick = new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				d.dismiss();
-				openDonation((SkuDetails) v.getTag());
-			}
-		};
+		View.OnClickListener onDonationClick = v -> {
+      d.dismiss();
+      openDonation((SkuDetails) v.getTag());
+    };
 
 		Purchase donated = null;
 		SkuDetails donatedDetails = null;
@@ -142,36 +134,22 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 
 			final Purchase toConsume = donated;
 
-			alert2.setPositiveButton(R.string.donate_again, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					tvBrowser.updateProgressIcon(true);
+			alert2.setPositiveButton(R.string.donate_again, (dialog, which) -> {
+        tvBrowser.updateProgressIcon(true);
 
-					iabHelper.consumeAsync(toConsume, new IabHelper.OnConsumeFinishedListener() {
-						@Override
-						public void onConsumeFinished(Purchase purchase, IabResult result) {
-							tvBrowser.updateProgressIcon(false);
+        iabHelper.consumeAsync(toConsume, (purchase, result) -> {
+          tvBrowser.updateProgressIcon(false);
 
-							if (result.isSuccess()) {
-								tvBrowser.showAlertDialog(d);
-							} else {
-								tvBrowser.getHandler().post(new Runnable() {
-									@Override
-									public void run() {
-										Toast.makeText(tvBrowser, "", Toast.LENGTH_LONG).show();
-									}
-								});
-							}
-						}
-					});
-				}
-			});
+          if (result.isSuccess()) {
+            tvBrowser.showAlertDialog(d);
+          } else {
+            tvBrowser.getHandler().post(() -> Toast.makeText(tvBrowser, "", Toast.LENGTH_LONG).show());
+          }
+        });
+      });
 
-			alert2.setNegativeButton(R.string.stop_donation, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-				}
-			});
+			alert2.setNegativeButton(R.string.stop_donation, (dialog, which) -> {
+      });
 
 			tvBrowser.showAlertDialog(alert2);
 		}
@@ -203,12 +181,7 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 		alert.setNegativeButton(android.R.string.ok, null);
 
 		if (showOthers) {
-			alert.setPositiveButton(R.string.donation_open_website, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(URL_SYNC_BASE + "index.php?id=donations")));
-				}
-			});
+			alert.setPositiveButton(R.string.donation_open_website, (dialog, which) -> tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(URL_SYNC_BASE + "index.php?id=donations"))));
 		}
 
 		tvBrowser.showAlertDialog(alert);
@@ -217,21 +190,13 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 	private void listPurchaseItems() {
 		try {
 			if (iabHelper!=null) {
-				iabHelper.queryInventoryAsync(true, SKU_LIST, new QueryInventoryFinishedListener() {
-					@Override
-					public void onQueryInventoryFinished(IabResult result, final Inventory inv) {
-						if (result.isFailure()) {
-							showInAppError();
-						} else {
-							tvBrowser.getHandler().post(new Runnable() {
-								@Override
-								public void run() {
-									showInAppDonations(inv);
-								}
-							});
-						}
-					}
-				});
+				iabHelper.queryInventoryAsync(true, SKU_LIST, (result, inv) -> {
+          if (result.isFailure()) {
+            showInAppError();
+          } else {
+            tvBrowser.getHandler().post(() -> showInAppDonations(inv));
+          }
+        });
 			}
 		} catch (IllegalStateException e) {
 			showInAppError();
@@ -256,22 +221,13 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 			String hrq = hm5 + a2a + ab2 + bt4 + ddx + iz4 + u6c + ag2 + ot8 + a2b;
 
 			iabHelper = new IabHelper(tvBrowser, hrq);
-			iabHelper.startSetup(new IabHelper.OnIabSetupFinishedListener() {
-
-				@Override
-				public void onIabSetupFinished(IabResult result) {
-					if (!result.isSuccess()) {
-						showInAppError();
-					} else {
-						tvBrowser.getHandler().post(new Runnable() {
-							@Override
-							public void run() {
-								listPurchaseItems();
-							}
-						});
-					}
-				}
-			});
+			iabHelper.startSetup(result -> {
+        if (!result.isSuccess()) {
+          showInAppError();
+        } else {
+          tvBrowser.getHandler().post(() -> listPurchaseItems());
+        }
+      });
 		} else {
 			listPurchaseItems();
 		}
@@ -289,41 +245,22 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 
 			((TextView) view.findViewById(R.id.donation_open_info)).setText(tvBrowser.getString(R.string.make_donation_info).replace("{0}", skuDetails.getPrice()));
 
-			alert.setNegativeButton(R.string.stop_donation, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-				}
-			});
+			alert.setNegativeButton(R.string.stop_donation, (dialog, which) -> {
+      });
 
-			alert.setPositiveButton(R.string.make_donation, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					tvBrowser.getHandler().post(new Runnable() {
-						@Override
-						public void run() {
-							iabHelper.launchPurchaseFlow(tvBrowser, skuDetails.getSku(), 1012, new IabHelper.OnIabPurchaseFinishedListener() {
-								@Override
-								public void onIabPurchaseFinished(IabResult result, Purchase info) {
-									if (result.isSuccess()) {
-										AlertDialog.Builder alert2 = new AlertDialog.Builder(tvBrowser);
+			alert.setPositiveButton(R.string.make_donation, (dialog, which) -> tvBrowser.getHandler().post(() -> iabHelper.launchPurchaseFlow(tvBrowser, skuDetails.getSku(), 1012, (result, info) -> {
+        if (result.isSuccess()) {
+          AlertDialog.Builder alert2 = new AlertDialog.Builder(tvBrowser);
 
-										alert2.setTitle(R.string.donation);
-										alert2.setMessage(R.string.thanks_for_donation);
+          alert2.setTitle(R.string.donation);
+          alert2.setMessage(R.string.thanks_for_donation);
 
-										alert2.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-											@Override
-											public void onClick(DialogInterface dialog, int which) {
-											}
-										});
+          alert2.setPositiveButton(android.R.string.ok, (dialog1, which1) -> {
+          });
 
-										tvBrowser.showAlertDialog(alert2);
-									}
-								}
-							}, Long.toHexString(Double.doubleToLongBits(Math.random())));
-						}
-					});
-				}
-			});
+          tvBrowser.showAlertDialog(alert2);
+        }
+      }, Long.toHexString(Double.doubleToLongBits(Math.random())))));
 
 			tvBrowser.showAlertDialog(alert);
 		}
@@ -364,75 +301,54 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 
 		final AlertDialog d = alert.create();
 
-		cancel.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setRatingAndDonationInfoShown();
-				d.dismiss();
-				tvBrowser.finish();
-			}
-		});
+		cancel.setOnClickListener(v -> {
+      setRatingAndDonationInfoShown();
+      d.dismiss();
+      tvBrowser.finish();
+    });
 
-		donate.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setRatingAndDonationInfoShown();
-				d.dismiss();
-				showDonationInfo();
-			}
-		});
+		donate.setOnClickListener(v -> {
+      setRatingAndDonationInfoShown();
+      d.dismiss();
+      showDonationInfo();
+    });
 
-		rate.setOnClickListener(new View.OnClickListener() {
-			@Override
-			public void onClick(View v) {
-				setRatingAndDonationInfoShown();
-				d.dismiss();
-				final String appPackageName = tvBrowser.getPackageName(); // getPackageName() from Context or Activity object
-				try {
-					tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
-				} catch (android.content.ActivityNotFoundException anfe) {
-					tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
-				}
-				tvBrowser.finish();
-			}
-		});
+		rate.setOnClickListener(v -> {
+      setRatingAndDonationInfoShown();
+      d.dismiss();
+      final String appPackageName = tvBrowser.getPackageName(); // getPackageName() from Context or Activity object
+      try {
+        tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+      } catch (android.content.ActivityNotFoundException anfe) {
+        tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+      }
+      tvBrowser.finish();
+    });
 
-		d.setOnShowListener(new DialogInterface.OnShowListener() {
-			public void onShow(DialogInterface dialog) {
-				new Thread("Cancel wait thread") {
-					@Override
-					public void run() {
-						setRatingAndDonationInfoShown();
+		d.setOnShowListener(dialog -> new Thread("Cancel wait thread") {
+      @Override
+      public void run() {
+        setRatingAndDonationInfoShown();
 
-						int count = 9;
-						while (--count >= 0) {
-							final int countValue = count + 1;
+        int count = 9;
+        while (--count >= 0) {
+          final int countValue = count + 1;
 
-							tvBrowser.getHandler().post(new Runnable() {
-								@Override
-								public void run() {
-									cancel.setText(tvBrowser.getString(R.string.not_now).replace("{0}", " (" + countValue + ")"));
-								}
-							});
+          tvBrowser.getHandler().post(() -> cancel.setText(tvBrowser.getString(R.string.not_now).replace("{0}", " (" + countValue + ")")));
 
-							try {
-								sleep(1000);
-							} catch (InterruptedException e) {
-								e.printStackTrace();
-							}
-						}
+          try {
+            sleep(1000);
+          } catch (InterruptedException e) {
+            e.printStackTrace();
+          }
+        }
 
-						tvBrowser.getHandler().post(new Runnable() {
-							@Override
-							public void run() {
-								cancel.setText(tvBrowser.getString(R.string.not_now).replace("{0}", ""));
-								cancel.setEnabled(true);
-							}
-						});
-					}
-				}.start();
-			}
-		});
+        tvBrowser.getHandler().post(() -> {
+          cancel.setText(tvBrowser.getString(R.string.not_now).replace("{0}", ""));
+          cancel.setEnabled(true);
+        });
+      }
+    }.start());
 
 		tvBrowser.showAlertDialog(d, true);
 	}
@@ -457,32 +373,26 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 		String updateText = installedFromGooglePlay() ? tvBrowser.getString(R.string.update_google_play) : tvBrowser.getString(R.string.update_website);
 
 		builder.setMessage(expiredMessage);
-		builder.setPositiveButton(updateText, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if (installedFromGooglePlay()) {
-					final String appPackageName = tvBrowser.getPackageName(); // getPackageName() from Context or Activity object
-					try {
-						tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
-					} catch (android.content.ActivityNotFoundException anfe) {
-						tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
-					}
-				}
-				else {
-					tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=download")));
-				}
+		builder.setPositiveButton(updateText, (dialog, which) -> {
+      if (installedFromGooglePlay()) {
+        final String appPackageName = tvBrowser.getPackageName(); // getPackageName() from Context or Activity object
+        try {
+          tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=" + appPackageName)));
+        } catch (android.content.ActivityNotFoundException anfe) {
+          tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://play.google.com/store/apps/details?id=" + appPackageName)));
+        }
+      }
+      else {
+        tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=download")));
+      }
 
-				System.exit(0);
-			}
-		});
-		builder.setNegativeButton(R.string.update_not_now, new DialogInterface.OnClickListener() {
-			@Override
-			public void onClick(DialogInterface dialog, int which) {
-				if(diff < 0) {
-					System.exit(0);
-				}
-			}
-		});
+      System.exit(0);
+    });
+		builder.setNegativeButton(R.string.update_not_now, (dialog, which) -> {
+      if(diff < 0) {
+        System.exit(0);
+      }
+    });
 		builder.setCancelable(false);
 
 		tvBrowser.showAlertDialog(builder);

@@ -26,7 +26,7 @@ public class FilterValuesCategories extends FilterValues implements CategoryFilt
     mOperation = operation;
   }
     
-  protected FilterValuesCategories(String name, String values) {
+  FilterValuesCategories(String name, String values) {
     super(name);
     String[] parts = values.split(";");
     

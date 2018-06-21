@@ -29,8 +29,8 @@ import android.widget.TextView;
  * @author René Mach
  */
 public class ColorView extends View {
-  private Paint mColorPaint = new Paint();
-  private Paint mBorderPaint = new Paint();
+  private final Paint mColorPaint = new Paint();
+  private final Paint mBorderPaint = new Paint();
   
   public ColorView(Context context) {
     super(context);

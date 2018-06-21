@@ -48,6 +48,7 @@ import android.os.RemoteException;
  * @author René Mach
  */
 public final class PluginHandler {
+  @SuppressWarnings("WeakerAccess")
   public static final String PLUGIN_ACTION = "org.tvbrowser.intent.action.PLUGIN";
   private static ArrayList<PluginServiceConnection> PLUGIN_LIST;
   
@@ -56,19 +57,19 @@ public final class PluginHandler {
   
   private static final AtomicInteger BLOG_COUNT = new AtomicInteger(0);
   
-  public static final boolean pluginsAvailable() {
+  public static boolean pluginsAvailable() {
     return PLUGIN_LIST != null && !PLUGIN_LIST.isEmpty();
   }
   
   private static PluginManager createPluginManager(final Context context) {
     return new PluginManager.Stub() {
       @Override
-      public List<Channel> getSubscribedChannels() throws RemoteException {
+      public List<Channel> getSubscribedChannels() {
         return IOUtils.getChannelList(context);
       }
       
       @Override
-      public Program getProgramWithId(long programId) throws RemoteException {
+      public Program getProgramWithId(long programId) {
         Program result = null;
         
         final long token = Binder.clearCallingIdentity();
@@ -88,7 +89,7 @@ public final class PluginHandler {
       }
       
       @Override
-      public Program getProgramForChannelAndTime(int channelId, long startTimeInUTC) throws RemoteException {
+      public Program getProgramForChannelAndTime(int channelId, long startTimeInUTC) {
         Program result = null;
         
         String where = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + "=" + channelId + " AND " + TvBrowserContentProvider.DATA_KEY_STARTTIME + "=" + startTimeInUTC;
@@ -110,7 +111,7 @@ public final class PluginHandler {
       }
 
       @Override
-      public TvBrowserSettings getTvBrowserSettings() throws RemoteException {
+      public TvBrowserSettings getTvBrowserSettings() {
         String version = "Unknown";
         int versionCode = -1;
 
@@ -118,28 +119,28 @@ public final class PluginHandler {
           PackageInfo pInfo = context.getPackageManager().getPackageInfo(context.getPackageName(), 0);
           version = pInfo.versionName;
           versionCode = pInfo.versionCode;
-        } catch (NameNotFoundException e) {}
+        } catch (NameNotFoundException ignored) {}
         
         return new TvBrowserSettings(SettingConstants.IS_DARK_THEME, version, versionCode, PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_FIRST_KNOWN, R.integer.meta_data_id_default), PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_LAST_KNOWN, R.integer.meta_data_id_default), PrefUtils.getLongValue(R.string.PREF_LAST_KNOWN_DATA_DATE, SettingConstants.DATA_LAST_DATE_NO_DATA));
       }
 
       @Override
-      public boolean markProgram(Program program) throws RemoteException {
+      public boolean markProgram(Program program) {
         return program != null && markProgramWithIcon(program, null);
       }
 
       @Override
-      public boolean unmarkProgram(Program program) throws RemoteException {
+      public boolean unmarkProgram(Program program) {
         return program != null && unmarkProgramWithIcon(program, null);
       }
 
       @Override
-      public boolean markProgramWithIcon(Program program, String pluginCanonicalClassName) throws RemoteException {
+      public boolean markProgramWithIcon(Program program, String pluginCanonicalClassName) {
         return program != null && ProgramUtils.markProgram(context, program, pluginCanonicalClassName);
       }
 
       @Override
-      public boolean unmarkProgramWithIcon(Program program, String pluginCanonicalClassName) throws RemoteException {
+      public boolean unmarkProgramWithIcon(Program program, String pluginCanonicalClassName) {
         return program != null && ProgramUtils.unmarkProgram(context, program, pluginCanonicalClassName);
       }
 
@@ -175,7 +176,7 @@ public final class PluginHandler {
       }
 
       @Override
-      public void setRatingForProgram(Program program, int rating) throws RemoteException {
+      public void setRatingForProgram(Program program, int rating) {
         // TODO Create rating function.
       }
 
@@ -224,7 +225,7 @@ public final class PluginHandler {
     Logging.log(null, message, Logging.TYPE_PLUGIN, context);
   }
   
-  public static final synchronized void loadPlugins(Context context1/*, Handler handler*/) {
+  public static synchronized void loadPlugins(Context context1/*, Handler handler*/) {
     try {
       doLog(context1, "loadPlugins");
       
@@ -233,7 +234,7 @@ public final class PluginHandler {
       PLUGIN_MANAGER = createPluginManager(context);
       
       if(PLUGIN_LIST == null) {
-        PLUGIN_LIST = new ArrayList<PluginServiceConnection>();
+        PLUGIN_LIST = new ArrayList<>();
         RELOAD = true;
       }
       
@@ -261,13 +262,10 @@ public final class PluginHandler {
           }
         }
         
-        IOUtils.postDelayedInSeparateThread("LAST ID INFO DATE SAVE THREAD", new Runnable() {
-          @Override
-          public void run() {
-            if(PLUGIN_LIST != null) {
-              Collections.sort(PLUGIN_LIST);
-              PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putInt(context.getString(R.string.PLUGIN_LAST_ID_INFO_DATE), Calendar.getInstance().get(Calendar.DAY_OF_YEAR)).commit();
-            }
+        IOUtils.postDelayedInSeparateThread("LAST ID INFO DATE SAVE THREAD", () -> {
+          if(PLUGIN_LIST != null) {
+            Collections.sort(PLUGIN_LIST);
+            PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putInt(context.getString(R.string.PLUGIN_LAST_ID_INFO_DATE), Calendar.getInstance().get(Calendar.DAY_OF_YEAR)).commit();
           }
         }, 2000);
       }
@@ -275,13 +273,13 @@ public final class PluginHandler {
       incrementBlogCountIfZero();
       
       doLog(context1, "Plugin reference count " + BLOG_COUNT.get());
-    }catch(Throwable t) {
+    }catch(Throwable ignored) {
       
     }
   }
   
   public static PluginServiceConnection[] onlyLoadAndGetPlugins(Context context, Handler handler) {
-    final ArrayList<PluginServiceConnection> pluginList = new ArrayList<PluginServiceConnection>();
+    final ArrayList<PluginServiceConnection> pluginList = new ArrayList<>();
     
     PackageManager packageManager = context.getPackageManager();
     Intent baseIntent = new Intent( PluginHandler.PLUGIN_ACTION );
@@ -301,19 +299,17 @@ public final class PluginHandler {
       }
     }
     
-    IOUtils.postDelayedInSeparateThread("SORT PLUGINS WAITING THREAD", new Runnable() {
-      @Override
-      public void run() {
-        if(pluginList != null) {
-          Collections.sort(pluginList);
-        }
+    IOUtils.postDelayedInSeparateThread("SORT PLUGINS WAITING THREAD", () -> {
+      //noinspection ConstantConditions
+      if(pluginList != null) {
+        Collections.sort(pluginList);
       }
     }, 2000);
     
     return pluginList.toArray(new PluginServiceConnection[pluginList.size()]);
   }
   
-  public static final void shutdownPlugins(Context context) {
+  public static void shutdownPlugins(Context context) {
     doLog(context, "shutdownPlugins: reference count " + BLOG_COUNT.get());
     if(BLOG_COUNT.get() == 1) {
       doLog(context, "do Plugin shutdown");
@@ -354,7 +350,7 @@ public final class PluginHandler {
             result = true;
             break;
           }
-        } catch (RemoteException e) {}
+        } catch (RemoteException ignored) {}
       }
     }
     
@@ -401,6 +397,7 @@ public final class PluginHandler {
     }
   }
   
+  @SuppressWarnings("WeakerAccess")
   public static void incrementBlogCountIfZero() {
     if(BLOG_COUNT.get() == 0) {
       BLOG_COUNT.incrementAndGet();

@@ -59,9 +59,9 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   private static final String XML_ELEMENT_SERVICES = "servicelist";
   private static final String XML_ELEMENT_SERVICE = "service";
   
-  private String mPackageName;
-  private String mVersion;
-  private String mAuthor;
+  private final String mPackageName;
+  private final String mVersion;
+  private final String mAuthor;
   
   private String mNameDe;
   private String mNameEn;
@@ -69,34 +69,33 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   private String mDescriptionDe;
   private String mDescriptionEn;
   
-  private HashMap<String,String> mUnknownValues;
+  private final HashMap<String,String> mUnknownValues;
   
-  private int mMinApiVersion;
+  private final int mMinApiVersion;
   
-  private boolean mIsOnGooglePlay;
+  private final boolean mIsOnGooglePlay;
   private boolean mIsUpdate;
   
   private String[] mServices;
 
-  private static final Comparator<PluginDefinition> COMPARATOR_DOWN = new Comparator<PluginDefinition>() {
-    @Override
-    public int compare(PluginDefinition o1, PluginDefinition o2) {
-      if (Locale.getDefault().getLanguage().equals(new Locale("de", "", "").getLanguage())) {
-        return o2.mNameDe.compareToIgnoreCase(o1.mNameDe);
-      }
-
-      return o2.mNameEn.compareTo(o1.mNameEn);
+  private static final Comparator<PluginDefinition> COMPARATOR_DOWN = (o1, o2) -> {
+    if (Locale.getDefault().getLanguage().equals(new Locale("de", "", "").getLanguage())) {
+      return o2.mNameDe.compareToIgnoreCase(o1.mNameDe);
     }
+
+    return o2.mNameEn.compareTo(o1.mNameEn);
   };
 
   public static Comparator<PluginDefinition> getComparatorDown() {
     return COMPARATOR_DOWN;
   }
 
+  @SuppressWarnings("WeakerAccess")
   public PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay) {
     this(packageName, minApiVersion, version, author, isOnGooglePlay, null, null, null, null, null);
   }
   
+  @SuppressWarnings("WeakerAccess")
   public PluginDefinition(String packageName, int minApiVersion, String version, String author, boolean isOnGooglePlay, String nameDe, String nameEn, String descriptionDe, String descriptionEn, String[] services) {
     mPackageName = packageName;
     mMinApiVersion = minApiVersion;
@@ -161,7 +160,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   }
     
   public static PluginDefinition[] loadAvailablePluginDefinitions(String url) {
-    ArrayList<PluginDefinition> pluginList = new ArrayList<PluginDefinition>();
+    ArrayList<PluginDefinition> pluginList = new ArrayList<>();
     
     InputStreamReader in = null;
         
@@ -176,7 +175,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
       String tagName = null;
       PluginDefinition current = null;
       int event = parser.getEventType();
-      ArrayList<String> serviceList = new ArrayList<String>();
+      ArrayList<String> serviceList = new ArrayList<>();
       
       while(event != XmlPullParser.END_DOCUMENT) {
         switch(parser.getEventType()) {
@@ -184,56 +183,59 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
           {
             tagName = parser.getName();
 
-            if(tagName.equals(XML_ELEMENT_ROOT)) {
-              String isOnGooglePlay = parser.getAttributeValue(null, XML_ATTRIBUTE_ON_GOOGLE_PLAY);
-              
-              if(isOnGooglePlay == null) {
-                isOnGooglePlay = "false";
-              }
-              
-              String author = parser.getAttributeValue(null, XML_ATTRIBUTE_AUTHOR);
-              
-              if(author != null) {
-                author = URLDecoder.decode(author, "UTF-8");
-              }
-              else {
-                author = "Unknown";
-              }
-              
-              int minApi = 11;
-              
-              String readApi = parser.getAttributeValue(null, XML_ATTRIBUTE_MIN_API);
-              
-              if(readApi != null) {
-                minApi = Integer.parseInt(readApi);
-              }
-              
-              current = new PluginDefinition(parser.getAttributeValue(null, XML_ATTRIBUTE_PACKAGE), minApi, parser.getAttributeValue(null, XML_ATTRIBUTE_VERSION), author, isOnGooglePlay.equals("true"));
-            }             
-            else if(tagName.equals(XML_ELEMENT_SERVICES)) {
-              serviceList.clear();
-            }
-            else if(tagName.equals(XML_ELEMENT_SERVICE)) {
-              serviceList.add(parser.getAttributeValue(null, XML_ATTRIBUTE_PACKAGE));
+            switch (tagName) {
+              case XML_ELEMENT_ROOT:
+                String isOnGooglePlay = parser.getAttributeValue(null, XML_ATTRIBUTE_ON_GOOGLE_PLAY);
+
+                if (isOnGooglePlay == null) {
+                  isOnGooglePlay = "false";
+                }
+
+                String author = parser.getAttributeValue(null, XML_ATTRIBUTE_AUTHOR);
+
+                if (author != null) {
+                  author = URLDecoder.decode(author, "UTF-8");
+                } else {
+                  author = "Unknown";
+                }
+
+                int minApi = 11;
+
+                String readApi = parser.getAttributeValue(null, XML_ATTRIBUTE_MIN_API);
+
+                if (readApi != null) {
+                  minApi = Integer.parseInt(readApi);
+                }
+
+                current = new PluginDefinition(parser.getAttributeValue(null, XML_ATTRIBUTE_PACKAGE), minApi, parser.getAttributeValue(null, XML_ATTRIBUTE_VERSION), author, isOnGooglePlay.equals("true"));
+                break;
+              case XML_ELEMENT_SERVICES:
+                serviceList.clear();
+                break;
+              case XML_ELEMENT_SERVICE:
+                serviceList.add(parser.getAttributeValue(null, XML_ATTRIBUTE_PACKAGE));
+                break;
             }
           }break;
           case XmlPullParser.TEXT:
           {
             if(current != null) {
-              if(tagName.equals(XML_ELEMENT_NAME_EN)) {
-                current.mNameEn = URLDecoder.decode(parser.getText(), "UTF-8");
-              }
-              else if(tagName.equals(XML_ELEMENT_NAME_DE)) {
-                current.mNameDe = URLDecoder.decode(parser.getText(), "UTF-8");
-              }
-              else if(tagName.equals(XML_ELEMENT_DESCRIPTION_EN)) {
-                current.mDescriptionEn = URLDecoder.decode(parser.getText(), "UTF-8");
-              }
-              else if(tagName.equals(XML_ELEMENT_DESCRIPTION_DE)) {
-                current.mDescriptionDe = URLDecoder.decode(parser.getText(), "UTF-8");
-              }
-              else {
-                current.mUnknownValues.put(tagName,URLDecoder.decode(parser.getText(), "UTF-8"));
+              switch (tagName) {
+                case XML_ELEMENT_NAME_EN:
+                  current.mNameEn = URLDecoder.decode(parser.getText(), "UTF-8");
+                  break;
+                case XML_ELEMENT_NAME_DE:
+                  current.mNameDe = URLDecoder.decode(parser.getText(), "UTF-8");
+                  break;
+                case XML_ELEMENT_DESCRIPTION_EN:
+                  current.mDescriptionEn = URLDecoder.decode(parser.getText(), "UTF-8");
+                  break;
+                case XML_ELEMENT_DESCRIPTION_DE:
+                  current.mDescriptionDe = URLDecoder.decode(parser.getText(), "UTF-8");
+                  break;
+                default:
+                  current.mUnknownValues.put(tagName, URLDecoder.decode(parser.getText(), "UTF-8"));
+                  break;
               }
             }
           }break;
@@ -270,7 +272,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   }
 
   @Override
-  public int compareTo(PluginDefinition o) {
+  public int compareTo(@SuppressWarnings("NullableProblems") PluginDefinition o) {
     if (Locale.getDefault().getLanguage().equals(new Locale("de", "", "").getLanguage())) {
       return mNameDe.compareToIgnoreCase(o.mNameDe);
     }

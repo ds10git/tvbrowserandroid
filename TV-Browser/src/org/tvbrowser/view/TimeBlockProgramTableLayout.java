@@ -26,12 +26,12 @@ import org.tvbrowser.tvbrowser.R;
 
 public class TimeBlockProgramTableLayout extends ProgramTableLayout {
   //private ArrayList<Integer> mChannelIDsOrdered;
-  private int[] mBlockHeights;
-  private int[] mBlockCumulatedHeights;
-  private int mBlockSize;
-  private Calendar mCurrentShownDay;
+  private final int[] mBlockHeights;
+  private final int[] mBlockCumulatedHeights;
+  private final int mBlockSize;
+  private final Calendar mCurrentShownDay;
   
-  private boolean mGrowToBlock;
+  private final boolean mGrowToBlock;
   
   public TimeBlockProgramTableLayout(Context context, final ArrayList<Integer> channelIDsOrdered, int blockSize, final Calendar day, boolean growToBlock) {
     super(context, channelIDsOrdered);

@@ -14,7 +14,7 @@ import android.widget.TimePicker;
 import org.tvbrowser.utils.CompatUtils;
 
 public class TimePreference extends DialogPreference {
-  private Calendar mTime;
+  private final Calendar mTime;
   private TimePicker mTimePicker;
   
   public TimePreference(Context context, AttributeSet attrs) {

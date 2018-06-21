@@ -47,9 +47,9 @@ import android.text.style.ImageSpan;
  */
 public class PluginServiceConnection implements ServiceConnection, Comparable<PluginServiceConnection> {
   private Plugin mPlugin;
-  private String mPackageId;
-  private String mPluginId;
-  private Context mContext;
+  private final String mPackageId;
+  private final String mPluginId;
+  private final Context mContext;
   
   private String mPluginName;
   private String mPluginVersion;
@@ -61,7 +61,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   
   private Runnable mBindCallback;
   
-  private ArrayList<Context> mBindContextList;
+  private final ArrayList<Context> mBindContextList;
   
   public PluginServiceConnection(String packageId, String id, Context context) {
     mPackageId = packageId;
@@ -69,7 +69,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     mContext = context;
     mHasPreferences = false;
     
-    mBindContextList = new ArrayList<Context>();
+    mBindContextList = new ArrayList<>();
     
     doLog(mContext, "Plugin connection created: " + packageId + " " + id);
   }
@@ -90,7 +90,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
         if(bound) {
           mBindContextList.add(context);
         }
-      }catch(Throwable t) {}
+      }catch(Throwable ignored) {}
     }
     
     return bound;
@@ -147,6 +147,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     readPluginMetaData();
   }
   
+  @SuppressWarnings("WeakerAccess")
   public void callOnActivation() {
     if(isConnected()) {
       try {
@@ -158,7 +159,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
               SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, mContext);
               long value = pref.getLong(mContext.getString(R.string.META_DATA_ID_FIRST_KNOWN), mContext.getResources().getInteger(R.integer.meta_data_id_default));
               mPlugin.handleFirstKnownProgramId(value);
-            }catch(Throwable iae) {}
+            }catch(Throwable ignored) {}
           }
         }
         
@@ -202,6 +203,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
     }
   }
   
+  @SuppressWarnings("WeakerAccess")
   public void readPluginMetaData() {
     if(isConnected()) {
       try {
@@ -282,7 +284,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
   }
 
   @Override
-  public int compareTo(PluginServiceConnection another) {
+  public int compareTo(@SuppressWarnings("NullableProblems") PluginServiceConnection another) {
     if(mPluginName != null && another.mPluginName != null) {
       return mPluginName.compareToIgnoreCase(another.mPluginName);
     }

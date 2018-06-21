@@ -21,10 +21,10 @@ import java.util.ArrayList;
 import android.database.Cursor;
 import android.database.CursorWrapper;
 
-public class FilterCursorWrapper extends CursorWrapper {
+class FilterCursorWrapper extends CursorWrapper {
   private Integer[] filterMap = null;
   private int mPos = -1;
-  private Cursor mCursor;
+  private final Cursor mCursor;
 
   @Override
   public int getCount() { 
@@ -106,7 +106,7 @@ public class FilterCursorWrapper extends CursorWrapper {
   }
 
   public void updateFilter(CursorFilter filter) {
-    ArrayList<Integer> newFilterMap = new ArrayList<Integer>();
+    ArrayList<Integer> newFilterMap = new ArrayList<>();
     
     for(int i = 0; i < super.getCount(); i++) {
       if(mCursor.moveToNext()) {
