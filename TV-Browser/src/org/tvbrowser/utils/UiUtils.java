@@ -175,10 +175,18 @@ public class UiUtils {
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_OTHER_PERSONS, R.id.detail_other_persons);
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_PRODUCTION_FIRM, R.id.detail_production_firm);
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_AGE_LIMIT_STRING, R.id.detail_age_limit_string);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_YEAR_PRODUCTION_FIRST, R.id.detail_year_production_first);
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR, R.id.detail_last_production_year);
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO, R.id.detail_additional_info);
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_SERIES, R.id.detail_series);
     VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_RATING, R.id.detail_rating);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_GENRE_SUB_LIST, R.id.detail_subgenre_list);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_VOD_INFO, R.id.detail_vod_info);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_VOD_LINK, R.id.detail_vod_link);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_KEYWORD_LIST, R.id.detail_keyword_list);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_PART_NUMBER, R.id.detail_part_numer);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_PART_NUMBER_TOTAL, R.id.detail_parts_total);
+    VALUE_MAP.put(TvBrowserContentProvider.DATA_KEY_DURATION_ORIGINAL, R.id.detail_duration_original);
   }
   
   public static void showProgramInfo(final Context context, long id, View parent, Handler handler) {

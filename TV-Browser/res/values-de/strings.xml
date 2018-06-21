@@ -2,6 +2,8 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.6.5</h2>
+            &bull; Beschreibung von Sendungen in Programmtabelle anzeigen, wenn Platz vorhanden<br>
+            &bull; Unterstützung für neue Datenfelder<br>
             &bull; verwendet neues Layout für Tabs<br>
             &bull; fehlende Aktualisierung der Sendungen im Tab Laufende Sendungen behoben<br>
             &bull; Synchronisation der Lieblingssendung und Erinnerungen beschleunigt<br>
@@ -776,6 +778,7 @@
 	</string-array>
 	<string name="pref_show_genre">Genre anzeigen</string>
 	<string name="pref_show_episode">Episodentitel anzeigen</string>
+    <string name="pref_show_description_if_room">Wenn Platz Beschreibung anzeigen</string>
 	<string name="pref_show_program_categories">Sendungskategorien anzeigen</string>
 	<string name="pref_title_program_information_selection">Angezeigte Informationen auswählen</string>
 	<string name="pref_summary_program_information_selection">Welche Programminformationen sollen, falls verfügbar, angezeigt werden?</string>
@@ -823,6 +826,16 @@
 	<string name="programCategories">Sendungskategorien:\n</string>
 	<string name="additionalInfo">Zusätzliche Informationen:\n</string>
 	<string name="series">Serie:</string>
+
+    <string name="partNumber">Teil:</string>
+    <string name="partNumberTotal">Anzahl Teile:</string>
+    <string name="originalDuration">Originallänge:</string>
+    <string name="firstProductionYear">Erstes Jahr der Produktion:</string>
+    <string name="keywordList">Schlagwörter:</string>
+    <string name="VODinfo">Verfügbarkeit in Mediathek:</string>
+    <string name="VODlink">Link zur Mediathek:</string>
+    <string name="genreSubList">Subgenres:</string>
+
 	<string name="rundate">Lauffähig bis:</string>
 	<string name="pref_prog_table_summary">Die Programmtabelle benötigt sehr viel Speicher. Sind zu viele Sender und Details ausgewählt, kann das zum Absturz der TV-Browser App führen. Achten Sie daher auf die Anzahl der ausgewählten Sender oder deaktivieren Sie die Programmtabelle.</string>
 	<string name="warning_title">Warnung!</string>

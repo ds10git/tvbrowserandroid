@@ -123,16 +123,20 @@
 		<item type="id" name="detail_picture_description" />
 		<item type="id" name="detail_picture_copyright" />
 		<item type="id" name="detail_genre" />
+        <item type="id" name="detail_subgenre_list" />
 		<item type="id" name="detail_info" />
 		<item type="id" name="detail_episode_title" />
 		<item type="id" name="detail_short_description" />
 		<item type="id" name="detail_description" />
 		<item type="id" name="detail_link" />
+        <item type="id" name="detail_vod_info" />
+        <item type="id" name="detail_vod_link" />
 		<item type="id" name="detail_actors" />
 		<item type="id" name="detail_regie" />
 		<item type="id" name="detail_custom" />
 		<item type="id" name="detail_age_limit" />
 		<item type="id" name="detail_netto_playtime" />
+        <item type="id" name="detail_duration_original" />
 		<item type="id" name="detail_vps" />
 		<item type="id" name="detail_script" />
 		<item type="id" name="detail_repetition_from" />
@@ -148,8 +152,12 @@
 		<item type="id" name="detail_production_firm" />
 		<item type="id" name="detail_age_limit_string" />
 		<item type="id" name="detail_last_production_year" />
+        <item type="id" name="detail_year_production_first" />
+        <item type="id" name="detail_keyword_list" />
 		<item type="id" name="detail_additional_info" />
 		<item type="id" name="detail_series" />
+        <item type="id" name="detail_part_numer" />
+        <item type="id" name="detail_parts_total" />
 		
 	<!--  detail_layout -->
 	<!--  same ids like detail_layout_swipe -->

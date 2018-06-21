@@ -72,8 +72,8 @@ android {
 		applicationId "org.tvbrowser.tvbrowser"
 		minSdkVersion 14
 		targetSdkVersion 27
-		versionCode 423
-		versionName "0.6.5.8"
+		versionCode 424
+		versionName "0.6.5.9"
 		vectorDrawables.useSupportLibrary = true
 	}
 
@@ -178,5 +178,5 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:support-vector-drawable:27.1.1'
     implementation 'com.android.support:design:27.1.1'
-    implementation 'com.evernote:android-job:1.2.5'
+	implementation 'android.arch.work:work-runtime:1.0.0-alpha03'
 }

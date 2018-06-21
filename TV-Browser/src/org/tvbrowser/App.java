@@ -6,9 +6,6 @@ import android.app.NotificationManager;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
-import com.evernote.android.job.JobManager;
-
-import org.tvbrowser.job.JobCreatorImpl;
 import org.tvbrowser.utils.CompatUtils;
 
 import org.tvbrowser.tvbrowser.R;
@@ -40,8 +37,6 @@ public final class App extends Application {
 		super.onCreate();
 		INSTANCE = this;
 
-		JobManager.create(this).addJobCreator(new JobCreatorImpl());
-
 		if (CompatUtils.isAtLeastAndroidO()) {
 			createNotificationChannel();
 			UiUtils.updateImportantProgramsWidget(getApplicationContext());
@@ -61,6 +56,8 @@ public final class App extends Application {
 	    case TYPE_NOTIFICATION_REMINDER_DAY:builder.append(".reminderDayMode");break;
 	    case TYPE_NOTIFICATION_REMINDER_WORK:builder.append(".reminderWorkMode");break;
 	    case TYPE_NOTIFICATION_REMINDER_NIGHT:builder.append(".reminderNightMode");break;
+	    // the default notification channel has the package name, therefor
+			// TYPE_NOTIFICATION_DEFAULT doesn't need to be handled here
     }
 
     return builder.toString();

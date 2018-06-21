@@ -66,6 +66,13 @@
         android:textIsSelectable="true"
         android:textSize="16sp" />
     <TextView
+        android:id="@id/detail_subgenre_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="5dp"
+        android:textIsSelectable="true"
+        android:textSize="14sp" />
+    <TextView
         android:id="@id/detail_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -97,6 +104,21 @@
         android:layout_height="wrap_content"
         style="@style/DetailDialogEntry" />
     <TextView
+        android:id="@id/detail_vod_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_vod_link"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_keyword_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
         android:id="@id/detail_actors"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -118,6 +140,11 @@
         style="@style/DetailDialogEntry" />
     <TextView
         android:id="@id/detail_netto_playtime"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_duration_original"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/DetailDialogEntry" />
@@ -192,12 +219,27 @@
         android:layout_height="wrap_content"
         style="@style/DetailDialogEntry" />
     <TextView
+        android:id="@id/detail_year_production_first"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
         android:id="@id/detail_last_production_year"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/DetailDialogEntry" />
     <TextView
         android:id="@id/detail_series"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_part_numer"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="@style/DetailDialogEntry" />
+    <TextView
+        android:id="@id/detail_parts_total"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         style="@style/DetailDialogEntry" />

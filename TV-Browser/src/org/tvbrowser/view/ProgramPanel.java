@@ -16,15 +16,6 @@
  */
 package org.tvbrowser.view;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Iterator;
-
-import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.utils.IOUtils;
-
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
@@ -37,6 +28,15 @@ import android.text.Spannable;
 import android.text.TextPaint;
 import android.view.View;
 
+import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.IOUtils;
+
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+
 public class ProgramPanel extends View {
   private Date mStartTime;
   private final long mEndTime;
@@ -46,6 +46,9 @@ public class ProgramPanel extends View {
   private String mPictureCopyright;
   private ColorLine[] mCategoriesString;
   private BitmapDrawable mPicture;
+  private String mDescription;
+  private int mDescriptionRowCount;
+  private int mMaxDescriptionLines;
 
   private boolean mIsExpired;
   
@@ -63,6 +66,8 @@ public class ProgramPanel extends View {
     mBigRowCount = 0;
     mSmallRowCount = 0;
     mSuperSmallCount = 0;
+    mMaxDescriptionLines = 0;
+    mDescriptionRowCount = 0;
     mEndTime = endTime;
     mChannelID = channelID;
     setStartTime(startTime);
@@ -75,13 +80,24 @@ public class ProgramPanel extends View {
     mTitle = result[0].toString();
     mBigRowCount = (Integer)result[1];
   }
-  
+
   private void setStartTime(long startTime) {
     mStartTime = new Date(startTime);
     
     mStartTimeString = ProgramTableLayoutConstants.TIME_FORMAT.format(mStartTime);
     
     ProgramTableLayoutConstants.NOT_EXPIRED_TITLE_PAINT.getTextBounds(mStartTimeString, 0, mStartTimeString.length(), mStartTimeBounds);
+  }
+
+  public void setDescription(String description) {
+    if(description != null) {
+      Object[] result = getBreakerText(description.replaceAll("\n+"," "), getTextWidth() - mStartTimeBounds.width() - ProgramTableLayoutConstants.TIME_TITLE_GAP, ProgramTableLayoutConstants.NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT, false);
+      mDescription = result[0].toString();
+      mDescriptionRowCount = (Integer)result[1];
+    }
+    else {
+      mDescription = null;
+    }
   }
   
   public void setInfoString(Spannable value) {
@@ -113,11 +129,19 @@ public class ProgramPanel extends View {
       mSuperSmallCount += (Integer)result[1];
     }
   }
-  
+
+
   /*
    * Breaks the given String into string with line breaks at needed positions.
    */
   private static Object[] getBreakerText(String temp, int width, Paint toCheck) {
+    return getBreakerText(temp,width,toCheck,true);
+  }
+
+  /*
+   * Breaks the given String into string with line breaks at needed positions.
+   */
+  private static Object[] getBreakerText(String temp, int width, Paint toCheck, boolean minusBreak) {
     StringBuilder parts = new StringBuilder();
     
     temp = temp.trim().replace("\u00AD", "");
@@ -129,7 +153,7 @@ public class ProgramPanel extends View {
       float measured = toCheck.measureText(temp);
       
       if(length < temp.length() && measured >= width) {
-        int bestBreak = temp.lastIndexOf("-", length-1);
+        int bestBreak = minusBreak ? temp.lastIndexOf("-", length-1) : -1;
         
         if(bestBreak == -1) {
           bestBreak = temp.lastIndexOf(" ", length-1);
@@ -213,18 +237,26 @@ public class ProgramPanel extends View {
   
   @Override
   protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
-    //super.onMeasure(widthMeasureSpec, heightMeasureSpec);
     int height = MeasureSpec.getSize(heightMeasureSpec);
-    
+    int minHeight = getMinHeight();
+
+    height = Math.max(height, minHeight);
+
+    if(height > minHeight) {
+      mMaxDescriptionLines = (height-minHeight)/ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT;
+    }
+
+    setMeasuredDimension(ProgramTableLayoutConstants.COLUMN_WIDTH, height);
+  }
+
+  public int getMinHeight() {
     int pictureHeight = 0;
-    
+
     if(mPictureCopyright != null && !mPictureCopyright.trim().isEmpty() && mPicture != null) {
       pictureHeight = mPicture.getBounds().height();
     }
-    
-    height = Math.max(height, ProgramTableLayoutConstants.BIG_MAX_FONT_HEIGHT * mBigRowCount + ProgramTableLayoutConstants.SMALL_MAX_FONT_HEIGHT * mSmallRowCount + pictureHeight + mSuperSmallCount * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT);
-    
-    setMeasuredDimension(ProgramTableLayoutConstants.COLUMN_WIDTH, height);
+
+    return ProgramTableLayoutConstants.BIG_MAX_FONT_HEIGHT * mBigRowCount + ProgramTableLayoutConstants.SMALL_MAX_FONT_HEIGHT * mSmallRowCount + pictureHeight + mSuperSmallCount * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT;
   }
   
   @Override
@@ -350,6 +382,16 @@ public class ProgramPanel extends View {
       
       for(int i = 0; i < lines.length; i++) {
         canvas.drawText(lines[i], 0, (i+1) * ProgramTableLayoutConstants.SMALL_MAX_FONT_HEIGHT - ProgramTableLayoutConstants.SMALL_FONT_DESCEND, toUseForGenreAndEpisode);
+      }
+
+      canvas.translate(0, lines.length * ProgramTableLayoutConstants.SMALL_MAX_FONT_HEIGHT);
+    }
+
+    if(mMaxDescriptionLines > 0 && mDescription != null) {
+      lines = mDescription.split("\n");
+
+      for(int i = 0; i < Math.min(lines.length,mMaxDescriptionLines); i++) {
+        canvas.drawText(lines[i], 0, (i+1) * ProgramTableLayoutConstants.SUPER_SMALL_MAX_FONT_HEIGHT - ProgramTableLayoutConstants.SUPER_SMALL_FONT_DESCEND, toUseForPictureCopyright);
       }
     }
   }

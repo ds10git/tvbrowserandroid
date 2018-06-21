@@ -50,6 +50,9 @@
 	<CheckBoxPreference android:key="@string/SHOW_EPISODE_IN_PROGRAM_TABLE" 
 		android:title="@string/pref_show_episode"
 		android:defaultValue="@bool/prog_table_show_episode_default"/>
+	<CheckBoxPreference android:key="@string/SHOW_DESCRIPTION_IF_ROOM_IN_PROGRAM_TABLE"
+		android:title="@string/pref_show_description_if_room"
+		android:defaultValue="@bool/prog_table_show_description_if_room_in_program_table_default"/>
 	<CheckBoxPreference android:key="@string/SHOW_INFO_IN_PROGRAM_TABLE" 
 		android:title="@string/pref_show_program_categories"
 		android:defaultValue="@bool/prog_table_show_infos_default"/>

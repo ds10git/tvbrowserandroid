@@ -16,13 +16,13 @@
  */
 package org.tvbrowser.view;
 
-import java.util.ArrayList;
-import java.util.Calendar;
-
 import android.content.Context;
 import android.graphics.Canvas;
 
 import org.tvbrowser.tvbrowser.R;
+
+import java.util.ArrayList;
+import java.util.Calendar;
 
 public class TimeBlockProgramTableLayout extends ProgramTableLayout {
   //private ArrayList<Integer> mChannelIDsOrdered;
@@ -59,7 +59,7 @@ public class TimeBlockProgramTableLayout extends ProgramTableLayout {
       int block = progPanel.getStartHour(mCurrentShownDay) / mBlockSize;
       
       if(block >= 0 && sortIndex >= 0 && block < blockProgCount.length) {
-        progPanel.measure(widthSpec, heightMeasureSpec);
+        progPanel.measure(widthSpec, 0);
         blockHeightCalc[block][sortIndex] += progPanel.getMeasuredHeight();
         blockProgCount[block][sortIndex]++;
       }

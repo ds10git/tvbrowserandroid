@@ -81,6 +81,7 @@ public class FragmentProgramTable extends Fragment {
   private boolean mUpdatingRunningPrograms;
   private boolean mShowOrderNumbers;
   private boolean mShowGenre;
+  private boolean mShowDescriptionIfRoom;
   private boolean mShowEpisode;
   private boolean mShowInfo;
   
@@ -118,6 +119,8 @@ public class FragmentProgramTable extends Fragment {
   private int mGenreIndex;
   private int mEpisodeIndex;
   private int mKeyIndex;
+  private int mIndexDescriptionShort;
+  private int mIndexDescription;
   private int mPictureIndex;
   private int mPictureCopyrightIndex;
   private int mCategoryIndex;
@@ -634,36 +637,41 @@ public class FragmentProgramTable extends Fragment {
           mShowGenre = PrefUtils.getBooleanValue(R.string.SHOW_GENRE_IN_PROGRAM_TABLE, R.bool.prog_table_show_genre_default);
           mShowEpisode = PrefUtils.getBooleanValue(R.string.SHOW_EPISODE_IN_PROGRAM_TABLE, R.bool.prog_table_show_episode_default);
           mShowInfo = PrefUtils.getBooleanValue(R.string.SHOW_INFO_IN_PROGRAM_TABLE, R.bool.prog_table_show_infos_default);
+          mShowDescriptionIfRoom = PrefUtils.getBooleanValue(R.string.SHOW_DESCRIPTION_IF_ROOM_IN_PROGRAM_TABLE, R.bool.prog_table_show_description_if_room_in_program_table_default);
           
           int orderNumberColumn = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER);
           mShowOrderNumbers = ProgramTableLayoutConstants.getShowOrderNumber();
-          
-          String[] infoCategories = TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY;
-          
+
+          final ArrayList<String> projectionList = new ArrayList<>();
+
+          projectionList.add(TvBrowserContentProvider.KEY_ID);
+          projectionList.add(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+          projectionList.add(TvBrowserContentProvider.DATA_KEY_ENDTIME);
+          projectionList.add(TvBrowserContentProvider.DATA_KEY_TITLE);
+          projectionList.add(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
+          projectionList.add(TvBrowserContentProvider.DATA_KEY_GENRE);
+          projectionList.add(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+          projectionList.add(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
+          projectionList.add(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION);
+          projectionList.add(TvBrowserContentProvider.DATA_KEY_DESCRIPTION);
+
           if(mPictureShown) {
-            projection = new String[10 + TvBrowserContentProvider.MARKING_COLUMNS.length + infoCategories.length];
-            
-            projection[projection.length-2] = TvBrowserContentProvider.DATA_KEY_PICTURE;
-            projection[projection.length-1] = TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT;
+            projectionList.add(TvBrowserContentProvider.DATA_KEY_PICTURE);
+            projectionList.add(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT);
           }
-          else {
-            projection = new String[8 + TvBrowserContentProvider.MARKING_COLUMNS.length + infoCategories.length];
+
+          for(String infoCategory : TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY) {
+            projectionList.add(infoCategory);
           }
-          
+
+          for(String markingsColumn : TvBrowserContentProvider.MARKING_COLUMNS) {
+            projectionList.add(markingsColumn);
+          }
+
           mTimeBlockSize = Integer.parseInt(PrefUtils.getStringValue(R.string.PROG_PANEL_TIME_BLOCK_SIZE, R.string.prog_panel_time_block_size));
-          
-          projection[0] = TvBrowserContentProvider.KEY_ID;
-          projection[1] = TvBrowserContentProvider.DATA_KEY_STARTTIME;
-          projection[2] = TvBrowserContentProvider.DATA_KEY_ENDTIME;
-          projection[3] = TvBrowserContentProvider.DATA_KEY_TITLE;
-          projection[4] = TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE;
-          projection[5] = TvBrowserContentProvider.DATA_KEY_GENRE;
-          projection[6] = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID;
-          projection[7] = TvBrowserContentProvider.DATA_KEY_CATEGORIES;
-          
-          System.arraycopy(infoCategories, 0, projection, 8, infoCategories.length);
-          System.arraycopy(TvBrowserContentProvider.MARKING_COLUMNS, 0, projection, 8 + infoCategories.length, TvBrowserContentProvider.MARKING_COLUMNS.length);
-          
+
+          projection = projectionList.toArray(new String[projectionList.size()]);
+
           LinearLayout channelBar = programTable.findViewById(R.id.program_table_channel_bar);
           ArrayList<Integer> channelIDsOrdered = new ArrayList<>();
           
@@ -724,6 +732,8 @@ public class FragmentProgramTable extends Fragment {
                 mGenreIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE);
                 mEpisodeIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE);
                 mKeyIndex = cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                mIndexDescriptionShort = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION);
+                mIndexDescription = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION);
                 mPictureIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
                 mPictureCopyrightIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT);
                 
@@ -1003,7 +1013,7 @@ public class FragmentProgramTable extends Fragment {
     String title = cursor.getString(mTitleIndex);
     int channelID = cursor.getInt(mChannelIndex);
     Spannable categories = IOUtils.getInfoString(cursor.getInt(mCategoryIndex),getResources(),false);
-    
+
     final ProgramPanel panel = new ProgramPanel(getActivity(),startTime,endTime,title,channelID);
     
     if(mShowGenre) {
@@ -1015,7 +1025,19 @@ public class FragmentProgramTable extends Fragment {
     if(mShowInfo) {
       panel.setInfoString(categories);
     }
-    
+    if(mShowDescriptionIfRoom) {
+      String description = null;
+
+      if(!cursor.isNull(mIndexDescription)) {
+        description = cursor.getString(mIndexDescription);
+      }
+      else if(!cursor.isNull(mIndexDescriptionShort)) {
+        description = cursor.getString(mIndexDescriptionShort);
+      }
+
+      panel.setDescription(description);
+    }
+
     panel.setOnClickListener(mClickListener);
     panel.setTag(programId);
     

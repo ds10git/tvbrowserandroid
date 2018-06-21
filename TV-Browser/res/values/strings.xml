@@ -2,6 +2,8 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.6.5</h2>
+            &bull; show description of programs if room in program table<br>
+            &bull; support new data fields<br>
             &bull; use new layout for tabs<br>
             &bull; fixed progress of running programs tab<br>
             &bull; speed up favorite and reminder synchronization<br>
@@ -783,6 +785,7 @@
 	</string-array>
 	<string name="pref_show_genre">Show genre</string>
 	<string name="pref_show_episode">Show episode title</string>
+    <string name="pref_show_description_if_room">Show description if room</string>
 	<string name="pref_show_program_categories">Show program categories</string>
 	<string name="pref_title_program_information_selection">Select program information</string>
 	<string name="pref_summary_program_information_selection">Which program information should be shown if available?</string>
@@ -836,6 +839,16 @@
 	<string name="programCategories">Program categories:\n</string>
 	<string name="additionalInfo">Additional info:\n</string>
 	<string name="series">Series:</string>
+
+    <string name="partNumber">Part number:</string>
+    <string name="partNumberTotal">Total number of parts:</string>
+    <string name="originalDuration">Original duration:</string>
+    <string name="firstProductionYear">First Year of Production:</string>
+    <string name="keywordList">Keywords:</string>
+    <string name="VODinfo">VOD availability:</string>
+    <string name="VODlink">Link to VOD:</string>
+    <string name="genreSubList">Subgenres:</string>
+
 	<string name="rundate">Usable until:</string>
 	<string name="pref_prog_table_summary">The program table needs a lot of memory. The more channels and details you\'ve selected the more memory wil be consumed. That can lead to a crash of the TV-Browser app. So make sure not to select to many channels and details or disable the program table.</string>
 	<string name="warning_title">Warning!</string>

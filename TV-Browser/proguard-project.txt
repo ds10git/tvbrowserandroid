@@ -19,6 +19,7 @@
 #   public *;
 #}
 
+-dontwarn androidx.work.**
 -keep class !android.support.v7.internal.view.menu.**,** {*;}
 -keepattributes **,LineNumberTable
 

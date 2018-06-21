@@ -39,7 +39,7 @@ public class CompactProgramTableLayout extends ProgramTableLayout {
       int sortIndex = getIndexForChannelID(progPanel.getChannelID());
       
       if(sortIndex >= 0) {
-        progPanel.measure(widthSpec, heightMeasureSpec);
+        progPanel.measure(widthSpec, 0);
         
         currentColumnHeight[sortIndex] += progPanel.getMeasuredHeight();
         

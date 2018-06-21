@@ -2,13 +2,8 @@ package org.tvbrowser.job;
 
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.util.Log;
-
-import com.evernote.android.job.Job;
-import com.evernote.android.job.JobManager;
-import com.evernote.android.job.JobRequest;
 
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.Logging;
@@ -21,23 +16,32 @@ import org.tvbrowser.utils.PrefUtils;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.TimeZone;
+import java.util.concurrent.TimeUnit;
 
-public class JobDataUpdateAuto extends Job {
+import androidx.work.Constraints;
+import androidx.work.NetworkType;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.Worker;
+
+public class JobDataUpdateAuto extends Worker {
   public static final String TAG = "job_data_update_auto";
 
   @NonNull
   @Override
-  protected Result onRunJob(@NonNull Params params) {
+  public Worker.Result doWork() {
     Log.d("info9","onRunJob");
-    Result result = Result.FAILURE;
+    Result result = Result.RETRY;
     final String updateType = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
 
     boolean autoUpdate = !updateType.equals("0");
     final boolean internetConnectionType = updateType.equals("1");
     boolean timeUpdateType = updateType.equals("2");
 
-    if(autoUpdate && !TvDataUpdateService.isRunning() && IOUtils.isBatterySufficient(getContext())) {
-      Intent startDownload = new Intent(getContext(), TvDataUpdateService.class);
+    final Context context = getApplicationContext();
+
+    if(autoUpdate && !TvDataUpdateService.isRunning() && IOUtils.isBatterySufficient(context)) {
+      Intent startDownload = new Intent(context, TvDataUpdateService.class);
       startDownload.putExtra(TvDataUpdateService.KEY_TYPE, TvDataUpdateService.TYPE_TV_DATA);
       startDownload.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
       startDownload.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.TYPE_UPDATE_AUTO);
@@ -45,23 +49,24 @@ public class JobDataUpdateAuto extends Job {
 
       int daysToDownload = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_RANGE, R.string.pref_auto_update_range_default));
 
-      startDownload.putExtra(getContext().getString(R.string.DAYS_TO_DOWNLOAD), daysToDownload);
+      startDownload.putExtra(context.getString(R.string.DAYS_TO_DOWNLOAD), daysToDownload);
 
-      Logging.openLogForDataUpdate(getContext().getApplicationContext());
-      Logging.log(TAG, "UPDATE START INTENT " + startDownload, Logging.TYPE_DATA_UPDATE, getContext().getApplicationContext());
+      Logging.openLogForDataUpdate(context.getApplicationContext());
+      Logging.log(TAG, "UPDATE START INTENT " + startDownload, Logging.TYPE_DATA_UPDATE, context.getApplicationContext());
       Logging.closeLogForDataUpdate();
 
-      if(CompatUtils.startForegroundService(getContext(),startDownload)) {
+      if(CompatUtils.startForegroundService(context,startDownload)) {
         result = Result.SUCCESS;
       }
     }
 
     return result;
   }
-
+/*
   public static void startNow(final Context context) {
-    new JobRequest.Builder(TAG).startNow().build().schedule();
-  }
+    OneTimeWorkRequest compressionWork = new OneTimeWorkRequest.Builder(JobDataUpdateAuto.class).build();
+    WorkManager.getInstance().enqueue(compressionWork);
+  }*/
 
   public static void scheduleJob(final Context context) {
     final String updateType = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
@@ -70,12 +75,16 @@ public class JobDataUpdateAuto extends Job {
     boolean autoUpdate = !updateType.equals("0");
     final boolean internetConnectionType = updateType.equals("1");
     boolean timeUpdateType = updateType.equals("2");
-    Log.d("info9","canceled: " + JobManager.instance().cancelAllForTag(TAG));
+    WorkManager.getInstance().cancelAllWorkByTag(TAG);
+
     long lastUpdate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE,0);
 
     if(autoUpdate) {
-      JobRequest.Builder builder = new JobRequest.Builder(TAG)
+      Constraints.Builder constraintsJob = new Constraints.Builder()
           .setRequiresBatteryNotLow(true);
+
+      OneTimeWorkRequest.Builder builder = new OneTimeWorkRequest.Builder(JobDataUpdateAuto.class);
+
       long timeCurrent = PrefUtils.getLongValue(R.string.AUTO_UPDATE_CURRENT_START_TIME,0);
 
       if(timeUpdateType) {
@@ -124,14 +133,18 @@ public class JobDataUpdateAuto extends Job {
 
         //  time = Math.max((time - currentTime) + (days * 24 * 60),1);
          // time = 1;
-          long end = (last.getTimeInMillis()-currentTime) + 60 * 60000L;
+
+          long start = last.getTimeInMillis() + (long)(Math.random() * (60 * 60000L));
+
          // end = (time + 1) * 60000L;
-          PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), last.getTimeInMillis()).commit();
-          Log.d("info9", "START " + last.getTime() + " END " + new Date(currentTime + end));
-          builder.setExecutionWindow((last.getTimeInMillis()-currentTime), end);
+          PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), start).commit();
+          Log.d("info9", "START " + new Date(start));
+
+
+          builder.setInitialDelay(start-currentTime, TimeUnit.MILLISECONDS);
         }
         else {
-          builder.setExecutionWindow(timeCurrent-System.currentTimeMillis(),timeCurrent-System.currentTimeMillis()+60000L);
+          builder.setInitialDelay(timeCurrent-System.currentTimeMillis(), TimeUnit.MILLISECONDS);
         }
       }
       else {
@@ -151,33 +164,23 @@ Log.d("info9","possibleFirst " + new Date(possibleFirst));
         else {
           PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), System.currentTimeMillis() + start).commit();
         }
-        Log.d("info9","NET START " +new Date(System.currentTimeMillis()+start) + " END " + new Date(System.currentTimeMillis()+end));
-        builder.setExecutionWindow(start,end);
+        Log.d("info9","NET START " +new Date(System.currentTimeMillis()+start) );
+        builder.setInitialDelay(start, TimeUnit.MILLISECONDS);
       }
 
       if(onlyWifi) {
-        builder.setRequiredNetworkType(JobRequest.NetworkType.UNMETERED);
+        constraintsJob.setRequiredNetworkType(NetworkType.UNMETERED);
       }
 
-      builder.setRequirementsEnforced(true);
+      builder.setConstraints(constraintsJob.build());
+      builder.addTag(TAG);
 
-      int jobId = builder.build().schedule();
-Log.d("info9","jobID " + jobId);
-      PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putInt(context.getString(R.string.PREF_AUTO_UPDATE_JOB_ID),jobId).commit();
+      WorkManager.getInstance().enqueue(builder.build());
     }
   }
 
   public static void cancelJob(final Context context) {
+    WorkManager.getInstance().cancelAllWorkByTag(TAG);
     Log.d("info9","cancelJob");
-
-    final String prefKey = context.getString(R.string.PREF_AUTO_UPDATE_JOB_ID);
-    final SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context);
-
-    int jobId = pref.getInt(prefKey,-1);
-
-    if(jobId != -1) {
-      JobManager.instance().cancel(jobId);
-      pref.edit().remove(prefKey).commit();
-    }
   }
 }

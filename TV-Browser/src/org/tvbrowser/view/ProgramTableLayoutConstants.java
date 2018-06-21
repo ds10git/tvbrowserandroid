@@ -31,6 +31,7 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.widget.TextView;
 
 public class ProgramTableLayoutConstants {
@@ -208,6 +209,8 @@ public class ProgramTableLayoutConstants {
     
     SUPER_SMALL_FONT_DESCEND = Math.abs(NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.getFontMetricsInt().descent);
     SUPER_SMALL_MAX_FONT_HEIGHT = SUPER_SMALL_FONT_DESCEND + Math.abs(NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT.getFontMetricsInt().ascent)+1;
+
+    Log.d("info67","BIG_MAX_FONT_HEIGHT " + BIG_MAX_FONT_HEIGHT  + " SMALL_MAX_FONT_HEIGHT " + SMALL_MAX_FONT_HEIGHT + " SUPER_SMALL_MAX_FONT_HEIGHT " +SUPER_SMALL_MAX_FONT_HEIGHT);
   }
   
   public static int getRawColumnWidth() {

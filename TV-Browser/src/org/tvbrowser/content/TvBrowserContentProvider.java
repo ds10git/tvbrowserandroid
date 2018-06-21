@@ -170,6 +170,21 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_PRODUCTION_FIRM = "productionFirm";
   public static final String DATA_KEY_AGE_LIMIT_STRING = "ageLimitString";
   public static final String DATA_KEY_LAST_PRODUCTION_YEAR = "lastProductionYear";
+
+  // Keys since 3.2 (desktop) start
+  public static final String DATA_KEY_PART_NUMBER = "partNumber";
+  public static final String DATA_KEY_PART_NUMBER_TOTAL = "partNumberTotal";
+  // Keys since 3.2 (desktop) end
+
+  // Keys since 4.0 (desktop) start
+  public static final String DATA_KEY_DURATION_ORIGINAL = "originalDuration";
+  public static final String DATA_KEY_YEAR_PRODUCTION_FIRST = "firstProductionYear";
+  public static final String DATA_KEY_KEYWORD_LIST = "keywordList";
+  public static final String DATA_KEY_VOD_INFO = "VODinfo";
+  public static final String DATA_KEY_VOD_LINK = "VODlink";
+  public static final String DATA_KEY_GENRE_SUB_LIST = "genreSubList";
+  // Keys since 4.0 (desktop) end
+
   public static final String DATA_KEY_ADDITIONAL_INFO = "additionalInfo";
   public static final String DATA_KEY_SERIES = "series";
   public static final String DATA_KEY_UNIX_DATE = "unixDate";
@@ -259,6 +274,17 @@ public class TvBrowserContentProvider extends ContentProvider {
     mapDataKeyType.put(DATA_KEY_LAST_PRODUCTION_YEAR ," INTEGER");
     mapDataKeyType.put(DATA_KEY_ADDITIONAL_INFO ," TEXT");
     mapDataKeyType.put(DATA_KEY_SERIES ," TEXT");
+
+    mapDataKeyType.put(DATA_KEY_PART_NUMBER," INTEGER");
+    mapDataKeyType.put(DATA_KEY_PART_NUMBER_TOTAL," INTEGER");
+
+    mapDataKeyType.put(DATA_KEY_DURATION_ORIGINAL," TEXT");
+    mapDataKeyType.put(DATA_KEY_YEAR_PRODUCTION_FIRST," INTEGER");
+    mapDataKeyType.put(DATA_KEY_KEYWORD_LIST," TEXT");
+    mapDataKeyType.put(DATA_KEY_VOD_INFO," TEXT");
+    mapDataKeyType.put(DATA_KEY_VOD_LINK," TEXT");
+    mapDataKeyType.put(DATA_KEY_GENRE_SUB_LIST," TEXT");
+
     mapDataKeyType.put(DATA_KEY_UNIX_DATE ," INTEGER");
     mapDataKeyType.put(DATA_KEY_DATE_PROG_ID ," INTEGER");
     mapDataKeyType.put(DATA_KEY_DATE_PROG_STRING_ID ," TEXT");
@@ -1201,7 +1227,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       db.execSQL(CREATE_VERSION_TABLE);
     }
 
-    private static final int DATABASE_VERSION = 11;
+    private static final int DATABASE_VERSION = 12;
     
     @Override
     public void onUpgrade(final SQLiteDatabase db, int oldVersion, int newVersion) {
@@ -1542,6 +1568,14 @@ public class TvBrowserContentProvider extends ContentProvider {
       
       if(oldVersion < 11) {
         db.execSQL("ALTER TABLE " + GROUPS_TABLE + " ADD COLUMN " + GROUP_KEY_GROUP_MIRRORS_DEFAULT);
+      }
+
+      if(oldVersion < 12) {
+        String[] toAdd = {DATA_KEY_PART_NUMBER,DATA_KEY_PART_NUMBER_TOTAL,DATA_KEY_DURATION_ORIGINAL,DATA_KEY_YEAR_PRODUCTION_FIRST,DATA_KEY_KEYWORD_LIST,DATA_KEY_VOD_INFO,DATA_KEY_VOD_LINK,DATA_KEY_GENRE_SUB_LIST};
+
+        for(String key : toAdd) {
+          db.execSQL("ALTER TABLE " + DATA_TABLE + " ADD COLUMN " + key + MAP_DATA_KEY_TYPE.get(key));
+        }
       }
     }
   
