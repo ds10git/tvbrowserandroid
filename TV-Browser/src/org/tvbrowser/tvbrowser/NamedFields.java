@@ -3,11 +3,12 @@ package org.tvbrowser.tvbrowser;
 import java.util.Comparator;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;
 
 public final class NamedFields {
-  public static final Comparator<NamedFields> COMPARATOR = (lhs, rhs) -> lhs.mName.compareToIgnoreCase(rhs.mName);
+  public static final Comparator<NamedFields> COMPARATOR = (lhs, rhs) -> UiUtils.getCollator().compare(lhs.mName, rhs.mName);
   
   private String mName;
   private final String mColumn;

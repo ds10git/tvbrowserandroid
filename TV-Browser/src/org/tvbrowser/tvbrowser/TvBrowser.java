@@ -31,6 +31,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -2121,7 +2122,7 @@ public class TvBrowser extends AppCompatActivity {
     startService(synchronizeRemindersDown);
   }
 
-  private static final class ChannelSelection {
+  private static final class ChannelSelection implements Comparable<ChannelSelection> {
     private final int mChannelID;
     private final int mCategory;
     private final Bitmap mChannelLogo;
@@ -2176,6 +2177,11 @@ public class TvBrowser extends AppCompatActivity {
     int getChannelID() {
       return mChannelID;
     }
+
+    @Override
+    public int compareTo(@NonNull final ChannelSelection o) {
+      return UiUtils.getCollator().compare(mName, o.mName);
+    }
   }
 
   /**
@@ -2214,7 +2220,7 @@ public class TvBrowser extends AppCompatActivity {
     }
 
     void setFilter(ChannelFilter filter) {
-      ArrayList<Integer> map = new ArrayList<>();
+      List<Integer> map = new ArrayList<>();
 
       for(int i = 0; i < super.size(); i++) {
         ChannelSelection selection = super.get(i);
@@ -2407,8 +2413,10 @@ public class TvBrowser extends AppCompatActivity {
             channelSelectionList.add(new ChannelSelection(channelID, name, category, countries, channelLogo, isSelected, SettingConstants.EPG_DONATE_KEY.equals(dataService)));
           }
 
+          Collections.sort(channelSelectionList);
+
           // sort countries for filtering
-          Collections.sort(countryList, (lhs, rhs) -> lhs.toString().compareToIgnoreCase(rhs.toString()));
+          Collections.sort(countryList, (lhs, rhs) -> UiUtils.getCollator().compare(lhs.toString(), rhs.toString()));
 
           countryList.add(0,new Country(null));
         }
@@ -3032,7 +3040,7 @@ public class TvBrowser extends AppCompatActivity {
             builder.setTitle(getString(R.string.sort_alphabetically)+"?");
             builder.setMessage(R.string.dialog_sort_alphabetically_message);
             builder.setPositiveButton(android.R.string.yes, (dialog, which) -> {
-              Collections.sort(channelSource, (lhs, rhs) -> lhs.getName().compareToIgnoreCase(rhs.getName()));
+              Collections.sort(channelSource, (lhs, rhs) -> UiUtils.getCollator().compare(lhs.getName(), rhs.getName()));
 
               for (int i = 0; i < channelSource.size(); i++) {
                 channelSource.get(i).setSortNumber(i + 1);
@@ -3514,7 +3522,7 @@ public class TvBrowser extends AppCompatActivity {
 
     @Override
     public int compareTo(ExclusionEdit another) {
-      return mExclusion.replace("*", "").compareToIgnoreCase(another.mExclusion.replace("*", ""));
+      return UiUtils.getCollator().compare(mExclusion.replace("*", ""), another.mExclusion.replace("*", ""));
     }
 
     String getExclusion() {
