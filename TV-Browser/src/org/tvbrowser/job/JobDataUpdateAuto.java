@@ -68,7 +68,9 @@ public class JobDataUpdateAuto extends Worker {
     WorkManager.getInstance().enqueue(compressionWork);
   }*/
 
-  public static void scheduleJob(final Context context) {
+  public static void scheduleJob(Context context) {
+    context = context.getApplicationContext();
+
     final String updateType = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
     final boolean onlyWifi = PrefUtils.getBooleanValue(R.string.PREF_AUTO_UPDATE_ONLY_WIFI, R.bool.pref_auto_update_only_wifi_default);
 

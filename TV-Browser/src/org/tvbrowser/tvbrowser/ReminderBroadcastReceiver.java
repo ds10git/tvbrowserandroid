@@ -30,6 +30,7 @@ import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
 
+import android.app.Application;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -194,14 +195,17 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
         values = context.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), SettingConstants.REMINDER_PROJECTION, null, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
         assert values != null;
         Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' Tried to load program with given ID, cursor size: " + values.getCount(), Logging.TYPE_REMINDER, context);
-        if(values.moveToFirst()) {
-          String notificationId = App.get().getNotificationChannelId(App.TYPE_NOTIFICATION_REMINDER_DAY);
+
+        final App app = App.get();
+
+        if(values.moveToFirst() && app != null) {
+          String notificationId = app.getNotificationChannelId(App.TYPE_NOTIFICATION_REMINDER_DAY);
 
           if(isNightMode) {
-            notificationId = App.get().getNotificationChannelId(App.TYPE_NOTIFICATION_REMINDER_NIGHT);
+            notificationId = app.getNotificationChannelId(App.TYPE_NOTIFICATION_REMINDER_NIGHT);
           }
           if(isWorkMode) {
-            notificationId = App.get().getNotificationChannelId(App.TYPE_NOTIFICATION_REMINDER_WORK);
+            notificationId = app.getNotificationChannelId(App.TYPE_NOTIFICATION_REMINDER_WORK);
           }
 
           final NotificationCompat.Builder builder = new NotificationCompat.Builder(context, notificationId);
