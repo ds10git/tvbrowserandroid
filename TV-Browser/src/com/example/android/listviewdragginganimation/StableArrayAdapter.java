@@ -26,7 +26,7 @@ import java.util.List;
  * Made generic for use of channel sort.
  */
 public class StableArrayAdapter<T> extends ArrayAdapter<T> {
-
+  private static final ID_INVALID = -1;
   private final HashMap<T, Integer> mIdMap = new HashMap<>();
 
     public StableArrayAdapter(Context context, int textViewResourceId, List<T> objects) {
@@ -39,7 +39,7 @@ public class StableArrayAdapter<T> extends ArrayAdapter<T> {
     @Override
     public long getItemId(int position) {
         if (position < 0 || position >= mIdMap.size()) {
-          return -1;
+          return ID_INVALID;
         }
         T item = getItem(position);
         return mIdMap.get(item);
