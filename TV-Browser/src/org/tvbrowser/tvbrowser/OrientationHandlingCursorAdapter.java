@@ -27,8 +27,6 @@ import android.database.Cursor;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -39,13 +37,13 @@ import android.widget.AdapterView;
  * <p>
  * @author René Mach
  */
-public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
+class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
   private View.OnClickListener mOnClickListener;
   private View.OnClickListener mChannelSwitchListener;
   private View.OnCreateContextMenuListener mContextMenuListener;
   private AdapterView.AdapterContextMenuInfo mContextMenuInfo;
-  private Context mContext;
-  private Handler mHandler;
+  private final Context mContext;
+  private final Handler mHandler;
   
   public OrientationHandlingCursorAdapter(final Context context, int layout, Cursor c, String[] from, int[] to, int flags, boolean handleClicks, Handler handler) {
     super(context, layout, c, from, to, flags);
@@ -54,60 +52,47 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
     mHandler = handler;
     
     if(handleClicks) {
-      mOnClickListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          Long tag = (Long)v.getTag();
-          
-          if(tag != null) {
-            UiUtils.showProgramInfo(context, tag, null, mHandler);
-          }
+      mOnClickListener = v -> {
+        Long tag = (Long)v.getTag();
+
+        if(tag != null) {
+          UiUtils.showProgramInfo(context, tag, null, mHandler);
         }
       };
       
-      mChannelSwitchListener = new View.OnClickListener() {
-        @Override
-        public void onClick(View v) {
-          ChannelProgInfo tag = (ChannelProgInfo)v.getTag();
-          boolean handle = PrefUtils.getBooleanValue(R.string.PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_program_lists_click_to_channel_to_list_default);
-          
-          if(handle && tag != null) {
-            Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
-            showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA,tag.mID);         
-            showChannel.putExtra(SettingConstants.EXTRA_START_TIME, tag.mStartTime);
-            
-            LocalBroadcastManager.getInstance(context).sendBroadcastSync(showChannel);
-          }
+      mChannelSwitchListener = v -> {
+        ChannelProgInfo tag = (ChannelProgInfo)v.getTag();
+        boolean handle = PrefUtils.getBooleanValue(R.string.PREF_PROGRAM_LISTS_CLICK_TO_CHANNEL_TO_LIST, R.bool.pref_program_lists_click_to_channel_to_list_default);
+
+        if(handle && tag != null) {
+          Intent showChannel = new Intent(SettingConstants.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT);
+          showChannel.putExtra(SettingConstants.CHANNEL_ID_EXTRA,tag.mID);
+          showChannel.putExtra(SettingConstants.EXTRA_START_TIME, tag.mStartTime);
+
+          LocalBroadcastManager.getInstance(context).sendBroadcastSync(showChannel);
         }
       };
       
-      final MenuItem.OnMenuItemClickListener menuClick = new MenuItem.OnMenuItemClickListener() {
-        @Override
-        public boolean onMenuItemClick(MenuItem item) {
-          if(mContextMenuInfo != null) {
-            long programID = mContextMenuInfo.id;
-            mContextMenuInfo = null;
-            
-            return UiUtils.handleContextMenuSelection(context, item, programID, null, null);
-          }
-          
-          return true;
+      final MenuItem.OnMenuItemClickListener menuClick = item -> {
+        if(mContextMenuInfo != null) {
+          long programID = mContextMenuInfo.id;
+          mContextMenuInfo = null;
+
+          return UiUtils.handleContextMenuSelection(context, item, programID, null, null);
         }
+
+        return true;
       };
       
-      mContextMenuListener = new View.OnCreateContextMenuListener() {
-        @Override
-        public void onCreateContextMenu(ContextMenu menu, View v,
-            ContextMenuInfo menuInfo) {
-          long id = (Long) v.getTag();
-          mContextMenuInfo = new AdapterView.AdapterContextMenuInfo(v, -1, id);
-          
-          UiUtils.createContextMenu(context, menu, id);
-          
-          for(int i = 0; i < menu.size(); i++) {
-            if(menu.getItem(i).getGroupId() >= 0) {
-              menu.getItem(i).setOnMenuItemClickListener(menuClick);
-            }
+      mContextMenuListener = (menu, v, menuInfo) -> {
+        long id = (Long) v.getTag();
+        mContextMenuInfo = new AdapterView.AdapterContextMenuInfo(v, -1, id);
+
+        UiUtils.createContextMenu(context, menu, id);
+
+        for(int i = 0; i < menu.size(); i++) {
+          if(menu.getItem(i).getGroupId() >= 0) {
+            menu.getItem(i).setOnMenuItemClickListener(menuClick);
           }
         }
       };
@@ -115,15 +100,15 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
   }
 
   private static final class ChannelProgInfo {
-    public int mID;
-    public long mStartTime;
+    int mID;
+    long mStartTime;
   }
   
   private static final class ProgTag {
-    public int mOrientation;
-    public float mTextScale;
-    public int mPadding;
-    public View mPaddingView;
+    int mOrientation;
+    float mTextScale;
+    int mPadding;
+    View mPaddingView;
   }
   
   @Override
@@ -188,7 +173,7 @@ public class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
         info.mID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
         info.mStartTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
       }
-    }catch(IllegalStateException ise) {
+    }catch(IllegalStateException ignored) {
       
     }
     

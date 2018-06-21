@@ -32,7 +32,6 @@ import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources.Theme;
 import android.database.Cursor;
@@ -50,7 +49,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.TextView;
@@ -87,16 +85,16 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
     
     setContentView(R.layout.activity_favorite_edit);
     
-    mSearchValue = (EditText)findViewById(R.id.activity_edit_favorite_input_id_search_value);
-    mName = (EditText)findViewById(R.id.activity_edit_favorite_input_id_name);
-    mTypeSelection = (Spinner)findViewById(R.id.activity_edit_favorite_input_id_type);
-    mRemind = (CheckBox)findViewById(R.id.activity_edit_favorite_input_id_remind);
-    mDuration = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_duration);
-    mTime = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_time);
-    mDays = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_day);
-    mChannels = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_channel);
-    mAttributes = (TextView)findViewById(R.id.activity_edit_favorite_input_id_restriction_attributes);
-    mExclusions = (EditText)findViewById(R.id.activity_edit_favorite_input_id_restriction_exclusion);
+    mSearchValue = findViewById(R.id.activity_edit_favorite_input_id_search_value);
+    mName = findViewById(R.id.activity_edit_favorite_input_id_name);
+    mTypeSelection = findViewById(R.id.activity_edit_favorite_input_id_type);
+    mRemind = findViewById(R.id.activity_edit_favorite_input_id_remind);
+    mDuration = findViewById(R.id.activity_edit_favorite_input_id_restriction_duration);
+    mTime = findViewById(R.id.activity_edit_favorite_input_id_restriction_time);
+    mDays = findViewById(R.id.activity_edit_favorite_input_id_restriction_day);
+    mChannels = findViewById(R.id.activity_edit_favorite_input_id_restriction_channel);
+    mAttributes = findViewById(R.id.activity_edit_favorite_input_id_restriction_attributes);
+    mExclusions = findViewById(R.id.activity_edit_favorite_input_id_restriction_exclusion);
     
     int color = ContextCompat.getColor(this, R.color.abc_primary_text_material_light);
     
@@ -222,10 +220,10 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
     
     View timeSelection = getLayoutInflater().inflate(R.layout.dialog_favorite_selection_duration, (ViewGroup)mSearchValue.getRootView(), false);
     
-    final CheckBox minimumSelected = (CheckBox)timeSelection.findViewById(R.id.dialog_favorite_selection_id_selection_duration_minimum);
-    final CheckBox maximumSelected = (CheckBox)timeSelection.findViewById(R.id.dialog_favorite_selection_id_selection_duration_maximum);
-    final TimePicker minimum = (TimePicker)timeSelection.findViewById(R.id.dialog_favorite_selection_id_input_duration_minimum);
-    final TimePicker maximum = (TimePicker)timeSelection.findViewById(R.id.dialog_favorite_selection_id_input_duration_maximum);
+    final CheckBox minimumSelected = timeSelection.findViewById(R.id.dialog_favorite_selection_id_selection_duration_minimum);
+    final CheckBox maximumSelected = timeSelection.findViewById(R.id.dialog_favorite_selection_id_selection_duration_maximum);
+    final TimePicker minimum = timeSelection.findViewById(R.id.dialog_favorite_selection_id_input_duration_minimum);
+    final TimePicker maximum = timeSelection.findViewById(R.id.dialog_favorite_selection_id_input_duration_maximum);
     
     minimum.setIs24HourView(true);
     maximum.setIs24HourView(true);
@@ -265,50 +263,37 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
       CompatUtils.setTimePickerMinute(maximum, 0);
     }
     
-    minimumSelected.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      @Override
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        minimum.setEnabled(isChecked);
-      }
-    });
+    minimumSelected.setOnCheckedChangeListener((buttonView, isChecked) -> minimum.setEnabled(isChecked));
     
-    maximumSelected.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      @Override
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        maximum.setEnabled(isChecked);
-      }
-    });
+    maximumSelected.setOnCheckedChangeListener((buttonView, isChecked) -> maximum.setEnabled(isChecked));
     
     builder.setView(timeSelection);
     
-    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        int minimumValue = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
-        int maximumValue = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
-        
-        if(minimumSelected.isChecked()) {
-          minimumValue = CompatUtils.getTimePickerHour(minimum) * 60 + CompatUtils.getTimePickerMinute(minimum);
-        }
-        
-        if(maximumSelected.isChecked()) {
-          maximumValue = CompatUtils.getTimePickerHour(maximum) * 60 + CompatUtils.getTimePickerMinute(maximum);
-          
-          if(maximumValue == 0) {
-            maximumValue = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
-          }
-        }
-        
-        if(minimumValue > maximumValue && maximumValue != Favorite.VALUE_RESTRICTION_TIME_DEFAULT) {
+    builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+      int minimumValue = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
+      int maximumValue = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
+
+      if(minimumSelected.isChecked()) {
+        minimumValue = CompatUtils.getTimePickerHour(minimum) * 60 + CompatUtils.getTimePickerMinute(minimum);
+      }
+
+      if(maximumSelected.isChecked()) {
+        maximumValue = CompatUtils.getTimePickerHour(maximum) * 60 + CompatUtils.getTimePickerMinute(maximum);
+
+        if(maximumValue == 0) {
           maximumValue = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
         }
-        
-        mFavorite.setDurationRestrictionMinimum(minimumValue);
-        mFavorite.setDurationRestrictionMaximum(maximumValue);
-        
-        updateOkButton();
-        handleDurationView();
       }
+
+      if(minimumValue > maximumValue && maximumValue != Favorite.VALUE_RESTRICTION_TIME_DEFAULT) {
+        maximumValue = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
+      }
+
+      mFavorite.setDurationRestrictionMinimum(minimumValue);
+      mFavorite.setDurationRestrictionMaximum(maximumValue);
+
+      updateOkButton();
+      handleDurationView();
     });
     
     builder.setNegativeButton(android.R.string.cancel, null);
@@ -327,8 +312,8 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
     
     View timeSelection = getLayoutInflater().inflate(R.layout.favorite_time_selection, (ViewGroup)mSearchValue.getRootView(), false);
     
-    final TimePicker from = (TimePicker)timeSelection.findViewById(R.id.favorite_time_selection_from);
-    final TimePicker to = (TimePicker)timeSelection.findViewById(R.id.favorite_time_selection_to);
+    final TimePicker from = timeSelection.findViewById(R.id.favorite_time_selection_from);
+    final TimePicker to = timeSelection.findViewById(R.id.favorite_time_selection_to);
     
     from.setIs24HourView(DateFormat.is24HourFormat(ActivityFavoriteEdit.this));
     to.setIs24HourView(DateFormat.is24HourFormat(ActivityFavoriteEdit.this));
@@ -361,38 +346,35 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
     
     builder.setView(timeSelection);
     
-    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        Calendar current = Calendar.getInstance();
-        IOUtils.normalizeTime(current, CompatUtils.getTimePickerHour(from), CompatUtils.getTimePickerMinute(from), 0);
-        
-        Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
-        utc.setTime(current.getTime());
-        
-        int start = utc.get(Calendar.HOUR_OF_DAY) * 60 + utc.get(Calendar.MINUTE);
-        
-        current.set(Calendar.HOUR_OF_DAY, CompatUtils.getTimePickerHour(to));
-        current.set(Calendar.MINUTE, CompatUtils.getTimePickerMinute(to));
-        
-        utc.setTime(current.getTime());
-        
-        int end = utc.get(Calendar.HOUR_OF_DAY) * 60 + utc.get(Calendar.MINUTE);
-        
-        final int unNormalizedFromTime = CompatUtils.getTimePickerHour(from) * 60 + CompatUtils.getTimePickerMinute(from);
-        final int unNormalizedToTime = CompatUtils.getTimePickerHour(to) * 60 + CompatUtils.getTimePickerMinute(to);
-        
-        if((unNormalizedToTime == unNormalizedFromTime) || (unNormalizedFromTime == 0 && unNormalizedToTime == 1439)) {
-          start = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
-          end = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
-        }
-        
-        mFavorite.setTimeRestrictionStart(start);
-        mFavorite.setTimeRestrictionEnd(end);
-        
-        updateOkButton();
-        handleTimeView();
+    builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+      Calendar current = Calendar.getInstance();
+      IOUtils.normalizeTime(current, CompatUtils.getTimePickerHour(from), CompatUtils.getTimePickerMinute(from), 0);
+
+      Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
+      utc.setTime(current.getTime());
+
+      int start = utc.get(Calendar.HOUR_OF_DAY) * 60 + utc.get(Calendar.MINUTE);
+
+      current.set(Calendar.HOUR_OF_DAY, CompatUtils.getTimePickerHour(to));
+      current.set(Calendar.MINUTE, CompatUtils.getTimePickerMinute(to));
+
+      utc.setTime(current.getTime());
+
+      int end = utc.get(Calendar.HOUR_OF_DAY) * 60 + utc.get(Calendar.MINUTE);
+
+      final int unNormalizedFromTime = CompatUtils.getTimePickerHour(from) * 60 + CompatUtils.getTimePickerMinute(from);
+      final int unNormalizedToTime = CompatUtils.getTimePickerHour(to) * 60 + CompatUtils.getTimePickerMinute(to);
+
+      if((unNormalizedToTime == unNormalizedFromTime) || (unNormalizedFromTime == 0 && unNormalizedToTime == 1439)) {
+        start = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
+        end = Favorite.VALUE_RESTRICTION_TIME_DEFAULT;
       }
+
+      mFavorite.setTimeRestrictionStart(start);
+      mFavorite.setTimeRestrictionEnd(end);
+
+      updateOkButton();
+      handleTimeView();
     });
     
     builder.setNegativeButton(android.R.string.cancel, null);
@@ -434,48 +416,42 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
       }
     }
     
-    builder.setMultiChoiceItems(dayArray, checked, new DialogInterface.OnMultiChoiceClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which, boolean isChecked) {
-        checked[which] = isChecked;
-        
-        if(isChecked) {
-          mCheckedCount++;
-        }
-        else {
-          mCheckedCount--;
-        }
+    builder.setMultiChoiceItems(dayArray, checked, (dialog, which, isChecked) -> {
+      checked[which] = isChecked;
+
+      if(isChecked) {
+        mCheckedCount++;
+      }
+      else {
+        mCheckedCount--;
       }
     });
     
-    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        if(mCheckedCount < 7 && mCheckedCount > 0) {
-          int[] days =  new int[mCheckedCount];
-          
-          int dayIndex = 0;
-                    
-          for(int i = 0; i < checked.length; i++) {
-            if(checked[i]) {
-              if(i == 6) {
-                days[dayIndex++] = Calendar.SUNDAY;
-              }
-              else {
-                days[dayIndex++] = i+2;
-              }
+    builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+      if(mCheckedCount < 7 && mCheckedCount > 0) {
+        int[] days =  new int[mCheckedCount];
+
+        int dayIndex = 0;
+
+        for(int i = 0; i < checked.length; i++) {
+          if(checked[i]) {
+            if(i == 6) {
+              days[dayIndex++] = Calendar.SUNDAY;
+            }
+            else {
+              days[dayIndex++] = i+2;
             }
           }
-          
-          mFavorite.setDayRestriction(days);
         }
-        else {
-          mFavorite.setDayRestriction(null);
-        }
-        
-        updateOkButton();
-        handleDayView();
+
+        mFavorite.setDayRestriction(days);
       }
+      else {
+        mFavorite.setDayRestriction(null);
+      }
+
+      updateOkButton();
+      handleDayView();
     });
     
     builder.setNegativeButton(android.R.string.cancel, null);
@@ -551,16 +527,14 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
       
       toFormat = now.getTime();
     }
-    
-    StringBuilder timeString = new StringBuilder();
-    
-    timeString.append(timeFormat.format(fromFormat));
-    timeString.append(" ");
-    timeString.append(getString(R.string.favorite_time_to));
-    timeString.append(" ");
-    timeString.append(timeFormat.format(toFormat));
-    
-    mTime.setText(timeString.toString());
+
+    final String timeString = timeFormat.format(fromFormat) +
+      " " +
+      getString(R.string.favorite_time_to) +
+      " " +
+      timeFormat.format(toFormat);
+
+    mTime.setText(timeString);
   }
   
   private void handleDayView() {
@@ -572,7 +546,7 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
       
       Calendar dayNames = Calendar.getInstance();
       
-      ArrayList<String> days = new ArrayList<String>();
+      ArrayList<String> days = new ArrayList<>();
       
       String sunday = null;
       
@@ -618,7 +592,7 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
         Cursor channelNames = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, where.toString(), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + ", " + TvBrowserContentProvider.CHANNEL_KEY_NAME);
         
         if(IOUtils.prepareAccess(channelNames)) {
-          ArrayList<String> nameList = new ArrayList<String>();
+          ArrayList<String> nameList = new ArrayList<>();
           
           int nameColumn = channelNames.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
           
@@ -643,7 +617,7 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
   
   private void handleAttributeView() {
     if(mFavorite.isAttributeRestricted()) {
-      ArrayList<String> selectedAttributes = new ArrayList<String>();
+      ArrayList<String> selectedAttributes = new ArrayList<>();
       
       int[] restrictionIndices = mFavorite.getAttributeRestrictionIndices();
       String[] names = IOUtils.getInfoStringArrayNames(getResources());

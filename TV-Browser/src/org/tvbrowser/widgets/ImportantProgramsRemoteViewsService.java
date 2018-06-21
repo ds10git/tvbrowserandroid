@@ -60,12 +60,12 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
   }
 
   class ImportantProgramsRemoteViewsFactory implements RemoteViewsFactory {
-    private Context mContext;
+    private final Context mContext;
     private Cursor mCursor;
     private HashMap<String, Integer> mMarkingColumsIndexMap;
     private PendingIntent mPendingUpdate;
     private PendingIntent mPendingRunning;
-    private int mAppWidgetId;
+    private final int mAppWidgetId;
     
     private int mIdIndex;
     private int mStartTimeIndex;
@@ -130,7 +130,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
         
         SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(mContext);
         
-        ArrayList<String> columns = new ArrayList<String>();
+        ArrayList<String> columns = new ArrayList<>();
         
         String channels = pref.getString(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_PROGRAM_LIST_CHANNELS), "");
         int type = pref.getInt(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_TYPE), 0);
@@ -188,7 +188,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
             mCursor = getApplicationContext().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL, projection, where, null, TvBrowserContentProvider.DATA_KEY_STARTTIME + ", " + TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + limit);
             
             if(mCursor != null) {
-              mMarkingColumsIndexMap = new HashMap<String, Integer>();
+              mMarkingColumsIndexMap = new HashMap<>();
               
               mIdIndex = mCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID);
               mStartTimeIndex = mCursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
@@ -253,7 +253,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
       }
     }
     
-    public ImportantProgramsRemoteViewsFactory(Context context, Bundle extras) {
+    ImportantProgramsRemoteViewsFactory(Context context, Bundle extras) {
       PrefUtils.initialize(context);
       mContext = context;
       
@@ -387,7 +387,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
           rv.setViewVisibility(R.id.important_programs_widget_row_channel_name1, View.GONE);
         }
         
-        ArrayList<String> markedColumns = new ArrayList<String>();
+        ArrayList<String> markedColumns = new ArrayList<>();
         
         for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
           final Integer index = mMarkingColumsIndexMap.get(column);

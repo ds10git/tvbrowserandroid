@@ -239,9 +239,9 @@
     <item android:id="@id/action_reset"
 	    android:orderInCategory="100"
 	    app:showAsAction="never"
-	    android:title="Reset data update date"/>
+	    android:title="@string/reset_data_update_date"/>
     <item android:id="@id/action_show_markings"
 	    android:orderInCategory="100"
 	    app:showAsAction="never"
-	    android:title="Show plugin marking data"/>
+	    android:title="@string/show_plugin_marking_data"/>
 </menu>

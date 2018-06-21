@@ -16,6 +16,8 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import android.support.annotation.NonNull;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
@@ -36,12 +38,12 @@ import org.tvbrowser.utils.IOUtils;
  * @author René Mach
  */
 public class Mirror implements Comparable<Mirror> {
-  private String mUrl;
-  private int mWeight;
+  private final String mUrl;
+  private final int mWeight;
   
   private static final SimpleDateFormat DATE_FORMAT = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US);
   
-  public Mirror(String url, int weight) {
+  private Mirror(String url, int weight) {
     mUrl = url;
     mWeight = weight;
   }
@@ -50,7 +52,7 @@ public class Mirror implements Comparable<Mirror> {
     return mUrl;
   }
   
-  public int getWeight() {
+  private int getWeight() {
     return mWeight;
   }
   
@@ -61,7 +63,7 @@ public class Mirror implements Comparable<Mirror> {
    * @return The array with Mirrors.
    */
   public static Mirror[] getMirrorsFor(String value) {
-    ArrayList<Mirror> mirrors = new ArrayList<Mirror>();
+    ArrayList<Mirror> mirrors = new ArrayList<>();
     String[] mirrorParts = value.split(";");
     
     for(String part : mirrorParts) {
@@ -75,7 +77,7 @@ public class Mirror implements Comparable<Mirror> {
           
           try {
             mirrors.add(new Mirror(mirrorValues[0], Integer.valueOf(mirrorValues[1])));
-          }catch(NumberFormatException e) {}
+          }catch(NumberFormatException ignored) {}
         }
       }
       else {
@@ -93,7 +95,7 @@ public class Mirror implements Comparable<Mirror> {
   }
 
   @Override
-  public int compareTo(Mirror another) {
+  public int compareTo(@NonNull Mirror another) {
     if(mWeight < another.mWeight) {
       return -1;
     }
@@ -105,7 +107,7 @@ public class Mirror implements Comparable<Mirror> {
   }
   
   public static Mirror getMirrorToUseForGroup(Mirror[] mirrors, String group, TvDataUpdateService update, boolean checkOnlyConnection) {
-    ArrayList<Mirror> toChooseFrom = new ArrayList<Mirror>(Arrays.asList(mirrors));
+    ArrayList<Mirror> toChooseFrom = new ArrayList<>(Arrays.asList(mirrors));
     
     Mirror choosen = null;
     
@@ -119,7 +121,7 @@ public class Mirror implements Comparable<Mirror> {
       int limit = new Random().nextInt(weightSum + 1);
       update.doLog("Mirror weight limit for group '" + group + "': " + limit);
       
-      final ArrayList<Mirror> mirrorsWithAcceptedWeight = new ArrayList<Mirror>();
+      final ArrayList<Mirror> mirrorsWithAcceptedWeight = new ArrayList<>();
       
       for(int i = toChooseFrom.size()-1; i >= 0; i--) {
         if(toChooseFrom.get(i).getWeight() >= limit) {

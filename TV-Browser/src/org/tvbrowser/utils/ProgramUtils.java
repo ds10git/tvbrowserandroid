@@ -64,7 +64,7 @@ public class ProgramUtils {
     TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE
   };
   
-  public static final Program createProgramFromDataCursor(Context context, Cursor cursor) {
+  public static Program createProgramFromDataCursor(Context context, Cursor cursor) {
     Program result = null;
     
     if(IOUtils.prepareAccessFirst(cursor) && cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME) != -1) {
@@ -95,9 +95,9 @@ public class ProgramUtils {
     return result;
   }
   
-  public static final Program[] createProgramsFromDataCursor(Context context, Cursor cursor) {
-    ArrayList<Program> programsList = new ArrayList<Program>();
-    SparseArrayCompat<Channel> channelMap = new SparseArrayCompat<Channel>();
+  public static Program[] createProgramsFromDataCursor(Context context, Cursor cursor) {
+    ArrayList<Program> programsList = new ArrayList<>();
+    SparseArrayCompat<Channel> channelMap = new SparseArrayCompat<>();
     
     if(cursor != null && !cursor.isClosed() && cursor.moveToFirst() && cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME) != -1) {
       Calendar test = Calendar.getInstance();
@@ -148,7 +148,7 @@ public class ProgramUtils {
     return programsList.isEmpty() ? null : programsList.toArray(new Program[programsList.size()]);
   }
   
-  public static final Channel createChannelFromCursor(Context context, Cursor cursor) {
+  private static Channel createChannelFromCursor(Context context, Cursor cursor) {
     Channel result = null;
     
     if(IOUtils.isDatabaseAccessible(context) && cursor != null && !cursor.isClosed() && cursor.moveToFirst()) {
@@ -185,7 +185,7 @@ public class ProgramUtils {
     return result;
   }
   
-  public static final boolean markProgram(Context context, Program program, String pluginId) {
+  public static boolean markProgram(Context context, Program program, String pluginId) {
     boolean result = false;
     
     if(IOUtils.isDatabaseAccessible(context)) {
@@ -228,7 +228,7 @@ public class ProgramUtils {
     return result;
   }
   
-  public static final boolean unmarkProgram(Context context, Program program, String pluginId) {
+  public static boolean unmarkProgram(Context context, Program program, String pluginId) {
     boolean result = false;
     
     if(IOUtils.isDatabaseAccessible(context)) {
@@ -377,13 +377,13 @@ public class ProgramUtils {
     return result;
   }
   
-  public static final void handleFirstAndLastKnownProgramId(Context context, long firstProgramId, long lastProgramId) {
+  public static void handleFirstAndLastKnownProgramId(Context context, long firstProgramId, long lastProgramId) {
     handleKnownIdInternal(context, firstProgramId, lastProgramId, PrefUtils.TYPE_PREFERENCES_MARKINGS);
     handleKnownIdInternal(context, firstProgramId, lastProgramId, PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS);
     handleKnownIdInternal(context, firstProgramId, lastProgramId, PrefUtils.TYPE_PREFERENCES_MARKING_SYNC);
   }
   
-  private static final void handleKnownIdInternal(Context context, long firstProgramId, long lastProgramId, int prefType) {
+  private static void handleKnownIdInternal(Context context, long firstProgramId, long lastProgramId, int prefType) {
     SharedPreferences pref = PrefUtils.getSharedPreferences(prefType, context);
     Editor edit = pref.edit();
     
@@ -499,7 +499,7 @@ public class ProgramUtils {
   }
   
 
-  public static final WhereClause getPluginMarkingsSelection(Context context) {
+  public static WhereClause getPluginMarkingsSelection(Context context) {
     WhereClause result = new WhereClause(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, null);
     
     if(context != null) {
@@ -538,13 +538,13 @@ public class ProgramUtils {
   private static BroadcastReceiver mRefreshReceiver;
   private static ArrayList<MarkingsUpdateListener> mMarkingsListener;
   
-  public static final void registerMarkingsListener(Context context, MarkingsUpdateListener listener) {
+  public static void registerMarkingsListener(Context context, MarkingsUpdateListener listener) {
     if(mRefreshReceiver == null) {
       if(mMarkingsListener != null) {
         mMarkingsListener.clear();
       }
       else {
-        mMarkingsListener = new ArrayList<MarkingsUpdateListener>();
+        mMarkingsListener = new ArrayList<>();
       }
       
       mRefreshReceiver = new BroadcastReceiver() {
@@ -569,7 +569,7 @@ public class ProgramUtils {
     mMarkingsListener.add(listener);
   }
   
-  public static final void unregisterMarkingsListener(Context context, MarkingsUpdateListener listener) {
+  public static void unregisterMarkingsListener(Context context, MarkingsUpdateListener listener) {
     if(mMarkingsListener != null && !mMarkingsListener.isEmpty()) {
       mMarkingsListener.remove(listener);
       
@@ -582,31 +582,31 @@ public class ProgramUtils {
     }
   }
   
-  public static final void addReminderId(Context context, long programId) {
+  public static void addReminderId(Context context, long programId) {
     addMarkId(context, programId, PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS);
   }
   
-  public static final void addReminderIds(Context context, ArrayList<String> idList) {
+  public static void addReminderIds(Context context, ArrayList<String> idList) {
     addMarkIds(context, idList, PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS);
   }
   
-  public static final void removeReminderId(Context context, long programId) {
+  public static void removeReminderId(Context context, long programId) {
     removeMarkId(context, programId, PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS);
   }
   
-  public static final void removeReminderIds(Context context, ArrayList<String> idList) {
+  public static void removeReminderIds(Context context, ArrayList<String> idList) {
     removeMarkIds(context, idList, PrefUtils.TYPE_PREFERENCES_MARKING_REMINDERS);
   }
     
-  public static final void addSyncIds(Context context, ArrayList<String> idList) {
+  public static void addSyncIds(Context context, ArrayList<String> idList) {
     addMarkIds(context, idList, PrefUtils.TYPE_PREFERENCES_MARKING_SYNC);
   }
   
-  public static final void removeSyncId(Context context, long programId) {
+  public static void removeSyncId(Context context, long programId) {
     removeMarkId(context, programId, PrefUtils.TYPE_PREFERENCES_MARKING_SYNC);
   }
     
-  private static final void addMarkId(Context context, long programId, int type) {
+  private static void addMarkId(Context context, long programId, int type) {
     Editor edit = PrefUtils.getSharedPreferences(type, context).edit();
     
     edit.putBoolean(String.valueOf(programId), true);
@@ -614,7 +614,7 @@ public class ProgramUtils {
     edit.commit();
   }
   
-  private static final void addMarkIds(Context context, ArrayList<String> idList, int type) {
+  private static void addMarkIds(Context context, ArrayList<String> idList, int type) {
     Editor edit = PrefUtils.getSharedPreferences(type, context).edit();
     
     for(String programId : idList) {
@@ -624,7 +624,7 @@ public class ProgramUtils {
     edit.commit();
   }
   
-  private static final void removeMarkId(Context context, long programId, int type) {
+  private static void removeMarkId(Context context, long programId, int type) {
     Editor edit = PrefUtils.getSharedPreferences(type, context).edit();
     
     edit.remove(String.valueOf(programId));
@@ -632,7 +632,7 @@ public class ProgramUtils {
     edit.commit();
   }
   
-  private static final void removeMarkIds(Context context, ArrayList<String> idList, int type) {
+  private static void removeMarkIds(Context context, ArrayList<String> idList, int type) {
     Editor edit = PrefUtils.getSharedPreferences(type, context).edit();
     
     for(String programId : idList) {

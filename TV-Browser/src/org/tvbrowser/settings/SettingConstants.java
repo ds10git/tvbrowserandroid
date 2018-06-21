@@ -173,8 +173,8 @@ public class SettingConstants {
   public static final String SELECTION_CHANNELS_KEY = "selectionChannels";
   public static final String REMINDER_STATE_KEY = "reminderState";
   
-  public static final SparseArrayCompat<Drawable> SMALL_LOGO_MAP = new SparseArrayCompat<Drawable>();
-  public static final SparseArrayCompat<Drawable> MEDIUM_LOGO_MAP = new SparseArrayCompat<Drawable>();
+  public static final SparseArrayCompat<Drawable> SMALL_LOGO_MAP = new SparseArrayCompat<>();
+  public static final SparseArrayCompat<Drawable> MEDIUM_LOGO_MAP = new SparseArrayCompat<>();
   
   public static String getNumberForDataServiceKey(String key) {
     String result = null;
@@ -327,9 +327,9 @@ public class SettingConstants {
   
   public static final IntentFilter RERESH_FILTER = new IntentFilter(REFRESH_VIEWS);
   
-  public static final HashMap<String, Integer> MARK_COLOR_KEY_MAP = new HashMap<String, Integer>();
+  public static final HashMap<String, Integer> MARK_COLOR_KEY_MAP = new HashMap<>();
   
-  public static final HashMap<String, String> SHORT_CHANNEL_NAMES = new HashMap<String, String>();
+  public static final HashMap<String, String> SHORT_CHANNEL_NAMES = new HashMap<>();
   
   public static final int NO_CATEGORY = 0;
   public static final int TV_CATEGORY = 1;

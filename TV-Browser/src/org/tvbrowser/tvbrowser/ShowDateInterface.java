@@ -16,6 +16,6 @@
  */
 package org.tvbrowser.tvbrowser;
 
-public interface ShowDateInterface {
-  public boolean showDate();
+interface ShowDateInterface {
+  boolean showDate();
 }

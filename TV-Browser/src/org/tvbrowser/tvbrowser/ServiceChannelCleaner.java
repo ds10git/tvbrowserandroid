@@ -40,8 +40,8 @@ public class ServiceChannelCleaner extends Service {
           
           final Cursor channels = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, projection, null, null, TvBrowserContentProvider.KEY_ID);
           
-          final HashSet<String> knownChannels = new HashSet<String>();
-          final ArrayList<String> toDelete = new ArrayList<String>();
+          final HashSet<String> knownChannels = new HashSet<>();
+          final ArrayList<String> toDelete = new ArrayList<>();
           
           try {
             if(IOUtils.prepareAccess(channels)) {
@@ -86,7 +86,7 @@ public class ServiceChannelCleaner extends Service {
     return Service.START_NOT_STICKY;
   }
   
-  private static final String getChannelGroupKey(String channelKey, int groupKey) {
-    return new StringBuilder(channelKey).append(";").append(groupKey).toString();
+  private static String getChannelGroupKey(String channelKey, int groupKey) {
+    return channelKey + ";" + groupKey;
   }
 }

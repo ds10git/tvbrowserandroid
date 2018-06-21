@@ -47,6 +47,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
+import android.support.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -125,10 +126,10 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String CHANNEL_KEY_JOINED_CHANNEL_ID = "joinedChannelID";
   public static final String CHANNEL_KEY_ORDER_NUMBER = "orderNumber";
   public static final String CHANNEL_KEY_SELECTION = "isSelected";
-  public static final String CHANNEL_KEY_USER_CHANNEL_NAME = "userChannelName";
-  public static final String CHANNEL_KEY_USER_ICON = "userChannelIcon";
-  public static final String CHANNEL_KEY_USER_START_TIME = "userStartTime";
-  public static final String CHANNEL_KEY_USER_END_TIME = "userEndTime";
+  private static final String CHANNEL_KEY_USER_CHANNEL_NAME = "userChannelName";
+  private static final String CHANNEL_KEY_USER_ICON = "userChannelIcon";
+  private static final String CHANNEL_KEY_USER_START_TIME = "userStartTime";
+  private static final String CHANNEL_KEY_USER_END_TIME = "userEndTime";
   
   // Column names for the data table
   public static final String DATA_KEY_STARTTIME = "startTime";
@@ -216,7 +217,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   private static final HashMap<String, String> MAP_DATA_KEY_TYPE = createDataKeyTypeMap();
   
   private static HashMap<String, String> createDataKeyTypeMap () {
-    final HashMap<String, String> mapDataKeyType = new HashMap<String, String>();
+    final HashMap<String, String> mapDataKeyType = new HashMap<>();
     
     mapDataKeyType.put(DATA_KEY_STARTTIME ," INTEGER NOT NULL");
     mapDataKeyType.put(DATA_KEY_ENDTIME ," INTEGER NOT NULL");
@@ -302,7 +303,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   }
   
   // Artificial key for creating column at selection
-  public static final String DATA_KEY_START_DAY_LOCAL = "startDayLocal";
+  private static final String DATA_KEY_START_DAY_LOCAL = "startDayLocal";
   
   public static final String[] INFO_CATEGORIES_COLUMNS_ARRAY = {
     DATA_KEY_INFO_BLACK_AND_WHITE,
@@ -375,7 +376,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   };
   
   static {
-    SEARCH_PROJECTION_MAP = new HashMap<String, String>();
+    SEARCH_PROJECTION_MAP = new HashMap<>();
     SEARCH_PROJECTION_MAP.put(SearchManager.SUGGEST_COLUMN_TEXT_1, DATA_KEY_TITLE + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
     SEARCH_PROJECTION_MAP.put(SearchManager.SUGGEST_COLUMN_TEXT_2, DATA_KEY_EPISODE_TITLE + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_2);
     SEARCH_PROJECTION_MAP.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID,KEY_ID + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
@@ -410,7 +411,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataversion/#", DATA_VERSION_ID);
   }
   
-  public static final String[] getColumnArrayWithMarkingColums(String... columns) {
+  public static String[] getColumnArrayWithMarkingColums(String... columns) {
     String[] projection = new String[columns.length + TvBrowserContentProvider.MARKING_COLUMNS.length];
     
     System.arraycopy(TvBrowserContentProvider.MARKING_COLUMNS, 0, projection, 0, TvBrowserContentProvider.MARKING_COLUMNS.length);
@@ -420,7 +421,7 @@ public class TvBrowserContentProvider extends ContentProvider {
  }
 
   @Override
-  public int delete(Uri uri, String where, String[] whereArgs) {
+  public int delete(@NonNull Uri uri, String where, String[] whereArgs) {
     int count = 0;
     
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
@@ -468,7 +469,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   }
 
   @Override
-  public String getType(Uri uri) {
+  public String getType(@NonNull Uri uri) {
     switch(uriMatcher.match(uri)) {
       // FIXME vnd.andorid.cursor.* should be vnd.android.cursor.
       case GROUPS: return "vnd.andorid.cursor.dir/vnd.tvbrowser.groups";
@@ -490,7 +491,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   }
 
   @Override
-  public Uri insert(Uri uri, ContentValues values) {
+  public Uri insert(@NonNull Uri uri, ContentValues values) {
     if(IOUtils.isDatabaseAccessible(getContext())) {
       switch(uriMatcher.match(uri)) {
         case GROUPS: return insertGroup(uri, values);
@@ -505,7 +506,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   }
   
   @Override
-  public int bulkInsert(Uri uri, ContentValues[] values) {
+  public int bulkInsert(@NonNull Uri uri, @NonNull ContentValues[] values) {
     if(IOUtils.isDatabaseAccessible(getContext())) {
       switch(uriMatcher.match(uri)) {
         case DATA: return bulkInsertData(uri, values);
@@ -518,9 +519,10 @@ public class TvBrowserContentProvider extends ContentProvider {
     throw new SQLException("Failed to insert row into " + uri);
   }
   
+  @NonNull
   @Override
-  public ContentProviderResult[] applyBatch(ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
-    ArrayList<ContentProviderResult> result = new ArrayList<ContentProviderResult>(0);
+  public ContentProviderResult[] applyBatch(@NonNull ArrayList<ContentProviderOperation> operations) throws OperationApplicationException {
+    ArrayList<ContentProviderResult> result = new ArrayList<>(0);
     
     try {
       SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
@@ -529,7 +531,7 @@ public class TvBrowserContentProvider extends ContentProvider {
         try {
           database.beginTransaction();
           
-          HashMap<Uri, Uri> updateUris = new HashMap<Uri, Uri>();
+          HashMap<Uri, Uri> updateUris = new HashMap<>();
           
           for(ContentProviderOperation op : operations) {
             Uri uri = op.getUri();
@@ -573,7 +575,7 @@ public class TvBrowserContentProvider extends ContentProvider {
               }
             }
           }
-        }catch(SQLiteDatabaseLockedException e) {}
+        }catch(SQLiteDatabaseLockedException ignored) {}
       }
     }catch(RuntimeException rte) {
       throw new OperationApplicationException(rte);
@@ -811,7 +813,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     try {
       databasePath = pref.getString(getContext().getString(R.string.PREF_DATABASE_PATH), getContext().getString(R.string.pref_database_path_default));
-    }catch(NotFoundException nfe) {}
+    }catch(NotFoundException ignored) {}
     
     createDataBaseHelper(databasePath);
     
@@ -897,7 +899,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   }
   
   @Override
-  public Cursor query(Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
+  public Cursor query(@NonNull Uri uri, String[] projection, String selection, String[] selectionArgs, String sortOrder) {
     Cursor result = null;
     
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
@@ -1066,7 +1068,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   }
   
   @Override
-  public int update(Uri uri, ContentValues values, String where, String[] whereArgs) {
+  public int update(@NonNull Uri uri, ContentValues values, String where, String[] whereArgs) {
     int count = 0;
     SQLiteDatabase database = mDataBaseHelper.getWritableDatabase();
     
@@ -1155,7 +1157,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     private static final String CREATE_DATA_TABLE = sqlCreateDataTable(); 
     
-    private static final String sqlCreateDataTable() {
+    private static String sqlCreateDataTable() {
       final StringBuilder builder = new StringBuilder();
       
       builder.append("create table ").append(DATA_TABLE).append(" (").append(KEY_ID).append(" INTEGER primary key autoincrement, ");
@@ -1183,10 +1185,10 @@ public class TvBrowserContentProvider extends ContentProvider {
         + VERSION_KEY_PICTURE0016_VERSION + " INTEGER, "
         + VERSION_KEY_PICTURE1600_VERSION + " INTEGER);";
     
-    private Context mContext;
+    private final Context mContext;
     
-    public TvBrowserDataBaseHelper(Context context, String name,
-        CursorFactory factory, int version) {
+    TvBrowserDataBaseHelper(Context context, String name,
+                            CursorFactory factory, int version) {
       super(context,name, factory, version);
       mContext = context.getApplicationContext();
     }
@@ -1241,7 +1243,7 @@ public class TvBrowserContentProvider extends ContentProvider {
           try {
           markings = db.query(DATA_TABLE, new String[] {KEY_ID,DATA_KEY_MARKING_VALUES}, "ifnull("+DATA_KEY_MARKING_VALUES+", '') != ''", null, null, null, KEY_ID);
           if(markings.moveToFirst()) {
-            ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+            ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
             
             do {
               long id = markings.getLong(0);
@@ -1364,7 +1366,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       }
       
       if(oldVersion < 7) {
-        ArrayList<String> addColumnList = new ArrayList<String>();
+        ArrayList<String> addColumnList = new ArrayList<>();
         
         addColumnList.add(DATA_KEY_UTC_START_MINUTE_AFTER_MIDNIGHT);
         addColumnList.add(DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT);
@@ -1434,7 +1436,7 @@ public class TvBrowserContentProvider extends ContentProvider {
             
             try {
               if(all.moveToFirst()) {
-                final ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<ContentProviderOperation>();
+                final ArrayList<ContentProviderOperation> updateValuesList = new ArrayList<>();
                 
                 final int keyColumn = all.getColumnIndex(KEY_ID);
                 final int startTimeColumn = all.getColumnIndex(DATA_KEY_STARTTIME);
@@ -1505,13 +1507,11 @@ public class TvBrowserContentProvider extends ContentProvider {
       }
       
       if(oldVersion < 10) {
-        final ArrayList<String> dataKeysList = new ArrayList<String>(MAP_DATA_KEY_TYPE.size());
+        final ArrayList<String> dataKeysList = new ArrayList<>(MAP_DATA_KEY_TYPE.size());
         
         final Set<String> dataKeySet = MAP_DATA_KEY_TYPE.keySet();
-        
-        for(String dataKey : dataKeySet) {
-          dataKeysList.add(dataKey);
-        }
+
+        dataKeysList.addAll(dataKeySet);
         
         final Cursor columnNames = db.rawQuery("PRAGMA table_info(" + DATA_TABLE + ")", null);
         
@@ -1552,18 +1552,18 @@ public class TvBrowserContentProvider extends ContentProvider {
       if(IOUtils.isDatabaseAccessible(mContext)) {
         try {
           db = super.getWritableDatabase();
-        }catch(SQLiteException sqle) {}
+        }catch(SQLiteException ignored) {}
       }
       
       return db;
     }
   }
   
-  private static final boolean columnExists(SQLiteDatabase db, String columnName) {
+  private static boolean columnExists(SQLiteDatabase db, String columnName) {
     return columnExists(db, CHANNEL_TABLE, columnName);
   }
   
-  private static final boolean columnExists(SQLiteDatabase db, String table, String columnName) {
+  private static boolean columnExists(SQLiteDatabase db, String table, String columnName) {
     boolean result = false;
     
     Cursor c = db.rawQuery("PRAGMA table_info(" + table + ")", null);

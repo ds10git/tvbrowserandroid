@@ -37,12 +37,10 @@ import org.tvbrowser.view.ProgramTableLayoutConstants;
 import org.tvbrowser.view.TimeBlockProgramTableLayout;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
 import android.content.ContextWrapper;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
@@ -139,14 +137,11 @@ public class FragmentProgramTable extends Fragment {
             timeItem.setActionView(R.layout.progressbar);
           }
           
-          handler.post(new Runnable() {
-            @Override
-            public void run() {
-              now();
-              
-              if(timeItem != null) {
-                timeItem.setActionView(null);
-              }
+          handler.post(() -> {
+            now();
+
+            if(timeItem != null) {
+              timeItem.setActionView(null);
             }
           });
           
@@ -221,16 +216,13 @@ public class FragmentProgramTable extends Fragment {
                 final View view = getView().findViewWithTag(id);
                 
                 if(view != null) {
-                  final ScrollView scroll = (ScrollView)getView().findViewById(R.id.vertical_program_table_scroll);
+                  final ScrollView scroll = getView().findViewById(R.id.vertical_program_table_scroll);
                   
-                  scroll.post(new Runnable() {
-                    @Override
-                    public void run() {
-                      int location[] = new int[2];
-                      view.getLocationInWindow(location);
-                                          
-                      scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]);
-                    }
+                  scroll.post(() -> {
+                    int location[] = new int[2];
+                    view.getLocationInWindow(location);
+
+                    scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]);
                   });
                 }
               }
@@ -247,8 +239,8 @@ public class FragmentProgramTable extends Fragment {
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     
-    mShowInfos = new ArrayList<Integer>();
-    mMarkingsMap = new HashMap<String, Integer>();
+    mShowInfos = new ArrayList<>();
+    mMarkingsMap = new HashMap<>();
     
     mUpdatingRunningPrograms = false;
     mUpdatingLayout = false;
@@ -256,20 +248,17 @@ public class FragmentProgramTable extends Fragment {
     mOldScrollX = -1;
     //mCurrentDay = 0;
     
-    mClickListener = new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        Long id = (Long)v.getTag();
-        
-        if(id != null) {
-          UiUtils.showProgramInfo(getActivity(), id, null, handler);
-        }
+    mClickListener = v -> {
+      Long id = (Long)v.getTag();
+
+      if(id != null) {
+        UiUtils.showProgramInfo(getActivity(), id, null, handler);
       }
     };
   }
 
   
-  Handler handler = new Handler();
+  private final Handler handler = new Handler();
   
   @Override
   public void onResume() {
@@ -324,15 +313,12 @@ public class FragmentProgramTable extends Fragment {
     mDataUpdateReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            if(!isDetached() && getView() != null) {
-              RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
-              
-              if(layout != null) {
-                updateView(getActivity().getLayoutInflater(),layout);
-              }
+        handler.post(() -> {
+          if(!isDetached() && getView() != null) {
+            RelativeLayout layout = getView().findViewWithTag("LAYOUT");
+
+            if(layout != null) {
+              updateView(getActivity().getLayoutInflater(),layout);
             }
           }
         });
@@ -346,15 +332,12 @@ public class FragmentProgramTable extends Fragment {
     mUpdateChannelsReceiver = new BroadcastReceiver() {
       @Override
       public void onReceive(Context context, Intent intent) {
-        handler.post(new Runnable() {
-          @Override
-          public void run() {
-            if(!isDetached() && getView() != null) {
-              RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
-              
-              if(layout != null) {
-                updateView(getActivity().getLayoutInflater(),layout);
-              }
+        handler.post(() -> {
+          if(!isDetached() && getView() != null) {
+            RelativeLayout layout = getView().findViewWithTag("LAYOUT");
+
+            if(layout != null) {
+              updateView(getActivity().getLayoutInflater(),layout);
             }
           }
         });
@@ -389,7 +372,7 @@ public class FragmentProgramTable extends Fragment {
             }
           }
           else {
-            RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
+            RelativeLayout layout = getView().findViewWithTag("LAYOUT");
             
             if(layout != null) {
               updateView(getActivity().getLayoutInflater(),layout);
@@ -451,21 +434,18 @@ public class FragmentProgramTable extends Fragment {
                   final ProgramPanel progPanel = (ProgramPanel)mainChild;
                   
                   if(progPanel.isOnAir()) {
-                    handler.post(new Runnable() {
-                      @Override
-                      public void run() {
-                        if(!isDetached() && mKeepRunning && IOUtils.isDatabaseAccessible(getActivity())) {
-                          String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
-                          
-                          Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), projection, null, null, null);
-                          
-                          try {
-                            if(IOUtils.prepareAccessFirst(c)) {
-                              UiUtils.handleMarkings(getActivity(), c, progPanel, null, null, true);
-                            }
-                          }finally {
-                            IOUtils.close(c);
+                    handler.post(() -> {
+                      if(!isDetached() && mKeepRunning && IOUtils.isDatabaseAccessible(getActivity())) {
+                        String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
+
+                        Cursor c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, (Long)progPanel.getTag()), projection, null, null, null);
+
+                        try {
+                          if(IOUtils.prepareAccessFirst(c)) {
+                            UiUtils.handleMarkings(getActivity(), c, progPanel, null, null, true);
                           }
+                        }finally {
+                          IOUtils.close(c);
                         }
                       }
                     });
@@ -520,7 +500,7 @@ public class FragmentProgramTable extends Fragment {
                 int statTimeColumnIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
                 int endTimeColumnIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
                 
-                HashMap<String, Integer> markingColumsIndexMap = new HashMap<String, Integer>();
+                HashMap<String, Integer> markingColumsIndexMap = new HashMap<>();
                 
                 for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
                   int index = c.getColumnIndex(column);
@@ -539,7 +519,7 @@ public class FragmentProgramTable extends Fragment {
                     long startTime = c.getLong(statTimeColumnIndex);
                     long endTime = c.getLong(endTimeColumnIndex);
                     
-                    ArrayList<String> markedColumns = new ArrayList<String>();
+                    ArrayList<String> markedColumns = new ArrayList<>();
                     
                     for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
                       Integer index = markingColumsIndexMap.get(column);
@@ -563,7 +543,7 @@ public class FragmentProgramTable extends Fragment {
     }
   }
   
-  public void updateView(LayoutInflater inflater, ViewGroup container) {
+  private void updateView(LayoutInflater inflater, ViewGroup container) {
     if(mUpdatingRunningPrograms) {
       Thread t = new Thread() {
         public void run() {
@@ -612,7 +592,7 @@ public class FragmentProgramTable extends Fragment {
     if(!mDaySet && value.get(Calendar.DAY_OF_YEAR) == mCurrentDate.get(Calendar.DAY_OF_YEAR) && value.get(Calendar.HOUR_OF_DAY) < 4) {
       mCurrentDate.add(Calendar.DAY_OF_YEAR, -1);
       
-      TextView day = (TextView)((ViewGroup)container.getParent()).findViewById(R.id.show_current_day);
+      TextView day = ((ViewGroup)container.getParent()).findViewById(R.id.show_current_day);
       
       setDayString(day);
     }
@@ -684,8 +664,8 @@ public class FragmentProgramTable extends Fragment {
           System.arraycopy(infoCategories, 0, projection, 8, infoCategories.length);
           System.arraycopy(TvBrowserContentProvider.MARKING_COLUMNS, 0, projection, 8 + infoCategories.length, TvBrowserContentProvider.MARKING_COLUMNS.length);
           
-          LinearLayout channelBar = (LinearLayout)programTable.findViewById(R.id.program_table_channel_bar);
-          ArrayList<Integer> channelIDsOrdered = new ArrayList<Integer>();
+          LinearLayout channelBar = programTable.findViewById(R.id.program_table_channel_bar);
+          ArrayList<Integer> channelIDsOrdered = new ArrayList<>();
           
           while(channels.moveToNext()) {
             channelIDsOrdered.add(channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
@@ -727,7 +707,7 @@ public class FragmentProgramTable extends Fragment {
               mProgramPanelLayout = new CompactProgramTableLayout(getActivity(), channelIDsOrdered);
             }
             
-            ViewGroup test = (ViewGroup)programTable.findViewById(R.id.vertical_program_table_scroll);
+            ViewGroup test = programTable.findViewById(R.id.vertical_program_table_scroll);
             test.addView(mProgramPanelLayout);
             
             where += UiUtils.getDontWantToSeeFilterString(getActivity());
@@ -776,32 +756,23 @@ public class FragmentProgramTable extends Fragment {
           Calendar test = Calendar.getInstance();
           
           if(test.get(Calendar.DAY_OF_YEAR) == mCurrentDate.get(Calendar.DAY_OF_YEAR) || test.get(Calendar.DAY_OF_YEAR) - 2 == mCurrentDate.get(Calendar.DAY_OF_YEAR)) {
-            handler.post(new Runnable() {
-              @Override
-              public void run() {
-                scrollToTime(0,null);
-              }
-            });
+            handler.post(() -> scrollToTime(0,null));
           }
           
-          handler.post(new Runnable() {
-            @TargetApi(Build.VERSION_CODES.ICE_CREAM_SANDWICH)
-            @Override
-            public void run() {
-              if(android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-                View view = getView();
-                
-                if(view != null) {
-                  View scroll = view.findViewById(R.id.horizontal_program_table_scroll);
-                  
-                  if(scroll != null) {
-                    scroll.setScrollX(mOldScrollX);
-                  }
+          handler.post(() -> {
+            if(Build.VERSION.SDK_INT >= VERSION_CODES.ICE_CREAM_SANDWICH) {
+              View view = getView();
+
+              if(view != null) {
+                View scroll = view.findViewById(R.id.horizontal_program_table_scroll);
+
+                if(scroll != null) {
+                  scroll.setScrollX(mOldScrollX);
                 }
               }
-              
-              mOldScrollX = 0;
             }
+
+            mOldScrollX = 0;
           });
         }
       }finally {
@@ -828,12 +799,7 @@ public class FragmentProgramTable extends Fragment {
       test2.set(Calendar.SECOND, 0);
       test2.set(Calendar.MILLISECOND, 0);
       
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          mPrevious.setEnabled(test2.compareTo(test) > 0);
-        }
-      });
+      handler.post(() -> mPrevious.setEnabled(test2.compareTo(test) > 0));
     }
     Date date = mCurrentDate.getTime();
     
@@ -849,11 +815,11 @@ public class FragmentProgramTable extends Fragment {
   private void now() {
     mCurrentDate = Calendar.getInstance();
     
-    TextView day = (TextView)getView().findViewById(R.id.show_current_day);
+    TextView day = getView().findViewById(R.id.show_current_day);
     
     setDayString(day);
     
-    RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
+    RelativeLayout layout = getView().findViewWithTag("LAYOUT");
     
     mOldScrollX = getView().findViewById(R.id.horizontal_program_table_scroll).getScrollX();
     
@@ -863,11 +829,11 @@ public class FragmentProgramTable extends Fragment {
   private void changeDay(int count) {    
     mCurrentDate.add(Calendar.DAY_OF_YEAR, count);
     
-    TextView day = (TextView)getView().findViewById(R.id.show_current_day);
+    TextView day = getView().findViewById(R.id.show_current_day);
     
     setDayString(day);
     
-    RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
+    RelativeLayout layout = getView().findViewWithTag("LAYOUT");
     
     View parent = getView();
     
@@ -882,8 +848,8 @@ public class FragmentProgramTable extends Fragment {
     }
   }
   
-  void updateView(LayoutInflater inflater) {
-    RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
+  private void updateView(LayoutInflater inflater) {
+    RelativeLayout layout = getView().findViewWithTag("LAYOUT");
     
     if(layout != null && inflater != null) {
       updateView(inflater, layout);
@@ -891,7 +857,7 @@ public class FragmentProgramTable extends Fragment {
   }
   
   @Override
-  public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
+  public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
     RelativeLayout programTableLayout = (RelativeLayout)inflater.inflate(R.layout.program_table_layout, container, false);
     
     if(mCurrentDate == null) {
@@ -905,34 +871,19 @@ public class FragmentProgramTable extends Fragment {
     
     ProgramTableLayoutConstants.initialize(getActivity());
     
-    TextView currentDay = (TextView)programTableLayout.findViewById(R.id.show_current_day);
+    TextView currentDay = programTableLayout.findViewById(R.id.show_current_day);
     
     setDayString(currentDay);
     
-    currentDay.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View view) {
-        selectDate(view);
-      }
-    });
+    currentDay.setOnClickListener(this::selectDate);
     
     mPrevious = programTableLayout.findViewById(R.id.switch_to_previous_day);
     
-    mPrevious.setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        changeDay(-1);
-      }
-    });
+    mPrevious.setOnClickListener(v -> changeDay(-1));
     
-    programTableLayout.findViewById(R.id.switch_to_next_day).setOnClickListener(new View.OnClickListener() {
-      @Override
-      public void onClick(View v) {
-        changeDay(1);
-      }
-    });
+    programTableLayout.findViewById(R.id.switch_to_next_day).setOnClickListener(v -> changeDay(1));
 
-    RelativeLayout layout = (RelativeLayout)programTableLayout.findViewById(R.id.program_table_base);
+    RelativeLayout layout = programTableLayout.findViewById(R.id.program_table_base);
     layout.setTag("LAYOUT");
     
     int startTab = Integer.parseInt(PrefUtils.getStringValue(R.string.TAB_TO_SHOW_AT_START, R.string.tab_to_show_at_start_default));
@@ -1011,7 +962,7 @@ public class FragmentProgramTable extends Fragment {
     }
     
     if(mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth || updateTextScale || updateShownValues || updateInfoValues) {
-      updateView(getActivity().getLayoutInflater(), (RelativeLayout)getView().findViewWithTag("LAYOUT"));
+      updateView(getActivity().getLayoutInflater(), getView().findViewWithTag("LAYOUT"));
     }
     
     return mPictureShown != toShow || mGrowPanels != toGrow || updateLayout || updateWidth || updateTextScale || updateShownValues || updateInfoValues;
@@ -1024,7 +975,7 @@ public class FragmentProgramTable extends Fragment {
   }
   
   public void updateChannelBar() {
-    LinearLayout channelBar = (LinearLayout)getView().findViewById(R.id.program_table_channel_bar);
+    LinearLayout channelBar = getView().findViewById(R.id.program_table_channel_bar);
     
     ProgramTableLayoutConstants.updateChannelLogoName(getActivity());
     
@@ -1083,7 +1034,7 @@ public class FragmentProgramTable extends Fragment {
     
     layout.addView(panel);
     
-    ArrayList<String> markedColumns = new ArrayList<String>();
+    ArrayList<String> markedColumns = new ArrayList<>();
     
     for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
       Integer value = mMarkingsMap.get(column);
@@ -1104,7 +1055,7 @@ public class FragmentProgramTable extends Fragment {
   }*/
   
   @SuppressLint("NewApi")
-  public void selectDate(View view) {try {
+  private void selectDate(View view) {try {
     AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
     
     long testDay = System.currentTimeMillis() / 1000 / 60 / 60 / 24;
@@ -1152,39 +1103,33 @@ public class FragmentProgramTable extends Fragment {
     select.setMaxDate(dayStart + 21 * (24 * 60 * 60 * 1000));
     select.init(mCurrentDate.get(Calendar.YEAR), mCurrentDate.get(Calendar.MONTH), mCurrentDate.get(Calendar.DAY_OF_MONTH), null);
     
-    builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {
-        mCurrentDate.set(select.getYear(), select.getMonth(), select.getDayOfMonth());
+    builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+      mCurrentDate.set(select.getYear(), select.getMonth(), select.getDayOfMonth());
 
-        setDayString((TextView)getView().findViewById(R.id.show_current_day));
-        
-        View view = getView().findViewById(R.id.horizontal_program_table_scroll);
-        
-        if(view != null) {
-          mOldScrollX = view.getScrollX();
-        }
-        
-        updateView(getActivity().getLayoutInflater(), (RelativeLayout)getView().findViewWithTag("LAYOUT"));
+      setDayString(getView().findViewById(R.id.show_current_day));
+
+      View view1 = getView().findViewById(R.id.horizontal_program_table_scroll);
+
+      if(view1 != null) {
+        mOldScrollX = view1.getScrollX();
       }
+
+      updateView(getActivity().getLayoutInflater(), getView().findViewWithTag("LAYOUT"));
     });
     
-    builder.setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-      @Override
-      public void onClick(DialogInterface dialog, int which) {}
-    });
+    builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {});
     
     HorizontalScrollView scroll = new HorizontalScrollView(getActivity());
     scroll.addView(select);
     
     builder.setView(scroll);
     
-    builder.show();}catch(Throwable t) {}
+    builder.show();}catch(Throwable ignored) {}
   }
   
   public boolean checkTimeBlockSize() {
     if(mTimeBlockSize != Integer.parseInt(PrefUtils.getStringValue(R.string.PROG_PANEL_TIME_BLOCK_SIZE, R.string.prog_panel_time_block_size))) {
-      RelativeLayout layout = (RelativeLayout)getView().findViewWithTag("LAYOUT");
+      RelativeLayout layout = getView().findViewWithTag("LAYOUT");
       
       updateView(getActivity().getLayoutInflater(), layout);
       

@@ -14,7 +14,6 @@ import android.preference.PreferenceManager;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
-import android.widget.CompoundButton;
 import android.widget.EditText;
 import android.widget.Spinner;
 
@@ -47,22 +46,17 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
     final View dividerLabel = findViewById(R.id.important_programs_widget_config_shown_selection_label);
     final View divider = findViewById(R.id.important_programs_widget_config_shown_selection_label_devider);
     
-    mTypeSelection = (Spinner)findViewById(R.id.important_programs_widget_config_selection_type);
-    mName = (EditText)findViewById(R.id.important_programs_widget_config_name_value);
-    mMarked = (CheckBox)findViewById(R.id.important_programs_widget_config_show_marked);
-    mFavorite = (CheckBox)findViewById(R.id.important_programs_widget_config_show_favorite);
-    mReminder = (CheckBox)findViewById(R.id.important_programs_widget_config_show_reminder);
-    mSync = (CheckBox)findViewById(R.id.important_programs_widget_config_show_synchronized);
-    mLimit = (CheckBox)findViewById(R.id.important_programs_widget_config_limit_selection);
-    mLimitNumber = (EditText)findViewById(R.id.important_programs_widget_config_limit_selection_edit);
+    mTypeSelection = findViewById(R.id.important_programs_widget_config_selection_type);
+    mName = findViewById(R.id.important_programs_widget_config_name_value);
+    mMarked = findViewById(R.id.important_programs_widget_config_show_marked);
+    mFavorite = findViewById(R.id.important_programs_widget_config_show_favorite);
+    mReminder = findViewById(R.id.important_programs_widget_config_show_reminder);
+    mSync = findViewById(R.id.important_programs_widget_config_show_synchronized);
+    mLimit = findViewById(R.id.important_programs_widget_config_limit_selection);
+    mLimitNumber = findViewById(R.id.important_programs_widget_config_limit_selection_edit);
     mLimitNumber.setText(String.valueOf(15));
     
-    mLimit.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
-      @Override
-      public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-        mLimitNumber.setEnabled(isChecked);
-      }
-    });
+    mLimit.setOnCheckedChangeListener((buttonView, isChecked) -> mLimitNumber.setEnabled(isChecked));
     
     mTypeSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
       @Override
@@ -145,7 +139,7 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
         try {
           int value = Integer.parseInt(mLimitNumber.getText().toString());
           edit.putInt(mAppWidgetId+"_"+getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT), value);  
-        }catch(NumberFormatException e) {}
+        }catch(NumberFormatException ignored) {}
       }
     }
     else {

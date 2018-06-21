@@ -39,7 +39,7 @@ import android.view.View;
 
 public class ProgramPanel extends View {
   private Date mStartTime;
-  private long mEndTime;
+  private final long mEndTime;
   private String mTitle;
   private String mEpisode;
   private String mGenre;
@@ -49,7 +49,7 @@ public class ProgramPanel extends View {
 
   private boolean mIsExpired;
   
-  private int mChannelID;
+  private final int mChannelID;
   
   private Rect mStartTimeBounds = new Rect();
   private int mBigRowCount;
@@ -117,7 +117,7 @@ public class ProgramPanel extends View {
   /*
    * Breaks the given String into string with line breaks at needed positions.
    */
-  private static final Object[] getBreakerText(String temp, int width, Paint toCheck) {
+  private static Object[] getBreakerText(String temp, int width, Paint toCheck) {
     StringBuilder parts = new StringBuilder();
     
     temp = temp.trim().replace("\u00AD", "");
@@ -172,7 +172,7 @@ public class ProgramPanel extends View {
     }
   }
   
-  public int getTextWidth() {
+  private int getTextWidth() {
     return ProgramTableLayoutConstants.COLUMN_WIDTH - ProgramTableLayoutConstants.PADDING_SIDE * 3;
   }
   
@@ -360,14 +360,11 @@ public class ProgramPanel extends View {
         mPicture.setColorFilter(ContextCompat.getColor(getContext(), android.R.color.darker_gray), PorterDuff.Mode.LIGHTEN);
       }
       
-      handler.post(new Runnable() {
-        @Override
-        public void run() {
-          try {
-            invalidate();
-          }catch(Throwable t) {}
-        }
-      });  
+      handler.post(() -> {
+        try {
+          invalidate();
+        }catch(Throwable ignored) {}
+      });
     }
   }
   
@@ -375,7 +372,7 @@ public class ProgramPanel extends View {
     return mStartTime.getTime() <= System.currentTimeMillis() && mEndTime > System.currentTimeMillis();
   }
   
-  public boolean isExpired() {
+  private boolean isExpired() {
     if(!mIsExpired) {
       mIsExpired = mEndTime < System.currentTimeMillis();
     }
@@ -429,45 +426,45 @@ public class ProgramPanel extends View {
   }
   
   private static final class ColorEntry {
-    private Integer mColor;
-    private String mText;
-    private boolean mNeedsSeparator;
+    private final Integer mColor;
+    private final String mText;
+    private final boolean mNeedsSeparator;
     
-    public ColorEntry(Integer color, String text, boolean needsSeparator) {
+    ColorEntry(Integer color, String text, boolean needsSeparator) {
       mColor = color;
       mText = text;
       mNeedsSeparator = needsSeparator;
     }
     
-    public float measure(Paint paint) {
+    float measure(Paint paint) {
       return paint.measureText(mText);
     }
     
-    public String getText() {
+    String getText() {
       return mText;
     }
     
-    public Integer getColor() {
+    Integer getColor() {
       return mColor;
     }
     
-    public boolean needsSeparator() {
+    boolean needsSeparator() {
       return mNeedsSeparator;
     }
   }
   
   private static final class ColorLine {
-    private ArrayList<ColorEntry> mEntryList;
+    private final ArrayList<ColorEntry> mEntryList;
     
-    public ColorLine() {
-      mEntryList = new ArrayList<ProgramPanel.ColorEntry>();
+    ColorLine() {
+      mEntryList = new ArrayList<>();
     }
     
-    public Iterator<ColorEntry> getEntries() {
+    Iterator<ColorEntry> getEntries() {
       return mEntryList.iterator();
     }
     
-    public void addEntry(ColorEntry entry) {
+    void addEntry(ColorEntry entry) {
       mEntryList.add(entry);
     }
   }

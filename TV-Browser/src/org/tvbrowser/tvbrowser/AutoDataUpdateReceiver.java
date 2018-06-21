@@ -166,6 +166,6 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
       if(wakeLock.isHeld()) {
         wakeLock.release();
       }
-    }catch(Throwable t) {}
+    }catch(Throwable ignored) {}
   }
 }

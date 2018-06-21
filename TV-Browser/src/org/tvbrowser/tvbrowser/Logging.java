@@ -62,7 +62,7 @@ public class Logging {
           
           log.writeBytes(" --- NEWEST ENTRY ABOVE THIS LINE --- \n");
         }
-      } catch (IOException e) {}
+      } catch (IOException ignored) {}
       finally {
         if(type == TYPE_REMINDER || type == TYPE_PLUGIN) {
           IOUtils.close(log);
@@ -82,7 +82,7 @@ public class Logging {
     
     try {
       writeLog = PrefUtils.getBooleanValue(R.string.WRITE_DATA_UPDATE_LOG, R.bool.write_data_update_log_default);
-    }catch(Exception e) {}
+    }catch(Exception ignored) {}
 
     if(DATA_UPDATE_LOG == null && writeLog) {
       try {
@@ -98,7 +98,7 @@ public class Logging {
         else {
           DATA_UPDATE_LOG.getChannel().truncate(0);
         }
-      }catch(IOException e) {}
+      }catch(IOException ignored) {}
     }
   }
   
@@ -154,7 +154,7 @@ public class Logging {
           else {
             log.seek(pos);
           }
-        }catch(IOException e) {}
+        }catch(IOException ignored) {}
       }
     }
     if(log != null && tag != null) {

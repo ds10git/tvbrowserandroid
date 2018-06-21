@@ -24,7 +24,6 @@ import java.util.Set;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.filter.FilterValues;
 import org.tvbrowser.filter.FilterValuesChannels;
-import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.R;
 
 import android.content.Context;
@@ -171,7 +170,7 @@ public class PrefUtils {
     if(mContext != null) {
       String[] tempValues = mContext.getResources().getStringArray(defaultKey);
       
-      HashSet<String> defaultValues = new HashSet<String>();
+      HashSet<String> defaultValues = new HashSet<>();
       
       
       Collections.addAll(defaultValues, tempValues);
@@ -196,7 +195,7 @@ public class PrefUtils {
   private static final String PREFERENCES_MARKING_REMINDERS = "markingsReminders";
   private static final String PREFERENCES_MARKING_SYNC = "markingsSynchronization";
   
-  public static final SharedPreferences getSharedPreferences(int type, Context context) {
+  public static SharedPreferences getSharedPreferences(int type, Context context) {
     SharedPreferences pref = null;
     
     if(context != null) {
@@ -277,8 +276,8 @@ public class PrefUtils {
     return getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).getBoolean(context.getString(R.string.CHANNELS_SELECTED), context.getResources().getBoolean(R.bool.channels_selected_default));
   }
   
-  public static final String getFilterSelection(final Context context, final Set<String> filterIds) {
-    final HashSet<FilterValues> filterValues = new HashSet<FilterValues>();
+  private static String getFilterSelection(final Context context, final Set<String> filterIds) {
+    final HashSet<FilterValues> filterValues = new HashSet<>();
     
     for(String filterId : filterIds) {
       final FilterValues filter = FilterValues.load(filterId, context);
@@ -291,7 +290,7 @@ public class PrefUtils {
     return getFilterSelection(context, false, filterValues);
   }
   
-  public static final String getFilterSelection(final Context context, final boolean onlyChannelFilter, final HashSet<FilterValues> filterValues) {
+  public static String getFilterSelection(final Context context, final boolean onlyChannelFilter, final HashSet<FilterValues> filterValues) {
     final StringBuilder channels =  new StringBuilder();
     final StringBuilder result = new StringBuilder();
     
@@ -321,12 +320,12 @@ public class PrefUtils {
     return result.toString();
   }
   
-  public static final String getFilterSelection(Context context) {
+  public static String getFilterSelection(Context context) {
     final SharedPreferences pref = getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context);
         
     int oldVersion = pref.getInt(context.getString(R.string.OLD_VERSION), 379);
     
-    Set<String> currentFilterIds = new HashSet<String>();
+    Set<String> currentFilterIds = new HashSet<>();
     
     if(oldVersion < 379) {
       final String currentFilterId = pref.getString(context.getString(R.string.CURRENT_FILTER_ID), null);
@@ -342,12 +341,12 @@ public class PrefUtils {
     return getFilterSelection(context, currentFilterIds);
   }
   
-  public static final boolean isNewDate(Context context) {
+  public static boolean isNewDate(Context context) {
     Log.d("info6", "LAST KNOWN START DATE " + getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).getInt(context.getString(R.string.PREF_MISC_LAST_KNOWN_OPEN_DATE), -1) + " - CURRENT DATE " + Calendar.getInstance().get(Calendar.DAY_OF_YEAR));
     return Calendar.getInstance().get(Calendar.DAY_OF_YEAR) != getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).getInt(context.getString(R.string.PREF_MISC_LAST_KNOWN_OPEN_DATE), -1);
   }
   
-  public static final void updateKnownOpenDate(Context context) {
+  public static void updateKnownOpenDate(Context context) {
     getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putInt(context.getString(R.string.PREF_MISC_LAST_KNOWN_OPEN_DATE), Calendar.getInstance().get(Calendar.DAY_OF_YEAR)).commit();
   }
 }

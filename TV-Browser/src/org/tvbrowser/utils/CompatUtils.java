@@ -56,7 +56,7 @@ import android.widget.TimePicker;
 @SuppressLint("NewApi")
 public class CompatUtils {
   @SuppressWarnings("deprecation")
-  public static final void setRemoteViewsAdapter(RemoteViews views, int appWidgetId, int viewId, Intent intent) {
+  public static void setRemoteViewsAdapter(RemoteViews views, int appWidgetId, int viewId, Intent intent) {
     if(Build.VERSION.SDK_INT < Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
       views.setRemoteAdapter(appWidgetId, viewId, intent);
     }
@@ -65,7 +65,7 @@ public class CompatUtils {
     }
   }
   
-  public static final boolean isKeyguardWidget(int appWidgetId, Context context) {
+  public static boolean isKeyguardWidget(int appWidgetId, Context context) {
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
       AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(context.getApplicationContext());
       
@@ -86,14 +86,14 @@ public class CompatUtils {
    * @param right Right padding in pixels.
    * @param bottom Bottom padding in pixels.
    */
-  public static final void setRemoteViewsPadding(RemoteViews views, int viewId, int left, int top, int right, int bottom) {
+  public static void setRemoteViewsPadding(RemoteViews views, int viewId, int left, int top, int right, int bottom) {
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
       views.setViewPadding(viewId, left, top, right, bottom);
     }
   }
   
   @SuppressWarnings("deprecation")
-  public static final void setBackground(View view, Drawable draw) {
+  public static void setBackground(View view, Drawable draw) {
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
       view.setBackground(draw);
     }
@@ -127,7 +127,7 @@ public class CompatUtils {
   }
   
   @SuppressWarnings("deprecation")
-  public static final Point getScreenSize(Context context) {
+  public static Point getScreenSize(Context context) {
     WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
     Display display = wm.getDefaultDisplay();
     
@@ -143,11 +143,11 @@ public class CompatUtils {
     return size;
   }
   
-  public static final void setAlarmInexact(AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
+  public static void setAlarmInexact(AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
     alarm.set(type, triggerAtMillis, operation);
   }
   
-  public static final void setExactAlarmAndAllowWhileIdle(Context context, AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
+  public static void setExactAlarmAndAllowWhileIdle(Context context, AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
     if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
       try {
         Method setExactAndAllowWhileIdle = alarm.getClass().getDeclaredMethod("setExactAndAllowWhileIdle", int.class, long.class, PendingIntent.class);
@@ -164,7 +164,7 @@ public class CompatUtils {
 
 
   
-  public static final void setAlarmExact(Context context, AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
+  public static void setAlarmExact(Context context, AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation) {
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       alarm.setExact(type, triggerAtMillis, operation);
     }
@@ -173,7 +173,7 @@ public class CompatUtils {
     }
   }
   
-  public static final void setAlarm(Context context, AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation, PendingIntent info) {
+  public static void setAlarm(Context context, AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation, PendingIntent info) {
     if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
       // Cheap workaround for Marshmallow doze mode
       if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.PREF_REMINDER_AS_ALARM_CLOCK), context.getResources().getBoolean(R.bool.pref_reminder_as_alarm_clock_default))) {

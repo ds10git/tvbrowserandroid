@@ -8,7 +8,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.util.Log;
 
-public class LogUtils {
+class LogUtils {
   public static void logProgramData(Context context, String selection, String column) {
     final Cursor c = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, null, selection, null, TvBrowserContentProvider.DATA_KEY_STARTTIME);
     

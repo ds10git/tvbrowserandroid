@@ -58,10 +58,10 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
   }
   
   class RunningProgramsRemoteViewsFactory implements RemoteViewsFactory {
-    private Context mContext;
+    private final Context mContext;
     private Cursor mCursor;
     
-    private int mAppWidgetId;
+    private final int mAppWidgetId;
     
     private int mIdIndex;
     private int mStartTimeIndex;
@@ -242,7 +242,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
       }
     }
     
-    public RunningProgramsRemoteViewsFactory(Context context, Bundle extras) {
+    RunningProgramsRemoteViewsFactory(Context context, Bundle extras) {
       mContext = context;
       PrefUtils.initialize(context);
       SettingConstants.initializeLogoMap(context, false);

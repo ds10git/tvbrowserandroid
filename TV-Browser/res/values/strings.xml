@@ -475,11 +475,11 @@
     <string name="title_favorites">Favorites</string>
     <string name="button_now">Now</string>
     <string name="button_all_channels">All</string>
-    <string name="button_6">6:00</string>
-    <string name="button_12">12:00</string>
-    <string name="button_16">16:00</string>
-    <string name="button_2015">20:15</string>
-    <string name="button_23">23:00</string>
+    <string name="button_6" translatable="false">6:00</string>
+    <string name="button_12" translatable="false">12:00</string>
+    <string name="button_16" translatable="false">16:00</string>
+    <string name="button_2015" translatable="false">20:15</string>
+    <string name="button_23" translatable="false">23:00</string>
     <string name="button_before">Before</string>
     <string name="button_after">Next</string>
     <string name="button_time_free">Enter time</string>
@@ -537,7 +537,6 @@
     <string name="pref_category_widgets">Widgets</string>
     <string name="pref_category_additonal_infos">Program categories</string>
     <string name="pref_category_additonal_infos_head">Shown information</string>
-    <string name="search">Search</string>
     <string name="title">Title:</string>
     <string name="title_hint">Enter title to search</string>
     <string name="episode">Episode:</string>
@@ -890,7 +889,7 @@
 	<string name="log_file_no_delete_message">Log file could not be deleted.\nIt will be deleted if the app is closed the next time.</string>
 	<string name="log_send_data_update">data update</string>
 	<string name="log_send_reminder">Reminder</string>
-	<string name="log_send_plugin">Plugins</string>
+	<string name="log_send_plugin" translatable="false">Plugins</string>
 	<string name="log_send_mail">Send Email</string>
 	<string name="log_send_mail_subject">{0} log file for TV-Browser for Android</string>
 	<string name="log_send_mail_content">The attachments contains the {0} log file of TV-Browser for Android, from</string>
@@ -1290,5 +1289,14 @@
     <string name="terms_accept_sync">I accept the terms for the synchronization function.</string>
     <string name="terms_accept_epgpaid_title">Accept terms</string>
     <string name="terms_accept_epgpaid">I accept the terms for the EPGpaid data.</string>
+
+	<string name="color_preference_hex_label">HEX #</string>
+	<string name="program_picture">Preview picture of the program</string>
+	<string name="reset_data_update_date">Reset data update date</string>
+	<string name="show_plugin_marking_data">Show plugin marking data</string>
+	<string name="reminder">Reminder</string>
+	<string name="widget_settings_button">Settings</string>
+	<string name="widget_open_app_button">Open app</string>
+	<string name="widget_toggle_reminder_state">Activate/deactive reminders</string>
 </resources>
 

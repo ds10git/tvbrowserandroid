@@ -1,6 +1,5 @@
 package org.tvbrowser.tvbrowser;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Build;
 import android.preference.PreferenceManager;
@@ -132,38 +131,22 @@ abstract class PluginUpdateHelper {
 					builder.setCancelable(false);
 					builder.setMessage(getClickableText(Html.fromHtml(pluginsText.toString(), null, new TvBrowser.NewsTagHandler())));
 
-					builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-						@Override
-						public void onClick(DialogInterface dialog, int which) {
-							if (!newPlugins.isEmpty()) {
-								PluginHandler.shutdownPlugins(tvBrowser);
+					builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+            if (!newPlugins.isEmpty()) {
+              PluginHandler.shutdownPlugins(tvBrowser);
 
-								tvBrowser.getHandler().postDelayed(new Runnable() {
-									@Override
-									public void run() {
-										PluginHandler.loadPlugins(tvBrowser.getApplicationContext());
-										tvBrowser.togglePluginPreferencesMenuItem();
-									}
-								}, 2000);
-							}
+              tvBrowser.getHandler().postDelayed(() -> {
+                PluginHandler.loadPlugins(tvBrowser.getApplicationContext());
+                tvBrowser.togglePluginPreferencesMenuItem();
+              }, 2000);
+            }
 
-							if (showChannelUpdateInfo) {
-								tvBrowser.getHandler().post(new Runnable() {
-									@Override
-									public void run() {
-										tvBrowser.showChannelUpdateInfo();
-									}
-								});
-							}
-						}
-					});
+            if (showChannelUpdateInfo) {
+              tvBrowser.getHandler().post(tvBrowser::showChannelUpdateInfo);
+            }
+          });
 
-					tvBrowser.getHandler().post(new Runnable() {
-						@Override
-						public void run() {
-							tvBrowser.showAlertDialog(builder, true);
-						}
-					});
+					tvBrowser.getHandler().post(() -> tvBrowser.showAlertDialog(builder, true));
 					tvBrowser.updateProgressIcon(false);
 				}
 			}.start();
@@ -210,31 +193,20 @@ abstract class PluginUpdateHelper {
 			builder.setCancelable(false);
 			builder.setMessage(R.string.plugin_info_message);
 
-			builder.setPositiveButton(R.string.plugin_info_load, new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					savePluginInfoShown();
+			builder.setPositiveButton(R.string.plugin_info_load, (dialog, which) -> {
+        savePluginInfoShown();
 
-					if (tvBrowser.isOnline()) {
-						searchPlugins(true);
-					} else {
-						tvBrowser.showNoInternetConnection(tvBrowser.getString(R.string.no_network_info_data_search_plugins), new Runnable() {
-							@Override
-							public void run() {
-								searchPlugins(true);
-							}
-						});
-					}
-				}
-			});
+        if (tvBrowser.isOnline()) {
+          searchPlugins(true);
+        } else {
+          tvBrowser.showNoInternetConnection(tvBrowser.getString(R.string.no_network_info_data_search_plugins), () -> searchPlugins(true));
+        }
+      });
 
-			builder.setNegativeButton(tvBrowser.getString(R.string.not_now).replace("{0}", ""), new DialogInterface.OnClickListener() {
-				@Override
-				public void onClick(DialogInterface dialog, int which) {
-					savePluginInfoShown();
-					tvBrowser.showChannelUpdateInfo();
-				}
-			});
+			builder.setNegativeButton(tvBrowser.getString(R.string.not_now).replace("{0}", ""), (dialog, which) -> {
+        savePluginInfoShown();
+        tvBrowser.showChannelUpdateInfo();
+      });
 
 			tvBrowser.showAlertDialog(builder);
 		} else {
