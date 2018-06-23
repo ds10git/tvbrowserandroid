@@ -1351,7 +1351,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
 
   @Override
   public int compareTo(@NonNull Favorite another) {
-    return mName.compareToIgnoreCase(another.mName);
+    return UiUtils.getCollator().compare(mName, another.mName);
   }
   
   public static Favorite[] getAllFavorites(Context context) {

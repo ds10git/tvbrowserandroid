@@ -1323,7 +1323,7 @@ public class TvDataUpdateService extends Service {
 
       if(!setTimes.isEmpty()) {
         listTimes.addAll(setTimes);
-        Collections.sort(listTimes);
+        Collections.sort(listTimes, UiUtils.getCollator()::compare);
       }
 
       while(!listTimes.isEmpty()) {

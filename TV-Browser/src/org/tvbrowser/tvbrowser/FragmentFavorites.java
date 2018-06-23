@@ -971,7 +971,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
 
     @Override
     public int compareTo(FavoriteSpinnerEntry another) {
-      return toString().compareToIgnoreCase(another.toString());
+      return UiUtils.getCollator().compare(toString(), another.toString());
     }
   }
   
