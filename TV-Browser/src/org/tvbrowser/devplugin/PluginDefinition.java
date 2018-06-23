@@ -31,6 +31,7 @@ import java.util.concurrent.TimeoutException;
 
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.UiUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
@@ -79,11 +80,11 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   private String[] mServices;
 
   private static final Comparator<PluginDefinition> COMPARATOR_DOWN = (o1, o2) -> {
-    if (Locale.getDefault().getLanguage().equals(new Locale("de", "", "").getLanguage())) {
-      return o2.mNameDe.compareToIgnoreCase(o1.mNameDe);
+    if (isGermanLocale()) {
+      return UiUtils.getCollator().compare(o2.mNameDe, o1.mNameDe);
     }
 
-    return o2.mNameEn.compareTo(o1.mNameEn);
+    return UiUtils.getCollator().compare(o2.mNameEn, o1.mNameEn);
   };
 
   public static Comparator<PluginDefinition> getComparatorDown() {
@@ -136,15 +137,19 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   }
   
   public String getName() {
-    if (Locale.getDefault().getLanguage().equals(new Locale("de", "", "").getLanguage())) {
+    if (isGermanLocale()) {
       return getValue(mNameDe);
     }
     
     return getValue(mNameEn);
   }
-  
+
+  private static boolean isGermanLocale() {
+    return "de".equals(Locale.getDefault().getLanguage());
+  }
+
   public String getDescription() {
-    if (Locale.getDefault().getLanguage().equals(new Locale("de", "", "").getLanguage())) {
+    if (isGermanLocale()) {
       return getValue(mDescriptionDe);
     }
     
@@ -273,11 +278,11 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
 
   @Override
   public int compareTo(@SuppressWarnings("NullableProblems") PluginDefinition o) {
-    if (Locale.getDefault().getLanguage().equals(new Locale("de", "", "").getLanguage())) {
-      return mNameDe.compareToIgnoreCase(o.mNameDe);
+    if (isGermanLocale()) {
+      return UiUtils.getCollator().compare(mNameDe, o.mNameDe);
     }
     
-    return mNameEn.compareTo(o.mNameEn);
+    return UiUtils.getCollator().compare(mNameEn, o.mNameEn);
   }
   
   public void setIsUpdate() {
@@ -290,7 +295,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
   
   @Override
   public String toString() {
-    if (Locale.getDefault().getLanguage().equals(new Locale("de", "", "").getLanguage())) {
+    if (isGermanLocale()) {
       return mNameDe + " " + mVersion;
     }
     

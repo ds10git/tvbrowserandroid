@@ -17,10 +17,12 @@
 package org.tvbrowser.utils;
 
 import java.io.File;
+import java.text.Collator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -140,7 +142,24 @@ import android.widget.RelativeLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
 
-public class UiUtils {
+public final class UiUtils {
+
+  UiUtils() {}
+
+  /**
+   * A thread specific {@link Collator} instance for locale sensitive sorting.
+   * @see #getCollator()
+   */
+  private static final ThreadLocal<Collator> collatorThreadLocal = new ThreadLocal<Collator>() {
+    @Override
+    protected Collator initialValue() {
+      final Collator collator = Collator.getInstance();
+      collator.setDecomposition(Collator.CANONICAL_DECOMPOSITION);
+      collator.setStrength(Collator.SECONDARY);
+      return collator;
+    }
+  };
+
   public static final SimpleDateFormat LONG_DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.getDefault());
   
   private static final HashMap<String, Integer> VALUE_MAP;
@@ -2684,4 +2703,14 @@ public class UiUtils {
     }
   }
   
+  /**
+   * Returns a thread-safe {@link Collator}, that can be used with {@link Comparator} instances
+   * to sort strings in a locale sensitive way; i.e. to apply a rule-based sort while sorting
+   * strings containing umlauts (Dänemark < Deutschland, Norwegen < Österreich < Polen; a < ä = ae).
+   *
+   * @return Collator for the default locale (see {@link Locale#getDefault()}).
+   */
+  public static Collator getCollator() {
+    return collatorThreadLocal.get();
+  }
 }

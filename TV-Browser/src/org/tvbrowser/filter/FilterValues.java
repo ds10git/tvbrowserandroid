@@ -9,6 +9,7 @@ import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.WhereClause;
 import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;
 import android.content.SharedPreferences;
@@ -28,7 +29,7 @@ public abstract class FilterValues {
     mName = name;
   }
     
-  public static final Comparator<FilterValues> COMPARATOR_FILTER_VALUES = (lhs, rhs) -> lhs.toString().compareToIgnoreCase(rhs.toString());
+  public static final Comparator<FilterValues> COMPARATOR_FILTER_VALUES = (lhs, rhs) -> UiUtils.getCollator().compare(lhs.toString(), rhs.toString());
   
   public final String getId() {
     return getClass().getCanonicalName() + SEPARATOR_CLASS + mId;
