@@ -173,8 +173,15 @@ Log.d("info9","possibleFirst " + new Date(possibleFirst));
       if(onlyWifi) {
         constraintsJob.setRequiredNetworkType(NetworkType.UNMETERED);
       }
+      else {
+        constraintsJob.setRequiredNetworkType(NetworkType.CONNECTED);
+      }
 
-      builder.setConstraints(constraintsJob.build());
+      Constraints constraints = constraintsJob.build();
+
+      Log.d("info9", "RequiredNetworkType: "+constraints.getRequiredNetworkType());
+
+      builder.setConstraints(constraints);
       builder.addTag(TAG);
 
       WorkManager.getInstance().enqueue(builder.build());

@@ -442,7 +442,8 @@ public final class UiUtils {
                     IOUtils.close(channel);
                   }
 
-                  StringBuilder year = new StringBuilder();
+                  final StringBuilder year = new StringBuilder();
+
                   int yearInt = -1;
                   int yearLast = -1;
                   int yearFirst = -1;
@@ -465,7 +466,6 @@ public final class UiUtils {
                     yearLast = c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR));
                   }
 
-                 
                   if(yearLast < yearInt) {
                     yearLast = -1;
                   }
@@ -479,7 +479,7 @@ public final class UiUtils {
                       year.append(" ");
                     }
 
-                    year.append(year);
+                    year.append(yearInt);
                   }
 
                   if(yearLast != -1 && yearLast != yearInt) {
@@ -572,7 +572,7 @@ public final class UiUtils {
 //                    genre.setText();
                   }
                   else if(year.length() > 0) {
-                    checkAndAddHiglightingForFavorites(genre, year, patternList, false, backgroundColorSpan);
+                    checkAndAddHiglightingForFavorites(genre, year.toString(), patternList, false, backgroundColorSpan);
                     //genre.setText(year);
                   }
                   else {
