@@ -92,7 +92,7 @@ public class ServiceUpdateReminders extends Service {
               }finally {
                 IOUtils.close(alarms);
               }
-            }catch(IllegalStateException ise) {
+            }catch(Exception ise) {
               //Ignore, only make sure TV-Browser didn't crash after moving of database
             }
           }

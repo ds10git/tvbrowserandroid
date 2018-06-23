@@ -423,39 +423,86 @@ public class UiUtils {
                     IOUtils.close(channel);
                   }
 
-                  String year = "";
+                  StringBuilder year = new StringBuilder();
                   int yearInt = -1;
+                  int yearLast = -1;
+                  int yearFirst = -1;
+                  int originLength = 0;
                       
                   if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN))) {
-                    year = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN));
+                    year.append(c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ORIGIN)));
+                    originLength = year.length();
                   }
-                  
+
                   if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR))) {
-                    if(year.length() > 0) {
-                      year += " ";
-                    }
-                    
                     yearInt = c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR));
-                    year += yearInt;
                   }
-                  
+
+                  if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR_PRODUCTION_FIRST))) {
+                    yearFirst = c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_YEAR_PRODUCTION_FIRST));
+                  }
+
                   if(!c.isNull(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR))) {
-                    int test = c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR));
-                    
-                    if(yearInt < test) {
-                      if(year.length() > 0) {
-                        if(yearInt != -1) {
-                          year += "-";
+                    yearLast = c.getInt(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR));
+                  }
+
+                 
+                  if(yearLast < yearInt) {
+                    yearLast = -1;
+                  }
+
+                  if(yearInt != -1 && ((yearLast != -1 && yearFirst == -1) || (yearLast == -1 && yearFirst < yearInt && yearFirst != -1))) {
+                    yearFirst = yearInt;
+                  }
+
+                  if(yearInt != -1) {
+                    if(year.length() >= 0) {
+                      year.append(" ");
+                    }
+
+                    year.append(year);
+                  }
+
+                  if(yearLast != -1 && yearLast != yearInt) {
+                    if(yearFirst != -1) {
+                      if(year.length() >= 0) {
+                        if(yearFirst == yearInt) {
+                          year.append(" \u2013 ");
                         }
                         else {
-                          year += " ";
+                          year.append(" (");
                         }
                       }
-                      
-                      year += test;
+
+                      if(yearFirst == yearInt) {
+                        year.append(yearLast);
+                      }
+                      else {
+                        year.append(yearFirst).append(" \u2013 ").append(yearLast).append(")");
+                      }
+                    }
+                    else {
+                      year.append(yearLast);
                     }
                   }
-                  
+                  else if(yearFirst != -1 && yearFirst != yearInt) {
+                    if(yearFirst < yearInt) {
+                      year.insert(originLength, " \u2013 ");
+                      year.insert(originLength, yearFirst);
+
+                      if(originLength != 0) {
+                        year.insert(originLength, " ");
+                      }
+                    }
+                    else if(yearInt == -1) {
+                      if(originLength > 0) {
+                        year.append(" ");
+                      }
+
+                      year.append(yearFirst);
+                    }
+                  }
+
                   String originalTitle = null;
                   String titleTest = c.getString(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
                   

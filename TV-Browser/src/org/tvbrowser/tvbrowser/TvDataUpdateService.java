@@ -4373,13 +4373,13 @@ public class TvDataUpdateService extends Service {
             case 0x27: values.put(columnName = TvBrowserContentProvider.DATA_KEY_LAST_PRODUCTION_YEAR, IOUtils.getIntForBytes(data));break;
             case 0x28: values.put(columnName = TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO, new String(data));break;
             case 0x29: values.put(columnName = TvBrowserContentProvider.DATA_KEY_SERIES, new String(data));break;
-            case 0x30: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PART_NUMBER, IOUtils.getIntForBytes(data));break;
-            case 0x31: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PART_NUMBER_TOTAL, IOUtils.getIntForBytes(data));break;
-            case 0x32: values.put(columnName = TvBrowserContentProvider.DATA_KEY_KEYWORD_LIST, new String(data));break;
-            case 0x33: values.put(columnName = TvBrowserContentProvider.DATA_KEY_VOD_INFO, new String(data));break;
-            case 0x34: values.put(columnName = TvBrowserContentProvider.DATA_KEY_VOD_LINK, new String(data));break;
-            case 0x35: values.put(columnName = TvBrowserContentProvider.DATA_KEY_GENRE_SUB_LIST, new String(data));break;
-            case 0x36: values.put(columnName = TvBrowserContentProvider.DATA_KEY_YEAR_PRODUCTION_FIRST, IOUtils.getIntForBytes(data));break;
+            case 0x2A: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PART_NUMBER, IOUtils.getIntForBytes(data));break;
+            case 0x2B: values.put(columnName = TvBrowserContentProvider.DATA_KEY_PART_NUMBER_TOTAL, IOUtils.getIntForBytes(data));break;
+            case 0x2C: values.put(columnName = TvBrowserContentProvider.DATA_KEY_KEYWORD_LIST, new String(data));break;
+            case 0x2D: values.put(columnName = TvBrowserContentProvider.DATA_KEY_VOD_INFO, new String(data));break;
+            case 0x2E: values.put(columnName = TvBrowserContentProvider.DATA_KEY_VOD_LINK, new String(data));break;
+            case 0x2F: values.put(columnName = TvBrowserContentProvider.DATA_KEY_GENRE_SUB_LIST, new String(data));break;
+            case 0x30: values.put(columnName = TvBrowserContentProvider.DATA_KEY_YEAR_PRODUCTION_FIRST, IOUtils.getIntForBytes(data));break;
           }
           
           if(columnName != null) {

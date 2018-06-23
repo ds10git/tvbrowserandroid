@@ -383,7 +383,7 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
         }
       }
       else {
-        tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=download")));
+        tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.tvbrowser-app.de/index.php?id=download")));
       }
 
       System.exit(0);

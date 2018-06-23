@@ -107,7 +107,7 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 
 		builder.setMessage(expiredMessage);
 		builder.setPositiveButton(updateText, (dialog, which) -> {
-      tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("http://android.tvbrowser.org/index.php?id=download")));
+      tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.tvbrowser-app.de/index.php?id=download")));
       System.exit(0);
     });
 		builder.setNegativeButton(R.string.update_not_now, (dialog, which) -> {

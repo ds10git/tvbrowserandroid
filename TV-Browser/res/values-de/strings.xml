@@ -671,7 +671,7 @@
 	<string name="channel_selection_label_text_name">Name:</string>
 	<string name="channel_selection_input_name_hint">Name des Filters eingeben</string>
 	<string name="synchronize_title">Sender synchronisieren?</string>
-	<string name="synchronize_text">Sie <b>können</b> die Sender aus dem Desktop-TV-Browser synchronisieren.\n\nIn diesem Fall müssen Sie sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> und die Sender aus dem Desktop-TV-Browser mit dem Android-Sync Plugin exportieren.\n\nTV-Browser kann auch <u><b>ohne Synchronistation</b></u> benutzt werden, in diesem Fall muss man sich <u><b>nicht registrieren</b></u>.\n\nMöchten Sie die Sender jetzt synchronisieren oder möchten Sie die Sender manuell auswählen?</string>
+	<string name="synchronize_text">Sie <b>können</b> die Sender aus dem Desktop-TV-Browser synchronisieren.\n\nIn diesem Fall müssen Sie sich <a href="https://www.tvbrowser-app.de/index.php?id=createaccount">zuerst registrieren</a> und die Sender aus dem Desktop-TV-Browser mit dem Android-Sync Plugin exportieren.\n\nTV-Browser kann auch <u><b>ohne Synchronistation</b></u> benutzt werden, in diesem Fall muss man sich <u><b>nicht registrieren</b></u>.\n\nMöchten Sie die Sender jetzt synchronisieren oder möchten Sie die Sender manuell auswählen?</string>
 	<string name="synchronize_ok">Sender jetzt\nsynchronisieren</string>
 	<string name="synchronizing_channels">Sender synchronisieren&#8230;</string>
 	<string name="synchronize_cancel">Sender manuell\nauswählen</string>
@@ -908,7 +908,7 @@
 	<string name="pref_sync_marked_to_desktop_summary">Sendungen die von Plugins markiert wurden, werden nach einem Datenupdate an den Desktop-TV-Browser exportiert.</string>
 <!-- 	<string name="pref_sync_calendar_to_desktop">Dem Kalender hinzugefügte</string>
 	<string name="pref_sync_calendar_to_desktop_summary">Sendungen die dem Android-Kalender hinzugefügt wurden, werden nach einem Datenupdate an den Desktop-TV-Browser exportiert.</string>-->
-	<string name="synchronize_user_info">Sie müssen sich <a href="http://android.tvbrowser.org/index.php?id=createaccount">zuerst registrieren</a> um die Synchronisation mit dem Desktop-TV-Browser nutzen zu können.</string>
+	<string name="synchronize_user_info">Sie müssen sich <a href="https://www.tvbrowser-app.de/index.php?id=createaccount">zuerst registrieren</a> um die Synchronisation mit dem Desktop-TV-Browser nutzen zu können.</string>
 	<string name="marking_value_marked">Markiert</string>
     <string name="marking_value_sync">Sync</string>
     <string name="marking_value_reminder">Erinnerungen</string>
