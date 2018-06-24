@@ -55,14 +55,14 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATABASE_TVB_NAME = "tvbrowser.db";
   
   public static final String AUTHORITY = "org.tvbrowser.tvbrowsercontentprovider";
-  public static final Uri CONTENT_URI_GROUPS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/groups");
-  public static final Uri CONTENT_URI_CHANNELS = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/channels");
-  public static final Uri CONTENT_URI_CHANNELS_WITH_GROUP = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/channelgroups");
-  public static final Uri CONTENT_URI_DATA = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/data");
-  public static final Uri RAW_QUERY_CONTENT_URI_DATA = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/rawdata");
-  public static final Uri CONTENT_URI_DATA_UPDATE = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/dataupdate");
-  public static final Uri CONTENT_URI_DATA_WITH_CHANNEL = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/datachannels");
-  public static final Uri CONTENT_URI_DATA_VERSION = Uri.parse("content://org.tvbrowser.tvbrowsercontentprovider/dataversion");
+  public static final Uri CONTENT_URI_GROUPS = Uri.parse("content://" + AUTHORITY + "/groups");
+  public static final Uri CONTENT_URI_CHANNELS = Uri.parse("content://" + AUTHORITY + "/channels");
+  public static final Uri CONTENT_URI_CHANNELS_WITH_GROUP = Uri.parse("content://" + AUTHORITY + "/channelgroups");
+  public static final Uri CONTENT_URI_DATA = Uri.parse("content://" + AUTHORITY + "/data");
+  public static final Uri RAW_QUERY_CONTENT_URI_DATA = Uri.parse("content://" + AUTHORITY + "/rawdata");
+  public static final Uri CONTENT_URI_DATA_UPDATE = Uri.parse("content://" + AUTHORITY + "/dataupdate");
+  public static final Uri CONTENT_URI_DATA_WITH_CHANNEL = Uri.parse("content://" + AUTHORITY + "/datachannels");
+  public static final Uri CONTENT_URI_DATA_VERSION = Uri.parse("content://" + AUTHORITY + "/dataversion");
     
   public static final String KEY_ID = "_id";
   
@@ -427,26 +427,26 @@ public class TvBrowserContentProvider extends ContentProvider {
   // for all earthquakes, and 'earthquakes' with a trailing '/[rowID]' will represent a single earthquake row.
   static {
     uriMatcher = new UriMatcher(UriMatcher.NO_MATCH);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "groups", GROUPS);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "groups/#", GROUP_ID);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "channels", CHANNELS);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "channels/#", CHANNEL_ID);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "channelgroups", CHANNELGROUPS);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "channelgroups/#", CHANNELGROUPS_ID);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "data", DATA);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "data/#", DATA_ID);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "rawdata", RAW_DATA);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "rawdata/#", RAW_DATA_ID);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataupdate", DATA_UPDATE);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataupdate/#", DATA_UPDATE_ID);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "datachannels", DATA_CHANNELS);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "datachannels/#", DATA_CHANNEL_ID);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", SearchManager.SUGGEST_URI_PATH_QUERY, SEARCH);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", SearchManager.SUGGEST_URI_PATH_QUERY + "/*", SEARCH);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", SearchManager.SUGGEST_URI_PATH_SHORTCUT, SEARCH);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", SearchManager.SUGGEST_URI_PATH_SHORTCUT + "/*", SEARCH);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataversion", DATA_VERSION);
-    uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataversion/#", DATA_VERSION_ID);
+    uriMatcher.addURI(AUTHORITY, "groups", GROUPS);
+    uriMatcher.addURI(AUTHORITY, "groups/#", GROUP_ID);
+    uriMatcher.addURI(AUTHORITY, "channels", CHANNELS);
+    uriMatcher.addURI(AUTHORITY, "channels/#", CHANNEL_ID);
+    uriMatcher.addURI(AUTHORITY, "channelgroups", CHANNEL_GROUPS);
+    uriMatcher.addURI(AUTHORITY, "channelgroups/#", CHANNEL_GROUPS_ID);
+    uriMatcher.addURI(AUTHORITY, "data", DATA);
+    uriMatcher.addURI(AUTHORITY, "data/#", DATA_ID);
+    uriMatcher.addURI(AUTHORITY, "rawdata", RAW_DATA);
+    uriMatcher.addURI(AUTHORITY, "rawdata/#", RAW_DATA_ID);
+    uriMatcher.addURI(AUTHORITY, "dataupdate", DATA_UPDATE);
+    uriMatcher.addURI(AUTHORITY, "dataupdate/#", DATA_UPDATE_ID);
+    uriMatcher.addURI(AUTHORITY, "datachannels", DATA_CHANNELS);
+    uriMatcher.addURI(AUTHORITY, "datachannels/#", DATA_CHANNEL_ID);
+    uriMatcher.addURI(AUTHORITY, SearchManager.SUGGEST_URI_PATH_QUERY, SEARCH);
+    uriMatcher.addURI(AUTHORITY, SearchManager.SUGGEST_URI_PATH_QUERY + "/*", SEARCH);
+    uriMatcher.addURI(AUTHORITY, SearchManager.SUGGEST_URI_PATH_SHORTCUT, SEARCH);
+    uriMatcher.addURI(AUTHORITY, SearchManager.SUGGEST_URI_PATH_SHORTCUT + "/*", SEARCH);
+    uriMatcher.addURI(AUTHORITY, "dataversion", DATA_VERSION);
+    uriMatcher.addURI(AUTHORITY, "dataversion/#", DATA_VERSION_ID);
   }
   
   public static String[] getColumnArrayWithMarkingColumns(String... columns) {

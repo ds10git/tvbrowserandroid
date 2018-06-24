@@ -11,6 +11,8 @@ import android.widget.TextView;
 import java.util.Calendar;
 import java.util.Locale;
 
+import org.tvbrowser.settings.SettingConstants;
+
 class DonationRatingHelperImpl extends DonationRatingHelper {
 
 	DonationRatingHelperImpl(final TvBrowser tvBrowser) {
@@ -107,7 +109,7 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 
 		builder.setMessage(expiredMessage);
 		builder.setPositiveButton(updateText, (dialog, which) -> {
-      tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.tvbrowser-app.de/index.php?id=download")));
+      tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingConstants.URL_SYNC_BASE + "/index.php?id=download")));
       System.exit(0);
     });
 		builder.setNegativeButton(R.string.update_not_now, (dialog, which) -> {
