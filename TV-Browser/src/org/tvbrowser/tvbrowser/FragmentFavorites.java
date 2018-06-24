@@ -850,7 +850,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
     int pos = mFavoriteSelection.getSelectedItemPosition();
     
-    if(pos == -1 && menuInfo != null && menuInfo instanceof AdapterContextMenuInfo) {
+    if(pos == -1 && menuInfo instanceof AdapterContextMenuInfo) {
       pos = ((AdapterContextMenuInfo)menuInfo).position;
     }
     
