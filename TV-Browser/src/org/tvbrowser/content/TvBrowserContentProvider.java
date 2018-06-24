@@ -1436,10 +1436,8 @@ public class TvBrowserContentProvider extends ContentProvider {
             
             while(c.moveToNext()) {
               String name = c.getString(nameColumn);
-              
-              if(addColumnList.contains(name)) {
-                addColumnList.remove(name);
-              }
+
+              addColumnList.remove(name);
             }
           }finally {
             IOUtils.close(c);
