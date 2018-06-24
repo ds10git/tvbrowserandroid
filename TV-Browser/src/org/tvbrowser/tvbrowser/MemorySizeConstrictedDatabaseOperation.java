@@ -152,10 +152,7 @@ class MemorySizeConstrictedDatabaseOperation {
       Log.d("info9", " " + mUpdateList.size());
       try {
          success = mContext.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, mUpdateList).length >= mUpdateList.size();
-      } catch (RemoteException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (OperationApplicationException e) {
+      } catch (RemoteException | OperationApplicationException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }

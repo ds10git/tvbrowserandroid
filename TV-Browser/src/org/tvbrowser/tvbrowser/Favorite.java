@@ -1077,9 +1077,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
               for(Intent markUpdate : markingIntentList) {
                 localBroadcast.sendBroadcast(markUpdate);
               }
-            } catch (RemoteException e) {
-              e.printStackTrace();
-            } catch (OperationApplicationException e) {
+            } catch (RemoteException | OperationApplicationException e) {
               e.printStackTrace();
             }
             
@@ -1185,9 +1183,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
               for(Intent markUpdate : markingIntentList) {
                 localBroadcast.sendBroadcast(markUpdate);
               }
-            } catch (RemoteException e) {
-              e.printStackTrace();
-            } catch (OperationApplicationException e) {
+            } catch (RemoteException | OperationApplicationException e) {
               e.printStackTrace();
             }
             
@@ -1317,9 +1313,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
               for(Intent markUpdate : markingIntentList) {
                 localBroadcast.sendBroadcast(markUpdate);
               }
-            } catch (RemoteException e) {
-              e.printStackTrace();
-            } catch (OperationApplicationException e) {
+            } catch (RemoteException | OperationApplicationException e) {
               e.printStackTrace();
             }
             

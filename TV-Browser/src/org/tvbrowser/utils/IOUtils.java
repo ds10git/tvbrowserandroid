@@ -1303,8 +1303,6 @@ public class IOUtils {
       try {
         out = new GZIPOutputStream(new FileOutputStream(propertiesFile));
         prop.store(out, comment);
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
       } catch (IOException e) {
         e.printStackTrace();
       } finally {

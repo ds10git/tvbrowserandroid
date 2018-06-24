@@ -259,13 +259,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
         event = parser.next();
       }
       
-    } catch (FileNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (XmlPullParserException e) {
+    } catch (XmlPullParserException | IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (TimeoutException e) {
