@@ -18,6 +18,7 @@ package org.tvbrowser.settings;
 
 import java.util.HashMap;
 
+import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.IOUtils;
@@ -27,6 +28,7 @@ import org.tvbrowser.utils.UiUtils;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -354,16 +356,17 @@ public final class SettingConstants {
     MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, UiUtils.MARKED_REMINDER_COLOR_KEY);
     MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, UiUtils.MARKED_SYNC_COLOR_KEY);
     MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, UiUtils.I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR_KEY);
-    
-    SHORT_CHANNEL_NAMES.put("NDR Niedersachsen", "NDR NDS");
-    SHORT_CHANNEL_NAMES.put("NDR Mecklenburg-Vorpommern", "NDR MV");
-    SHORT_CHANNEL_NAMES.put("NDR Hamburg", "NDR HH");
-    SHORT_CHANNEL_NAMES.put("NDR Schleswig-Holstein", "NDR SH");
-    SHORT_CHANNEL_NAMES.put("MDR Sachsen-Anhalt", "MDR ST");
-    SHORT_CHANNEL_NAMES.put("MDR Sachsen", "MDR SN");
-    SHORT_CHANNEL_NAMES.put("MDR Thüringen", "MDR TH");
-    SHORT_CHANNEL_NAMES.put("RBB Berlin", "RBB BE");
-    SHORT_CHANNEL_NAMES.put("RBB Brandenburg", "RBB BB");
-    SHORT_CHANNEL_NAMES.put("Das Erste (ARD)", "Das Erste");
+
+    final Resources res = App.get().getResources();
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_nds), res.getString(R.string.short_channel_name_ndr_nds));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_mv), res.getString(R.string.short_channel_name_ndr_mv));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_hh), res.getString(R.string.short_channel_name_ndr_hh));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_sh), res.getString(R.string.short_channel_name_ndr_sh));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_mdr_st), res.getString(R.string.short_channel_name_mdr_st));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_mdr_sn), res.getString(R.string.short_channel_name_mdr_sn));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_mdr_th), res.getString(R.string.short_channel_name_mdr_th));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_rbb_be), res.getString(R.string.short_channel_name_rbb_be));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_rbb_bb), res.getString(R.string.short_channel_name_rbb_bb));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_das_erste), res.getString(R.string.short_channel_name_das_erste));
   }
 }

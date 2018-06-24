@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<resources>
+
+    <string name="long_channel_name_ndr_nds" translatable="false">NDR Niedersachsen</string>
+    <string name="long_channel_name_ndr_mv" translatable="false">NDR Mecklenburg-Vorpommern</string>
+    <string name="long_channel_name_ndr_hh" translatable="false">NDR Hamburg</string>
+    <string name="long_channel_name_ndr_sh" translatable="false">NDR Schleswig-Holstein</string>
+
+    <string name="long_channel_name_mdr_st" translatable="false">MDR Sachsen-Anhalt</string>
+    <string name="long_channel_name_mdr_sn" translatable="false">MDR Sachsen</string>
+    <string name="long_channel_name_mdr_th" translatable="false">MDR Thüringen</string>
+
+    <string name="long_channel_name_rbb_be" translatable="false">RBB Berlin</string>
+    <string name="long_channel_name_rbb_bb" translatable="false">RBB Brandenburg</string>
+
+    <string name="long_channel_name_das_erste" translatable="false">Das Erste (ARD)</string>
+
+    <string name="short_channel_name_ndr_nds" translatable="false">NDR NDS</string>
+    <string name="short_channel_name_ndr_mv" translatable="false">NDR MV</string>
+    <string name="short_channel_name_ndr_hh" translatable="false">NDR HH</string>
+    <string name="short_channel_name_ndr_sh" translatable="false">NDR SH</string>
+
+    <string name="short_channel_name_mdr_st" translatable="false">MDR ST</string>
+    <string name="short_channel_name_mdr_sn" translatable="false">MDR SN</string>
+    <string name="short_channel_name_mdr_th" translatable="false">MDR TH</string>
+
+    <string name="short_channel_name_rbb_be" translatable="false">RBB BE</string>
+    <string name="short_channel_name_rbb_bb" translatable="false">RBB BB</string>
+
+    <string name="short_channel_name_das_erste" translatable="false">Das Erste</string>
+
+</resources>
