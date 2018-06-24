@@ -1039,7 +1039,7 @@ public final class UiUtils {
   public static void createContextMenu(final Context context, ContextMenu menu, final long id) {
     new MenuInflater(context).inflate(R.menu.program_context, menu);
     
-    String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(ProgramUtils.DATA_CHANNEL_PROJECTION);
+    String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColumns(ProgramUtils.DATA_CHANNEL_PROJECTION);
     
     if(IOUtils.isDatabaseAccessible(context)) {
       Cursor cursor = null;
@@ -1184,7 +1184,7 @@ public final class UiUtils {
       Cursor info = null;
       
       try {
-        info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE), null, null,null);
+        info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), TvBrowserContentProvider.getColumnArrayWithMarkingColumns(TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE), null, null,null);
   
         if(IOUtils.prepareAccessFirst(info)) {
           for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
@@ -2318,7 +2318,7 @@ public final class UiUtils {
   
   public static void showCategorySelection(Context context, final CategoryFilter categoryFilter, ViewGroup parent, final Runnable cancelCallBack) {
     String[] names = IOUtils.getInfoStringArrayNames(context.getResources());
-    int[] restrictionIndices = categoryFilter.getCategoriyIndicies();
+    int[] restrictionIndices = categoryFilter.getCategoryIndices();
         
     final LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
     

@@ -262,7 +262,7 @@ public class TvDataUpdateService extends Service {
     TvBrowserContentProvider.DATA_KEY_INFO_16_TO_9,
     TvBrowserContentProvider.DATA_KEY_INFO_MONO,
     TvBrowserContentProvider.DATA_KEY_INFO_STEREO,
-    TvBrowserContentProvider.DATA_KEY_INFO_DOLBY_SOURROUND,
+    TvBrowserContentProvider.DATA_KEY_INFO_DOLBY_SURROUND,
     TvBrowserContentProvider.DATA_KEY_INFO_DOLBY_DIGITAL_5_1,
     TvBrowserContentProvider.DATA_KEY_INFO_SECOND_AUDIO_PROGRAM,
     TvBrowserContentProvider.DATA_KEY_INFO_CLOSED_CAPTION,
@@ -274,7 +274,7 @@ public class TvDataUpdateService extends Service {
     TvBrowserContentProvider.DATA_KEY_INFO_AUDIO_DESCRIPTION,
     TvBrowserContentProvider.DATA_KEY_INFO_NEWS,
     TvBrowserContentProvider.DATA_KEY_INFO_SHOW,
-    TvBrowserContentProvider.DATA_KEY_INFO_MAGAZIN,
+    TvBrowserContentProvider.DATA_KEY_INFO_MAGAZINE,
     TvBrowserContentProvider.DATA_KEY_INFO_HD,
     TvBrowserContentProvider.DATA_KEY_INFO_DOCUMENTATION,
     TvBrowserContentProvider.DATA_KEY_INFO_ART,
@@ -1940,7 +1940,7 @@ public class TvDataUpdateService extends Service {
         }
         
         mDataDatabaseOperation.finish();
-        success.andUpdateBoolean(mDataDatabaseOperation.wasSuccessfull());
+        success.andUpdateBoolean(mDataDatabaseOperation.wasSuccessful());
       }
       else {
         success.setBoolean(false);

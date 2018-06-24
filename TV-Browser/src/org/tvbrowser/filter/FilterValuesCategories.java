@@ -13,16 +13,16 @@ import android.view.ViewGroup;
  * @author René Mach
  */
 public class FilterValuesCategories extends FilterValues implements CategoryFilter {
-  private int[] mColumnIndicies;
+  private int[] mColumnIndices;
   private String mOperation;
   
   public FilterValuesCategories() {
     this("",new int[0],"AND");
   }
   
-  public FilterValuesCategories(String name, int[] columnIndicies, String operation) {
+  public FilterValuesCategories(String name, int[] columnIndices, String operation) {
     super(name);
-    mColumnIndicies = columnIndicies;
+    mColumnIndices = columnIndices;
     mOperation = operation;
   }
     
@@ -32,26 +32,26 @@ public class FilterValuesCategories extends FilterValues implements CategoryFilt
     
     mOperation = parts[0].toUpperCase();
     
-    mColumnIndicies = new int[parts.length-1];
+    mColumnIndices = new int[parts.length-1];
     
     for(int i = 1; i < parts.length; i++) {
-      mColumnIndicies[i-1] = Integer.parseInt(parts[i]);
+      mColumnIndices[i-1] = Integer.parseInt(parts[i]);
     }
   }
   
   public WhereClause getWhereClause(Context context) {
     StringBuilder whereClause = new StringBuilder();
     
-    if(mColumnIndicies.length > 0) {
+    if(mColumnIndices.length > 0) {
       whereClause.append(" AND ( ");
       
       String[] columnNames = TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY;
       
-      for(int i = 0; i < mColumnIndicies.length-1; i++) {
-        whereClause.append(columnNames[mColumnIndicies[i]]).append(" ").append(mOperation).append(" ");
+      for(int i = 0; i < mColumnIndices.length-1; i++) {
+        whereClause.append(columnNames[mColumnIndices[i]]).append(" ").append(mOperation).append(" ");
       }
       
-      whereClause.append(columnNames[mColumnIndicies[mColumnIndicies.length-1]]).append(" ) ");
+      whereClause.append(columnNames[mColumnIndices[mColumnIndices.length-1]]).append(" ) ");
     }
     
     return new WhereClause(whereClause.toString(),null);
@@ -63,12 +63,12 @@ public class FilterValuesCategories extends FilterValues implements CategoryFilt
     
     save.append(mOperation).append(";");
     
-    for(int i = 0; i < mColumnIndicies.length-1; i++) {
-      save.append(mColumnIndicies[i]).append(";");
+    for(int i = 0; i < mColumnIndices.length-1; i++) {
+      save.append(mColumnIndices[i]).append(";");
     }
     
-    if(mColumnIndicies.length > 0) {
-      save.append(mColumnIndicies[mColumnIndicies.length-1]);
+    if(mColumnIndices.length > 0) {
+      save.append(mColumnIndices[mColumnIndices.length-1]);
     }
     
     return save.toString();
@@ -84,8 +84,8 @@ public class FilterValuesCategories extends FilterValues implements CategoryFilt
   }
 
   @Override
-  public int[] getCategoriyIndicies() {
-    return mColumnIndicies;
+  public int[] getCategoryIndices() {
+    return mColumnIndices;
   }
 
   @Override
@@ -94,11 +94,11 @@ public class FilterValuesCategories extends FilterValues implements CategoryFilt
   }
 
   @Override
-  public void setFilterValues(String name, String operation, int[] categoryIndicies) {
-    if(name != null && categoryIndicies != null && operation != null) {
+  public void setFilterValues(String name, String operation, int[] categoryIndices) {
+    if(name != null && categoryIndices != null && operation != null) {
       mName = name;
       mOperation = operation;
-      mColumnIndicies = categoryIndicies;
+      mColumnIndices = categoryIndices;
       
       if(mCallback != null) {
         mCallback.run();

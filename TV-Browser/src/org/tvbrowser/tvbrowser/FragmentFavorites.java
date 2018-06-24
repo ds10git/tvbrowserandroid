@@ -331,13 +331,13 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           String name = entry.toString();
           
           Drawable layerDrawable = null;
-          Drawable backgound = null;
+          Drawable background = null;
           
           if(backgroundRef.get() instanceof Drawable) {
-            backgound = (Drawable)backgroundRef.get();
+            background = (Drawable)backgroundRef.get();
           }
           else if(backgroundRef.get() instanceof Integer) {
-            backgound = new ColorDrawable((Integer) backgroundRef.get());
+            background = new ColorDrawable((Integer) backgroundRef.get());
           }
           
           if(!mContainsListViewFavoriteSelection) {
@@ -355,15 +355,15 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
               }
             }
             
-            if(backgound != null && popup) {
-              layerDrawable = new LayerDrawable(new Drawable[] {backgound,draw});
+            if(background != null && popup) {
+              layerDrawable = new LayerDrawable(new Drawable[] {background,draw});
             }
             else {
               layerDrawable = draw;
             }
           }
           else if(popup) {
-            layerDrawable = backgound;
+            layerDrawable = background;
           }
           
           if(layerDrawable != null) {
@@ -680,7 +680,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mFavoriteChangedReceiver, filter);
     
-    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.REFRESH_FILTER);
     
     mLoaderUpdate.setIsRunning();
   }

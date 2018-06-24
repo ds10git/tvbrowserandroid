@@ -234,7 +234,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     IntentFilter intent = new IntentFilter(SettingConstants.DATA_UPDATE_DONE);
     
     getActivity().registerReceiver(mDataUpdateReceiver, intent);
-    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.REFRESH_FILTER);
   }
   
   @Override
@@ -385,12 +385,12 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
               testIndex = 0;
             }
             
-            final int scollIndex = testIndex;
+            final int scrollIndex = testIndex;
             
             handler.post(() -> {
               if(mListView != null) {
-                mListView.setSelection(scollIndex);
-                handler.post(() -> mListView.setSelection(scollIndex));
+                mListView.setSelection(scrollIndex);
+                handler.post(() -> mListView.setSelection(scrollIndex));
               }
             });
           }

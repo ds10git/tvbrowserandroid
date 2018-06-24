@@ -167,7 +167,7 @@ class MemorySizeConstrictedDatabaseOperation {
     return mOperationsAvailable;
   }
   
-  public boolean wasSuccessfull() {
+  public boolean wasSuccessful() {
     return mSuccess.get() && mOperationsAdded;
   }
 }

@@ -85,7 +85,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
       Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' NIGHT MODE ACTIVATED '" + PrefUtils.getBooleanValue(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED, R.bool.pref_reminder_night_mode_activated_default) + "' sound '" + sound + "' vibrate '" + vibrate + "' led '" + led + "'", Logging.TYPE_REMINDER, context);
       
       //TODO add setting for priority
-      int priority = getPriortiyForPreferenceValue(PrefUtils.getStringValue(R.string.PREF_REMINDER_PRIORITY_VALUE, R.string.pref_reminder_priority_default));
+      int priority = getPriorityForPreferenceValue(PrefUtils.getStringValue(R.string.PREF_REMINDER_PRIORITY_VALUE, R.string.pref_reminder_priority_default));
       
       if(isNightMode) {
         int start = PrefUtils.getIntValueWithDefaultKey(R.string.PREF_REMINDER_NIGHT_MODE_START, R.integer.pref_reminder_night_mode_start_default);
@@ -123,7 +123,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
             sound = tone == null || tone.trim().length() > 0;
             vibrate = PrefUtils.getBooleanValue(R.string.PREF_REMINDER_NIGHT_MODE_VIBRATE, R.bool.pref_reminder_night_mode_vibrate_default);
             led = PrefUtils.getBooleanValue(R.string.PREF_REMINDER_NIGHT_MODE_LED, R.bool.pref_reminder_night_mode_led_default);
-            priority = getPriortiyForPreferenceValue(PrefUtils.getStringValue(R.string.PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE, R.string.pref_reminder_priority_default));
+            priority = getPriorityForPreferenceValue(PrefUtils.getStringValue(R.string.PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE, R.string.pref_reminder_priority_default));
           }
         }
       }
@@ -180,7 +180,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
             sound = tone == null || tone.trim().length() > 0;
             vibrate = PrefUtils.getBooleanValue(R.string.PREF_REMINDER_WORK_MODE_VIBRATE, R.bool.pref_reminder_work_mode_vibrate_default);
             led = PrefUtils.getBooleanValue(R.string.PREF_REMINDER_WORK_MODE_LED, R.bool.pref_reminder_work_mode_led_default);
-            priority = getPriortiyForPreferenceValue(PrefUtils.getStringValue(R.string.PREF_REMINDER_WORK_MODE_PRIORITY_VALUE, R.string.pref_reminder_priority_default));
+            priority = getPriorityForPreferenceValue(PrefUtils.getStringValue(R.string.PREF_REMINDER_WORK_MODE_PRIORITY_VALUE, R.string.pref_reminder_priority_default));
           }
         }
         
@@ -392,7 +392,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
     return new int[] {start,end};
   }
 
-  private int getPriortiyForPreferenceValue(String value) {
+  private int getPriorityForPreferenceValue(String value) {
     int result = NotificationCompat.PRIORITY_DEFAULT;
     
     switch(Integer.parseInt(value)) {

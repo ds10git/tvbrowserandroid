@@ -53,12 +53,12 @@ public class TvbPreferencesActivity extends ToolbarPreferencesActivity {
       SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
       
       if(pref.getString(SettingConstants.USER_NAME, "").trim().length() == 0 || pref.getString(SettingConstants.USER_PASSWORD, "").trim().length() == 0) {
-        String syncCategorgy = getString(R.string.category_sync);
+        String syncCategory = getString(R.string.category_sync);
         
         for(int i = target.size()-1; i >= 0; i--) {
           Header head = target.get(i);
                     
-          if(head.fragmentArguments != null && syncCategorgy.equals(head.fragmentArguments.getString(getString(R.string.pref_category_key)))) {
+          if(head.fragmentArguments != null && syncCategory.equals(head.fragmentArguments.getString(getString(R.string.pref_category_key)))) {
             target.remove(i);
             break;
           }

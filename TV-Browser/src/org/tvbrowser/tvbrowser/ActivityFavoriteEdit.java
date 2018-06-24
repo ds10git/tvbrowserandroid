@@ -832,7 +832,7 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
   }
 
   @Override
-  public int[] getCategoriyIndicies() {
+  public int[] getCategoryIndices() {
     return mFavorite.getAttributeRestrictionIndices();
   }
 
@@ -842,8 +842,8 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
   }
 
   @Override
-  public void setFilterValues(String name, String operation, int[] categoryIndicies) {
-    mFavorite.setAttributeRestrictionIndices(categoryIndicies);
+  public void setFilterValues(String name, String operation, int[] categoryIndices) {
+    mFavorite.setAttributeRestrictionIndices(categoryIndices);
     
     updateOkButton();
     

@@ -76,8 +76,8 @@ public class TvBrowserContentProvider extends ContentProvider {
   private static final int CHANNELS = 10;
   private static final int CHANNEL_ID = 11;
   
-  private static final int CHANNELGROUPS = 12;
-  private static final int CHANNELGROUPS_ID = 13;
+  private static final int CHANNEL_GROUPS = 12;
+  private static final int CHANNEL_GROUPS_ID = 13;
   
   private static final int DATA = 20;
   private static final int DATA_ID = 21;
@@ -132,7 +132,9 @@ public class TvBrowserContentProvider extends ContentProvider {
   private static final String CHANNEL_KEY_USER_END_TIME = "userEndTime";
   
   // Column names for the data table
+  @SuppressWarnings("SpellCheckingInspection")
   public static final String DATA_KEY_STARTTIME = "startTime";
+  @SuppressWarnings("SpellCheckingInspection")
   public static final String DATA_KEY_ENDTIME = "endTime";
   public static final String DATA_KEY_TITLE = "title";
   public static final String DATA_KEY_TITLE_ORIGINAL = "titleOriginal";
@@ -141,6 +143,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_SHORT_DESCRIPTION = "shortDescription";
   public static final String DATA_KEY_DESCRIPTION = "description";
   public static final String DATA_KEY_ACTORS = "actors";
+  @SuppressWarnings("SpellCheckingInspection")
   public static final String DATA_KEY_REGIE = "regie";
   public static final String DATA_KEY_CUSTOM_INFO = "customInfo";
   public static final String DATA_KEY_CATEGORIES = "categories";
@@ -148,6 +151,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_WEBSITE_LINK = "websiteLink";
   public static final String DATA_KEY_GENRE = "genre";
   public static final String DATA_KEY_ORIGIN = "origin";
+  @SuppressWarnings("SpellCheckingInspection")
   public static final String DATA_KEY_NETTO_PLAY_TIME = "nettoPlayTime";
   public static final String DATA_KEY_VPS = "vps";
   public static final String DATA_KEY_SCRIPT = "script";
@@ -180,7 +184,9 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_DURATION_ORIGINAL = "originalDuration";
   public static final String DATA_KEY_YEAR_PRODUCTION_FIRST = "firstProductionYear";
   public static final String DATA_KEY_KEYWORD_LIST = "keywordList";
+  @SuppressWarnings("SpellCheckingInspection")
   public static final String DATA_KEY_VOD_INFO = "VODinfo";
+  @SuppressWarnings("SpellCheckingInspection")
   public static final String DATA_KEY_VOD_LINK = "VODlink";
   public static final String DATA_KEY_GENRE_SUB_LIST = "genreSubList";
   // Keys since 4.0 (desktop) end
@@ -188,8 +194,11 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_ADDITIONAL_INFO = "additionalInfo";
   public static final String DATA_KEY_SERIES = "series";
   public static final String DATA_KEY_UNIX_DATE = "unixDate";
+  @SuppressWarnings("SpellCheckingInspection")
   public static final String DATA_KEY_DATE_PROG_ID = "dateProgID";
+  @SuppressWarnings("SpellCheckingInspection")
   public static final String DATA_KEY_DATE_PROG_STRING_ID = "dateProgStringID";
+  @SuppressWarnings("SpellCheckingInspection")
   public static final String DATA_KEY_DONT_WANT_TO_SEE = "dontWantToSee";
   public static final String DATA_KEY_REMOVED_REMINDER = "removedReminder";
   public static final String DATA_KEY_MARKING_MARKING = "markingMarking";
@@ -208,7 +217,8 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_INFO_16_TO_9 = "infoSixteenToNine";
   public static final String DATA_KEY_INFO_MONO = "infoMono";
   public static final String DATA_KEY_INFO_STEREO = "infoStereo";
-  public static final String DATA_KEY_INFO_DOLBY_SOURROUND = "infoDoblySourround";
+  @SuppressWarnings("SpellCheckingInspection")
+  public static final String DATA_KEY_INFO_DOLBY_SURROUND = "infoDoblySourround";
   public static final String DATA_KEY_INFO_DOLBY_DIGITAL_5_1 = "infoDigitalFivePointOne";
   public static final String DATA_KEY_INFO_SECOND_AUDIO_PROGRAM = "infoSecondAudioProgram";
   public static final String DATA_KEY_INFO_CLOSED_CAPTION = "infoClosedCaption";
@@ -217,10 +227,12 @@ public class TvBrowserContentProvider extends ContentProvider {
   public static final String DATA_KEY_INFO_FILM = "infoFilm";
   public static final String DATA_KEY_INFO_SERIES = "infoSeries";
   public static final String DATA_KEY_INFO_NEW = "infoNew";
+  @SuppressWarnings("SpellCheckingInspection")
   public static final String DATA_KEY_INFO_AUDIO_DESCRIPTION = "infoAudioDescritption";
   public static final String DATA_KEY_INFO_NEWS = "infoNews";
   public static final String DATA_KEY_INFO_SHOW = "infoShow";
-  public static final String DATA_KEY_INFO_MAGAZIN = "infoMagazin";
+  @SuppressWarnings("SpellCheckingInspection")
+  public static final String DATA_KEY_INFO_MAGAZINE = "infoMagazin";
   public static final String DATA_KEY_INFO_HD = "infoHD";
   public static final String DATA_KEY_INFO_DOCUMENTATION = "infoDocumentation";
   public static final String DATA_KEY_INFO_ART = "infoArt";
@@ -304,7 +316,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     mapDataKeyType.put(DATA_KEY_INFO_16_TO_9 ," INTEGER DEFAULT 0");
     mapDataKeyType.put(DATA_KEY_INFO_MONO ," INTEGER DEFAULT 0");
     mapDataKeyType.put(DATA_KEY_INFO_STEREO ," INTEGER DEFAULT 0");
-    mapDataKeyType.put(DATA_KEY_INFO_DOLBY_SOURROUND  ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_DOLBY_SURROUND," INTEGER DEFAULT 0");
     mapDataKeyType.put(DATA_KEY_INFO_DOLBY_DIGITAL_5_1 ," INTEGER DEFAULT 0");
     mapDataKeyType.put(DATA_KEY_INFO_SECOND_AUDIO_PROGRAM ," INTEGER DEFAULT 0");
     mapDataKeyType.put(DATA_KEY_INFO_CLOSED_CAPTION ," INTEGER DEFAULT 0");
@@ -316,7 +328,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     mapDataKeyType.put(DATA_KEY_INFO_AUDIO_DESCRIPTION ," INTEGER DEFAULT 0");
     mapDataKeyType.put(DATA_KEY_INFO_NEWS ," INTEGER DEFAULT 0");
     mapDataKeyType.put(DATA_KEY_INFO_SHOW ," INTEGER DEFAULT 0");
-    mapDataKeyType.put(DATA_KEY_INFO_MAGAZIN ," INTEGER DEFAULT 0");
+    mapDataKeyType.put(DATA_KEY_INFO_MAGAZINE," INTEGER DEFAULT 0");
     mapDataKeyType.put(DATA_KEY_INFO_HD ," INTEGER DEFAULT 0");
     mapDataKeyType.put(DATA_KEY_INFO_DOCUMENTATION ," INTEGER DEFAULT 0");
     mapDataKeyType.put(DATA_KEY_INFO_ART ," INTEGER DEFAULT 0");
@@ -337,7 +349,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     DATA_KEY_INFO_16_TO_9,
     DATA_KEY_INFO_MONO,
     DATA_KEY_INFO_STEREO,
-    DATA_KEY_INFO_DOLBY_SOURROUND,
+    DATA_KEY_INFO_DOLBY_SURROUND,
     DATA_KEY_INFO_DOLBY_DIGITAL_5_1,
     DATA_KEY_INFO_SECOND_AUDIO_PROGRAM,
     DATA_KEY_INFO_CLOSED_CAPTION,
@@ -349,7 +361,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     DATA_KEY_INFO_AUDIO_DESCRIPTION,
     DATA_KEY_INFO_NEWS,
     DATA_KEY_INFO_SHOW,
-    DATA_KEY_INFO_MAGAZIN,
+    DATA_KEY_INFO_MAGAZINE,
     DATA_KEY_INFO_HD,
     DATA_KEY_INFO_DOCUMENTATION,
     DATA_KEY_INFO_ART,
@@ -437,7 +449,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     uriMatcher.addURI("org.tvbrowser.tvbrowsercontentprovider", "dataversion/#", DATA_VERSION_ID);
   }
   
-  public static String[] getColumnArrayWithMarkingColums(String... columns) {
+  public static String[] getColumnArrayWithMarkingColumns(String... columns) {
     String[] projection = new String[columns.length + TvBrowserContentProvider.MARKING_COLUMNS.length];
     
     System.arraycopy(TvBrowserContentProvider.MARKING_COLUMNS, 0, projection, 0, TvBrowserContentProvider.MARKING_COLUMNS.length);
@@ -903,13 +915,11 @@ public class TvBrowserContentProvider extends ContentProvider {
         orderBy = sortOrder;
       }
       
-      if(orderBy != null && !orderBy.contains("NOCASE") && !orderBy.contains("COLLATE")) {
+      if(!orderBy.contains("NOCASE") && !orderBy.contains("COLLATE")) {
         orderBy += " COLLATE NOCASE";
       }
       
-      if(orderBy != null) {
-        sql.append(" ORDER BY ").append(orderBy);
-      }
+      sql.append(" ORDER BY ").append(orderBy);
       
       // Apply the query to the underling database.
       result = database.rawQuery(sql.toString(), selectionArgs);
@@ -951,8 +961,8 @@ public class TvBrowserContentProvider extends ContentProvider {
           case CHANNEL_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
           case CHANNELS: qb.setTables(CHANNEL_TABLE);
                         orderBy = CHANNEL_KEY_NAME;break;
-          case CHANNELGROUPS_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
-          case CHANNELGROUPS: 
+          case CHANNEL_GROUPS_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
+          case CHANNEL_GROUPS:
             {
               qb.setTables(TvBrowserDataBaseHelper.GROUPS_TABLE + ", " + CHANNEL_TABLE);
               orderBy = CHANNEL_KEY_ORDER_NUMBER + ", " + CHANNEL_KEY_NAME;
@@ -1403,7 +1413,7 @@ public class TvBrowserContentProvider extends ContentProvider {
         addColumnList.add(DATA_KEY_INFO_16_TO_9);
         addColumnList.add(DATA_KEY_INFO_MONO);
         addColumnList.add(DATA_KEY_INFO_STEREO);
-        addColumnList.add(DATA_KEY_INFO_DOLBY_SOURROUND);
+        addColumnList.add(DATA_KEY_INFO_DOLBY_SURROUND);
         addColumnList.add(DATA_KEY_INFO_DOLBY_DIGITAL_5_1);
         addColumnList.add(DATA_KEY_INFO_SECOND_AUDIO_PROGRAM);
         addColumnList.add(DATA_KEY_INFO_CLOSED_CAPTION);
@@ -1415,7 +1425,7 @@ public class TvBrowserContentProvider extends ContentProvider {
         addColumnList.add(DATA_KEY_INFO_AUDIO_DESCRIPTION);
         addColumnList.add(DATA_KEY_INFO_NEWS);
         addColumnList.add(DATA_KEY_INFO_SHOW);
-        addColumnList.add(DATA_KEY_INFO_MAGAZIN);
+        addColumnList.add(DATA_KEY_INFO_MAGAZINE);
         addColumnList.add(DATA_KEY_INFO_HD);
         addColumnList.add(DATA_KEY_INFO_DOCUMENTATION);
         addColumnList.add(DATA_KEY_INFO_ART);

@@ -42,6 +42,7 @@ import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
+import java.util.List;
 
 public class InfoActivity extends AppCompatActivity {
   @Override
@@ -124,11 +125,11 @@ public class InfoActivity extends AppCompatActivity {
         }
       }
       
-      ArrayList<String> formatedTimes = new ArrayList<>();
-      formatedTimes.add(getString(R.string.button_now));
+      List<String> formattedTimes = new ArrayList<>();
+      formattedTimes.add(getString(R.string.button_now));
       
       if(hasNext) {
-        formatedTimes.add(getString(R.string.button_after));
+        formattedTimes.add(getString(R.string.button_after));
       }
       
       for(int i = 0; i < values.size(); i++) {
@@ -136,14 +137,14 @@ public class InfoActivity extends AppCompatActivity {
         cal.set(Calendar.HOUR_OF_DAY, values.get(i) / 60);
         cal.set(Calendar.MINUTE, values.get(i) % 60);
         
-        formatedTimes.add(DateFormat.getTimeFormat(InfoActivity.this).format(cal.getTime()));
+        formattedTimes.add(DateFormat.getTimeFormat(InfoActivity.this).format(cal.getTime()));
       }
       
       AlertDialog.Builder builder = new AlertDialog.Builder(InfoActivity.this);
       
       builder.setTitle(R.string.widget_running_select_time_title);
       
-      builder.setSingleChoiceItems(formatedTimes.toArray(new String[0]), selection, (dialog, which) -> {
+      builder.setSingleChoiceItems(formattedTimes.toArray(new String[0]), selection, (dialog, which) -> {
         int value = -1;
 
         if(which == 1 && hasNext) {
