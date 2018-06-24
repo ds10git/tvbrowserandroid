@@ -607,7 +607,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       throw new OperationApplicationException(rte);
     }
     
-    return result.toArray(new ContentProviderResult[result.size()]);
+    return result.toArray(new ContentProviderResult[0]);
   }
   
   private int bulkInsertData(Uri uri, ContentValues[] values) {
@@ -1189,7 +1189,7 @@ public class TvBrowserContentProvider extends ContentProvider {
       builder.append("create table ").append(DATA_TABLE).append(" (").append(KEY_ID).append(" INTEGER primary key autoincrement, ");
       builder.append(CHANNEL_KEY_CHANNEL_ID).append(" INTEGER REFERENCES ").append(CHANNEL_TABLE).append("(").append(KEY_ID).append(") NOT NULL, ");
       
-      final String[] keys = MAP_DATA_KEY_TYPE.keySet().toArray(new String[MAP_DATA_KEY_TYPE.size()]);
+      final String[] keys = MAP_DATA_KEY_TYPE.keySet().toArray(new String[0]);
       
       for(int i = 0; i < keys.length-1; i++) {
         builder.append(keys[i]).append(MAP_DATA_KEY_TYPE.get(keys[i])).append(", ");

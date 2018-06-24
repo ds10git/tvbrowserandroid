@@ -306,7 +306,7 @@ public final class PluginHandler {
       }
     }, 2000);
     
-    return pluginList.toArray(new PluginServiceConnection[pluginList.size()]);
+    return pluginList.toArray(new PluginServiceConnection[0]);
   }
   
   public static void shutdownPlugins(Context context) {
@@ -384,7 +384,7 @@ public final class PluginHandler {
     PluginServiceConnection[] result = null;
     
     if(hasPlugins()) {
-      result = PLUGIN_LIST.toArray(new PluginServiceConnection[PLUGIN_LIST.size()]);
+      result = PLUGIN_LIST.toArray(new PluginServiceConnection[0]);
     }
     
     return result;

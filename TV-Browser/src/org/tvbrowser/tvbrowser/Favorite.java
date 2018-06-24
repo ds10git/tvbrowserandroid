@@ -1368,7 +1368,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       }
     }
     
-    return favoriteList.toArray(new Favorite[favoriteList.size()]);
+    return favoriteList.toArray(new Favorite[0]);
   }
   
   public static void deleteFavorite(Context context, Favorite favorite) {
@@ -1469,7 +1469,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       }
     }
     
-    return uniqueIdFavoriteList.toArray(new Favorite[uniqueIdFavoriteList.size()]);
+    return uniqueIdFavoriteList.toArray(new Favorite[0]);
   }
   
   public void clearUniqueIds() {

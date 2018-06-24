@@ -143,7 +143,7 @@ public class InfoActivity extends AppCompatActivity {
       
       builder.setTitle(R.string.widget_running_select_time_title);
       
-      builder.setSingleChoiceItems(formatedTimes.toArray(new String[formatedTimes.size()]), selection, (dialog, which) -> {
+      builder.setSingleChoiceItems(formatedTimes.toArray(new String[0]), selection, (dialog, which) -> {
         int value = -1;
 
         if(which == 1 && hasNext) {

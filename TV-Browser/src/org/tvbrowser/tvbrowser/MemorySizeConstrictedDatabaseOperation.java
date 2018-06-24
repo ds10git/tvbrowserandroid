@@ -137,7 +137,7 @@ class MemorySizeConstrictedDatabaseOperation {
   
   private synchronized void insert() {
     if(mInsertUri != null && mInsertList != null && !mInsertList.isEmpty() && mContext != null) {
-      boolean success = mContext.getContentResolver().bulkInsert(mInsertUri, mInsertList.toArray(new ContentValues[mInsertList.size()])) >= mInsertList.size();
+      boolean success = mContext.getContentResolver().bulkInsert(mInsertUri, mInsertList.toArray(new ContentValues[0])) >= mInsertList.size();
       
       mSuccess.compareAndSet(true, success);
       

@@ -730,7 +730,7 @@ public class IOUtils {
   
   public static String[] getStringArrayFromList(ArrayList<String> list) {
     if(list != null) {
-      return list.toArray(new String[list.size()]);
+      return list.toArray(new String[0]);
     }
     
     return null;
@@ -1070,7 +1070,7 @@ public class IOUtils {
         valueList.add(last);
       }
       
-      return valueList.toArray(new Integer[valueList.size()]);
+      return valueList.toArray(new Integer[0]);
     }
   }
   

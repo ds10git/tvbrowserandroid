@@ -173,7 +173,7 @@ public class LoaderUpdater {
     
     public CallbackObject<?>[] getCallbackObjects() {
       synchronized (mCallbackObjects) {
-        return mCallbackObjects.toArray(new CallbackObject[mCallbackObjects.size()]);
+        return mCallbackObjects.toArray(new CallbackObject[0]);
       }
     }
     
