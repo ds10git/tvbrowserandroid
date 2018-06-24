@@ -573,62 +573,60 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       @Override
       public void onReceive(Context context, final Intent intent) {
         if(mUpdateThread == null || !mUpdateThread.isAlive()) {
-          mUpdateThread = new Thread() {
-            public void run() {
-              if(intent.hasExtra(Favorite.FAVORITE_EXTRA)) {
-                String oldName = intent.getStringExtra(Favorite.OLD_NAME_KEY);
-                
-                FavoriteSpinnerEntry fav = null;
-                
-                if(oldName != null) {
-                  for(FavoriteSpinnerEntry favorite : mFavoriteList) {
-                    if(favorite.containsFavorite() && favorite.getFavorite().getName().equals(oldName)) {
-                      fav = favorite;
-                      break;
-                    }
+          mUpdateThread = new Thread(() -> {
+            if(intent.hasExtra(Favorite.FAVORITE_EXTRA)) {
+              String oldName = intent.getStringExtra(Favorite.OLD_NAME_KEY);
+
+              FavoriteSpinnerEntry fav = null;
+
+              if(oldName != null) {
+                for(FavoriteSpinnerEntry favorite : mFavoriteList) {
+                  if(favorite.containsFavorite() && favorite.getFavorite().getName().equals(oldName)) {
+                    fav = favorite;
+                    break;
                   }
                 }
-                
-                if(fav == null) {
-                  fav = new FavoriteSpinnerEntry((Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA));
-                  mCurrentFavoriteSelection = fav;
-                  mFavoriteList.add(fav);
-                }
-                else {
-                  Favorite temp = (Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA);
-                  
-                  fav.getFavorite().setValues(temp.getName(), temp.getSearchValue(), temp.getType(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs(), temp.getExclusions(), temp.getDurationRestrictionMinimum(), temp.getDurationRestrictionMaximum(), temp.getAttributeRestrictionIndices(), temp.getUniqueProgramIds());
-                }
-                
-                handler.post(() -> {
-                  mFavoriteAdapter.notifyDataSetChanged();
-                  mFavoriteSelectionObserver.onChanged();
-                });
+              }
+
+              if(fav == null) {
+                fav = new FavoriteSpinnerEntry((Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA));
+                mCurrentFavoriteSelection = fav;
+                mFavoriteList.add(fav);
               }
               else {
-                if(!isDetached() && getActivity() != null) {
-                  for(FavoriteSpinnerEntry fav : mFavoriteList) {
-                    if(fav.containsFavorite()) {
-                      Favorite.handleFavoriteMarking(getActivity(), fav.getFavorite(), Favorite.TYPE_MARK_REMOVE);
-                    }
-                  }
-                  
-                  mFavoriteList.clear();
-                  updateFavoriteList(true);
-                }
+                Favorite temp = (Favorite)intent.getSerializableExtra(Favorite.FAVORITE_EXTRA);
+
+                fav.getFavorite().setValues(temp.getName(), temp.getSearchValue(), temp.getType(), temp.remind(), temp.getTimeRestrictionStart(), temp.getTimeRestrictionEnd(), temp.getDayRestriction(), temp.getChannelRestrictionIDs(), temp.getExclusions(), temp.getDurationRestrictionMinimum(), temp.getDurationRestrictionMaximum(), temp.getAttributeRestrictionIndices(), temp.getUniqueProgramIds());
               }
-              
+
               handler.post(() -> {
                 mFavoriteAdapter.notifyDataSetChanged();
-
-                removeMarkingSelections();
-
-                Collections.sort(mFavoriteList);
-
-                addMarkingSelections();
+                mFavoriteSelectionObserver.onChanged();
               });
             }
-          };
+            else {
+              if(!isDetached() && getActivity() != null) {
+                for(FavoriteSpinnerEntry fav : mFavoriteList) {
+                  if(fav.containsFavorite()) {
+                    Favorite.handleFavoriteMarking(getActivity(), fav.getFavorite(), Favorite.TYPE_MARK_REMOVE);
+                  }
+                }
+
+                mFavoriteList.clear();
+                updateFavoriteList(true);
+              }
+            }
+
+            handler.post(() -> {
+              mFavoriteAdapter.notifyDataSetChanged();
+
+              removeMarkingSelections();
+
+              Collections.sort(mFavoriteList);
+
+              addMarkingSelections();
+            });
+          });
           mUpdateThread.start();
         }
       }

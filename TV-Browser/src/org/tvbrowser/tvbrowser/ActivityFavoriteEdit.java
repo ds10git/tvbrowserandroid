@@ -798,18 +798,15 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
       final Context context = getApplicationContext();
       
       Log.d("info2", "hier4 " + mOldFavorite);
-      new Thread() {
-        @Override
-        public void run() {
-          if(mOldFavorite != null) {
-            Favorite.handleFavoriteMarking(context, mOldFavorite, Favorite.TYPE_MARK_REMOVE);
-          }
-          Log.d("info2", "hier5a");
-          Favorite.handleFavoriteMarking(context, mFavorite, Favorite.TYPE_MARK_ADD);
-          Log.d("info2", "hier5");
-          LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+      new Thread(() -> {
+        if(mOldFavorite != null) {
+          Favorite.handleFavoriteMarking(context, mOldFavorite, Favorite.TYPE_MARK_REMOVE);
         }
-      }.start();
+        Log.d("info2", "hier5a");
+        Favorite.handleFavoriteMarking(context, mFavorite, Favorite.TYPE_MARK_ADD);
+        Log.d("info2", "hier5");
+        LocalBroadcastManager.getInstance(context).sendBroadcast(intent);
+      }).start();
     }
     
     finish();
