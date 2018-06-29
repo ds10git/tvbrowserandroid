@@ -111,7 +111,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.SparseArrayCompat;
-import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
@@ -189,7 +188,6 @@ public class TvBrowser extends AppCompatActivity {
   private boolean updateRunning;
   private boolean selectingChannels;
   private TabLayout mTabLayout;
-  //private ActionBar actionBar;
   private boolean mSearchExpanded;
 
   /**
@@ -4779,12 +4777,9 @@ public class TvBrowser extends AppCompatActivity {
     getMenuInflater().inflate(R.menu.tv_browser, menu);
 
     //  Associate searchable configuration with the SearchView
-    SearchManager searchManager =
-           (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-    SearchView searchView =
-            (SearchView) menu.findItem(R.id.search).getActionView();
-    searchView.setSearchableInfo(
-            searchManager.getSearchableInfo(getComponentName()));
+    SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+    SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+    searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
     mUpdateItem = menu.findItem(R.id.menu_tvbrowser_action_update_data);
 
@@ -4864,7 +4859,7 @@ public class TvBrowser extends AppCompatActivity {
   @SuppressLint("NewApi")
   private void addOnActionExpandListener(MenuItem search) {
     if(search != null) {
-      MenuItemCompat.setOnActionExpandListener(search, new MenuItemCompat.OnActionExpandListener() {
+      search.setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
         @Override
         public boolean onMenuItemActionExpand(MenuItem item) {
           mSearchExpanded = true;

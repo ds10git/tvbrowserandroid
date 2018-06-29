@@ -20,6 +20,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 import java.util.TimeZone;
 
@@ -824,8 +825,8 @@ public class TvBrowserContentProvider extends ContentProvider {
       path = "";
     }
     else if(!path.endsWith(File.separator)) {
-      path += File.separator;
-    }
+        path += File.separator;
+      }
     Log.d("info11", "DATABASEPATH " + path);
     //path = "";
     mDataBaseHelper = new TvBrowserDataBaseHelper(getContext(), path + DATABASE_TVB_NAME, null, TvBrowserDataBaseHelper.DATABASE_VERSION);
@@ -837,7 +838,7 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     String databasePath = "internal";
     
-    try {
+      try {
       databasePath = pref.getString(getContext().getString(R.string.PREF_DATABASE_PATH), getContext().getString(R.string.pref_database_path_default));
     }catch(NotFoundException ignored) {}
     
@@ -939,12 +940,19 @@ public class TvBrowserContentProvider extends ContentProvider {
         
         // If this is a row query, limit the result set to the pased in row.
         switch(uriMatcher.match(uri)) {
-          case SEARCH: String search = uri.getPathSegments().get(1).replace("'", "''");
-                       qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE '%" + search + "%' OR " + DATA_KEY_EPISODE_TITLE + " LIKE '%" +  search + "%') AND " + DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis() + " AND NOT " + DATA_KEY_DONT_WANT_TO_SEE);
-                       qb.setProjectionMap(SEARCH_PROJECTION_MAP);
-                       qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
-                       orderBy = DATA_KEY_STARTTIME;
-                       break;
+          case SEARCH:
+            final List<String> uriPathSegments = uri.getPathSegments();
+            String search = "   ";// SearchManager.SUGGEST_URI_PATH_QUERY;
+            if (uriPathSegments != null) {
+              if (uriPathSegments.size() > 1) {
+                search = uriPathSegments.get(1).replace("'", "''").trim();
+              }
+            }
+            qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE '%" + search + "%' OR " + DATA_KEY_EPISODE_TITLE + " LIKE '%" + search + "%') AND " + DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis() + " AND NOT " + DATA_KEY_DONT_WANT_TO_SEE);
+            qb.setProjectionMap(SEARCH_PROJECTION_MAP);
+            qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
+            orderBy = DATA_KEY_STARTTIME;
+            break;
           case GROUP_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
           case GROUPS: qb.setTables(TvBrowserDataBaseHelper.GROUPS_TABLE);
                        orderBy = GROUP_KEY_GROUP_ID;break;
