@@ -27,8 +27,10 @@
 		                style="?buttonBarButtonStyle"
 		                android:layout_width="wrap_content"
 		                android:layout_height="wrap_content"
-		                android:layout_marginLeft="15px"
-		                android:layout_marginRight="15px"/>
+					    android:layout_marginStart="15dp"
+					    android:layout_marginEnd="15dp"
+		                android:layout_marginLeft="15dp"
+		                android:layout_marginRight="15dp"/>
 	            <android.support.v7.widget.AppCompatButton android:id="@id/now_button"
 	                android:text="@string/button_now"
 	                style="?buttonBarButtonStyle"
@@ -39,8 +41,10 @@
 	                style="?buttonBarButtonStyle"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"
-	                android:layout_marginLeft="15px"
-	                android:layout_marginRight="15px"/>
+					android:layout_marginStart="15dp"
+					android:layout_marginEnd="15dp"
+	                android:layout_marginLeft="15dp"
+	                android:layout_marginRight="15dp"/>
 	        </android.support.v7.widget.LinearLayoutCompat>
 	    </HorizontalScrollView>
     </android.support.v7.widget.LinearLayoutCompat>
@@ -50,11 +54,4 @@
         android:layout_height="0dip"
         android:layout_weight="1"
         />
- <!--    <fragment 
-        android:name="org.tvbrowser.tvbrowser.RunningProgramsListFragment"
-        android:id="@id/runningListFragment"
-        android:layout_width="match_parent"
-        android:layout_height="0dip"
-        android:layout_weight="1"
-    />  -->
 </android.support.v7.widget.FitWindowsLinearLayout>
