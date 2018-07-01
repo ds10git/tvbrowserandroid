@@ -3917,7 +3917,13 @@ public class TvBrowser extends AppCompatActivity {
 
                 TvBrowserContentProvider provider = (TvBrowserContentProvider)client.getLocalContentProvider();
                 provider.updateDatabasePath();
-                client.release();
+                if (client!=null) {
+                  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                    client.release();
+                  } else {
+                    client.close();
+                  }
+                }
 
                 if(mSource != null) {
 
