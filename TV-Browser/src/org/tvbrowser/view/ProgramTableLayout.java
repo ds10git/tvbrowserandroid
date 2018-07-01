@@ -17,15 +17,23 @@
 package org.tvbrowser.view;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.content.Context;
+import android.util.AttributeSet;
 import android.view.View;
 import android.view.ViewGroup;
 
 public abstract class ProgramTableLayout extends ViewGroup {
-  private final ArrayList<Integer> mChannelIDsOrdered;
-  
-  ProgramTableLayout(Context context, ArrayList<Integer> channelIDsOrdered) {
+  private final List<Integer> mChannelIDsOrdered;
+
+  /** View constructors for XML inflation (used by tools) */
+  public ProgramTableLayout(Context context, AttributeSet attributeSet, int defStyleAttr) {
+    super(context, attributeSet, defStyleAttr);
+    mChannelIDsOrdered = new ArrayList<>();
+  }
+
+  ProgramTableLayout(Context context, List<Integer> channelIDsOrdered) {
     super(context);
     
     mChannelIDsOrdered = channelIDsOrdered;
@@ -46,7 +54,6 @@ public abstract class ProgramTableLayout extends ViewGroup {
       View view = getChildAt(i);
       removeView(view);
       ((ProgramPanel)view).clear();
-      view = null;
     }
   }
   

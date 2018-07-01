@@ -26,6 +26,7 @@ import android.os.Handler;
 import android.support.v4.content.ContextCompat;
 import android.text.Spannable;
 import android.text.TextPaint;
+import android.util.AttributeSet;
 import android.view.View;
 
 import org.tvbrowser.settings.SettingConstants;
@@ -47,7 +48,6 @@ public class ProgramPanel extends View {
   private ColorLine[] mCategoriesString;
   private BitmapDrawable mPicture;
   private String mDescription;
-  private int mDescriptionRowCount;
   private int mMaxDescriptionLines;
 
   private boolean mIsExpired;
@@ -59,7 +59,14 @@ public class ProgramPanel extends View {
   private int mSmallRowCount;
   private int mSuperSmallCount;
   private String mStartTimeString;
-  
+
+  /** View constructors for XML inflation (used by tools) */
+  public ProgramPanel(Context context, AttributeSet attributeSet, int defStyleAttr) {
+    super(context, attributeSet, defStyleAttr);
+    mChannelID = 0;
+    mEndTime = 0L;
+  }
+
   public ProgramPanel(Context context, final long startTime, final long endTime, final String title, final int channelID) {
     super(context);
     
@@ -67,7 +74,6 @@ public class ProgramPanel extends View {
     mSmallRowCount = 0;
     mSuperSmallCount = 0;
     mMaxDescriptionLines = 0;
-    mDescriptionRowCount = 0;
     mEndTime = endTime;
     mChannelID = channelID;
     setStartTime(startTime);
@@ -93,7 +99,6 @@ public class ProgramPanel extends View {
     if(description != null) {
       Object[] result = getBreakerText(description.replaceAll("\n+"," "), getTextWidth() - mStartTimeBounds.width() - ProgramTableLayoutConstants.TIME_TITLE_GAP, ProgramTableLayoutConstants.NOT_EXPIRED_PICTURE_COPYRIGHT_PAINT, false);
       mDescription = result[0].toString();
-      mDescriptionRowCount = (Integer)result[1];
     }
     else {
       mDescription = null;

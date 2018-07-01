@@ -18,27 +18,36 @@ package org.tvbrowser.view;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.util.AttributeSet;
 
 import org.tvbrowser.tvbrowser.R;
 
-import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.List;
 
 public class TimeBlockProgramTableLayout extends ProgramTableLayout {
-  //private ArrayList<Integer> mChannelIDsOrdered;
   private final int[] mBlockHeights;
   private final int[] mBlockCumulatedHeights;
   private final int mBlockSize;
   private final Calendar mCurrentShownDay;
   
   private final boolean mGrowToBlock;
-  
-  public TimeBlockProgramTableLayout(Context context, final ArrayList<Integer> channelIDsOrdered, int blockSize, final Calendar day, boolean growToBlock) {
+
+  /** View constructors for XML inflation (used by tools) */
+  @SuppressWarnings("PointlessArithmeticExpression")
+  public TimeBlockProgramTableLayout(Context context, AttributeSet attributeSet, int defStyleAttr) {
+    super(context, attributeSet, defStyleAttr);
+    mGrowToBlock = true;
+    mBlockHeights = new int[(ProgramTableLayoutConstants.HOURS/200) + (ProgramTableLayoutConstants.HOURS % 200 > 0 ? 1 : 0)];
+    mBlockCumulatedHeights = new int[mBlockHeights.length];
+    mBlockSize = 200;
+    mCurrentShownDay = Calendar.getInstance();
+  }
+
+  public TimeBlockProgramTableLayout(Context context, final List<Integer> channelIDsOrdered, int blockSize, final Calendar day, boolean growToBlock) {
     super(context, channelIDsOrdered);
-    
-    //mChannelIDsOrdered = channelIDsOrdered;
     mGrowToBlock = growToBlock;
-        
+
     mBlockHeights = new int[(ProgramTableLayoutConstants.HOURS/blockSize) + (ProgramTableLayoutConstants.HOURS % blockSize > 0 ? 1 : 0)];
     mBlockCumulatedHeights = new int[mBlockHeights.length];
     mBlockSize = blockSize;
