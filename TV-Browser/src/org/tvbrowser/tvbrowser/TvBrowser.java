@@ -5018,7 +5018,7 @@ public class TvBrowser extends AppCompatActivity {
             }
             break;
           case 1:
-            fragment = new FragmentProgramsList(mProgramListChannelId, mProgramListScrollTime, mProgramListScrollEndTime);
+            fragment = FragmentProgramsList.getInstance(mProgramListScrollTime, mProgramListScrollEndTime, mProgramListChannelId);
             mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
             mProgramListScrollTime = -1;
             mProgramListScrollEndTime = -1;

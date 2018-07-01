@@ -90,6 +90,7 @@ public final class SettingConstants {
   public static final String NO_BACK_STACKUP_EXTRA = "NO_BACK_STACKUP_EXTRA";
   public static final String EXTRA_START_TIME = "START_TIME_EXTRA";
   public static final String EXTRA_END_TIME = "EXTRA_END_TIME";
+  public static final String EXTRA_CHANNEL_ID = "EXTRA_CHANNEL_ID";
   public static final String SCROLL_POSITION_EXTRA = "SCROLL_POSITION_EXTRA";
   public static final String TIME_DATA_UPDATE_EXTRA = "TIME_DATA_UPDATE_EXTRA";
   public static final String EXTRA_DATA_UPDATE_TYPE_INTERNET_CONNECTION = "internetConnectionType";
