@@ -123,7 +123,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   private long mDayStart;
   
   private ListView mListView;
-  private LinearLayout mTimeBar;
+  private ViewGroup mTimeBar;
   private Spinner mDateSelection;
   
   private ArrayAdapter<DateSelection> mDateAdapter;

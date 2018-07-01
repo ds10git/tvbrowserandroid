@@ -16,9 +16,9 @@
  */
 package org.tvbrowser.tvbrowser;
 
+import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.IllegalFormatConversionException;
 import java.util.TimeZone;
@@ -60,7 +60,6 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Spannable;
 import android.text.TextUtils;
-import android.text.format.DateFormat;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
@@ -809,17 +808,10 @@ public class FragmentProgramTable extends Fragment {
       test2.set(Calendar.SECOND, 0);
       test2.set(Calendar.MILLISECOND, 0);
       
-      handler.post(() -> mPrevious.setEnabled(test2.compareTo(test) > 0));
+      handler.post(() -> mPrevious.setVisibility(test2.compareTo(test) > 0 ? View.VISIBLE : View.INVISIBLE));
     }
-    Date date = mCurrentDate.getTime();
-    
-    String longDate = DateFormat.getLongDateFormat(getActivity()).format(date);
-    
-    Calendar cal = Calendar.getInstance();
-    cal.setTime(date);
-    longDate = longDate.replaceAll("\\s+"+cal.get(Calendar.YEAR), "");
-    
-    currentDay.setText(UiUtils.LONG_DAY_FORMAT.format(date) + "\n" + longDate);
+
+    currentDay.setText(DateFormat.getDateInstance(DateFormat.FULL).format(mCurrentDate.getTime()).replaceFirst(",\\s", ",\n"));
   }
   
   private void now() {
@@ -829,7 +821,7 @@ public class FragmentProgramTable extends Fragment {
     
     setDayString(day);
     
-    RelativeLayout layout = getView().findViewWithTag("LAYOUT");
+    ViewGroup layout = getView().findViewWithTag("LAYOUT");
     
     mOldScrollX = getView().findViewById(R.id.horizontal_program_table_scroll).getScrollX();
     
@@ -843,7 +835,7 @@ public class FragmentProgramTable extends Fragment {
     
     setDayString(day);
     
-    RelativeLayout layout = getView().findViewWithTag("LAYOUT");
+    ViewGroup layout = getView().findViewWithTag("LAYOUT");
     
     View parent = getView();
     
@@ -859,7 +851,7 @@ public class FragmentProgramTable extends Fragment {
   }
   
   private void updateView(LayoutInflater inflater) {
-    RelativeLayout layout = getView().findViewWithTag("LAYOUT");
+    ViewGroup layout = getView().findViewWithTag("LAYOUT");
     
     if(layout != null && inflater != null) {
       updateView(inflater, layout);
@@ -868,7 +860,7 @@ public class FragmentProgramTable extends Fragment {
   
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    RelativeLayout programTableLayout = (RelativeLayout)inflater.inflate(R.layout.program_table_layout, container, false);
+    View programTableLayout = inflater.inflate(R.layout.program_table_layout, container, false);
     
     if(mCurrentDate == null) {
       mCurrentDate = Calendar.getInstance();
@@ -893,7 +885,7 @@ public class FragmentProgramTable extends Fragment {
     
     programTableLayout.findViewById(R.id.switch_to_next_day).setOnClickListener(v -> changeDay(1));
 
-    RelativeLayout layout = programTableLayout.findViewById(R.id.program_table_base);
+    ViewGroup layout = programTableLayout.findViewById(R.id.program_table_base);
     layout.setTag("LAYOUT");
     
     int startTab = Integer.parseInt(PrefUtils.getStringValue(R.string.TAB_TO_SHOW_AT_START, R.string.tab_to_show_at_start_default));
@@ -1116,8 +1108,7 @@ public class FragmentProgramTable extends Fragment {
     
     final DatePicker select = new DatePicker(context);
     
-    if (Build.VERSION.SDK_INT >= VERSION_CODES.HONEYCOMB_MR1 && 
-        Build.VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
+    if (Build.VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
       select.getCalendarView().setFirstDayOfWeek(Calendar.MONDAY);
     }
     

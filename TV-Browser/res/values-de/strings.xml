@@ -686,7 +686,7 @@
 	
 	<string name="synchronize_done">Synchronisation der Sender abgeschlossen!</string>
 	<string name="synchronize_error">Sender konnten nicht synchronisiert werden.</string>
-	<string name="previous_day">Vorheriger</string>
+	<string name="previous_day">Voriger</string>
 	<string name="next_day">Nächster</string>
 	<string name="info_black_and_white">Schwarzweiß</string>
 	<string name="info_four_to_three">4/3</string>
