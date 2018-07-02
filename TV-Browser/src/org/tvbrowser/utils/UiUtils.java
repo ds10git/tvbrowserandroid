@@ -83,6 +83,7 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
@@ -129,6 +130,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnPreDrawListener;
+import android.view.WindowManager;
 import android.view.WindowManager.BadTokenException;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -761,7 +763,7 @@ public final class UiUtils {
                             actors.setSpan(new StyleSpan(Typeface.BOLD), 0, name.length()-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             actors.setSpan(new UnderlineSpan(), 0, name.length()-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             
-                            int screenSizeHalf = CompatUtils.getScreenSize(context).x/2;
+                            int screenSizeHalf = getScreenSize(context).x/2;
                             
                             if(separator != null) {
                               String[] lines = text.split(separator);
@@ -2759,5 +2761,16 @@ public final class UiUtils {
    */
   public static Collator getCollator() {
     return collatorThreadLocal.get();
+  }
+
+  @SuppressWarnings("WeakerAccess")
+  @NonNull
+  public static Point getScreenSize(@NonNull final Context context) {
+    final Point size = new Point();
+    final WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    if (wm != null) {
+      wm.getDefaultDisplay().getSize(size);
+    }
+    return size;
   }
 }

@@ -642,7 +642,7 @@ public final class IOUtils {
     
     PendingIntent pending = PendingIntent.getService(context, REQUEST_CODE_DATA_TABLE_UPDATE, dataUpdate, PendingIntent.FLAG_UPDATE_CURRENT);
     
-    CompatUtils.setExactAlarmAndAllowWhileIdle(context, alarmManager,AlarmManager.RTC_WAKEUP, now.getTimeInMillis(), pending);
+    CompatUtils.setExactAlarmAndAllowWhileIdle(alarmManager,AlarmManager.RTC_WAKEUP, now.getTimeInMillis(), pending);
   }
   
   public static synchronized void handleDataUpdatePreferences(Context context) {

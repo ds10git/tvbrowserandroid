@@ -394,7 +394,7 @@ public class TvDataUpdateService extends Service {
           
           final ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
           
-          NetworkInfo lan = CompatUtils.getLanNetworkIfPossible(connMgr);
+          NetworkInfo lan = connMgr.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
           NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
           NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
           
@@ -414,7 +414,7 @@ public class TvDataUpdateService extends Service {
               @Override
               public void onReceive(Context context, Intent intent) {
                 boolean isConnected = false;
-                NetworkInfo lan = CompatUtils.getLanNetworkIfPossible(connMgr);
+                NetworkInfo lan = connMgr.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
                 NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
                 NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
                 
