@@ -19,6 +19,7 @@ package org.tvbrowser.tvbrowser;
 import java.text.DateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.IllegalFormatConversionException;
 import java.util.TimeZone;
@@ -658,13 +659,9 @@ public class FragmentProgramTable extends Fragment {
             projectionList.add(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT);
           }
 
-          for(String infoCategory : TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY) {
-            projectionList.add(infoCategory);
-          }
+          Collections.addAll(projectionList, TvBrowserContentProvider.INFO_CATEGORIES_COLUMNS_ARRAY);
 
-          for(String markingsColumn : TvBrowserContentProvider.MARKING_COLUMNS) {
-            projectionList.add(markingsColumn);
-          }
+          Collections.addAll(projectionList, TvBrowserContentProvider.MARKING_COLUMNS);
 
           mTimeBlockSize = Integer.parseInt(PrefUtils.getStringValue(R.string.PROG_PANEL_TIME_BLOCK_SIZE, R.string.prog_panel_time_block_size));
 
@@ -674,33 +671,7 @@ public class FragmentProgramTable extends Fragment {
           ArrayList<Integer> channelIDsOrdered = new ArrayList<>();
 
           while(channels.moveToNext()) {
-            channelIDsOrdered.add(channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
-
-            String name = channels.getString(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-
-            String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
-
-            if(shortName != null) {
-              name = shortName;
-            }
-
-            int orderNumber = channels.getInt(orderNumberColumn);
-
-            Bitmap logo = UiUtils.createBitmapFromByteArray(channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
-
-            if(logo != null) {
-              int height = ProgramTableLayoutConstants.getChannelMaxFontHeight();
-
-              float percent = height / (float)logo.getHeight();
-
-              if(percent < 1) {
-                logo = Bitmap.createScaledBitmap(logo, (int)(logo.getWidth() * percent), height, true);
-              }
-            }
-
-            ChannelLabel channelLabel = new ChannelLabel(getActivity(), name, logo, orderNumber);
-
-            channelBar.addView(channelLabel);
+            addChannelLabelToChannelBar(channels, orderNumberColumn, channelBar, channelIDsOrdered);
           }
 
           if(channels.getCount() > 0) {
@@ -789,6 +760,36 @@ public class FragmentProgramTable extends Fragment {
     }
 
     mUpdatingLayout = false;
+  }
+
+  private void addChannelLabelToChannelBar(Cursor channels, int orderNumberColumn, LinearLayout channelBar, ArrayList<Integer> channelIDsOrdered) {
+    channelIDsOrdered.add(channels.getInt(channels.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
+
+    String name = channels.getString(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+
+    String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
+
+    if(shortName != null) {
+      name = shortName;
+    }
+
+    int orderNumber = channels.getInt(orderNumberColumn);
+
+    Bitmap logo = UiUtils.createBitmapFromByteArray(channels.getBlob(channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+
+    if(logo != null) {
+      int height = ProgramTableLayoutConstants.getChannelMaxFontHeight();
+
+      float percent = height / (float)logo.getHeight();
+
+      if(percent < 1) {
+        logo = Bitmap.createScaledBitmap(logo, (int)(logo.getWidth() * percent), height, true);
+      }
+    }
+
+    ChannelLabel channelLabel = new ChannelLabel(getActivity(), name, logo, orderNumber);
+
+    channelBar.addView(channelLabel);
   }
 
   private void setDayString(TextView currentDay) {

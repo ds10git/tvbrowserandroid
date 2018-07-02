@@ -2147,7 +2147,7 @@ public class TvBrowser extends AppCompatActivity {
     }
 
     boolean isCountry(String value) {
-      return value == null || mCountry.toLowerCase().contains(value.toLowerCase());
+      return value == null || mCountry.toLowerCase(Locale.getDefault()).contains(value.toLowerCase(Locale.getDefault()));
     }
 
     boolean isSelected() {

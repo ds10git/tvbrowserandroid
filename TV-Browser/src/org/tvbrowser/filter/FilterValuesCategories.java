@@ -7,6 +7,8 @@ import org.tvbrowser.utils.UiUtils;
 import android.content.Context;
 import android.view.ViewGroup;
 
+import java.util.Locale;
+
 /**
  * A class with values of a category filter.
  * <p>
@@ -16,11 +18,11 @@ public class FilterValuesCategories extends FilterValues implements CategoryFilt
   private int[] mColumnIndices;
   private String mOperation;
   
-  public FilterValuesCategories() {
+  FilterValuesCategories() {
     this("",new int[0],"AND");
   }
   
-  public FilterValuesCategories(String name, int[] columnIndices, String operation) {
+  private FilterValuesCategories(String name, int[] columnIndices, String operation) {
     super(name);
     mColumnIndices = columnIndices;
     mOperation = operation;
@@ -30,7 +32,7 @@ public class FilterValuesCategories extends FilterValues implements CategoryFilt
     super(name);
     String[] parts = values.split(";");
     
-    mOperation = parts[0].toUpperCase();
+    mOperation = parts[0].toUpperCase(Locale.getDefault());
     
     mColumnIndices = new int[parts.length-1];
     
@@ -79,7 +81,7 @@ public class FilterValuesCategories extends FilterValues implements CategoryFilt
   @Override
   public void edit(Context context, Runnable callback, ViewGroup parent) {
     mCallback = callback;
-    
+
     UiUtils.showCategorySelection(context, this, parent, null);
   }
 
