@@ -38,10 +38,8 @@ abstract class DonationRatingHelper {
 		TextView webInfo = view.findViewById(R.id.donation_show_ways);
 		Button openWeb = view.findViewById(R.id.donation_website_button);
 
-		if(!showDonationWebsite()) {
-			webInfo.setVisibility(View.GONE);
-			openWeb.setVisibility(View.GONE);
-		}
+  	webInfo.setVisibility(View.GONE);
+		openWeb.setVisibility(View.GONE);
 
 		alert.setNegativeButton(tvBrowser.getString(R.string.not_now).replace("{0}", ""), (dialog, which) -> {
     });
@@ -63,10 +61,6 @@ abstract class DonationRatingHelper {
     });
 
 		tvBrowser.showAlertDialog(d);
-	}
-
-	private static boolean showDonationWebsite() {
-		return "DE".equals(Locale.getDefault().getCountry());
 	}
 
 	protected void setRatingAndDonationInfoShown() {

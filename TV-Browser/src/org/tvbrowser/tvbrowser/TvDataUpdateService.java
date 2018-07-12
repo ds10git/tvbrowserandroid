@@ -2918,12 +2918,14 @@ public class TvDataUpdateService extends Service {
     
     final File path = IOUtils.getDownloadDirectory(TvDataUpdateService.this.getApplicationContext());
     
-    File[] oldDataFiles = path.listFiles(pathname -> pathname.getName().toLowerCase(Locale.GERMAN).endsWith(".gz"));
-    
-    for(File oldFile : oldDataFiles) {
-      deleteFile(oldFile);
+    final File[] oldDataFiles = path.listFiles(pathname -> pathname.getName().toLowerCase(Locale.GERMAN).endsWith(".gz"));
+
+    if(oldDataFiles != null) {
+      for (File oldFile : oldDataFiles) {
+        deleteFile(oldFile);
+      }
     }
-    
+
     int[] levels = null;
           
     Set<String> exclusions = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
