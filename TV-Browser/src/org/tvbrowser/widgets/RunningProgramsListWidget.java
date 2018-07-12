@@ -208,7 +208,7 @@ public class RunningProgramsListWidget extends AppWidgetProvider {
         views.setViewVisibility(R.id.running_widget_time, View.GONE);
       }
       
-      CompatUtils.setRemoteViewsAdapter(views, appWidgetId, R.id.running_widget_list_view, intent);
+      views.setRemoteAdapter(R.id.running_widget_list_view, intent);
       views.setEmptyView(R.id.running_widget_list_view, R.id.running_widget_empty_text);
             
       SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(context);

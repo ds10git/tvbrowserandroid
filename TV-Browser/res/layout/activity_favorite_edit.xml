@@ -117,7 +117,8 @@
 		        android:clickable="true"
 		        android:background="@android:drawable/list_selector_background"
 		        android:onClick="changeDuration"
-		        android:layout_marginBottom="5dp"/>
+		        android:layout_marginBottom="5dp"
+				android:focusable="true" />
 		    <TextView
 		        android:id="@id/favorite_time_restriction_label"
 		        android:layout_height="wrap_content"
@@ -140,7 +141,8 @@
 		        android:clickable="true"
 		        android:background="@android:drawable/list_selector_background"
 		        android:onClick="changeTime"
-		        android:layout_marginBottom="5dp"/>
+		        android:layout_marginBottom="5dp"
+				android:focusable="true" />
 		    <TextView
 		        android:id="@id/favorite_day_restriction_label"
 		        android:layout_height="wrap_content"
@@ -164,7 +166,8 @@
 		        android:clickable="true"
 		        android:onClick="changeDays"
 		        android:layout_marginBottom="5dp"
-		        android:background="@android:drawable/list_selector_background"/>
+		        android:background="@android:drawable/list_selector_background"
+				android:focusable="true" />
 		    <TextView
 		        android:id="@id/activity_edit_favorite_label_id_channels"
 		        android:layout_height="wrap_content"
@@ -188,7 +191,7 @@
 		        android:clickable="true"
 		        android:onClick="changeChannels"
 		        android:background="@android:drawable/list_selector_background"
-		        />
+				android:focusable="true" />
 		    <TextView
 		        android:id="@id/activity_edit_favorite_label_id_attributes"
 		        android:layout_height="wrap_content"
@@ -212,7 +215,7 @@
 		        android:clickable="true"
 		        android:onClick="changeAttributes"
 		        android:background="@android:drawable/list_selector_background"
-		        />
+				android:focusable="true" />
 		    <TextView
 		        android:id="@id/favorite_exclusion_label"
 		        android:layout_height="wrap_content"

@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<android.support.v7.widget.FitWindowsLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -7,30 +7,31 @@
     <HorizontalScrollView android:layout_height="wrap_content"
 		android:layout_width="wrap_content">
     
-    	<LinearLayout android:orientation="horizontal"
+    	<android.support.v7.widget.LinearLayoutCompat android:orientation="horizontal"
     	    android:layout_width="wrap_content"
     	    android:layout_height="@dimen/running_bar_height"
-    	    style="?android:attr/buttonBarStyle">
-    	   	<Spinner android:id="@id/date_selection"
+			android:background="?colorBackgroundFloating"
+    	    style="?buttonBarStyle">
+    	   	<android.support.v7.widget.AppCompatSpinner android:id="@id/date_selection"
 		            android:layout_width="wrap_content"
 		            android:layout_height="match_parent"/>
-    	   	<Button android:id="@id/channel_minus"
+    	   	<android.support.v7.widget.AppCompatButton android:id="@id/channel_minus"
     	   	    android:layout_width="wrap_content"
     	   	    android:layout_height="match_parent"
     	   	    android:text="@string/channel_minus"
-    	   	    style="?android:attr/buttonBarStyle"/>
-    	   	<Spinner android:id="@id/channel_selection"
+    	   	    style="?buttonBarButtonStyle"/>
+    	   	<android.support.v7.widget.AppCompatSpinner android:id="@id/channel_selection"
 		            android:layout_width="wrap_content"
 		            android:layout_height="match_parent"/>
-    	   	<Button android:id="@id/channel_plus"
+    	   	<android.support.v7.widget.AppCompatButton android:id="@id/channel_plus"
     	   	    android:layout_width="wrap_content"
     	   	    android:layout_height="match_parent"
     	   	    android:text="@string/channel_plus"
-    	   	    style="?android:attr/buttonBarStyle"/>
-    	   	<Spinner android:id="@id/program_selection"
+    	   	    style="?buttonBarButtonStyle"/>
+    	   	<android.support.v7.widget.AppCompatSpinner android:id="@id/program_selection"
 		            android:layout_width="wrap_content"
 		            android:layout_height="match_parent"/> 
-	        </LinearLayout>
+	        </android.support.v7.widget.LinearLayoutCompat>
         </HorizontalScrollView>
     <ListView
         android:id="@id/program_list_fragment_list_view"
@@ -42,4 +43,4 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
     />  -->
-</LinearLayout>
+</android.support.v7.widget.FitWindowsLinearLayout>

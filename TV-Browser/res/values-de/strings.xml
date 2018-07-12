@@ -1166,10 +1166,9 @@
     <string name="widget_important_config_limit_selection_button">Anzahl festlegen</string>
     
     <string name="widget_running_widget_title">TV-Browser: Jetzt läuft</string>
-    
     <string name="widget_running_title">Jetzt läuft</string>
-    
     <string name="widget_running_select_time_title">Angezeigte Zeit auswählen</string>
+    <string name="widget_running_button">Schaltfläche, die das Auswählen der anzuzeigenden Zeit über einen Dialog ermöglicht.</string>
     
     <string name="widget_preferences_background_rounded_corners">Abgerundete Ecken</string>
     <string name="widget_preferences_background_transpacency_header">Transparenz des Kopfes</string>
@@ -1292,5 +1291,5 @@
 	<string name="widget_settings_button">Einstellungen</string>
 	<string name="widget_open_app_button">App öffnen</string>
 	<string name="widget_toggle_reminder_state">Erinnerungen aktivieren/deaktivieren</string>
-</resources>
 
+</resources>

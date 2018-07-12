@@ -83,6 +83,7 @@ import android.graphics.Color;
 import android.graphics.ColorFilter;
 import android.graphics.Paint;
 import android.graphics.PixelFormat;
+import android.graphics.Point;
 import android.graphics.PorterDuff;
 import android.graphics.PorterDuffColorFilter;
 import android.graphics.Typeface;
@@ -129,6 +130,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.ViewTreeObserver.OnPreDrawListener;
+import android.view.WindowManager;
 import android.view.WindowManager.BadTokenException;
 import android.widget.ArrayAdapter;
 import android.widget.BaseAdapter;
@@ -761,7 +763,7 @@ public final class UiUtils {
                             actors.setSpan(new StyleSpan(Typeface.BOLD), 0, name.length()-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             actors.setSpan(new UnderlineSpan(), 0, name.length()-1, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
                             
-                            int screenSizeHalf = CompatUtils.getScreenSize(context).x/2;
+                            int screenSizeHalf = getScreenSize(context).x/2;
                             
                             if(separator != null) {
                               String[] lines = text.split(separator);
@@ -1039,7 +1041,7 @@ public final class UiUtils {
   public static void createContextMenu(final Context context, ContextMenu menu, final long id) {
     new MenuInflater(context).inflate(R.menu.program_context, menu);
     
-    String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(ProgramUtils.DATA_CHANNEL_PROJECTION);
+    String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColumns(ProgramUtils.DATA_CHANNEL_PROJECTION);
     
     if(IOUtils.isDatabaseAccessible(context)) {
       Cursor cursor = null;
@@ -1184,7 +1186,7 @@ public final class UiUtils {
       Cursor info = null;
       
       try {
-        info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE), null, null,null);
+        info = activity.getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), TvBrowserContentProvider.getColumnArrayWithMarkingColumns(TvBrowserContentProvider.DATA_KEY_TITLE,TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE), null, null,null);
   
         if(IOUtils.prepareAccessFirst(info)) {
           for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
@@ -2318,7 +2320,7 @@ public final class UiUtils {
   
   public static void showCategorySelection(Context context, final CategoryFilter categoryFilter, ViewGroup parent, final Runnable cancelCallBack) {
     String[] names = IOUtils.getInfoStringArrayNames(context.getResources());
-    int[] restrictionIndices = categoryFilter.getCategoriyIndicies();
+    int[] restrictionIndices = categoryFilter.getCategoryIndices();
         
     final LayoutInflater inflater = (LayoutInflater) context.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
     
@@ -2759,5 +2761,16 @@ public final class UiUtils {
    */
   public static Collator getCollator() {
     return collatorThreadLocal.get();
+  }
+
+  @SuppressWarnings("WeakerAccess")
+  @NonNull
+  public static Point getScreenSize(@NonNull final Context context) {
+    final Point size = new Point();
+    final WindowManager wm = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
+    if (wm != null) {
+      wm.getDefaultDisplay().getSize(size);
+    }
+    return size;
   }
 }

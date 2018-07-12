@@ -137,7 +137,7 @@ class MemorySizeConstrictedDatabaseOperation {
   
   private synchronized void insert() {
     if(mInsertUri != null && mInsertList != null && !mInsertList.isEmpty() && mContext != null) {
-      boolean success = mContext.getContentResolver().bulkInsert(mInsertUri, mInsertList.toArray(new ContentValues[mInsertList.size()])) >= mInsertList.size();
+      boolean success = mContext.getContentResolver().bulkInsert(mInsertUri, mInsertList.toArray(new ContentValues[0])) >= mInsertList.size();
       
       mSuccess.compareAndSet(true, success);
       
@@ -152,10 +152,7 @@ class MemorySizeConstrictedDatabaseOperation {
       Log.d("info9", " " + mUpdateList.size());
       try {
          success = mContext.getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, mUpdateList).length >= mUpdateList.size();
-      } catch (RemoteException e) {
-        // TODO Auto-generated catch block
-        e.printStackTrace();
-      } catch (OperationApplicationException e) {
+      } catch (RemoteException | OperationApplicationException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
@@ -170,7 +167,7 @@ class MemorySizeConstrictedDatabaseOperation {
     return mOperationsAvailable;
   }
   
-  public boolean wasSuccessfull() {
+  public boolean wasSuccessful() {
     return mSuccess.get() && mOperationsAdded;
   }
 }

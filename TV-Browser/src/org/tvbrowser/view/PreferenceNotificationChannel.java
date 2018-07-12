@@ -1,7 +1,9 @@
 package org.tvbrowser.view;
 
+import android.annotation.TargetApi;
 import android.content.Context;
 import android.content.Intent;
+import android.os.Build;
 import android.preference.Preference;
 import android.provider.Settings;
 import android.util.AttributeSet;
@@ -13,14 +15,17 @@ import org.tvbrowser.App;
 public class PreferenceNotificationChannel extends Preference implements Preference.OnPreferenceClickListener {
   private int mTypeId;
 
+  @SuppressWarnings("unused")
   public PreferenceNotificationChannel(Context context) {
     super(context);
   }
 
+  @SuppressWarnings("unused")
   public PreferenceNotificationChannel(Context context, AttributeSet attrs) {
     super(context, attrs);
   }
 
+  @SuppressWarnings("unused")
   public PreferenceNotificationChannel(Context context, AttributeSet attrs, int defStyleAttr) {
     super(context, attrs, defStyleAttr);
   }
@@ -35,6 +40,7 @@ public class PreferenceNotificationChannel extends Preference implements Prefere
     summaryView.setVisibility(View.GONE);
   }
 
+  @TargetApi(Build.VERSION_CODES.O)
   @Override
   public boolean onPreferenceClick(Preference preference) {
     Intent intent = new Intent(Settings.ACTION_CHANNEL_NOTIFICATION_SETTINGS)

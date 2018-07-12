@@ -145,7 +145,7 @@ public class ProgramUtils {
       }while(cursor.moveToNext());
     }
     
-    return programsList.isEmpty() ? null : programsList.toArray(new Program[programsList.size()]);
+    return programsList.isEmpty() ? null : programsList.toArray(new Program[0]);
   }
   
   private static Channel createChannelFromCursor(Context context, Cursor cursor) {

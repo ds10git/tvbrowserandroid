@@ -20,8 +20,15 @@ import java.util.ArrayList;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.util.AttributeSet;
 
 public class CompactProgramTableLayout extends ProgramTableLayout {
+
+  /** View constructors for XML inflation (used by tools) */
+  public CompactProgramTableLayout(Context context, AttributeSet attributeSet, int defStyleAttr) {
+    super(context, attributeSet, defStyleAttr);
+  }
+
   public CompactProgramTableLayout(Context context, final ArrayList<Integer> channelIDsOrdered) {
     super(context, channelIDsOrdered);
   }

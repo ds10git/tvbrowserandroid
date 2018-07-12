@@ -109,9 +109,9 @@ public class Mirror implements Comparable<Mirror> {
   public static Mirror getMirrorToUseForGroup(Mirror[] mirrors, String group, TvDataUpdateService update, boolean checkOnlyConnection) {
     ArrayList<Mirror> toChooseFrom = new ArrayList<>(Arrays.asList(mirrors));
     
-    Mirror choosen = null;
+    Mirror chosen = null;
     
-    while(choosen == null && !toChooseFrom.isEmpty()) {
+    while(chosen == null && !toChooseFrom.isEmpty()) {
       int weightSum = 0;
       
       for(Mirror mirror : toChooseFrom) {
@@ -128,17 +128,17 @@ public class Mirror implements Comparable<Mirror> {
           mirrorsWithAcceptedWeight.add(toChooseFrom.get(i));
         }
         else {
-          update.doLog("NOT accepted mirror for group (weigth to low) '" + group + "': " + toChooseFrom.get(i).getUrl());
+          update.doLog("NOT accepted mirror for group (weight to low) '" + group + "': " + toChooseFrom.get(i).getUrl());
         }
       }
       
-      while(choosen == null && !mirrorsWithAcceptedWeight.isEmpty()) {
+      while(chosen == null && !mirrorsWithAcceptedWeight.isEmpty()) {
         final Mirror test = mirrorsWithAcceptedWeight.remove((int)(Math.random() * mirrorsWithAcceptedWeight.size()));
         
         update.doLog("Accepted weight for group '" + group + "': " + test.getWeight() + " URL: " + test.getUrl());
         if((!checkOnlyConnection && useMirror(test,group,5000,update)) || IOUtils.isConnectedToServer(test.getUrl(), 5000)) {
           update.doLog("Accepted mirror for group '" + group + "': " + test.getUrl());
-          choosen = test;
+          chosen = test;
         }
         else {
           toChooseFrom.remove(test);
@@ -147,7 +147,7 @@ public class Mirror implements Comparable<Mirror> {
       }
     }
     
-    return choosen;
+    return chosen;
   }
   
   private static boolean useMirror(Mirror mirror, String group, int timeout, TvDataUpdateService update) {

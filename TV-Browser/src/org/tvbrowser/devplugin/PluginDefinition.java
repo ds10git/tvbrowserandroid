@@ -250,7 +250,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
               pluginList.add(current);
             }
             else if(parser.getName().equals(XML_ELEMENT_SERVICES)) {
-              current.mServices = serviceList.toArray(new String[serviceList.size()]);
+              current.mServices = serviceList.toArray(new String[0]);
               serviceList.clear();
             }
           }break;
@@ -259,13 +259,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
         event = parser.next();
       }
       
-    } catch (FileNotFoundException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } catch (XmlPullParserException e) {
+    } catch (XmlPullParserException | IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     } catch (TimeoutException e) {
@@ -273,7 +267,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
       Log.d("info6","",e);
     }
     
-    return pluginList.toArray(new PluginDefinition[pluginList.size()]);
+    return pluginList.toArray(new PluginDefinition[0]);
   }
 
   @Override

@@ -12,16 +12,11 @@
 -->
 
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
-        <item name="android:textViewStyle">@style/MyTextViewStyle</item>
     	<item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     	<item name="ic_back_icon" >@drawable/ic_action_back_light</item>
     	<item name="ic_forward_icon" >@drawable/ic_action_forward_light</item>
     </style>
--->
-    <style name="MyTextViewStyle" parent="android:Widget.TextView">
-    	<item name="android:textColor">@color/text_appcompat_light</item>
-	</style>
     
     <style name="AppDarkTheme" parent="Theme.AppCompat">
         <item name="popupTheme">@style/ThemeOverlay.AppCompat</item>
@@ -63,16 +58,11 @@
         <item name="android:layout_height">wrap_content</item>
         <item name="android:textSize">20sp</item>
     </style>
-    <style name="favorite_add_button_style">
-        
-    </style>
-	<style name="favorite_show_sync_button_style">
-    </style>
     
 	<style name="Divider">
-    <item name="android:layout_width">match_parent</item>
-    <item name="android:layout_height">1dp</item>
-    <item name="android:background">?android:attr/listDivider</item>
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">1dp</item>
+        <item name="android:background">?android:attr/listDivider</item>
 	</style>
 
 	<style name="DetailDialogEntry">

@@ -99,10 +99,10 @@ public class PreferenceColorActivated extends DialogPreference {
     mActivatedSelection.setChecked(mActivated);
     mColorView.setColor(mColor);
     
-    handleVisiblity();
+    handleVisibility();
   }
   
-  private void handleVisiblity() {
+  private void handleVisibility() {
     if(mActivated) {
       mColorView.setVisibility(View.VISIBLE);
       mActivatedSelection.setVisibility(View.GONE);
@@ -123,7 +123,7 @@ public class PreferenceColorActivated extends DialogPreference {
       mActivated = mDialogActivatedSelection.isChecked();
       mActivatedSelection.setChecked(mActivated);
       
-      handleVisiblity();
+      handleVisibility();
       
       if(mAlwaysActivated) {
         persistInt(mColor);

@@ -32,7 +32,6 @@ import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.GradientDrawable;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
@@ -88,9 +87,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   private static final int TIMEOUT_LAST_EXTRA_CLICK = 750;
     
   private Handler handler = new Handler();
-  
- // private boolean mKeepRunning;
-  //private Thread mUpdateThread;
+
   private int mWhereClauseTime;
   
   private BroadcastReceiver mDataUpdateReceiver;
@@ -123,7 +120,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   private long mDayStart;
   
   private ListView mListView;
-  private LinearLayout mTimeBar;
+  private ViewGroup mTimeBar;
   private Spinner mDateSelection;
   
   private ArrayAdapter<DateSelection> mDateAdapter;
@@ -159,10 +156,6 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
 
     mLoaderUpdater.setIsRunning();
     mLoaderUpdater.startUpdate();
-
-    //mListView.getScrollY()
-    /*mKeepRunning = true;
-    startUpdateThread();*/
   }
 
   @Override
@@ -252,12 +245,12 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
             final long programID = intent.getLongExtra(SettingConstants.EXTRA_MARKINGS_ID, -1);
             
             if(mMarkingsMap.indexOfKey(programID) >= 0 && IOUtils.isDatabaseAccessible(getActivity())) {
-              String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColums(TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
+              String[] projection = TvBrowserContentProvider.getColumnArrayWithMarkingColumns(TvBrowserContentProvider.DATA_KEY_STARTTIME,TvBrowserContentProvider.DATA_KEY_ENDTIME);
               
               
               Cursor c = null; try {
               c = getActivity().getContentResolver().query(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), projection, null, null, null);
-              if(c.moveToFirst()) {
+              if(c!=null && c.moveToFirst()) {
                 try {
                   final View view = getListView().findViewWithTag(programID);
                   
@@ -302,7 +295,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mChannelUpdateDone, channelsChanged);
     getActivity().registerReceiver(mDataUpdateReceiver, intent);
-    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.RERESH_FILTER);
+    LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mRefreshReceiver, SettingConstants.REFRESH_FILTER);
     LocalBroadcastManager.getInstance(getActivity()).registerReceiver(mMarkingChangeReceiver, markingsFilter);
   }
   
@@ -637,9 +630,9 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       if(!channelSet) {
         String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_RUNNING, R.string.channel_logo_name_running_default);
         
-        boolean showChannelName = logoNamePref.equals("0") || logoNamePref.equals("2");
-        boolean showChannelLogo = logoNamePref.equals("0") || logoNamePref.equals("1");
-        boolean showBigChannelLogo = logoNamePref.equals("3");
+        boolean showChannelName = "0".equals(logoNamePref) || "2".equals(logoNamePref);
+        boolean showChannelLogo = "0".equals(logoNamePref) || "1".equals(logoNamePref);
+        boolean showBigChannelLogo = "3".equals(logoNamePref);
         
         Drawable logo = null;
         
@@ -713,16 +706,14 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       boolean isPortrait = viewHolder.mCurrentOrientation == Configuration.ORIENTATION_PORTRAIT;
       
       Configuration config = getResources().getConfiguration();
-      
-      if(Build.VERSION.SDK_INT >= 13) {
-        if(type == CompactLayoutViewHolder.PREVIOUS) {
-          if(config.smallestScreenWidthDp >= 600 && !isPortrait) {
-            viewType = View.INVISIBLE;
-          }
-        }
-        else if(type == CompactLayoutViewHolder.NOW && (config.smallestScreenWidthDp >= 600 || !isPortrait)) {
+
+      if(type == CompactLayoutViewHolder.PREVIOUS) {
+        if(config.smallestScreenWidthDp >= 600 && !isPortrait) {
           viewType = View.INVISIBLE;
         }
+      }
+      else if(type == CompactLayoutViewHolder.NOW && (config.smallestScreenWidthDp >= 600 || !isPortrait)) {
+        viewType = View.INVISIBLE;
       }
       
       viewHolder.setVisibility(type, viewType);

@@ -91,11 +91,11 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
     private boolean mChannelClickToProgramsList;
     private float mTextScale;
     
-    private int[] mUserDefindedColorChannel;
-    private int[] mUserDefindedColorTime;
-    private int[] mUserDefindedColorTitel;
-    private int[] mUserDefindedColorCategoryDefault;
-    private int[] mUserDefindedColorEpisode;
+    private int[] mUserDefinedColorChannel;
+    private int[] mUserDefinedColorTime;
+    private int[] mUserDefinedColorTitle;
+    private int[] mUserDefinedColorCategoryDefault;
+    private int[] mUserDefinedColorEpisode;
     
     private void executeQuery() {
       IOUtils.close(mCursor);
@@ -157,11 +157,11 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
           where = " ( " +TvBrowserContentProvider.DATA_KEY_STARTTIME+ ">=" + time + " ) AND NOT " + TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE + " {0} ) GROUP BY ( " + TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID + " ";
         }
         
-        mUserDefindedColorChannel = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_CHANNEL, null));
-        mUserDefindedColorTime = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_TIME, R.string.pref_widget_color_time_default));
-        mUserDefindedColorTitel = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_TITLE, R.string.pref_widget_color_title_default));
-        mUserDefindedColorCategoryDefault = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_CATEGORY, null));
-        mUserDefindedColorEpisode = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_EPISODE, null));
+        mUserDefinedColorChannel = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_CHANNEL, null));
+        mUserDefinedColorTime = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_TIME, R.string.pref_widget_color_time_default));
+        mUserDefinedColorTitle = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_TITLE, R.string.pref_widget_color_title_default));
+        mUserDefinedColorCategoryDefault = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_CATEGORY, null));
+        mUserDefinedColorEpisode = IOUtils.getActivatedColorFor(PrefUtils.getStringValue(R.string.PREF_WIDGET_COLOR_EPISODE, null));
         
         String values = PrefUtils.getFilterSelection(mContext);
         
@@ -293,13 +293,13 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         final String id = mCursor.getString(mIdIndex);
         final long startTime = mCursor.getLong(mStartTimeIndex);
         final long endTime = mCursor.getLong(mEndTimeIndex);
-        final CharSequence title = WidgetUtils.getColoredString(mCursor.getString(mTitleIndex),mUserDefindedColorTitel);
+        final CharSequence title = WidgetUtils.getColoredString(mCursor.getString(mTitleIndex), mUserDefinedColorTitle);
         
         CharSequence name = mCursor.getString(mChannelNameIndex);
         final String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
         String number = null;
-        final CharSequence episodeTitle = (mShowEpisode && !mCursor.isNull(mEpisodeIndex)) ? WidgetUtils.getColoredString(mCursor.getString(mEpisodeIndex),mUserDefindedColorEpisode) : null;
-        Spannable categorySpan = (mShowCategories && !mCursor.isNull(mCategoryIndex)) ? IOUtils.getInfoString(mCursor.getInt(mCategoryIndex), getResources(), true, mUserDefindedColorCategoryDefault[0] == 1 ? mUserDefindedColorCategoryDefault[1] : null) : null;
+        final CharSequence episodeTitle = (mShowEpisode && !mCursor.isNull(mEpisodeIndex)) ? WidgetUtils.getColoredString(mCursor.getString(mEpisodeIndex), mUserDefinedColorEpisode) : null;
+        Spannable categorySpan = (mShowCategories && !mCursor.isNull(mCategoryIndex)) ? IOUtils.getInfoString(mCursor.getInt(mCategoryIndex), getResources(), true, mUserDefinedColorCategoryDefault[0] == 1 ? mUserDefinedColorCategoryDefault[1] : null) : null;
         Spannable marking = WidgetUtils.getMarkings(mContext, mCursor, mShowMarkings, mMarkingPluginsIndex, mMarkingFavoriteIndex, mMarkingReminderIndex, mMarkingFavoriteReminderIndex, mMarkingSyncIndex);
         
         if(shortName != null) {
@@ -331,7 +331,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
           }
         }
         
-        final CharSequence time = WidgetUtils.getColoredString(DateFormat.getTimeFormat(mContext).format(new Date(startTime)),mUserDefindedColorTime);
+        final CharSequence time = WidgetUtils.getColoredString(DateFormat.getTimeFormat(mContext).format(new Date(startTime)), mUserDefinedColorTime);
         
         CompatUtils.setRemoteViewsPadding(rv, R.id.running_programs_widget_row, 0, mVerticalPadding, 0, mVerticalPadding);
         
@@ -360,7 +360,7 @@ public class RunningProgramsRemoteViewsService extends RemoteViewsService {
         }
         
         if(mShowChannelName || logo == null) {
-          name = WidgetUtils.getColoredString(name, mUserDefindedColorChannel);
+          name = WidgetUtils.getColoredString(name, mUserDefinedColorChannel);
           rv.setTextViewText(R.id.running_programs_widget_row_channel_name, name);
           rv.setViewVisibility(R.id.running_programs_widget_row_channel_name, View.VISIBLE);
         }
