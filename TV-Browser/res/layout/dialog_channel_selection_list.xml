@@ -105,5 +105,5 @@
 	    android:layout_below="@id/channel_selection_selection_buttons"
 	    android:choiceMode="multipleChoice"
 	    android:clickable="true"
-	/>
+		android:focusable="true" />
 </RelativeLayout>

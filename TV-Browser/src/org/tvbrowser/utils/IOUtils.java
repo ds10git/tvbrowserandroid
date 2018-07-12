@@ -22,7 +22,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.Closeable;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -77,10 +76,12 @@ import android.util.Log;
  * <p>
  * @author René Mach
  */
-public class IOUtils {
+public final class IOUtils {
   private static final int REQUEST_CODE_DATA_TABLE_UPDATE = 1235;
-  private static final float MIN_BATTERIE_LEVEL = 0.1f;
-  
+  private static final float MIN_BATTERY_LEVEL = 0.1f;
+
+  IOUtils() {}
+
   /**
    * Creates an integer value from the given byte array.
    * <p>
@@ -106,7 +107,7 @@ public class IOUtils {
   private static final int INFO_BLACK_SIXTEEN_TO_NINE = 1 << 3;
   private static final int INFO_BLACK_MONO = 1 << 4;
   private static final int INFO_BLACK_STEREO = 1 << 5;
-  private static final int INFO_BLACK_DOLBY_SOURROUND = 1 << 6;
+  private static final int INFO_BLACK_DOLBY_SURROUND = 1 << 6;
   private static final int INFO_BLACK_DOLBY_DIGITAL = 1 << 7;
   private static final int INFO_BLACK_SECOND_AUDIO_PROGRAM = 1 << 8;
   private static final int INFO_BLACK_SECOND_CLOSED_CAPTION = 1 << 9;
@@ -118,7 +119,7 @@ public class IOUtils {
   private static final int INFO_BLACK_SECOND_AUDIO_DESCRIPTION = 1 << 15;
   private static final int INFO_BLACK_SECOND_NEWS = 1 << 16;
   private static final int INFO_BLACK_SECOND_SHOW = 1 << 17;
-  private static final int INFO_BLACK_SECOND_MAGAZIN = 1 << 18;
+  private static final int INFO_BLACK_SECOND_MAGAZINE = 1 << 18;
   private static final int INFO_BLACK_SECOND_HD = 1 << 19;
   private static final int INFO_BLACK_SECOND_DOCU = 1 << 20;
   private static final int INFO_BLACK_SECOND_ART = 1 << 21;
@@ -133,7 +134,7 @@ public class IOUtils {
     INFO_BLACK_SIXTEEN_TO_NINE,
     INFO_BLACK_MONO,
     INFO_BLACK_STEREO,
-    INFO_BLACK_DOLBY_SOURROUND,
+    INFO_BLACK_DOLBY_SURROUND,
     INFO_BLACK_DOLBY_DIGITAL,
     INFO_BLACK_SECOND_AUDIO_PROGRAM,
     INFO_BLACK_SECOND_CLOSED_CAPTION,
@@ -145,7 +146,7 @@ public class IOUtils {
     INFO_BLACK_SECOND_AUDIO_DESCRIPTION,
     INFO_BLACK_SECOND_NEWS,
     INFO_BLACK_SECOND_SHOW,
-    INFO_BLACK_SECOND_MAGAZIN,
+    INFO_BLACK_SECOND_MAGAZINE,
     INFO_BLACK_SECOND_HD,
     INFO_BLACK_SECOND_DOCU,
     INFO_BLACK_SECOND_ART,
@@ -641,7 +642,7 @@ public class IOUtils {
     
     PendingIntent pending = PendingIntent.getService(context, REQUEST_CODE_DATA_TABLE_UPDATE, dataUpdate, PendingIntent.FLAG_UPDATE_CURRENT);
     
-    CompatUtils.setExactAlarmAndAllowWhileIdle(context, alarmManager,AlarmManager.RTC_WAKEUP, now.getTimeInMillis(), pending);
+    CompatUtils.setExactAlarmAndAllowWhileIdle(alarmManager,AlarmManager.RTC_WAKEUP, now.getTimeInMillis(), pending);
   }
   
   public static synchronized void handleDataUpdatePreferences(Context context) {
@@ -730,7 +731,7 @@ public class IOUtils {
   
   public static String[] getStringArrayFromList(ArrayList<String> list) {
     if(list != null) {
-      return list.toArray(new String[list.size()]);
+      return list.toArray(new String[0]);
     }
     
     return null;
@@ -1020,7 +1021,7 @@ public class IOUtils {
    * @return An array with the contained episode numbers.
    * @since 0.5.7.3
    */
-  private static Integer[] decodeSingleFieldValueToMultipleEpisodeNumers(int fieldValue) {
+  private static Integer[] decodeSingleFieldValueToMultipleEpisodeNumbers(int fieldValue) {
     int encodingMask = (fieldValue >> 30) & 0x3;
     
     if(encodingMask == 0) {
@@ -1070,7 +1071,7 @@ public class IOUtils {
         valueList.add(last);
       }
       
-      return valueList.toArray(new Integer[valueList.size()]);
+      return valueList.toArray(new Integer[0]);
     }
   }
   
@@ -1082,7 +1083,7 @@ public class IOUtils {
    * @since 0.5.7.3
    */
   public static String decodeSingleFieldValueToMultipleEpisodeString(int fieldValue) {
-    Integer[] episodes = decodeSingleFieldValueToMultipleEpisodeNumers(fieldValue);
+    Integer[] episodes = decodeSingleFieldValueToMultipleEpisodeNumbers(fieldValue);
     
     StringBuilder epis = new StringBuilder();
     
@@ -1289,7 +1290,7 @@ public class IOUtils {
         int level = batteryStatus.getIntExtra(BatteryManager.EXTRA_LEVEL, -1);
         int scale = batteryStatus.getIntExtra(BatteryManager.EXTRA_SCALE, -1);
         
-        result = MIN_BATTERIE_LEVEL <= (level / (float)scale);
+        result = MIN_BATTERY_LEVEL <= (level / (float)scale);
       }
     }
     
@@ -1303,8 +1304,6 @@ public class IOUtils {
       try {
         out = new GZIPOutputStream(new FileOutputStream(propertiesFile));
         prop.store(out, comment);
-      } catch (FileNotFoundException e) {
-        e.printStackTrace();
       } catch (IOException e) {
         e.printStackTrace();
       } finally {

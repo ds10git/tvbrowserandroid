@@ -19,6 +19,7 @@ package org.tvbrowser.view;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.util.AttributeSet;
 import android.view.View;
 
 public class ChannelLabel extends View {
@@ -28,7 +29,15 @@ public class ChannelLabel extends View {
   private final int mOrderNumber;
   
   private final Bitmap mLogo;
-  
+
+  /** View constructors for XML inflation (used by tools) */
+  public ChannelLabel(Context context, AttributeSet attributeSet, int defStyleAttr) {
+    super(context, attributeSet, defStyleAttr);
+    mChannelName = null;
+    mLogo = null;
+    mOrderNumber = 0;
+  }
+
   public ChannelLabel(Context context, String channelName, Bitmap logo, int orderNumber) {
     super(context);
     

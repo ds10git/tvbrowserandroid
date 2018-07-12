@@ -205,7 +205,7 @@ public class ImportantProgramsListWidget extends AppWidgetProvider {
       views.setInt(R.id.important_widget_config, "setBackgroundResource", buttonDrawable);
       views.setInt(R.id.important_widget_empty_text, "setBackgroundResource", listDrawable);
       
-      CompatUtils.setRemoteViewsAdapter(views, appWidgetId, R.id.important_widget_list_view, intent);
+      views.setRemoteAdapter(R.id.important_widget_list_view, intent);
       views.setEmptyView(R.id.important_widget_list_view, R.id.important_widget_empty_text);
       
       if(type == 0) {

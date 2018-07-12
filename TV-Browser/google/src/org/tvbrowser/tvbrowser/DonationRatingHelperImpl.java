@@ -19,6 +19,8 @@ import com.android.vending.billing.util.Inventory;
 import com.android.vending.billing.util.Purchase;
 import com.android.vending.billing.util.SkuDetails;
 
+import org.tvbrowser.settings.SettingConstants;
+
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
@@ -383,7 +385,7 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
         }
       }
       else {
-        tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse("https://www.tvbrowser-app.de/index.php?id=download")));
+        tvBrowser.startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(SettingConstants.URL_SYNC_BASE + "/index.php?id=download")));
       }
 
       System.exit(0);

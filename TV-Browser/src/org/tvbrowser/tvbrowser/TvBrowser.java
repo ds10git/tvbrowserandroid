@@ -2147,7 +2147,7 @@ public class TvBrowser extends AppCompatActivity {
     }
 
     boolean isCountry(String value) {
-      return value == null || mCountry.toLowerCase().contains(value.toLowerCase());
+      return value == null || mCountry.toLowerCase(Locale.getDefault()).contains(value.toLowerCase(Locale.getDefault()));
     }
 
     boolean isSelected() {
@@ -3917,7 +3917,13 @@ public class TvBrowser extends AppCompatActivity {
 
                 TvBrowserContentProvider provider = (TvBrowserContentProvider)client.getLocalContentProvider();
                 provider.updateDatabasePath();
-                client.release();
+                if (client!=null) {
+                  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+                    client.release();
+                  } else {
+                    client.close();
+                  }
+                }
 
                 if(mSource != null) {
 
@@ -5018,7 +5024,7 @@ public class TvBrowser extends AppCompatActivity {
             }
             break;
           case 1:
-            fragment = new FragmentProgramsList(mProgramListChannelId, mProgramListScrollTime, mProgramListScrollEndTime);
+            fragment = FragmentProgramsList.getInstance(mProgramListScrollTime, mProgramListScrollEndTime, mProgramListChannelId);
             mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
             mProgramListScrollTime = -1;
             mProgramListScrollEndTime = -1;

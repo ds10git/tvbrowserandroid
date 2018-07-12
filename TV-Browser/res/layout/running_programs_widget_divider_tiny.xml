@@ -11,7 +11,7 @@
          <ImageButton android:id="@id/running_widget_time"
 	         android:layout_width="wrap_content"
 	         android:layout_height="wrap_content"
-	         android:contentDescription="button"
+	         android:contentDescription="@string/widget_running_button"
 	         android:layout_centerVertical="true"
 	         android:src="@drawable/ic_action_schedule"
 	         android:layout_alignParentEnd="true"

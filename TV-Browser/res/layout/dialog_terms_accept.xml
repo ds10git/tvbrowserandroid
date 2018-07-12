@@ -18,7 +18,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent">
             <TextView
-                android:textSize="16dp"
+                android:textSize="16sp"
                 android:id="@+id/dialog_terms_accept_terms"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"/>

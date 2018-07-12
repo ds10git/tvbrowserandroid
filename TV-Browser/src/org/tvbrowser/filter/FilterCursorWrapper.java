@@ -117,6 +117,6 @@ class FilterCursorWrapper extends CursorWrapper {
     }
     
     mPos = -1;
-    filterMap = newFilterMap.toArray(new Integer[newFilterMap.size()]);
+    filterMap = newFilterMap.toArray(new Integer[0]);
   }
 }

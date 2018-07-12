@@ -18,6 +18,7 @@ package org.tvbrowser.settings;
 
 import java.util.HashMap;
 
+import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.IOUtils;
@@ -27,6 +28,7 @@ import org.tvbrowser.utils.UiUtils;
 import android.content.Context;
 import android.content.IntentFilter;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Color;
@@ -39,7 +41,10 @@ import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.SparseArrayCompat;
 
-public class SettingConstants {
+public final class SettingConstants {
+
+  SettingConstants() {}
+
   public static final int ACCEPTED_DAY_COUNT = 8;
 
   public static final String LOG_FILE_NAME_DATA_UPDATE = "data-update-log.txt";
@@ -77,7 +82,6 @@ public class SettingConstants {
   public static final String CHANNEL_UPDATE_DONE = "org.tvbrowser.CHANNEL_UPDATE_DONE";
   public static final String REFRESH_VIEWS = "org.tvbrowser.REFRESH_VIEWS";
   public static final String UPDATE_TIME_BUTTONS = "org.tvbrowser.UPDATE_TIME_BUTTONS";
-  public static final String REMINDER_INTENT = "org.tvbrowser.REMINDER_INTENT";
   public static final String SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT = "org.tvbrowser.SHOW_ALL_PROGRAMS_FOR_CHANNEL_INTENT";
   public static final String REMINDER_PROGRAM_ID_EXTRA = "REMINDER_PROGRAM_ID_EXTRA";
   public static final String CHANNEL_ID_EXTRA = "CHANNEL_ID_EXTRA";
@@ -86,6 +90,7 @@ public class SettingConstants {
   public static final String NO_BACK_STACKUP_EXTRA = "NO_BACK_STACKUP_EXTRA";
   public static final String EXTRA_START_TIME = "START_TIME_EXTRA";
   public static final String EXTRA_END_TIME = "EXTRA_END_TIME";
+  public static final String EXTRA_CHANNEL_ID = "EXTRA_CHANNEL_ID";
   public static final String SCROLL_POSITION_EXTRA = "SCROLL_POSITION_EXTRA";
   public static final String TIME_DATA_UPDATE_EXTRA = "TIME_DATA_UPDATE_EXTRA";
   public static final String EXTRA_DATA_UPDATE_TYPE_INTERNET_CONNECTION = "internetConnectionType";
@@ -93,8 +98,6 @@ public class SettingConstants {
   
   public static final String EXTRA_DATA_DATE_LAST_KNOWN = "dataDateLastKnown";
   public static final String EXTRA_REMINDED_PROGRAM = "remindedProgram";
-  
-  public static final String EXTRA_FIRST_START = "EXTRA_FIRST_START";
   
   public static final String SYNCHRONIZE_SHOW_INFO_EXTRA = "SYNCHRONIZE_SHOW_INFO_EXTRA";
   public static final String SYNCHRONIZE_UP_URL_EXTRA = "SYNCHRONIZE_UP_URL_EXTRA";
@@ -107,7 +110,6 @@ public class SettingConstants {
   public static final String HANDLE_APP_WIDGET_CLICK = "org.tvbrowser.HANDLE_APP_WIDGET_CLICK";
   public static final String UPDATE_RUNNING_APP_WIDGET = "org.tvbrowser.UPDATE_RUNNING_APP_WIDGET";
   public static final String UPDATE_IMPORTANT_APP_WIDGET = "org.tvbrowser.UPDATE_IMPORTANT_APP_WIDGET";
-  public static final String UPDATE_APP_WIDGET_ID_EXTRA = "UPDATE_APP_WIDGET_ID_EXTRA";
   
   public static final int[] CATEGORY_PREF_KEY_ARR = {
     R.string.PREF_INFO_SHOW_BLACK_AND_WHITE,
@@ -165,13 +167,13 @@ public class SettingConstants {
     R.string.PREF_COLOR_CATEGORY_SIGN_LANGUAGE
   };
   
+  @SuppressWarnings("SpellCheckingInspection")
   public static final String DONT_WANT_TO_SEE_ADDED_EXTRA = "DONT_WANT_TO_SEE_ADDED_EXTRA";
   
   public static boolean IS_DARK_THEME = false;
     
   public static final String UPDATE_RUNNING_KEY = "updateRunning";
   public static final String SELECTION_CHANNELS_KEY = "selectionChannels";
-  public static final String REMINDER_STATE_KEY = "reminderState";
   
   public static final SparseArrayCompat<Drawable> SMALL_LOGO_MAP = new SparseArrayCompat<>();
   public static final SparseArrayCompat<Drawable> MEDIUM_LOGO_MAP = new SparseArrayCompat<>();
@@ -179,10 +181,10 @@ public class SettingConstants {
   public static String getNumberForDataServiceKey(String key) {
     String result = null;
     
-    if(key.equals(EPG_FREE_KEY)) {
+    if(EPG_FREE_KEY.equals(key)) {
       result = "1";
     }
-    else if(key.equals(EPG_DONATE_KEY)) {
+    else if(EPG_DONATE_KEY.equals(key)) {
       result = "2";
     }
     
@@ -191,21 +193,21 @@ public class SettingConstants {
   
   public static String getDataServiceKeyForNumber(String number) {
     String result = null;
-    
-    if(number.equals("1")) {
+
+    if("1".equals(number)) {
       result = EPG_FREE_KEY;
     }
-    else if(number.equals("2")) {
+    else if("2".equals(number)) {
       result = EPG_DONATE_KEY;
     }
-    
+
     return result;
   }
   
   public static void setReminderPaused(Context context, boolean reminderPaused) {
     Editor editPref = PreferenceManager.getDefaultSharedPreferences(context).edit();
     editPref.putBoolean(REMINDER_PAUSE_KEY, reminderPaused);
-    editPref.commit();
+    editPref.apply();
   }
   
   public static boolean isReminderPaused(Context context) {
@@ -223,7 +225,7 @@ public class SettingConstants {
         final Cursor channels = context.getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_LOGO}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION, null, null);
         
         try {
-          if(IOUtils.prepareAccess(channels)) {
+          if(channels!=null && IOUtils.prepareAccess(channels)) {
             int keyIndex = channels.getColumnIndex(TvBrowserContentProvider.KEY_ID);
             int logoIndex = channels.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO);
             
@@ -253,37 +255,34 @@ public class SettingConstants {
     int padding = withBorder ? 4 : 3;
     
     float scale = UiUtils.convertDpToPixel(baseHeight, context.getResources()) / (float)logoBitmap.getHeight();
-    int maxwidth = UiUtils.convertDpToPixel(80, context.getResources());
-    int maxheight = UiUtils.convertDpToPixel(baseHeight, context.getResources())+padding;
+    int maxWidth = UiUtils.convertDpToPixel(80, context.getResources());
+    int maxHeight = UiUtils.convertDpToPixel(baseHeight, context.getResources())+padding;
     
     int width = (int)(logoBitmap.getWidth() * scale);
     int height = (int)(logoBitmap.getHeight() * scale);
     
-    if(width > maxwidth-padding) {
-      width = maxwidth-padding;
+    if(width > maxWidth-padding) {
+      width = maxWidth-padding;
       height = (int)(logoBitmap.getHeight() * width/(float)logoBitmap.getWidth());
     }
     
     BitmapDrawable logo1 = new BitmapDrawable(context.getResources(), logoBitmap);
-    
-    LayerDrawable logo = new LayerDrawable(new Drawable[] {logo1});
-    GradientDrawable background = null;
-    
+
     int backgroundColor = PrefUtils.getIntValue(R.string.PREF_LOGO_BACKGROUND_COLOR, ContextCompat.getColor(context, R.color.pref_logo_background_color_default));
-    
-    background = new GradientDrawable(Orientation.BOTTOM_TOP, new int[] {backgroundColor,backgroundColor});
-    
-    logo = new LayerDrawable(new Drawable[] {background,logo1});
-    logo.setBounds(0, 0, maxwidth, maxheight);
+
+    GradientDrawable background = new GradientDrawable(Orientation.BOTTOM_TOP, new int[] {backgroundColor,backgroundColor});
+
+    LayerDrawable logo = new LayerDrawable(new Drawable[] {background,logo1});
+    logo.setBounds(0, 0, maxWidth, maxHeight);
     
     if(PrefUtils.getBooleanValue(R.string.PREF_LOGO_BACKGROUND_FILL, R.bool.pref_logo_background_fill_default)) {
-      background.setBounds(0, 0, maxwidth, maxheight);
+      background.setBounds(0, 0, maxWidth, maxHeight);
     }
     else {
-      background.setBounds(maxwidth/2-width/2-padding/2, maxheight/2-height/2-padding/2, maxwidth/2+width/2+padding/2, maxheight/2+height/2+padding/2);
+      background.setBounds(maxWidth/2-width/2-padding/2, maxHeight/2-height/2-padding/2, maxWidth/2+width/2+padding/2, maxHeight/2+height/2+padding/2);
     }
     
-    logo1.setBounds(maxwidth/2-width/2, maxheight/2-height/2, maxwidth/2+width/2, maxheight/2+height/2);
+    logo1.setBounds(maxWidth/2-width/2, maxHeight/2-height/2, maxWidth/2+width/2, maxHeight/2+height/2);
     
     if(withBorder) {
       background.setStroke(1, PrefUtils.getIntValue(R.string.PREF_LOGO_BORDER_COLOR, ContextCompat.getColor(context, R.color.pref_logo_border_color_default)));
@@ -311,21 +310,17 @@ public class SettingConstants {
   
   public static final String EXTRA_MARKINGS_ID = "EXTRA_MARKINGS_ID";
   public static final String EXTRA_MARKINGS_ONLY_UPDATE = "EXTRA_MARKINGS_ONLY_UPDATE";
-  
-  //public static final String FAVORITE_LIST = "FAVORITE_LIST";
-  
+
   public static final String USER_NAME = "CAR";
   public static final String USER_PASSWORD = "BICYCLE";
   
   public static final String TERMS_ACCEPTED = "TERMS_ACCEPTED";
   public static final String EULA_ACCEPTED = "EULA_ACCEPTED";
   
-  public static final String DEFAULT_RUNNING_PROGRAMS_LIST_LAYOUT = "1";
-  
   public static final String EXTRA_CHANNEL_DOWNLOAD_SUCCESSFULLY = "EXTRA_CHANNEL_DOWNLOAD_SUCCESSFULLY";
   public static final String EXTRA_CHANNEL_DOWNLOAD_AUTO_UPDATE = "EXTRA_CHANNEL_DOWNLOAD_AUTO_UPDATE";
   
-  public static final IntentFilter RERESH_FILTER = new IntentFilter(REFRESH_VIEWS);
+  public static final IntentFilter REFRESH_FILTER = new IntentFilter(REFRESH_VIEWS);
   
   public static final HashMap<String, Integer> MARK_COLOR_KEY_MAP = new HashMap<>();
   
@@ -335,17 +330,22 @@ public class SettingConstants {
   public static final int TV_CATEGORY = 1;
   public static final int RADIO_CATEGORY = 1 << 1;
   public static final int CINEMA_CATEGORY = 1 << 2;
+  @SuppressWarnings("unused")
   public static final int DIGITAL_CATEGORY = 1 << 4;
+  @SuppressWarnings("unused")
   public static final int MUSIC_CATEGORY = 1 << 5;
+  @SuppressWarnings("unused")
   public static final int SPORT_CATEGORY = 1 << 6;
+  @SuppressWarnings("unused")
   public static final int NEWS_CATEGORY = 1 << 7;
+  @SuppressWarnings("unused")
   public static final int NICHE_CATEGORY = 1 << 8;
+  @SuppressWarnings("unused")
   public static final int PAY_TV_CATEGORY = 1 << 9;
   
   private static final int GRAY_LIGHT_VALUE = 155;
   private static final int GRAY_DARK_VALUE = 78;
   public static final int LOGO_BACKGROUND_COLOR = Color.WHITE;
-  public static final int LOGO_TRANSPARENT_BACKGROUND_COLOR = Color.argb(0, 0, 0, 0);
   
   public static final int EXPIRED_LIGHT_COLOR = Color.rgb(GRAY_LIGHT_VALUE, GRAY_LIGHT_VALUE, GRAY_LIGHT_VALUE);
   public static final int EXPIRED_DARK_COLOR = Color.rgb(GRAY_DARK_VALUE, GRAY_DARK_VALUE, GRAY_DARK_VALUE);
@@ -357,16 +357,17 @@ public class SettingConstants {
     MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, UiUtils.MARKED_REMINDER_COLOR_KEY);
     MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, UiUtils.MARKED_SYNC_COLOR_KEY);
     MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, UiUtils.I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR_KEY);
-    
-    SHORT_CHANNEL_NAMES.put("NDR Niedersachsen", "NDR NDS");
-    SHORT_CHANNEL_NAMES.put("NDR Mecklenburg-Vorpommern", "NDR MV");
-    SHORT_CHANNEL_NAMES.put("NDR Hamburg", "NDR HH");
-    SHORT_CHANNEL_NAMES.put("NDR Schleswig-Holstein", "NDR SH");
-    SHORT_CHANNEL_NAMES.put("MDR Sachsen-Anhalt", "MDR ST");
-    SHORT_CHANNEL_NAMES.put("MDR Sachsen", "MDR SN");
-    SHORT_CHANNEL_NAMES.put("MDR Thüringen", "MDR TH");
-    SHORT_CHANNEL_NAMES.put("RBB Berlin", "RBB BE");
-    SHORT_CHANNEL_NAMES.put("RBB Brandenburg", "RBB BB");
-    SHORT_CHANNEL_NAMES.put("Das Erste (ARD)", "Das Erste");
+
+    final Resources res = App.get().getResources();
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_nds), res.getString(R.string.short_channel_name_ndr_nds));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_mv), res.getString(R.string.short_channel_name_ndr_mv));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_hh), res.getString(R.string.short_channel_name_ndr_hh));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_sh), res.getString(R.string.short_channel_name_ndr_sh));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_mdr_st), res.getString(R.string.short_channel_name_mdr_st));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_mdr_sn), res.getString(R.string.short_channel_name_mdr_sn));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_mdr_th), res.getString(R.string.short_channel_name_mdr_th));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_rbb_be), res.getString(R.string.short_channel_name_rbb_be));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_rbb_bb), res.getString(R.string.short_channel_name_rbb_bb));
+    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_das_erste), res.getString(R.string.short_channel_name_das_erste));
   }
 }

@@ -12,7 +12,6 @@
         android:id="@id/program_table_base"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/button_panel"
         android:layout_weight="1"
         android:elevation="4dp"
         app:elevation="4dp"
@@ -23,7 +22,6 @@
         style="?buttonBarStyle"
         android:layout_width="match_parent"
         android:layout_height="?actionBarSize"
-        android:layout_alignParentBottom="true"
         android:layout_gravity="bottom"
         android:background="?colorBackgroundFloating"
         android:orientation="horizontal">
@@ -34,9 +32,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:ellipsize="end"
+            android:contentDescription="@string/previous_day"
             android:drawableLeft="?attr/ic_back_icon"
-            android:drawableStart="?attr/ic_back_icon"
-            android:text="@string/previous_day" />
+            android:drawableStart="?attr/ic_back_icon" />
 
         <android.support.v7.widget.AppCompatButton
             style="?buttonBarButtonStyle"
@@ -45,6 +44,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:layout_weight="1"
+            android:ellipsize="marquee"
             android:gravity="center"
             android:textStyle="bold"
             tools:text="Donnerstag, 27. Dezember 2018" />
@@ -55,9 +55,10 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
+            android:ellipsize="end"
+            android:contentDescription="@string/next_day"
             android:drawableEnd="?attr/ic_forward_icon"
-            android:drawableRight="?attr/ic_forward_icon"
-            android:text="@string/next_day" />
+            android:drawableRight="?attr/ic_forward_icon" />
 
     </android.support.v7.widget.LinearLayoutCompat>
 
