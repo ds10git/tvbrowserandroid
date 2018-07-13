@@ -53,6 +53,7 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -351,36 +352,37 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
             Cursor c = null;
             try {
               c = mProgramListAdapter.getCursor();
+
               if(IOUtils.prepareAccessFirst(c)) {
                 int index = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME);
                 int endIndex = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME);
                 int count = 0;
                 
-                  do {
-                    long startTime = c.getLong(index);
-                    long endTime = c.getLong(endIndex);
-                    
-                    if(startTime < mScrollTime && endTime > mScrollTime) {
-                      testIndex = count++;
-                    }
-                    else if(startTime == mScrollTime) {
+                do {
+                  long startTime = c.getLong(index);
+                  long endTime = c.getLong(endIndex);
+
+                  if(startTime < mScrollTime && endTime > mScrollTime) {
+                    testIndex = count++;
+                  }
+                  else if(startTime == mScrollTime) {
+                    testIndex = count;
+                    break;
+                  }
+                  else if(startTime > mScrollTime) {
+                    if(testIndex == -1) {
                       testIndex = count;
-                      break;
                     }
-                    else if(startTime > mScrollTime) {
-                      if(testIndex == -1) {
-                        testIndex = count;
-                      }
-                      
-                      break;
-                    }
-                    else {
-                      count++;
-                    }
-                  }while(c.moveToNext());}
-              }catch(IllegalStateException ignored) {}
-            finally {IOUtils.close(c);}
-            
+
+                    break;
+                  }
+                  else {
+                    count++;
+                  }
+                }while(c.moveToNext());
+              }
+            }catch(IllegalStateException ignored) {}
+
             mScrollTime = -1;
             
             if(testIndex == -1) {
@@ -407,17 +409,14 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
               final AtomicInteger scrollIndex = new AtomicInteger(0);
               
               if(mScrollTime < -1) {
-                
-                Cursor c = null;
-                try{
-                c = mProgramListAdapter.getCursor();
+                Cursor c = mProgramListAdapter.getCursor();
                 if(IOUtils.prepareAccessFirst(c)) {
                   do {
                     if(c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) > System.currentTimeMillis()) {
                       scrollIndex.set(c.getPosition());
                     }
                   }while(scrollIndex.get() == 0 && c.moveToNext());
-                } } finally {IOUtils.close(c);}
+                }
               }
               
               mScrollTime = -1;
@@ -672,7 +671,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
           
           try {
             channelCursor = cr.query(TvBrowserContentProvider.CONTENT_URI_CHANNELS, new String[] {TvBrowserContentProvider.KEY_ID,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.CHANNEL_KEY_LOGO,TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER}, TvBrowserContentProvider.CHANNEL_KEY_SELECTION + ((TvBrowser) getActivity()).getFilterSelection(true).replace(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID, TvBrowserContentProvider.KEY_ID), null, TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER + " , " + TvBrowserContentProvider.GROUP_KEY_GROUP_ID);
-            if(channelCursor != null && channelCursor.moveToFirst()) {
+            if(IOUtils.prepareAccessFirst(channelCursor)) {
               do {
                 Bitmap logo = UiUtils.createBitmapFromByteArray(channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
                               
@@ -943,7 +942,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
           Cursor test = null;
           try {
             test = getActivity().getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.DATA_KEY_ENDTIME}, getWhereClause(true) + " AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME +">0", null, TvBrowserContentProvider.DATA_KEY_ENDTIME + " ASC LIMIT 1");
-            if(test!=null&&IOUtils.prepareAccessFirst(test)) {
+            if(IOUtils.prepareAccessFirst(test)) {
               mNextUpdate = test.getLong(test.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
             }
           }finally {
@@ -963,6 +962,11 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       
       mScrollPos = -1;
     }
+  }
+
+  @Override
+  public void onDestroy() {
+    super.onDestroy();
   }
 
   @Override

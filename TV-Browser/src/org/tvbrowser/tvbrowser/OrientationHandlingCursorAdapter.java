@@ -27,6 +27,7 @@ import android.database.Cursor;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SimpleCursorAdapter;
+import android.util.Log;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -44,7 +45,13 @@ class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
   private AdapterView.AdapterContextMenuInfo mContextMenuInfo;
   private final Context mContext;
   private final Handler mHandler;
-  
+
+  @Override
+  public void notifyDataSetChanged() {
+    Log.d("info22", "notifyDataSetChanged");
+    super.notifyDataSetChanged();
+  }
+
   public OrientationHandlingCursorAdapter(final Context context, int layout, Cursor c, String[] from, int[] to, int flags, boolean handleClicks, Handler handler) {
     super(context, layout, c, from, to, flags);
     
@@ -169,9 +176,11 @@ class OrientationHandlingCursorAdapter extends SimpleCursorAdapter {
         }
         
         Cursor c = getCursor();
-        
-        info.mID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
-        info.mStartTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+
+        if(!c.isClosed()) {
+          info.mID = c.getInt(c.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID));
+          info.mStartTime = c.getLong(c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+        }
       }
     }catch(IllegalStateException ignored) {
       

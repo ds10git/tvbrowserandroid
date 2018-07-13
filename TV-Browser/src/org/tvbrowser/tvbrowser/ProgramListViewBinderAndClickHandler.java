@@ -30,12 +30,14 @@ import org.tvbrowser.utils.UiUtils;
 import android.app.Activity;
 import android.content.res.Configuration;
 import android.database.Cursor;
+import android.database.StaleDataException;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.text.Spannable;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.ContextMenu;
 import android.view.ContextMenu.ContextMenuInfo;
 import android.view.MenuItem;
@@ -77,251 +79,229 @@ class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBi
       boolean showChannelName = logoNamePref.equals("0") || logoNamePref.equals("2");
       boolean showChannelLogo = logoNamePref.equals("0") || logoNamePref.equals("1");
       boolean showBigChannelLogo = logoNamePref.equals("3");
-      
-      long endTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
-      
-      if(view instanceof TextView) {
-        if(endTime < System.currentTimeMillis()) {
-          ((TextView) view).setTextColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, mActivity));
-        }
-        else {
-          ((TextView) view).setTextColor(mDefaultTextColor);
-        }
-      }
-      if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)) {
-        TextView title = ((ViewGroup)view.getParent()).findViewById(R.id.titleLabelPL);
-        String titleValue = cursor.getString(columnIndex);
-        title.setText(ProgramUtils.getMarkIcons(mActivity, cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), titleValue));
-        
-        return true;
-      }
-      else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
-        TextView until = ((ViewGroup)view.getParent()).findViewById(R.id.untilLabelPL);
-        
-        if(showEndTime) {
-          TextView text = (TextView)view;
-          text.setText(DateFormat.getTimeFormat(mActivity).format(new Date(endTime)));
-          text.setVisibility(View.VISIBLE);
-          
-          String test = until.getText().toString();
-          
-          if(!mDateShowInterface.showDate()) {
-            if(test.startsWith(",")) {
-              until.setText(test.substring(2));
-            }
-          }
-          else if(!test.startsWith(",")) {
-            until.setText(", "+test);
-          }
-          
-          until.setVisibility(View.VISIBLE);
-        }
-        else {
-          view.setVisibility(View.GONE);
-          until.setVisibility(View.GONE);
-        }
-        
-        if(endTime < System.currentTimeMillis()) {
-          until.setTextColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, mActivity));
-        }
-        else {
-          until.setTextColor(mDefaultTextColor);
-        }
-        
-        return true;
-      } 
-      else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_UNIX_DATE)) {
-        TextView date = ((ViewGroup)view.getParent()).findViewById(R.id.startDayLabelPL);
-        
-        if(mDateShowInterface.showDate()) {
-          UiUtils.formatDayView(mActivity, cursor, view, R.id.startDayLabelPL);
-          
-          if(endTime < System.currentTimeMillis()) {
-            date.setTextColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, mActivity));
-          }
-          else {
-            date.setTextColor(mDefaultTextColor);
-          }
-          
-          date.setVisibility(View.VISIBLE);
-          view.setVisibility(View.VISIBLE);
-        }
-        else {
-          UiUtils.handleMarkings(mActivity, cursor, ((RelativeLayout)view.getParent()), null);
-          date.setVisibility(View.GONE);
-          ((TextView)view).setText("");
-          
-          if(!showEndTime) {
-            view.setVisibility(View.GONE);
+
+      if(!cursor.isClosed()) {
+        long endTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+
+        if (view instanceof TextView) {
+          if (endTime < System.currentTimeMillis()) {
+            ((TextView) view).setTextColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, mActivity));
+          } else {
+            ((TextView) view).setTextColor(mDefaultTextColor);
           }
         }
-        
-        return true;
-      }
-      else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) {
-        boolean show = true;
-        
-        if(mDateShowInterface instanceof ShowChannelInterface) {
-          show = ((ShowChannelInterface)mDateShowInterface).showChannel();
-        }
-        
-        if(show) {
-          TextView text = (TextView)view;
-          ((ViewGroup)view.getParent()).setVisibility(View.VISIBLE);
-          
-          String name = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-          String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
-          String number = null;
-          
-          if(shortName != null) {
-            name = shortName;
-          }
-          
-          if(showOrderNumber) {
-            number = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
-            
-            if(number == null) {
-              number = "0";
-            }
-            
-            number += ".";
-            
-            name =  number + " " + name;
-          }
-          
-          int logoIndex = cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
-          
-          Drawable logo = null;
-          
-          if((showBigChannelLogo || showChannelLogo) && logoIndex >= 0) {
-            int key = cursor.getInt(logoIndex);
-            
-            if(!showBigChannelLogo && (showChannelName || showOrderNumber || mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && (mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE)) {
-              logo = SettingConstants.SMALL_LOGO_MAP.get(key);
-            }
-            else {
-              logo = SettingConstants.MEDIUM_LOGO_MAP.get(key);
-            }
-          }
-          
-          ImageView logoView = ((ViewGroup)view.getParent()).findViewById(R.id.program_list_channel_logo);
-          
-          if(logo != null) {
-            logoView.setImageDrawable(logo);
-            logoView.setVisibility(View.VISIBLE);
-            
-            if(!showChannelName && !showOrderNumber) {
-              text.setVisibility(View.GONE);
-            }
-            else {
-              text.setVisibility(View.VISIBLE);
-            }
-          }
-          else {
-            logoView.setVisibility(View.GONE);
+        if (columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE)) {
+          TextView title = ((ViewGroup) view.getParent()).findViewById(R.id.titleLabelPL);
+          String titleValue = cursor.getString(columnIndex);
+          title.setText(ProgramUtils.getMarkIcons(mActivity, cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), titleValue));
+
+          return true;
+        } else if (columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME)) {
+          TextView until = ((ViewGroup) view.getParent()).findViewById(R.id.untilLabelPL);
+
+          if (showEndTime) {
+            TextView text = (TextView) view;
+            text.setText(DateFormat.getTimeFormat(mActivity).format(new Date(endTime)));
             text.setVisibility(View.VISIBLE);
-            showChannelName = true;
-          }
-          if(showChannelName) {
-            text.setText(name);
-          }
-          else if(showOrderNumber) {
-            text.setText(number);
-          }
-        }
-        else {
-          ((ViewGroup)view.getParent()).setVisibility(View.GONE);
-        }
-         
-        return true;
-      }
-      else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
-        long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
-        
-        java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(mActivity);
-        String value = ((SimpleDateFormat)mTimeFormat).toLocalizedPattern();
-        
-        if((value.charAt(0) == 'H' && value.charAt(1) != 'H') || (value.charAt(0) == 'h' && value.charAt(1) != 'h')) {
-          value = value.charAt(0) + value;
-        }
-        
-        mTimeFormat = new SimpleDateFormat(value, Locale.getDefault());
-        
-        TextView text = (TextView)view;
-        text.setTag(cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
-        text.setText(mTimeFormat.format(new Date(date)));
-         
-        return true;
-      }
-      else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)) {
-        if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)) || !showInfo) {
-          view.setVisibility(View.GONE);
-        }
-        else {
-          int info = cursor.getInt(columnIndex);
-          
-          if(info != 0) {
-            Spannable text = IOUtils.getInfoString(info,view.getResources());
-            
-            if(text != null) {
-              view.setVisibility(View.VISIBLE);
-              ((TextView)view).setText(text);
+
+            String test = until.getText().toString();
+
+            if (!mDateShowInterface.showDate()) {
+              if (test.startsWith(",")) {
+                until.setText(test.substring(2));
+              }
+            } else if (!test.startsWith(",")) {
+              until.setText(", " + test);
             }
-            else {
+
+            until.setVisibility(View.VISIBLE);
+          } else {
+            view.setVisibility(View.GONE);
+            until.setVisibility(View.GONE);
+          }
+
+          if (endTime < System.currentTimeMillis()) {
+            until.setTextColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, mActivity));
+          } else {
+            until.setTextColor(mDefaultTextColor);
+          }
+
+          return true;
+        } else if (columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_UNIX_DATE)) {
+          TextView date = ((ViewGroup) view.getParent()).findViewById(R.id.startDayLabelPL);
+
+          if (mDateShowInterface.showDate()) {
+            UiUtils.formatDayView(mActivity, cursor, view, R.id.startDayLabelPL);
+
+            if (endTime < System.currentTimeMillis()) {
+              date.setTextColor(UiUtils.getColor(UiUtils.EXPIRED_COLOR_KEY, mActivity));
+            } else {
+              date.setTextColor(mDefaultTextColor);
+            }
+
+            date.setVisibility(View.VISIBLE);
+            view.setVisibility(View.VISIBLE);
+          } else {
+            UiUtils.handleMarkings(mActivity, cursor, ((RelativeLayout) view.getParent()), null);
+            date.setVisibility(View.GONE);
+            ((TextView) view).setText("");
+
+            if (!showEndTime) {
               view.setVisibility(View.GONE);
             }
           }
-          else {
+
+          return true;
+        } else if (columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID)) {
+          boolean show = true;
+
+          if (mDateShowInterface instanceof ShowChannelInterface) {
+            show = ((ShowChannelInterface) mDateShowInterface).showChannel();
+          }
+
+          if (show) {
+            TextView text = (TextView) view;
+            ((ViewGroup) view.getParent()).setVisibility(View.VISIBLE);
+
+            String name = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+            String shortName = SettingConstants.SHORT_CHANNEL_NAMES.get(name);
+            String number = null;
+
+            if (shortName != null) {
+              name = shortName;
+            }
+
+            if (showOrderNumber) {
+              number = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER));
+
+              if (number == null) {
+                number = "0";
+              }
+
+              number += ".";
+
+              name = number + " " + name;
+            }
+
+            int logoIndex = cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID);
+
+            Drawable logo = null;
+
+            if ((showBigChannelLogo || showChannelLogo) && logoIndex >= 0) {
+              int key = cursor.getInt(logoIndex);
+
+              if (!showBigChannelLogo && (showChannelName || showOrderNumber || mActivity.getResources().getConfiguration().orientation == Configuration.ORIENTATION_PORTRAIT && (mActivity.getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK) < Configuration.SCREENLAYOUT_SIZE_LARGE)) {
+                logo = SettingConstants.SMALL_LOGO_MAP.get(key);
+              } else {
+                logo = SettingConstants.MEDIUM_LOGO_MAP.get(key);
+              }
+            }
+
+            ImageView logoView = ((ViewGroup) view.getParent()).findViewById(R.id.program_list_channel_logo);
+
+            if (logo != null) {
+              logoView.setImageDrawable(logo);
+              logoView.setVisibility(View.VISIBLE);
+
+              if (!showChannelName && !showOrderNumber) {
+                text.setVisibility(View.GONE);
+              } else {
+                text.setVisibility(View.VISIBLE);
+              }
+            } else {
+              logoView.setVisibility(View.GONE);
+              text.setVisibility(View.VISIBLE);
+              showChannelName = true;
+            }
+            if (showChannelName) {
+              text.setText(name);
+            } else if (showOrderNumber) {
+              text.setText(number);
+            }
+          } else {
+            ((ViewGroup) view.getParent()).setVisibility(View.GONE);
+          }
+
+          return true;
+        } else if (columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
+          long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
+
+          java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(mActivity);
+          String value = ((SimpleDateFormat) mTimeFormat).toLocalizedPattern();
+
+          if ((value.charAt(0) == 'H' && value.charAt(1) != 'H') || (value.charAt(0) == 'h' && value.charAt(1) != 'h')) {
+            value = value.charAt(0) + value;
+          }
+
+          mTimeFormat = new SimpleDateFormat(value, Locale.getDefault());
+
+          TextView text = (TextView) view;
+          text.setTag(cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));
+          text.setText(mTimeFormat.format(new Date(date)));
+
+          return true;
+        } else if (columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)) {
+          if (cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES)) || !showInfo) {
             view.setVisibility(View.GONE);
+          } else {
+            int info = cursor.getInt(columnIndex);
+
+            if (info != 0) {
+              Spannable text = IOUtils.getInfoString(info, view.getResources());
+
+              if (text != null) {
+                view.setVisibility(View.VISIBLE);
+                ((TextView) view).setText(text);
+              } else {
+                view.setVisibility(View.GONE);
+              }
+            } else {
+              view.setVisibility(View.GONE);
+            }
           }
-        }
-        
-        return true;
-      }
-      else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)) {
-        if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)) || !showEpisode) {
-          view.setVisibility(View.GONE);
-        }
-        else {
-          view.setVisibility(View.VISIBLE);
-        }
-      }
-      else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) {
-        if(cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) || !showGenre) {
-          view.setVisibility(View.GONE);
-        }
-        else {
-          view.setVisibility(View.VISIBLE);
-        }
-      }
-      else if(columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)) {
-        TextView text = (TextView)view;
-        ImageView picture = ((RelativeLayout)text.getParent()).findViewById(R.id.picture_pl);
-        
-        int pictureIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
-        
-        if(pictureIndex >= 0 && showPicture) {
-          Bitmap logo = UiUtils.createBitmapFromByteArray(cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)));
-          
-          if(logo != null) {
-            picture.setImageBitmap(Bitmap.createScaledBitmap(logo, (int)(mZoom * logo.getWidth()), (int)(mZoom * logo.getHeight()), false));//.setImageDrawable(l);
-            
-            text.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)));
-            text.setVisibility(View.VISIBLE);
-            picture.setVisibility(View.VISIBLE);
+
+          return true;
+        } else if (columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)) {
+          if (cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE)) || !showEpisode) {
+            view.setVisibility(View.GONE);
+          } else {
+            view.setVisibility(View.VISIBLE);
           }
-          else {
+        } else if (columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) {
+          if (cursor.isNull(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_GENRE)) || !showGenre) {
+            view.setVisibility(View.GONE);
+          } else {
+            view.setVisibility(View.VISIBLE);
+          }
+        } else if (columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)) {
+          TextView text = (TextView) view;
+          ImageView picture = ((RelativeLayout) text.getParent()).findViewById(R.id.picture_pl);
+
+          int pictureIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE);
+
+          if (pictureIndex >= 0 && showPicture) {
+            Bitmap logo = UiUtils.createBitmapFromByteArray(cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE)));
+
+            if (logo != null) {
+              picture.setImageBitmap(Bitmap.createScaledBitmap(logo, (int) (mZoom * logo.getWidth()), (int) (mZoom * logo.getHeight()), false));//.setImageDrawable(l);
+
+              text.setText(cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_PICTURE_COPYRIGHT)));
+              text.setVisibility(View.VISIBLE);
+              picture.setVisibility(View.VISIBLE);
+            } else {
+              view.setVisibility(View.GONE);
+              picture.setVisibility(View.GONE);
+            }
+          } else {
             view.setVisibility(View.GONE);
             picture.setVisibility(View.GONE);
           }
         }
-        else {
-          view.setVisibility(View.GONE);
-          picture.setVisibility(View.GONE);
-        }
       }
     }catch (IllegalStateException e) {
       // IGNORE
+    }catch (StaleDataException e) {
+      Log.d("info22","", e);
     }
     
     return false;

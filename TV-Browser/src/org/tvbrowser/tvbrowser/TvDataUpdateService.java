@@ -329,7 +329,7 @@ public class TvDataUpdateService extends Service {
     
     mDaysToLoad = 2;
     
-    mBuilder = new NotificationCompat.Builder(this, App.get().getNotificationChannelId(App.TYPE_NOTIFICATION_DEFAULT));
+    mBuilder = new NotificationCompat.Builder(this, App.getNotificationChannelIdDefault(this));
     //mBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
     mBuilder.setSmallIcon(R.drawable.ic_stat_notify);
     mBuilder.setOngoing(true);

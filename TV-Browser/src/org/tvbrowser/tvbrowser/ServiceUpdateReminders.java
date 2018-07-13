@@ -39,7 +39,7 @@ public class ServiceUpdateReminders extends Service {
     super.onCreate();
 
     if(CompatUtils.isAtLeastAndroidO()) {
-      NotificationCompat.Builder b = new NotificationCompat.Builder(ServiceUpdateReminders.this, App.get().getNotificationChannelId(App.TYPE_NOTIFICATION_DEFAULT));
+      NotificationCompat.Builder b = new NotificationCompat.Builder(ServiceUpdateReminders.this, App.getNotificationChannelIdDefault(this));
       b.setSmallIcon(R.drawable.ic_stat_notify);
       b.setContentTitle(getResources().getText(R.string.notification_update_reminders));
 

@@ -17,13 +17,6 @@
         android:entries="@array/pref_category_reminder_names_second"
         android:entryValues="@array/pref_category_reminder_values_second"
         android:summary="%s"/>
-    <ListPreference
-        android:key="@string/PREF_REMINDER_PRIORITY_VALUE"
-        android:title="@string/pref_reminder_priority"
-        android:defaultValue="@string/pref_reminder_priority_default"
-        android:entries="@array/pref_reminder_priority_values_names"
-        android:entryValues="@array/pref_simple_string_value_array5"
-        android:summary="%s"/>
     <CheckBoxPreference
         android:key="@string/PREF_REMINDER_AS_ALARM_CLOCK"
         android:defaultValue="@bool/pref_reminder_as_alarm_clock_default"

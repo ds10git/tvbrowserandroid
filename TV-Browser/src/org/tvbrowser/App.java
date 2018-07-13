@@ -3,6 +3,7 @@ package org.tvbrowser;
 import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
+import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
@@ -44,6 +45,10 @@ public final class App extends Application {
 		}
 	}
 
+	public static boolean isInititalized() {
+		return INSTANCE != null;
+	}
+
 	/**
 	 * Returns the apps's appropriate priority global notification channel identifier
 	 * @param type The type of the notification, one of {@link #TYPE_NOTIFICATION_DEFAULT},
@@ -62,6 +67,10 @@ public final class App extends Application {
 
     return builder.toString();
   }
+
+  public static String getNotificationChannelIdDefault(final Context context) {
+		return context.getPackageName();
+	}
 
 	/**
 	 * Returns the app's global high priority notification channel name

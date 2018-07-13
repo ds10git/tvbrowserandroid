@@ -1314,7 +1314,7 @@ public final class UiUtils {
 
                       Context applicationContext = activity.getApplicationContext();
 
-                      NotificationCompat.Builder builder1 = new NotificationCompat.Builder(applicationContext, App.get().getNotificationChannelId(App.TYPE_NOTIFICATION_DEFAULT));
+                      NotificationCompat.Builder builder1 = new NotificationCompat.Builder(applicationContext, App.getNotificationChannelIdDefault(activity));
                       builder1.setSmallIcon(R.drawable.ic_stat_notify);
                       builder1.setOngoing(true);
                       builder1.setContentTitle(activity.getResources().getText(R.string.action_dont_want_to_see));
@@ -1439,7 +1439,7 @@ public final class UiUtils {
 
                 final Context applicationContext = activity.getApplicationContext();
 
-                final NotificationCompat.Builder builder = new NotificationCompat.Builder(applicationContext, App.get().getNotificationChannelId(App.TYPE_NOTIFICATION_DEFAULT));
+                final NotificationCompat.Builder builder = new NotificationCompat.Builder(applicationContext, App.getNotificationChannelIdDefault(activity));
                 builder.setSmallIcon(R.drawable.ic_stat_notify);
                 builder.setOngoing(true);
                 builder.setContentTitle(activity.getResources().getText(R.string.action_dont_want_to_see));
