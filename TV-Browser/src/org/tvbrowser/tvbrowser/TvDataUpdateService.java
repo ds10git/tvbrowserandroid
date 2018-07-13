@@ -1394,10 +1394,11 @@ public class TvDataUpdateService extends Service {
 
                 if (parts.length > 1 && parts[1] != null) {
                   int startTimeSync = Integer.parseInt(parts[0]);
+                  Integer value = knownChannels.get(parts[1]);
 
                   if (startTimeSync > startTime) {
                     dataSync.remove(i);
-                  } else if (startTime == startTimeSync && channelId == knownChannels.get(parts[1])) {
+                  } else if (value != null && startTime == startTimeSync && channelId == value) {
                     if (parts.length > 2) {
                       crc.reset();
 

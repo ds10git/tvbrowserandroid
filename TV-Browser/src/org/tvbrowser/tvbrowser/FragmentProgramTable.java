@@ -851,10 +851,14 @@ public class FragmentProgramTable extends Fragment {
   }
 
   private void updateView(LayoutInflater inflater) {
-    ViewGroup layout = getView().findViewWithTag("LAYOUT");
+    final View view = getView();
 
-    if(layout != null && inflater != null) {
-      updateView(inflater, layout);
+    if(view != null) {
+      final ViewGroup layout = view.findViewWithTag("LAYOUT");
+
+      if(layout != null && inflater != null) {
+        updateView(inflater, layout);
+      }
     }
   }
 

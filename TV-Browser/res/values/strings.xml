@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.6.5</h2>
+            &bull; light theme fixed by Thorsten1976<br>
             &bull; show description of programs if room in program table<br>
             &bull; support new data fields<br>
             &bull; use new layout for tabs<br>

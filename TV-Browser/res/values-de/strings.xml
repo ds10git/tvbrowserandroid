@@ -2,6 +2,7 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.6.5</h2>
+            &bull; Fehler im hellen Thema beseitigt von Thorsten1976<br>
             &bull; Beschreibung von Sendungen in Programmtabelle anzeigen, wenn Platz vorhanden<br>
             &bull; Unterstützung für neue Datenfelder<br>
             &bull; verwendet neues Layout für Tabs<br>

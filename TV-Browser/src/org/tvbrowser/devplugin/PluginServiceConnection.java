@@ -232,6 +232,8 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
       } catch (RemoteException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
+      } catch (IllegalArgumentException e) {
+        e.printStackTrace();
       }
     }
   }
