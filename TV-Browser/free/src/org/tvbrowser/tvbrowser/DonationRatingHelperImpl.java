@@ -12,6 +12,7 @@ import java.util.Calendar;
 import java.util.Locale;
 
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.CompatUtils;
 
 class DonationRatingHelperImpl extends DonationRatingHelper {
 
@@ -42,7 +43,7 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 
 		Button donate = view.findViewById(R.id.donation_button);
 
-		((TextView)view.findViewById(R.id.donation_info)).setText(Html.fromHtml(tvBrowser.getString(R.string.donate_text)));
+		((TextView)view.findViewById(R.id.donation_info)).setText(CompatUtils.fromHtml(tvBrowser.getString(R.string.donate_text)));
 
 		final Button cancel = view.findViewById(R.id.rating_donation_cancel);
 		cancel.setEnabled(false);
