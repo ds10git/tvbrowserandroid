@@ -91,7 +91,7 @@ public class TvBrowserContentProvider extends ContentProvider {
   
   private static final int DATA_UPDATE = 40;
   private static final int DATA_UPDATE_ID = 41;
-  
+
   private static final int DATA_VERSION = 50;
   private static final int DATA_VERSION_ID = 51;
   
@@ -413,13 +413,26 @@ public class TvBrowserContentProvider extends ContentProvider {
     DATA_KEY_MARKING_SYNC,
     DATA_KEY_DONT_WANT_TO_SEE
   };
-  
+
+  public static final String CHANNEL_TABLE = "channels";
+
   static {
     SEARCH_PROJECTION_MAP = new HashMap<>();
     SEARCH_PROJECTION_MAP.put(SearchManager.SUGGEST_COLUMN_TEXT_1, DATA_KEY_TITLE + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_1);
     SEARCH_PROJECTION_MAP.put(SearchManager.SUGGEST_COLUMN_TEXT_2, DATA_KEY_EPISODE_TITLE + " AS " + SearchManager.SUGGEST_COLUMN_TEXT_2);
-    SEARCH_PROJECTION_MAP.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID,KEY_ID + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
-    SEARCH_PROJECTION_MAP.put("_id", KEY_ID + " AS " + "_id");
+    SEARCH_PROJECTION_MAP.put(SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID, TvBrowserDataBaseHelper.DATA_TABLE+"."+KEY_ID + " AS " + SearchManager.SUGGEST_COLUMN_INTENT_DATA_ID);
+    SEARCH_PROJECTION_MAP.put("_id", TvBrowserDataBaseHelper.DATA_TABLE+"."+KEY_ID + " AS " + "_id");
+    SEARCH_PROJECTION_MAP.put("channel_id", CHANNEL_TABLE+"."+KEY_ID + " AS " + "channel_id");
+    SEARCH_PROJECTION_MAP.put(CHANNEL_KEY_NAME, CHANNEL_KEY_NAME);
+    SEARCH_PROJECTION_MAP.put(CHANNEL_KEY_ORDER_NUMBER, CHANNEL_KEY_ORDER_NUMBER);
+    SEARCH_PROJECTION_MAP.put(DATA_KEY_STARTTIME, DATA_KEY_STARTTIME);
+    SEARCH_PROJECTION_MAP.put(DATA_KEY_ENDTIME, DATA_KEY_ENDTIME);
+    SEARCH_PROJECTION_MAP.put(CHANNEL_KEY_NAME, CHANNEL_KEY_NAME);
+    SEARCH_PROJECTION_MAP.put(CHANNEL_KEY_ORDER_NUMBER, CHANNEL_KEY_ORDER_NUMBER);
+    SEARCH_PROJECTION_MAP.put(DATA_KEY_UNIX_DATE, DATA_KEY_UNIX_DATE);
+/*    SEARCH_PROJECTION_MAP.put(DATA_KEY_STARTTIME, TvBrowserDataBaseHelper.DATA_TABLE+"."+DATA_KEY_STARTTIME + " AS " + DATA_KEY_STARTTIME);
+    SEARCH_PROJECTION_MAP.put(CHANNEL_KEY_NAME, CHANNEL_TABLE+"."+CHANNEL_KEY_NAME + " AS " + CHANNEL_KEY_NAME);
+    SEARCH_PROJECTION_MAP.put(CHANNEL_KEY_ORDER_NUMBER, CHANNEL_TABLE+"."+CHANNEL_KEY_ORDER_NUMBER + " AS " + CHANNEL_KEY_ORDER_NUMBER);*/
   }
   
   private static final UriMatcher uriMatcher;
@@ -951,6 +964,7 @@ public class TvBrowserContentProvider extends ContentProvider {
         // If this is a row query, limit the result set to the pased in row.
         switch(uriMatcher.match(uri)) {
           case SEARCH:
+            Log.d("info22", ""+uri);
             final List<String> uriPathSegments = uri.getPathSegments();
             String search = "   ";// SearchManager.SUGGEST_URI_PATH_QUERY;
             if (uriPathSegments != null) {
@@ -958,9 +972,14 @@ public class TvBrowserContentProvider extends ContentProvider {
                 search = uriPathSegments.get(1).replace("'", "''").trim();
               }
             }
-            qb.appendWhere("(" + DATA_KEY_TITLE + " LIKE '%" + search + "%' OR " + DATA_KEY_EPISODE_TITLE + " LIKE '%" + search + "%') AND " + DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis() + " AND NOT " + DATA_KEY_DONT_WANT_TO_SEE);
+
+            StringBuilder b = new StringBuilder(CHANNEL_TABLE + "." + KEY_ID + "=" + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID + " AND ");
+            b.append("((" + DATA_KEY_TITLE + " LIKE '%" + search + "%' OR " + DATA_KEY_EPISODE_TITLE + " LIKE '%" + search + "%') AND " + DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis() + " AND NOT " + DATA_KEY_DONT_WANT_TO_SEE + ")");
+
+            qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + CHANNEL_TABLE);
+            qb.appendWhere(b.toString());
             qb.setProjectionMap(SEARCH_PROJECTION_MAP);
-            qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE);
+            Log.d("info22","\n\n"+b.toString()+"\n" +selection+"\n");
             orderBy = DATA_KEY_STARTTIME;
             break;
           case GROUP_ID: qb.appendWhere(KEY_ID + "=" + uri.getPathSegments().get(1));
@@ -1159,8 +1178,6 @@ public class TvBrowserContentProvider extends ContentProvider {
     
     return count;
   }
-
-  public static final String CHANNEL_TABLE = "channels";
   
   // Helper class for opening, creating, and managing database version control
   private static class TvBrowserDataBaseHelper extends SQLiteOpenHelper {

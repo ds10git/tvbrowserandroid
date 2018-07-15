@@ -355,6 +355,11 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 		tvBrowser.showAlertDialog(d, true);
 	}
 
+	@Override
+	boolean isToShowWebDonation() {
+		return false;
+	}
+
 	private boolean installedFromGooglePlay() {
 		return "com.android.vending".equals(tvBrowser.getPackageManager()
 			.getInstallerPackageName(tvBrowser.getPackageName()));

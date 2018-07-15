@@ -226,14 +226,7 @@ class ProgramListViewBinderAndClickHandler implements SimpleCursorAdapter.ViewBi
         } else if (columnIndex == cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME)) {
           long date = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
 
-          java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(mActivity);
-          String value = ((SimpleDateFormat) mTimeFormat).toLocalizedPattern();
-
-          if ((value.charAt(0) == 'H' && value.charAt(1) != 'H') || (value.charAt(0) == 'h' && value.charAt(1) != 'h')) {
-            value = value.charAt(0) + value;
-          }
-
-          mTimeFormat = new SimpleDateFormat(value, Locale.getDefault());
+          java.text.DateFormat mTimeFormat = UiUtils.getTimeFormat(mActivity);
 
           TextView text = (TextView) view;
           text.setTag(cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)));

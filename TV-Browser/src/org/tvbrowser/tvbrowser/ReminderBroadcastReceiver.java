@@ -43,6 +43,7 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
+import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.text.format.DateFormat;
@@ -215,9 +216,10 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           Program program = ProgramUtils.createProgramFromDataCursor(context, values);
           
           if(program != null) {
-            String channelName = program.getChannel().getChannelName();//values.getString(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-            String title = program.getTitle();//values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
-            String episode = program.getEpisodeTitle();//values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
+            final String channelName = program.getChannel().getChannelName();//values.getString(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+            final int orderNumber = program.getChannel().getOrderNumber();
+            final String title = program.getTitle();//values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
+            final String episode = program.getEpisodeTitle();//values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
             
             long startTime = program.getStartTimeInUTC();//values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
            // long endTime = values.getLong(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
@@ -279,28 +281,23 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
               }
             }
 
+            String channelInfo = (orderNumber != -1 ? orderNumber + ". " : "") + channelName;
+
             builder.setAutoCancel(true);
-            builder.setContentInfo(channelName);
 
-            java.text.DateFormat mTimeFormat = DateFormat.getTimeFormat(context);
-            String value = ((SimpleDateFormat)mTimeFormat).toLocalizedPattern();
-            
-            if((value.charAt(0) == 'H' && value.charAt(1) != 'H') || (value.charAt(0) == 'h' && value.charAt(1) != 'h')) {
-              value = value.charAt(0) + value;
+            if(CompatUtils.isAtLeastAndroidN()) {
+              builder.setSubText(UiUtils.formatDate(startTime,context,false, true, true, java.text.DateFormat.SHORT, true) + " \u2022 " + channelInfo);
+            }
+            else {
+              builder.setContentInfo(channelInfo);
             }
 
-            if(!value.contains("E")) {
-              value = "E " + value;
-            }
-            
-            SimpleDateFormat timeFormat = new SimpleDateFormat(value, Locale.getDefault());
-            
-            builder.setContentTitle(timeFormat.format(new Date(startTime)) + " " + title);
+            builder.setContentTitle((!CompatUtils.isAtLeastAndroidN() ? UiUtils.formatDate(startTime,context,false, true, true, java.text.DateFormat.SHORT, true) + " " : "") + UiUtils.getTimeFormat(context).format(new Date(startTime)) + " " + title);
             
             if(episode != null) {
               builder.setContentText(episode);
             }
-            
+
             Intent startInfo = new Intent(context, InfoActivity.class);
             startInfo.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
             startInfo.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);

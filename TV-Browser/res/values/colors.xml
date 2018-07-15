@@ -28,6 +28,7 @@
     <color name="pref_reminder_color_led_default">#00FF00</color>
     
     <color name="dark_gray">#222222</color>
+    <color name="dark_gray_lighter">#2A2A2A</color>
     <color name="light_gray">#AAAAAA</color>
     <color name="lighter_gray">#DDDDDD</color>
     <color name="detail_date_channel_color">#dc3232</color>
@@ -51,4 +52,5 @@
     <color name="pref_color_separator_space">#15646464</color>
 
     <color name="widget_text_default">#ccc</color>
+    <color name="toolbar_text_color">#fff</color>
 </resources>

@@ -30,7 +30,7 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 	}
 
 	boolean showDonationMenuItem() {
-		return "DE".equals(Locale.getDefault().getCountry());
+		return true;
 	}
 
 	void showRatingAndDonationInfo() {
@@ -91,6 +91,11 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
     }.start());
 
 		tvBrowser.showAlertDialog(d,true);
+	}
+
+	@Override
+	boolean isToShowWebDonation() {
+		return true;
 	}
 
 	void handleExpiredVersion(final Calendar calendar) {

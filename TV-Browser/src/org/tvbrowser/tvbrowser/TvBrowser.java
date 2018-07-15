@@ -19,8 +19,6 @@ package org.tvbrowser.tvbrowser;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStreamReader;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
 import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -44,7 +42,6 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
-import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
@@ -61,7 +58,6 @@ import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.ProgramUtils;
 import org.tvbrowser.utils.UiUtils;
-import static org.tvbrowser.utils.VersionUtils.applyUpdates;
 import org.xml.sax.XMLReader;
 
 import android.annotation.SuppressLint;
@@ -71,6 +67,7 @@ import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentProvider;
 import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -105,17 +102,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.IntDef;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -135,6 +133,7 @@ import android.text.style.ReplacementSpan;
 import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -153,6 +152,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -176,31 +176,36 @@ public class TvBrowser extends AppCompatActivity {
   private static final int OPEN_FILTER_EDIT = 2;
   private static final int SHOW_PLUGIN_PREFERENCES = 4;
 
-  @Retention(RetentionPolicy.SOURCE)
-  @IntDef({INFO_TYPE_NOTHING, INFO_TYPE_VERSION, INFO_TYPE_NEWS})
-  @interface InfoType {}
-
-  public static final int INFO_TYPE_NOTHING = 0;
-  public static final int INFO_TYPE_VERSION = 1;
-  public static final int INFO_TYPE_NEWS = 2;
-
-  private @InfoType int mInfoType;
-
   private HashSet<FilterValues> mCurrentFilter;
   private Set<String> mCurrentFilterId;
 
+  /**
+   * The {@link android.support.v4.view.PagerAdapter} that will provide
+   * fragments for each of the sections. We use a
+   * {@link android.support.v4.app.FragmentPagerAdapter} derivative, which will
+   * keep every loaded fragment in memory. If this becomes too memory intensive,
+   * it may be best to switch to a
+   * {@link android.support.v4.app.FragmentStatePagerAdapter}.
+   */
+  private SectionsPagerAdapter mSectionsPagerAdapter;
+
   private boolean updateRunning;
   private boolean selectingChannels;
+  private TabLayout mTabLayout;
   private boolean mSearchExpanded;
 
-  private TvBrowserPagerAdapter mTvBrowserPagerAdapter;
+  /**
+   * The {@link ViewPager} that will host the section contents.
+   */
   private ViewPager mViewPager;
 
   private Handler handler;
+
   private Timer mTimer;
 
   private MenuItem mFilterItem;
   private MenuItem mCreateFavorite;
+
   private MenuItem mUpdateItem;
   private MenuItem mSendReminderLogItem;
   private MenuItem mDeleteReminderLogItem;
@@ -208,12 +213,13 @@ public class TvBrowser extends AppCompatActivity {
   private MenuItem mDeletePluginLogItem;
   private MenuItem mScrollTimeItem;
   private MenuItem mPluginPreferencesMenuItem;
+
   private MenuItem mDebugMenuItem;
+
   private MenuItem mPauseReminder;
   private MenuItem mContinueReminder;
 
-  private Menu mOptionsMenu;
-
+  private static final Calendar mRundate;
   private static int[] SCROLL_IDS = new int[0];
   private static int[] SCROLL_TIMES;
 
@@ -224,6 +230,8 @@ public class TvBrowser extends AppCompatActivity {
   private int mLastSelectedTab;
 
   private static String ALL_VALUE;
+
+  private Menu mOptionsMenu;
 
   private Stack<ProgramsListState> mProgamListStateStack;
   private BroadcastReceiver mUpdateDoneBroadcastReceiver;
@@ -239,7 +247,8 @@ public class TvBrowser extends AppCompatActivity {
 
   public static int START_TIME = Integer.MIN_VALUE;
 
-  private static final Calendar mRundate;
+ // private int mCurrentDay;
+
   static {
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2019);
@@ -253,6 +262,15 @@ public class TvBrowser extends AppCompatActivity {
     outState.putBoolean(SettingConstants.SELECTION_CHANNELS_KEY, selectingChannels);
 
     super.onSaveInstanceState(outState);
+  }
+
+  private boolean addUserColor(SharedPreferences pref, Editor edit, int defaultColorKey, int colorKey, int userColorKey) {
+    int defaultColor = ContextCompat.getColor(this, defaultColorKey);
+    int color = pref.getInt(getString(colorKey), defaultColor);
+
+    edit.putInt(getString(userColorKey), color);
+
+    return defaultColor != color;
   }
 
   @Override
@@ -272,6 +290,12 @@ public class TvBrowser extends AppCompatActivity {
     super.onApplyThemeResource(theme, resid, first);
   }
 
+  private static final int INFO_TYPE_NOTHING = 0;
+  private static final int INFO_TYPE_VERSION = 1;
+  private static final int INFO_TYPE_NEWS = 2;
+
+  private int mInfoType;
+
   private void checkAppReplacingState() {
     Log.d("info6", System.currentTimeMillis()+" checkAppReplacingState START");
     if (getResources() == null) {
@@ -289,7 +313,7 @@ public class TvBrowser extends AppCompatActivity {
     mCurrentFilter = new HashSet<>();
     mCurrentFilterId = new HashSet<>();
     mInfoType = INFO_TYPE_NOTHING;
-    PrefUtils.initialize(this);
+    PrefUtils.initialize(TvBrowser.this);
 
     if(PrefUtils.getBooleanValue(R.string.PREF_RUNNING_START_WITH_NEXT,R.bool.pref_running_start_with_next_default)) {
       START_TIME = -2;
@@ -297,7 +321,7 @@ public class TvBrowser extends AppCompatActivity {
 
     PrefUtils.updateKnownOpenDate(getApplicationContext());
 
-    final Intent start = getIntent();
+    Intent start = getIntent();
 
     if(start != null) {
       if(start.hasExtra(SettingConstants.CHANNEL_ID_EXTRA)) {
@@ -321,16 +345,309 @@ public class TvBrowser extends AppCompatActivity {
           menuKeyField.setAccessible(true);
           menuKeyField.setBoolean(config, false);
       }
-    } catch (Exception ignored) {
+    } catch (Exception ex) {
+        // Ignore
     }
+    /*
+    Editor edit3 = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit();
+    edit3.remove(getString(R.string.LAST_DATA_UPDATE));
+    edit3.putInt(getString(R.string.PREF_AUTO_UPDATE_START_TIME), 800);
+    edit3.putLong(getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), System.currentTimeMillis()+2000*60);
+    edit3.commit();*/
+    try {
+      PackageInfo pInfo = getPackageManager().getPackageInfo(getPackageName(), 0);
+      //PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().remove(getString(R.string.CURRENT_FILTER_ID)).commit();
+      int oldVersion = PrefUtils.getIntValueWithDefaultKey(R.string.OLD_VERSION, R.integer.old_version_default);
 
-    applyUpdates(this);
+      if(oldVersion < 422) {
+        SharedPreferences pref = getSharedPreferences("transportation", Context.MODE_PRIVATE);
+
+        String car = pref.getString(SettingConstants.USER_NAME, null);
+        String bicycle = pref.getString(SettingConstants.USER_PASSWORD, null);
+
+        if(car != null && car.trim().length() > 0 && bicycle != null && bicycle.trim().length() > 0) {
+          PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit().putBoolean(getString(R.string.PREF_PRIVACY_TERMS_ACCEPTED_SYNC),true).apply();
+        }
+
+        final String userName = PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, null);
+        final String password = PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, null);
+
+        if(userName != null && password != null && userName.trim().length() > 0 && password.trim().length() > 0) {
+          PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvBrowser.this).edit().putBoolean(getString(R.string.PREF_PRIVACY_TERMS_ACCEPTED_EPGPAID),true).apply();
+        }
+      }
+
+      if(oldVersion < 419) {
+        final File dir = IOUtils.getDownloadDirectory(this);
+
+        if(dir.isDirectory()) {
+          final String[] filesLog = {
+              SettingConstants.LOG_FILE_NAME_DATA_UPDATE,
+              SettingConstants.LOG_FILE_NAME_REMINDER,
+              SettingConstants.LOG_FILE_NAME_PLUGINS
+          };
+
+          for(final String fileLog : filesLog) {
+            final File log = new File(dir, fileLog);
+
+            if (log.isFile() && !log.delete()) {
+              log.deleteOnExit();
+            }
+          }
+        }
+      }
+      if(oldVersion < 417) {
+        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().putString(getString(R.string.DETAIL_PICTURE_ZOOM),getString(R.string.detail_picture_zoom_default)).commit();
+      }
+      if(oldVersion < 416) {
+        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, getApplicationContext()).edit().remove(getString(R.string.DETAIL_PICTURE_DESCRIPTION_POSITION)).commit();
+        PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit().putString(getString(R.string.DETAIL_PICTURE_DESCRIPTION_POSITION),"1").commit();
+      }
+      if(oldVersion == 402) {
+        final SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, getApplicationContext());
+
+        pref.edit().remove(getString(R.string.PREF_REMINDER_AS_ALARM_CLOCK)).commit();
+        ServiceUpdateReminders.startReminderUpdate(getApplicationContext());
+      }
+      if(oldVersion < 339) {
+        startService(new Intent(TvBrowser.this,ServiceChannelCleaner.class));
+      }
+      if(oldVersion < 332) {
+        PrefUtils.updateDataMetaData(getApplicationContext());
+        PrefUtils.updateChannelSelectionState(getApplicationContext());
+      }
+      if(oldVersion < 322) {
+        SharedPreferences pref = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, getApplicationContext());
+        Editor edit = pref.edit();
+
+        Map<String,?> filterMap = pref.getAll();
+        Set<String> keys = filterMap.keySet();
+
+        for(String key : keys) {
+          if(!key.contains(FilterValues.SEPARATOR_CLASS)) {
+            String values = (String)filterMap.get(key);
+
+            edit.remove(key);
+            edit.putString(FilterValuesChannels.class.getCanonicalName()+FilterValues.SEPARATOR_CLASS+key, values);
+          }
+        }
+
+        edit.commit();
+      }
+      if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < 314) {
+        new Thread("READ SYNCED PROGRAMS ONCE FOR ICON") {
+          @Override
+          public void run() {
+            if(IOUtils.isDatabaseAccessible(TvBrowser.this)) {
+              Cursor synced = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, null, TvBrowserContentProvider.KEY_ID);
+
+              try {
+                if(synced!=null && IOUtils.prepareAccess(synced)) {
+                  int idColumn = synced.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                  ArrayList<String> syncIdList = new ArrayList<>();
+
+                  while(synced.moveToNext()) {
+                    syncIdList.add(String.valueOf(synced.getLong(idColumn)));
+                  }
+
+                  ProgramUtils.addSyncIds(getApplicationContext(), syncIdList);
+                }
+              }finally {
+                IOUtils.close(synced);
+              }
+            }
+          }
+        }.start();
+      }
+      if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < 309) {
+        new Thread("READ REMINDERS ONCE FOR ICON") {
+          @Override
+          public void run() {
+            if(IOUtils.isDatabaseAccessible(TvBrowser.this)) {
+              Cursor reminders = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, new String[] {TvBrowserContentProvider.KEY_ID}, TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " OR " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, null, TvBrowserContentProvider.KEY_ID);
+
+              try {
+                if(IOUtils.prepareAccess(reminders)) {
+                  int idColumn = reminders.getColumnIndex(TvBrowserContentProvider.KEY_ID);
+                  ArrayList<String> reminderIdList = new ArrayList<>();
+
+                  while(reminders.moveToNext()) {
+                    reminderIdList.add(String.valueOf(reminders.getLong(idColumn)));
+                  }
+
+                ProgramUtils.addReminderIds(getApplicationContext(), reminderIdList);
+                }
+              }finally {
+                IOUtils.close(reminders);
+              }
+            }
+          }
+        }.start();
+      }
+      if(oldVersion < 304) {
+        Set<String> favoritesSet = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).getStringSet("FAVORITE_LIST", new HashSet<>());
+
+        int id = 1000;
+
+        for(String favorite : favoritesSet) {
+          Favorite fav = new Favorite(id++,favorite);
+
+          if(fav.isValid()) {
+            fav.save(getApplicationContext());
+          }
+          else {
+            Favorite.handleFavoriteMarking(TvBrowser.this, fav, Favorite.TYPE_MARK_REMOVE);
+          }
+        }
+
+        Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+        edit.remove("FAVORITE_LIST");
+        edit.commit();
+      }
+      if(oldVersion < 204) {
+        int firstTime = PrefUtils.getStringValueAsInt(R.string.PREF_REMINDER_TIME, R.string.pref_reminder_time_default);
+        boolean remindAgain = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).getBoolean("PREF_REMIND_AGAIN_AT_START", false);
+        Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+        edit.remove("PREF_REMIND_AGAIN_AT_START");
+        edit.commit();
+
+        if(remindAgain && firstTime > 0) {
+          edit.putString(getString(R.string.PREF_REMINDER_TIME_SECOND), getString(R.string.pref_reminder_time_default));
+          edit.commit();
+
+          Intent updateAlarmValues = new Intent(UpdateAlarmValue.class.getCanonicalName());
+          sendBroadcast(updateAlarmValues);
+        }
+      }
+      if(oldVersion < 218) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
+        Editor edit = pref.edit();
+
+        boolean userDefined = addUserColor(pref,edit,R.color.pref_color_on_air_background_tvb_style_default,R.string.PREF_COLOR_ON_AIR_BACKGROUND,R.string.PREF_COLOR_ON_AIR_BACKGROUND_USER_DEFINED);
+        userDefined = addUserColor(pref,edit,R.color.pref_color_on_air_progress_tvb_style_default,R.string.PREF_COLOR_ON_AIR_PROGRESS,R.string.PREF_COLOR_ON_AIR_PROGRESS_USER_DEFINED) || userDefined;
+        userDefined = addUserColor(pref,edit,R.color.pref_color_mark_tvb_style_default,R.string.PREF_COLOR_MARKED,R.string.PREF_COLOR_MARKED_USER_DEFINED) || userDefined;
+        userDefined = addUserColor(pref,edit,R.color.pref_color_mark_favorite_tvb_style_default,R.string.PREF_COLOR_FAVORITE,R.string.PREF_COLOR_FAVORITE) || userDefined;
+        userDefined = addUserColor(pref,edit,R.color.pref_color_mark_reminder_tvb_style_default,R.string.PREF_COLOR_REMINDER,R.string.PREF_COLOR_REMINDER_USER_DEFINED) || userDefined;
+        userDefined = addUserColor(pref,edit,R.color.pref_color_mark_sync_tvb_style_favorite_default,R.string.PREF_COLOR_SYNC,R.string.PREF_COLOR_SYNC_USER_DEFINED) || userDefined;
+
+        if(userDefined) {
+          edit.putString(getString(R.string.PREF_COLOR_STYLE), "0");
+        }
+
+        edit.commit();
+      }
+      if(oldVersion < 242) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
+        Editor edit = pref.edit();
+
+        if(pref.contains("PREF_WIDGET_BACKGROUND_TRANSPARENCY") && !pref.getBoolean("PREF_WIDGET_BACKGROUND_TRANSPARENCY", true)) {
+          edit.remove("PREF_WIDGET_BACKGROUND_TRANSPARENCY");
+          edit.putString(getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_HEADER), "0");
+          edit.putString(getString(R.string.PREF_WIDGET_BACKGROUND_TRANSPARENCY_LIST), "0");
+          edit.putBoolean(getString(R.string.PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS), false);
+        }
+
+        if(pref.contains("SELECTED_TV_CHANNELS_LIST")) {
+          edit.remove("SELECTED_TV_CHANNELS_LIST");
+        }
+        if(pref.contains("SELECTED_RADIO_CHANNELS_LIST")) {
+          edit.remove("SELECTED_RADIO_CHANNELS_LIST");
+        }
+        if(pref.contains("SELECTED_CINEMA_CHANNELS_LIST")) {
+          edit.remove("SELECTED_CINEMA_CHANNELS_LIST");
+        }
+
+        edit.commit();
+      }
+      if(oldVersion < 284 && PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.pref_program_lists_divider_size_default).equals(getString(R.string.divider_small))) {
+        SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
+
+        final Editor edit = pref.edit();
+        edit.remove(getString(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE));
+        edit.commit();
+      }
+      if(oldVersion < 287 && PrefUtils.getBooleanValue(R.string.PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS, true)) {
+        final Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+        edit.remove(getString(R.string.PREF_WIDGET_BACKGROUND_ROUNDED_CORNERS));
+        edit.commit();
+
+        UiUtils.updateImportantProgramsWidget(getApplicationContext());
+        UiUtils.updateRunningProgramsWidget(getApplicationContext());
+      }
+      if(oldVersion < 369) {
+        final Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+        edit.putBoolean(getString(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE), false);
+        edit.commit();
+      }
+      if(oldVersion < 379) {
+        final HashSet<String> values = new HashSet<>();
+        final String currentFilterId = PrefUtils.getStringValue(R.string.CURRENT_FILTER_ID, null);
+
+        if(currentFilterId != null) {
+          values.add(currentFilterId);
+        }
+
+        final Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+        edit.putStringSet(getString(R.string.CURRENT_FILTER_ID), values);
+        edit.commit();
+      }
+
+      if(oldVersion > getResources().getInteger(R.integer.old_version_default) && oldVersion < pInfo.versionCode && PrefUtils.getBooleanValue(R.string.PREF_INFO_VERSION_UPDATE_SHOW, R.bool.pref_info_version_update_show_default)) {
+        mInfoType = INFO_TYPE_VERSION;
+        /*handler.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            showVersionInfo(true);
+          }
+        }, 2000);*/
+
+      }
+      else if(oldVersion != getResources().getInteger(R.integer.old_version_default) && PrefUtils.getBooleanValue(R.string.PREF_NEWS_SHOW, R.bool.pref_news_show_default)) {
+        long lastShown = PrefUtils.getLongValue(R.string.NEWS_DATE_LAST_SHOWN, 0);
+        long lastKnown = PrefUtils.getLongValue(R.string.NEWS_DATE_LAST_KNOWN, 0);
+        Log.d("info6", "lastShown " + new Date(lastShown) + " " + "lastKnown " + new Date(lastKnown));
+        if(lastShown < lastKnown) {
+          mInfoType = INFO_TYPE_NEWS;
+        }
+        /*handler.postDelayed(new Runnable() {
+          @Override
+          public void run() {
+            showNews();
+          }
+        }, 2000);*/
+      }
+
+      if(oldVersion !=  pInfo.versionCode) {
+        Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
+        edit.putInt(getString(R.string.OLD_VERSION), pInfo.versionCode);
+        edit.commit();
+      }
+    } catch (NameNotFoundException ignored) {}
 
     super.onCreate(savedInstanceState);
 
     SettingConstants.initializeLogoMap(TvBrowser.this,false);
 
     setContentView(R.layout.activity_tv_browser);
+    final Toolbar toolbar = findViewById(R.id.activity_tvbrowser_toolbar);
+    setSupportActionBar(toolbar);
+
+    // Create the adapter that will return a fragment for each of the three
+    // primary sections of the app.
+    mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
+
+    mTabLayout = findViewById(R.id.activity_tvbrowser_tabs);
+
+    // For each of the sections in the app, add a tab to the action bar.
+    for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
+      // Create a tab with text corresponding to the page title defined by
+      // the adapter. Also specify this Activity object, which implements
+      // the TabListener interface, as the callback (listener) for when
+      // this tab is selected.
+      mTabLayout.addTab(mTabLayout.newTab().setText(mSectionsPagerAdapter.getPageTitle(i)));
+    }
+
+    mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
     mProgamListStateStack = new Stack<>();
 
@@ -341,8 +658,84 @@ public class TvBrowser extends AppCompatActivity {
       selectingChannels = savedInstanceState.getBoolean(SettingConstants.SELECTION_CHANNELS_KEY, false);
     }
 
-    setupToolbar();
-    setupViewPager();
+    if(SettingConstants.isReminderPaused(TvBrowser.this)) {
+      toolbar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#4e0002")));
+    }
+    else {
+      toolbar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#212021")));
+    }
+
+
+    // Set up the ViewPager with the sections adapter.
+    mViewPager = findViewById(R.id.activity_tvbrowser_pager);
+    mViewPager.setAdapter(mSectionsPagerAdapter);
+    mViewPager.setOffscreenPageLimit(3);
+    mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
+
+    // When swiping between different sections, select the corresponding
+    // tab. We can also use ActionBar.Tab#select() to do this if we have
+    // a reference to the Tab.
+    mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+      @Override
+      public void onTabSelected(TabLayout.Tab tab) {
+        mViewPager.setCurrentItem(tab.getPosition());
+
+        if(tab.getPosition() < mTabLayout.getTabCount() && mTabLayout.getTabCount() > 1) {
+          Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(tab.getPosition());
+
+          if(fragment instanceof FragmentProgramTable) {
+            ((FragmentProgramTable)fragment).firstLoad(getLayoutInflater());
+            ((FragmentProgramTable)fragment).scrollToTime(0, mScrollTimeItem);
+          }
+
+          if(mFilterItem != null) {
+            mFilterItem.setVisible(!(fragment instanceof FragmentFavorites) && !mSearchExpanded);
+          }
+          if(mCreateFavorite != null) {
+            mCreateFavorite.setVisible(fragment instanceof FragmentFavorites && !mSearchExpanded);
+          }
+
+          mProgramsListWasShow = false;
+
+          if(tab.getPosition() != 1) {
+            mProgamListStateStack.clear();
+          }
+
+          if(mScrollTimeItem != null) {
+            switch(tab.getPosition()) {
+              case 2:mScrollTimeItem.setVisible(false);break;
+
+              default:mScrollTimeItem.setVisible(!mSearchExpanded);break;
+            }
+          }
+        }
+      }
+
+      /*
+    if(mScrollTimeItem != null) {
+      switch(tab.getPosition()) {
+        case 2:mScrollTimeItem.setVisible(false);break;
+
+        default:mScrollTimeItem.setVisible(true && !mSearchExpanded);break;
+      }
+    }*/
+
+      @Override
+      public void onTabUnselected(TabLayout.Tab tab) {
+
+      }
+
+      @Override
+      public void onTabReselected(TabLayout.Tab tab) {
+
+      }
+    });
+
+    int startTab = Integer.parseInt(PrefUtils.getStringValue(R.string.TAB_TO_SHOW_AT_START, R.string.tab_to_show_at_start_default));
+
+    if(mSectionsPagerAdapter.getCount() > startTab) {
+      mViewPager.setCurrentItem(startTab);
+    }
 
     mCreateTime = System.currentTimeMillis();
 
@@ -352,68 +745,6 @@ public class TvBrowser extends AppCompatActivity {
     IOUtils.setDataTableRefreshTime(TvBrowser.this);
     donationsRatingHelper = new DonationRatingHelperImpl(this);
     mPluginUpdateHelper = new PluginUpdateHelperImpl(this);
-  }
-
-  private void setupToolbar() {
-    final Toolbar toolbar = findViewById(R.id.activity_tvbrowser_toolbar);
-    setSupportActionBar(toolbar);
-    if(SettingConstants.isReminderPaused(this)) {
-      toolbar.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.activeReminderToolbarBackground)));
-    }
-    else {
-      toolbar.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.colorPrimary)));
-    }
-  }
-
-  private void setupViewPager() {
-    mTvBrowserPagerAdapter = new TvBrowserPagerAdapter(this, getSupportFragmentManager());
-
-    mViewPager = findViewById(R.id.activity_tvbrowser_pager);
-    mViewPager.setAdapter(mTvBrowserPagerAdapter);
-    mViewPager.setOffscreenPageLimit(3);
-    mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
-      @Override
-      public void onPageSelected(final int position) {
-        final Fragment fragment = mTvBrowserPagerAdapter.getRegisteredFragment(position);
-
-        if (fragment instanceof FragmentProgramTable) {
-          ((FragmentProgramTable) fragment).firstLoad(getLayoutInflater());
-          ((FragmentProgramTable) fragment).scrollToTime(0, mScrollTimeItem);
-        }
-
-        if (mFilterItem != null) {
-          mFilterItem.setVisible(!(fragment instanceof FragmentFavorites) && !mSearchExpanded);
-        }
-        if (mCreateFavorite != null) {
-          mCreateFavorite.setVisible(fragment instanceof FragmentFavorites && !mSearchExpanded);
-        }
-
-        mProgramsListWasShow = false;
-
-        if (position != 1) {
-          mProgamListStateStack.clear();
-        }
-
-        if (mScrollTimeItem != null) {
-          switch (position) {
-            case 2:
-              mScrollTimeItem.setVisible(false);
-              break;
-            default:
-              mScrollTimeItem.setVisible(!mSearchExpanded);
-              break;
-          }
-        }
-      }
-    });
-
-    final int startTab = Integer.parseInt(PrefUtils.getStringValue(R.string.TAB_TO_SHOW_AT_START, R.string.tab_to_show_at_start_default));
-    if(mTvBrowserPagerAdapter.getCount() > startTab) {
-      mViewPager.setCurrentItem(startTab);
-    }
-
-    final TabLayout mTabLayout = findViewById(R.id.activity_tvbrowser_tabs);
-    mTabLayout.setupWithViewPager(mViewPager, true);
   }
 
   @Override
@@ -1478,10 +1809,18 @@ public class TvBrowser extends AppCompatActivity {
     handler.post(() -> {
       mViewPager.setCurrentItem(0,true);
 
-      for(int i = mTvBrowserPagerAdapter.getCount()-1; i >= 0; i--) {
-        mTvBrowserPagerAdapter.destroyItem(mViewPager, i, mTvBrowserPagerAdapter.getRegisteredFragment(i));
+      for(int i = mSectionsPagerAdapter.getCount()-1; i >= 0; i--) {
+        mSectionsPagerAdapter.destroyItem(mViewPager, i, mSectionsPagerAdapter.getRegisteredFragment(i));
+        mSectionsPagerAdapter.notifyDataSetChanged();
+
+        try {
+          mTabLayout.removeTabAt(i);
+        }catch(NullPointerException ignored) {
+
+        }
       }
-      mTvBrowserPagerAdapter.notifyDataSetChanged();
+
+      mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.tab_restoring_name)));
 
       new Thread("RESTORE PREFERENCES") {
         @Override
@@ -2991,10 +3330,10 @@ public class TvBrowser extends AppCompatActivity {
 
     edit.commit();
 
-    Fragment fragment = mTvBrowserPagerAdapter.getRegisteredFragment(2);
+    Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
 
     if(fragment instanceof FragmentFavorites) {
-      ((FragmentFavorites)fragment).updateSynchroButton(null);
+      ((FragmentFavorites)fragment).updateSynchroButton(handler,null);
     }
 
     if(syncChannels) {
@@ -3260,7 +3599,7 @@ public class TvBrowser extends AppCompatActivity {
         public void run() {
           SettingConstants.UPDATING_FILTER = true;
 
-          final NotificationCompat.Builder builder = new NotificationCompat.Builder(TvBrowser.this, App.getNotificationChannelIdDefault(TvBrowser.this));
+          final NotificationCompat.Builder builder = new NotificationCompat.Builder(TvBrowser.this);
           builder.setSmallIcon(R.drawable.ic_stat_notify);
           builder.setOngoing(true);
           builder.setContentTitle(getResources().getText(R.string.action_dont_want_to_see));
@@ -3441,31 +3780,34 @@ public class TvBrowser extends AppCompatActivity {
   private void updateFromPreferences(boolean finish) {
     SettingConstants.initializeLogoMap(getApplicationContext(), true);
 
-    Fragment test1 = mTvBrowserPagerAdapter.getRegisteredFragment(1);
+    Fragment test1 = mSectionsPagerAdapter.getRegisteredFragment(1);
 
     if(test1 instanceof FragmentProgramsList) {
       ((FragmentProgramsList)test1).updateChannels();
     }
 
-    Fragment fragment = mTvBrowserPagerAdapter.getRegisteredFragment(2);
+    Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
 
     if(fragment instanceof FragmentFavorites) {
-      ((FragmentFavorites)fragment).updateSynchroButton(null);
+      ((FragmentFavorites)fragment).updateSynchroButton(handler,null);
       ((FragmentFavorites)fragment).updateProgramsList();
     }
 
     boolean programTableActivated = PrefUtils.getBooleanValue(R.string.PROG_TABLE_ACTIVATED, R.bool.prog_table_activated_default);
-    Fragment test = mTvBrowserPagerAdapter.getRegisteredFragment(3);
+    Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
 
     if(!programTableActivated && test instanceof FragmentProgramTable) {
       ((FragmentProgramTable)test).removed();
-      mTvBrowserPagerAdapter.destroyItem(mViewPager, 3, mTvBrowserPagerAdapter.getRegisteredFragment(3));
-      mTvBrowserPagerAdapter.notifyDataSetChanged();
+      mSectionsPagerAdapter.destroyItem(mViewPager, 3, mSectionsPagerAdapter.getRegisteredFragment(3));
+      mSectionsPagerAdapter.notifyDataSetChanged();
+      mTabLayout.removeTabAt(3);
     }
     else if(!(test instanceof FragmentProgramTable) && programTableActivated) {
       try {
-        mTvBrowserPagerAdapter.instantiateItem(mViewPager, 3);
-        mTvBrowserPagerAdapter.notifyDataSetChanged();
+        mTabLayout.addTab(mTabLayout.newTab()
+            .setText(mSectionsPagerAdapter.getPageTitle(3)));
+        mSectionsPagerAdapter.notifyDataSetChanged();
+        mSectionsPagerAdapter.instantiateItem(mViewPager, 3);
       }catch(Throwable ignored) {}
     }
     else if(test instanceof FragmentProgramTable) {
@@ -3761,10 +4103,7 @@ public class TvBrowser extends AppCompatActivity {
       mPauseReminder.setVisible(false);
       mContinueReminder.setVisible(true);
 
-      final ActionBar actionBar = getSupportActionBar();
-      if (actionBar!=null) {
-        actionBar.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.activeReminderToolbarBackground)));
-      }
+      getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#4e0002")));
       UiUtils.updateToggleReminderStateWidget(getApplicationContext());
     });
 
@@ -4209,7 +4548,7 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private void editFavorite() {
-    Fragment favorites = mTvBrowserPagerAdapter.getRegisteredFragment(2);
+    Fragment favorites = mSectionsPagerAdapter.getRegisteredFragment(2);
 
     if(favorites instanceof FragmentFavorites) {
       ((FragmentFavorites) favorites).editSelectedFavorite();
@@ -4217,7 +4556,7 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private void deleteFavorite() {
-    Fragment favorites = mTvBrowserPagerAdapter.getRegisteredFragment(2);
+    Fragment favorites = mSectionsPagerAdapter.getRegisteredFragment(2);
 
     if(favorites instanceof FragmentFavorites) {
       ((FragmentFavorites) favorites).deleteSelectedFavorite();
@@ -4280,10 +4619,7 @@ public class TvBrowser extends AppCompatActivity {
       case R.id.action_pause_reminder: pauseReminder(); break;
       case R.id.action_continue_reminder: {
         SettingConstants.setReminderPaused(TvBrowser.this, false);
-        final ActionBar actionBar = getSupportActionBar();
-        if (actionBar!=null) {
-          actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#212021")));
-        }
+        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#212021")));
         mPauseReminder.setVisible(true);
         mContinueReminder.setVisible(false);
         UiUtils.updateToggleReminderStateWidget(getApplicationContext());
@@ -4418,7 +4754,7 @@ public class TvBrowser extends AppCompatActivity {
     Log.d("info8", "scrollToTime " + time);
     switch (mViewPager.getCurrentItem()) {
       case 0: {
-        Fragment test = mTvBrowserPagerAdapter.getRegisteredFragment(0);
+        Fragment test = mSectionsPagerAdapter.getRegisteredFragment(0);
         Log.d("info8", "" + test);
         if (test instanceof FragmentProgramsListRunning && time >= 0) {
           ((FragmentProgramsListRunning) test).selectTime(time);
@@ -4426,7 +4762,7 @@ public class TvBrowser extends AppCompatActivity {
         break;
       }
       case 1: {
-        Fragment test = mTvBrowserPagerAdapter.getRegisteredFragment(1);
+        Fragment test = mSectionsPagerAdapter.getRegisteredFragment(1);
 
         if (test instanceof FragmentProgramsList && time >= 0) {
           ((FragmentProgramsList) test).setScrollTime(time);
@@ -4435,7 +4771,7 @@ public class TvBrowser extends AppCompatActivity {
         break;
       }
       case 3: {
-        Fragment test = mTvBrowserPagerAdapter.getRegisteredFragment(3);
+        Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
 
         if (test instanceof FragmentProgramTable) {
           ((FragmentProgramTable) test).scrollToTime(time, mScrollTimeItem);
@@ -4452,10 +4788,161 @@ public class TvBrowser extends AppCompatActivity {
 
     //  Associate searchable configuration with the SearchView
     final SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-    if (searchManager!=null) {
-      final SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
-      searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-    }
+    final SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+    searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+    final SimpleCursorAdapter adapter = new SimpleCursorAdapter(TvBrowser.this,
+      R.layout.row_suggestion,
+      null,
+      new String[]{"channel_id",TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.DATA_KEY_UNIX_DATE, TvBrowserContentProvider.DATA_KEY_STARTTIME,SearchManager.SUGGEST_COLUMN_TEXT_1,SearchManager.SUGGEST_COLUMN_TEXT_2},
+      new int[]{R.id.row_suggestion_channel_row_logo, R.id.row_suggestion_channel_name, R.id.row_suggestion_channel_name, R.id.row_suggestion_date, R.id.row_suggestion_time, R.id.row_suggestion_title, R.id.row_suggestion_episode},
+      0) {
+      @Override
+      public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
+        return getContentResolver().query(Uri.parse("content://" + TvBrowserContentProvider.AUTHORITY + "/" + SearchManager.SUGGEST_URI_PATH_QUERY + "/" + constraint), null, null, null, null);
+      }
+
+      @Override
+      public Cursor swapCursor(Cursor c) {
+        SearchView.SearchAutoComplete mSearchSrcTextView = (SearchView.SearchAutoComplete) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+        mSearchSrcTextView.setDropDownWidth(getResources().getDisplayMetrics().widthPixels);
+        mSearchSrcTextView.setDropDownBackgroundResource(R.color.dark_gray_lighter);
+        return super.swapCursor(c);
+      }
+
+      @Override
+      public View getView(int position, View convertView, ViewGroup parent) {
+        final View view = super.getView(position,convertView,parent);
+
+        if(convertView == null) {
+          UiUtils.scaleTextViews(view, Float.valueOf(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_TEXT_SCALE, R.string.pref_program_lists_text_scale_default)));
+        }
+
+        return view;
+      }
+    };
+
+    adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+      private int mPositionLast = -1;
+      private boolean mShowChannelName = false;
+
+      @Override
+      public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+        final int positionCurrent = cursor.getPosition();
+
+        if(positionCurrent != mPositionLast) {
+          mShowChannelName = false;
+        }
+
+        boolean result = false;
+
+        if("channel_id".equals(cursor.getColumnName(columnIndex))) {
+          final String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS, R.string.channel_logo_name_program_lists_default);
+
+          boolean showChannelLogo = logoNamePref.equals("0") || logoNamePref.equals("1");
+          boolean showBigChannelLogo = logoNamePref.equals("3");
+
+          if(showChannelLogo || showBigChannelLogo) {
+            Log.d("info22",""+SettingConstants.getLogoMap(showBigChannelLogo));
+            final Drawable logo = SettingConstants.getLogoMap(showBigChannelLogo).get(cursor.getInt(columnIndex));
+
+            if(logo != null) {
+              ((ImageView) view).setImageDrawable(logo);
+            }
+
+            view.setVisibility(View.VISIBLE);
+          }
+          else {
+            view.setVisibility(View.GONE);
+          }
+
+          result = true;
+        }
+        else if(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER.equals(cursor.getColumnName(columnIndex))) {
+          if(PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_LISTS, R.bool.show_sort_number_in_lists_default)) {
+            ((TextView) view).setText(cursor.getInt(columnIndex) + ".");
+          }
+
+          result = true;
+        }
+        else if(TvBrowserContentProvider.CHANNEL_KEY_NAME.equals(cursor.getColumnName(columnIndex))) {
+          final String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS, R.string.channel_logo_name_program_lists_default);
+
+          if(mShowChannelName || logoNamePref.equals("0") || logoNamePref.equals("2")) {
+            if (!((TextView) view).getText().toString().trim().isEmpty()) {
+              ((TextView) view).append(" ");
+            }
+
+            ((TextView) view).append(cursor.getString(columnIndex));
+
+            view.setVisibility(View.VISIBLE);
+          }
+          else if(((TextView) view).getText().toString().trim().isEmpty()) {
+            view.setVisibility(View.GONE);
+          }
+
+          result = true;
+        }
+        else if(TvBrowserContentProvider.DATA_KEY_UNIX_DATE.equals(cursor.getColumnName(columnIndex))) {
+          final long date = cursor.getLong(columnIndex);
+
+          ((TextView)view).setText(UiUtils.formatDate(date,TvBrowser.this,false, true, true, java.text.DateFormat.LONG, false));
+
+          if(PrefUtils.getBooleanValue(R.string.PREF_PROGRAM_LISTS_SHOW_END_TIME, R.bool.pref_program_lists_show_end_time_default)) {
+            final long end = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+
+            ((TextView)view).append(getString(R.string.running_until));
+            ((TextView)view).append(" ");
+            ((TextView)view).append(UiUtils.getTimeFormat(TvBrowser.this).format(new Date(end)));
+          }
+
+          view.setVisibility(View.VISIBLE);
+
+          result = true;
+        }
+        else if(TvBrowserContentProvider.DATA_KEY_STARTTIME.equals(cursor.getColumnName(columnIndex))) {
+          final long start = cursor.getLong(columnIndex);
+
+          if(start < System.currentTimeMillis()) {
+            final long end = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+
+            int minutes = (int)((end - start) / 60000);
+            int progressed = (int)((System.currentTimeMillis()-start) / 60000);
+
+            final ProgressBar progress = ((ViewGroup)view.getParent()).findViewById(R.id.row_suggestion_progress);
+            progress.setVisibility(View.VISIBLE);
+            progress.setIndeterminate(false);
+            progress.setMax(minutes);
+            progress.setProgress(progressed);
+          }
+          else {
+            ((ViewGroup)view.getParent()).findViewById(R.id.row_suggestion_progress).setVisibility(View.GONE);
+          }
+
+          java.text.DateFormat mTimeFormat = UiUtils.getTimeFormat(TvBrowser.this);
+
+          ((TextView)view).setText(mTimeFormat.format(new Date(start)));
+
+          result = true;
+        }
+        else if(SearchManager.SUGGEST_COLUMN_TEXT_2.equals(cursor.getColumnName(columnIndex))) {
+          if(cursor.isNull(columnIndex)) {
+            view.setVisibility(View.GONE);
+            result = true;
+          }
+          else {
+            view.setVisibility(View.VISIBLE);
+          }
+        }
+
+        mPositionLast = positionCurrent;
+
+        return result;
+      }
+    });
+
+    searchView.setSuggestionsAdapter(adapter);
+
     mUpdateItem = menu.findItem(R.id.menu_tvbrowser_action_update_data);
 
     if(!"0".equals(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
@@ -4465,7 +4952,7 @@ public class TvBrowser extends AppCompatActivity {
     mFilterItem = menu.findItem(R.id.action_filter_channels);
     mCreateFavorite = menu.findItem(R.id.menu_tvbrowser_action_create_favorite);
 
-    Fragment fragment = mTvBrowserPagerAdapter.getItem(mViewPager.getCurrentItem());
+    Fragment fragment = mSectionsPagerAdapter.getItem(mViewPager.getCurrentItem());
 
     mFilterItem.setVisible(!(fragment instanceof FragmentFavorites));
     mCreateFavorite.setVisible(fragment instanceof FragmentFavorites);
@@ -4482,8 +4969,11 @@ public class TvBrowser extends AppCompatActivity {
 
     mSearchExpanded = false;
 
-    addOnActionExpandListener(menu.findItem(R.id.search));
+   // if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
+      addOnActionExpandListener(menu.findItem(R.id.search));
+   // }
 
+   // menu.findItem(R.id.action_synchronize_dont_want_to_see).setVisible(false);
     menu.findItem(R.id.action_synchronize_favorites).setVisible(false);
 
     if(mUpdateItem != null && TvDataUpdateService.isRunning()) {
@@ -4552,7 +5042,7 @@ public class TvBrowser extends AppCompatActivity {
         public boolean onMenuItemActionCollapse(MenuItem item) {
           mSearchExpanded = false;
 
-          Fragment fragment = mTvBrowserPagerAdapter.getItem(mViewPager.getCurrentItem());
+          Fragment fragment = mSectionsPagerAdapter.getItem(mViewPager.getCurrentItem());
 
           if("0".equals(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
             mUpdateItem.setVisible(true);
@@ -4650,6 +5140,105 @@ public class TvBrowser extends AppCompatActivity {
 
         subMenu.add(100, SCROLL_IDS[i], i+1, DateFormat.getTimeFormat(TvBrowser.this).format(cal.getTime()));
       }
+    }
+  }
+
+  /**
+   * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one
+   * of the sections/tabs/pages.
+   */
+  class SectionsPagerAdapter extends FragmentPagerAdapter {
+    final SparseArrayCompat<Fragment> registeredFragments = new SparseArrayCompat<>();
+
+    SectionsPagerAdapter(FragmentManager fm) {
+      super(fm);
+    }
+
+    @Override
+    public synchronized Fragment getItem(int position) {
+      // getItem is called to instantiate the fragment for the given page.
+      // Return a DummySectionFragment (defined as a static inner class
+      // below) with the page number as its lone argument.
+      Fragment fragment = registeredFragments.get(position);
+
+      if(fragment == null) {
+        switch (position) {
+          case 0:
+            if (IOUtils.isDatabaseAccessible(getApplicationContext())) {
+              fragment = new FragmentProgramsListRunning();
+              if (START_TIME != Integer.MIN_VALUE) {
+                ((FragmentProgramsListRunning) fragment).setStartTime(START_TIME + 1);
+                START_TIME = Integer.MIN_VALUE;
+              }
+            } else {
+              fragment = new Fragment();
+            }
+            break;
+          case 1:
+            fragment = FragmentProgramsList.getInstance(mProgramListScrollTime, mProgramListScrollEndTime, mProgramListChannelId);
+            mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
+            mProgramListScrollTime = -1;
+            mProgramListScrollEndTime = -1;
+            break;
+          case 2:
+            fragment = new FragmentFavorites();
+            break;
+          case 3:
+            fragment = new FragmentProgramTable();
+            break;
+        }
+      }
+
+      return fragment;
+    }
+
+    @Override
+    public int getCount() {
+      if(!IOUtils.isDatabaseAccessible(getApplicationContext())) {
+        return 1;
+      }
+
+      // Show 3 total pages.
+      if(PrefUtils.getBooleanValue(R.string.PROG_TABLE_ACTIVATED, R.bool.prog_table_activated_default)) {
+        return 4;
+      }
+
+      return 3;
+    }
+
+    @Override
+    public CharSequence getPageTitle(int position) {
+      Locale l = Locale.getDefault();
+
+      switch (position) {
+        case 0:
+          return !IOUtils.isDatabaseAccessible(getApplicationContext()) ? "DATABASE NOT AVAILABLE" : getString(R.string.title_running_programs).toUpperCase(l);
+        case 1:
+          return getString(R.string.title_programs_list).toUpperCase(l);
+        case 2:
+          return getString(R.string.title_favorites).toUpperCase(l);
+        case 3:
+          return getString(R.string.title_program_table).toUpperCase(l);
+      }
+      return null;
+    }
+
+    @NonNull
+    @Override
+    public synchronized Object instantiateItem(ViewGroup container, int position) {
+        Fragment fragment = (Fragment) super.instantiateItem(container, position);
+        registeredFragments.put(position, fragment);
+        return fragment;
+    }
+
+    @Override
+    public void destroyItem(ViewGroup container, int position, Object object) {
+        registeredFragments.remove(position);
+        super.destroyItem(container, position, object);
+    }
+
+    Fragment getRegisteredFragment(int position) {
+        return registeredFragments.get(position);
     }
   }
 
@@ -4800,6 +5389,30 @@ public class TvBrowser extends AppCompatActivity {
     return null;
   }
 
+  /* Workaround end */
+
+  /*@Override
+  public boolean onMenuOpened(int featureId, Menu menu)
+  {
+      if(featureId == Window.FEATURE_ACTION_BAR && menu != null){
+          if(menu.getClass().getSimpleName().equals("MenuBuilder")){
+              try{
+                  Method m = menu.getClass().getDeclaredMethod(
+                      "setOptionalIconsVisible", Boolean.TYPE);
+                  m.setAccessible(true);
+                  m.invoke(menu, true);
+              }
+              catch(NoSuchMethodException e){
+                 // Log.e(TAG, "onMenuOpened", e);
+              }
+              catch(Exception e){
+                  throw new RuntimeException(e);
+              }
+          }
+      }
+      return super.onMenuOpened(featureId, menu);
+  }*/
+
   public void showSQLquery(String selection, String[] selectionArgs) {
     if(TEST_VERSION) {
       StringBuilder message = new StringBuilder();
@@ -4834,33 +5447,5 @@ public class TvBrowser extends AppCompatActivity {
     if(mPluginPreferencesMenuItem != null) {
       mPluginPreferencesMenuItem.setEnabled(PluginHandler.hasPlugins());
     }
-  }
-
-  public void setInfoType(@InfoType final int infoType) {
-    this.mInfoType = infoType;
-  }
-
-  int getProgramListChannelId() {
-    return mProgramListChannelId;
-  }
-
-  void setProgramListChannelId(final int programListChannelId) {
-    this.mProgramListChannelId = programListChannelId;
-  }
-
-  long getProgramListScrollTime() {
-    return mProgramListScrollTime;
-  }
-
-  void setProgramListScrollTime(final long programListScrollTime) {
-    this.mProgramListScrollTime = programListScrollTime;
-  }
-
-  long getProgramListScrollEndTime() {
-    return mProgramListScrollEndTime;
-  }
-
-  void setProgramListScrollEndTime(final long programListScrollEndTime) {
-    this.mProgramListScrollEndTime = programListScrollEndTime;
   }
 }
