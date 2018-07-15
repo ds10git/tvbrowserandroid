@@ -864,11 +864,7 @@ public final class UiUtils {
 
                             name = "<b><u>" + name.replace("\n", "<br>") + "</u></b>" + (endWith ? " " : "");
 
-                            //SpannableStringBuilder textSpan = new SpannableStringBuilder(Html.fromHtml(name + text));
-
-                            checkAndAddHiglightingForFavorites(textView, Html.fromHtml(name + text), patternList, false, backgroundColorSpan);
-
-                            //textView.setText(textSpan);
+                            checkAndAddHiglightingForFavorites(textView, CompatUtils.fromHtml(name + text), patternList, false, backgroundColorSpan);
                           }
                         } catch (Exception e) {
                           textView.setVisibility(View.GONE);
