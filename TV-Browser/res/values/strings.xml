@@ -476,6 +476,7 @@
     <string name="title_programs_list">Program list</string>
     <string name="title_program_table">Program table</string>
     <string name="title_favorites">Favorites</string>
+    <string name="title_database_not_available">DATABASE NOT AVAILABLE</string>
     <string name="button_now">Now</string>
     <string name="button_all_channels">All</string>
     <string name="button_6" translatable="false">6:00</string>

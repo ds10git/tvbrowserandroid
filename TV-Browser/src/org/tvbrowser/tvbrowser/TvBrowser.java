@@ -42,6 +42,7 @@ import java.util.TimerTask;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
+import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
@@ -104,14 +105,13 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentPagerAdapter;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -175,33 +175,18 @@ public class TvBrowser extends AppCompatActivity {
   private HashSet<FilterValues> mCurrentFilter;
   private Set<String> mCurrentFilterId;
 
-  /**
-   * The {@link android.support.v4.view.PagerAdapter} that will provide
-   * fragments for each of the sections. We use a
-   * {@link android.support.v4.app.FragmentPagerAdapter} derivative, which will
-   * keep every loaded fragment in memory. If this becomes too memory intensive,
-   * it may be best to switch to a
-   * {@link android.support.v4.app.FragmentStatePagerAdapter}.
-   */
-  private SectionsPagerAdapter mSectionsPagerAdapter;
-
   private boolean updateRunning;
   private boolean selectingChannels;
-  private TabLayout mTabLayout;
   private boolean mSearchExpanded;
 
-  /**
-   * The {@link ViewPager} that will host the section contents.
-   */
+  private TvBrowserPagerAdapter mTvBrowserPagerAdapter;
   private ViewPager mViewPager;
 
   private Handler handler;
-
   private Timer mTimer;
 
   private MenuItem mFilterItem;
   private MenuItem mCreateFavorite;
-
   private MenuItem mUpdateItem;
   private MenuItem mSendReminderLogItem;
   private MenuItem mDeleteReminderLogItem;
@@ -209,13 +194,13 @@ public class TvBrowser extends AppCompatActivity {
   private MenuItem mDeletePluginLogItem;
   private MenuItem mScrollTimeItem;
   private MenuItem mPluginPreferencesMenuItem;
-
   private MenuItem mDebugMenuItem;
-
   private MenuItem mPauseReminder;
   private MenuItem mContinueReminder;
 
   private static final Calendar mRundate;
+  private Menu mOptionsMenu;
+
   private static int[] SCROLL_IDS = new int[0];
   private static int[] SCROLL_TIMES;
 
@@ -226,8 +211,6 @@ public class TvBrowser extends AppCompatActivity {
   private int mLastSelectedTab;
 
   private static String ALL_VALUE;
-
-  private Menu mOptionsMenu;
 
   private Stack<ProgramsListState> mProgamListStateStack;
   private BroadcastReceiver mUpdateDoneBroadcastReceiver;
@@ -611,7 +594,7 @@ public class TvBrowser extends AppCompatActivity {
             showNews();
           }
         }, 2000);*/
-      }
+    }
 
       if(oldVersion !=  pInfo.versionCode) {
         Editor edit = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this).edit();
@@ -625,25 +608,6 @@ public class TvBrowser extends AppCompatActivity {
     SettingConstants.initializeLogoMap(TvBrowser.this,false);
 
     setContentView(R.layout.activity_tv_browser);
-    final Toolbar toolbar = findViewById(R.id.activity_tvbrowser_toolbar);
-    setSupportActionBar(toolbar);
-
-    // Create the adapter that will return a fragment for each of the three
-    // primary sections of the app.
-    mSectionsPagerAdapter = new SectionsPagerAdapter(getSupportFragmentManager());
-
-    mTabLayout = findViewById(R.id.activity_tvbrowser_tabs);
-
-    // For each of the sections in the app, add a tab to the action bar.
-    for (int i = 0; i < mSectionsPagerAdapter.getCount(); i++) {
-      // Create a tab with text corresponding to the page title defined by
-      // the adapter. Also specify this Activity object, which implements
-      // the TabListener interface, as the callback (listener) for when
-      // this tab is selected.
-      mTabLayout.addTab(mTabLayout.newTab().setText(mSectionsPagerAdapter.getPageTitle(i)));
-    }
-
-    mTabLayout.setTabGravity(TabLayout.GRAVITY_FILL);
 
     mProgamListStateStack = new Stack<>();
 
@@ -654,84 +618,8 @@ public class TvBrowser extends AppCompatActivity {
       selectingChannels = savedInstanceState.getBoolean(SettingConstants.SELECTION_CHANNELS_KEY, false);
     }
 
-    if(SettingConstants.isReminderPaused(TvBrowser.this)) {
-      toolbar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#4e0002")));
-    }
-    else {
-      toolbar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#212021")));
-    }
-
-
-    // Set up the ViewPager with the sections adapter.
-    mViewPager = findViewById(R.id.activity_tvbrowser_pager);
-    mViewPager.setAdapter(mSectionsPagerAdapter);
-    mViewPager.setOffscreenPageLimit(3);
-    mViewPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTabLayout));
-
-    // When swiping between different sections, select the corresponding
-    // tab. We can also use ActionBar.Tab#select() to do this if we have
-    // a reference to the Tab.
-    mTabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-      @Override
-      public void onTabSelected(TabLayout.Tab tab) {
-        mViewPager.setCurrentItem(tab.getPosition());
-
-        if(tab.getPosition() < mTabLayout.getTabCount() && mTabLayout.getTabCount() > 1) {
-          Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(tab.getPosition());
-
-          if(fragment instanceof FragmentProgramTable) {
-            ((FragmentProgramTable)fragment).firstLoad(getLayoutInflater());
-            ((FragmentProgramTable)fragment).scrollToTime(0, mScrollTimeItem);
-          }
-
-          if(mFilterItem != null) {
-            mFilterItem.setVisible(!(fragment instanceof FragmentFavorites) && !mSearchExpanded);
-          }
-          if(mCreateFavorite != null) {
-            mCreateFavorite.setVisible(fragment instanceof FragmentFavorites && !mSearchExpanded);
-          }
-
-          mProgramsListWasShow = false;
-
-          if(tab.getPosition() != 1) {
-            mProgamListStateStack.clear();
-          }
-
-          if(mScrollTimeItem != null) {
-            switch(tab.getPosition()) {
-              case 2:mScrollTimeItem.setVisible(false);break;
-
-              default:mScrollTimeItem.setVisible(!mSearchExpanded);break;
-            }
-          }
-        }
-      }
-
-      /*
-    if(mScrollTimeItem != null) {
-      switch(tab.getPosition()) {
-        case 2:mScrollTimeItem.setVisible(false);break;
-
-        default:mScrollTimeItem.setVisible(true && !mSearchExpanded);break;
-      }
-    }*/
-
-      @Override
-      public void onTabUnselected(TabLayout.Tab tab) {
-
-      }
-
-      @Override
-      public void onTabReselected(TabLayout.Tab tab) {
-
-      }
-    });
-
-    int startTab = Integer.parseInt(PrefUtils.getStringValue(R.string.TAB_TO_SHOW_AT_START, R.string.tab_to_show_at_start_default));
-
-    if(mSectionsPagerAdapter.getCount() > startTab) {
-      mViewPager.setCurrentItem(startTab);
-    }
+    setupToolbar();
+    setupViewPager();
 
     mCreateTime = System.currentTimeMillis();
 
@@ -741,6 +629,68 @@ public class TvBrowser extends AppCompatActivity {
     IOUtils.setDataTableRefreshTime(TvBrowser.this);
     donationsRatingHelper = new DonationRatingHelperImpl(this);
     mPluginUpdateHelper = new PluginUpdateHelperImpl(this);
+  }
+
+  private void setupToolbar() {
+    final Toolbar toolbar = findViewById(R.id.activity_tvbrowser_toolbar);
+    setSupportActionBar(toolbar);
+    if(SettingConstants.isReminderPaused(this)) {
+      toolbar.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.activeReminderToolbarBackground)));
+    }
+    else {
+      toolbar.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.colorPrimary)));
+    }
+  }
+
+  private void setupViewPager() {
+    mTvBrowserPagerAdapter = new TvBrowserPagerAdapter(this, getSupportFragmentManager());
+
+    mViewPager = findViewById(R.id.activity_tvbrowser_pager);
+    mViewPager.setAdapter(mTvBrowserPagerAdapter);
+    mViewPager.setOffscreenPageLimit(3);
+    mViewPager.addOnPageChangeListener(new ViewPager.SimpleOnPageChangeListener() {
+      @Override
+      public void onPageSelected(final int position) {
+        final Fragment fragment = mTvBrowserPagerAdapter.getRegisteredFragment(position);
+
+        if (fragment instanceof FragmentProgramTable) {
+          ((FragmentProgramTable) fragment).firstLoad(getLayoutInflater());
+          ((FragmentProgramTable) fragment).scrollToTime(0, mScrollTimeItem);
+        }
+
+        if (mFilterItem != null) {
+          mFilterItem.setVisible(!(fragment instanceof FragmentFavorites) && !mSearchExpanded);
+        }
+        if (mCreateFavorite != null) {
+          mCreateFavorite.setVisible(fragment instanceof FragmentFavorites && !mSearchExpanded);
+        }
+
+        mProgramsListWasShow = false;
+
+        if (position != 1) {
+          mProgamListStateStack.clear();
+        }
+
+        if (mScrollTimeItem != null) {
+          switch (position) {
+            case 2:
+              mScrollTimeItem.setVisible(false);
+              break;
+            default:
+              mScrollTimeItem.setVisible(!mSearchExpanded);
+              break;
+          }
+        }
+      }
+    });
+
+    final int startTab = Integer.parseInt(PrefUtils.getStringValue(R.string.TAB_TO_SHOW_AT_START, R.string.tab_to_show_at_start_default));
+    if(mTvBrowserPagerAdapter.getCount() > startTab) {
+      mViewPager.setCurrentItem(startTab);
+    }
+
+    final TabLayout mTabLayout = findViewById(R.id.activity_tvbrowser_tabs);
+    mTabLayout.setupWithViewPager(mViewPager, true);
   }
 
   @Override
@@ -1805,18 +1755,10 @@ public class TvBrowser extends AppCompatActivity {
     handler.post(() -> {
       mViewPager.setCurrentItem(0,true);
 
-      for(int i = mSectionsPagerAdapter.getCount()-1; i >= 0; i--) {
-        mSectionsPagerAdapter.destroyItem(mViewPager, i, mSectionsPagerAdapter.getRegisteredFragment(i));
-        mSectionsPagerAdapter.notifyDataSetChanged();
-
-        try {
-          mTabLayout.removeTabAt(i);
-        }catch(NullPointerException ignored) {
-
-        }
+      for(int i = mTvBrowserPagerAdapter.getCount()-1; i >= 0; i--) {
+        mTvBrowserPagerAdapter.destroyItem(mViewPager, i, mTvBrowserPagerAdapter.getRegisteredFragment(i));
       }
-
-      mTabLayout.addTab(mTabLayout.newTab().setText(getString(R.string.tab_restoring_name)));
+      mTvBrowserPagerAdapter.notifyDataSetChanged();
 
       new Thread("RESTORE PREFERENCES") {
         @Override
@@ -3326,7 +3268,7 @@ public class TvBrowser extends AppCompatActivity {
 
     edit.commit();
 
-    Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
+    Fragment fragment = mTvBrowserPagerAdapter.getRegisteredFragment(2);
 
     if(fragment instanceof FragmentFavorites) {
       ((FragmentFavorites)fragment).updateSynchroButton(null);
@@ -3595,7 +3537,7 @@ public class TvBrowser extends AppCompatActivity {
         public void run() {
           SettingConstants.UPDATING_FILTER = true;
 
-          final NotificationCompat.Builder builder = new NotificationCompat.Builder(TvBrowser.this);
+          final NotificationCompat.Builder builder = new NotificationCompat.Builder(TvBrowser.this, App.getNotificationChannelIdDefault(TvBrowser.this));
           builder.setSmallIcon(R.drawable.ic_stat_notify);
           builder.setOngoing(true);
           builder.setContentTitle(getResources().getText(R.string.action_dont_want_to_see));
@@ -3776,13 +3718,13 @@ public class TvBrowser extends AppCompatActivity {
   private void updateFromPreferences(boolean finish) {
     SettingConstants.initializeLogoMap(getApplicationContext(), true);
 
-    Fragment test1 = mSectionsPagerAdapter.getRegisteredFragment(1);
+    Fragment test1 = mTvBrowserPagerAdapter.getRegisteredFragment(1);
 
     if(test1 instanceof FragmentProgramsList) {
       ((FragmentProgramsList)test1).updateChannels();
     }
 
-    Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
+    Fragment fragment = mTvBrowserPagerAdapter.getRegisteredFragment(2);
 
     if(fragment instanceof FragmentFavorites) {
       ((FragmentFavorites)fragment).updateSynchroButton(null);
@@ -3790,20 +3732,17 @@ public class TvBrowser extends AppCompatActivity {
     }
 
     boolean programTableActivated = PrefUtils.getBooleanValue(R.string.PROG_TABLE_ACTIVATED, R.bool.prog_table_activated_default);
-    Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
+    Fragment test = mTvBrowserPagerAdapter.getRegisteredFragment(3);
 
     if(!programTableActivated && test instanceof FragmentProgramTable) {
       ((FragmentProgramTable)test).removed();
-      mSectionsPagerAdapter.destroyItem(mViewPager, 3, mSectionsPagerAdapter.getRegisteredFragment(3));
-      mSectionsPagerAdapter.notifyDataSetChanged();
-      mTabLayout.removeTabAt(3);
+      mTvBrowserPagerAdapter.destroyItem(mViewPager, 3, mTvBrowserPagerAdapter.getRegisteredFragment(3));
+      mTvBrowserPagerAdapter.notifyDataSetChanged();
     }
     else if(!(test instanceof FragmentProgramTable) && programTableActivated) {
       try {
-        mTabLayout.addTab(mTabLayout.newTab()
-            .setText(mSectionsPagerAdapter.getPageTitle(3)));
-        mSectionsPagerAdapter.notifyDataSetChanged();
-        mSectionsPagerAdapter.instantiateItem(mViewPager, 3);
+        mTvBrowserPagerAdapter.instantiateItem(mViewPager, 3);
+        mTvBrowserPagerAdapter.notifyDataSetChanged();
       }catch(Throwable ignored) {}
     }
     else if(test instanceof FragmentProgramTable) {
@@ -4099,7 +4038,10 @@ public class TvBrowser extends AppCompatActivity {
       mPauseReminder.setVisible(false);
       mContinueReminder.setVisible(true);
 
-      getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#4e0002")));
+      final ActionBar actionBar = getSupportActionBar();
+      if (actionBar!=null) {
+        actionBar.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.activeReminderToolbarBackground)));
+      }
       UiUtils.updateToggleReminderStateWidget(getApplicationContext());
     });
 
@@ -4544,7 +4486,7 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private void editFavorite() {
-    Fragment favorites = mSectionsPagerAdapter.getRegisteredFragment(2);
+    Fragment favorites = mTvBrowserPagerAdapter.getRegisteredFragment(2);
 
     if(favorites instanceof FragmentFavorites) {
       ((FragmentFavorites) favorites).editSelectedFavorite();
@@ -4552,7 +4494,7 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private void deleteFavorite() {
-    Fragment favorites = mSectionsPagerAdapter.getRegisteredFragment(2);
+    Fragment favorites = mTvBrowserPagerAdapter.getRegisteredFragment(2);
 
     if(favorites instanceof FragmentFavorites) {
       ((FragmentFavorites) favorites).deleteSelectedFavorite();
@@ -4615,7 +4557,10 @@ public class TvBrowser extends AppCompatActivity {
       case R.id.action_pause_reminder: pauseReminder(); break;
       case R.id.action_continue_reminder: {
         SettingConstants.setReminderPaused(TvBrowser.this, false);
-        getSupportActionBar().setBackgroundDrawable(new ColorDrawable(Color.parseColor("#212021")));
+        final ActionBar actionBar = getSupportActionBar();
+        if (actionBar!=null) {
+          actionBar.setBackgroundDrawable(new ColorDrawable(Color.parseColor("#212021")));
+        }
         mPauseReminder.setVisible(true);
         mContinueReminder.setVisible(false);
         UiUtils.updateToggleReminderStateWidget(getApplicationContext());
@@ -4750,7 +4695,7 @@ public class TvBrowser extends AppCompatActivity {
     Log.d("info8", "scrollToTime " + time);
     switch (mViewPager.getCurrentItem()) {
       case 0: {
-        Fragment test = mSectionsPagerAdapter.getRegisteredFragment(0);
+        Fragment test = mTvBrowserPagerAdapter.getRegisteredFragment(0);
         Log.d("info8", "" + test);
         if (test instanceof FragmentProgramsListRunning && time >= 0) {
           ((FragmentProgramsListRunning) test).selectTime(time);
@@ -4758,7 +4703,7 @@ public class TvBrowser extends AppCompatActivity {
         break;
       }
       case 1: {
-        Fragment test = mSectionsPagerAdapter.getRegisteredFragment(1);
+        Fragment test = mTvBrowserPagerAdapter.getRegisteredFragment(1);
 
         if (test instanceof FragmentProgramsList && time >= 0) {
           ((FragmentProgramsList) test).setScrollTime(time);
@@ -4767,7 +4712,7 @@ public class TvBrowser extends AppCompatActivity {
         break;
       }
       case 3: {
-        Fragment test = mSectionsPagerAdapter.getRegisteredFragment(3);
+        Fragment test = mTvBrowserPagerAdapter.getRegisteredFragment(3);
 
         if (test instanceof FragmentProgramTable) {
           ((FragmentProgramTable) test).scrollToTime(time, mScrollTimeItem);
@@ -4783,10 +4728,11 @@ public class TvBrowser extends AppCompatActivity {
     getMenuInflater().inflate(R.menu.tv_browser, menu);
 
     //  Associate searchable configuration with the SearchView
-    SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-    SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
-    searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
-
+    final SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+    if (searchManager!=null) {
+      final SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+      searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+    }
     mUpdateItem = menu.findItem(R.id.menu_tvbrowser_action_update_data);
 
     if(!"0".equals(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
@@ -4796,7 +4742,7 @@ public class TvBrowser extends AppCompatActivity {
     mFilterItem = menu.findItem(R.id.action_filter_channels);
     mCreateFavorite = menu.findItem(R.id.menu_tvbrowser_action_create_favorite);
 
-    Fragment fragment = mSectionsPagerAdapter.getItem(mViewPager.getCurrentItem());
+    Fragment fragment = mTvBrowserPagerAdapter.getItem(mViewPager.getCurrentItem());
 
     mFilterItem.setVisible(!(fragment instanceof FragmentFavorites));
     mCreateFavorite.setVisible(fragment instanceof FragmentFavorites);
@@ -4813,11 +4759,8 @@ public class TvBrowser extends AppCompatActivity {
 
     mSearchExpanded = false;
 
-   // if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH) {
-      addOnActionExpandListener(menu.findItem(R.id.search));
-   // }
+    addOnActionExpandListener(menu.findItem(R.id.search));
 
-   // menu.findItem(R.id.action_synchronize_dont_want_to_see).setVisible(false);
     menu.findItem(R.id.action_synchronize_favorites).setVisible(false);
 
     if(mUpdateItem != null && TvDataUpdateService.isRunning()) {
@@ -4886,7 +4829,7 @@ public class TvBrowser extends AppCompatActivity {
         public boolean onMenuItemActionCollapse(MenuItem item) {
           mSearchExpanded = false;
 
-          Fragment fragment = mSectionsPagerAdapter.getItem(mViewPager.getCurrentItem());
+          Fragment fragment = mTvBrowserPagerAdapter.getItem(mViewPager.getCurrentItem());
 
           if("0".equals(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default))) {
             mUpdateItem.setVisible(true);
@@ -4984,105 +4927,6 @@ public class TvBrowser extends AppCompatActivity {
 
         subMenu.add(100, SCROLL_IDS[i], i+1, DateFormat.getTimeFormat(TvBrowser.this).format(cal.getTime()));
       }
-    }
-  }
-
-  /**
-   * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one
-   * of the sections/tabs/pages.
-   */
-  class SectionsPagerAdapter extends FragmentPagerAdapter {
-    final SparseArrayCompat<Fragment> registeredFragments = new SparseArrayCompat<>();
-
-    SectionsPagerAdapter(FragmentManager fm) {
-      super(fm);
-    }
-
-    @Override
-    public synchronized Fragment getItem(int position) {
-      // getItem is called to instantiate the fragment for the given page.
-      // Return a DummySectionFragment (defined as a static inner class
-      // below) with the page number as its lone argument.
-      Fragment fragment = registeredFragments.get(position);
-
-      if(fragment == null) {
-        switch (position) {
-          case 0:
-            if (IOUtils.isDatabaseAccessible(getApplicationContext())) {
-              fragment = new FragmentProgramsListRunning();
-              if (START_TIME != Integer.MIN_VALUE) {
-                ((FragmentProgramsListRunning) fragment).setStartTime(START_TIME + 1);
-                START_TIME = Integer.MIN_VALUE;
-              }
-            } else {
-              fragment = new Fragment();
-            }
-            break;
-          case 1:
-            fragment = FragmentProgramsList.getInstance(mProgramListScrollTime, mProgramListScrollEndTime, mProgramListChannelId);
-            mProgramListChannelId = FragmentProgramsList.NO_CHANNEL_SELECTION_ID;
-            mProgramListScrollTime = -1;
-            mProgramListScrollEndTime = -1;
-            break;
-          case 2:
-            fragment = new FragmentFavorites();
-            break;
-          case 3:
-            fragment = new FragmentProgramTable();
-            break;
-        }
-      }
-
-      return fragment;
-    }
-
-    @Override
-    public int getCount() {
-      if(!IOUtils.isDatabaseAccessible(getApplicationContext())) {
-        return 1;
-      }
-
-      // Show 3 total pages.
-      if(PrefUtils.getBooleanValue(R.string.PROG_TABLE_ACTIVATED, R.bool.prog_table_activated_default)) {
-        return 4;
-      }
-
-      return 3;
-    }
-
-    @Override
-    public CharSequence getPageTitle(int position) {
-      Locale l = Locale.getDefault();
-
-      switch (position) {
-        case 0:
-          return !IOUtils.isDatabaseAccessible(getApplicationContext()) ? "DATABASE NOT AVAILABLE" : getString(R.string.title_running_programs).toUpperCase(l);
-        case 1:
-          return getString(R.string.title_programs_list).toUpperCase(l);
-        case 2:
-          return getString(R.string.title_favorites).toUpperCase(l);
-        case 3:
-          return getString(R.string.title_program_table).toUpperCase(l);
-      }
-      return null;
-    }
-
-    @NonNull
-    @Override
-    public synchronized Object instantiateItem(ViewGroup container, int position) {
-        Fragment fragment = (Fragment) super.instantiateItem(container, position);
-        registeredFragments.put(position, fragment);
-        return fragment;
-    }
-
-    @Override
-    public void destroyItem(ViewGroup container, int position, Object object) {
-        registeredFragments.remove(position);
-        super.destroyItem(container, position, object);
-    }
-
-    Fragment getRegisteredFragment(int position) {
-        return registeredFragments.get(position);
     }
   }
 
@@ -5233,30 +5077,6 @@ public class TvBrowser extends AppCompatActivity {
     return null;
   }
 
-  /* Workaround end */
-
-  /*@Override
-  public boolean onMenuOpened(int featureId, Menu menu)
-  {
-      if(featureId == Window.FEATURE_ACTION_BAR && menu != null){
-          if(menu.getClass().getSimpleName().equals("MenuBuilder")){
-              try{
-                  Method m = menu.getClass().getDeclaredMethod(
-                      "setOptionalIconsVisible", Boolean.TYPE);
-                  m.setAccessible(true);
-                  m.invoke(menu, true);
-              }
-              catch(NoSuchMethodException e){
-                 // Log.e(TAG, "onMenuOpened", e);
-              }
-              catch(Exception e){
-                  throw new RuntimeException(e);
-              }
-          }
-      }
-      return super.onMenuOpened(featureId, menu);
-  }*/
-
   public void showSQLquery(String selection, String[] selectionArgs) {
     if(TEST_VERSION) {
       StringBuilder message = new StringBuilder();
@@ -5291,5 +5111,29 @@ public class TvBrowser extends AppCompatActivity {
     if(mPluginPreferencesMenuItem != null) {
       mPluginPreferencesMenuItem.setEnabled(PluginHandler.hasPlugins());
     }
+  }
+
+  int getProgramListChannelId() {
+    return mProgramListChannelId;
+  }
+
+  void setProgramListChannelId(final int programListChannelId) {
+    this.mProgramListChannelId = programListChannelId;
+  }
+
+  long getProgramListScrollTime() {
+    return mProgramListScrollTime;
+  }
+
+  void setProgramListScrollTime(final long programListScrollTime) {
+    this.mProgramListScrollTime = programListScrollTime;
+  }
+
+  long getProgramListScrollEndTime() {
+    return mProgramListScrollEndTime;
+  }
+
+  void setProgramListScrollEndTime(final long programListScrollEndTime) {
+    this.mProgramListScrollEndTime = programListScrollEndTime;
   }
 }
