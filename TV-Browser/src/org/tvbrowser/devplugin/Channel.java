@@ -28,9 +28,10 @@ import android.os.Parcelable;
  * @author René Mach
  */
 public final class Channel implements Parcelable {
-  private static final int VERSION = 1;
+  private static final int VERSION = 2;
   
   private int mId;
+  private int mOrderNumber;
   private String mChannelName;
   private byte[] mChannelIcon;
   
@@ -62,12 +63,24 @@ public final class Channel implements Parcelable {
    * @param channelName The name of the TV-Browser channel.
    * @param channelIcon The data of the icon of the TV-Browser channel.
    */
-  public Channel(int id, String channelName, byte[] channelIcon) {
+  public Channel(final int id, final String channelName, final byte[] channelIcon) {
+    this(id, -1, channelName, channelIcon);
+  }
+
+  /**
+   * Creates an instance of this class.
+   * <p>
+   * @param id The unique id of the the TV-Browser channel.
+   * @param orderNumber The order number of the channel or -1 for no order.
+   * @param channelName The name of the TV-Browser channel.
+   * @param channelIcon The data of the icon of the TV-Browser channel.
+   */
+  public Channel(final int id, final int orderNumber, final String channelName, final byte[] channelIcon) {
     mId = id;
+    mOrderNumber = orderNumber;
     mChannelName = channelName;
     mChannelIcon = channelIcon;
   }
-  
   /**
    * Gets the unique id of this Channel.
    * <p>
@@ -97,11 +110,20 @@ public final class Channel implements Parcelable {
   
   /**
    * Gets the interface version of this Channel.
-   * <o>
+   * <p>
    * @return The interface version of this Channel.
    */
   public int getInterfaceVersion() {
     return VERSION;
+  }
+
+  /**
+   * Gets the order number of this Channel.
+   * <p>
+   * @return The order number of this Channel or -1 if channel has no order number.
+   */
+  public int getOrderNumber() {
+    return mOrderNumber;
   }
 
   @Override
@@ -110,8 +132,16 @@ public final class Channel implements Parcelable {
   }
 
   private void readFromParcel(Parcel source) {
-    source.readInt(); // read version
+    int version = source.readInt(); // read version
     mId = source.readInt();
+
+    if(version >= 2) {
+      mOrderNumber = source.readInt();
+    }
+    else {
+      mOrderNumber = -1;
+    }
+
     mChannelName = source.readString();
     
     int iconSize = source.readInt();
@@ -129,6 +159,7 @@ public final class Channel implements Parcelable {
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeInt(VERSION);
     dest.writeInt(mId);
+    dest.writeInt(mOrderNumber);
     dest.writeString(mChannelName);
     dest.writeInt((mChannelIcon != null ? mChannelIcon.length : 0));
     

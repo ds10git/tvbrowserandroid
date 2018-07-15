@@ -67,6 +67,7 @@ import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.app.TimePickerDialog;
 import android.content.BroadcastReceiver;
+import android.content.ContentProvider;
 import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -112,6 +113,7 @@ import android.support.v4.content.FileProvider;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.util.SparseArrayCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
@@ -131,6 +133,7 @@ import android.text.style.ReplacementSpan;
 import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -149,6 +152,7 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.NumberPicker;
+import android.widget.ProgressBar;
 import android.widget.RelativeLayout;
 import android.widget.ScrollView;
 import android.widget.SeekBar;
@@ -3329,7 +3333,7 @@ public class TvBrowser extends AppCompatActivity {
     Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
 
     if(fragment instanceof FragmentFavorites) {
-      ((FragmentFavorites)fragment).updateSynchroButton(null);
+      ((FragmentFavorites)fragment).updateSynchroButton(handler,null);
     }
 
     if(syncChannels) {
@@ -3785,7 +3789,7 @@ public class TvBrowser extends AppCompatActivity {
     Fragment fragment = mSectionsPagerAdapter.getRegisteredFragment(2);
 
     if(fragment instanceof FragmentFavorites) {
-      ((FragmentFavorites)fragment).updateSynchroButton(null);
+      ((FragmentFavorites)fragment).updateSynchroButton(handler,null);
       ((FragmentFavorites)fragment).updateProgramsList();
     }
 
@@ -4783,9 +4787,161 @@ public class TvBrowser extends AppCompatActivity {
     getMenuInflater().inflate(R.menu.tv_browser, menu);
 
     //  Associate searchable configuration with the SearchView
-    SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
-    SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
+    final SearchManager searchManager = (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+    final SearchView searchView = (SearchView) menu.findItem(R.id.search).getActionView();
     searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+    final SimpleCursorAdapter adapter = new SimpleCursorAdapter(TvBrowser.this,
+      R.layout.row_suggestion,
+      null,
+      new String[]{"channel_id",TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,TvBrowserContentProvider.CHANNEL_KEY_NAME,TvBrowserContentProvider.DATA_KEY_UNIX_DATE, TvBrowserContentProvider.DATA_KEY_STARTTIME,SearchManager.SUGGEST_COLUMN_TEXT_1,SearchManager.SUGGEST_COLUMN_TEXT_2},
+      new int[]{R.id.row_suggestion_channel_row_logo, R.id.row_suggestion_channel_name, R.id.row_suggestion_channel_name, R.id.row_suggestion_date, R.id.row_suggestion_time, R.id.row_suggestion_title, R.id.row_suggestion_episode},
+      0) {
+      @Override
+      public Cursor runQueryOnBackgroundThread(CharSequence constraint) {
+        return getContentResolver().query(Uri.parse("content://" + TvBrowserContentProvider.AUTHORITY + "/" + SearchManager.SUGGEST_URI_PATH_QUERY + "/" + constraint), null, null, null, null);
+      }
+
+      @Override
+      public Cursor swapCursor(Cursor c) {
+        SearchView.SearchAutoComplete mSearchSrcTextView = (SearchView.SearchAutoComplete) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+        mSearchSrcTextView.setDropDownWidth(getResources().getDisplayMetrics().widthPixels);
+        mSearchSrcTextView.setDropDownBackgroundResource(R.color.dark_gray_lighter);
+        return super.swapCursor(c);
+      }
+
+      @Override
+      public View getView(int position, View convertView, ViewGroup parent) {
+        final View view = super.getView(position,convertView,parent);
+
+        if(convertView == null) {
+          UiUtils.scaleTextViews(view, Float.valueOf(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_TEXT_SCALE, R.string.pref_program_lists_text_scale_default)));
+        }
+
+        return view;
+      }
+    };
+
+    adapter.setViewBinder(new SimpleCursorAdapter.ViewBinder() {
+      private int mPositionLast = -1;
+      private boolean mShowChannelName = false;
+
+      @Override
+      public boolean setViewValue(View view, Cursor cursor, int columnIndex) {
+        final int positionCurrent = cursor.getPosition();
+
+        if(positionCurrent != mPositionLast) {
+          mShowChannelName = false;
+        }
+
+        boolean result = false;
+
+        if("channel_id".equals(cursor.getColumnName(columnIndex))) {
+          final String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS, R.string.channel_logo_name_program_lists_default);
+
+          boolean showChannelLogo = logoNamePref.equals("0") || logoNamePref.equals("1");
+          boolean showBigChannelLogo = logoNamePref.equals("3");
+
+          if(showChannelLogo || showBigChannelLogo) {
+            Log.d("info22",""+SettingConstants.getLogoMap(showBigChannelLogo));
+            final Drawable logo = SettingConstants.getLogoMap(showBigChannelLogo).get(cursor.getInt(columnIndex));
+
+            if(logo != null) {
+              ((ImageView) view).setImageDrawable(logo);
+            }
+
+            view.setVisibility(View.VISIBLE);
+          }
+          else {
+            view.setVisibility(View.GONE);
+          }
+
+          result = true;
+        }
+        else if(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER.equals(cursor.getColumnName(columnIndex))) {
+          if(PrefUtils.getBooleanValue(R.string.SHOW_SORT_NUMBER_IN_LISTS, R.bool.show_sort_number_in_lists_default)) {
+            ((TextView) view).setText(cursor.getInt(columnIndex) + ".");
+          }
+
+          result = true;
+        }
+        else if(TvBrowserContentProvider.CHANNEL_KEY_NAME.equals(cursor.getColumnName(columnIndex))) {
+          final String logoNamePref = PrefUtils.getStringValue(R.string.CHANNEL_LOGO_NAME_PROGRAM_LISTS, R.string.channel_logo_name_program_lists_default);
+
+          if(mShowChannelName || logoNamePref.equals("0") || logoNamePref.equals("2")) {
+            if (!((TextView) view).getText().toString().trim().isEmpty()) {
+              ((TextView) view).append(" ");
+            }
+
+            ((TextView) view).append(cursor.getString(columnIndex));
+
+            view.setVisibility(View.VISIBLE);
+          }
+          else if(((TextView) view).getText().toString().trim().isEmpty()) {
+            view.setVisibility(View.GONE);
+          }
+
+          result = true;
+        }
+        else if(TvBrowserContentProvider.DATA_KEY_UNIX_DATE.equals(cursor.getColumnName(columnIndex))) {
+          final long date = cursor.getLong(columnIndex);
+
+          ((TextView)view).setText(UiUtils.formatDate(date,TvBrowser.this,false, true, true, java.text.DateFormat.LONG, false));
+
+          if(PrefUtils.getBooleanValue(R.string.PREF_PROGRAM_LISTS_SHOW_END_TIME, R.bool.pref_program_lists_show_end_time_default)) {
+            final long end = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+
+            ((TextView)view).append(getString(R.string.running_until));
+            ((TextView)view).append(" ");
+            ((TextView)view).append(UiUtils.getTimeFormat(TvBrowser.this).format(new Date(end)));
+          }
+
+          view.setVisibility(View.VISIBLE);
+
+          result = true;
+        }
+        else if(TvBrowserContentProvider.DATA_KEY_STARTTIME.equals(cursor.getColumnName(columnIndex))) {
+          final long start = cursor.getLong(columnIndex);
+
+          if(start < System.currentTimeMillis()) {
+            final long end = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_ENDTIME));
+
+            int minutes = (int)((end - start) / 60000);
+            int progressed = (int)((System.currentTimeMillis()-start) / 60000);
+
+            final ProgressBar progress = ((ViewGroup)view.getParent()).findViewById(R.id.row_suggestion_progress);
+            progress.setVisibility(View.VISIBLE);
+            progress.setIndeterminate(false);
+            progress.setMax(minutes);
+            progress.setProgress(progressed);
+          }
+          else {
+            ((ViewGroup)view.getParent()).findViewById(R.id.row_suggestion_progress).setVisibility(View.GONE);
+          }
+
+          java.text.DateFormat mTimeFormat = UiUtils.getTimeFormat(TvBrowser.this);
+
+          ((TextView)view).setText(mTimeFormat.format(new Date(start)));
+
+          result = true;
+        }
+        else if(SearchManager.SUGGEST_COLUMN_TEXT_2.equals(cursor.getColumnName(columnIndex))) {
+          if(cursor.isNull(columnIndex)) {
+            view.setVisibility(View.GONE);
+            result = true;
+          }
+          else {
+            view.setVisibility(View.VISIBLE);
+          }
+        }
+
+        mPositionLast = positionCurrent;
+
+        return result;
+      }
+    });
+
+    searchView.setSuggestionsAdapter(adapter);
 
     mUpdateItem = menu.findItem(R.id.menu_tvbrowser_action_update_data);
 

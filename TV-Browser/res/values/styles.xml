@@ -12,12 +12,13 @@
 -->
 
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+        <item name="android:textColorTertiary">@color/text_appcompat_light</item>
     	<item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-    	<item name="ic_back_icon" >@drawable/ic_action_back_light</item>
-    	<item name="ic_forward_icon" >@drawable/ic_action_forward_light</item>
+    	<item name="ic_back_icon">@drawable/ic_action_back_light</item>
+    	<item name="ic_forward_icon">@drawable/ic_action_forward_light</item>
     </style>
-    
+
     <style name="AppDarkTheme" parent="Theme.AppCompat">
         <item name="popupTheme">@style/ThemeOverlay.AppCompat</item>
         <item name="windowActionBar">false</item>

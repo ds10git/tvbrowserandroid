@@ -2,6 +2,9 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.6.5</h2>
+            &bull; show channel name and order number in Reminder notification<br>
+            &bull; better result popup for quick search<br>
+            &bull; fixed light theme text color<br>
             &bull; light theme fixed by Thorsten1976<br>
             &bull; show description of programs if room in program table<br>
             &bull; support new data fields<br>

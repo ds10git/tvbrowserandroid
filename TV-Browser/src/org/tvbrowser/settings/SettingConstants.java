@@ -40,6 +40,7 @@ import android.graphics.drawable.LayerDrawable;
 import android.preference.PreferenceManager;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.util.SparseArrayCompat;
+import android.util.SparseArray;
 
 public final class SettingConstants {
 
@@ -177,7 +178,11 @@ public final class SettingConstants {
   
   public static final SparseArrayCompat<Drawable> SMALL_LOGO_MAP = new SparseArrayCompat<>();
   public static final SparseArrayCompat<Drawable> MEDIUM_LOGO_MAP = new SparseArrayCompat<>();
-  
+
+  public static final SparseArrayCompat<Drawable> getLogoMap(final boolean medium) {
+    return (medium ? MEDIUM_LOGO_MAP : SMALL_LOGO_MAP);
+  }
+
   public static String getNumberForDataServiceKey(String key) {
     String result = null;
     

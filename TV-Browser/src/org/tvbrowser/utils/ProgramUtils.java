@@ -44,6 +44,7 @@ public class ProgramUtils {
       TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID,
       TvBrowserContentProvider.CHANNEL_KEY_NAME,
       TvBrowserContentProvider.CHANNEL_KEY_LOGO,
+      TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER,
       TvBrowserContentProvider.DATA_KEY_STARTTIME,
       TvBrowserContentProvider.DATA_KEY_ENDTIME,
       TvBrowserContentProvider.DATA_KEY_TITLE,
@@ -51,17 +52,6 @@ public class ProgramUtils {
       TvBrowserContentProvider.DATA_KEY_DESCRIPTION,
       TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
       TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE
-  };
-  
-  public static final String[] DATA_PROJECTION = {
-    TvBrowserContentProvider.KEY_ID,
-    TvBrowserContentProvider.DATA_KEY_STARTTIME,
-    TvBrowserContentProvider.DATA_KEY_ENDTIME,
-    TvBrowserContentProvider.DATA_KEY_TITLE,
-    TvBrowserContentProvider.DATA_KEY_SHORT_DESCRIPTION,
-    TvBrowserContentProvider.DATA_KEY_DESCRIPTION,
-    TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
-    TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE
   };
   
   public static Program createProgramFromDataCursor(Context context, Cursor cursor) {
@@ -162,7 +152,7 @@ public class ProgramUtils {
           
           try {
             if(IOUtils.prepareAccessFirst(channelCursor)) {
-              result = new Channel(channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)), channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+              result = new Channel(channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)), channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)), channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
             }
           }finally {
             IOUtils.close(channelCursor);
