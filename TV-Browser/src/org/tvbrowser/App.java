@@ -7,6 +7,7 @@ import android.content.Context;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 
+import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.CompatUtils;
 
 import org.tvbrowser.tvbrowser.R;
@@ -37,6 +38,7 @@ public final class App extends Application {
 	public void onCreate() {
 		super.onCreate();
 		INSTANCE = this;
+		SettingConstants.initialize(getApplicationContext());
 
 		if (CompatUtils.isAtLeastAndroidO()) {
 			createNotificationChannel();

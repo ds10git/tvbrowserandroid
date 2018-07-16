@@ -134,14 +134,6 @@ public final class Channel implements Parcelable {
   private void readFromParcel(Parcel source) {
     int version = source.readInt(); // read version
     mId = source.readInt();
-
-    if(version >= 2) {
-      mOrderNumber = source.readInt();
-    }
-    else {
-      mOrderNumber = -1;
-    }
-
     mChannelName = source.readString();
     
     int iconSize = source.readInt();
@@ -153,18 +145,26 @@ public final class Channel implements Parcelable {
     else {
       mChannelIcon = null;
     }
+
+    if(version >= 2) {
+      mOrderNumber = source.readInt();
+    }
+    else {
+      mOrderNumber = -1;
+    }
   }
   
   @Override
   public void writeToParcel(Parcel dest, int flags) {
     dest.writeInt(VERSION);
     dest.writeInt(mId);
-    dest.writeInt(mOrderNumber);
     dest.writeString(mChannelName);
     dest.writeInt((mChannelIcon != null ? mChannelIcon.length : 0));
     
     if(mChannelIcon != null) {
       dest.writeByteArray(mChannelIcon);
     }
+
+    dest.writeInt(mOrderNumber);
   }
 }

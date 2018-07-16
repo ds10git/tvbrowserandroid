@@ -354,7 +354,32 @@ public final class SettingConstants {
   
   public static final int EXPIRED_LIGHT_COLOR = Color.rgb(GRAY_LIGHT_VALUE, GRAY_LIGHT_VALUE, GRAY_LIGHT_VALUE);
   public static final int EXPIRED_DARK_COLOR = Color.rgb(GRAY_DARK_VALUE, GRAY_DARK_VALUE, GRAY_DARK_VALUE);
-  
+
+  public final static synchronized void initialize(final Context context) {
+    if(SHORT_CHANNEL_NAMES.isEmpty()) {
+      final Resources res = context.getResources();
+
+      SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_nds), res.getString(R.string.short_channel_name_ndr_nds));
+      SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_mv), res.getString(R.string.short_channel_name_ndr_mv));
+      SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_hh), res.getString(R.string.short_channel_name_ndr_hh));
+      SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_sh), res.getString(R.string.short_channel_name_ndr_sh));
+      SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_mdr_st), res.getString(R.string.short_channel_name_mdr_st));
+      SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_mdr_sn), res.getString(R.string.short_channel_name_mdr_sn));
+      SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_mdr_th), res.getString(R.string.short_channel_name_mdr_th));
+      SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_rbb_be), res.getString(R.string.short_channel_name_rbb_be));
+      SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_rbb_bb), res.getString(R.string.short_channel_name_rbb_bb));
+      SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_das_erste), res.getString(R.string.short_channel_name_das_erste));
+    }
+  }
+
+  public static String getShortChannelNameIfAvailable(String channelName) {
+    if(SHORT_CHANNEL_NAMES.containsKey(channelName)) {
+      channelName = SHORT_CHANNEL_NAMES.get(channelName);
+    }
+
+    return channelName;
+  }
+
   static {
     MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING, UiUtils.MARKED_COLOR_KEY);
     MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, UiUtils.MARKED_REMINDER_COLOR_KEY);
@@ -362,17 +387,7 @@ public final class SettingConstants {
     MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER, UiUtils.MARKED_REMINDER_COLOR_KEY);
     MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_MARKING_SYNC, UiUtils.MARKED_SYNC_COLOR_KEY);
     MARK_COLOR_KEY_MAP.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, UiUtils.I_DONT_WANT_TO_SEE_HIGHLIGHT_COLOR_KEY);
-
-    final Resources res = App.get().getResources();
-    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_nds), res.getString(R.string.short_channel_name_ndr_nds));
-    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_mv), res.getString(R.string.short_channel_name_ndr_mv));
-    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_hh), res.getString(R.string.short_channel_name_ndr_hh));
-    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_ndr_sh), res.getString(R.string.short_channel_name_ndr_sh));
-    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_mdr_st), res.getString(R.string.short_channel_name_mdr_st));
-    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_mdr_sn), res.getString(R.string.short_channel_name_mdr_sn));
-    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_mdr_th), res.getString(R.string.short_channel_name_mdr_th));
-    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_rbb_be), res.getString(R.string.short_channel_name_rbb_be));
-    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_rbb_bb), res.getString(R.string.short_channel_name_rbb_bb));
-    SHORT_CHANNEL_NAMES.put(res.getString(R.string.long_channel_name_das_erste), res.getString(R.string.short_channel_name_das_erste));
   }
+
+
 }

@@ -57,7 +57,8 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
   @Override
   public void onReceive(final Context context, Intent intent) {
     PrefUtils.initialize(context);
-    
+    SettingConstants.initialize(context);
+
     Logging.log(tag, "ReminderBroadcastReceiver.onReceive " + intent + " " + context, Logging.TYPE_REMINDER, context);
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
     
@@ -216,7 +217,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           Program program = ProgramUtils.createProgramFromDataCursor(context, values);
           
           if(program != null) {
-            final String channelName = program.getChannel().getChannelName();//values.getString(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
+            final String channelName = SettingConstants.getShortChannelNameIfAvailable(program.getChannel().getChannelName());//values.getString(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
             final int orderNumber = program.getChannel().getOrderNumber();
             final String title = program.getTitle();//values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
             final String episode = program.getEpisodeTitle();//values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
