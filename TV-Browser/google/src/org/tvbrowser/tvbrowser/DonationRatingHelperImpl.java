@@ -20,6 +20,7 @@ import com.android.vending.billing.util.Purchase;
 import com.android.vending.billing.util.SkuDetails;
 
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.CompatUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -292,8 +293,8 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 			rate.setVisibility(View.GONE);
 		}
 
-		ratingInfo.setText(Html.fromHtml(tvBrowser.getString(R.string.rating_text)));
-		((TextView) view.findViewById(R.id.donation_info)).setText(Html.fromHtml(tvBrowser.getString(R.string.donate_text)));
+		ratingInfo.setText(CompatUtils.fromHtml(tvBrowser.getString(R.string.rating_text)));
+		((TextView) view.findViewById(R.id.donation_info)).setText(CompatUtils.fromHtml(tvBrowser.getString(R.string.donate_text)));
 
 		final Button cancel = view.findViewById(R.id.rating_donation_cancel);
 		cancel.setEnabled(false);

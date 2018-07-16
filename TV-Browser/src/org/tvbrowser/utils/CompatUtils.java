@@ -31,11 +31,13 @@ import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
+import android.net.ConnectivityManager;
+import android.net.Network;
+import android.net.NetworkInfo;
 import android.os.Build;
-import android.os.Environment;
-import android.os.Looper;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.Spanned;
 import android.util.Log;
@@ -49,7 +51,9 @@ import android.widget.TimePicker;
  * @author René Mach
  */
 @SuppressLint("NewApi")
-public class CompatUtils {
+public final class CompatUtils {
+
+  CompatUtils() {}
 
   public static boolean isKeyguardWidget(int appWidgetId, Context context) {
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
@@ -151,7 +155,7 @@ public class CompatUtils {
     }
   }
   
-  public static String getExternalDocumentsDir() {
+  /*public static String getExternalDocumentsDir() {
     if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
       return Environment.DIRECTORY_DOCUMENTS;
     }
@@ -169,7 +173,7 @@ public class CompatUtils {
         looper.quit();
       }
     }
-  }
+  }*/
   
   public static boolean acceptFileAsSdCard(File file) {
     if(Build.VERSION.SDK_INT >= 23) {
@@ -180,45 +184,45 @@ public class CompatUtils {
     }
   }
 
+  @SuppressWarnings("deprecation")
   public static void setTimePickerHour(final TimePicker timePicker, final int hour) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
       timePicker.setHour(hour);
     }
     else {
-      //noinspection deprecation
       timePicker.setCurrentHour(hour);
     }
   }
 
+  @SuppressWarnings("deprecation")
   public static int getTimePickerHour(final TimePicker timePicker) {
     int hour;
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
       hour = timePicker.getHour();
     }
     else {
-      //noinspection deprecation
       hour = timePicker.getCurrentHour();
     }
     return hour;
   }
 
+  @SuppressWarnings("deprecation")
   public static void setTimePickerMinute(final TimePicker timePicker, final int minute) {
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M ) {
       timePicker.setMinute(minute);
     }
     else {
-      //noinspection deprecation
       timePicker.setCurrentMinute(minute);
     }
   }
 
+  @SuppressWarnings("deprecation")
   public static int getTimePickerMinute(final TimePicker timePicker) {
     int minute;
     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
       minute = timePicker.getMinute();
     }
     else {
-      //noinspection deprecation
       minute = timePicker.getCurrentMinute();
     }
     return minute;
@@ -232,9 +236,9 @@ public class CompatUtils {
     return Build.VERSION.SDK_INT >= Build.VERSION_CODES.O;
   }
 
-  public static boolean canRequestPackageInstalls(final Context context) {
+  /*public static boolean canRequestPackageInstalls(final Context context) {
     return !isAtLeastAndroidO() || context.getPackageManager().canRequestPackageInstalls();
-  }
+  }*/
 
   public static boolean startForegroundService(final Context context, final Intent service) {
     boolean result;
@@ -265,5 +269,28 @@ public class CompatUtils {
     } else {
       return Html.fromHtml(source, imageGetter, tagHandler);
     }
+  }
+
+  @SuppressWarnings("deprecation")
+  @Nullable
+  public static NetworkInfo getNetworkInfo(@Nullable final ConnectivityManager connectivityManager, final int type) {
+    if (connectivityManager!=null) {
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.M) {
+        return connectivityManager.getNetworkInfo(type);
+      } else {
+        final Network[] networks = connectivityManager.getAllNetworks();
+        if (networks != null) {
+          for (final Network network : networks) {
+            if (network != null) {
+              final NetworkInfo networkInfo = connectivityManager.getNetworkInfo(network);
+              if (networkInfo != null && networkInfo.getType() == type) {
+                return networkInfo;
+              }
+            }
+          }
+        }
+      }
+    }
+    return null;
   }
 }

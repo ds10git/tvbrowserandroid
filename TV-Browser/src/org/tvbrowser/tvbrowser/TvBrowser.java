@@ -362,10 +362,10 @@ public class TvBrowser extends AppCompatActivity {
     final Toolbar toolbar = findViewById(R.id.activity_tvbrowser_toolbar);
     setSupportActionBar(toolbar);
     if(SettingConstants.isReminderPaused(this)) {
-      toolbar.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.activeReminderToolbarBackground)));
+      CompatUtils.setBackground(toolbar, new ColorDrawable(ContextCompat.getColor(this, R.color.activeReminderToolbarBackground)));
     }
     else {
-      toolbar.setBackgroundDrawable(new ColorDrawable(ContextCompat.getColor(this, R.color.colorPrimary)));
+      CompatUtils.setBackground(toolbar, new ColorDrawable(ContextCompat.getColor(this, R.color.colorPrimary)));
     }
   }
 
@@ -451,7 +451,7 @@ public class TvBrowser extends AppCompatActivity {
 
       ScrollView layout = (ScrollView)getLayoutInflater().inflate(R.layout.dialog_terms, getParentViewGroup(), false);
 
-      ((TextView)layout.findViewById(R.id.terms_license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
+      ((TextView)layout.findViewById(R.id.terms_license)).setText(CompatUtils.fromHtml(getResources().getString(R.string.license)));
 
       builder.setView(layout);
       builder.setPositiveButton(R.string.terms_of_use_accept, (dialog, which) -> {
@@ -697,7 +697,7 @@ public class TvBrowser extends AppCompatActivity {
 
       info = "<html><p>" + info.substring(0, info.lastIndexOf("\n\n")).replace("\n\n", "</p><p>").replace("https://www.epgpaid.de", "<a href=\"https://www.epgpaid.de\">https://www.epgpaid.de</a>") + "</p></html>";
 
-      Spanned text = Html.fromHtml(info);
+      Spanned text = CompatUtils.fromHtml(info);
 
       builder.setMessage(text);
       builder.setCancelable(false);
@@ -781,11 +781,11 @@ public class TvBrowser extends AppCompatActivity {
           final View view = getLayoutInflater().inflate(R.layout.dialog_epg_donate_info, getParentViewGroup(), false);
 
           final TextView message = view.findViewById(R.id.dialog_epg_donate_message);
-          message.setText(Html.fromHtml(info));
+          message.setText(CompatUtils.fromHtml(info));
           message.setMovementMethod(LinkMovementMethod.getInstance());
 
           final TextView percentInfoView = view.findViewById(R.id.dialog_epg_donate_percent_info);
-          percentInfoView.setText(Html.fromHtml(percentInfo, null, new NewsTagHandler()));
+          percentInfoView.setText(CompatUtils.fromHtml(percentInfo, null, new NewsTagHandler()));
 
           final SeekBar percent = view.findViewById(R.id.dialog_epg_donate_percent);
           percent.setEnabled(false);
@@ -1229,7 +1229,7 @@ public class TvBrowser extends AppCompatActivity {
 
           NotificationCompat.Builder builder;
 
-          builder = new NotificationCompat.Builder(TvBrowser.this);
+          builder = new NotificationCompat.Builder(TvBrowser.this, App.getNotificationChannelIdDefault(applicationContext));
           builder.setSmallIcon(R.drawable.ic_stat_notify);
           builder.setOngoing(true);
           builder.setContentTitle(getResources().getText(R.string.action_dont_want_to_see));
@@ -1238,9 +1238,10 @@ public class TvBrowser extends AppCompatActivity {
 
           int notifyID = 2;
 
-          NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
-          notification.notify(notifyID, builder.build());
-
+          final NotificationManager notification = (NotificationManager)getSystemService(Context.NOTIFICATION_SERVICE);
+          if (notification!=null) {
+            notification.notify(notifyID, builder.build());
+          }
           updateProgressIcon(true);
 
           URLConnection connection = null;
@@ -3581,13 +3582,7 @@ public class TvBrowser extends AppCompatActivity {
 
                 TvBrowserContentProvider provider = (TvBrowserContentProvider)client.getLocalContentProvider();
                 provider.updateDatabasePath();
-                if (client!=null) {
-                  if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
-                    client.release();
-                  } else {
-                    client.close();
-                  }
-                }
+                IOUtils.close(client);
 
                 if(mSource != null) {
 
@@ -3663,7 +3658,7 @@ public class TvBrowser extends AppCompatActivity {
     AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
 
     builder.setTitle(R.string.info_version);
-    builder.setMessage(Html.fromHtml(getString(R.string.info_version_new)));
+    builder.setMessage(CompatUtils.fromHtml(getString(R.string.info_version_new)));
     builder.setPositiveButton(android.R.string.ok, null);
 
     if(showDisable) {
@@ -3701,7 +3696,7 @@ public class TvBrowser extends AppCompatActivity {
       e.printStackTrace();
     }
 
-    ((TextView)about.findViewById(R.id.license)).setText(Html.fromHtml(getResources().getString(R.string.license)));
+    ((TextView)about.findViewById(R.id.license)).setText(CompatUtils.fromHtml(getResources().getString(R.string.license)));
 
     TextView androidVersion = about.findViewById(R.id.android_version);
     androidVersion.setText(Build.VERSION.RELEASE);
@@ -3983,7 +3978,7 @@ public class TvBrowser extends AppCompatActivity {
 
           builder.setTitle(R.string.title_news);
           builder.setCancelable(false);
-          builder.setMessage(Html.fromHtml(news,null,new NewsTagHandler()));
+          builder.setMessage(CompatUtils.fromHtml(news,null,new NewsTagHandler()));
 
           builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
             pref.edit().putLong(getString(R.string.NEWS_DATE_LAST_SHOWN), System.currentTimeMillis()).commit();

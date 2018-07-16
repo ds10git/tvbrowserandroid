@@ -27,7 +27,6 @@ import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.UiUtils;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -215,17 +214,15 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
   }
   
   @Override
-  public void onAttach(Activity activity) {
-    super.onAttach(activity);
-    
-    PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
+  public void onAttach(final Context context) {
+    super.onAttach(context);
+    PreferenceManager.getDefaultSharedPreferences(context).registerOnSharedPreferenceChangeListener(this);
   }
   
   @Override
   public void onDetach() {
-    super.onDetach();
-    
     PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
+    super.onDetach();
   }
 
   @Override

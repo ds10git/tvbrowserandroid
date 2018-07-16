@@ -56,6 +56,7 @@ import org.tvbrowser.tvbrowser.ServiceUpdateDataTable;
 
 import android.app.AlarmManager;
 import android.app.PendingIntent;
+import android.content.ContentProviderClient;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -64,8 +65,10 @@ import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.BatteryManager;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
+import android.support.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -866,6 +869,25 @@ public final class IOUtils {
   public static void close(final Cursor cursor) {
     if (cursor!=null && !cursor.isClosed()) {
       cursor.close();
+    }
+  }
+
+  /**
+   * Closes the given content provider client and releases all assigned resources.
+   * <p>
+   * Calls are <code>null</code>-safe and idempotent.
+   *
+   * @param client the {@link ContentProviderClient} to close.
+   * @see ContentProviderClient#close()
+   */
+  @SuppressWarnings("deprecation")
+  public static void close(@Nullable final ContentProviderClient client) {
+    if (client != null) {
+      if (Build.VERSION.SDK_INT < Build.VERSION_CODES.N) {
+        client.release();
+      } else {
+        client.close();
+      }
     }
   }
 
