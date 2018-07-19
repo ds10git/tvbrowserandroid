@@ -5291,7 +5291,7 @@ public class TvDataUpdateService extends Service {
                       if(title.equals(value.mTitle)) {
                         contentValues.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, value.mDontWantToSee ? 1 : 0);
                       }
-                      else if(UiUtils.filter(TvDataUpdateService.this, title, mDontWantToSeeValues)) {
+                      else if(UiUtils.filter(title, mDontWantToSeeValues)) {
                         contentValues.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, 1);
                       }
                     }
@@ -5307,7 +5307,7 @@ public class TvDataUpdateService extends Service {
                   if(level == LEVEL_BASE && mDontWantToSeeValues != null) {
                     String title = contentValues.getAsString(TvBrowserContentProvider.DATA_KEY_TITLE);
                     
-                    if(UiUtils.filter(TvDataUpdateService.this, title, mDontWantToSeeValues)) {
+                    if(UiUtils.filter(title, mDontWantToSeeValues)) {
                       contentValues.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, 1);
                     }
                   }

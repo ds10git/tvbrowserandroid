@@ -1342,7 +1342,7 @@ public class TvBrowser extends AppCompatActivity {
 
                         String title = c.getString(titleColumn);
 
-                        boolean filter = UiUtils.filter(getApplicationContext(), title, exclusionArr);
+                        boolean filter = UiUtils.filter(title, exclusionArr);
                         long progID = c.getLong(keyColumn);
 
                         ContentValues values = new ContentValues();
@@ -3318,7 +3318,7 @@ public class TvBrowser extends AppCompatActivity {
 
                       String title = programs.getString(titleColumn);
 
-                      boolean filter = UiUtils.filter(getApplicationContext(), title, exclusionArr);
+                      boolean filter = UiUtils.filter(title, exclusionArr);
                       long progID = programs.getLong(keyColumn);
 
                       ContentValues values = new ContentValues();
@@ -4468,7 +4468,7 @@ public class TvBrowser extends AppCompatActivity {
 
         @Override
         public Cursor swapCursor(Cursor c) {
-          SearchView.SearchAutoComplete mSearchSrcTextView = (SearchView.SearchAutoComplete) searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+          SearchView.SearchAutoComplete mSearchSrcTextView = searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
           mSearchSrcTextView.setDropDownWidth(getResources().getDisplayMetrics().widthPixels);
           mSearchSrcTextView.setDropDownBackgroundResource(R.color.dark_gray_lighter);
           return super.swapCursor(c);

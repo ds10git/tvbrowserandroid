@@ -331,8 +331,6 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
     super.onConfigurationChanged(newConfig);
     
     SettingConstants.ORIENTATION = newConfig.orientation;
-    
-    //UiUtils.handleConfigurationChange(new Handler(), mProgramsListAdapter, newConfig);
   }
 
   @Override

@@ -18,7 +18,9 @@ package org.tvbrowser.utils;
 
 import java.io.File;
 import java.lang.reflect.Method;
+import java.util.IllegalFormatConversionException;
 import java.util.Locale;
+import java.util.regex.Pattern;
 
 import org.tvbrowser.tvbrowser.R;
 
@@ -29,17 +31,24 @@ import android.app.PendingIntent;
 import android.appwidget.AppWidgetManager;
 import android.appwidget.AppWidgetProviderInfo;
 import android.content.Context;
+import android.content.ContextWrapper;
 import android.content.Intent;
+import android.content.res.AssetManager;
+import android.content.res.Configuration;
+import android.content.res.Resources;
 import android.graphics.drawable.Drawable;
 import android.net.ConnectivityManager;
 import android.net.Network;
 import android.net.NetworkInfo;
 import android.os.Build;
+import android.os.LocaleList;
 import android.os.PowerManager;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.Html;
 import android.text.Spanned;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.View;
 import android.widget.RemoteViews;
@@ -292,5 +301,84 @@ public final class CompatUtils {
       }
     }
     return null;
+  }
+
+  /**
+   * Wraps context with {@link WorkaroundContextForSamsungLDateTimeBug} instance if needed.
+   */
+  @Nullable
+  public static Context getDatePickerContext(final @Nullable Context context) {
+    if (context!=null && (Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP
+            || Build.VERSION.SDK_INT == Build.VERSION_CODES.LOLLIPOP_MR1)) {
+      return new WorkaroundContextForSamsungLDateTimeBug(context);
+    }
+
+    return context;
+  }
+
+  /**
+   * Workaround for Samsung Lollipop devices that may crash due to wrong string resource supplied
+   * to {@code SimpleMonthView}'s content description.
+   */
+  private static class WorkaroundContextForSamsungLDateTimeBug extends ContextWrapper {
+    private Resources mWrappedResources;
+
+    private WorkaroundContextForSamsungLDateTimeBug(final @NonNull Context context) {
+      super(context);
+    }
+
+    @Override
+    public Resources getResources() {
+      if (mWrappedResources == null) {
+        final Resources r = super.getResources();
+        mWrappedResources = new WrappedResources(
+                r.getAssets(), r.getDisplayMetrics(), r.getConfiguration()) {};
+      }
+      return mWrappedResources;
+    }
+
+    private class WrappedResources extends Resources {
+      @SuppressWarnings("deprecation")
+      WrappedResources(final AssetManager assets, final DisplayMetrics displayMetrics,
+                       final Configuration configuration) {
+        super(assets, displayMetrics, configuration);
+      }
+
+      @NonNull
+      @Override
+      public String getString(final int id, final Object... formatArgs) throws NotFoundException {
+        try {
+          return super.getString(id, formatArgs);
+        } catch (IllegalFormatConversionException conversationException) {
+          String template = super.getString(id);
+          final char conversion = conversationException.getConversion();
+          // Trying to replace either all digit patterns (%d) or first one (%1$d).
+          template = template.replaceAll(Pattern.quote("%" + conversion), "%s")
+                  .replaceAll(Pattern.quote("%1$" + conversion), "%s");
+          Locale locale = getPrimaryUserLocale(getConfiguration());
+          if (locale==null) {
+            locale = Locale.getDefault();
+          }
+          return String.format(locale, template, formatArgs);
+        }
+      }
+    }
+  }
+
+  @SuppressWarnings({"deprecation", "WeakerAccess"})
+  @Nullable
+  public static Locale getPrimaryUserLocale(@NonNull final Configuration configuration) {
+    final Locale result;
+    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+      final LocaleList locales = configuration.getLocales();
+      if (locales.size() > 0) {
+        result = locales.get(0);
+      } else {
+        result = null;
+      }
+    } else {
+      result = configuration.locale;
+    }
+    return result;
   }
 }
