@@ -1,26 +1,30 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Theme.App.Light" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
-    	<item name="ic_back_icon" >@drawable/ic_action_back_light</item>
-    	<item name="ic_forward_icon" >@drawable/ic_action_forward_light</item>
-        <item name="colorPrimary">@color/colorPrimary</item>
-        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <!-- NEVER REMOVE THIS ENTRY: Darker text for text views -->
+        <item name="android:textColorTertiary">@color/text_appcompat_light</item>
+    	<item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
+    	<item name="ic_back_icon">@drawable/ic_action_back_light</item>
+    	<item name="ic_forward_icon">@drawable/ic_action_forward_light</item>
+        <item name="color_background">@color/background_list_light</item>
     </style>
     
-    <style name="AppDarkTheme" parent="Theme.AppCompat.NoActionBar">
+    <style name="Theme.App.Dark" parent="Theme.AppCompat.NoActionBar">
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
         <item name="ic_back_icon" >@drawable/ic_action_back</item>
     	<item name="ic_forward_icon" >@drawable/ic_action_forward</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="color_background">@color/background_list_dark</item>
     </style>
 
-    <style name="AppDarkThemePref" parent="Theme.AppCompat" />
+    <style name="Theme.Pref.Dark" parent="Theme.AppCompat" />
 
-    <style name="AppTheme" parent="AppBaseTheme" />
+    <style name="Theme.App" parent="Theme.App.Light" />
 
-    <style name="AppBaseThemePref" parent="Theme.AppCompat.Light" />
+    <style name="Theme.Pref.Light" parent="Theme.AppCompat.Light.DarkActionBar" />
 
     <style name="Theme.TvBrowser.Translucent" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowNoTitle">true</item>

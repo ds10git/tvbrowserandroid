@@ -27,7 +27,7 @@
         android:label="@string/app_name"
         android:largeHeap="true"
         android:name="org.tvbrowser.App"
-        android:theme="@style/AppDarkTheme" >
+        android:theme="@style/Theme.App.Dark" >
         <meta-data android:name="android.max_aspect" android:value="2.1"/>
         <provider
             android:name="android.support.v4.content.FileProvider"

@@ -3,6 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:background="?attr/color_background"
     android:orientation="vertical">
 <RelativeLayout
     android:layout_width="match_parent" android:layout_height="wrap_content"
@@ -34,7 +35,6 @@
             android:layout_height="match_parent"
             android:textSize="@dimen/title_font_size"
             android:gravity="center_horizontal"
-            android:textColor="@color/lighter_gray"
             />
     </LinearLayout>
     <RelativeLayout
@@ -66,7 +66,6 @@
             android:maxLines="2"
             android:ellipsize="end"
             android:textSize="@dimen/title_font_size"
-            android:textColor="@color/lighter_gray"
             android:visibility="gone"
             android:clickable="false"
             android:focusable="false"
@@ -84,7 +83,6 @@
             android:ellipsize="end"
             android:textSize="@dimen/title_font_size"
             android:textStyle="bold"
-            android:textColor="#fff"
             android:clickable="false"
             android:focusable="false"
             android:layout_marginRight="5dp"
@@ -104,7 +102,6 @@
             android:ellipsize="end"
             android:textSize="@dimen/title_font_size"
             android:textStyle="bold"
-            android:textColor="#fff"
             android:clickable="false"
             android:focusable="false"
             />
@@ -118,7 +115,6 @@
             android:visibility="gone"
             android:textStyle="italic"
             android:textSize="@dimen/episode_font_size"
-            android:textColor="@color/lighter_gray"
             android:clickable="false"
             android:focusable="false"
             android:maxLines="1"

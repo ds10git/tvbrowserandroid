@@ -18,6 +18,7 @@ import java.util.Date;
 import java.util.TimeZone;
 import java.util.concurrent.TimeUnit;
 
+import androidx.work.BackoffPolicy;
 import androidx.work.Constraints;
 import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
@@ -30,24 +31,25 @@ public class JobDataUpdateAuto extends Worker {
   @NonNull
   @Override
   public Worker.Result doWork() {
+    PrefUtils.initialize(getApplicationContext());
     Log.d("info9","onRunJob");
     Result result = Result.RETRY;
-    final String updateType = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
 
-    boolean autoUpdate = !updateType.equals("0");
+    final String updateType = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
+    final boolean autoUpdate = !updateType.equals("0");
     final boolean internetConnectionType = updateType.equals("1");
-    boolean timeUpdateType = updateType.equals("2");
+    final boolean isConnected = TvDataUpdateService.isConnected(getApplicationContext(), null, PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).getBoolean(getApplicationContext().getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI), getApplicationContext().getResources().getBoolean(R.bool.pref_auto_update_only_wifi_default)));
 
     final Context context = getApplicationContext();
 
-    if(autoUpdate && !TvDataUpdateService.isRunning() && IOUtils.isBatterySufficient(context)) {
-      Intent startDownload = new Intent(context, TvDataUpdateService.class);
+    if(autoUpdate && !TvDataUpdateService.isRunning() && IOUtils.isBatterySufficient(context) && isConnected) {
+      final Intent startDownload = new Intent(context, TvDataUpdateService.class);
       startDownload.putExtra(TvDataUpdateService.KEY_TYPE, TvDataUpdateService.TYPE_TV_DATA);
       startDownload.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
       startDownload.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TvDataUpdateService.TYPE_UPDATE_AUTO);
       startDownload.putExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE_INTERNET_CONNECTION, internetConnectionType);
 
-      int daysToDownload = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_RANGE, R.string.pref_auto_update_range_default));
+      final int daysToDownload = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_RANGE, R.string.pref_auto_update_range_default));
 
       startDownload.putExtra(context.getString(R.string.DAYS_TO_DOWNLOAD), daysToDownload);
 
@@ -89,6 +91,7 @@ public class JobDataUpdateAuto extends Worker {
             .setRequiresBatteryNotLow(true);
 
         OneTimeWorkRequest.Builder builder = new OneTimeWorkRequest.Builder(JobDataUpdateAuto.class);
+        builder.setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.MINUTES);
 
         long timeCurrent = PrefUtils.getLongValue(R.string.AUTO_UPDATE_CURRENT_START_TIME,0);
 

@@ -2,6 +2,7 @@ package org.tvbrowser.tvbrowser;
 
 import android.app.AlertDialog;
 import android.app.ProgressDialog;
+import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -21,6 +22,10 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
 	public static final String URL = "download/android-plugins-full.gz";
 	private File mCurrentDownloadPlugin;
 	private Runnable mInstallRunnable;
+
+	private static final boolean canRequestPackageInstalls(final Context context) {
+		return !CompatUtils.isAtLeastAndroidO() || context.getPackageManager().canRequestPackageInstalls();
+	}
 
 	PluginUpdateHelperImpl(final TvBrowser tvBrowser) {
 		super(tvBrowser);
@@ -113,7 +118,7 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
               };
 
               if (CompatUtils.isAtLeastAndroidN()) {
-                if(!CompatUtils.canRequestPackageInstalls(tvBrowser)) {
+                if(!canRequestPackageInstalls(tvBrowser)) {
                   final AlertDialog.Builder builder = new AlertDialog.Builder(tvBrowser);
                   builder.setTitle(R.string.dialog_permission_title);
                   builder.setCancelable(false);
@@ -168,7 +173,7 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
 			result = true;
 		}
 		else if(requestCode == REQUEST_CODE_PERMISSION_GRANT) {
-		  if (mInstallRunnable != null && CompatUtils.canRequestPackageInstalls(tvBrowser)) {
+		  if (mInstallRunnable != null && canRequestPackageInstalls(tvBrowser)) {
 				mInstallRunnable.run();
 			} else {
 				cleanup();

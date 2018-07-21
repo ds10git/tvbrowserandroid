@@ -26,7 +26,10 @@
     <color name="pref_color_running_time_selection_background_decent_dark_style_default">#B43B5DB4</color>
     
     <color name="pref_reminder_color_led_default">#00FF00</color>
-    
+
+    <color name="background_list_dark">#303030</color>
+    <color name="background_list_light">#fffafafa</color>
+
     <color name="dark_gray">#222222</color>
     <color name="dark_gray_lighter">#2A2A2A</color>
     <color name="light_gray">#AAAAAA</color>

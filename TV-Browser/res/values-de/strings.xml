@@ -5,7 +5,6 @@
             &bull; zeige Sendernamen und Sortierungsnummer in Erinnerer-Benachrichtigung<br>
             &bull; bessere Ergebnisdarstellung im Popup-Fenster der Schnellsuche<br>
             &bull; Textfarbe im hellen Thema korrigiert<br>
-            &bull; Fehler im hellen Thema beseitigt von Thorsten1976<br>
             &bull; Beschreibung von Sendungen in Programmtabelle anzeigen, wenn Platz vorhanden<br>
             &bull; Unterstützung für neue Datenfelder<br>
             &bull; verwendet neues Layout für Tabs<br>
@@ -1240,7 +1239,7 @@
         <p>Die Daten, die mit EPGdonate-Daten verfügbar gemacht werden sind grundsätzlich frei verfügbar. Damit dieser Service auch weiterhin angeboten werden kann sollte jeder, der es sich wirtschaftlich leisten kann einen jährlichen Betrag zu spenden (und wenigstens volljährig ist), diesen auch spenden.</p>
         <p>Wie hoch dieser jährliche Betrag ausfällt hängt zum einen von der Anzahl der Nutzer und zum anderen von der Anzahl der Spender für EPGdonate-Daten ab. Je mehr Nutzer bzw. Spender, desto geringer kann dieser ausfallen.</p>
         <p>Sie werden von Zeit zu Zeit über den vorgeschlagenen Spendenbetrag informiert, sollten Sie die vorgeschlagene Summe nicht aufbringen können, können Sie auch weniger spenden. Sollten Sie sich außer Stande sehen, überhaupt etwas zu spenden, können die EPGdonate-Daten auch kostenlos verwendet werden. Natürlich steht es jedem frei auch mehr als den vorgeschlagenen Betrag zu spenden, um die Daten für jemanden, der es sich nicht leisten kann zu spenden, zu sponsern.</p>
-        <p>Welche Möglichkeiten zur Spende bestehen, wird auf der Internetseite von EPGdonate-Daten, aufgeführt: <a href="http://epgdonate.natsu-no-yuki.de">http://epgdonate.natsu-no-yuki.de</a></p>{0}]]></string>
+        <p>Mehr über EPGdonate auf der Webseite: <a href="http://epgdonate.natsu-no-yuki.de">http://epgdonate.natsu-no-yuki.de</a></p>{0}]]></string>
 	<string name="epg_donate_amount">Der vorgeschlagene Spendenbetrag für {0} beträgt: {1}</string>
 	<string name="epg_donate_percent_info"><![CDATA[<h3>Aktueller Spendenstand dieses Jahr</h3>schlecht <right>gut</right>]]></string>
     <string name="epg_donate_dont_show_again">Diese Nachricht dieses Jahr nicht mehr anzeigen:</string>

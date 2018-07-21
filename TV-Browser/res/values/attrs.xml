@@ -6,6 +6,7 @@
 	</declare-styleable>
 	<attr name="ic_back_icon" format="reference"/>
 	<attr name="ic_forward_icon" format="reference"/>
+	<attr name="color_background" format="color"/>
 	
 	<declare-styleable name="PreferenceColorActivated">
 	    <attr name="alwaysActivated" format="boolean"/>

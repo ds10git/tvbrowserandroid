@@ -181,10 +181,10 @@ public class InfoActivity extends AppCompatActivity {
       final int appWidgetId = intent.getIntExtra(SettingConstants.WIDGET_CHANNEL_SELECTION_EXTRA, AppWidgetManager.INVALID_APPWIDGET_ID);
       
       if(SettingConstants.IS_DARK_THEME) {
-        setTheme(R.style.AppDarkTheme);
+        setTheme(R.style.Theme_App_Dark);
       }
       else {
-        setTheme(R.style.AppTheme);
+        setTheme(R.style.Theme_App);
       }
       
       UiUtils.showChannelFilterSelection(InfoActivity.this, new ChannelFilter() {

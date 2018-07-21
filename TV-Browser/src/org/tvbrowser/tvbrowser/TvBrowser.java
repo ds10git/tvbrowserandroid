@@ -757,7 +757,7 @@ public class TvBrowser extends AppCompatActivity {
 
       boolean show = firstTimeoutReached && lastTimoutReached && alreadyShowTimeoutReached && !alreadyShownThisMonth && !dontShowAgainThisYear && radomShow;
 
-      Log.d("info6", "firstTimeoutReached (" + ((now - firstDownload)/(24 * 60 * 60000L)) + "): " + firstTimeoutReached + " lastTimoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " randomShow: " + radomShow + " SHOW: " + show);
+      Log.d("info6", "firstTimeoutReached (" + ((now - firstDownload)/(24 * 60 * 60000L)) + "): " + firstTimeoutReached + " lastTimoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " randomShow: " + radomShow + " SHOW: " + show + " COUNT: " +count);
 
       if(show) {
         if((count = getEpgDonateChannelsCount()) > 0) {
@@ -804,17 +804,29 @@ public class TvBrowser extends AppCompatActivity {
           final CheckBox dontShowAgain = view.findViewById(R.id.dialog_epg_donate_dont_show_again);
           dontShowAgain.setOnCheckedChangeListener((buttonView, isChecked) -> reason.setEnabled(isChecked));
 
+          final Runnable saveSetting = new Runnable() {
+            @Override
+            public void run() {
+              SHOWING_DONATION_INFO = false;
+              final Editor edit = pref.edit();
+              edit.putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now);
+
+              if(dontShowAgain.isChecked()) {
+                edit.putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), year);
+              }
+
+              edit.commit();
+            }
+          };
+
           builder.setView(view);
           builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-            SHOWING_DONATION_INFO = false;
-            final Editor edit = pref.edit();
-            edit.putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now);
+            saveSetting.run();
+          });
 
-            if(dontShowAgain.isChecked()) {
-              edit.putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), year);
-            }
-
-            edit.commit();
+          builder.setNegativeButton(R.string.donation, (dialog, which) -> {
+            saveSetting.run();
+            new DonationRatingHelperImpl(TvBrowser.this).showDonationInfo();
           });
 
           showAlertDialog(builder, false, () -> SHOWING_DONATION_INFO = true);

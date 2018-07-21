@@ -2558,13 +2558,13 @@ Log.d("info22", pattern);
   }
 
   public static int getThemeResourceId(final boolean includeToolbar) {
-    int style = includeToolbar ? R.style.AppBaseThemePref : R.style.AppTheme;
+    int style = includeToolbar ? R.style.Theme_Pref_Light : R.style.Theme_App;
 
     if (SettingConstants.IS_DARK_THEME) {
       if (includeToolbar) {
-        style = R.style.AppDarkThemePref;
+        style = R.style.Theme_Pref_Dark;
       } else {
-        style = R.style.AppDarkTheme;
+        style = R.style.Theme_App_Dark;
       }
     }
 

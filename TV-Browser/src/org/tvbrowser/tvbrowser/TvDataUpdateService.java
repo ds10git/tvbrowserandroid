@@ -162,6 +162,28 @@ public class TvDataUpdateService extends Service {
   private int mCountTimedOutConnections;
   
   private int mInternetConnectionTimeout;
+
+  public static final boolean isConnected(final Context context, ConnectivityManager connMgr, final boolean unmetered) {
+    boolean result = false;
+
+    if(connMgr == null) {
+      connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    }
+
+    NetworkInfo lan = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_ETHERNET);
+    NetworkInfo wifi = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_WIFI);
+    NetworkInfo mobile = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_MOBILE);
+
+    if((wifi != null && wifi.isConnected()) || (lan != null && lan.isConnected())) {
+      result = true;
+    }
+
+    if(!result && !unmetered && mobile != null && mobile.isConnected()) {
+      result = true;
+    }
+
+    return result;
+  }
   
   private void checkAndSetConnectionState(long downloadStart) {
     doLog("UNSTABLE INTERNET CONNECTION ACCEPTABLE: " + mInstableConnectionAcceptable + " " + mInternetConnectionTimeout + " TIMED OUT: " + mCountTimedOutConnections + " IS CONNECTED: " + mIsConnected);
@@ -370,11 +392,14 @@ public class TvDataUpdateService extends Service {
             doLog("Extra Data Update Type: " + intent.getIntExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TYPE_UPDATE_AUTO));
           }
           
-          boolean isConnected = false;
           mOnlyWifi = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, TvDataUpdateService.this).getBoolean(getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI), getResources().getBoolean(R.bool.pref_auto_update_only_wifi_default));
           boolean isInternetConnectionAutoUpdate = false;
           mIsAutoUpdate = false;
-          
+
+          final ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+
+          boolean isConnected = isConnected(TvDataUpdateService.this, connMgr, mOnlyWifi);
+
           if(intent != null) { 
             if(intent.getIntExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TYPE_UPDATE_AUTO) == TYPE_UPDATE_MANUELL) {
               mOnlyWifi = false;
@@ -391,21 +416,7 @@ public class TvDataUpdateService extends Service {
               sleep(15000);
             } catch (InterruptedException ignored) {}
           }
-          
-          final ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-          
-          NetworkInfo lan = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_ETHERNET);
-          NetworkInfo wifi = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_WIFI);
-          NetworkInfo mobile = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_MOBILE);
-          
-          if((wifi != null && wifi.isConnected()) || (lan != null && lan.isConnected())) {
-            isConnected = true;
-          }
-          
-          if(!isConnected && !mOnlyWifi && mobile != null && mobile.isConnected()) {
-            isConnected = true;
-          }
-          
+
           if(isConnected && intent != null) {
             mCountTimedOutConnections = 0;
             mIsConnected = true;
