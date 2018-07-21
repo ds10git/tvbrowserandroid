@@ -39,7 +39,6 @@
 		
     <!-- activity_tv_browser -->
 
-        <item type="id" name="activity_tvbrowser_layout" />
         <item type="id" name="activity_tvbrowser_toolbar" />
         <item type="id" name="activity_tvbrowser_tabs" />
 		<item type="id" name="activity_tvbrowser_pager" />

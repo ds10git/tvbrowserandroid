@@ -87,9 +87,9 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
         if(autoUpdate) {
           ConnectivityManager connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
           
-          NetworkInfo lan = connMgr.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
-          NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-          NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+          NetworkInfo lan = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_ETHERNET);
+          NetworkInfo wifi = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_WIFI);
+          NetworkInfo mobile = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_MOBILE);
           
           final boolean onlyWifi = PrefUtils.getBooleanValue(R.string.PREF_AUTO_UPDATE_ONLY_WIFI, R.bool.pref_auto_update_only_wifi_default);
           

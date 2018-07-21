@@ -14,6 +14,7 @@ import android.view.View;
 import org.tvbrowser.devplugin.PluginDefinition;
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
+import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.PrefUtils;
 
 import java.util.ArrayList;
@@ -129,7 +130,7 @@ abstract class PluginUpdateHelper {
 
 					builder.setTitle(title);
 					builder.setCancelable(false);
-					builder.setMessage(getClickableText(Html.fromHtml(pluginsText.toString(), null, new TvBrowser.NewsTagHandler())));
+					builder.setMessage(getClickableText(CompatUtils.fromHtml(pluginsText.toString(), null, new TvBrowser.NewsTagHandler())));
 
 					builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
             if (!newPlugins.isEmpty()) {

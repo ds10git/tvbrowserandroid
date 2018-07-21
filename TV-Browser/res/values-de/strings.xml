@@ -480,6 +480,7 @@
     <string name="title_programs_list">Sendungsliste</string>
     <string name="title_program_table">Programmtabelle</string>
     <string name="title_favorites">Lieblingssendungen</string>
+    <string name="title_database_not_available">DATENBANK NICHT VERFÜGBAR</string>
     <string name="button_now">Jetzt</string>
     <string name="button_all_channels">Alle</string>
     <string name="button_after">Als Nächstes</string>
