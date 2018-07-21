@@ -22,6 +22,7 @@ import org.tvbrowser.devplugin.Plugin;
 import org.tvbrowser.devplugin.PluginManager;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.view.InfoPreference;
 
@@ -181,7 +182,7 @@ public class PluginPreferencesFragment extends PreferenceFragment {
         if (license != null) {
           InfoPreference licensePref = new InfoPreference(getActivity());
           licensePref.setTitle(R.string.pref_plugins_license);
-          licensePref.setSummary(Html.fromHtml(license));
+          licensePref.setSummary(CompatUtils.fromHtml(license));
 
           preferenceScreen.addPreference(licensePref);
         }

@@ -39,7 +39,12 @@
     <color name="separator_color_light">#15646464</color>
     <color name="multipane_dropshadow">#11000000</color>
     <color name="i_dont_want_to_see_highlight">#669f7440</color>
-    
+
+    <color name="activeReminderToolbarBackground">#4e0002</color>
+    <color name="colorPrimary">#222222</color>
+    <color name="colorPrimaryDark">#111111</color>
+    <color name="colorAccent">#26a69a</color>
+
     <color name="pref_first_deleted_channels">#ff5a00</color>
     <color name="pref_kept_deleted_channels">#c60000</color>
     
@@ -47,5 +52,4 @@
     <color name="pref_color_separator_space">#15646464</color>
 
     <color name="widget_text_default">#ccc</color>
-    <color name="toolbar_text_color">#fff</color>
 </resources>

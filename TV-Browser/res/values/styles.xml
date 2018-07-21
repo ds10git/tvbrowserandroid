@@ -1,51 +1,26 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <!--
-        Base application theme, dependent on API level. This theme is replaced
-        by AppBaseTheme from res/values-vXX/styles.xml on newer devices.
-    -->
-    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.DarkActionBar">
-        <!--
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
--->
-
+    <style name="AppBaseTheme" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
-        <item name="android:textColorTertiary">@color/text_appcompat_light</item>
-    	<item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
-    	<item name="ic_back_icon">@drawable/ic_action_back_light</item>
-    	<item name="ic_forward_icon">@drawable/ic_action_forward_light</item>
+    	<item name="ic_back_icon" >@drawable/ic_action_back_light</item>
+    	<item name="ic_forward_icon" >@drawable/ic_action_forward_light</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
     </style>
-
-    <style name="AppDarkTheme" parent="Theme.AppCompat">
-        <item name="popupTheme">@style/ThemeOverlay.AppCompat</item>
-        <item name="windowActionBar">false</item>
-        <item name="windowNoTitle">true</item>
+    
+    <style name="AppDarkTheme" parent="Theme.AppCompat.NoActionBar">
+        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
         <item name="ic_back_icon" >@drawable/ic_action_back</item>
     	<item name="ic_forward_icon" >@drawable/ic_action_forward</item>
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
     </style>
 
-    <style name="AppDarkThemePref" parent="AppDarkTheme">
-        <item name="windowActionBar">true</item>
-        <item name="windowNoTitle">false</item>
-    </style>
+    <style name="AppDarkThemePref" parent="Theme.AppCompat" />
 
-    <!-- Application theme. -->
-    <style name="AppTheme" parent="AppBaseTheme">
-        <!-- All customizations that are NOT specific to a particular API-level can go here. -->
-    </style>
+    <style name="AppTheme" parent="AppBaseTheme" />
 
-    <style name="AppBaseThemePref" parent="AppTheme">
-        <!--
-            Theme customizations available in newer API levels can go in
-            res/values-vXX/styles.xml, while customizations related to
-            backward-compatibility can go here.
-        -->
-        <item name="windowActionBar">true</item>
-        <item name="windowNoTitle">false</item>
-    </style>
+    <style name="AppBaseThemePref" parent="Theme.AppCompat.Light" />
 
     <style name="Theme.TvBrowser.Translucent" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowNoTitle">true</item>
@@ -54,6 +29,7 @@
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowAnimationStyle">@android:style/Animation</item>
     </style>
+
     <style name="time_label_style">
         <item name="android:layout_width">28sp</item>
         <item name="android:layout_height">wrap_content</item>

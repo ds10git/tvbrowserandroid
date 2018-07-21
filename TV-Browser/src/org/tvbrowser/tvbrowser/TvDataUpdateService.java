@@ -394,9 +394,9 @@ public class TvDataUpdateService extends Service {
           
           final ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
           
-          NetworkInfo lan = connMgr.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
-          NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-          NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+          NetworkInfo lan = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_ETHERNET);
+          NetworkInfo wifi = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_WIFI);
+          NetworkInfo mobile = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_MOBILE);
           
           if((wifi != null && wifi.isConnected()) || (lan != null && lan.isConnected())) {
             isConnected = true;
@@ -414,9 +414,9 @@ public class TvDataUpdateService extends Service {
               @Override
               public void onReceive(Context context, Intent intent) {
                 boolean isConnected = false;
-                NetworkInfo lan = connMgr.getNetworkInfo(ConnectivityManager.TYPE_ETHERNET);
-                NetworkInfo wifi = connMgr.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
-                NetworkInfo mobile = connMgr.getNetworkInfo(ConnectivityManager.TYPE_MOBILE);
+                NetworkInfo lan = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_ETHERNET);
+                NetworkInfo wifi = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_WIFI);
+                NetworkInfo mobile = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_MOBILE);
                 
                 if((wifi != null && wifi.isConnected()) || (lan != null && lan.isConnected())) {
                   isConnected = true;
@@ -5291,7 +5291,7 @@ public class TvDataUpdateService extends Service {
                       if(title.equals(value.mTitle)) {
                         contentValues.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, value.mDontWantToSee ? 1 : 0);
                       }
-                      else if(UiUtils.filter(TvDataUpdateService.this, title, mDontWantToSeeValues)) {
+                      else if(UiUtils.filter(title, mDontWantToSeeValues)) {
                         contentValues.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, 1);
                       }
                     }
@@ -5307,7 +5307,7 @@ public class TvDataUpdateService extends Service {
                   if(level == LEVEL_BASE && mDontWantToSeeValues != null) {
                     String title = contentValues.getAsString(TvBrowserContentProvider.DATA_KEY_TITLE);
                     
-                    if(UiUtils.filter(TvDataUpdateService.this, title, mDontWantToSeeValues)) {
+                    if(UiUtils.filter(title, mDontWantToSeeValues)) {
                       contentValues.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, 1);
                     }
                   }

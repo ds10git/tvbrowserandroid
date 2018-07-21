@@ -26,6 +26,7 @@ import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.ProgramUtils;
@@ -37,7 +38,6 @@ import org.tvbrowser.view.ProgramTableLayout;
 import org.tvbrowser.view.ProgramTableLayoutConstants;
 import org.tvbrowser.view.TimeBlockProgramTableLayout;
 
-import android.annotation.SuppressLint;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
@@ -881,7 +881,7 @@ public class FragmentProgramTable extends Fragment {
 
     setDayString(currentDay);
 
-    currentDay.setOnClickListener(this::selectDate);
+    currentDay.setOnClickListener(view -> selectDate());
 
     mPrevious = programTableLayout.findViewById(R.id.switch_to_previous_day);
 
@@ -1068,80 +1068,53 @@ public class FragmentProgramTable extends Fragment {
     UiUtils.handleMarkings(getActivity(), null, startTime, endTime, panel, IOUtils.getStringArrayFromList(markedColumns), null, true);
   }
 
-  /*private boolean isBrokenSamsungDevice() {
-    return true;
-  }*/
+  @SuppressWarnings("deprecation")
+  private void selectDate() {
+    try {
+      final AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
 
-  @SuppressLint("NewApi")
-  private void selectDate(View view) {try {
-    AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+      long testDay = System.currentTimeMillis() / 1000 / 60 / 60 / 24;
+      long dayStart = testDay * 24 * 60 * 60 * 1000;
 
-    long testDay = System.currentTimeMillis() / 1000 / 60 / 60 / 24;
-    long dayStart = testDay * 24 * 60 * 60 * 1000;
+      if (System.currentTimeMillis() - dayStart < 4 * 60 * 60 * 1000) {
+        dayStart = --testDay * 24 * 60 * 60 * 1000 - TimeZone.getDefault().getOffset(dayStart);
+      }
 
-    if(System.currentTimeMillis() - dayStart < 4 * 60 * 60 * 1000) {
-      dayStart = --testDay * 24 * 60 * 60 * 1000 - TimeZone.getDefault().getOffset(dayStart);
-    }
+      final DatePicker select = new DatePicker(CompatUtils.getDatePickerContext(getActivity()));
 
-    Context context = new ContextWrapper(getActivity()) {
-      private Resources wrappedResources;
+      if (Build.VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
+        select.getCalendarView().setFirstDayOfWeek(Calendar.MONDAY);
+      }
 
-      @Override
-      public Resources getResources() {
-        Resources r = super.getResources();
-        if(wrappedResources == null) {
-          wrappedResources = new Resources(r.getAssets(), r.getDisplayMetrics(), r.getConfiguration()) {
-            @NonNull
-            @Override
-            public String getString(int id, Object... formatArgs) throws NotFoundException {
-              try {
-                return super.getString(id, formatArgs);
-              } catch (IllegalFormatConversionException ifce) {
-                Log.e("DatePickerDialogFix", "IllegalFormatConversionException Fixed!", ifce);
-                String template = super.getString(id);
-                template = template.replaceAll("%" + ifce.getConversion(), "%s");
-                return String.format(getConfiguration().locale, template, formatArgs);
-              }
-            }
-          };
+      select.setMinDate(dayStart - 24 * 60 * 60 * 1000);
+      select.setMaxDate(dayStart + 21 * (24 * 60 * 60 * 1000));
+      select.init(mCurrentDate.get(Calendar.YEAR), mCurrentDate.get(Calendar.MONTH), mCurrentDate.get(Calendar.DAY_OF_MONTH), null);
+
+      builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+        mCurrentDate.set(select.getYear(), select.getMonth(), select.getDayOfMonth());
+
+        setDayString(getView().findViewById(R.id.show_current_day));
+
+        View view1 = getView().findViewById(R.id.horizontal_program_table_scroll);
+
+        if (view1 != null) {
+          mOldScrollX = view1.getScrollX();
         }
 
-        return wrappedResources;
-      }
-    };
+        updateView(getActivity().getLayoutInflater(), getView().findViewWithTag("LAYOUT"));
+      });
 
-    final DatePicker select = new DatePicker(context);
+      builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {
+      });
 
-    if (Build.VERSION.SDK_INT < VERSION_CODES.LOLLIPOP) {
-      select.getCalendarView().setFirstDayOfWeek(Calendar.MONDAY);
+      HorizontalScrollView scroll = new HorizontalScrollView(getActivity());
+      scroll.addView(select);
+
+      builder.setView(scroll);
+
+      builder.show();
+    } catch (Throwable ignored) {
     }
-
-    select.setMinDate(dayStart - 24 * 60 * 60 * 1000);
-    select.setMaxDate(dayStart + 21 * (24 * 60 * 60 * 1000));
-    select.init(mCurrentDate.get(Calendar.YEAR), mCurrentDate.get(Calendar.MONTH), mCurrentDate.get(Calendar.DAY_OF_MONTH), null);
-
-    builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-      mCurrentDate.set(select.getYear(), select.getMonth(), select.getDayOfMonth());
-
-      setDayString(getView().findViewById(R.id.show_current_day));
-
-      View view1 = getView().findViewById(R.id.horizontal_program_table_scroll);
-
-      if(view1 != null) {
-        mOldScrollX = view1.getScrollX();
-      }
-
-      updateView(getActivity().getLayoutInflater(), getView().findViewWithTag("LAYOUT"));
-    });
-
-    builder.setNegativeButton(android.R.string.cancel, (dialog, which) -> {});
-
-    HorizontalScrollView scroll = new HorizontalScrollView(getActivity());
-    scroll.addView(select);
-
-    builder.setView(scroll);
-
-    builder.show();}catch(Throwable ignored) {}
   }
 
   public boolean checkTimeBlockSize() {

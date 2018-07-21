@@ -72,7 +72,6 @@ import android.content.Intent;
 import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
-import android.content.res.Configuration;
 import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
@@ -104,7 +103,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
-import android.text.Html;
 import android.text.Layout;
 import android.text.Spannable;
 import android.text.SpannableString;
@@ -119,7 +117,6 @@ import android.text.style.ImageSpan;
 import android.text.style.LeadingMarginSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -133,7 +130,6 @@ import android.view.ViewTreeObserver.OnPreDrawListener;
 import android.view.WindowManager;
 import android.view.WindowManager.BadTokenException;
 import android.widget.ArrayAdapter;
-import android.widget.BaseAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
@@ -163,8 +159,6 @@ public final class UiUtils {
       return collator;
     }
   };
-
-  public static final SimpleDateFormat LONG_DAY_FORMAT = new SimpleDateFormat("EEEE", Locale.getDefault());
 
   private static final HashMap<String, Integer> VALUE_MAP;
 
@@ -864,11 +858,7 @@ public final class UiUtils {
 
                             name = "<b><u>" + name.replace("\n", "<br>") + "</u></b>" + (endWith ? " " : "");
 
-                            //SpannableStringBuilder textSpan = new SpannableStringBuilder(Html.fromHtml(name + text));
-
-                            checkAndAddHiglightingForFavorites(textView, Html.fromHtml(name + text), patternList, false, backgroundColorSpan);
-
-                            //textView.setText(textSpan);
+                            checkAndAddHiglightingForFavorites(textView, CompatUtils.fromHtml(name + text), patternList, false, backgroundColorSpan);
                           }
                         } catch (Exception e) {
                           textView.setVisibility(View.GONE);
@@ -1096,7 +1086,7 @@ public final class UiUtils {
           }
         }
 
-        if (context != null && context instanceof ActivityTvBrowserSearchResults) {
+        if (context instanceof ActivityTvBrowserSearchResults) {
           menu.findItem(R.id.program_popup_search_repetition).setVisible(false);
         }
       } finally {
@@ -1441,7 +1431,7 @@ public final class UiUtils {
                       String title = c.getString(titleColumn);
 
                       ContentValues values = new ContentValues();
-                      values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, (UiUtils.filter(activity, title, exclusionArr) ? 1 : 0));
+                      values.put(TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE, (UiUtils.filter(title, exclusionArr) ? 1 : 0));
 
                       ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, c.getLong(keyColumn)));
                       opBuilder.withValues(values);
@@ -1596,10 +1586,6 @@ public final class UiUtils {
     handleMarkings(context, cursor, startTime, endTime, view, markingValues, handler, vertical);
   }
 
-  public static void handleMarkings(Context context, Cursor cursor, long startTime, long endTime, View view, String[] markingValues) {
-    handleMarkings(context, cursor, startTime, endTime, view, markingValues, null);
-  }
-
   public static void handleMarkings(Context context, Cursor cursor, long startTime, long endTime, final View view, String[] markingValues, Handler handler) {
     handleMarkings(context, cursor, startTime, endTime, view, markingValues, handler, false);
   }
@@ -1708,8 +1694,8 @@ public final class UiUtils {
     activity.startActivity(startEditFavorite);
   }
 
-  private static String formatDate(long date, Context context, boolean onlyDays) {
-    return formatDate(date, context, onlyDays, false);
+  private static String formatDate(long date, Context context) {
+    return formatDate(date, context, true, false);
   }
 
   public static String formatDate(long date, Context context, boolean onlyDays, boolean withDayString) {
@@ -1791,10 +1777,10 @@ Log.d("info22", pattern);
       TextView startDay = ((View) view.getParent()).findViewById(/*R.id.startDayLabelPL*/startDayLabelID);
       startDay.setText(day.format(new Date(date)));
 
-      CharSequence startDayValue = formatDate(date, activity, true);
+      CharSequence startDayValue = formatDate(date, activity);
 
       if (startDayValue != null && startDayValue.toString().trim().length() > 0) {
-        startDay.setText(startDayValue + ", " + startDay.getText());
+        startDay.setText(String.format(Locale.getDefault(), "%s, %s", startDayValue, startDay.getText()));
       }
 
       Calendar progDate = Calendar.getInstance();
@@ -1823,10 +1809,6 @@ Log.d("info22", pattern);
     return (int) (dp * scale + 0.5f);
   }
 
-  public static boolean isHighRes(Resources res) {
-    return DisplayMetrics.DENSITY_XHIGH >= res.getDisplayMetrics().densityDpi;
-  }
-
   public static float convertPixelsToSp(float px, Context context) {
     float scaledDensity = context.getResources().getDisplayMetrics().scaledDensity;
     return px / scaledDensity;
@@ -1836,13 +1818,13 @@ Log.d("info22", pattern);
     return exclusion.matches(title);
   }
 
-  public static boolean filter(Context context, String title, DontWantToSeeExclusion[] values) {
+  public static boolean filter(String title, DontWantToSeeExclusion[] values) {
     boolean found = false;
 
     if (title != null) {
       if (values == null) {
         Set<String> exclusionValues = PrefUtils.getStringSetValue(R.string.I_DONT_WANT_TO_SEE_ENTRIES, null);
-        //ArrayList<>
+
         values = new DontWantToSeeExclusion[exclusionValues.size()];
 
         int i = 0;
@@ -1852,7 +1834,6 @@ Log.d("info22", pattern);
         }
       }
 
-      if (values != null) {
         for (DontWantToSeeExclusion value : values) {
           if (filter(title, value)) {
             found = true;
@@ -1860,14 +1841,6 @@ Log.d("info22", pattern);
           }
         }
       }
-        /*    
-      if(clear) {
-        Editor edit = PreferenceManager.getDefaultSharedPreferences(context).edit();
-        
-        edit.putStringSet(context.getResources().getString(R.string.I_DONT_WANT_TO_SEE_ENTRIES), cleared);
-        edit.commit();
-      }*/
-    }
 
     return found;
   }
@@ -1924,14 +1897,6 @@ Log.d("info22", pattern);
     }
 
     return color;
-  }
-
-  public static void handleConfigurationChange(Handler handler, final BaseAdapter adapter, Configuration newConfig) {
-    if (newConfig.orientation == Configuration.ORIENTATION_LANDSCAPE) {
-      handler.post(adapter::notifyDataSetChanged);
-    } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
-      handler.post(adapter::notifyDataSetChanged);
-    }
   }
 
   public static Bitmap drawableToBitmap(Drawable drawable) {
