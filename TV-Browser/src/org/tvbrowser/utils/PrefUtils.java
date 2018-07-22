@@ -194,7 +194,11 @@ public class PrefUtils {
   private static final String PREFERENCES_MARKINGS = "markings";
   private static final String PREFERENCES_MARKING_REMINDERS = "markingsReminders";
   private static final String PREFERENCES_MARKING_SYNC = "markingsSynchronization";
-  
+
+  public static SharedPreferences getSharedPreferences(int type) {
+    return getSharedPreferences(type, mContext);
+  }
+
   public static SharedPreferences getSharedPreferences(int type, Context context) {
     SharedPreferences pref = null;
     
@@ -348,5 +352,13 @@ public class PrefUtils {
   
   public static void updateKnownOpenDate(Context context) {
     getSharedPreferences(TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putInt(context.getString(R.string.PREF_MISC_LAST_KNOWN_OPEN_DATE), Calendar.getInstance().get(Calendar.DAY_OF_YEAR)).commit();
+  }
+
+  public static final void putLong(final Editor edit, final int prefKey, final long value) {
+    edit.putLong(mContext.getString(prefKey),value);
+  }
+
+  public static final boolean isDarkTheme() {
+    return getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default);
   }
 }

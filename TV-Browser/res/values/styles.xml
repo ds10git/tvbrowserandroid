@@ -2,15 +2,16 @@
 
     <style name="Theme.App.Light" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
-        <!-- NEVER REMOVE THIS ENTRY: Darker text for text views -->
-        <item name="android:textColorTertiary">@color/text_appcompat_light</item>
-    	<item name="windowActionBar">false</item>
+        <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
-    	<item name="ic_back_icon">@drawable/ic_action_back_light</item>
-    	<item name="ic_forward_icon">@drawable/ic_action_forward_light</item>
+        <item name="ic_back_icon">@drawable/ic_action_back_light</item>
+        <item name="ic_forward_icon">@drawable/ic_action_forward_light</item>
         <item name="color_background">@color/background_list_light</item>
+        <!-- NEVER REMOVE THIS ENTRIES: Darker text for text views -->
+        <item name="android:textColorSecondary">@color/text_appcompat_light</item>
+        <item name="android:textColorTertiary">@color/text_appcompat_light</item>
     </style>
-    
+
     <style name="Theme.App.Dark" parent="Theme.AppCompat.NoActionBar">
         <item name="popupTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
         <item name="ic_back_icon" >@drawable/ic_action_back</item>
@@ -24,7 +25,11 @@
 
     <style name="Theme.App" parent="Theme.App.Light" />
 
-    <style name="Theme.Pref.Light" parent="Theme.AppCompat.Light.DarkActionBar" />
+    <style name="Theme.Pref.Light" parent="Theme.AppCompat.Light.DarkActionBar">
+        <!-- NEVER REMOVE THIS ENTRIES: Darker text for text views -->
+        <item name="android:textColorSecondary">@color/text_appcompat_light</item>
+        <item name="android:textColorTertiary">@color/text_appcompat_light</item>
+    </style>
 
     <style name="Theme.TvBrowser.Translucent" parent="Theme.AppCompat.NoActionBar">
         <item name="android:windowNoTitle">true</item>
@@ -32,6 +37,17 @@
         <item name="android:colorBackgroundCacheHint">@null</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowAnimationStyle">@android:style/Animation</item>
+    </style>
+
+    <style name="Theme.TvBrowser.Translucent.Light" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="android:windowIsTranslucent">true</item>
+        <item name="android:windowAnimationStyle">@android:style/Animation</item>
+        <!-- NEVER REMOVE THIS ENTRIES: Darker text for text views -->
+        <item name="android:textColorSecondary">@color/text_appcompat_light</item>
+        <item name="android:textColorTertiary">@color/text_appcompat_light</item>
     </style>
 
     <style name="time_label_style">

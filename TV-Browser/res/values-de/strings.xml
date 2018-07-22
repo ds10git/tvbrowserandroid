@@ -2,6 +2,8 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.6.5</h2>
+            &bull; Thema im Sendungsinfodialog beachten, wenn dieser aus einem Widget geöffnet wird<br>
+            &bull; fehlende Aktualisierung der Einstellungen bei Änderungen auf älteren Android-Versionen korrigiert<br>
             &bull; zeige Sendernamen und Sortierungsnummer in Erinnerer-Benachrichtigung<br>
             &bull; bessere Ergebnisdarstellung im Popup-Fenster der Schnellsuche<br>
             &bull; Textfarbe im hellen Thema korrigiert<br>
@@ -766,7 +768,9 @@
 	<string name="pref_detail_category">Detail-Fenster</string>
 	<string name="pref_detail_category_summary">Welche Informationen sollen im Detail-Fenster angezeigt werden?</string>
 	<string name="detail_missing_description_text">Für diese Sendung kann aus lizenzrechtlichen Gründen keine kostenlose Beschreibung und kein Bild angezeigt werden.\n\nSie können die Beschreibungen und Bilder jedoch für ca. 1 Cent pro Tag freischalten.\n\nMehr dazu unter https://www.epgpaid.de</string>
-	<string name="pref_detail_picture_zoom">Bild skalieren</string>
+    <string name="EPGpaidData.info.expiredAccess">Ihr Zugang zu den EPGpaid-Daten ist am {0} abgelaufen.\n\nUm den Zugang f\u00FCr weitere 12 Monate zu erhalten, bestellen Sie EPGpaid erneut.\n\nMehr dazu unter https://www.epgpaid.de</string>
+    <string name="EPGpaidData.info.expiredAccessExtend">\n\nIhr Zugang zu den EPGpaid-Daten ist am {0} abgelaufen, daher werden die freien Beschreibungen \u00FCber omdb.org angezeigt.\n\nUm den Zugang f\u00FCr weitere 12 Monate zu erhalten, bestellen Sie EPGpaid erneut.\n\nMehr dazu unter https://www.epgpaid.de</string>
+    <string name="pref_detail_picture_zoom">Bild skalieren</string>
 	<string name="pref_detail_text_scale">Text skalieren</string>
 	<string name="pref_list_category">Listen mit Sendungen</string>
 	<string name="pref_list_category_summary">Welche Informationen sollen in den Listen mit Sendungen angezeigt werden?</string>

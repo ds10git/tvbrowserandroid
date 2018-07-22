@@ -31,6 +31,7 @@ import android.view.View;
 
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
 
 import java.util.ArrayList;
 import java.util.Calendar;
@@ -230,7 +231,7 @@ public class ProgramPanel extends View {
       }
       
       if(isExpired()) {
-        if(SettingConstants.IS_DARK_THEME) {
+        if(PrefUtils.isDarkTheme()) {
           mPicture.setColorFilter(ContextCompat.getColor(getContext(), org.tvbrowser.tvbrowser.R.color.dark_gray), PorterDuff.Mode.DARKEN);
         }
         else {

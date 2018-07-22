@@ -69,7 +69,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
   protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
     PrefUtils.initialize(ActivityTvBrowserSearchResults.this);
 
-    super.onApplyThemeResource(theme, UiUtils.getThemeResourceId(true), first);
+    super.onApplyThemeResource(theme, UiUtils.getThemeResourceId(UiUtils.TYPE_THEME_TOOLBAR, PrefUtils.isDarkTheme()), first);
   }
   
   private ListView getListView() {

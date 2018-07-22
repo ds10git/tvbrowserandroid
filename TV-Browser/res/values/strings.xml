@@ -2,6 +2,8 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.6.5</h2>
+            &bull; take theme into account for program info dialog opened from widget<br>
+            &bull; fixed missing update of preferences on change for older Android versions<br>
             &bull; show channel name and order number in Reminder notification<br>
             &bull; better result popup for quick search<br>
             &bull; fixed light theme text color<br>
@@ -773,7 +775,9 @@
 	<string name="pref_detail_category">Detail window</string>
 	<string name="pref_detail_category_summary">Which information should be shown in the details window?</string>
 	<string name="detail_missing_description_text">No description or picture can be shown for this program because of license restrictions.\n\nYou can unlock the descriptions and pictures for circa 1 Euro cent.\n\nMore about it at https://www.epgpaid.de</string>
-	<string name="pref_detail_picture_zoom">Zoom value for picture</string>
+    <string name="EPGpaidData.info.expiredAccess">You\'re access to the EPGpaid data has expired on {0}.\n\nTo activate it for another 12 months, just order it again.\n\nMore about it at https://www.epgpaid.de</string>
+    <string name="EPGpaidData.info.expiredAccessExtend">You\'re access to the EPGpaid data has expired on {0}, therefor you see the free description of omdb.org.\n\nTo activate it for another 12 months, just order it again.\n\nMore about it at https://www.epgpaid.de</string>
+    <string name="pref_detail_picture_zoom">Zoom value for picture</string>
 	<string name="pref_detail_text_scale">Zoom value for text</string>
 	<string name="pref_list_category">Lists with programs</string>
 	<string name="pref_list_category_summary">Which information should be shown in the lists with programs?</string>

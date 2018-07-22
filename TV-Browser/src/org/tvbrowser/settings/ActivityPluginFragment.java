@@ -26,6 +26,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
+import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.UiUtils;
 
 /**
@@ -41,7 +42,7 @@ public class ActivityPluginFragment extends AppCompatActivity {
 
   @Override
   protected void onApplyThemeResource(Resources.Theme theme, int resid, boolean first) {
-    resid = UiUtils.getThemeResourceId(true);
+    resid = UiUtils.getThemeResourceId(UiUtils.TYPE_THEME_TOOLBAR, PrefUtils.isDarkTheme());
 
     super.onApplyThemeResource(theme, resid, first);
   }

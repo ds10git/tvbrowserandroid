@@ -121,7 +121,7 @@ public final class PluginHandler {
           versionCode = pInfo.versionCode;
         } catch (NameNotFoundException ignored) {}
         
-        return new TvBrowserSettings(SettingConstants.IS_DARK_THEME, version, versionCode, PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_FIRST_KNOWN, R.integer.meta_data_id_default), PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_LAST_KNOWN, R.integer.meta_data_id_default), PrefUtils.getLongValue(R.string.PREF_LAST_KNOWN_DATA_DATE, SettingConstants.DATA_LAST_DATE_NO_DATA));
+        return new TvBrowserSettings(PrefUtils.isDarkTheme(), version, versionCode, PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_FIRST_KNOWN, R.integer.meta_data_id_default), PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_ID_LAST_KNOWN, R.integer.meta_data_id_default), PrefUtils.getLongValue(R.string.PREF_LAST_KNOWN_DATA_DATE, SettingConstants.DATA_LAST_DATE_NO_DATA));
       }
 
       @Override

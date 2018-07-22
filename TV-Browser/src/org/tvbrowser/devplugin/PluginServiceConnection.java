@@ -190,7 +190,7 @@ public class PluginServiceConnection implements ServiceConnection, Comparable<Pl
           
           icon.setBounds(0, 0, (int)(iconBitmap.getWidth() * zoom), (int)(iconBitmap.getHeight() * zoom));
           
-          if(!SettingConstants.IS_DARK_THEME) {
+          if(!PrefUtils.isDarkTheme()) {
             icon.setColorFilter(new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY));
           }
           

@@ -29,6 +29,7 @@ import org.tvbrowser.filter.ChannelFilter;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;
@@ -74,7 +75,7 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
   
   @Override
   protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
-    resid = UiUtils.getThemeResourceId(true);
+    resid = UiUtils.getThemeResourceId(UiUtils.TYPE_THEME_TOOLBAR, PrefUtils.isDarkTheme());
     
     super.onApplyThemeResource(theme, resid, first);
   }
@@ -98,7 +99,7 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
     
     int color = ContextCompat.getColor(this, R.color.abc_primary_text_material_light);
     
-    if(SettingConstants.IS_DARK_THEME) {
+    if(PrefUtils.isDarkTheme()) {
       color = ContextCompat.getColor(this, R.color.abc_primary_text_material_dark);
     }
     

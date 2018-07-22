@@ -48,7 +48,7 @@ public class ActivityFilterListEdit extends AppCompatActivity {
   
   @Override
   protected void onApplyThemeResource(Theme theme, int resid, boolean first) {
-    resid = UiUtils.getThemeResourceId(true);
+    resid = UiUtils.getThemeResourceId(UiUtils.TYPE_THEME_TOOLBAR, PrefUtils.isDarkTheme());
     
     super.onApplyThemeResource(theme, resid, first);
   }

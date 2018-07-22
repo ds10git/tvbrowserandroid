@@ -376,7 +376,7 @@ public final class UiUtils {
 
                   final Resources resources = context.getResources();
 
-                  if (!SettingConstants.IS_DARK_THEME && !(finish instanceof InfoActivity)) {
+                  if (!PrefUtils.isDarkTheme() && !(finish instanceof InfoActivity)) {
                     date.setTextColor(ContextCompat.getColor(context, R.color.detail_date_channel_color_light));
                   }
 
@@ -610,13 +610,16 @@ public final class UiUtils {
                   boolean showShortDescription = true;
 
                   boolean showEpgPaidInfo = PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_DESCRIPTION_MISSING_INFO, R.bool.pref_epgpaid_description_missing_default);
+                  long epgPaidUntil = PrefUtils.getLongValueWithDefaultKey(R.string.PREF_EPGPAID_ACCESS_UNTIL,R.integer.pref_epgpaid_access_until_default);
+
+                  final boolean wasActive = epgPaidUntil < System.currentTimeMillis() && epgPaidUntil != context.getResources().getInteger(R.integer.pref_epgpaid_access_until_default);
 
                   if (showEpgPaidInfo) {
                     final Set<String> channelIds = PrefUtils.getStringSetValue(R.string.PREF_EPGPAID_DATABASE_CHANNEL_IDS, new HashSet<>());
 
                     showEpgPaidInfo = channelIds.contains(String.valueOf(channelID));
 
-                    if (showEpgPaidInfo) {
+                    if (showEpgPaidInfo && !wasActive) {
                       final File epgPaidDir = new File(IOUtils.getDownloadDirectory(context), "epgPaidData");
 
                       if (epgPaidDir.isDirectory()) {
@@ -674,8 +677,25 @@ public final class UiUtils {
                     }
                   }
 
-                  if (showEpgPaidInfo && shortDescriptionValue == null && descriptionValue == null) {
-                    descriptionValue = context.getString(R.string.detail_missing_description_text);
+                  if (showEpgPaidInfo) {
+                    if(shortDescriptionValue == null && descriptionValue == null) {
+                      if(wasActive) {
+                        descriptionValue = context.getString(R.string.EPGpaidData_info_expiredAccess).replace("{0}", java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(new Date(epgPaidUntil)));
+                      }
+                      else {
+                        descriptionValue = context.getString(R.string.detail_missing_description_text);
+                      }
+                    }
+                    else if(wasActive) {
+                      if((shortDescriptionValue != null && shortDescriptionValue.contains("omdb.org")) ||
+                        (descriptionValue != null && descriptionValue.contains("omdb.org"))) {
+                        descriptionValue += context.getString(R.string.EPGpaidData_info_expiredAccessExtend).replace("{0}", java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(new Date(epgPaidUntil)));;
+                      }
+                      else if((shortDescriptionValue != null && shortDescriptionValue.contains("wiki.tvbrowser.org/index.php/WirSchauen")) ||
+                        (descriptionValue != null && descriptionValue.contains("wiki.tvbrowser.org/index.php/WirSchauen"))) {
+                        descriptionValue = context.getString(R.string.EPGpaidData_info_expiredAccess).replace("{0}", java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(new Date(epgPaidUntil)));;
+                      }
+                    }
                   }
 
                   if (shortDescriptionValue == null || !showShortDescription) {
@@ -1864,7 +1884,7 @@ Log.d("info22", pattern);
 
     switch (key) {
       case EXPIRED_COLOR_KEY:
-        if (SettingConstants.IS_DARK_THEME) {
+        if (PrefUtils.isDarkTheme()) {
           color = SettingConstants.EXPIRED_DARK_COLOR;
         } else {
           color = SettingConstants.EXPIRED_LIGHT_COLOR;
@@ -2557,15 +2577,17 @@ Log.d("info22", pattern);
     }
   }
 
-  public static int getThemeResourceId(final boolean includeToolbar) {
-    int style = includeToolbar ? R.style.Theme_Pref_Light : R.style.Theme_App;
+  public static final int TYPE_THEME_DEFAULT = 1;
+  public static final int TYPE_THEME_TOOLBAR = 2;
+  public static final int TYPE_THEME_TRANSLUCENT = 3;
 
-    if (SettingConstants.IS_DARK_THEME) {
-      if (includeToolbar) {
-        style = R.style.Theme_Pref_Dark;
-      } else {
-        style = R.style.Theme_App_Dark;
-      }
+  public static int getThemeResourceId(final int type, final boolean useDarkTheme) {
+    int style = R.style.Theme_App;
+
+    switch (type) {
+      case TYPE_THEME_DEFAULT: if(useDarkTheme) {style = R.style.Theme_App_Dark;};break;
+      case TYPE_THEME_TOOLBAR: style = useDarkTheme ? R.style.Theme_Pref_Dark : R.style.Theme_Pref_Light;break;
+      case TYPE_THEME_TRANSLUCENT: style = useDarkTheme ? R.style.Theme_TvBrowser_Translucent : R.style.Theme_TvBrowser_Translucent_Light;break;
     }
 
     return style;
@@ -2578,7 +2600,7 @@ Log.d("info22", pattern);
 
     icon.setBounds(0, 0, (int) (icon.getIntrinsicWidth() * zoom), (int) (icon.getIntrinsicHeight() * zoom));
 
-    if (!SettingConstants.IS_DARK_THEME) {
+    if (!PrefUtils.isDarkTheme()) {
       icon.setColorFilter(new PorterDuffColorFilter(Color.BLACK, PorterDuff.Mode.MULTIPLY));
     } else {
       icon.setColorFilter(null);

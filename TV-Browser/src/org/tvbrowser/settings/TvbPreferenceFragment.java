@@ -212,17 +212,17 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
       addPreferencesFromResource(R.xml.preferences_debug);
     }
   }
-  
+
   @Override
-  public void onAttach(final Context context) {
-    super.onAttach(context);
-    PreferenceManager.getDefaultSharedPreferences(context).registerOnSharedPreferenceChangeListener(this);
+  public void onResume() {
+    super.onResume();
+    PreferenceManager.getDefaultSharedPreferences(getActivity()).registerOnSharedPreferenceChangeListener(this);
   }
-  
+
   @Override
-  public void onDetach() {
+  public void onPause() {
     PreferenceManager.getDefaultSharedPreferences(getActivity()).unregisterOnSharedPreferenceChangeListener(this);
-    super.onDetach();
+    super.onPause();
   }
 
   @Override

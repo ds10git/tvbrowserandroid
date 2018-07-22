@@ -21,6 +21,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
+import android.content.res.Resources;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -45,6 +46,7 @@ import java.util.Collections;
 import java.util.List;
 
 public class InfoActivity extends AppCompatActivity {
+
   @Override
   protected void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
@@ -69,6 +71,8 @@ public class InfoActivity extends AppCompatActivity {
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
     
     if(programID >= 0) {
+      setTheme(UiUtils.getThemeResourceId(UiUtils.TYPE_THEME_TRANSLUCENT, PrefUtils.isDarkTheme()));
+
       UiUtils.showProgramInfo(this, programID, this, getCurrentFocus(), new Handler());
     }
     else if(intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
@@ -179,14 +183,9 @@ public class InfoActivity extends AppCompatActivity {
     else if(intent.hasExtra(SettingConstants.WIDGET_CHANNEL_SELECTION_EXTRA)) {
       final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(InfoActivity.this);
       final int appWidgetId = intent.getIntExtra(SettingConstants.WIDGET_CHANNEL_SELECTION_EXTRA, AppWidgetManager.INVALID_APPWIDGET_ID);
-      
-      if(SettingConstants.IS_DARK_THEME) {
-        setTheme(R.style.Theme_App_Dark);
-      }
-      else {
-        setTheme(R.style.Theme_App);
-      }
-      
+
+      setTheme(UiUtils.getThemeResourceId(UiUtils.TYPE_THEME_DEFAULT, PrefUtils.isDarkTheme()));
+
       UiUtils.showChannelFilterSelection(InfoActivity.this, new ChannelFilter() {
         @Override
         public void setFilterValues(String name, int[] filteredChannelIds) {

@@ -65,6 +65,7 @@
     
     <!-- EPGpaid settings -->
         <string name="PREF_EPGPAID_CATEGORY_CREDENTIALS" translatable="false">PREF_EPGPAID_CATEGORY_CREDENTIALS</string>
+	    <string name="PREF_EPGPAID_ACCESS_FROM" translatable="false">PREF_EPGPAID_ACCESS_FROM</string>
     	<string name="PREF_EPGPAID_ACCESS_UNTIL" translatable="false">PREF_EPGPAID_ACCESS_UNTIL</string>
     	<item name="pref_epgpaid_access_until_default" type="integer" format="integer">0</item>
     	

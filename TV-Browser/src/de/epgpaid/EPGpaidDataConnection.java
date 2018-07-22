@@ -1,20 +1,12 @@
 /*
- * TV-Browser for Android
- * Copyright (C) 2014 René Mach (rene@tvbrowser.org)
- *
- * Permission is hereby granted, free of charge, to any person obtaining a copy of this software
- * and associated documentation files (the "Software"), to use, copy, modify or merge the Software,
- * furthermore to publish and distribute the Software free of charge without modifications and to
- * permit persons to whom the Software is furnished to do so, subject to the following conditions:
- *
- * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
- *
- * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
- * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
- * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ * EPGpaid data: A supplement data plugin for TV-Browser.
+ * Copyright: (c) 2015 René Mach
  */
 package de.epgpaid;
+
+import android.util.Log;
+
+import org.tvbrowser.utils.IOUtils;
 
 import java.io.BufferedReader;
 import java.io.DataOutputStream;
@@ -22,40 +14,48 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.net.Authenticator;
 import java.net.CookieHandler;
-import java.net.CookieManager;
 import java.net.HttpURLConnection;
 import java.net.PasswordAuthentication;
+import java.net.SocketException;
 import java.net.URL;
 import java.net.URLEncoder;
+import java.net.UnknownHostException;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.tvbrowser.tvbrowser.R;
-import org.tvbrowser.utils.IOUtils;
-import org.tvbrowser.utils.PrefUtils;
-
-import android.content.Context;
-import android.util.Log;
-
 public class EPGpaidDataConnection {
+  private static final String TAG = "EPGpaid";
+
+  public static final String KEY_NO_CONNECTION = "NO_CONNECTION_TO_LOGIN_SITE";
+  public static final String KEY_NO_CONNECTION_TO_INTERNET = "NO_CONNECTION_TO_INTERNET";
+  
   private static final Pattern PATTERN_FORM = Pattern.compile(".*?name=\"(.*?)\".*?value=\"(.*?)\".*");
-  private static final Pattern PATTERN_DATE_UNTIL = Pattern.compile(".*?<p>Logged\\s+In:\\s+(\\d+)\\s*</p>*?");
+  private static final Pattern PATTERN_DATE_UNTIL = Pattern.compile(".*?Der Zugang zu den EPGpaid-Daten, ist noch bis zum (\\d+)\\.(\\d+)\\.(\\d+) aktiv.*?");
+  private static final Pattern PATTERN_DATE_EXPIRED = Pattern.compile(".*?Der Nutzungszeitraum für die EPGpaid-Daten, ist am (\\d+)\\.(\\d+)\\.(\\d+) abgelaufen.*?");
+  private static final Pattern PATTERN_DATE_UNLOCK = Pattern.compile(".*?Der Zugang für die EPGpaid-Daten wird am (\\d+)\\.(\\d+)\\.(\\d+) freigeschaltet und läuft dann bis zum (\\d+)\\.(\\d+)\\.(\\d+).*?");
   
   private static final String DOMAIN = "https://data.epgpaid.de/";
   private static final String REQUEST_METHOD_GET = "GET";
   private static final String REQUEST_METHOD_POST = "POST";
   
   private HttpURLConnection mHttpConnection;
-  private final Authenticator mAuthenticator;
+  private Authenticator mAuthenticator;
+  private CookieHandler mCookieHandlerDefault; 
+  
+  private String mSessionId;
   
   public EPGpaidDataConnection() {
-    if(!(CookieHandler.getDefault() instanceof CookieManager)) {
-      CookieHandler.setDefault(new CookieManager());
-    }
+    //if(!(CookieHandler.getDefault() instanceof CookieManager)) {
+      //CookieHandler.setDefault(new CookieManager());
+    //}
+    mSessionId = null;
     
     mAuthenticator = new Authenticator() {
       @Override
@@ -67,23 +67,30 @@ public class EPGpaidDataConnection {
    // mCookieList = new ArrayList<String>();
   }
   
-  public boolean login(String userName, String password, final Context context) {
-    boolean result = false;
+  public boolean loginBool(final String userName, final String password) {
+    return "true".equals(login(userName,password));
+  }
+  
+  public String login(final String userName, final String password) {
+    final StringBuilder result = new StringBuilder();
     
+    boolean loggedIn = false;
+    
+    mSessionId = null;
+    mCookieHandlerDefault = CookieHandler.getDefault();
+    CookieHandler.setDefault(null);
     Authenticator.setDefault(mAuthenticator);
     
-    /*if(!PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_CHECK_SSL, R.bool.pref_epgpaid_check_ssl_default)) {
-      SSLTool.disableCertificateValidation();
-    }*/
-    
     try {
-      if(openGetConnection(DOMAIN+"login_android.php") == HttpURLConnection.HTTP_OK) {
+      int responseCode = openGetConnection(DOMAIN+"login.php");
+      
+      if(responseCode == HttpURLConnection.HTTP_OK) {
         // Read login form
         String pageContent = readPageContent(mHttpConnection);
         closeHttpConnection();
         
-        if(!pageContent.isEmpty()) {
-          HashMap<String, String> nameValueMap = new HashMap<>();
+        if(pageContent.contains("<title>data.epgpaid.de: Anmeldung erforderlich</title>")) {
+          HashMap<String, String> nameValueMap = new HashMap<String, String>();
           
           String[] lines = pageContent.split("\n");
           
@@ -107,78 +114,157 @@ public class EPGpaidDataConnection {
               postParameters.append("&");
             }
             if(key.equals("username")) {
-              value = userName.trim();
+              value = userName;
             }
             else if(key.equals(passwordFieldName)) {
-              value = password.trim();
+              value = password;
             }
             
-            postParameters.append(key).append("=").append(URLEncoder.encode(value, "UTF-8"));
+            postParameters.append(key + "=" + URLEncoder.encode(value, "UTF-8"));
           }
           
           // post login data
-          if(openPostConnection(DOMAIN+"login_android.php", postParameters.toString()) == HttpURLConnection.HTTP_OK) {
+          responseCode = openPostConnection(DOMAIN+"login.php", postParameters.toString());
+          
+          if(responseCode == HttpURLConnection.HTTP_OK) {
             final String content = readPageContent(mHttpConnection);
             
-            final Matcher date = PATTERN_DATE_UNTIL.matcher(content);
+            Matcher date = PATTERN_DATE_UNTIL.matcher(content);
             
             long until = 0;
             
-            if(date.find()) {
-              until = updateUntilDate(date, context);
+            if(date.find() && date.groupCount() == 3) {
+              until = updateUntilDate(date);
+              EPGpaidData.setDateValue(EPGpaidData.TYPE_DATE_FROM,0);
+            }
+            else {
+              date = PATTERN_DATE_EXPIRED.matcher(content);
+              
+              if(date.find() && date.groupCount() == 3) {
+                until = updateUntilDate(date);
+                EPGpaidData.setDateValue(EPGpaidData.TYPE_DATE_FROM,0);
+              }
+              else {
+                date = PATTERN_DATE_UNLOCK.matcher(content);
+                
+                if(date.find() && date.groupCount() == 6) {
+                  updateUntilDate(date,0,EPGpaidData.TYPE_DATE_FROM);
+                  until = updateUntilDate(date,1,EPGpaidData.TYPE_DATE_UNTIL);
+                }
+              }
             }
             
             closeHttpConnection();
             
             try {
-              Thread.sleep(200);
+              Thread.sleep(400);
             }catch(InterruptedException ie) {
               //ignore
             }
             
             // test if access is granted
-            if((openGetConnection(DOMAIN+"accessTest.php")  == HttpURLConnection.HTTP_OK) || until != 0) {
-              result = true; 
+            responseCode = openGetConnection(DOMAIN+"accessTest.php");
+            
+            if(responseCode == HttpURLConnection.HTTP_OK || until != 0) {
+              result.append("true"); 
+              loggedIn = true;
+            }
+            else {
+              Log.d(TAG, "No ACCESS to EPGpaid data with response code: " + responseCode);
             }
             
             closeHttpConnection();
           }
+          else {
+            Log.d(TAG, "No LOGIN with response code: " + responseCode);
+          }
+        }
+        else {
+          result.append(KEY_NO_CONNECTION);
+          Log.d(TAG, "Login site not reached");
         }
       }
-    }catch(Exception e) {
-      e.printStackTrace();
+      else {
+        result.append(KEY_NO_CONNECTION);
+        Log.d(TAG, "No login connection with response code: " + responseCode);
+      }
+    }catch(Throwable t) {
+      if(t instanceof UnknownHostException) {
+        result.append(KEY_NO_CONNECTION_TO_INTERNET);
+        Log.d(TAG, "No connection to Internet with UnknownHostException.");
+      }
+      else if(t instanceof SocketException) {
+        result.append(KEY_NO_CONNECTION_TO_INTERNET);
+        Log.d(TAG, "No connection to Internet with SocketException.");
+      }
+      else {
+        Log.d(TAG, "EPGpaidDataConnection login error", t);
+        
+        result.append("ERROR MESSAGE:\n\n");
+        result.append(t.getMessage()).append("\n");;
+        
+        final StackTraceElement[] els = t.getStackTrace();
+        
+        for(StackTraceElement el : els) {
+          result.append(el.toString()).append("\n");
+        }
+      }
     }
     
     Authenticator.setDefault(null);
     
-    return result;
-  }
-  
-  private long updateUntilDate(final Matcher date, final Context context) {
-    long value = Long.parseLong(date.group(1))*1000;
-    
-    if(value > System.currentTimeMillis()) {
-      PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.PREF_EPGPAID_ACCESS_UNTIL), value).commit();
+    if(!loggedIn) {
+      CookieHandler.setDefault(mCookieHandlerDefault);
+      mSessionId = null;
     }
     
-    return value;
+    return result.toString();
   }
   
-  public boolean isLoggedIn() {
+  private long updateUntilDate(final Matcher date) {
+    return updateUntilDate(date, 0, EPGpaidData.TYPE_DATE_UNTIL);
+  }
+  
+  private long updateUntilDate(final Matcher date, final int group, final int dateType) {
+    final Calendar cal = Calendar.getInstance();
+    cal.set(Integer.parseInt(date.group(3+group*3)), Integer.parseInt(date.group(2+group*3))-1, Integer.parseInt(date.group(1+group*3)));
+    cal.set(Calendar.HOUR_OF_DAY, 23);
+    cal.set(Calendar.MINUTE, 59);
+    cal.set(Calendar.SECOND, 59);
+    cal.set(Calendar.MILLISECOND, 999);
+    
+    if(cal.getTimeInMillis() > (System.currentTimeMillis() - (2*365*24*60*60000L))) {
+      EPGpaidData.setDateValue(dateType, cal.getTimeInMillis());
+    }
+    
+    return cal.getTimeInMillis();
+  }
+  
+  public String isLoggedIn() {
     Authenticator.setDefault(mAuthenticator);
     
-    boolean result = false;
+    final StringBuilder result = new StringBuilder();
     
     try {
-      result = openGetConnection(DOMAIN+"loginTest.php") == HttpURLConnection.HTTP_OK;
-    } catch (Exception e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+      if(openGetConnection(DOMAIN+"loginTest.php") == HttpURLConnection.HTTP_OK) {
+        result.append("true");
+      }
+    } catch (Throwable t) {
+      Log.d(TAG, "EPGpaidDataConnection isLoggedIn error", t);
+      
+      result.append("ERROR MESSAGE:\n\n");
+      result.append(t.getMessage()).append("\n");
+      
+      final StackTraceElement[] els = t.getStackTrace();
+      
+      for(StackTraceElement el : els) {
+        result.append(el.toString()).append("\n");
+      }
     }
     
     Authenticator.setDefault(null);
     
-    return result;
+    return result.toString();
   }
   
   public boolean download(String file, File target) {
@@ -187,9 +273,7 @@ public class EPGpaidDataConnection {
     Authenticator.setDefault(mAuthenticator);
     
     try {
-      Log.d("info6", "DOWNLOAD: " + DOMAIN+file);
       if(openGetConnection(DOMAIN+file) == HttpURLConnection.HTTP_OK) {
-        Log.d("info6", "CONNECTION OPENED");
         InputStream in = null;
         
         try {
@@ -199,11 +283,17 @@ public class EPGpaidDataConnection {
         }catch(IOException ioe1) {
           ioe1.printStackTrace();
         }finally {
-          IOUtils.close(in);
+          if(in != null) {
+            try {
+              in.close();
+            }catch(IOException ioe1) {
+              ioe1.printStackTrace();
+            }
+          }
         }
       }
-    }catch(Exception e) {
-      e.printStackTrace();
+    }catch(Throwable t) {
+      Log.d(TAG, "EPGpaidDataConnection download error", t);
     }
     
     closeHttpConnection();
@@ -219,22 +309,24 @@ public class EPGpaidDataConnection {
     try {
       openGetConnection(DOMAIN+"logout.php");
       closeHttpConnection();
-    } catch (Exception e1) {
-      // TODO Auto-generated catch block
-      e1.printStackTrace();
+    } catch (Throwable t) {
+      Log.d(TAG, "EPGpaidDataConnection logout error", t);
     }
     
     closeHttpConnection();
     
     Authenticator.setDefault(null);
-    //SSLTool.resetCertificateValidation();
+    
+    CookieHandler.setDefault(mCookieHandlerDefault);
+    
+    mSessionId = null;
   }
   
-  private int openPostConnection(String url, String parameter) throws Exception {
+  private int openPostConnection(String url, String parameter) throws Throwable {
     return openConnection(url, REQUEST_METHOD_POST, parameter);
   }
   
-  private int openGetConnection(String url) throws Exception {
+  private int openGetConnection(String url) throws Throwable {
     return openConnection(url, REQUEST_METHOD_GET, null);
   }
   
@@ -246,9 +338,9 @@ public class EPGpaidDataConnection {
    * @param postParameter The post parameter if any.
    * @return The response code.
    * <p>
-   * @throws IOException If something goes wrong.
+   * @throws Throwable If something goes wrong.
    */
-  private int openConnection(String url, String requestMethod, String postParameter) throws Exception {
+  private int openConnection(String url, String requestMethod, String postParameter) throws Throwable {
     final URL targetUrl = new URL(url);
     
     if(requestMethod == null) {
@@ -256,10 +348,13 @@ public class EPGpaidDataConnection {
     }
     
     mHttpConnection = (HttpURLConnection) targetUrl.openConnection();
+    mHttpConnection.setInstanceFollowRedirects(false);
     mHttpConnection.setRequestMethod(requestMethod);
     mHttpConnection.setUseCaches(false);
-    
-    IOUtils.setConnectionTimeout(mHttpConnection,20000);
+
+    if(mSessionId != null) {
+      mHttpConnection.setRequestProperty("Cookie", mSessionId);
+    }
     
     if(REQUEST_METHOD_POST.equals(requestMethod) && postParameter != null) {
       mHttpConnection.setRequestProperty("Connection", "keep-alive");
@@ -279,14 +374,42 @@ public class EPGpaidDataConnection {
       } catch(IOException ioe) {
         ioe.printStackTrace();
       } finally {
-        IOUtils.close(post);
+        if(post != null) {
+          try {
+            post.close();
+          }catch(IOException ioe) {
+            ioe.printStackTrace();
+          }
+        }
       }
     }
     
+    mHttpConnection.connect();
+    
     int responseCode = mHttpConnection.getResponseCode();
     
+    final String location = mHttpConnection.getHeaderField("Location");
+    final String cookie = mHttpConnection.getHeaderField("Set-Cookie");
+    
+    if(cookie != null && cookie.contains(";")) {
+	  mSessionId = cookie.substring(0,cookie.indexOf(";"));
+		
+	  if(mSessionId.endsWith("deleted")) {
+	    mSessionId = null;
+	  }
+	  else {
+      Log.d(TAG, "Cookies found");
+	  }
+	}
+	    
     if(responseCode != HttpURLConnection.HTTP_OK) {
       closeHttpConnection();
+    }
+    
+    if((responseCode == HttpURLConnection.HTTP_SEE_OTHER ||
+    		responseCode == HttpURLConnection.HTTP_MOVED_TEMP) && location != null) {
+      Log.d(TAG, "Redirected");
+      responseCode = openGetConnection(location);
     }
     
     return responseCode;
@@ -315,7 +438,6 @@ public class EPGpaidDataConnection {
           result.append(line).append("\n");
         }
       } catch (IOException e) {
-        // TODO Auto-generated catch block
         e.printStackTrace();
       } finally {
         IOUtils.close(in);

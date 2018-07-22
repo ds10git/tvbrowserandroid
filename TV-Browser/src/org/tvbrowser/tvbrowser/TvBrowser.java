@@ -269,9 +269,7 @@ public class TvBrowser extends AppCompatActivity {
       edit.commit();
     }
 
-    SettingConstants.IS_DARK_THEME = PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default);
-
-    resid = UiUtils.getThemeResourceId(false);
+    resid = UiUtils.getThemeResourceId(UiUtils.TYPE_THEME_DEFAULT, PrefUtils.isDarkTheme());
 
     super.onApplyThemeResource(theme, resid, first);
   }
@@ -3522,11 +3520,11 @@ public class TvBrowser extends AppCompatActivity {
 
     new UpdateAlarmValue().onReceive(TvBrowser.this, null);
 
-    if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default) != SettingConstants.IS_DARK_THEME) {
-      SettingConstants.IS_DARK_THEME = PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default);
+    final boolean isDarkTheme = PrefUtils.isDarkTheme();
 
-      Favorite.resetMarkIcons(SettingConstants.IS_DARK_THEME);
-      ProgramUtils.resetReminderAndSyncMarkIcon(SettingConstants.IS_DARK_THEME);
+    if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default) != isDarkTheme) {
+      Favorite.resetMarkIcons(isDarkTheme);
+      ProgramUtils.resetReminderAndSyncMarkIcon(isDarkTheme);
 
       PluginServiceConnection[] plugins = PluginHandler.getAvailablePlugins();
 
@@ -3641,7 +3639,7 @@ public class TvBrowser extends AppCompatActivity {
             if (userName != null && password != null && userName.trim().length() > 0 && password.trim().length() > 0) {
               final EPGpaidDataConnection epgPaidTest = new EPGpaidDataConnection();
 
-              if (epgPaidTest.login(userName, password, getApplicationContext())) {
+              if (epgPaidTest.loginBool(userName, password)) {
                 epgPaidTest.logout();
               } else {
                 handler.post(() -> {

@@ -1359,11 +1359,13 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
       Set<String> keys = favorites.keySet();
       
       for(String key : keys) {
-        String saveLine = (String)favorites.get(key);
-        Favorite fav = new Favorite(Long.parseLong(key), saveLine);
-        
-        if(fav.isValid()) {
-          favoriteList.add(fav);
+        if(favorites.get(key) instanceof String) {
+          String saveLine = (String) favorites.get(key);
+          Favorite fav = new Favorite(Long.parseLong(key), saveLine);
+
+          if (fav.isValid()) {
+            favoriteList.add(fav);
+          }
         }
       }
     }

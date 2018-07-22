@@ -3573,7 +3573,7 @@ public class TvDataUpdateService extends Service {
 
       if (userName != null && password != null
           && userName.trim().length() > 0 && password.trim().length() > 0
-          && epgPaidConnection.login(userName, password, getApplicationContext())) {
+          && epgPaidConnection.loginBool(userName, password)) {
         if (!PrefUtils.getBooleanValue(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE, false)) {
           final Editor edit = PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).edit();
           edit.putBoolean(getString(R.string.PREF_EPGPAID_FIRST_DOWNLOAD_DONE), true);

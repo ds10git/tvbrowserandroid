@@ -170,9 +170,7 @@ public final class SettingConstants {
   
   @SuppressWarnings("SpellCheckingInspection")
   public static final String DONT_WANT_TO_SEE_ADDED_EXTRA = "DONT_WANT_TO_SEE_ADDED_EXTRA";
-  
-  public static boolean IS_DARK_THEME = false;
-    
+
   public static final String UPDATE_RUNNING_KEY = "updateRunning";
   public static final String SELECTION_CHANNELS_KEY = "selectionChannels";
   
