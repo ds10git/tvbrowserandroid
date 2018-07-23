@@ -1206,13 +1206,22 @@ public final class IOUtils {
     
     return result;
   }
-  
-  public static boolean prepareAccess(Cursor cursor) {
+
+  public static boolean isCursorAccessable(Cursor cursor) {
     boolean result = false;
-    
+
     if(cursor != null && cursor.getCount() > 0 && !cursor.isClosed()) {
-      cursor.moveToPosition(-1);
       result = true;
+    }
+
+    return result;
+  }
+
+  public static boolean prepareAccess(Cursor cursor) {
+    boolean result = isCursorAccessable(cursor);
+    
+    if(result) {
+      cursor.moveToPosition(-1);
     }
     
     return result;

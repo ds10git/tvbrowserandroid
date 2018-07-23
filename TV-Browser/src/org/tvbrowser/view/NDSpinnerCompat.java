@@ -4,6 +4,7 @@ import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -14,25 +15,22 @@ import android.widget.Spinner;
  *  Taken from http://stackoverflow.com/questions/5335306/how-can-i-get-an-event-in-android-spinner-when-the-current-selected-item-is-sele
  *  
  * */
-
-@SuppressLint({"ClickableViewAccessibility", "AppCompatCustomView"})
-// Intentionally use of Spinner instead of AppCompatSpinner
-// because of broken scrolling in AppCompatSpinner on never API versions
-public class NDSpinner extends Spinner {
+@SuppressLint("ClickableViewAccessibility")
+public class NDSpinnerCompat extends AppCompatSpinner {
   private GestureDetector mClickDetector;
   private OnCreateContextMenuListener mLongClickListener;
-  
-  public NDSpinner(Context context) { 
+
+  public NDSpinnerCompat(Context context) {
     super(context);
     setClickDetector(context);
   }
 
-  public NDSpinner(Context context, AttributeSet attrs){ 
+  public NDSpinnerCompat(Context context, AttributeSet attrs){
     super(context, attrs);
     setClickDetector(context);
   }
 
-  public NDSpinner(Context context, AttributeSet attrs, int defStyle) {
+  public NDSpinnerCompat(Context context, AttributeSet attrs, int defStyle) {
     super(context, attrs, defStyle);
     setClickDetector(context);
     
@@ -48,7 +46,7 @@ public class NDSpinner extends Spinner {
             Activity test = ((Fragment)mLongClickListener).getActivity();
             
             if(test != null) {
-              test.openContextMenu(NDSpinner.this);
+              test.openContextMenu(NDSpinnerCompat.this);
             }
           }
         }

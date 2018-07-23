@@ -1003,69 +1003,69 @@ public class FragmentProgramTable extends Fragment {
   }
 
   private void addPanel(final Cursor cursor, final ProgramTableLayout layout) {
-    final long programId = cursor.getLong(mKeyIndex);
-    final long startTime = cursor.getLong(mStartTimeIndex);
-    final long endTime = cursor.getLong(mEndTimeIndex);
-    String title = cursor.getString(mTitleIndex);
-    int channelID = cursor.getInt(mChannelIndex);
-    Spannable categories = IOUtils.getInfoString(cursor.getInt(mCategoryIndex),getResources(),false);
+    if(IOUtils.isCursorAccessable(cursor)) {
+      final long programId = cursor.getLong(mKeyIndex);
+      final long startTime = cursor.getLong(mStartTimeIndex);
+      final long endTime = cursor.getLong(mEndTimeIndex);
+      String title = cursor.getString(mTitleIndex);
+      int channelID = cursor.getInt(mChannelIndex);
+      Spannable categories = IOUtils.getInfoString(cursor.getInt(mCategoryIndex), getResources(), false);
 
-    final ProgramPanel panel = new ProgramPanel(getActivity(),startTime,endTime,title,channelID);
+      final ProgramPanel panel = new ProgramPanel(getActivity(), startTime, endTime, title, channelID);
 
-    if(mShowGenre) {
-      panel.setGenre(cursor.getString(mGenreIndex));
-    }
-    if(mShowEpisode) {
-      panel.setEpisode(cursor.getString(mEpisodeIndex));
-    }
-    if(mShowInfo) {
-      panel.setInfoString(categories);
-    }
-    if(mShowDescriptionIfRoom) {
-      String description = null;
-
-      if(!cursor.isNull(mIndexDescription)) {
-        description = cursor.getString(mIndexDescription);
+      if (mShowGenre) {
+        panel.setGenre(cursor.getString(mGenreIndex));
       }
-      else if(!cursor.isNull(mIndexDescriptionShort)) {
-        description = cursor.getString(mIndexDescriptionShort);
+      if (mShowEpisode) {
+        panel.setEpisode(cursor.getString(mEpisodeIndex));
+      }
+      if (mShowInfo) {
+        panel.setInfoString(categories);
+      }
+      if (mShowDescriptionIfRoom) {
+        String description = null;
+
+        if (!cursor.isNull(mIndexDescription)) {
+          description = cursor.getString(mIndexDescription);
+        } else if (!cursor.isNull(mIndexDescriptionShort)) {
+          description = cursor.getString(mIndexDescriptionShort);
+        }
+
+        panel.setDescription(description);
       }
 
-      panel.setDescription(description);
+      panel.setOnClickListener(mClickListener);
+      panel.setTag(programId);
+
+      registerForContextMenu(panel);
+
+      if (mPictureIndex != -1) {
+        Bitmap logo = UiUtils.createBitmapFromByteArray(cursor.getBlob(mPictureIndex));
+
+        if (logo != null) {
+          BitmapDrawable l = new BitmapDrawable(getResources(), logo);
+          l.setBounds(0, 0, (int) (ProgramTableLayoutConstants.getZoom() * logo.getWidth()), (int) (ProgramTableLayoutConstants.getZoom() * logo.getHeight()));
+
+          panel.setPicture(cursor.getString(mPictureCopyrightIndex), l);
+        }
+      }
+
+      layout.addView(panel);
+
+      ArrayList<String> markedColumns = new ArrayList<>();
+
+      for (String column : TvBrowserContentProvider.MARKING_COLUMNS) {
+        Integer value = mMarkingsMap.get(column);
+
+        if (value != null && cursor.getInt(value) == 1) {
+          markedColumns.add(column);
+        } else if (column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && ProgramUtils.isMarkedWithIcon(getActivity(), programId)) {
+          markedColumns.add(column);
+        }
+      }
+
+      UiUtils.handleMarkings(getActivity(), null, startTime, endTime, panel, IOUtils.getStringArrayFromList(markedColumns), null, true);
     }
-
-    panel.setOnClickListener(mClickListener);
-    panel.setTag(programId);
-
-    registerForContextMenu(panel);
-
-    if(mPictureIndex != -1) {
-      Bitmap logo = UiUtils.createBitmapFromByteArray(cursor.getBlob(mPictureIndex));
-
-      if(logo != null) {
-        BitmapDrawable l = new BitmapDrawable(getResources(), logo);
-        l.setBounds(0, 0, (int)(ProgramTableLayoutConstants.getZoom() * logo.getWidth()), (int)(ProgramTableLayoutConstants.getZoom() * logo.getHeight()));
-
-        panel.setPicture(cursor.getString(mPictureCopyrightIndex), l);
-      }
-    }
-
-    layout.addView(panel);
-
-    ArrayList<String> markedColumns = new ArrayList<>();
-
-    for(String column : TvBrowserContentProvider.MARKING_COLUMNS) {
-      Integer value = mMarkingsMap.get(column);
-
-      if(value != null && cursor.getInt(value) == 1) {
-        markedColumns.add(column);
-      }
-      else if(column.equals(TvBrowserContentProvider.DATA_KEY_MARKING_MARKING) && ProgramUtils.isMarkedWithIcon(getActivity(), programId)) {
-        markedColumns.add(column);
-      }
-    }
-
-    UiUtils.handleMarkings(getActivity(), null, startTime, endTime, panel, IOUtils.getStringArrayFromList(markedColumns), null, true);
   }
 
   @SuppressWarnings("deprecation")

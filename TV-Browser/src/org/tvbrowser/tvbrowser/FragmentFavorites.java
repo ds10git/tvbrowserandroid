@@ -110,7 +110,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
-    int layout = R.layout.favorite_fragment_layout;
+    int layout = R.layout.fragment_favorite_layout;
     
     if(PrefUtils.getStringValue(R.string.PREF_FAVORITE_TAB_LAYOUT, R.string.pref_favorite_tab_layout_default).equals("1")) {
       layout = R.layout.fragment_favorite_selection_list_layout;
