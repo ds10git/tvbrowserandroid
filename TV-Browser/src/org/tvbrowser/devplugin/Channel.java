@@ -28,14 +28,13 @@ import android.os.Parcelable;
  * @author René Mach
  */
 public final class Channel implements Parcelable {
-  private static final int VERSION = 2;
+  private static final int VERSION = 1;
   
   private int mId;
-  private int mOrderNumber;
   private String mChannelName;
   private byte[] mChannelIcon;
   
-  public static final Parcelable.Creator<Channel> CREATOR = new Parcelable.Creator<Channel>() {
+  public static final Creator<Channel> CREATOR = new Creator<Channel>() {
     @Override
     public Channel createFromParcel(Parcel source) {
       return new Channel(source);
@@ -63,24 +62,12 @@ public final class Channel implements Parcelable {
    * @param channelName The name of the TV-Browser channel.
    * @param channelIcon The data of the icon of the TV-Browser channel.
    */
-  public Channel(final int id, final String channelName, final byte[] channelIcon) {
-    this(id, -1, channelName, channelIcon);
-  }
-
-  /**
-   * Creates an instance of this class.
-   * <p>
-   * @param id The unique id of the the TV-Browser channel.
-   * @param orderNumber The order number of the channel or -1 for no order.
-   * @param channelName The name of the TV-Browser channel.
-   * @param channelIcon The data of the icon of the TV-Browser channel.
-   */
-  public Channel(final int id, final int orderNumber, final String channelName, final byte[] channelIcon) {
+  public Channel(int id, String channelName, byte[] channelIcon) {
     mId = id;
-    mOrderNumber = orderNumber;
     mChannelName = channelName;
     mChannelIcon = channelIcon;
   }
+  
   /**
    * Gets the unique id of this Channel.
    * <p>
@@ -110,20 +97,11 @@ public final class Channel implements Parcelable {
   
   /**
    * Gets the interface version of this Channel.
-   * <p>
+   * <o>
    * @return The interface version of this Channel.
    */
   public int getInterfaceVersion() {
     return VERSION;
-  }
-
-  /**
-   * Gets the order number of this Channel.
-   * <p>
-   * @return The order number of this Channel or -1 if channel has no order number.
-   */
-  public int getOrderNumber() {
-    return mOrderNumber;
   }
 
   @Override
@@ -132,7 +110,7 @@ public final class Channel implements Parcelable {
   }
 
   private void readFromParcel(Parcel source) {
-    int version = source.readInt(); // read version
+    source.readInt(); // read version
     mId = source.readInt();
     mChannelName = source.readString();
     
@@ -144,13 +122,6 @@ public final class Channel implements Parcelable {
     }
     else {
       mChannelIcon = null;
-    }
-
-    if(version >= 2) {
-      mOrderNumber = source.readInt();
-    }
-    else {
-      mOrderNumber = -1;
     }
   }
   
@@ -164,7 +135,5 @@ public final class Channel implements Parcelable {
     if(mChannelIcon != null) {
       dest.writeByteArray(mChannelIcon);
     }
-
-    dest.writeInt(mOrderNumber);
   }
 }

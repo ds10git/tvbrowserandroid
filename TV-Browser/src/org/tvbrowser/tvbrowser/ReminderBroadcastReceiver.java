@@ -24,6 +24,7 @@ import java.util.Locale;
 import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.Program;
+import org.tvbrowser.devplugin.ProgramOrdered;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
@@ -214,11 +215,13 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           // high priority notification
           builder.setPriority(priority);
           
-          Program program = ProgramUtils.createProgramFromDataCursor(context, values);
-          
-          if(program != null) {
+          ProgramOrdered programOrdered = ProgramUtils.createProgramOrderedFromDataCursor(context, values);
+
+          if(programOrdered != null) {
+            Program program = programOrdered.getProgram();
+
             final String channelName = SettingConstants.getShortChannelNameIfAvailable(program.getChannel().getChannelName());//values.getString(values.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME));
-            final int orderNumber = program.getChannel().getOrderNumber();
+            final int orderNumber = programOrdered.getChannel().getOrderNumber();
             final String title = program.getTitle();//values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE));
             final String episode = program.getEpisodeTitle();//values.getString(values.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
             

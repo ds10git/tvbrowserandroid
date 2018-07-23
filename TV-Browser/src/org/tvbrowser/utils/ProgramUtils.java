@@ -9,9 +9,11 @@ import java.util.Set;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.devplugin.Channel;
+import org.tvbrowser.devplugin.ChannelOrdered;
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.devplugin.Program;
+import org.tvbrowser.devplugin.ProgramOrdered;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.Favorite;
 import org.tvbrowser.tvbrowser.MarkingsUpdateListener;
@@ -53,12 +55,24 @@ public class ProgramUtils {
       TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE,
       TvBrowserContentProvider.DATA_KEY_DONT_WANT_TO_SEE
   };
-  
+
   public static Program createProgramFromDataCursor(Context context, Cursor cursor) {
     Program result = null;
+
+    final ProgramOrdered test = createProgramOrderedFromDataCursor(context, cursor);
+
+    if(test != null) {
+      result = test.getProgram();
+    }
+
+    return result;
+  }
+  
+  public static ProgramOrdered createProgramOrderedFromDataCursor(Context context, Cursor cursor) {
+    ProgramOrdered result = null;
     
     if(IOUtils.prepareAccessFirst(cursor) && cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME) != -1) {
-      Channel channel = createChannelFromCursor(context, cursor);
+      ChannelOrdered channel = createChannelOrderedFromCursor(context, cursor);
       
       if(channel != null) {
         final long startTime = cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
@@ -77,7 +91,7 @@ public class ProgramUtils {
           final String description = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_DESCRIPTION));
           final String episodeTitle = cursor.getString(cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE));
           
-          result = new Program(cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), startTime, endTime, title, shortDescription, description, episodeTitle, channel);
+          result = new ProgramOrdered(new Program(cursor.getLong(cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), startTime, endTime, title, shortDescription, description, episodeTitle, channel.getChannel()), channel);
         }
       }
     }
@@ -112,7 +126,7 @@ public class ProgramUtils {
         Channel channel = channelMap.get(channelId);
       
         if(channel == null) {
-          channel = createChannelFromCursor(context, cursor);
+          channel = createChannelOrderedFromCursor(context, cursor).getChannel();
           
           if(channel != null) {
             channelMap.put(channelId, channel);
@@ -137,11 +151,23 @@ public class ProgramUtils {
     
     return programsList.isEmpty() ? null : programsList.toArray(new Program[0]);
   }
+/*
+  private static ChannelOrdered createChannelOrderedFromCursor(Context context, Cursor cursor) {
+    ChannelOrdered channelOrdered = null;
+
+    final Channel channel = createChannelFromCursor(context, cursor);
+
+    if(channel != null) {
+      channelOrdered = new ChannelOrdered(channel,, channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)))
+    }
+
+    return channelOrdered;
+  }*/
   
-  private static Channel createChannelFromCursor(Context context, Cursor cursor) {
-    Channel result = null;
+  private static ChannelOrdered createChannelOrderedFromCursor(Context context, Cursor cursor) {
+    ChannelOrdered result = null;
     
-    if(IOUtils.isDatabaseAccessible(context) && cursor != null && !cursor.isClosed() && cursor.moveToFirst()) {
+    if(IOUtils.isDatabaseAccessible(context) && IOUtils.prepareAccessFirst(cursor)) {
       int nameColumn = cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME);
       
       if(nameColumn == -1) {
@@ -152,7 +178,7 @@ public class ProgramUtils {
           
           try {
             if(IOUtils.prepareAccessFirst(channelCursor)) {
-              result = new Channel(channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)), channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)), channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+              result = new ChannelOrdered(new Channel(channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.KEY_ID)), channelCursor.getString(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_NAME)), channelCursor.getBlob(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))), channelCursor.getInt(channelCursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_ORDER_NUMBER)));
             }
           }finally {
             IOUtils.close(channelCursor);
@@ -168,7 +194,7 @@ public class ProgramUtils {
           keyColumnName = TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID;
         }
         
-        result = new Channel(cursor.getInt(cursor.getColumnIndex(keyColumnName)), cursor.getString(nameColumn), cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO)));
+        result = new ChannelOrdered(new Channel(cursor.getInt(cursor.getColumnIndex(keyColumnName)), cursor.getString(nameColumn), cursor.getBlob(cursor.getColumnIndex(TvBrowserContentProvider.CHANNEL_KEY_LOGO))),-1);
       }
     }
     
