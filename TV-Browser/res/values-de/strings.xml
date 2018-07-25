@@ -476,7 +476,7 @@
     <string name="userpass_error_title">Benutzername/Passwort-Fehler</string>
     <string name="username_hint">Benutzername eingeben</string>
     <string name="password_hint">Passwort eingeben</string>
-    <string name="update_complete">Datenupdate abgeschlossen</string>
+    <string name="update_complete">TV-Browser: Datenupdate abgeschlossen</string>
     <string name="title_running_programs">Laufende Sendungen</string>
     <string name="title_programs_list">Sendungsliste</string>
     <string name="title_program_table">Programmtabelle</string>
@@ -670,7 +670,7 @@
     <string name="terms_of_use">Nutzungsbestimmungen</string>
     <string name="terms_of_use_data">Nutzungsbestimmungen der Daten</string>
     <string name="terms_of_use_accept">Annehmen</string>
-    <string name="terms_of_use_text">Die mit TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) verfügbaren TV/Radio-Programmdaten und Senderlogos sind durch Urheberrechtsgesetze geschützt und ausschließlich zur Nutzung innerhalb von TV-Browser oder der, vom Hersteller von TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) autorisierten, namensgleichen Applikationen zugänglich gemacht und dürfen nur zur Programmvorschau der verfügbaren Sender verwendet werden.\n\nJegliche andere Nutzung, Reproduktion, Archivierung oder Weitergabe der TV/Radio-Programmdaten verstößt ausdrücklich gegen das Gesetz und kann zivil- und strafrechtliche Folgen nach sich ziehen. Wenn Sie die TV/Radio-Programmdaten herunterladen, erklären Sie sich mit den Bedingungen der Nutzungsvereinbarung einverstanden.\n\nBei Fragen zu den Nutzungsbedingungen wenden Sie sich bitte per E-Mail an <a href="mailto:dev@tvbrowser.org">dev@tvbrowser.org</a></string>
+    <string name="terms_of_use_text">Die mit TV-Browser (<a href="https://www.tvbrowser.org">https://www.tvbrowser.org</a>) verfügbaren TV/Radio-Programmdaten und Senderlogos sind durch Urheberrechtsgesetze geschützt und ausschließlich zur Nutzung innerhalb von TV-Browser oder der, vom Hersteller von TV-Browser (<a href="https://www.tvbrowser.org">https://www.tvbrowser.org</a>) autorisierten, namensgleichen Applikationen zugänglich gemacht und dürfen nur zur Programmvorschau der verfügbaren Sender verwendet werden.\n\nJegliche andere Nutzung, Reproduktion, Archivierung oder Weitergabe der TV/Radio-Programmdaten verstößt ausdrücklich gegen das Gesetz und kann zivil- und strafrechtliche Folgen nach sich ziehen. Wenn Sie die TV/Radio-Programmdaten herunterladen, erklären Sie sich mit den Bedingungen der Nutzungsvereinbarung einverstanden.\n\nBei Fragen zu den Nutzungsbedingungen wenden Sie sich bitte per E-Mail an <a href="mailto:dev@tvbrowser.org">dev@tvbrowser.org</a></string>
     <string name="channel_selection_help">Kurz auf Sender klicken um Sortierungsnummer auszuwählen oder lang klicken und festhalten um Sender zu verschieben.</string>
     <string name="channel_selection_remove_selection">Auswahl aufheben</string>
     <string name="channel_selection_select_all">Alle auswählen</string>

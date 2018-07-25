@@ -19,7 +19,7 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
 	private static final int REQUEST_CODE_PERMISSION_GRANT = 94;
 	public static final String XML_ELEMENT_DOWNLOAD_LINK = "donwloadlink";
 
-	public static final String URL = "download/android-plugins-full.gz";
+	public static final String URL = "download/android-plugins.gz";
 	private File mCurrentDownloadPlugin;
 	private Runnable mInstallRunnable;
 

@@ -6,7 +6,7 @@ import android.net.Uri;
 import org.tvbrowser.devplugin.PluginDefinition;
 
 class PluginUpdateHelperImpl extends PluginUpdateHelper {
-	public static final String URL = "download/android-plugins.gz";
+	public static final String URL = "download/android-plugins-play.gz";
 	PluginUpdateHelperImpl(final TvBrowser tvBrowser) {
 		super(tvBrowser);
 	}

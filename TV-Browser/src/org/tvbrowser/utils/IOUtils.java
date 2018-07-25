@@ -601,6 +601,7 @@ public final class IOUtils {
   }
   
   public static synchronized void setDataUpdateTime(Context context, long time, SharedPreferences pref) {
+    JobDataUpdateAuto.scheduleJob(context,true);
     /*AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
     Intent dataUpdate = new Intent(context, AutoDataUpdateReceiver.class);

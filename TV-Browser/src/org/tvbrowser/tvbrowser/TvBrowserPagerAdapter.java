@@ -51,7 +51,6 @@ final class TvBrowserPagerAdapter extends FragmentPagerAdapter {
 
   @Override
   public synchronized Fragment getItem(final int position) {
-
     Fragment fragment = registeredFragments.get(position);
 
     if(fragment == null) {
@@ -83,6 +82,9 @@ final class TvBrowserPagerAdapter extends FragmentPagerAdapter {
           fragment = new FragmentProgramTable();
           break;
       }
+    }
+    else if(fragment.isAdded()) {
+      fragment = null;
     }
 
     return fragment;

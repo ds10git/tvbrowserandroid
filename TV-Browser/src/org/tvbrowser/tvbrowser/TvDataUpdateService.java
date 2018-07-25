@@ -58,6 +58,7 @@ import java.util.zip.GZIPInputStream;
 
 import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.job.JobDataUpdateAuto;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
@@ -231,13 +232,13 @@ public class TvDataUpdateService extends Service {
   
   private static final String GROUP_FILE = "groups.txt";
   
-  private static final String DEFAULT_GROUPS_URL = "http://www.tvbrowser.org/listings/";
+  private static final String DEFAULT_GROUPS_URL = "http://defaultdata.tvbrowser.org/";
   
   private static final String[] DEFAULT_GROUPS_URL_MIRRORS = {
       "http://tvbrowser.dyndns.tv/",
       "http://tvbrowser1.sam-schwedler.de/",
-      "http://mirror.sperrgebiet.org/tvbrowser",
-      "http://tvbrowser.qwws.net/"
+      "http://tvbrowser.giesecke.org/",
+      "http://tvbrowser.qwws.net.ws4me.net/"
   };
   
   private static final String[] FIELDS_LEVEL_BASE = {
@@ -826,7 +827,8 @@ public class TvDataUpdateService extends Service {
       final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
       
       if(pref.getString(getString(R.string.PREF_AUTO_UPDATE_TYPE), getString(R.string.pref_auto_update_type_default)).equals("2")) {
-        AutoDataUpdateReceiver.reschedule(getApplicationContext(),pref);
+        JobDataUpdateAuto.cancelJob(getApplicationContext());
+        JobDataUpdateAuto.scheduleJob(getApplicationContext(),true);
       }
     }
     

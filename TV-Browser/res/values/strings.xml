@@ -475,7 +475,7 @@
     <string name="userpass_error_title">Username/Password error</string>
     <string name="username_hint">Enter your username</string>
     <string name="password_hint">Enter your password</string>
-    <string name="update_complete">Data update completed</string>
+    <string name="update_complete">TV-Browser: Data update completed</string>
     <string name="title_running_programs">Running programs</string>
     <string name="title_programs_list">Program list</string>
     <string name="title_program_table">Program table</string>
@@ -676,7 +676,7 @@
     <string name="terms_of_use">Terms of Use</string>
     <string name="terms_of_use_data">Terms of Use of Data</string>
     <string name="terms_of_use_accept">Accept</string>
-    <string name="terms_of_use_text">All TV/Radio listings provided by TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) are protected by copyright laws and may only be used within TV-Browser or other name like applications authorized by the manufacturer of TV-Browser (<a href="http://www.tvbrowser.org">http://www.tvbrowser.org</a>) for information about the upcoming program of the available channels.\n\nEvery other manner of using, reproducing or redistributing of the TV/Radio listings is illegal and may be prosecuted on civil or criminal law. On downloading the TV/Radio listings you declare your agreement to these terms.\n\nIf you have any questions concerning these terms please contact <a href="mailto:dev@tvbrowser.org">dev@tvbrowser.org</a></string>
+    <string name="terms_of_use_text">All TV/Radio listings provided by TV-Browser (<a href="https://www.tvbrowser.org">https://www.tvbrowser.org</a>) are protected by copyright laws and may only be used within TV-Browser or other name like applications authorized by the manufacturer of TV-Browser (<a href="https://www.tvbrowser.org">https://www.tvbrowser.org</a>) for information about the upcoming program of the available channels.\n\nEvery other manner of using, reproducing or redistributing of the TV/Radio listings is illegal and may be prosecuted on civil or criminal law. On downloading the TV/Radio listings you declare your agreement to these terms.\n\nIf you have any questions concerning these terms please contact <a href="mailto:dev@tvbrowser.org">dev@tvbrowser.org</a></string>
 	<string name="channel_selection_help">Click short on a channel to select sort number or click long and keep holding to move channel.</string>
 	<string name="channel_selection_remove_selection">Remove selection</string>
 	<string name="channel_selection_select_all">Select all</string>

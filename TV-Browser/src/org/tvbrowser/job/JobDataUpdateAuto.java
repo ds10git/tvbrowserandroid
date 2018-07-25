@@ -71,6 +71,12 @@ public class JobDataUpdateAuto extends Worker {
   }*/
 
   public static void scheduleJob(Context context) {
+    scheduleJob(context, false);
+  }
+
+  public static void scheduleJob(Context context, boolean reschedule) {
+    Logging.openLogForDataUpdate(context);
+
     context = context.getApplicationContext();
 
     final String updateType = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
@@ -104,8 +110,8 @@ public class JobDataUpdateAuto extends Worker {
 
           last.add(Calendar.DAY_OF_YEAR,days+1);
 
-          Log.d("info9","TIME: "+time+" "+days+" " + new Date(timeCurrent));
-          if(timeCurrent == 0 || timeCurrent < System.currentTimeMillis()+1000 || ((System.currentTimeMillis() - lastUpdate) < 12*60*60000L) && (timeCurrent < System.currentTimeMillis() + 60 * 60000L)) {
+          Logging.log("info9", "TIME: "+time+" "+days+" " + new Date(timeCurrent), Logging.TYPE_DATA_UPDATE, context);
+          if(!reschedule && (timeCurrent == 0 || timeCurrent < System.currentTimeMillis()+1000 || ((System.currentTimeMillis() - lastUpdate) < 12*60*60000L) && (timeCurrent < System.currentTimeMillis() + 60 * 60000L))) {
             if (PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, "").trim().length() > 0 &&
                 PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, "").trim().length() > 0 &&
                 PrefUtils.getLongValue(R.string.PREF_EPGPAID_ACCESS_UNTIL,R.integer.pref_epgpaid_access_until_default) >
@@ -146,18 +152,20 @@ public class JobDataUpdateAuto extends Worker {
 
            // end = (time + 1) * 60000L;
             PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), start).commit();
-            Log.d("info9", "START " + new Date(start));
-
+            Logging.log("info9", "START " + new Date(start), Logging.TYPE_DATA_UPDATE, context);
 
             builder.setInitialDelay(start-currentTime, TimeUnit.MILLISECONDS);
+          }
+          else if(reschedule) {
+            builder.setInitialDelay(28*60000, TimeUnit.MILLISECONDS);
           }
           else {
             builder.setInitialDelay(timeCurrent-System.currentTimeMillis(), TimeUnit.MILLISECONDS);
           }
         }
         else {
-          long possibleFirst = lastUpdate + 12 * 60 * 60000L;
-  Log.d("info9","possibleFirst " + new Date(possibleFirst));
+          long possibleFirst = (reschedule ? System.currentTimeMillis() : lastUpdate)+ 12 * 60 * 60000L;
+
           long start = 30000L;
 
           if(possibleFirst > System.currentTimeMillis()) {
@@ -172,7 +180,8 @@ public class JobDataUpdateAuto extends Worker {
           else {
             PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), System.currentTimeMillis() + start).commit();
           }
-          Log.d("info9","NET START " +new Date(System.currentTimeMillis()+start) );
+
+          Logging.log("info9", "NET START " +new Date(System.currentTimeMillis()+start), Logging.TYPE_DATA_UPDATE, context);
           builder.setInitialDelay(start, TimeUnit.MILLISECONDS);
         }
 
@@ -185,13 +194,17 @@ public class JobDataUpdateAuto extends Worker {
 
         Constraints constraints = constraintsJob.build();
 
-        Log.d("info9", "RequiredNetworkType: "+constraints.getRequiredNetworkType());
+        Logging.log("info9", "RequiredNetworkType: "+constraints.getRequiredNetworkType(), Logging.TYPE_DATA_UPDATE, context);
 
         builder.setConstraints(constraints);
         builder.addTag(TAG);
 
         manager.enqueue(builder.build());
       }
+    }
+
+    if(!TvDataUpdateService.isRunning()) {
+      Logging.closeLogForDataUpdate();
     }
   }
 

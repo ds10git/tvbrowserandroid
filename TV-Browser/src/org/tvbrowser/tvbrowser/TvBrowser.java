@@ -241,9 +241,13 @@ public class TvBrowser extends AppCompatActivity {
   private long mProgramListScrollTime = -1;
   private long mProgramListScrollEndTime = -1;
 
+  private boolean mIsDarkTheme;
+  private String mCurrentTabLayoutFavorites;
+
   public static int START_TIME = Integer.MIN_VALUE;
 
   private static final Calendar mRundate;
+
   static {
     mRundate = Calendar.getInstance();
     mRundate.set(Calendar.YEAR, 2019);
@@ -269,7 +273,7 @@ public class TvBrowser extends AppCompatActivity {
       edit.commit();
     }
 
-    resid = UiUtils.getThemeResourceId(UiUtils.TYPE_THEME_DEFAULT, PrefUtils.isDarkTheme());
+    resid = UiUtils.getThemeResourceId(UiUtils.TYPE_THEME_DEFAULT, mIsDarkTheme = PrefUtils.isDarkTheme());
 
     super.onApplyThemeResource(theme, resid, first);
   }
@@ -3520,11 +3524,9 @@ public class TvBrowser extends AppCompatActivity {
 
     new UpdateAlarmValue().onReceive(TvBrowser.this, null);
 
-    final boolean isDarkTheme = PrefUtils.isDarkTheme();
-
-    if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default) != isDarkTheme) {
-      Favorite.resetMarkIcons(isDarkTheme);
-      ProgramUtils.resetReminderAndSyncMarkIcon(isDarkTheme);
+    if(PrefUtils.isDarkTheme() != mIsDarkTheme) {
+      Favorite.resetMarkIcons(mIsDarkTheme);
+      ProgramUtils.resetReminderAndSyncMarkIcon(mIsDarkTheme);
 
       PluginServiceConnection[] plugins = PluginHandler.getAvailablePlugins();
 
@@ -3536,6 +3538,8 @@ public class TvBrowser extends AppCompatActivity {
 
       finish = true;
     }
+
+    finish = (mCurrentTabLayoutFavorites != null && !mCurrentTabLayoutFavorites.equals(PrefUtils.getStringValue(R.string.PREF_FAVORITE_TAB_LAYOUT, R.string.pref_favorite_tab_layout_default)));
 
     final String databasePath = PrefUtils.getStringValue(R.string.PREF_DATABASE_PATH, R.string.pref_database_path_default);
     final String oldPath = PrefUtils.getStringValue(R.string.PREF_DATABASE_OLD_PATH, R.string.pref_database_path_default);
@@ -4352,6 +4356,7 @@ public class TvBrowser extends AppCompatActivity {
       case R.id.action_send_reminder_log:sendLogMail(SettingConstants.LOG_FILE_NAME_REMINDER,getString(R.string.log_send_reminder));break;
       case R.id.action_send_plugin_log:sendLogMail(SettingConstants.LOG_FILE_NAME_PLUGINS,getString(R.string.log_send_plugin));break;
       case R.id.menu_tvbrowser_action_settings_basic:
+        mCurrentTabLayoutFavorites = PrefUtils.getStringValue(R.string.PREF_FAVORITE_TAB_LAYOUT, R.string.pref_favorite_tab_layout_default);
         Intent startPref = new Intent(this, TvbPreferencesActivity.class);
         startActivityForResult(startPref, SHOW_PREFERENCES);
         break;
