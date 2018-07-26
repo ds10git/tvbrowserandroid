@@ -18,6 +18,7 @@ package org.tvbrowser.tvbrowser;
 
 import android.appwidget.AppWidgetManager;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
@@ -30,11 +31,13 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.text.format.DateFormat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 
 import org.tvbrowser.filter.ChannelFilter;
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.UiUtils;
 import org.tvbrowser.widgets.RunningProgramsListWidget;
@@ -67,10 +70,35 @@ public class InfoActivity extends AppCompatActivity {
     super.onResume();
     
     Intent intent = getIntent();
-    
+
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
-    
-    if(programID >= 0) {
+
+    if(intent.getAction() != null && intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)) {
+      if(intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
+        Intent result = new Intent();
+
+        result.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_ID));
+        setResult(RESULT_OK, result);
+      }
+
+      if(CompatUtils.showWidgetRefreshInfo()) {
+        setTheme(UiUtils.getThemeResourceId(UiUtils.TYPE_THEME_TRANSLUCENT, PrefUtils.isDarkTheme()));
+
+        AlertDialog.Builder builder = new AlertDialog.Builder(InfoActivity.this);
+        builder.setTitle(CompatUtils.fromHtml(getString(R.string.widget_warning_refresh_title)));
+        builder.setMessage(R.string.widget_warning_refresh_message);
+        builder.setCancelable(false);
+        builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
+          PrefUtils.setBooleanValue(R.string.PREF_WIDGET_REFRESH_WARNING, false);
+          finish();
+        });
+        builder.show();
+      }
+      else {
+        finish();
+      }
+    }
+    else if(programID >= 0) {
       setTheme(UiUtils.getThemeResourceId(UiUtils.TYPE_THEME_TRANSLUCENT, PrefUtils.isDarkTheme()));
 
       UiUtils.showProgramInfo(this, programID, this, getCurrentFocus(), new Handler());

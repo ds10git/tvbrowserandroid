@@ -26,10 +26,10 @@ import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.util.SparseArrayCompat;
 import android.view.ViewGroup;
 
-import java.util.Locale;
-
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
+
+import java.util.Locale;
 
 /**
  * A {@link FragmentPagerAdapter} that returns a fragment corresponding to one
@@ -82,9 +82,6 @@ final class TvBrowserPagerAdapter extends FragmentPagerAdapter {
           fragment = new FragmentProgramTable();
           break;
       }
-    }
-    else if(fragment.isAdded()) {
-      fragment = null;
     }
 
     return fragment;

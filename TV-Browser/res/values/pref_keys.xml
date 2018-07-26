@@ -684,6 +684,9 @@
     	<item name="pref_widget_color_title_default" type="string" format="string" translatable="false">true;-1</item>
     	<string name="PREF_WIDGET_COLOR_CATEGORY" translatable="false">PREF_WIDGET_COLOR_CATEGORY</string>
     	<string name="PREF_WIDGET_COLOR_EPISODE" translatable="false">PREF_WIDGET_COLOR_EPISODE</string>
+
+	    <string name="PREF_WIDGET_REFRESH_WARNING" translatable="false">PREF_WIDGET_REFRESH_WARNING</string>
+	    <item name="pref_widget_refresh_warning_default" type="bool" format="boolean">true</item>
     		
     <!-- 	<string name="PREF_WIDGET_BACKGROUND_TRANSPARENCY">PREF_WIDGET_BACKGROUND_TRANSPARENCY</string>
     	<item name="pref_widget_background_transparency_default" type="bool" format="boolean">true</item>

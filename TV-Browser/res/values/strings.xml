@@ -1161,7 +1161,10 @@
     
     
     <!-- WIDGETS -->
-    
+
+    <string name="widget_warning_refresh_title"><![CDATA[<html><h3>Widget update problems</h3></html>]]></string>
+    <string name="widget_warning_refresh_message">Since Android 8.0 the update of widgets doesn\'t work reliable on Huawei devices. Therefor the widget might freeze after some time.\n\nIt\'s not possible to do anything about that programmatically since it is caused by a bug in the implementation of Huawei.\n\nWhen a widget is frozen only a restart of the device or deleting of the widget and adding it again will help.</string>
+
     <string name="pref_widget_title_show_markings">Show markings</string>
     <string name="pref_widget_summary_show_markings">Markings of programs are visualized in the widgets</string>
     

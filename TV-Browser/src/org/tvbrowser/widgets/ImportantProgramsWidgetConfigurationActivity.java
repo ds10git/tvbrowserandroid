@@ -1,8 +1,11 @@
 package org.tvbrowser.widgets;
 
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.InfoActivity;
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.UiUtils;
 
 import android.app.Activity;
 import android.appwidget.AppWidgetManager;
@@ -11,11 +14,14 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.util.Log;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+
+import java.util.Set;
 
 public class ImportantProgramsWidgetConfigurationActivity extends Activity {
   private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
@@ -35,11 +41,9 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
     super.onCreate(savedInstanceState);
     
     PrefUtils.initialize(ImportantProgramsWidgetConfigurationActivity.this);
-    
-    if(PrefUtils.getBooleanValue(R.string.DARK_STYLE, R.bool.dark_style_default)) {
-      setTheme(android.R.style.Theme_Holo);
-    }
-    
+
+    setTheme(UiUtils.getThemeResourceId(UiUtils.TYPE_THEME_DEFAULT, PrefUtils.isDarkTheme()));
+
     setContentView(R.layout.important_programs_widget_configuration);
         
     final View titleLabel = findViewById(R.id.important_programs_widget_config_name_label);
@@ -93,6 +97,12 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
     Bundle extras = intent.getExtras();
     
     if(extras != null) {
+      Log.d("info25",""+intent.getAction());
+      Set<String> keys = extras.keySet();
+      for(String key : keys) {
+        Log.d("info25",key + "="+extras.get(key));
+      }
+
       mAppWidgetId = extras.getInt(AppWidgetManager.EXTRA_APPWIDGET_ID,AppWidgetManager.INVALID_APPWIDGET_ID);
       
       if(mAppWidgetId != AppWidgetManager.INVALID_APPWIDGET_ID) {
@@ -114,6 +124,14 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
     }
     
     setResult(RESULT_CANCELED, null);
+
+    if(CompatUtils.showWidgetRefreshInfo()) {
+      Intent info = new Intent(getApplicationContext(), InfoActivity.class);
+      info.setAction(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
+      info.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID,mAppWidgetId);
+      info.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+      startActivity(info);
+    }
   }
   
   public void cancel(View view) {

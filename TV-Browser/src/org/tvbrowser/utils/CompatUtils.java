@@ -377,4 +377,15 @@ public final class CompatUtils {
     }
     return result;
   }
+
+  public static boolean showWidgetRefreshInfo() {
+    boolean show = PrefUtils.getBooleanValue(R.string.PREF_WIDGET_REFRESH_WARNING, R.bool.pref_widget_refresh_warning_default);
+
+    if(show && !Build.MANUFACTURER.toLowerCase(Locale.GERMAN).contains("huawei")) {
+      show = false;
+      PrefUtils.setBooleanValue(R.string.PREF_WIDGET_REFRESH_WARNING, false);
+    }
+
+    return show && isAtLeastAndroidO();
+  }
 }

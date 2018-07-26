@@ -16,62 +16,15 @@
  */
 package org.tvbrowser.tvbrowser;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.InputStreamReader;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.reflect.Field;
-import java.net.HttpURLConnection;
-import java.net.URL;
-import java.net.URLConnection;
-import java.util.ArrayList;
-import java.util.Calendar;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-import java.util.Set;
-import java.util.Stack;
-import java.util.TimeZone;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.zip.GZIPInputStream;
-
-import org.tvbrowser.App;
-import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.devplugin.PluginHandler;
-import org.tvbrowser.devplugin.PluginServiceConnection;
-import org.tvbrowser.filter.ActivityFilterListEdit;
-import org.tvbrowser.filter.FilterValues;
-import org.tvbrowser.filter.FilterValuesCategories;
-import org.tvbrowser.filter.FilterValuesChannels;
-import org.tvbrowser.filter.FilterValuesKeyword;
-import org.tvbrowser.settings.PluginPreferencesActivity;
-import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.settings.TvbPreferencesActivity;
-import org.tvbrowser.utils.CompatUtils;
-import org.tvbrowser.utils.IOUtils;
-import org.tvbrowser.utils.PrefUtils;
-import org.tvbrowser.utils.ProgramUtils;
-import org.tvbrowser.utils.UiUtils;
-import static org.tvbrowser.utils.VersionUtils.applyUpdates;
-import org.xml.sax.XMLReader;
-
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.NotificationManager;
 import android.app.ProgressDialog;
 import android.app.SearchManager;
 import android.app.TimePickerDialog;
+import android.appwidget.AppWidgetManager;
 import android.content.BroadcastReceiver;
-import android.content.ContentProvider;
+import android.content.ComponentName;
 import android.content.ContentProviderClient;
 import android.content.ContentProviderOperation;
 import android.content.ContentProviderResult;
@@ -123,7 +76,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.SearchView;
 import android.support.v7.widget.Toolbar;
 import android.text.Editable;
-import android.text.Html;
 import android.text.Html.TagHandler;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -137,7 +89,6 @@ import android.text.style.ReplacementSpan;
 import android.util.Base64;
 import android.util.Log;
 import android.util.TypedValue;
-import android.view.ContextMenu;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -168,7 +119,58 @@ import android.widget.Toast;
 import com.example.android.listviewdragginganimation.DynamicListView;
 import com.example.android.listviewdragginganimation.StableArrayAdapter;
 
+import org.tvbrowser.App;
+import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.devplugin.PluginHandler;
+import org.tvbrowser.devplugin.PluginServiceConnection;
+import org.tvbrowser.filter.ActivityFilterListEdit;
+import org.tvbrowser.filter.FilterValues;
+import org.tvbrowser.filter.FilterValuesCategories;
+import org.tvbrowser.filter.FilterValuesChannels;
+import org.tvbrowser.filter.FilterValuesKeyword;
+import org.tvbrowser.settings.PluginPreferencesActivity;
+import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.settings.TvbPreferencesActivity;
+import org.tvbrowser.utils.CompatUtils;
+import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.ProgramUtils;
+import org.tvbrowser.utils.UiUtils;
+import org.tvbrowser.widgets.ImportantProgramsListWidget;
+import org.tvbrowser.widgets.RunningProgramsListWidget;
+import org.xml.sax.XMLReader;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.InputStreamReader;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.reflect.Field;
+import java.net.HttpURLConnection;
+import java.net.URL;
+import java.net.URLConnection;
+import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Locale;
+import java.util.Map;
+import java.util.Set;
+import java.util.Stack;
+import java.util.TimeZone;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.zip.GZIPInputStream;
+
 import de.epgpaid.EPGpaidDataConnection;
+
+import static org.tvbrowser.utils.VersionUtils.applyUpdates;
 
 @SuppressLint("ApplySharedPref")
 public class TvBrowser extends AppCompatActivity {
@@ -948,7 +950,7 @@ public class TvBrowser extends AppCompatActivity {
           Log.d("info6", "Runnable " + infoType);
           switch (infoType) {
             case INFO_TYPE_NOTHING:
-              showChannelUpdateInfo();
+              showWidgetInfo();
               break;
             case INFO_TYPE_VERSION:
               showVersionInfo(true);
@@ -961,6 +963,33 @@ public class TvBrowser extends AppCompatActivity {
       } catch (BadTokenException ignored) {
       }
     }, 3000);
+  }
+
+  private void showWidgetInfo() {
+    if(CompatUtils.showWidgetRefreshInfo()) {
+      final AppWidgetManager appWidgetManager = AppWidgetManager.getInstance(getApplicationContext());
+
+      ComponentName importantProgramsWidget = new ComponentName(getApplicationContext(), RunningProgramsListWidget.class);
+      int[] appWidgetIds = appWidgetManager.getAppWidgetIds(importantProgramsWidget);
+
+      if(appWidgetIds == null || appWidgetIds.length == 0) {
+        importantProgramsWidget = new ComponentName(getApplicationContext(), ImportantProgramsListWidget.class);
+        appWidgetIds = appWidgetManager.getAppWidgetIds(importantProgramsWidget);
+      }
+
+      if(appWidgetIds != null && appWidgetIds.length > 0) {
+        Intent info = new Intent(getApplicationContext(), InfoActivity.class);
+        info.setAction(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE);
+        info.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(info);
+      }
+      else {
+        showChannelUpdateInfo();
+      }
+    }
+    else {
+      showChannelUpdateInfo();
+    }
   }
 
   private void askChannelDownload(int positiveButton) {
@@ -1549,7 +1578,8 @@ public class TvBrowser extends AppCompatActivity {
                       case "boolean":
                         boolean boolValue = Boolean.valueOf(parts[1].trim());
 
-                        if (!getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(parts[0]) || boolValue) {
+                        if ((!getString(R.string.PREF_RATING_DONATION_INFO_SHOWN).equals(parts[0]) || boolValue)
+                          && !getString(R.string.PREF_WIDGET_REFRESH_WARNING).equals(parts[0])) {
                           edit.putBoolean(parts[0], boolValue);
                         }
                         break;
@@ -3473,8 +3503,8 @@ public class TvBrowser extends AppCompatActivity {
       ((FragmentFavorites)fragment).updateProgramsList();
     }
 
-    boolean programTableActivated = PrefUtils.getBooleanValue(R.string.PROG_TABLE_ACTIVATED, R.bool.prog_table_activated_default);
-    Fragment test = mTvBrowserPagerAdapter.getRegisteredFragment(3);
+    final boolean programTableActivated = PrefUtils.getBooleanValue(R.string.PROG_TABLE_ACTIVATED, R.bool.prog_table_activated_default);
+    final Fragment test = mTvBrowserPagerAdapter.getRegisteredFragment(3);
 
     if(!programTableActivated && test instanceof FragmentProgramTable) {
       ((FragmentProgramTable)test).removed();
@@ -3483,7 +3513,6 @@ public class TvBrowser extends AppCompatActivity {
     }
     else if(!(test instanceof FragmentProgramTable) && programTableActivated) {
       try {
-        mTvBrowserPagerAdapter.instantiateItem(mViewPager, 3);
         mTvBrowserPagerAdapter.notifyDataSetChanged();
       }catch(Throwable ignored) {}
     }
@@ -3525,8 +3554,8 @@ public class TvBrowser extends AppCompatActivity {
     new UpdateAlarmValue().onReceive(TvBrowser.this, null);
 
     if(PrefUtils.isDarkTheme() != mIsDarkTheme) {
-      Favorite.resetMarkIcons(mIsDarkTheme);
-      ProgramUtils.resetReminderAndSyncMarkIcon(mIsDarkTheme);
+      Favorite.resetMarkIcons(PrefUtils.isDarkTheme());
+      ProgramUtils.resetReminderAndSyncMarkIcon(PrefUtils.isDarkTheme());
 
       PluginServiceConnection[] plugins = PluginHandler.getAvailablePlugins();
 
@@ -3539,7 +3568,7 @@ public class TvBrowser extends AppCompatActivity {
       finish = true;
     }
 
-    finish = (mCurrentTabLayoutFavorites != null && !mCurrentTabLayoutFavorites.equals(PrefUtils.getStringValue(R.string.PREF_FAVORITE_TAB_LAYOUT, R.string.pref_favorite_tab_layout_default)));
+    finish = finish || (mCurrentTabLayoutFavorites != null && !mCurrentTabLayoutFavorites.equals(PrefUtils.getStringValue(R.string.PREF_FAVORITE_TAB_LAYOUT, R.string.pref_favorite_tab_layout_default)));
 
     final String databasePath = PrefUtils.getStringValue(R.string.PREF_DATABASE_PATH, R.string.pref_database_path_default);
     final String oldPath = PrefUtils.getStringValue(R.string.PREF_DATABASE_OLD_PATH, R.string.pref_database_path_default);

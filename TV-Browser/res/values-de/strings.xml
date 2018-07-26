@@ -1145,7 +1145,9 @@
     </string-array>
     
     <!-- WIDGETS -->
-    
+    <string name="widget_warning_refresh_title"><![CDATA[<html><h3>Probleme mit Widget-Aktualisierung</h3></html>]]></string>
+    <string name="widget_warning_refresh_message">Seit Android 8.0 funktioniert das Aktualisieren der Widgets auf Huawei-Geräten nur unzuverlässig. Daher könnten die Widgets nach einiger Zeit einfrieren.\n\nEs ist nicht möglich dies programmatisch zu lösen, da es ein Fehler in der Android-Umsetzung von Huawei ist.\n\nNachdem ein Widget eingefroren ist, ist es nur durch Neustart des Geräts oder durch Löschen und erneutes Hinzufügen für einige Zeit zu reaktivieren.</string>
+
     <string name="pref_widget_title_show_markings">Markierungen anzeigen</string>
     <string name="pref_widget_summary_show_markings">Markierungen von Sendungen werden in den Widgets visualisiet.</string>
     

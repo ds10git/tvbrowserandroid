@@ -124,7 +124,11 @@
         <activity
             android:name=".InfoActivity"
             android:launchMode="singleTop"
-            android:theme="@style/Theme.TvBrowser.Translucent" />
+            android:theme="@style/Theme.TvBrowser.Translucent" >
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_CONFIGURE" />
+            </intent-filter>
+        </activity>
         <activity
             android:name="org.tvbrowser.widgets.ImportantProgramsWidgetConfigurationActivity"
             android:label="@string/widget_important_default_title" >
