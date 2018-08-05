@@ -68,14 +68,14 @@
 		        android:textSize="@dimen/edit_favorite_font_size"
 		        android:layout_alignBaseline="@id/activity_edit_favorite_input_id_type"
 		        android:layout_below="@id/activity_edit_favorite_input_id_name"/>
-		    <Spinner
+			<include
+				layout="@layout/compat_spinner"
 		        android:id="@id/activity_edit_favorite_input_id_type"
 		        android:layout_width="match_parent"
 		        android:layout_height="wrap_content"
 		        android:layout_toRightOf="@id/activity_edit_favorite_label_id_channels"
 		        android:layout_toEndOf="@id/activity_edit_favorite_label_id_channels"
-		        android:layout_below="@id/activity_edit_favorite_input_id_name"
-		        android:entries="@array/activity_edit_favorite_input_text_type"/>
+		        android:layout_below="@id/activity_edit_favorite_input_id_name" />
 		    <TextView
 		        android:id="@id/favorite_search_label" 
 		        android:layout_width="wrap_content"

@@ -1261,7 +1261,7 @@
     <string name="epg_donate_info"><![CDATA[<p>The data provided by EPGdonate data is generally free, but to maintain this service everybody who is able to (and has at least attained full age) should donate a yearly amount.</p>
         <p>How much is up to the number of users and donators of EPGdonate data, the more the less the yearly amount can be.</p>
         <p>You will be shown how much the suggested amount is at certain times. If you cannot donate the suggested amount, you may be able to donate less. If you absolutely cannot donate anything you are free to use EPGdonate without donation. You also can donate more than the suggested amount to sponsor the data for people who are not able to donate.</p>
-        <p>More about EPGdonate data on the website: <a href="http://epgdonate.natsu-no-yuki.de">http://epgdonate.natsu-no-yuki.de</a></p>{0}
+        {0}{1}
         ]]></string>
     <string name="epg_donate_amount">For {0} the suggested donation amount is: {1}</string>
     <string name="epg_donate_percent_info"><![CDATA[<h3>Current donations this year</h3>bad <right>good</right>]]></string>

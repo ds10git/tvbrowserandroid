@@ -2298,6 +2298,8 @@ Log.d("info22", pattern);
     final Spinner operationSelection = selectionView.findViewById(R.id.dialog_filter_categories_selection_operation);
     final ListView listView = selectionView.findViewById(R.id.dialog_filter_categories_list);
 
+    UiUtils.createAdapterForSpinner(context, operationSelection, R.array.dialog_categories_operation);
+
     if (categoryFilter.getName() == null) {
       selectionView.findViewById(R.id.dialog_filter_categories_label_name).setVisibility(View.GONE);
       nameInput.setVisibility(View.GONE);
@@ -2760,5 +2762,13 @@ Log.d("info22", pattern);
 
       TIME_FORMAT = new SimpleDateFormat(value, Locale.getDefault());
     }
+  }
+
+  public static final void createAdapterForSpinner(final Context context, final Spinner spinner, final int arrayResId) {
+    final ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
+    adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+    adapter.addAll(context.getResources().getStringArray(arrayResId));
+
+    spinner.setAdapter(adapter);
   }
 }

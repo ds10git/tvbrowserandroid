@@ -1002,7 +1002,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   */
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-    View view = inflater.inflate(R.layout.running_program_fragment, container, false);
+    View view = inflater.inflate(R.layout.fragment_running_programs, container, false);
     
     mListView = view.findViewById(R.id.running_list_fragment_list_view);
     mTimeBar = view.findViewById(R.id.runnning_time_bar);
@@ -1049,6 +1049,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     final Button now = rootView.findViewById(R.id.now_button);
     final Button next = rootView.findViewById(R.id.button_after1);
     mDateSelection = rootView.findViewById(R.id.running_date_selection);
+
     now.setTag(-1);
     next.setTag(-2);
     

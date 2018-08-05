@@ -732,13 +732,10 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private void showEpgDonateInfo() {
-    Log.d("info6", "showEpgDonateInfo");
     int count = 0;
 
     if(!SHOWING_DONATION_INFO) {
       final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(TvBrowser.this);
-
-      //pref.edit().putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), "0").putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), 0).putLong(getString(R.string.EPG_DONATE_FIRST_DATA_DOWNLOAD), 0).commit();
 
       final String year = String.valueOf(Calendar.getInstance().get(Calendar.YEAR));
       final int month = Calendar.getInstance().get(Calendar.MONTH);
@@ -761,8 +758,6 @@ public class TvBrowser extends AppCompatActivity {
 
       boolean show = firstTimeoutReached && lastTimoutReached && alreadyShowTimeoutReached && !alreadyShownThisMonth && !dontShowAgainThisYear && radomShow;
 
-      Log.d("info6", "firstTimeoutReached (" + ((now - firstDownload)/(24 * 60 * 60000L)) + "): " + firstTimeoutReached + " lastTimoutReached: " + lastTimoutReached + " alreadyShowTimeoutReached: " + alreadyShowTimeoutReached + " alreadyShownThisMonth: " + alreadyShownThisMonth + " dontShowAgainThisYear: " + dontShowAgainThisYear + " randomShow: " + radomShow + " SHOW: " + show + " COUNT: " +count);
-
       if(show) {
         if((count = getEpgDonateChannelsCount()) > 0) {
           final AlertDialog.Builder builder = new AlertDialog.Builder(TvBrowser.this);
@@ -777,7 +772,7 @@ public class TvBrowser extends AppCompatActivity {
 
           amount = amount.replace("{0}", year).replace("{1}", amountValue);
 
-          info = info.replace("{0}", "<h2>"+amount+"</h2>");
+          info = info.replace("{0}",getString(R.string.epg_donate_link)).replace("{1}", "<h2>"+amount+"</h2>");
 
           builder.setTitle(title);
           builder.setCancelable(false);
@@ -805,6 +800,8 @@ public class TvBrowser extends AppCompatActivity {
           final Spinner reason = view.findViewById(R.id.dialog_epg_donate_reason_selection);
           reason.setEnabled(false);
 
+          UiUtils.createAdapterForSpinner(TvBrowser.this, reason, R.array.epg_donate_reasons);
+
           final CheckBox dontShowAgain = view.findViewById(R.id.dialog_epg_donate_dont_show_again);
           dontShowAgain.setOnCheckedChangeListener((buttonView, isChecked) -> reason.setEnabled(isChecked));
 
@@ -828,10 +825,14 @@ public class TvBrowser extends AppCompatActivity {
             saveSetting.run();
           });
 
-          builder.setNegativeButton(R.string.donation, (dialog, which) -> {
-            saveSetting.run();
-            new DonationRatingHelperImpl(TvBrowser.this).showDonationInfo();
-          });
+          final DonationRatingHelper donationHelper = new DonationRatingHelperImpl(TvBrowser.this);
+
+          if(!donationHelper.isToShowWebDonation()) {
+            builder.setNegativeButton(R.string.donation, (dialog, which) -> {
+              saveSetting.run();
+              donationHelper.showDonationInfo();
+            });
+          }
 
           showAlertDialog(builder, false, () -> SHOWING_DONATION_INFO = true);
         }
@@ -850,8 +851,6 @@ public class TvBrowser extends AppCompatActivity {
     else if(!SHOWING_DONATION_INFO) {
       showEpgPaidInfo();
     }
-
-    Log.d("info6", "showEpgDonateInfo " + count);
   }
 
   private boolean hasChannels() {
@@ -2843,6 +2842,10 @@ public class TvBrowser extends AppCompatActivity {
           final TextView timeLabel = dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time_label);
           final TextView time = dataDownload.findViewById(R.id.dialog_data_update_preferences_auto_update_selection_time);
           time.setTextColor(onlyWiFi.getTextColors());
+
+          UiUtils.createAdapterForSpinner(TvBrowser.this, days, R.array.download_selections);
+          UiUtils.createAdapterForSpinner(TvBrowser.this, autoUpdate, R.array.pref_auto_update_type_names);
+          UiUtils.createAdapterForSpinner(TvBrowser.this, frequency, R.array.pref_auto_update_frequency);
 
           String currentDownloadDays = PrefUtils.getStringValue(R.string.DAYS_TO_DOWNLOAD, R.string.days_to_download_default);
 

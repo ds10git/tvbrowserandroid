@@ -53,7 +53,6 @@ import android.support.v4.content.CursorLoader;
 import android.support.v4.content.Loader;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SimpleCursorAdapter;
-import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -442,7 +441,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                            Bundle savedInstanceState) {
-    View view = inflater.inflate(R.layout.program_list_fragment, container, false);
+    View view = inflater.inflate(R.layout.fragment_program_list, container, false);
     
     mListView = view.findViewById(R.id.program_list_fragment_list_view);
     

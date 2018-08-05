@@ -68,7 +68,8 @@
         android:layout_marginLeft="10dp"
         android:layout_marginEnd="3dp"
         android:layout_marginRight="3dp"/>
-	<Spinner
+	<include
+		layout="@layout/compat_spinner"
 	    android:id="@id/dialog_filter_keyword_selection_column"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"

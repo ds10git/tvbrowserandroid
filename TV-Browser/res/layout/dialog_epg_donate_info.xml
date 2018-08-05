@@ -28,12 +28,12 @@
 	        android:layout_width="match_parent"
 	        android:layout_height="wrap_content"
 	        android:text="@string/epg_donate_dont_show_again"/>
-		<Spinner
+		<include
+			layout="@layout/compat_spinner"
 		    android:id="@id/dialog_epg_donate_reason_selection"
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:layout_marginLeft="25dp"
-		    android:layout_marginStart="25dp"
-		    android:entries="@array/epg_donate_reasons"/>
+		    android:layout_marginStart="25dp"/>
 	</LinearLayout>
 </ScrollView>

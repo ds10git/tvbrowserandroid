@@ -49,9 +49,11 @@ import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.SpinnerAdapter;
 import android.widget.TextView;
 import android.widget.TimePicker;
 
@@ -96,7 +98,9 @@ public class ActivityFavoriteEdit extends AppCompatActivity implements ChannelFi
     mChannels = findViewById(R.id.activity_edit_favorite_input_id_restriction_channel);
     mAttributes = findViewById(R.id.activity_edit_favorite_input_id_restriction_attributes);
     mExclusions = findViewById(R.id.activity_edit_favorite_input_id_restriction_exclusion);
-    
+
+    UiUtils.createAdapterForSpinner(ActivityFavoriteEdit.this, mTypeSelection, R.array.activity_edit_favorite_input_text_type);
+
     int color = ContextCompat.getColor(this, R.color.abc_primary_text_material_light);
     
     if(PrefUtils.isDarkTheme()) {

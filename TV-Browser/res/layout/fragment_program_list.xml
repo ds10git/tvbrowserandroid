@@ -12,25 +12,31 @@
     	    android:layout_height="@dimen/running_bar_height"
 			android:background="?colorBackgroundFloating"
     	    style="?buttonBarStyle">
-    	   	<android.support.v7.widget.AppCompatSpinner android:id="@id/date_selection"
-		            android:layout_width="wrap_content"
-		            android:layout_height="match_parent"/>
+    	   	<include
+				layout="@layout/compat_spinner"
+				android:id="@id/date_selection"
+		        android:layout_width="wrap_content"
+		        android:layout_height="match_parent"/>
     	   	<android.support.v7.widget.AppCompatButton android:id="@id/channel_minus"
     	   	    android:layout_width="wrap_content"
     	   	    android:layout_height="match_parent"
     	   	    android:text="@string/channel_minus"
     	   	    style="?buttonBarButtonStyle"/>
-    	   	<android.support.v7.widget.AppCompatSpinner android:id="@id/channel_selection"
-		            android:layout_width="wrap_content"
-		            android:layout_height="match_parent"/>
+			<include
+				layout="@layout/compat_spinner"
+				android:id="@id/channel_selection"
+		        android:layout_width="wrap_content"
+		        android:layout_height="match_parent"/>
     	   	<android.support.v7.widget.AppCompatButton android:id="@id/channel_plus"
     	   	    android:layout_width="wrap_content"
     	   	    android:layout_height="match_parent"
     	   	    android:text="@string/channel_plus"
     	   	    style="?buttonBarButtonStyle"/>
-    	   	<android.support.v7.widget.AppCompatSpinner android:id="@id/program_selection"
-		            android:layout_width="wrap_content"
-		            android:layout_height="match_parent"/> 
+			<include
+				layout="@layout/compat_spinner"
+				android:id="@id/program_selection"
+		        android:layout_width="wrap_content"
+		        android:layout_height="match_parent"/>
 	        </android.support.v7.widget.LinearLayoutCompat>
         </HorizontalScrollView>
     <ListView

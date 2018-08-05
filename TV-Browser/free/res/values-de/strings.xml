@@ -5,4 +5,5 @@
 	<string name="dialog_permission_title">Installation benötigt Berechtigung</string>
 	<string name="dialog_permission_message">Um Plugins manuell installieren zu können, müssen Sie TV-Browser die Berechtigung dazu erteilen.\n\nMöchten Sie die Einstellung zum Erteilen der Berechtigung jetzt öffnen?</string>
 	<string name="dialog_permission_ok">Einstellungen öffnen</string>
+	<string name="epg_donate_link"><![CDATA[<p>Welche Möglichkeiten zur Spende bestehen, wird auf der Internetseite von EPGdonate-Daten, aufgeführt: <a href="http://epgdonate.natsu-no-yuki.de/index.php?page=donate">http://epgdonate.natsu-no-yuki.de</a></p>]]></string>
 </resources>

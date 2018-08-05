@@ -19,4 +19,5 @@
 	<string name="already_donated">Sie haben bereits am {1} {0} gespendet. Nochmal danke dafür.\n\nMöchten Sie tatsächlich nochmals spenden?</string>
 	<string name="donate_again">Ja, nochmals spenden</string>
 	<string name="no_donation_possible">Zur Zeit keine Spenden möglich.\nBitte versuchen Sie es später erneut.</string>
+	<string name="epg_donate_link"><![CDATA[<p>Mehr über EPGdonate auf der Webseite: <a href="http://epgdonate.natsu-no-yuki.de">http://epgdonate.natsu-no-yuki.de</a></p>]]></string>
 </resources>

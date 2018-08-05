@@ -59,7 +59,9 @@ public class ImportantProgramsWidgetConfigurationActivity extends Activity {
     mLimit = findViewById(R.id.important_programs_widget_config_limit_selection);
     mLimitNumber = findViewById(R.id.important_programs_widget_config_limit_selection_edit);
     mLimitNumber.setText(String.valueOf(15));
-    
+
+    UiUtils.createAdapterForSpinner(ImportantProgramsWidgetConfigurationActivity.this, mTypeSelection, R.array.widget_important_config_selection_type_entries);
+
     mLimit.setOnCheckedChangeListener((buttonView, isChecked) -> mLimitNumber.setEnabled(isChecked));
     
     mTypeSelection.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {

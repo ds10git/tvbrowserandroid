@@ -5,4 +5,5 @@
 	<string name="dialog_permission_title">Installation needs permission</string>
 	<string name="dialog_permission_message">To install plugins manually, you need to grant TV-Browser the permission to install from unknown sources.\n\nDo you want to open the settings to grant the permission now?</string>
 	<string name="dialog_permission_ok">Open settings</string>
+	<string name="epg_donate_link"><![CDATA[<p><p>Ways to donate will be available on the website of EPGdonate data: <a href="http://epgdonate.natsu-no-yuki.de/index.php?page=donate">http://epgdonate.natsu-no-yuki.de</a></p>]]></string>
 </resources>

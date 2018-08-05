@@ -50,7 +50,8 @@
 			    android:text="@string/widget_important_config_type_label"
 			    android:layout_alignParentLeft="true"
 			    android:layout_alignBaseline="@id/important_programs_widget_config_selection_type"/>
-		    <Spinner
+			<include
+				layout="@layout/compat_spinner"
 		        android:id="@id/important_programs_widget_config_selection_type"
 		        android:layout_width="wrap_content"
 			    android:layout_height="wrap_content"
@@ -59,7 +60,6 @@
 			    android:layout_alignParentTop="true"
 			    android:layout_toEndOf="@id/important_programs_widget_config_selection_label"
 			    android:layout_toRightOf="@id/important_programs_widget_config_selection_label"
-			    android:entries="@array/widget_important_config_selection_type_entries"
 		        />
 			<TextView
 			    android:id="@id/important_programs_widget_config_name_label"

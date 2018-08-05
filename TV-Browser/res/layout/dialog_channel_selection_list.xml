@@ -40,7 +40,9 @@
         android:layout_alignBaseline="@id/channel_country_value"
         android:layout_below="@id/channel_selection_label_id_name"
     />
-    <Spinner android:id="@id/channel_country_value" 
+	<include
+		layout="@layout/compat_spinner"
+		android:id="@id/channel_country_value"
         android:layout_width="match_parent"
         android:layout_marginTop="5dp"
         android:layout_height="50dp"
@@ -63,7 +65,9 @@
         android:layout_below="@id/channel_country_value"
         android:layout_alignBaseline="@id/channel_category_value"
     />
-    <Spinner android:id="@id/channel_category_value" 
+	<include
+		layout="@layout/compat_spinner"
+		android:id="@id/channel_category_value"
         android:layout_width="match_parent"
         android:layout_height="50dp"
         android:layout_marginTop="5dp"

@@ -10,9 +10,11 @@
             android:layout_height="@dimen/running_bar_height"
             android:background="?colorBackgroundFloating"
             style="?buttonBarStyle">
-        <android.support.v7.widget.AppCompatSpinner android:id="@id/running_date_selection"
-			            android:layout_width="wrap_content"
-			            android:layout_height="match_parent"/>
+        <include
+			layout="@layout/compat_spinner"
+			android:id="@id/running_date_selection"
+			android:layout_width="wrap_content"
+			android:layout_height="match_parent"/>
 	    <HorizontalScrollView
 	        android:layout_height="wrap_content"
 	        android:layout_width="wrap_content">
