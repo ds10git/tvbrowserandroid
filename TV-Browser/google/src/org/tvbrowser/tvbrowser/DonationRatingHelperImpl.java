@@ -107,7 +107,7 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
 			}
 			if (details != null) {
 				if (!details.getSku().equals(SKU_EPG_DONATE_ONCE) || hasEpgDonateChannelsSubscribed()) {
-					String title = details.getTitle().substring(0, details.getTitle().indexOf("(") - 1);
+					String title = details.getTitle().lastIndexOf("(") > 1 ? details.getTitle().substring(0, details.getTitle().lastIndexOf("(") - 1) : details.getTitle();
 
 					Button donation = new Button(tvBrowser);
 					donation.setText(String.format("%s: %s", title, details.getPrice()));

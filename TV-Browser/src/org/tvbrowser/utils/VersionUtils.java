@@ -44,9 +44,9 @@ import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.Favorite;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.ServiceChannelCleaner;
-import org.tvbrowser.tvbrowser.ServiceUpdateReminders;
+import org.tvbrowser.tvbrowser.ServiceUpdateRemindersAndAutoUpdate;
 import org.tvbrowser.tvbrowser.TvBrowser;
-import org.tvbrowser.tvbrowser.UpdateAlarmValue;
+import org.tvbrowser.tvbrowser.BroadcastReceiverUpdateAlarmValue;
 
 public final class VersionUtils {
 
@@ -114,7 +114,7 @@ public final class VersionUtils {
       }
       if(oldVersion == 402) {
         PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_FILTERS, applicationContext).edit().remove(tvBrowser.getString(R.string.PREF_REMINDER_AS_ALARM_CLOCK)).commit();
-        ServiceUpdateReminders.startReminderUpdate(applicationContext);
+        ServiceUpdateRemindersAndAutoUpdate.startReminderUpdate(applicationContext);
       }
       if(oldVersion < 339) {
         applicationContext.startService(new Intent(applicationContext, ServiceChannelCleaner.class));
@@ -212,7 +212,7 @@ public final class VersionUtils {
           edit.putString(tvBrowser.getString(R.string.PREF_REMINDER_TIME_SECOND), tvBrowser.getString(R.string.pref_reminder_time_default));
           edit.commit();
 
-          applicationContext.sendBroadcast(new Intent(UpdateAlarmValue.class.getCanonicalName()));
+          applicationContext.sendBroadcast(new Intent(BroadcastReceiverUpdateAlarmValue.class.getCanonicalName()));
         }
       }
       if(oldVersion < 218) {

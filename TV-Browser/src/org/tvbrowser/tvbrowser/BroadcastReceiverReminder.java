@@ -16,10 +16,8 @@
  */
 package org.tvbrowser.tvbrowser;
 
-import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.Locale;
 
 import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -44,15 +42,13 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.media.RingtoneManager;
 import android.net.Uri;
-import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.content.ContextCompat;
-import android.text.format.DateFormat;
 import android.util.Log;
 
 import org.tvbrowser.utils.CompatUtils;
 
-public class ReminderBroadcastReceiver extends BroadcastReceiver {
+public class BroadcastReceiverReminder extends BroadcastReceiver {
   public static final String tag = null;
 
   @Override
@@ -60,7 +56,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
     PrefUtils.initialize(context);
     SettingConstants.initialize(context);
 
-    Logging.log(tag, "ReminderBroadcastReceiver.onReceive " + intent + " " + context, Logging.TYPE_REMINDER, context);
+    Logging.log(tag, "ReminderBroadcastaReceiver.onReceive " + intent + " " + context, Logging.TYPE_REMINDER, context);
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
     
     Logging.log(tag, new Date(System.currentTimeMillis()) + ": ProgramID for Reminder '" + programID + "' reminder is paused '" + SettingConstants.isReminderPaused(context) + "'", Logging.TYPE_REMINDER, context);
@@ -336,7 +332,7 @@ public class ReminderBroadcastReceiver extends BroadcastReceiver {
           e.printStackTrace();
         }
         
-        ServiceUpdateReminders.startReminderUpdate(context.getApplicationContext());
+        ServiceUpdateRemindersAndAutoUpdate.startReminderUpdate(context.getApplicationContext());
       }
     }.start();
   }

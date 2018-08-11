@@ -18,7 +18,6 @@ package org.tvbrowser.tvbrowser;
 
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.CompatUtils;
-import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.UiUtils;
 
@@ -26,7 +25,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
-public class UpdateAlarmValue extends BroadcastReceiver {
+public class BroadcastReceiverUpdateAlarmValue extends BroadcastReceiver {
   @Override
   public void onReceive(final Context context, Intent intent) {
     boolean firstStart = false;
@@ -42,12 +41,10 @@ public class UpdateAlarmValue extends BroadcastReceiver {
       
       firstStart = true;
     }
-    
-    IOUtils.handleDataUpdatePreferences(context);
-    IOUtils.setDataTableRefreshTime(context);
-    
-    Intent updateAlarms = new Intent(context, ServiceUpdateReminders.class);
-    updateAlarms.putExtra(ServiceUpdateReminders.EXTRA_FIRST_STARTUP, firstStart);
+
+    Intent updateAlarms = new Intent(context, ServiceUpdateRemindersAndAutoUpdate.class);
+    updateAlarms.putExtra(ServiceUpdateRemindersAndAutoUpdate.EXTRA_UPDATE_AUTO_UPDATE, true);
+    updateAlarms.putExtra(ServiceUpdateRemindersAndAutoUpdate.EXTRA_FIRST_STARTUP, firstStart);
     CompatUtils.startForegroundService(context,updateAlarms);
   }
 }

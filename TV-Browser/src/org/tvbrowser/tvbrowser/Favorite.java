@@ -1054,7 +1054,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
                 
                 markingIntentList.add(intent);
                 
-                ServiceUpdateReminders.startReminderUpdate(context);
+                ServiceUpdateRemindersAndAutoUpdate.startReminderUpdate(context);
               }
             }
           }
@@ -1287,7 +1287,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
               
               markingIntentList.add(intent);
               
-              ServiceUpdateReminders.startReminderUpdate(context);
+              ServiceUpdateRemindersAndAutoUpdate.startReminderUpdate(context);
             }
           }while(cursor.moveToNext());
           

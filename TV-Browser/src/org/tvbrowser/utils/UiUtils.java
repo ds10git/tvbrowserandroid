@@ -50,7 +50,7 @@ import org.tvbrowser.tvbrowser.Favorite;
 import org.tvbrowser.tvbrowser.InfoActivity;
 import org.tvbrowser.tvbrowser.NamedFields;
 import org.tvbrowser.tvbrowser.R;
-import org.tvbrowser.tvbrowser.ServiceUpdateReminders;
+import org.tvbrowser.tvbrowser.ServiceUpdateRemindersAndAutoUpdate;
 import org.tvbrowser.tvbrowser.TvBrowser;
 import org.tvbrowser.view.SwipeScrollView;
 import org.tvbrowser.widgets.ImportantProgramsListWidget;
@@ -304,7 +304,7 @@ public final class UiUtils {
                         if (add) {
                           userRemind.set(true);
 
-                          ServiceUpdateReminders.startReminderUpdate(context);
+                          ServiceUpdateRemindersAndAutoUpdate.startReminderUpdate(context);
                           ProgramUtils.addReminderId(context, id);
 
                           mHandler.post(() -> {
@@ -318,7 +318,7 @@ public final class UiUtils {
 
                           IOUtils.removeReminder(context, id);
                           ProgramUtils.removeReminderId(context, id);
-                          ServiceUpdateReminders.startReminderUpdate(context);
+                          ServiceUpdateRemindersAndAutoUpdate.startReminderUpdate(context);
 
                           mHandler.post(() -> {
                             handleReminder.setImageResource(R.drawable.ic_action_add_alarm);
@@ -1520,7 +1520,7 @@ public final class UiUtils {
         activity.getContentResolver().update(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA, programID), values, null, null);
 
         sendMarkingChangedBroadcast(activity, programID, true);
-        ServiceUpdateReminders.startReminderUpdate(activity);
+        ServiceUpdateRemindersAndAutoUpdate.startReminderUpdate(activity);
       }
     }
 

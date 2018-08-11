@@ -19,8 +19,10 @@ import android.database.Cursor;
 import android.os.IBinder;
 import android.support.v4.app.NotificationCompat;
 
-public class ServiceUpdateReminders extends Service {
+public class ServiceUpdateRemindersAndAutoUpdate extends Service {
   public static final String EXTRA_FIRST_STARTUP = "extraFirstStartup";
+  public static final String EXTRA_UPDATE_AUTO_UPDATE = "extraUpdateAutoUpdate";
+
   private static final int MAX_REMINDERS = 50;
   private static final int ID_NOTIFICATION = 2;
   
@@ -31,7 +33,7 @@ public class ServiceUpdateReminders extends Service {
   
   private Thread mUpdateRemindersThread;
   
-  public ServiceUpdateReminders() {
+  public ServiceUpdateRemindersAndAutoUpdate() {
   }
 
   @Override
@@ -39,7 +41,7 @@ public class ServiceUpdateReminders extends Service {
     super.onCreate();
 
     if(CompatUtils.isAtLeastAndroidO()) {
-      NotificationCompat.Builder b = new NotificationCompat.Builder(ServiceUpdateReminders.this, App.getNotificationChannelIdDefault(this));
+      NotificationCompat.Builder b = new NotificationCompat.Builder(ServiceUpdateRemindersAndAutoUpdate.this, App.getNotificationChannelIdDefault(this));
       b.setSmallIcon(R.drawable.ic_stat_notify);
       b.setContentTitle(getResources().getText(R.string.notification_update_reminders));
 
@@ -63,11 +65,16 @@ public class ServiceUpdateReminders extends Service {
   
   @Override
   public int onStartCommand(final Intent intent, int flags, int startId) {
+    if(intent != null && intent.getBooleanExtra(EXTRA_UPDATE_AUTO_UPDATE, false)) {
+      IOUtils.handleDataUpdatePreferences(getApplicationContext());
+      IOUtils.setDataTableRefreshTime(getApplicationContext());
+    }
+
     if(mUpdateRemindersThread == null || !mUpdateRemindersThread.isAlive()) {
       mUpdateRemindersThread = new Thread("UPDATE REMINDERS THREAD") {
         @Override
         public void run() {
-          if(IOUtils.isDatabaseAccessible(ServiceUpdateReminders.this)) {
+          if(IOUtils.isDatabaseAccessible(ServiceUpdateRemindersAndAutoUpdate.this)) {
             boolean firstStart = intent != null && intent.getBooleanExtra(EXTRA_FIRST_STARTUP, false);
             
             StringBuilder where = new StringBuilder(" ( " + TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER + " OR " + TvBrowserContentProvider.DATA_KEY_MARKING_FAVORITE_REMINDER + " ) AND ( " + TvBrowserContentProvider.DATA_KEY_ENDTIME + " >= " + System.currentTimeMillis() + " ) ");
@@ -86,7 +93,7 @@ public class ServiceUpdateReminders extends Service {
                     long startTime = alarms.getLong(alarms.getColumnIndex(TvBrowserContentProvider.DATA_KEY_STARTTIME));
                     
                     IOUtils.removeReminder(getApplicationContext(), id);
-                    addReminder(getApplicationContext(), id, startTime, UpdateAlarmValue.class, firstStart);
+                    addReminder(getApplicationContext(), id, startTime, BroadcastReceiverUpdateAlarmValue.class, firstStart);
                   }
                 }
               }finally {
@@ -112,7 +119,7 @@ public class ServiceUpdateReminders extends Service {
   }
 
   private void addReminder(Context context, long programID, long startTime, Class<?> caller, boolean firstCreation) {try {
-    Logging.log(ReminderBroadcastReceiver.tag, "addReminder called from: " + caller + " for programID: '" + programID + "' with start time: " + new Date(startTime), Logging.TYPE_REMINDER, context);
+    Logging.log(BroadcastReceiverReminder.tag, "addReminder called from: " + caller + " for programID: '" + programID + "' with start time: " + new Date(startTime), Logging.TYPE_REMINDER, context);
     
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
@@ -121,7 +128,7 @@ public class ServiceUpdateReminders extends Service {
     
     boolean remindAgain = reminderTimeSecond >= 0 && reminderTime != reminderTimeSecond;
     
-    Intent remind = new Intent(context.getApplicationContext(),ReminderBroadcastReceiver.class);
+    Intent remind = new Intent(context.getApplicationContext(),BroadcastReceiverReminder.class);
     remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
     
     if(startTime <= 0 && IOUtils.isDatabaseAccessible(context)) {
@@ -146,23 +153,23 @@ public class ServiceUpdateReminders extends Service {
       PendingIntent start = PendingIntent.getActivity(context, (int)programID, startInfo, PendingIntent.FLAG_UPDATE_CURRENT);
       
       if(startTime-reminderTime > System.currentTimeMillis()-200) {        
-        Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime-reminderTime) + " with programID: '" + programID + "' " + pending.toString(), Logging.TYPE_REMINDER, context);
+        Logging.log(BroadcastReceiverReminder.tag, "Create Reminder at " + new Date(startTime-reminderTime) + " with programID: '" + programID + "' " + pending.toString(), Logging.TYPE_REMINDER, context);
         CompatUtils.setAlarm(context, alarmManager,AlarmManager.RTC_WAKEUP, startTime-reminderTime, pending, start);
       }
       else if(firstCreation) {
-        Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(System.currentTimeMillis()) + " with programID: '" + programID + "' " + pending.toString(), Logging.TYPE_REMINDER, context);
+        Logging.log(BroadcastReceiverReminder.tag, "Create Reminder at " + new Date(System.currentTimeMillis()) + " with programID: '" + programID + "' " + pending.toString(), Logging.TYPE_REMINDER, context);
         CompatUtils.setAlarm(context, alarmManager,AlarmManager.RTC_WAKEUP, System.currentTimeMillis(), pending, start);
       }
       
       if(remindAgain && startTime-reminderTimeSecond > System.currentTimeMillis()) {
         pending = PendingIntent.getBroadcast(context, (int)-programID, remind, PendingIntent.FLAG_UPDATE_CURRENT);
         
-        Logging.log(ReminderBroadcastReceiver.tag, "Create Reminder at " + new Date(startTime-reminderTimeSecond) + " with programID: '-" + programID + "' " + pending.toString(), Logging.TYPE_REMINDER, context);
+        Logging.log(BroadcastReceiverReminder.tag, "Create Reminder at " + new Date(startTime-reminderTimeSecond) + " with programID: '-" + programID + "' " + pending.toString(), Logging.TYPE_REMINDER, context);
         CompatUtils.setAlarm(context, alarmManager,AlarmManager.RTC_WAKEUP, startTime-reminderTimeSecond, pending, start);
       }
     }
     else {
-      Logging.log(ReminderBroadcastReceiver.tag, "Reminder for programID: '" + programID + "' not created, starttime in past: " + new Date(startTime) + " of now: " + new Date(System.currentTimeMillis()), Logging.TYPE_REMINDER, context);
+      Logging.log(BroadcastReceiverReminder.tag, "Reminder for programID: '" + programID + "' not created, starttime in past: " + new Date(startTime) + " of now: " + new Date(System.currentTimeMillis()), Logging.TYPE_REMINDER, context);
     }
   }catch(Throwable t) {t.printStackTrace();}
   }
@@ -180,8 +187,8 @@ public class ServiceUpdateReminders extends Service {
   private static void startReminderUpdate(Context context, boolean firstStart, long ignoreId) {
     context = context.getApplicationContext();
 
-    Intent updateAlarms = new Intent(context, ServiceUpdateReminders.class);
-    updateAlarms.putExtra(ServiceUpdateReminders.EXTRA_FIRST_STARTUP, firstStart);
+    Intent updateAlarms = new Intent(context, ServiceUpdateRemindersAndAutoUpdate.class);
+    updateAlarms.putExtra(ServiceUpdateRemindersAndAutoUpdate.EXTRA_FIRST_STARTUP, firstStart);
     CompatUtils.startForegroundService(context, updateAlarms);
   }
 }

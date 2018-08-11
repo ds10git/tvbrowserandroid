@@ -138,10 +138,10 @@
         </activity>
 
         <receiver
-            android:name=".ReminderBroadcastReceiver"
+            android:name=".BroadcastReceiverReminder"
             android:enabled="true" />
         <receiver
-            android:name=".UpdateAlarmValue"
+            android:name=".BroadcastReceiverUpdateAlarmValue"
             android:enabled="true" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -220,7 +220,7 @@
             android:exported="false" >
         </service>
         <service
-            android:name=".ServiceUpdateReminders"
+            android:name=".ServiceUpdateRemindersAndAutoUpdate"
             android:enabled="true"
             android:exported="false" >
         </service>

@@ -138,11 +138,15 @@ public final class CompatUtils {
       alarm.set(type, triggerAtMillis, operation);
     }
   }
-  
+
   public static void setAlarm(Context context, AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation, PendingIntent info) {
+    setAlarm(context,alarm,type,triggerAtMillis,operation,info,PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.PREF_REMINDER_AS_ALARM_CLOCK), context.getResources().getBoolean(R.bool.pref_reminder_as_alarm_clock_default)));
+  }
+
+  public static void setAlarm(Context context, AlarmManager alarm, int type, long triggerAtMillis, PendingIntent operation, PendingIntent info, final boolean asAlaramClock) {
     if(Build.VERSION.SDK_INT > Build.VERSION_CODES.LOLLIPOP_MR1) {
       // Cheap workaround for Marshmallow doze mode
-      if(PreferenceManager.getDefaultSharedPreferences(context).getBoolean(context.getString(R.string.PREF_REMINDER_AS_ALARM_CLOCK), context.getResources().getBoolean(R.bool.pref_reminder_as_alarm_clock_default))) {
+      if(asAlaramClock) {
         alarm.setAlarmClock(new AlarmClockInfo(triggerAtMillis, info), operation);
       }
       else {

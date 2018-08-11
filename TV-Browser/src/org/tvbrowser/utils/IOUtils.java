@@ -51,7 +51,7 @@ import org.tvbrowser.job.JobDataUpdateAuto;
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.Logging;
 import org.tvbrowser.tvbrowser.R;
-import org.tvbrowser.tvbrowser.ReminderBroadcastReceiver;
+import org.tvbrowser.tvbrowser.BroadcastReceiverReminder;
 import org.tvbrowser.tvbrowser.ServiceUpdateDataTable;
 
 import android.app.AlarmManager;
@@ -63,6 +63,8 @@ import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.database.Cursor;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.BatteryManager;
 import android.os.Binder;
 import android.os.Build;
@@ -1231,17 +1233,17 @@ public final class IOUtils {
   public static void removeReminder(Context context, long programID) {
     AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
-    Intent remind = new Intent(context,ReminderBroadcastReceiver.class);
+    Intent remind = new Intent(context,BroadcastReceiverReminder.class);
     remind.putExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, programID);
     
     PendingIntent pending = PendingIntent.getBroadcast(context, (int)programID, remind, PendingIntent.FLAG_NO_CREATE);
-    Logging.log(ReminderBroadcastReceiver.tag, " Delete reminder for programID '" + programID + "' with pending intent '" + pending + "'", Logging.TYPE_REMINDER, context);
+    Logging.log(BroadcastReceiverReminder.tag, " Delete reminder for programID '" + programID + "' with pending intent '" + pending + "'", Logging.TYPE_REMINDER, context);
     if(pending != null) {
       alarmManager.cancel(pending);
     }
     
     pending = PendingIntent.getBroadcast(context, (int)-programID, remind, PendingIntent.FLAG_NO_CREATE);
-    Logging.log(ReminderBroadcastReceiver.tag, " Delete reminder for programID '-" + programID + "' with pending intent '" + pending + "'", Logging.TYPE_REMINDER, context);
+    Logging.log(BroadcastReceiverReminder.tag, " Delete reminder for programID '-" + programID + "' with pending intent '" + pending + "'", Logging.TYPE_REMINDER, context);
     if(pending != null) {
       alarmManager.cancel(pending);
     }
@@ -1395,5 +1397,27 @@ public final class IOUtils {
         delayed.run();
       }
     }.start();
+  }
+
+  public static final boolean isConnected(final Context context, ConnectivityManager connMgr, final boolean unmetered) {
+    boolean result = false;
+
+    if(connMgr == null) {
+      connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+    }
+
+    NetworkInfo lan = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_ETHERNET);
+    NetworkInfo wifi = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_WIFI);
+    NetworkInfo mobile = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_MOBILE);
+
+    if((wifi != null && wifi.isConnected()) || (lan != null && lan.isConnected())) {
+      result = true;
+    }
+
+    if(!result && !unmetered && mobile != null && mobile.isConnected()) {
+      result = true;
+    }
+
+    return result;
   }
 }

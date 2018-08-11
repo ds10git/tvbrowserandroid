@@ -1,11 +1,16 @@
 package org.tvbrowser.job;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.BroadcastReceiverReminder;
+import org.tvbrowser.tvbrowser.BroadcastReceiverUpdateAlarmValue;
+import org.tvbrowser.tvbrowser.InfoActivity;
 import org.tvbrowser.tvbrowser.Logging;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.TvDataUpdateService;
@@ -27,6 +32,7 @@ import androidx.work.Worker;
 
 public class JobDataUpdateAuto extends Worker {
   public static final String TAG = "job_data_update_auto";
+  private static final int ID_ALARM = 5;
 
   @NonNull
   @Override
@@ -38,7 +44,7 @@ public class JobDataUpdateAuto extends Worker {
     final String updateType = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
     final boolean autoUpdate = !updateType.equals("0");
     final boolean internetConnectionType = updateType.equals("1");
-    final boolean isConnected = TvDataUpdateService.isConnected(getApplicationContext(), null, PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).getBoolean(getApplicationContext().getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI), getApplicationContext().getResources().getBoolean(R.bool.pref_auto_update_only_wifi_default)));
+    final boolean isConnected = IOUtils.isConnected(getApplicationContext(), null, PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, getApplicationContext()).getBoolean(getApplicationContext().getString(R.string.PREF_AUTO_UPDATE_ONLY_WIFI), getApplicationContext().getResources().getBoolean(R.bool.pref_auto_update_only_wifi_default)));
 
     final Context context = getApplicationContext();
 
@@ -83,128 +89,143 @@ public class JobDataUpdateAuto extends Worker {
     final boolean onlyWifi = PrefUtils.getBooleanValue(R.string.PREF_AUTO_UPDATE_ONLY_WIFI, R.bool.pref_auto_update_only_wifi_default);
 
     boolean autoUpdate = !updateType.equals("0");
-    final boolean internetConnectionType = updateType.equals("1");
     boolean timeUpdateType = updateType.equals("2");
-    final WorkManager manager = WorkManager.getInstance();
+    boolean hasToBeUpdated = false;
 
-    if(manager != null) {
-      manager.cancelAllWorkByTag(TAG);
+    try {
+      final WorkManager manager = WorkManager.getInstance();
 
-      long lastUpdate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE,0);
+      if (manager != null) {
+        manager.cancelAllWorkByTag(TAG);
 
-      if(autoUpdate) {
-        Constraints.Builder constraintsJob = new Constraints.Builder()
+        long lastUpdate = PrefUtils.getLongValue(R.string.LAST_DATA_UPDATE, 0);
+
+        if (autoUpdate) {
+          Constraints.Builder constraintsJob = new Constraints.Builder()
             .setRequiresBatteryNotLow(true);
 
-        OneTimeWorkRequest.Builder builder = new OneTimeWorkRequest.Builder(JobDataUpdateAuto.class);
-        builder.setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.MINUTES);
+          OneTimeWorkRequest.Builder builder = new OneTimeWorkRequest.Builder(JobDataUpdateAuto.class);
+          builder.setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.MINUTES);
 
-        long timeCurrent = PrefUtils.getLongValue(R.string.AUTO_UPDATE_CURRENT_START_TIME,0);
+          long timeCurrent = PrefUtils.getLongValue(R.string.AUTO_UPDATE_CURRENT_START_TIME, 0);
 
-        if(timeUpdateType) {
-          final Calendar last = Calendar.getInstance();
-          last.setTimeInMillis(lastUpdate);
+          if (timeUpdateType) {
+            final Calendar last = Calendar.getInstance();
+            last.setTimeInMillis(lastUpdate);
 
-          int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default));
-          int time = PrefUtils.getIntValue(R.string.PREF_AUTO_UPDATE_START_TIME, R.integer.pref_auto_update_start_time_default);
+            int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default));
+            int time = PrefUtils.getIntValue(R.string.PREF_AUTO_UPDATE_START_TIME, R.integer.pref_auto_update_start_time_default);
 
-          last.add(Calendar.DAY_OF_YEAR,days+1);
+            last.add(Calendar.DAY_OF_YEAR, days + 1);
 
-          Logging.log("info9", "TIME: "+time+" "+days+" " + new Date(timeCurrent), Logging.TYPE_DATA_UPDATE, context);
-          if(!reschedule && (timeCurrent == 0 || timeCurrent < System.currentTimeMillis()+1000 || ((System.currentTimeMillis() - lastUpdate) < 12*60*60000L) && (timeCurrent < System.currentTimeMillis() + 60 * 60000L))) {
-            if (PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, "").trim().length() > 0 &&
+            Logging.log("info9", "TIME: " + time + " " + days + " " + new Date(timeCurrent), Logging.TYPE_DATA_UPDATE, context);
+            if (!reschedule && (timeCurrent == 0 || timeCurrent < System.currentTimeMillis() + 1000 || ((System.currentTimeMillis() - lastUpdate) < 12 * 60 * 60000L) && (timeCurrent < System.currentTimeMillis() + 60 * 60000L))) {
+              if (PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, "").trim().length() > 0 &&
                 PrefUtils.getStringValue(R.string.PREF_EPGPAID_PASSWORD, "").trim().length() > 0 &&
-                PrefUtils.getLongValue(R.string.PREF_EPGPAID_ACCESS_UNTIL,R.integer.pref_epgpaid_access_until_default) >
-                System.currentTimeMillis()) {
-              Calendar test = Calendar.getInstance(TimeZone.getTimeZone("CET"));
-              test.set(Calendar.SECOND, 0);
-              test.set(Calendar.MILLISECOND, 0);
+                PrefUtils.getLongValue(R.string.PREF_EPGPAID_ACCESS_UNTIL, R.integer.pref_epgpaid_access_until_default) >
+                  System.currentTimeMillis()) {
+                Calendar test = Calendar.getInstance(TimeZone.getTimeZone("CET"));
+                test.set(Calendar.SECOND, 0);
+                test.set(Calendar.MILLISECOND, 0);
 
-              int timeTest = time;
+                int timeTest = time;
 
-              do {
-                timeTest = time + ((int) (Math.random() * 6 * 60));
-                test.set(Calendar.HOUR_OF_DAY, timeTest / 60);
-                test.set(Calendar.MINUTE, timeTest % 60);
-              } while (test.get(Calendar.HOUR_OF_DAY) >= 23 || test.get(Calendar.HOUR_OF_DAY) < 4 ||
+                do {
+                  timeTest = time + ((int) (Math.random() * 6 * 60));
+                  test.set(Calendar.HOUR_OF_DAY, timeTest / 60);
+                  test.set(Calendar.MINUTE, timeTest % 60);
+                }
+                while (test.get(Calendar.HOUR_OF_DAY) >= 23 || test.get(Calendar.HOUR_OF_DAY) < 4 ||
                   (test.get(Calendar.HOUR_OF_DAY) >= 15 && test.get(Calendar.HOUR_OF_DAY) < 17));
 
-              time = timeTest;
+                time = timeTest;
+              } else {
+                time += ((int) (Math.random() * 6 * 60));
+              }
+
+              last.set(Calendar.HOUR_OF_DAY, time / 60);
+              last.set(Calendar.MINUTE, time % 60);
+              last.set(Calendar.SECOND, 0);
+              last.set(Calendar.MILLISECOND, 0);
+
+              long currentTime = System.currentTimeMillis();
+
+              if (last.getTimeInMillis() < currentTime) {
+                last.setTimeInMillis(currentTime + 60000L * 30);
+              }
+
+              //  time = Math.max((time - currentTime) + (days * 24 * 60),1);
+              // time = 1;
+
+              long start = last.getTimeInMillis() + (long) (Math.random() * (60 * 60000L));
+
+              // end = (time + 1) * 60000L;
+              PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), start).commit();
+              Logging.log("info9", "START " + new Date(start), Logging.TYPE_DATA_UPDATE, context);
+
+              builder.setInitialDelay(start - currentTime, TimeUnit.MILLISECONDS);
+            } else if (reschedule) {
+              builder.setInitialDelay(28 * 60000, TimeUnit.MILLISECONDS);
             } else {
-              time += ((int) (Math.random() * 6 * 60));
+              builder.setInitialDelay(timeCurrent - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
+            }
+          } else {
+            long possibleFirst = (reschedule ? System.currentTimeMillis() : lastUpdate) + 12 * 60 * 60000L;
+
+            long start = 30000L;
+
+            if (possibleFirst > System.currentTimeMillis()) {
+              start += possibleFirst - System.currentTimeMillis();
             }
 
-            last.set(Calendar.HOUR_OF_DAY, time / 60);
-            last.set(Calendar.MINUTE, time % 60);
-            last.set(Calendar.SECOND, 0);
-            last.set(Calendar.MILLISECOND, 0);
+            long end = start + 60 * 60000L;
 
-            long currentTime = System.currentTimeMillis();
-
-            if(last.getTimeInMillis() < currentTime) {
-              last.setTimeInMillis(currentTime + 60000L * 30);
+            if (timeCurrent + 60 * 60000L < end && timeCurrent > System.currentTimeMillis() + 60000L) {
+              end = timeCurrent - System.currentTimeMillis();
+            } else {
+              PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), System.currentTimeMillis() + start).commit();
             }
 
-          //  time = Math.max((time - currentTime) + (days * 24 * 60),1);
-           // time = 1;
-
-            long start = last.getTimeInMillis() + (long)(Math.random() * (60 * 60000L));
-
-           // end = (time + 1) * 60000L;
-            PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), start).commit();
-            Logging.log("info9", "START " + new Date(start), Logging.TYPE_DATA_UPDATE, context);
-
-            builder.setInitialDelay(start-currentTime, TimeUnit.MILLISECONDS);
+            Logging.log("info9", "NET START " + new Date(System.currentTimeMillis() + start), Logging.TYPE_DATA_UPDATE, context);
+            builder.setInitialDelay(start, TimeUnit.MILLISECONDS);
           }
-          else if(reschedule) {
-            builder.setInitialDelay(28*60000, TimeUnit.MILLISECONDS);
+
+          if (onlyWifi) {
+            constraintsJob.setRequiredNetworkType(NetworkType.UNMETERED);
+          } else {
+            constraintsJob.setRequiredNetworkType(NetworkType.CONNECTED);
           }
-          else {
-            builder.setInitialDelay(timeCurrent-System.currentTimeMillis(), TimeUnit.MILLISECONDS);
-          }
+
+          Constraints constraints = constraintsJob.build();
+
+          Logging.log("info9", "RequiredNetworkType: " + constraints.getRequiredNetworkType(), Logging.TYPE_DATA_UPDATE, context);
+
+          builder.setConstraints(constraints);
+          builder.addTag(TAG);
+
+          manager.enqueue(builder.build());
         }
-        else {
-          long possibleFirst = (reschedule ? System.currentTimeMillis() : lastUpdate)+ 12 * 60 * 60000L;
-
-          long start = 30000L;
-
-          if(possibleFirst > System.currentTimeMillis()) {
-            start += possibleFirst - System.currentTimeMillis();
-          }
-
-          long end = start + 60*60000L;
-
-          if(timeCurrent + 60*60000L < end && timeCurrent > System.currentTimeMillis()+60000L) {
-            end = timeCurrent - System.currentTimeMillis();
-          }
-          else {
-            PrefUtils.getSharedPreferences(PrefUtils.TYPE_PREFERENCES_SHARED_GLOBAL, context).edit().putLong(context.getString(R.string.AUTO_UPDATE_CURRENT_START_TIME), System.currentTimeMillis() + start).commit();
-          }
-
-          Logging.log("info9", "NET START " +new Date(System.currentTimeMillis()+start), Logging.TYPE_DATA_UPDATE, context);
-          builder.setInitialDelay(start, TimeUnit.MILLISECONDS);
-        }
-
-        if(onlyWifi) {
-          constraintsJob.setRequiredNetworkType(NetworkType.UNMETERED);
-        }
-        else {
-          constraintsJob.setRequiredNetworkType(NetworkType.CONNECTED);
-        }
-
-        Constraints constraints = constraintsJob.build();
-
-        Logging.log("info9", "RequiredNetworkType: "+constraints.getRequiredNetworkType(), Logging.TYPE_DATA_UPDATE, context);
-
-        builder.setConstraints(constraints);
-        builder.addTag(TAG);
-
-        manager.enqueue(builder.build());
       }
+      else {
+        hasToBeUpdated = true;
+      }
+
+      if (!TvDataUpdateService.isRunning()) {
+        Logging.closeLogForDataUpdate();
+      }
+    }catch(IllegalStateException ise) {
+      hasToBeUpdated = true;
     }
 
-    if(!TvDataUpdateService.isRunning()) {
-      Logging.closeLogForDataUpdate();
+    if(hasToBeUpdated) {
+      // something went wrong, schedule new update of auto update in one minute
+      Intent remind = new Intent(context.getApplicationContext(),BroadcastReceiverUpdateAlarmValue.class);
+
+      final AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
+
+      PendingIntent pending = PendingIntent.getBroadcast(context, ID_ALARM, remind, PendingIntent.FLAG_UPDATE_CURRENT);
+
+      CompatUtils.setAlarm(context, alarmManager,AlarmManager.RTC_WAKEUP, System.currentTimeMillis()+60000L, pending, null, false);
     }
   }
 

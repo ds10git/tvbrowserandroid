@@ -3554,7 +3554,7 @@ public class TvBrowser extends AppCompatActivity {
       }
     }
 
-    new UpdateAlarmValue().onReceive(TvBrowser.this, null);
+    new BroadcastReceiverUpdateAlarmValue().onReceive(TvBrowser.this, null);
 
     if(PrefUtils.isDarkTheme() != mIsDarkTheme) {
       Favorite.resetMarkIcons(PrefUtils.isDarkTheme());

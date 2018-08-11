@@ -21,7 +21,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 
 import org.tvbrowser.tvbrowser.R;
-import org.tvbrowser.tvbrowser.ServiceUpdateReminders;
+import org.tvbrowser.tvbrowser.ServiceUpdateRemindersAndAutoUpdate;
 import org.tvbrowser.tvbrowser.TvDataUpdateService;
 import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
@@ -861,7 +861,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         }
       }
       else if(key.equals(getString(R.string.PREF_REMINDER_AS_ALARM_CLOCK))) {
-        ServiceUpdateReminders.startReminderUpdate(getActivity().getApplicationContext());
+        ServiceUpdateRemindersAndAutoUpdate.startReminderUpdate(getActivity().getApplicationContext());
         IOUtils.setDataTableRefreshTime(getActivity().getApplicationContext());
       }
     }

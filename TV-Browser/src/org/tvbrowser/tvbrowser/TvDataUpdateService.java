@@ -164,28 +164,6 @@ public class TvDataUpdateService extends Service {
   
   private int mInternetConnectionTimeout;
 
-  public static final boolean isConnected(final Context context, ConnectivityManager connMgr, final boolean unmetered) {
-    boolean result = false;
-
-    if(connMgr == null) {
-      connMgr = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-    }
-
-    NetworkInfo lan = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_ETHERNET);
-    NetworkInfo wifi = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_WIFI);
-    NetworkInfo mobile = CompatUtils.getNetworkInfo(connMgr, ConnectivityManager.TYPE_MOBILE);
-
-    if((wifi != null && wifi.isConnected()) || (lan != null && lan.isConnected())) {
-      result = true;
-    }
-
-    if(!result && !unmetered && mobile != null && mobile.isConnected()) {
-      result = true;
-    }
-
-    return result;
-  }
-  
   private void checkAndSetConnectionState(long downloadStart) {
     doLog("UNSTABLE INTERNET CONNECTION ACCEPTABLE: " + mInstableConnectionAcceptable + " " + mInternetConnectionTimeout + " TIMED OUT: " + mCountTimedOutConnections + " IS CONNECTED: " + mIsConnected);
     
@@ -397,11 +375,7 @@ public class TvDataUpdateService extends Service {
           boolean isInternetConnectionAutoUpdate = false;
           mIsAutoUpdate = false;
 
-          final ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
-
-          boolean isConnected = isConnected(TvDataUpdateService.this, connMgr, mOnlyWifi);
-
-          if(intent != null) { 
+          if(intent != null) {
             if(intent.getIntExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE, TYPE_UPDATE_AUTO) == TYPE_UPDATE_MANUELL) {
               mOnlyWifi = false;
             }
@@ -411,7 +385,10 @@ public class TvDataUpdateService extends Service {
             
             isInternetConnectionAutoUpdate = intent.getBooleanExtra(SettingConstants.EXTRA_DATA_UPDATE_TYPE_INTERNET_CONNECTION, false);
           }
-          
+
+          final ConnectivityManager connMgr = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+          boolean isConnected = IOUtils.isConnected(TvDataUpdateService.this, connMgr, mOnlyWifi);
+
           if(isInternetConnectionAutoUpdate) {
             try {
               sleep(15000);
