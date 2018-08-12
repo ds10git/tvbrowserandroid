@@ -5,90 +5,90 @@ import groovy.swing.SwingBuilder
 System.setProperty('java.awt.headless', 'false')
 
 gradle.taskGraph.whenReady { taskGraph ->
-	if(taskGraph.hasTask(':'+project.name+':validateSigningFreeRelease') ||
-			taskGraph.hasTask(':'+project.name+':validateSigningGoogleRelease')) {
-		def password = ""
-		def passwordKeyStore = ""
+    if (taskGraph.hasTask(':' + project.name + ':validateSigningFreeRelease') ||
+            taskGraph.hasTask(':' + project.name + ':validateSigningGoogleRelease')) {
+        def password = ""
+        def passwordKeyStore = ""
 
-		if (System.console() == null) {
-			new SwingBuilder().edt {
-				dialog(modal: true,
-						title: "Enter password",
-						alwaysOnTop: true,
-						resizable: false,
-						locationRelativeTo: null,
-						pack: true,
-						show: true
-				) {
-					vbox {
-						label(text: "Enter store password: ")
-						input1 = passwordField()
-						label(text: "Enter key password: ")
-						input = passwordField()
-						button(defaultButton: true,
-								text: 'OK',
-								actionPerformed: {
-									passwordKeyStore = new String(input1.password)
-									password = new String(input.password)
-									dispose()
-								})
-					}
-				}
-			}
-		} else {
-			password = System.console().readPassword("\nEnter keystore password: ")
-			password = new String(password)
-			passwordKeyStore = System.console().readPassword("\nEnter key password: ")
-			passwordKeyStore = new String(passwordKeyStore)
-		}
+        if (System.console() == null) {
+            new SwingBuilder().edt {
+                dialog(modal: true,
+                        title: "Enter password",
+                        alwaysOnTop: true,
+                        resizable: false,
+                        locationRelativeTo: null,
+                        pack: true,
+                        show: true
+                ) {
+                    vbox {
+                        label(text: "Enter store password: ")
+                        input1 = passwordField()
+                        label(text: "Enter key password: ")
+                        input = passwordField()
+                        button(defaultButton: true,
+                                text: 'OK',
+                                actionPerformed: {
+                                    passwordKeyStore = new String(input1.password)
+                                    password = new String(input.password)
+                                    dispose()
+                                })
+                    }
+                }
+            }
+        } else {
+            password = System.console().readPassword("\nEnter keystore password: ")
+            password = new String(password)
+            passwordKeyStore = System.console().readPassword("\nEnter key password: ")
+            passwordKeyStore = new String(passwordKeyStore)
+        }
 
-		if (password.size() <= 0 || passwordKeyStore.size() <= 0) {
-			throw new InvalidUserDataException("Empty password")
-		}
+        if (password.size() <= 0 || passwordKeyStore.size() <= 0) {
+            throw new InvalidUserDataException("Empty password")
+        }
 
-		// set signing config key passwords
-		android.signingConfigs.google.storePassword = passwordKeyStore
-		android.signingConfigs.google.keyPassword = password
+        // set signing config key passwords
+        android.signingConfigs.google.storePassword = passwordKeyStore
+        android.signingConfigs.google.keyPassword = password
 
-		android.signingConfigs.free.storePassword = passwordKeyStore
-		android.signingConfigs.free.keyPassword = password
-	}
+        android.signingConfigs.free.storePassword = passwordKeyStore
+        android.signingConfigs.free.keyPassword = password
+    }
 }
 
 android {
-	signingConfigs {
-		google {
-			storePassword ''
-			keyPassword ''
-		}
-		free {
-			storePassword ''
-			keyPassword ''
-		}
-	}
+    signingConfigs {
+        google {
+            storePassword ''
+            keyPassword ''
+        }
+        free {
+            storePassword ''
+            keyPassword ''
+        }
+    }
 
-	compileSdkVersion 27
-	defaultConfig {
-		applicationId "org.tvbrowser.tvbrowser"
-		minSdkVersion 14
-		targetSdkVersion 27
-		versionCode 4257
-		versionName "0.6.5.22"
-		vectorDrawables.useSupportLibrary = true
-	}
+    compileSdkVersion 27
+    defaultConfig {
+        applicationId "org.tvbrowser.tvbrowser"
+        minSdkVersion 14
+        targetSdkVersion 27
+        versionCode 4258
+        versionName "0.6.5.23"
+        vectorDrawables.useSupportLibrary = true
+    }
 
-	flavorDimensions "default"
-	productFlavors {
-		free {
-			dimension "default"
-			applicationIdSuffix ""
-		}
-		google {
-			dimension "default"
-			versionNameSuffix "vP"
-			applicationIdSuffix ".play"
-		}
-	}
+    flavorDimensions "default"
+    productFlavors {
+        free {
+            dimension "default"
+            applicationIdSuffix ""
+        }
+        google {
+            dimension "default"
+            versionNameSuffix "vP"
+            applicationIdSuffix ".play"
+        }
+    }
 
     buildTypes {
         debug {
@@ -99,84 +99,85 @@ android {
             applicationIdSuffix ".debug"
         }
         release {
-			productFlavors.free.signingConfig signingConfigs.free
-			productFlavors.google.signingConfig signingConfigs.google
+            productFlavors.free.signingConfig signingConfigs.free
+            productFlavors.google.signingConfig signingConfigs.google
 
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
     }
 
-	sourceSets {
-		main {
-			manifest.srcFile 'AndroidManifest.xml'
-			java.srcDirs = ['src']
-			resources.srcDirs = ['src']
-			aidl.srcDirs = ['src']
-			renderscript.srcDirs = ['src']
-			res.srcDirs = ['res']
-			assets.srcDirs = ['assets']
-		}
+    sourceSets {
+        main {
+            manifest.srcFile 'AndroidManifest.xml'
+            java.srcDirs = ['src']
+            resources.srcDirs = ['src']
+            aidl.srcDirs = ['src']
+            renderscript.srcDirs = ['src']
+            res.srcDirs = ['res']
+            assets.srcDirs = ['assets']
+        }
 
-		free {
-			manifest.srcFile 'free/AndroidManifest.xml'
-			java.srcDirs = ['free/src']
-			resources.srcDirs = ['free/src']
-			aidl.srcDirs = ['free/src']
-			renderscript.srcDirs = ['free/src']
-			res.srcDirs = ['free/res']
-			assets.srcDirs = ['free/assets']
-		}
+        free {
+            manifest.srcFile 'free/AndroidManifest.xml'
+            java.srcDirs = ['free/src']
+            resources.srcDirs = ['free/src']
+            aidl.srcDirs = ['free/src']
+            renderscript.srcDirs = ['free/src']
+            res.srcDirs = ['free/res']
+            assets.srcDirs = ['free/assets']
+        }
 
-		google {
-			manifest.srcFile 'google/AndroidManifest.xml'
-			java.srcDirs = ['google/src']
-			resources.srcDirs = ['google/src']
-			aidl.srcDirs = ['google/src']
-			renderscript.srcDirs = ['google/src']
-			res.srcDirs = ['google/res']
-			assets.srcDirs = ['google/assets']
-		}
+        google {
+            manifest.srcFile 'google/AndroidManifest.xml'
+            java.srcDirs = ['google/src']
+            resources.srcDirs = ['google/src']
+            aidl.srcDirs = ['google/src']
+            renderscript.srcDirs = ['google/src']
+            res.srcDirs = ['google/res']
+            assets.srcDirs = ['google/assets']
+        }
 
-		androidTest.setRoot('androidTest')
-	}
-	compileOptions {
-		sourceCompatibility JavaVersion.VERSION_1_8
-		targetCompatibility JavaVersion.VERSION_1_8
-	}
-	lintOptions {
-		checkReleaseBuilds true
-		// Or, if you prefer, you can continue to check for errors in release builds,
-		// but continue the build even when errors are found:
-		abortOnError false
-	}
+        androidTest.setRoot('androidTest')
+    }
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+    lintOptions {
+        checkReleaseBuilds true
+        // Or, if you prefer, you can continue to check for errors in release builds,
+        // but continue the build even when errors are found:
+        abortOnError false
+    }
 }
 
 if (project.hasProperty("AndroidProject.signing")
-		&& new File(project.property("AndroidProject.signing").toString()).exists()) {
-	Properties props = new Properties()
-	def propFile = new File(project.property("AndroidProject.signing").toString())
-	if(propFile.canRead()) {
-		props.load(new FileInputStream(propFile))
-		if (props!=null && props.containsKey('STORE_FILE_GOOGLE') && props.containsKey('KEY_ALIAS_GOOGLE') &&
-				props.containsKey('STORE_FILE_FREE') && props.containsKey('KEY_ALIAS_FREE')) {
-			android.signingConfigs.google.storeFile = file(props['STORE_FILE_GOOGLE'])
-			android.signingConfigs.google.keyAlias = props['KEY_ALIAS_GOOGLE']
-			android.signingConfigs.free.storeFile = file(props['STORE_FILE_FREE'])
-			android.signingConfigs.free.keyAlias = props['KEY_ALIAS_FREE']
-		} else {
-			println 'androidproject.properties found but some entries are missing'
-			android.buildTypes.release.signingConfig = null
-		}
-	} else {
-		println 'androidproject.properties file not found'
-		android.buildTypes.release.signingConfig = null
-	}
+        && new File(project.property("AndroidProject.signing").toString()).exists()) {
+    Properties props = new Properties()
+    def propFile = new File(project.property("AndroidProject.signing").toString())
+    if (propFile.canRead()) {
+        props.load(new FileInputStream(propFile))
+        if (props != null && props.containsKey('STORE_FILE_GOOGLE') && props.containsKey('KEY_ALIAS_GOOGLE') &&
+                props.containsKey('STORE_FILE_FREE') && props.containsKey('KEY_ALIAS_FREE')) {
+            android.signingConfigs.google.storeFile = file(props['STORE_FILE_GOOGLE'])
+            android.signingConfigs.google.keyAlias = props['KEY_ALIAS_GOOGLE']
+            android.signingConfigs.free.storeFile = file(props['STORE_FILE_FREE'])
+            android.signingConfigs.free.keyAlias = props['KEY_ALIAS_FREE']
+        } else {
+            println 'androidproject.properties found but some entries are missing'
+            android.buildTypes.release.signingConfig = null
+        }
+    } else {
+        println 'androidproject.properties file not found'
+        android.buildTypes.release.signingConfig = null
+    }
 }
 
 dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:support-vector-drawable:27.1.1'
     implementation 'com.android.support:design:27.1.1'
-	implementation 'android.arch.work:work-runtime:1.0.0-alpha06'
+    implementation 'android.arch.work:work-runtime:1.0.0-alpha06'
+    implementation 'com.android.support.constraint:constraint-layout:1.1.2'
 }

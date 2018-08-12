@@ -439,7 +439,7 @@
     <string name="info_version_dont_show_again">Don\'t show\nagain</string>
     <string name="info_version_show">Show changes</string>
     <string name="pref_info_version_title">Show changes on version update</string>
-    
+
     <string name="tab_restoring_name">RESTORING PREFERENCES</string>
     <string name="app_name" translatable="false">TV-Browser</string>
     <string name="notification_channel_default_description">Notifications without any sound and vibration. Please keep it the way it is.</string>
@@ -506,10 +506,10 @@
         <item>AND</item>
         <item>OR</item>
     </string-array>
-    
+
     <string name="dialog_filter_keyword_keyword_name">Keyword:</string>
     <string name="dialog_filter_keyword_column_name">Search where?</string>
-    
+
     <string name="dialog_warning_timezone_title">Wrong timezone?</string>
     <string name="dialog_warning_timezone_message">The system uses German as language but the timezone is not Central European Time.\n\nIf the start time of the programs is wrong, you need to change the timezone setting in the system.</string>
     <string name="dialog_warning_timezone_change">Timezone\nsetting</string>
@@ -536,7 +536,7 @@
     <string name="program_popup_search_repetition">Search for repetition</string>
     <string name="program_popup_reminder">Remind for program</string>
     <string name="program_popup_reminder_remove">Remove Reminder</string>
-	<string name="program_popup_remove_sync">Remove Sync marking</string>
+    <string name="program_popup_remove_sync">Remove Sync marking</string>
     <string name="pref_prog_table_width_hint">Column width</string>
     <string name="pref_email_title">To email address</string>
     <string name="pref_email_summary">Email address for sending program information.</string>
@@ -587,7 +587,7 @@
     <string name="activity_edit_favorite_input_text_duration_maximum">At most</string>
     <string name="activity_edit_favorite_selection_text_duration_minimum">Duration of at least:</string>
     <string name="activity_edit_favorite_selection_text_duration_maximum">Duration of at most:</string>
-    
+
     <string name="activity_edit_favorite_input_text_all_value">All</string>
     <string name="favorite_search_hint">Enter text to search for</string>
     <string name="favorite_only_title">Search only in title</string>
@@ -629,10 +629,10 @@
     <string name="channel_notification_title">Get channels</string>
     <string name="channel_notification_text">Loading available TV-Browser channels</string>
     <string name="download_data">Load TV data</string>
-    
+
     <string name="download_data_for">Download data for:</string>
     <string name="dialog_data_update_preferences_auto_update_selection_time_label">Within 6 hours from:</string>
-    
+
     <string-array name="download_selections">
         <item>Today</item>
         <item>Today and tomorrow</item>
@@ -677,176 +677,176 @@
     <string name="terms_of_use_data">Terms of Use of Data</string>
     <string name="terms_of_use_accept">Accept</string>
     <string name="terms_of_use_text">All TV/Radio listings provided by TV-Browser (<a href="https://www.tvbrowser.org">https://www.tvbrowser.org</a>) are protected by copyright laws and may only be used within TV-Browser or other name like applications authorized by the manufacturer of TV-Browser (<a href="https://www.tvbrowser.org">https://www.tvbrowser.org</a>) for information about the upcoming program of the available channels.\n\nEvery other manner of using, reproducing or redistributing of the TV/Radio listings is illegal and may be prosecuted on civil or criminal law. On downloading the TV/Radio listings you declare your agreement to these terms.\n\nIf you have any questions concerning these terms please contact <a href="mailto:dev@tvbrowser.org">dev@tvbrowser.org</a></string>
-	<string name="channel_selection_help">Click short on a channel to select sort number or click long and keep holding to move channel.</string>
-	<string name="channel_selection_remove_selection">Remove selection</string>
-	<string name="channel_selection_select_all">Select all</string>
-	<string name="channel_selection_label_text_name">Name:</string>
-	<string name="channel_selection_input_name_hint">Enter name of filter</string>
-	<string name="synchronize_title">Synchronize channels?</string>
-	<string name="synchronize_text">You can synchronize your with the channels from your desktop TV-Browser.\n\nYou will have to <a href="https://www.tvbrowser-app.de/index.php?id=createaccount">register a user first</a> and export your channels from your desktop TV-Browser with the Android Sync plugin.\n\nYou <u><b>don\'t need to register</b></u> if you wan\'t use the <u><b>app without synchronization</b></u>.\n\nDo you wish to synchronize your channels now or do you wish to select the channels manually?</string>
-	<string name="synchronize_ok">Synchronize\nchannels now</string>
-	<string name="synchronizing_channels">Synchronizing channels&#8230;</string>
-	<string name="synchronize_cancel">Select channels\nmanually</string>
-	<string name="synchronize_replace_add_title">Replace or add?</string>
-	<string name="synchronize_replace_add_text">You can replace your current selected channels with the synchronization data or only add new channels to your selected channels.\n\nWhat should be done?</string>
-	<string name="synchronize_replace">Replace selected\nchannels</string>
-	<string name="synchronize_add">Add new to\nselected channels</string>
-	<string name="synchronize_done">Channels synchronizing done!</string>
-	<string name="synchronize_error">Channels could not be synchronized.</string>
-	
-	<string name="synchronize_replace_exclusion_add_text">You can replace your current exclusion list with the synchronization data or only add new exclusions for \"I don\'t want to see!\".\n\nThe joined exclusions will be uploaded to the server if you add the new exclusions.\n\nWhat should be done?</string>
-	<string name="synchronize_replace_exclusion">Replace\nexclusion</string>
-	<string name="synchronize_add_exclusion">Add new\nexclusions</string>
-	
-	
-	<string name="previous_day">Previous</string>
-	<string name="next_day">Next</string>
-	<string name="info_black_and_white">BlackAndWhite</string>
-	<string name="info_four_to_three">4/3</string>
-	<string name="info_sixteen_to_nine">16/9</string>
-	<string name="info_mono">Mono</string>
-	<string name="info_stereo">Stereo</string>
-	<string name="info_dolby_sourround">Dolby Surround</string>
-	<string name="info_dolby_digital">Dolby Digital 5.1</string>
-	<string name="info_second_audio_program">SAP</string>
-	<string name="info_closed_caption">Closed Caption</string>
-	<string name="info_film">Film</string>
-	<string name="info_series">Series</string>
-	<string name="info_new">New</string>
-	<string name="info_audio_description">Audio Description</string>
-	<string name="info_live">Live</string>
-	<string name="info_omu">Original with subtitles</string>
-	<string name="info_news">News</string>
-	<string name="info_show">Show</string>
-	<string name="info_magazin">Magazine/Infotainment</string>
-	<string name="info_hd">HD</string>
-	<string name="info_docu">Documentation</string>
-	<string name="info_art">Art, Theater, Music</string>
-	<string name="info_sport">Sport</string>
-	<string name="info_children">Children</string>
-	<string name="info_other">Other</string>
-	<string name="info_sign_language">Sign Language</string>
-	<string name="menu_tvbrowser_title_settings">Settings</string>
-	<string name="menu_tvbrowser_title_settings_basic">Basic settings</string>
-	<string name="menu_tvbrowser_title_settings_plugins">Plugin settings</string>
-	<string name="pref_summary">Settings for TV-Browser</string>
-	<string name="pref_download_category">Data Download</string>
-	<string name="pref_epgpaid_category">EPGpaid data</string>
-	<string name="pref_epgpaid_settings_category">EPGpaid settings</string>
-	<string name="pref_epgpaid_show_missing_info_title">Show missing descriptions</string>
-	<string name="pref_epgpaid_show_missing_info_summary">Shows info if EPGpaid is not unlocked about missing descriptions in detail view.</string>
-	<string name="pref_epgpaid_user_name_title">Username:</string>
-	<string name="pref_epgpaid_user_empty_summary">Not entered</string>
-	<string name="pref_epgpaid_until_title">Activity of EPGpaid</string>
-	<string name="pref_epgpaid_until_summary">Access until: {0}</string>
-	<string name="pref_epgpaid_user_password_set_summary">********</string>
-	<string name="pref_epgpaid_user_password_title">Password</string>
-	<string name="pref_epgpaid_max_download_title">Download maximum:</string>
+    <string name="channel_selection_help">Click short on a channel to select sort number or click long and keep holding to move channel.</string>
+    <string name="channel_selection_remove_selection">Remove selection</string>
+    <string name="channel_selection_select_all">Select all</string>
+    <string name="channel_selection_label_text_name">Name:</string>
+    <string name="channel_selection_input_name_hint">Enter name of filter</string>
+    <string name="synchronize_title">Synchronize channels?</string>
+    <string name="synchronize_text">You can synchronize your with the channels from your desktop TV-Browser.\n\nYou will have to <a href="https://www.tvbrowser-app.de/index.php?id=createaccount">register a user first</a> and export your channels from your desktop TV-Browser with the Android Sync plugin.\n\nYou <u><b>don\'t need to register</b></u> if you wan\'t use the <u><b>app without synchronization</b></u>.\n\nDo you wish to synchronize your channels now or do you wish to select the channels manually?</string>
+    <string name="synchronize_ok">Synchronize\nchannels now</string>
+    <string name="synchronizing_channels">Synchronizing channels&#8230;</string>
+    <string name="synchronize_cancel">Select channels\nmanually</string>
+    <string name="synchronize_replace_add_title">Replace or add?</string>
+    <string name="synchronize_replace_add_text">You can replace your current selected channels with the synchronization data or only add new channels to your selected channels.\n\nWhat should be done?</string>
+    <string name="synchronize_replace">Replace selected\nchannels</string>
+    <string name="synchronize_add">Add new to\nselected channels</string>
+    <string name="synchronize_done">Channels synchronizing done!</string>
+    <string name="synchronize_error">Channels could not be synchronized.</string>
+
+    <string name="synchronize_replace_exclusion_add_text">You can replace your current exclusion list with the synchronization data or only add new exclusions for \"I don\'t want to see!\".\n\nThe joined exclusions will be uploaded to the server if you add the new exclusions.\n\nWhat should be done?</string>
+    <string name="synchronize_replace_exclusion">Replace\nexclusion</string>
+    <string name="synchronize_add_exclusion">Add new\nexclusions</string>
+
+
+    <string name="previous_day">Previous</string>
+    <string name="next_day">Next</string>
+    <string name="info_black_and_white">BlackAndWhite</string>
+    <string name="info_four_to_three">4/3</string>
+    <string name="info_sixteen_to_nine">16/9</string>
+    <string name="info_mono">Mono</string>
+    <string name="info_stereo">Stereo</string>
+    <string name="info_dolby_sourround">Dolby Surround</string>
+    <string name="info_dolby_digital">Dolby Digital 5.1</string>
+    <string name="info_second_audio_program">SAP</string>
+    <string name="info_closed_caption">Closed Caption</string>
+    <string name="info_film">Film</string>
+    <string name="info_series">Series</string>
+    <string name="info_new">New</string>
+    <string name="info_audio_description">Audio Description</string>
+    <string name="info_live">Live</string>
+    <string name="info_omu">Original with subtitles</string>
+    <string name="info_news">News</string>
+    <string name="info_show">Show</string>
+    <string name="info_magazin">Magazine/Infotainment</string>
+    <string name="info_hd">HD</string>
+    <string name="info_docu">Documentation</string>
+    <string name="info_art">Art, Theater, Music</string>
+    <string name="info_sport">Sport</string>
+    <string name="info_children">Children</string>
+    <string name="info_other">Other</string>
+    <string name="info_sign_language">Sign Language</string>
+    <string name="menu_tvbrowser_title_settings">Settings</string>
+    <string name="menu_tvbrowser_title_settings_basic">Basic settings</string>
+    <string name="menu_tvbrowser_title_settings_plugins">Plugin settings</string>
+    <string name="pref_summary">Settings for TV-Browser</string>
+    <string name="pref_download_category">Data Download</string>
+    <string name="pref_epgpaid_category">EPGpaid data</string>
+    <string name="pref_epgpaid_settings_category">EPGpaid settings</string>
+    <string name="pref_epgpaid_show_missing_info_title">Show missing descriptions</string>
+    <string name="pref_epgpaid_show_missing_info_summary">Shows info if EPGpaid is not unlocked about missing descriptions in detail view.</string>
+    <string name="pref_epgpaid_user_name_title">Username:</string>
+    <string name="pref_epgpaid_user_empty_summary">Not entered</string>
+    <string name="pref_epgpaid_until_title">Activity of EPGpaid</string>
+    <string name="pref_epgpaid_until_summary">Access until: {0}</string>
+    <string name="pref_epgpaid_user_password_set_summary">********</string>
+    <string name="pref_epgpaid_user_password_title">Password</string>
+    <string name="pref_epgpaid_max_download_title">Download maximum:</string>
     <string name="pref_epgpaid_ssl_check_title">Ceck SSL certificate</string>
-	<string name="pref_epgpaid_ssl_check_summary">If your credentials cannot be validated and you are sure to have entered correct credentials and an Internet connection is available for validation, you can disable the check of the SSL certificate to circumvent possible problems.</string>
-	<string name="pref_epgpaid_purchase_title">Purchase access</string>
-	<string name="pref_epgpaid_purchase_summary">(Opens web site: https://www.epgpaid.de)</string>
-	<string name="pref_epgpaid_info">Since 2008 many private TV and radio stations are request a fee for the display of descriptions and pictures in electronic program guides like TV-Browser.\n\nThat is the reason why that information cannot be provided for free. But it is possible to get descriptions and most times also pictures with EPGpaid for a small amount every year.\n\nHow much yu need to pay and how it works you can read at: https://www.epgpaid.de\n\n(Click here to open the site.)</string>
-	<string name="pref_database_category">Database</string>
-	<string name="pref_database_selection_title">Storage location</string>
-	<string name="pref_database_selection_unavailable">UNAVAILABLE</string>
-	<string name="pref_database_selection_warning_unavailable">The database is currently not available, if you change this setting now, you will lose all data.</string>
-	<string name="pref_database_selection_warning_unavailable_ok">Change it\nanyway</string>
-	<string name="pref_database_selection_warning_move">You are storing the database on an external drive.\n\nYou shouldn\'t do that.\n\nTHERE WILL BE NO SUPPORT FOR INSTALLATIONS WITH DATABASE ON EXTERNAL DRIVE.\n\nYou also might expierience a crash of TV-Browser once after moving the database.</string>
-	<string name="pref_database_selection_warning_move_ok">Store external\nanyway</string>
-	<string name="pref_database_selection_internal">Internal</string>
-	<string name="pref_database_copy_title">Copying database</string>
-	<string name="pref_database_copy_wait">Please wait&#8230;</string>
-	<string name="pref_summary_data_download">Settings for data download</string>
-	<string name="pref_data_update_connection_instable_accept_title">Instable Internet connection</string>
-	<string name="pref_data_update_connection_instable_accept_summary_on">The used Internet connection is very slow or instable. TV-Browser should download the data nonetheless even if the download needs much time.</string>
-	<string name="pref_data_update_connection_instable_accept_summary_off">The used Internet connection is fast and reliable. TV-Browser will cancel the data download if the connection seems to be instable.</string>
+    <string name="pref_epgpaid_ssl_check_summary">If your credentials cannot be validated and you are sure to have entered correct credentials and an Internet connection is available for validation, you can disable the check of the SSL certificate to circumvent possible problems.</string>
+    <string name="pref_epgpaid_purchase_title">Purchase access</string>
+    <string name="pref_epgpaid_purchase_summary">(Opens web site: https://www.epgpaid.de)</string>
+    <string name="pref_epgpaid_info">Since 2008 many private TV and radio stations are request a fee for the display of descriptions and pictures in electronic program guides like TV-Browser.\n\nThat is the reason why that information cannot be provided for free. But it is possible to get descriptions and most times also pictures with EPGpaid for a small amount every year.\n\nHow much yu need to pay and how it works you can read at: https://www.epgpaid.de\n\n(Click here to open the site.)</string>
+    <string name="pref_database_category">Database</string>
+    <string name="pref_database_selection_title">Storage location</string>
+    <string name="pref_database_selection_unavailable">UNAVAILABLE</string>
+    <string name="pref_database_selection_warning_unavailable">The database is currently not available, if you change this setting now, you will lose all data.</string>
+    <string name="pref_database_selection_warning_unavailable_ok">Change it\nanyway</string>
+    <string name="pref_database_selection_warning_move">You are storing the database on an external drive.\n\nYou shouldn\'t do that.\n\nTHERE WILL BE NO SUPPORT FOR INSTALLATIONS WITH DATABASE ON EXTERNAL DRIVE.\n\nYou also might expierience a crash of TV-Browser once after moving the database.</string>
+    <string name="pref_database_selection_warning_move_ok">Store external\nanyway</string>
+    <string name="pref_database_selection_internal">Internal</string>
+    <string name="pref_database_copy_title">Copying database</string>
+    <string name="pref_database_copy_wait">Please wait&#8230;</string>
+    <string name="pref_summary_data_download">Settings for data download</string>
+    <string name="pref_data_update_connection_instable_accept_title">Instable Internet connection</string>
+    <string name="pref_data_update_connection_instable_accept_summary_on">The used Internet connection is very slow or instable. TV-Browser should download the data nonetheless even if the download needs much time.</string>
+    <string name="pref_data_update_connection_instable_accept_summary_off">The used Internet connection is fast and reliable. TV-Browser will cancel the data download if the connection seems to be instable.</string>
     <string name="pref_load_full_data">Download full data</string>
     <string name="pref_load_picture_data">Download pictures</string>
-	<string name="pref_load_full_data_summary_on">All available data is downloaded</string>
-	<string name="pref_load_full_data_summary_off">Only important data is downloaded</string>
-	<string name="show_logo_title">Channel icon and name</string>
-	<string name="show_logo_and_name">Show channel icon and name</string>
-	<string name="show_logo_medium_only">Show only bigger channel icon</string>
-	<string name="show_logo_only">Show only channel icon</string>
-	<string name="show_name_only">Show only channel name</string>
-	<string name="pref_activated">Activated</string>
-	<string name="pref_open">Open preferences</string>
-	<string name="pref_detail_category">Detail window</string>
-	<string name="pref_detail_category_summary">Which information should be shown in the details window?</string>
-	<string name="detail_missing_description_text">No description or picture can be shown for this program because of license restrictions.\n\nYou can unlock the descriptions and pictures for circa 1 Euro cent.\n\nMore about it at https://www.epgpaid.de</string>
+    <string name="pref_load_full_data_summary_on">All available data is downloaded</string>
+    <string name="pref_load_full_data_summary_off">Only important data is downloaded</string>
+    <string name="show_logo_title">Channel icon and name</string>
+    <string name="show_logo_and_name">Show channel icon and name</string>
+    <string name="show_logo_medium_only">Show only bigger channel icon</string>
+    <string name="show_logo_only">Show only channel icon</string>
+    <string name="show_name_only">Show only channel name</string>
+    <string name="pref_activated">Activated</string>
+    <string name="pref_open">Open preferences</string>
+    <string name="pref_detail_category">Detail window</string>
+    <string name="pref_detail_category_summary">Which information should be shown in the details window?</string>
+    <string name="detail_missing_description_text">No description or picture can be shown for this program because of license restrictions.\n\nYou can unlock the descriptions and pictures for circa 1 Euro cent.\n\nMore about it at https://www.epgpaid.de</string>
     <string name="EPGpaidData.info.expiredAccess">You\'re access to the EPGpaid data has expired on {0}.\n\nTo activate it for another 12 months, just order it again.\n\nMore about it at https://www.epgpaid.de</string>
     <string name="EPGpaidData.info.expiredAccessExtend">You\'re access to the EPGpaid data has expired on {0}, therefor you see the free description of omdb.org.\n\nTo activate it for another 12 months, just order it again.\n\nMore about it at https://www.epgpaid.de</string>
     <string name="pref_detail_picture_zoom">Zoom value for picture</string>
-	<string name="pref_detail_text_scale">Zoom value for text</string>
-	<string name="pref_list_category">Lists with programs</string>
-	<string name="pref_list_category_summary">Which information should be shown in the lists with programs?</string>
-	<string name="pref_show_pictures">Show pictures</string>
-	<string name="pref_detail_allow_swipe">Swipe through channel programs</string>
-	<string name="pref_detail_allow_swipe_summary_on">Allows to swipe through the programs of the shown channel.</string>
-	<string name="pref_detail_allow_swipe_summary_off">Swipe through the programs of the shown channel is not possible.</string>
-	<string name="pref_detail_highlight_color">Favorite hightlight color</string>
-	<string name="pref_detail_picture_description_position">Position of picture description</string>
-	<string-array name="pref_detail_picture_description_entries">
-	    <item>To right of picture</item>
-	    <item>At botton of picture</item>
-	</string-array>
-	<string name="pref_show_genre">Show genre</string>
-	<string name="pref_show_episode">Show episode title</string>
+    <string name="pref_detail_text_scale">Zoom value for text</string>
+    <string name="pref_list_category">Lists with programs</string>
+    <string name="pref_list_category_summary">Which information should be shown in the lists with programs?</string>
+    <string name="pref_show_pictures">Show pictures</string>
+    <string name="pref_detail_allow_swipe">Swipe through channel programs</string>
+    <string name="pref_detail_allow_swipe_summary_on">Allows to swipe through the programs of the shown channel.</string>
+    <string name="pref_detail_allow_swipe_summary_off">Swipe through the programs of the shown channel is not possible.</string>
+    <string name="pref_detail_highlight_color">Favorite hightlight color</string>
+    <string name="pref_detail_picture_description_position">Position of picture description</string>
+    <string-array name="pref_detail_picture_description_entries">
+        <item>To right of picture</item>
+        <item>At botton of picture</item>
+    </string-array>
+    <string name="pref_show_genre">Show genre</string>
+    <string name="pref_show_episode">Show episode title</string>
     <string name="pref_show_description_if_room">Show description if room</string>
-	<string name="pref_show_program_categories">Show program categories</string>
-	<string name="pref_title_program_information_selection">Select program information</string>
-	<string name="pref_summary_program_information_selection">Which program information should be shown if available?</string>
-	<string name="pref_start_category">Startup</string>
-	<string name="pref_start_tab">With following tab:</string>
-	<string-array name="start_labels">
-	    <item>@string/title_running_programs</item>
-	    <item>@string/title_programs_list</item>
-	    <item>@string/title_favorites</item>
-	    <item>@string/title_program_table</item>
-	</string-array>
-	<string name="pref_show_link">Show website link:</string>
-	<string name="pref_prog_table_grow">Spread programs over block size</string>
-	<string name="pref_layout_colors_categories">Program category colors</string>
-	<string name="pref_layout_colors_categories_summary">Color program categories with user defined colors</string>
-	<string name="customInfo">Custom Information:\n</string>
-	<string name="actors">Cast:\n</string>
-	<string name="regie">Director:</string>
-	<string name="ageLimit">Age Limit:</string>
-	<string name="categories">Categories</string>
-	<string name="description">Description</string>
-	<string name="duration">Duration</string>
-	<string name="endtime">End time</string>
-	<string name="episodeCount">Episode count</string>
-	<string name="episodeNumber">Episode numbers</string>
-	<string name="episodeTitle">Episode title</string>
-	<string name="episodeTitleOriginal">Episode original title</string>
-	<string name="genre">Genre</string>
-	<string name="origin">Origin</string>
-	<string name="pictureDescription">Picture description</string>
-	<string name="shortDescription">Short description</string>
-	<string name="startTime">Start time</string>
-	<string name="titleOrginal">Original title</string>
-	<string name="year">Year</string>
-	<string name="nettoPlayTime">Netto Play Time:</string>
-	<string name="vps">VPS:</string>
-	<string name="script">Script:</string>
-	<string name="repetitionFrom">Repetition From:</string>
-	<string name="music">Music:</string>
-	<string name="moderation">Moderation:</string>
-	<string name="repetitionOn">Repetition On:</string>
-	<string name="seasonNumber">Season:</string>
-	<string name="producer">Producer:</string>
-	<string name="camera">Camera:</string>
-	<string name="cut">Cut:</string>
-	<string name="otherPersons">Other persons:\n</string>
-	<string name="rating">Rating:</string>
-	<string name="productionFirm">Production Firm:</string>
-	<string name="ageLimitString">Age Limit:</string>
-	<string name="lastProductionYear">Last Production:</string>
-	<string name="programCategories">Program categories:\n</string>
-	<string name="additionalInfo">Additional info:\n</string>
-	<string name="series">Series:</string>
+    <string name="pref_show_program_categories">Show program categories</string>
+    <string name="pref_title_program_information_selection">Select program information</string>
+    <string name="pref_summary_program_information_selection">Which program information should be shown if available?</string>
+    <string name="pref_start_category">Startup</string>
+    <string name="pref_start_tab">With following tab:</string>
+    <string-array name="start_labels">
+        <item>@string/title_running_programs</item>
+        <item>@string/title_programs_list</item>
+        <item>@string/title_favorites</item>
+        <item>@string/title_program_table</item>
+    </string-array>
+    <string name="pref_show_link">Show website link:</string>
+    <string name="pref_prog_table_grow">Spread programs over block size</string>
+    <string name="pref_layout_colors_categories">Program category colors</string>
+    <string name="pref_layout_colors_categories_summary">Color program categories with user defined colors</string>
+    <string name="customInfo">Custom Information:\n</string>
+    <string name="actors">Cast:\n</string>
+    <string name="regie">Director:</string>
+    <string name="ageLimit">Age Limit:</string>
+    <string name="categories">Categories</string>
+    <string name="description">Description</string>
+    <string name="duration">Duration</string>
+    <string name="endtime">End time</string>
+    <string name="episodeCount">Episode count</string>
+    <string name="episodeNumber">Episode numbers</string>
+    <string name="episodeTitle">Episode title</string>
+    <string name="episodeTitleOriginal">Episode original title</string>
+    <string name="genre">Genre</string>
+    <string name="origin">Origin</string>
+    <string name="pictureDescription">Picture description</string>
+    <string name="shortDescription">Short description</string>
+    <string name="startTime">Start time</string>
+    <string name="titleOrginal">Original title</string>
+    <string name="year">Year</string>
+    <string name="nettoPlayTime">Netto Play Time:</string>
+    <string name="vps">VPS:</string>
+    <string name="script">Script:</string>
+    <string name="repetitionFrom">Repetition From:</string>
+    <string name="music">Music:</string>
+    <string name="moderation">Moderation:</string>
+    <string name="repetitionOn">Repetition On:</string>
+    <string name="seasonNumber">Season:</string>
+    <string name="producer">Producer:</string>
+    <string name="camera">Camera:</string>
+    <string name="cut">Cut:</string>
+    <string name="otherPersons">Other persons:\n</string>
+    <string name="rating">Rating:</string>
+    <string name="productionFirm">Production Firm:</string>
+    <string name="ageLimitString">Age Limit:</string>
+    <string name="lastProductionYear">Last Production:</string>
+    <string name="programCategories">Program categories:\n</string>
+    <string name="additionalInfo">Additional info:\n</string>
+    <string name="series">Series:</string>
 
     <string name="partNumber">Part number:</string>
     <string name="partNumberTotal">Total number of parts:</string>
@@ -857,81 +857,81 @@
     <string name="VODlink">Link to VOD:</string>
     <string name="genreSubList">Subgenres:</string>
 
-	<string name="rundate">Usable until:</string>
-	<string name="pref_prog_table_summary">The program table needs a lot of memory. The more channels and details you\'ve selected the more memory wil be consumed. That can lead to a crash of the TV-Browser app. So make sure not to select to many channels and details or disable the program table.</string>
-	<string name="warning_title">Warning!</string>
-	<string name="pref_prog_table_activation_warning">The usage of the program table may significantly slow down TV-Browser.</string>
-	<string name="pref_prog_table_time_block_size">Number of hours per block:</string>
-	<string name="sort_enter">Alternative: Enter number (any positive number):</string>
-	<string name="pref_time_button_count">Number of time buttons</string>
-	<string name="pref_time_buttons_configure_title">Configure time buttons</string>
-	<string name="pref_time_buttons">Time Buttons</string>
-	<string name="pref_time_buttons_summary">Configure the time buttons in the running programs list.</string>
-	<string name="pref_time_button_hint">Duplicate entries are ignored</string>
-	<string name="running_until">, until </string>
-	<string-array name="running_layout_values">
-	    <item>Extended</item>
-	    <item>Compact</item>
-	</string-array>
-	<string-array name="prog_table_layout_values">
-	    <item>Time block</item>
-	    <item>Compact</item>
-	</string-array>
-	<string name="running_layout_title">Layout</string>
+    <string name="rundate">Usable until:</string>
+    <string name="pref_prog_table_summary">The program table needs a lot of memory. The more channels and details you\'ve selected the more memory wil be consumed. That can lead to a crash of the TV-Browser app. So make sure not to select to many channels and details or disable the program table.</string>
+    <string name="warning_title">Warning!</string>
+    <string name="pref_prog_table_activation_warning">The usage of the program table may significantly slow down TV-Browser.</string>
+    <string name="pref_prog_table_time_block_size">Number of hours per block:</string>
+    <string name="sort_enter">Alternative: Enter number (any positive number):</string>
+    <string name="pref_time_button_count">Number of time buttons</string>
+    <string name="pref_time_buttons_configure_title">Configure time buttons</string>
+    <string name="pref_time_buttons">Time Buttons</string>
+    <string name="pref_time_buttons_summary">Configure the time buttons in the running programs list.</string>
+    <string name="pref_time_button_hint">Duplicate entries are ignored</string>
+    <string name="running_until">, until </string>
+    <string-array name="running_layout_values">
+        <item>Extended</item>
+        <item>Compact</item>
+    </string-array>
+    <string-array name="prog_table_layout_values">
+        <item>Time block</item>
+        <item>Compact</item>
+    </string-array>
+    <string name="running_layout_title">Layout</string>
     <string name="pref_running_start_with_next">Start with next</string>
-	<string name="pref_running_show_next_button">Show Next after now</string>
-	<string name="pref_running_show_next_button_summary_on">The moment next can be selected directly with the button Next, in the time menu or with a long click on Now.</string>
-	<string name="pref_running_show_next_button_summary_off">The moment next can be selected in the time menu or with a long click on Now.</string>
-	<string name="pref_running_show_time_pick_button_only_when_needed_title">Time pick button only when needed</string>
-	<string name="pref_running_show_time_pick_button_only_when_needed_summary_on">The button to enter any time value is only shown when a time was picked.</string>
-	<string name="pref_running_show_time_pick_button_only_when_needed_summary_off">The button to enter any time value is always shown.</string>
-	<string name="pref_running_next_day">Expired times for tomorrow</string>
-	<string name="pref_running_next_day_summary">Times that are expired for 3 hours are showing the programs of tomorrow.</string>
-	<string name="pref_debug">Debugging</string>
-	<string name="pref_write_data_update_log">Write log file for data update</string>
-	<string name="pref_write_data_update_log_summary">A log file with information about the data update will be written. It is not deleted automatically and keeps growing until it is bigger than 5MB at the begin of the data update or you delete it manually.</string>
-	<string name="pref_write_reminder_update_log">Write log file for Reminder</string>
-	<string name="pref_write_reminder_update_log_summary">A log file with information about the function of the Reminder will be written. It is not deleted automatically and keeps growing until it reaches 5MB.</string>
-	<string name="pref_log_write_plugin_log_title">Write log file for Plugins</string>
-	<string name="pref_log_write_plugin_log_summary">A log file with information about the function of the Plugins will be written. It is not deleted automatically and keeps growing until it reaches 5MB.</string>
-	<string name="pref_debug_summary">Settings for beta tester</string>
-	<string name="action_send_data_update_log">Send log file for data update</string>
-	<string name="action_delete_data_update_log">Delete log file of data update</string>
-	<string name="action_send_reminder_log">Send log file for Reminder</string>
-	<string name="action_delete_reminder_log">Delete log file of Reminder</string>
-	<string name="action_send_plugin_log">Send log file for Plugins</string>
-	<string name="action_delete_plugin_log">Delete log file of Plugins</string>
-	<string name="no_log_file_title">No log file</string>
-	<string name="no_log_file_message">No log file found for sending.</string>
-	<string name="log_file_delete_title">Log file deleted.</string>
-	<string name="no_log_file_delete_message">No log file found for deleting.</string>
-	<string name="log_file_delete_message">Log file deleted successfully.</string>
-	<string name="log_file_no_delete_title">Log file not deleted</string>
-	<string name="log_file_no_delete_message">Log file could not be deleted.\nIt will be deleted if the app is closed the next time.</string>
-	<string name="log_send_data_update">data update</string>
-	<string name="log_send_reminder">Reminder</string>
-	<string name="log_send_plugin" translatable="false">Plugins</string>
-	<string name="log_send_mail">Send Email</string>
-	<string name="log_send_mail_subject">{0} log file for TV-Browser for Android</string>
-	<string name="log_send_mail_content">The attachments contains the {0} log file of TV-Browser for Android, from</string>
-	<string name="pref_misc">Misc</string>
-	<string name="pref_sync_title">Synchronization</string>
-	<string name="pref_sync_summary_disabled">To use the synchronization with the desktop TV-Browser you have to enter a user name and a password in the menu.</string>
-	<string name="pref_sync_summary_enabled">Settings for synchronization with the desktop TV-Browser</string>
-	<string name="pref_sync_fav_from_desktop">Exported programs</string>
-	<string name="pref_sync_fav_from_desktop_summary">Programs that are exported by the AndroidSync plugin from the desktop version.</string>
-	<string name="pref_sync_fav_to_desktop">Favorites</string>
-	<string name="pref_sync_fav_to_desktop_summary">Programs that are marked as Favorite are exported to desktop TV-Browser.</string>
-	<string name="pref_sync_reminder_from_desktop">Import Reminders</string>
-	<string name="pref_sync_reminder_from_desktop_summary">Reminders that are exported by the AndroidSync plugin from the desktop version are imported.</string>
-	<string name="pref_sync_reminder_to_desktop">Export Reminders</string>
-	<string name="pref_sync_reminder_to_desktop_summary">Programs that are marked as Reminders are exported to desktop TV-Browser.</string>
-	<string name="pref_sync_marked_to_desktop">Marked by Plugins</string>
-	<string name="pref_sync_marked_to_desktop_summary">Programs that were marked by Plugins are exported to desktop TV-Browser.</string>
-<!-- 	<string name="pref_sync_calendar_to_desktop">Added to calendar</string>
+    <string name="pref_running_show_next_button">Show Next after now</string>
+    <string name="pref_running_show_next_button_summary_on">The moment next can be selected directly with the button Next, in the time menu or with a long click on Now.</string>
+    <string name="pref_running_show_next_button_summary_off">The moment next can be selected in the time menu or with a long click on Now.</string>
+    <string name="pref_running_show_time_pick_button_only_when_needed_title">Time pick button only when needed</string>
+    <string name="pref_running_show_time_pick_button_only_when_needed_summary_on">The button to enter any time value is only shown when a time was picked.</string>
+    <string name="pref_running_show_time_pick_button_only_when_needed_summary_off">The button to enter any time value is always shown.</string>
+    <string name="pref_running_next_day">Expired times for tomorrow</string>
+    <string name="pref_running_next_day_summary">Times that are expired for 3 hours are showing the programs of tomorrow.</string>
+    <string name="pref_debug">Debugging</string>
+    <string name="pref_write_data_update_log">Write log file for data update</string>
+    <string name="pref_write_data_update_log_summary">A log file with information about the data update will be written. It is not deleted automatically and keeps growing until it is bigger than 5MB at the begin of the data update or you delete it manually.</string>
+    <string name="pref_write_reminder_update_log">Write log file for Reminder</string>
+    <string name="pref_write_reminder_update_log_summary">A log file with information about the function of the Reminder will be written. It is not deleted automatically and keeps growing until it reaches 5MB.</string>
+    <string name="pref_log_write_plugin_log_title">Write log file for Plugins</string>
+    <string name="pref_log_write_plugin_log_summary">A log file with information about the function of the Plugins will be written. It is not deleted automatically and keeps growing until it reaches 5MB.</string>
+    <string name="pref_debug_summary">Settings for beta tester</string>
+    <string name="action_send_data_update_log">Send log file for data update</string>
+    <string name="action_delete_data_update_log">Delete log file of data update</string>
+    <string name="action_send_reminder_log">Send log file for Reminder</string>
+    <string name="action_delete_reminder_log">Delete log file of Reminder</string>
+    <string name="action_send_plugin_log">Send log file for Plugins</string>
+    <string name="action_delete_plugin_log">Delete log file of Plugins</string>
+    <string name="no_log_file_title">No log file</string>
+    <string name="no_log_file_message">No log file found for sending.</string>
+    <string name="log_file_delete_title">Log file deleted.</string>
+    <string name="no_log_file_delete_message">No log file found for deleting.</string>
+    <string name="log_file_delete_message">Log file deleted successfully.</string>
+    <string name="log_file_no_delete_title">Log file not deleted</string>
+    <string name="log_file_no_delete_message">Log file could not be deleted.\nIt will be deleted if the app is closed the next time.</string>
+    <string name="log_send_data_update">data update</string>
+    <string name="log_send_reminder">Reminder</string>
+    <string name="log_send_plugin" translatable="false">Plugins</string>
+    <string name="log_send_mail">Send Email</string>
+    <string name="log_send_mail_subject">{0} log file for TV-Browser for Android</string>
+    <string name="log_send_mail_content">The attachments contains the {0} log file of TV-Browser for Android, from</string>
+    <string name="pref_misc">Misc</string>
+    <string name="pref_sync_title">Synchronization</string>
+    <string name="pref_sync_summary_disabled">To use the synchronization with the desktop TV-Browser you have to enter a user name and a password in the menu.</string>
+    <string name="pref_sync_summary_enabled">Settings for synchronization with the desktop TV-Browser</string>
+    <string name="pref_sync_fav_from_desktop">Exported programs</string>
+    <string name="pref_sync_fav_from_desktop_summary">Programs that are exported by the AndroidSync plugin from the desktop version.</string>
+    <string name="pref_sync_fav_to_desktop">Favorites</string>
+    <string name="pref_sync_fav_to_desktop_summary">Programs that are marked as Favorite are exported to desktop TV-Browser.</string>
+    <string name="pref_sync_reminder_from_desktop">Import Reminders</string>
+    <string name="pref_sync_reminder_from_desktop_summary">Reminders that are exported by the AndroidSync plugin from the desktop version are imported.</string>
+    <string name="pref_sync_reminder_to_desktop">Export Reminders</string>
+    <string name="pref_sync_reminder_to_desktop_summary">Programs that are marked as Reminders are exported to desktop TV-Browser.</string>
+    <string name="pref_sync_marked_to_desktop">Marked by Plugins</string>
+    <string name="pref_sync_marked_to_desktop_summary">Programs that were marked by Plugins are exported to desktop TV-Browser.</string>
+    <!-- 	<string name="pref_sync_calendar_to_desktop">Added to calendar</string>
 	<string name="pref_sync_calendar_to_desktop_summary">Programs that were added to the Android calendar are exported to desktop TV-Browser.</string>-->
-	<string name="synchronize_user_info">You will have to <a href="https://www.tvbrowser-app.de/index.php?id=createaccount">register a user first</a> to use the synchronization with the desktop TV-Browser.</string>
-	<string name="marking_value_marked">Marked</string>
+    <string name="synchronize_user_info">You will have to <a href="https://www.tvbrowser-app.de/index.php?id=createaccount">register a user first</a> to use the synchronization with the desktop TV-Browser.</string>
+    <string name="marking_value_marked">Marked</string>
     <string name="marking_value_sync">Sync</string>
     <string name="marking_value_reminder">Reminder</string>
     <string name="show_sort_number">Show sort number</string>
@@ -984,112 +984,112 @@
     <string name="pref_running_sort_time_buttons_summary_off">Time buttons appear in below order</string>
     <string name="action_scroll_time">Scroll to time</string>
     <string name="divider_size">Divider size:</string>
-	<string-array name="divider_value_names">
-	    <item>Tiny</item>
-	    <item>Small</item>
-	    <item>Middle</item>
-	    <item>Big</item>
-	</string-array>
-	<string name="pref_reminder_category">Reminder</string>
-	<string name="pref_reminder_priority">Priority</string>
-	<string-array name="pref_reminder_priority_values_names">
-	    <item>Default</item>
-	    <item>Minimum</item>
-	    <item>Low</item>
-	    <item>High</item>
-	    <item>Maximum</item>
-	</string-array>
+    <string-array name="divider_value_names">
+        <item>Tiny</item>
+        <item>Small</item>
+        <item>Middle</item>
+        <item>Big</item>
+    </string-array>
+    <string name="pref_reminder_category">Reminder</string>
+    <string name="pref_reminder_priority">Priority</string>
+    <string-array name="pref_reminder_priority_values_names">
+        <item>Default</item>
+        <item>Minimum</item>
+        <item>Low</item>
+        <item>High</item>
+        <item>Maximum</item>
+    </string-array>
     <string name="pref_reminder_config">Configure sound, vibration, LED&#8230;</string>
-	<string name="pref_reminder_type">Day mode</string>
-	<string name="pref_reminder_sound">Sound</string>
-	<string name="pref_reminder_no_sound">No sound</string>
-	<string name="pref_reminder_sound_value_summary">Sound which is played for reminders</string>
-	<string name="pref_reminder_vibrate">Vibrate</string>
-	<string name="pref_reminder_led">Info LED</string>
-	<string name="pref_reminder_night_type">Night mode</string>
-	<string name="pref_reminder_night_no_reminder">No reminders</string>
-	<string name="pref_reminder_dont_remind">Don\'t remind</string>
-	<string name="pref_reminder_night_start">Start of night mode</string>
-	<string name="pref_reminder_night_end">End of night mode</string>
-	<string name="pref_reminder_work_mode_category">Work mode</string>
-	<string name="pref_reminder_as_alarm_clock_title">As alarm clock</string>
-	<string name="pref_reminder_as_alarm_clock_summary_on">Reminder will be added as alarm clock to make sure it will be shown even in doze mode of device.</string>
-	<string name="pref_reminder_as_alarm_clock_summary_off">Reminder will be added as simple alarm. In that case it might happen, that reminders will not be shown at the time it was schedules if the device is in doze mode.</string>
-	<string name="monday">Monday</string>
-	<string name="tuesday">Tuesday</string>
-	<string name="wednesday">Wednesday</string>
-	<string name="thursday">Thursday</string>
-	<string name="friday">Friday</string>
-	<string name="saturday">Saturday</string>
-	<string name="sunday">Sunday</string>
-	<string name="pref_reminder_work_days">Setup days</string>
-	<string name="pref_reminder_work_days_summary">Setup every weekday</string>
-	<string name="pref_reminder_work_start">Start</string>
-	<string name="pref_reminder_work_end">End</string>
-	<string name="pref_reminder_time_first">First time of reminder:</string>
-	<string name="pref_reminder_time_second">Second time of reminder:</string>
-	<string name="pref_reminder_color_led">LED color</string>
-	<string name="pref_reminder_state_keep_title">Keep reminder state</string>
-	<string name="pref_reminder_state_keep_summary">If the reminder was paused and the reminder state is kept the reminder will stay paused after a reboot of the device. Otherwise the reminder will activate itself automatically after a reboot of the device.</string>
-	<string-array name="pref_category_reminder_names">
-	    <item>At start of program</item>
-	    <item>1 minute before</item>
-	    <item>2 minutes before</item>
-	    <item>3 minutes before</item>
-	    <item>5 minutes before</item>
-	    <item>10 minutes before</item>
-	    <item>15 minutes before</item>
-	    <item>30 minutes before</item>
-	    <item>1 hour before</item>
-	    <item>2 hours before</item>
-	    <item>3 hours before</item>
-	    <item>4 hours before</item>
-	    <item>6 hours before</item>
-	    <item>8 hours before</item>
-	    <item>10 hours before</item>
-	    <item>12 hours before</item>
-	    <item>18 hours before</item>
-	    <item>24 hours before</item>
-	</string-array>
-	<string-array name="pref_category_reminder_names_second">
-	    <item>Don\'t remind</item>
-	    <item>At start of program</item>
-	    <item>1 minute before</item>
-	    <item>2 minutes before</item>
-	    <item>3 minutes before</item>
-	    <item>5 minutes before</item>
-	    <item>10 minutes before</item>
-	    <item>15 minutes before</item>
-	    <item>30 minutes before</item>
-	    <item>1 hour before</item>
-	    <item>2 hours before</item>
-	    <item>6 hours before</item>
-	    <item>12 hours before</item>
-	    <item>24 hours before</item>
-	</string-array>
-	<string name="pref_program_lists_show_end_time">Show end time</string>
-	<string name="pref_program_lists_show_list_on_channel_click">Clickable channel</string>
-	<string name="pref_program_lists_show_list_on_channel_click_summary">Click on channel opens programs list and shows program in chanel program.</string>
-	<string name="pref_color_title">Colors</string>
+    <string name="pref_reminder_type">Day mode</string>
+    <string name="pref_reminder_sound">Sound</string>
+    <string name="pref_reminder_no_sound">No sound</string>
+    <string name="pref_reminder_sound_value_summary">Sound which is played for reminders</string>
+    <string name="pref_reminder_vibrate">Vibrate</string>
+    <string name="pref_reminder_led">Info LED</string>
+    <string name="pref_reminder_night_type">Night mode</string>
+    <string name="pref_reminder_night_no_reminder">No reminders</string>
+    <string name="pref_reminder_dont_remind">Don\'t remind</string>
+    <string name="pref_reminder_night_start">Start of night mode</string>
+    <string name="pref_reminder_night_end">End of night mode</string>
+    <string name="pref_reminder_work_mode_category">Work mode</string>
+    <string name="pref_reminder_as_alarm_clock_title">As alarm clock</string>
+    <string name="pref_reminder_as_alarm_clock_summary_on">Reminder will be added as alarm clock to make sure it will be shown even in doze mode of device.</string>
+    <string name="pref_reminder_as_alarm_clock_summary_off">Reminder will be added as simple alarm. In that case it might happen, that reminders will not be shown at the time it was schedules if the device is in doze mode.</string>
+    <string name="monday">Monday</string>
+    <string name="tuesday">Tuesday</string>
+    <string name="wednesday">Wednesday</string>
+    <string name="thursday">Thursday</string>
+    <string name="friday">Friday</string>
+    <string name="saturday">Saturday</string>
+    <string name="sunday">Sunday</string>
+    <string name="pref_reminder_work_days">Setup days</string>
+    <string name="pref_reminder_work_days_summary">Setup every weekday</string>
+    <string name="pref_reminder_work_start">Start</string>
+    <string name="pref_reminder_work_end">End</string>
+    <string name="pref_reminder_time_first">First time of reminder:</string>
+    <string name="pref_reminder_time_second">Second time of reminder:</string>
+    <string name="pref_reminder_color_led">LED color</string>
+    <string name="pref_reminder_state_keep_title">Keep reminder state</string>
+    <string name="pref_reminder_state_keep_summary">If the reminder was paused and the reminder state is kept the reminder will stay paused after a reboot of the device. Otherwise the reminder will activate itself automatically after a reboot of the device.</string>
+    <string-array name="pref_category_reminder_names">
+        <item>At start of program</item>
+        <item>1 minute before</item>
+        <item>2 minutes before</item>
+        <item>3 minutes before</item>
+        <item>5 minutes before</item>
+        <item>10 minutes before</item>
+        <item>15 minutes before</item>
+        <item>30 minutes before</item>
+        <item>1 hour before</item>
+        <item>2 hours before</item>
+        <item>3 hours before</item>
+        <item>4 hours before</item>
+        <item>6 hours before</item>
+        <item>8 hours before</item>
+        <item>10 hours before</item>
+        <item>12 hours before</item>
+        <item>18 hours before</item>
+        <item>24 hours before</item>
+    </string-array>
+    <string-array name="pref_category_reminder_names_second">
+        <item>Don\'t remind</item>
+        <item>At start of program</item>
+        <item>1 minute before</item>
+        <item>2 minutes before</item>
+        <item>3 minutes before</item>
+        <item>5 minutes before</item>
+        <item>10 minutes before</item>
+        <item>15 minutes before</item>
+        <item>30 minutes before</item>
+        <item>1 hour before</item>
+        <item>2 hours before</item>
+        <item>6 hours before</item>
+        <item>12 hours before</item>
+        <item>24 hours before</item>
+    </string-array>
+    <string name="pref_program_lists_show_end_time">Show end time</string>
+    <string name="pref_program_lists_show_list_on_channel_click">Clickable channel</string>
+    <string name="pref_program_lists_show_list_on_channel_click_summary">Click on channel opens programs list and shows program in chanel program.</string>
+    <string name="pref_color_title">Colors</string>
     <string name="pref_color_running_background">On air</string>
     <string name="pref_color_running_background_summary">Background color of on air programs.</string>
     <string name="pref_color_running_progress">Progress</string>
     <string name="pref_color_running_progress_summary">Progress color of on air programs</string>
-    
+
     <string name="pref_color_style_selection_title">Color style:</string>
     <string-array name="pref_color_style_selection_entries">
         <item>User defined</item>
-	    <item>TV-Browser default</item>
-	    <item>Glow light (designed by HalleAndert)</item>
-	    <item>Decent dark (designed by HalleAndert)</item>
+        <item>TV-Browser default</item>
+        <item>Glow light (designed by HalleAndert)</item>
+        <item>Decent dark (designed by HalleAndert)</item>
     </string-array>
-    
+
     <string name="pref_color_separator_programs_category">Color for horizontal program separators</string>
     <string name="pref_color_separator_programs_category_summary">(Not for the widgets)</string>
     <string name="pref_color_separator_programs_line">Line</string>
     <string name="pref_color_separator_programs_space">Space</string>
-    
-	<string name="pref_marking_color_marked_summary">Color for by Plugins marked programs.</string>
+
+    <string name="pref_marking_color_marked_summary">Color for by Plugins marked programs.</string>
     <string name="pref_marking_color_favorite_summary">Color for Favorite programs.</string>
     <string name="pref_marking_color_reminder_title">Reminder</string>
     <string name="pref_marking_color_reminder_summary">Color for reminded programs.</string>
@@ -1138,7 +1138,7 @@
     <string name="pref_running_time_selection_summary">Background color of the selected time.</string>
     <string name="pref_prog_table_delayed">Delay loading until opening</string>
     <string name="pref_prog_table_delayed_summary">Loading of program table is delayed until it is opened for the first time. (Speeds up startup if not started on program table tab.)</string>
-    
+
     <string name="synchronize_reminder_down_done">Successful received Reminders</string>
     <string name="synchronize_reminder_down_nothing">No Reminders to update where received</string>
     <string name="pref_export_description_type_title">Description type</string>
@@ -1158,8 +1158,8 @@
         <item>Always for all programs</item>
         <item>Only for all programs if all channels are selected</item>
     </string-array>
-    
-    
+
+
     <!-- WIDGETS -->
 
     <string name="widget_warning_refresh_title"><![CDATA[<html><h3>Widget update problems</h3></html>]]></string>
@@ -1167,14 +1167,14 @@
 
     <string name="pref_widget_title_show_markings">Show markings</string>
     <string name="pref_widget_summary_show_markings">Markings of programs are visualized in the widgets</string>
-    
+
     <string name="widget_marking_plugins">M</string>
     <string name="widget_marking_favorite">F</string>
     <string name="widget_marking_reminder">R</string>
     <string name="widget_marking_sync">S</string>
-    
+
     <string name="widget_important_widget_title">TV-Browser: Important programs/Program list</string>
-    
+
     <string name="widget_important_default_title">Important programs</string>
     <string name="widget_important_empty">No programs available</string>
     <string name="widget_important_config_type_label">Widget type:</string>
@@ -1191,12 +1191,12 @@
     <string name="widget_important_config_show_sync">Synchronized programs</string>
     <string name="widget_important_config_limit_selection">Limit shown programs</string>
     <string name="widget_important_config_limit_selection_button">Select number</string>
-    
+
     <string name="widget_running_widget_title">TV-Browser: Now running</string>
     <string name="widget_running_title">Now running</string>
     <string name="widget_running_select_time_title">Select shown time</string>
     <string name="widget_running_button">Button that let you choose the display time from a dialog.</string>
-    
+
     <string name="widget_preferences_background_rounded_corners">Rounded corners</string>
     <string name="widget_preferences_background_transpacency_header">Header transparency</string>
     <string name="widget_preferences_background_transpacency_list">List transparency</string>
@@ -1207,35 +1207,35 @@
         <item>High</item>
         <item>Full</item>
     </string-array>
-    
+
     <string name="widget_preferences_text_color_user_defined_title">User defined text colors</string>
     <string name="widget_preferences_text_color_user_defined_summary">What colors should be used for text?</string>
-    
+
     <string name="widget_preferences_text_color_channel">Channel name and number</string>
     <string name="widget_preferences_text_color_date">Date</string>
     <string name="widget_preferences_text_color_time">Time</string>
     <string name="widget_preferences_text_color_title">Title</string>
     <string name="widget_preferences_text_color_category">Category default</string>
     <string name="widget_preferences_text_color_episode">Episode</string>
-    
+
     <string name="backup_channels_success">Channels successfully stored on TV-Browser server</string>
-    
+
     <string name="widget_prefrerences_simple_icon">Single color widget icon</string>
-    
+
     <string name="widget_toggle_reminder_state_title">TV-Browser: Toggle reminder state</string>
-    
+
     <string name="backup_preferences_success">Backup successfully stored on TV-Browser server</string>
     <string name="backup_preferences_restore_success">Backup successfully restored from TV-Browser server</string>
     <string name="backup_preferences_restore_failure">Backup could not be restored, maybe it was never uploaded.</string>
-    
+
     <string name="action_backup_preferences_save">Save preferences/favorites</string>
     <string name="action_backup_preferences_restore">Restore preferences/favorites</string>
-    
+
     <string name="backup_preferences_save_text">You can upload the preferences and favorite definitions to the TV-Browser server. The selected channels and the "I don\'t want to see!" list are not saved.\n\nDo you want\'t to upload the preferences and favorite definitions now?</string>
     <string name="backup_preferences_restore_text">If you previously had uploaded the preferences and favorite definitions to the TV-Browser server, you can restore it from there. The current preferences and favorite defintions will be overridden!\n\nDo you want\'t to restore the preferences and favorite definitions now?\n\n(TV-Browser will quit after restoring of the preferences and favorites)</string>
-    
+
     <string name="pref_vertical_padding_size">Free vertical space around programs</string>
-    
+
     <string name="activity_edit_filter_filter_title">Edit filters</string>
     <string name="activity_edit_filter_list_text_add">Add filter</string>
     <string name="activity_edit_filter_list_text_channels_add">Add channel filter</string>
@@ -1244,11 +1244,11 @@
     <string name="activity_edit_filter_list_text_all">All programs</string>
     <string name="activity_edit_filter_edit">Edit filter</string>
     <string name="activity_edit_filter_delete">Delete filter</string>
-    
+
     <string name="title_news">News</string>
     <string name="pref_news_activated">Show news</string>
     <string name="pref_news_type">News type</string>
-    
+
     <string-array name="news_type_entries">
         <item>All</item>
         <item>TV-Browser</item>
@@ -1256,7 +1256,7 @@
         <item>Only TV-Browser for desktop</item>
         <item>Website</item>
     </string-array>
-    
+
     <string name="epg_donate_name">You have subscribed to {0} EPGdonate data channels</string>
     <string name="epg_donate_info"><![CDATA[<p>The data provided by EPGdonate data is generally free, but to maintain this service everybody who is able to (and has at least attained full age) should donate a yearly amount.</p>
         <p>How much is up to the number of users and donators of EPGdonate data, the more the less the yearly amount can be.</p>
@@ -1270,25 +1270,25 @@
     <string name="epg_donate_dont_show_again_reason_donated">I already donated this year</string>
     <string name="epg_donate_dont_show_again_reason_want_not">I want everything for free</string>
     <string name="epg_donate_dont_show_again_reason_will_donate">I will donate for this year</string>
-    
+
     <string name="pref_plugins_author">Author:</string>
     <string name="pref_plugins_license">License:</string>
     <string name="pref_plugins_description">Description:</string>
-    
+
     <string name="plugin_available_title">Available Plugins</string>
     <string name="plugin_open_google_play">Show it in Google Play\u2122</string>
-    
+
     <string name="plugin_available_not_title">No Plugins available</string>
     <string name="plugin_available_not_message">No Plugins were found that can be installed.</string>
-    
+
     <string name="plugin_info_title">More functions with Plugins</string>
     <string name="plugin_info_message">TV-Browser can be extended with new functions by Plugins.\n\nIf you miss a function you may find it in a Plugin.\n\nDo you want to open the list with the available Plugins now (you later can search for Plugins from the menu of TV-Browser)?</string>
     <string name="plugin_info_load">Open list with available\nPlugins now</string>
     <string name="plugin_info_donwload">Downloading \'{0}\'</string>
-    
+
     <string name="waiting_detail_show">Opening detail window&#8230;</string>
     <string name="detail_date_format">%1$ta, %2$s %3$s - %4$s, %5$s</string>
-    
+
     <string name="time_block_time_format" translatable="false">%1$02d</string>
     <string name="channel_logo_content_description">Channel logo</string>
 
@@ -1313,13 +1313,13 @@
     <string name="terms_accept_epgpaid_title">Accept terms</string>
     <string name="terms_accept_epgpaid">I accept the terms for the EPGpaid data.</string>
 
-	<string name="color_preference_hex_label">HEX #</string>
-	<string name="program_picture">Preview picture of the program</string>
-	<string name="reset_data_update_date">Reset data update date</string>
-	<string name="show_plugin_marking_data">Show plugin marking data</string>
-	<string name="reminder">Reminder</string>
-	<string name="widget_settings_button">Settings</string>
-	<string name="widget_open_app_button">Open app</string>
-	<string name="widget_toggle_reminder_state">Activate/deactive reminders</string>
+    <string name="color_preference_hex_label">HEX #</string>
+    <string name="program_picture">Preview picture of the program</string>
+    <string name="reset_data_update_date">Reset data update date</string>
+    <string name="show_plugin_marking_data">Show plugin marking data</string>
+    <string name="reminder">Reminder</string>
+    <string name="widget_settings_button">Settings</string>
+    <string name="widget_open_app_button">Open app</string>
+    <string name="widget_toggle_reminder_state">Activate/deactive reminders</string>
 
 </resources>

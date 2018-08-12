@@ -74,13 +74,6 @@ public class InfoActivity extends AppCompatActivity {
     long programID = intent.getLongExtra(SettingConstants.REMINDER_PROGRAM_ID_EXTRA, -1);
 
     if(intent.getAction() != null && intent.getAction().equals(AppWidgetManager.ACTION_APPWIDGET_CONFIGURE)) {
-      if(intent.hasExtra(AppWidgetManager.EXTRA_APPWIDGET_ID)) {
-        Intent result = new Intent();
-
-        result.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, intent.getIntArrayExtra(AppWidgetManager.EXTRA_APPWIDGET_ID));
-        setResult(RESULT_OK, result);
-      }
-
       if(CompatUtils.showWidgetRefreshInfo()) {
         setTheme(UiUtils.getThemeResourceId(UiUtils.TYPE_THEME_TRANSLUCENT, PrefUtils.isDarkTheme()));
 

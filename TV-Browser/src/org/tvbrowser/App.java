@@ -4,13 +4,19 @@ import android.app.Application;
 import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
+import android.media.AudioAttributes;
+import android.media.RingtoneManager;
+import android.net.IpPrefix;
+import android.net.Uri;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
+import android.util.Log;
 
 import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.CompatUtils;
 
 import org.tvbrowser.tvbrowser.R;
+import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.UiUtils;
 
 public final class App extends Application {
@@ -98,29 +104,49 @@ public final class App extends Application {
 	 */
 	@RequiresApi(Build.VERSION_CODES.O)
 	private void createNotificationChannel() {
-		final long[] vibrationPattern = new long[] {1000,200,1000,400,1000,600};
-
-	  final NotificationChannel notificationChannelDefault = new NotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_DEFAULT),getNotificationChannelName(TYPE_NOTIFICATION_DEFAULT), NotificationManager.IMPORTANCE_DEFAULT);
-	  notificationChannelDefault.setDescription(getString(R.string.notification_channel_default_description));
-		notificationChannelDefault.setVibrationPattern(null);
-		notificationChannelDefault.setSound(null,null);
-
-		final NotificationChannel notificationChannelReminderDay = new NotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_DAY),getNotificationChannelName(TYPE_NOTIFICATION_REMINDER_DAY), NotificationManager.IMPORTANCE_DEFAULT);
-		notificationChannelReminderDay.setVibrationPattern(vibrationPattern);
-
-		final NotificationChannel notificationChannelReminderWork = new NotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_WORK),getNotificationChannelName(TYPE_NOTIFICATION_REMINDER_WORK), NotificationManager.IMPORTANCE_DEFAULT);
-		notificationChannelReminderWork.setVibrationPattern(vibrationPattern);
-
-		final NotificationChannel notificationChannelReminderNight = new NotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_NIGHT),getNotificationChannelName(TYPE_NOTIFICATION_REMINDER_NIGHT), NotificationManager.IMPORTANCE_DEFAULT);
-		notificationChannelReminderNight.setVibrationPattern(vibrationPattern);
-
 		final NotificationManager service = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
 		if (service != null) {
-			service.createNotificationChannel(notificationChannelDefault);
-			service.createNotificationChannel(notificationChannelReminderDay);
-			service.createNotificationChannel(notificationChannelReminderWork);
-			service.createNotificationChannel(notificationChannelReminderNight);
+			final long[] vibrationPattern = new long[] {1000,200,1000,400,1000,600};
+
+			final AudioAttributes attributes = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build();
+
+			if(service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_DEFAULT)) == null) {
+				final NotificationChannel notificationChannelDefault = new NotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_DEFAULT), getNotificationChannelName(TYPE_NOTIFICATION_DEFAULT), NotificationManager.IMPORTANCE_DEFAULT);
+				notificationChannelDefault.setDescription(getString(R.string.notification_channel_default_description));
+				notificationChannelDefault.setVibrationPattern(null);
+				notificationChannelDefault.setSound(null, attributes);
+				service.createNotificationChannel(notificationChannelDefault);
+			}
+
+			final Uri sound = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION);
+			PrefUtils.initialize(getApplicationContext());
+			Uri tone = Uri.parse(PrefUtils.getStringValue(R.string.PREF_REMINDER_SOUND_VALUE,sound.toString()));
+
+			if(service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_DAY)) == null) {
+				final NotificationChannel notificationChannelReminderDay = new NotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_DAY), getNotificationChannelName(TYPE_NOTIFICATION_REMINDER_DAY), NotificationManager.IMPORTANCE_DEFAULT);
+				notificationChannelReminderDay.setVibrationPattern(vibrationPattern);
+				notificationChannelReminderDay.setSound(tone, attributes);
+				service.createNotificationChannel(notificationChannelReminderDay);
+			}
+
+			if(service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_WORK)) == null) {
+				tone = Uri.parse(PrefUtils.getStringValue(R.string.PREF_REMINDER_WORK_MODE_SOUND_VALUE, sound.toString()));
+
+				final NotificationChannel notificationChannelReminderWork = new NotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_WORK), getNotificationChannelName(TYPE_NOTIFICATION_REMINDER_WORK), NotificationManager.IMPORTANCE_DEFAULT);
+				notificationChannelReminderWork.setVibrationPattern(vibrationPattern);
+				notificationChannelReminderWork.setSound(tone, attributes);
+				service.createNotificationChannel(notificationChannelReminderWork);
+			}
+
+			if(service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_NIGHT)) == null) {
+				tone = Uri.parse(PrefUtils.getStringValue(R.string.PREF_REMINDER_NIGHT_MODE_SOUND_VALUE, sound.toString()));
+
+				final NotificationChannel notificationChannelReminderNight = new NotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_NIGHT), getNotificationChannelName(TYPE_NOTIFICATION_REMINDER_NIGHT), NotificationManager.IMPORTANCE_DEFAULT);
+				notificationChannelReminderNight.setVibrationPattern(vibrationPattern);
+				notificationChannelReminderNight.setSound(tone, attributes);
+				service.createNotificationChannel(notificationChannelReminderNight);
+			}
 		}
 	}
 }

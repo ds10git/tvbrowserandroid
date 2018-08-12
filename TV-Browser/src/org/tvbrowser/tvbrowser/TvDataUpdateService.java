@@ -1234,7 +1234,6 @@ public class TvDataUpdateService extends Service {
           }
 
           if (groupInfo != null) {
-            String groupChannelKey = getGroupChannelKey(groupKey, channelIdKey);
             final String groupId = String.valueOf(((Object[]) groupInfo)[0]);
 
             QueryChannelCreator queryChannelCreator = channelQueryTable.get(groupId);
