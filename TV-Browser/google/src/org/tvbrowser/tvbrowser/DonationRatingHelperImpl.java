@@ -1,20 +1,15 @@
 package org.tvbrowser.tvbrowser;
 
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.support.v7.app.AlertDialog;
-import android.text.Html;
 import android.text.format.DateFormat;
 import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.vending.billing.util.IabHelper;
-import com.android.vending.billing.util.IabHelper.QueryInventoryFinishedListener;
-import com.android.vending.billing.util.IabResult;
 import com.android.vending.billing.util.Inventory;
 import com.android.vending.billing.util.Purchase;
 import com.android.vending.billing.util.SkuDetails;
@@ -27,6 +22,8 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
+
+import me.drakeet.support.toast.ToastCompat;
 
 import static org.tvbrowser.settings.SettingConstants.URL_SYNC_BASE;
 
@@ -146,7 +143,7 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
           if (result.isSuccess()) {
             tvBrowser.showAlertDialog(d);
           } else {
-            tvBrowser.getHandler().post(() -> Toast.makeText(tvBrowser, "", Toast.LENGTH_LONG).show());
+            tvBrowser.getHandler().post(() -> ToastCompat.makeText(tvBrowser, "", ToastCompat.LENGTH_LONG).show());
           }
         });
       });

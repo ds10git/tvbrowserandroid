@@ -44,6 +44,7 @@ public class ServiceUpdateRemindersAndAutoUpdate extends Service {
       NotificationCompat.Builder b = new NotificationCompat.Builder(ServiceUpdateRemindersAndAutoUpdate.this, App.getNotificationChannelIdDefault(this));
       b.setSmallIcon(R.drawable.ic_stat_notify);
       b.setContentTitle(getResources().getText(R.string.notification_update_reminders));
+      b.setCategory(NotificationCompat.CATEGORY_STATUS);
 
       startForeground(ID_NOTIFICATION, b.build());
     }

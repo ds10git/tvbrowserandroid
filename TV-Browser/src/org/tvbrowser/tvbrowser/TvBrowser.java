@@ -114,7 +114,6 @@ import android.widget.SeekBar;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
-import android.widget.Toast;
 
 import com.example.android.listviewdragginganimation.DynamicListView;
 import com.example.android.listviewdragginganimation.StableArrayAdapter;
@@ -169,6 +168,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.GZIPInputStream;
 
 import de.epgpaid.EPGpaidDataConnection;
+import me.drakeet.support.toast.ToastCompat;
 
 import static org.tvbrowser.utils.VersionUtils.applyUpdates;
 
@@ -1225,13 +1225,13 @@ public class TvBrowser extends AppCompatActivity {
                   SettingConstants.initializeLogoMap(TvBrowser.this, true);
                   updateProgramListChannelBar();
                   PrefUtils.updateChannelSelectionState(getApplicationContext());
-                  Toast.makeText(getApplicationContext(), R.string.synchronize_done, Toast.LENGTH_LONG).show();
+                  ToastCompat.makeText(getApplicationContext(), R.string.synchronize_done, ToastCompat.LENGTH_LONG).show();
                   checkTermsAccepted();
                 });
               }
               else {
                 handler.post(() -> {
-                  Toast.makeText(getApplicationContext(), R.string.synchronize_error, Toast.LENGTH_LONG).show();
+                  ToastCompat.makeText(getApplicationContext(), R.string.synchronize_error, ToastCompat.LENGTH_LONG).show();
                   showChannelSelectionInternal();
                 });
               }
@@ -1408,14 +1408,14 @@ public class TvBrowser extends AppCompatActivity {
                     dontWantToSeeUpdate.finish();
                     //getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
                     UiUtils.sendDontWantToSeeChangedBroadcast(applicationContext,true);
-                    handler.post(() -> Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show());
+                    handler.post(() -> ToastCompat.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, ToastCompat.LENGTH_LONG).show());
                   }
                   else {
                     dontWantToSeeUpdate.cancel();
                   }
                 }
                 else if(newExclusions.isEmpty()) {
-                  handler.post(() -> Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show());
+                  handler.post(() -> ToastCompat.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, ToastCompat.LENGTH_LONG).show());
                 }
 
                 if(!replace && exclusionBuilder.length() > 0) {
@@ -1431,11 +1431,11 @@ public class TvBrowser extends AppCompatActivity {
                   startSynchronizeUp(false, exclusionBuilder.toString(), SettingConstants.URL_SYNC_BASE + "data/scripts/syncUp.php?type=dontWantToSee", null, null);
                 }
 
-                handler.post(() -> Toast.makeText(getApplicationContext(), R.string.no_dont_want_to_see_sync, Toast.LENGTH_LONG).show());
+                handler.post(() -> ToastCompat.makeText(getApplicationContext(), R.string.no_dont_want_to_see_sync, ToastCompat.LENGTH_LONG).show());
               }
             }
           }catch(Throwable t) {
-            handler.post(() -> Toast.makeText(getApplicationContext(), R.string.no_dont_want_to_see_sync, Toast.LENGTH_LONG).show());
+            handler.post(() -> ToastCompat.makeText(getApplicationContext(), R.string.no_dont_want_to_see_sync, ToastCompat.LENGTH_LONG).show());
           } finally {
         	  IOUtils.disconnect(connection);
           }
@@ -1668,10 +1668,10 @@ public class TvBrowser extends AppCompatActivity {
           }
 
           if(restored) {
-            handler.post(() -> Toast.makeText(TvBrowser.this, getString(R.string.backup_preferences_restore_success), Toast.LENGTH_LONG).show());
+            handler.post(() -> ToastCompat.makeText(TvBrowser.this, getString(R.string.backup_preferences_restore_success), ToastCompat.LENGTH_LONG).show());
           }
           else {
-            handler.post(() -> Toast.makeText(TvBrowser.this, getString(R.string.backup_preferences_restore_failure), Toast.LENGTH_LONG).show());
+            handler.post(() -> ToastCompat.makeText(TvBrowser.this, getString(R.string.backup_preferences_restore_failure), ToastCompat.LENGTH_LONG).show());
           }
 
           updateProgressIcon(false);
@@ -1799,7 +1799,7 @@ public class TvBrowser extends AppCompatActivity {
           LocalBroadcastManager.getInstance(TvBrowser.this).unregisterReceiver(this);
 
           if(userInfo != null) {
-            handler.post(() -> Toast.makeText(TvBrowser.this, userInfo, Toast.LENGTH_LONG).show());
+            handler.post(() -> ToastCompat.makeText(TvBrowser.this, userInfo, ToastCompat.LENGTH_LONG).show());
           }
         }
       };
@@ -3388,7 +3388,7 @@ public class TvBrowser extends AppCompatActivity {
                   dontWantToSeeUpdate.finish();
                     //getContentResolver().applyBatch(TvBrowserContentProvider.AUTHORITY, updateValuesList);
                   UiUtils.sendDontWantToSeeChangedBroadcast(getApplicationContext(),true);
-                  handler.post(() -> Toast.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, Toast.LENGTH_LONG).show());
+                  handler.post(() -> ToastCompat.makeText(getApplicationContext(), R.string.dont_want_to_see_sync_success, ToastCompat.LENGTH_LONG).show());
                 }
                 else {
                   dontWantToSeeUpdate.cancel();

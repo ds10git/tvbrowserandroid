@@ -57,7 +57,11 @@ public class PrefUtils {
     
     return result;
   }
-  
+
+  public static Context getContext() {
+    return mContext;
+  }
+
   public static int getIntValue(int prefKey, int defaultValue) {
     if(mPref != null) {
       return mPref.getInt(mContext.getString(prefKey), defaultValue);

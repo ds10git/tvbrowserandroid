@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PreferenceScreen
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tvb="http://schemas.android.com/apk/res-auto"
     android:key="PREF_SCREEN_REMINDER" >
     <ListPreference
         android:key="@string/PREF_REMINDER_TIME"
@@ -23,11 +22,6 @@
         android:title="@string/pref_reminder_as_alarm_clock_title"
         android:summaryOn="@string/pref_reminder_as_alarm_clock_summary_on"
         android:summaryOff="@string/pref_reminder_as_alarm_clock_summary_off"/>
-    <org.tvbrowser.settings.PreferenceColorActivated
-        android:key="@string/PREF_REMINDER_COLOR_LED"
-        android:title="@string/pref_reminder_color_led"
-        android:defaultValue="@color/pref_reminder_color_led_default"
-        tvb:alwaysActivated="true"/>
     <CheckBoxPreference android:key="@string/PREF_REMINDER_STATE_KEEP"
         android:title="@string/pref_reminder_state_keep_title"
         android:summary="@string/pref_reminder_state_keep_summary"
@@ -54,26 +48,6 @@
             android:title="@string/pref_reminder_config"
             android:summary="2"
             />
-        <!--        <ListPreference
-                    android:key="@string/PREF_REMINDER_WORK_MODE_PRIORITY_VALUE"
-                    android:title="@string/pref_reminder_priority"
-                    android:defaultValue="@string/pref_reminder_priority_default"
-                    android:entries="@array/pref_reminder_priority_values_names"
-                    android:entryValues="@array/pref_simple_string_value_array5"
-                    android:summary="%s"/>
-                <RingtonePreference android:key="@string/PREF_REMINDER_WORK_MODE_SOUND_VALUE"
-                    android:summary="@string/pref_reminder_sound_value_summary"
-                    android:ringtoneType="notification"
-                    android:defaultValue="@string/pref_reminder_work_mode_sound_value_default"
-                    />
-                <CheckBoxPreference android:key="@string/PREF_REMINDER_WORK_MODE_VIBRATE"
-                    android:title="@string/pref_reminder_vibrate"
-                    android:defaultValue="@bool/pref_reminder_work_mode_vibrate_default"
-                    />
-                <CheckBoxPreference android:key="@string/PREF_REMINDER_WORK_MODE_LED"
-                    android:title="@string/pref_reminder_led"
-                    android:defaultValue="@bool/pref_reminder_work_mode_led_default"
-                    />-->
         <PreferenceScreen
             android:key="@string/PREF_REMINDER_WORK_MODE_DAYS"
             android:title="@string/pref_reminder_work_days">
@@ -207,26 +181,5 @@
             android:title="@string/pref_reminder_config"
             android:summary="3"
             />
-        <!--
-        <ListPreference
-            android:key="@string/PREF_REMINDER_NIGHT_MODE_PRIORITY_VALUE"
-            android:title="@string/pref_reminder_priority"
-            android:defaultValue="@string/pref_reminder_priority_default"
-            android:entries="@array/pref_reminder_priority_values_names"
-            android:entryValues="@array/pref_simple_string_value_array5"
-            android:summary="%s"/>
-        <RingtonePreference android:key="@string/PREF_REMINDER_NIGHT_MODE_SOUND_VALUE"
-            android:summary="@string/pref_reminder_sound_value_summary"
-            android:ringtoneType="notification"
-            android:defaultValue="@string/pref_reminder_night_mode_sound_value_default"
-            />
-        <CheckBoxPreference android:key="@string/PREF_REMINDER_NIGHT_MODE_VIBRATE"
-            android:title="@string/pref_reminder_vibrate"
-            android:defaultValue="@bool/pref_reminder_night_mode_vibrate_default"
-            />
-        <CheckBoxPreference android:key="@string/PREF_REMINDER_NIGHT_MODE_LED"
-            android:title="@string/pref_reminder_led"
-            android:defaultValue="@bool/pref_reminder_night_mode_led_default"
-            />-->
     </PreferenceCategory>
 </PreferenceScreen>

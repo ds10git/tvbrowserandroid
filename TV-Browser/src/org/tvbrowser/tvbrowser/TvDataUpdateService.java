@@ -97,8 +97,8 @@ import android.support.v4.util.SparseArrayCompat;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
-import android.widget.Toast;
 import de.epgpaid.EPGpaidDataConnection;
+import me.drakeet.support.toast.ToastCompat;
 
 /**
  * The update service for the data of TV-Browser.
@@ -331,6 +331,7 @@ public class TvDataUpdateService extends Service {
     mDaysToLoad = 2;
     
     mBuilder = new NotificationCompat.Builder(this, App.getNotificationChannelIdDefault(this));
+    mBuilder.setCategory(NotificationCompat.CATEGORY_STATUS);
     //mBuilder.setPriority(NotificationCompat.PRIORITY_LOW);
     mBuilder.setSmallIcon(R.drawable.ic_stat_notify);
     mBuilder.setOngoing(true);
@@ -1159,12 +1160,12 @@ public class TvDataUpdateService extends Service {
             dataSyncValues.clear();
 
             if(info) {
-              mHandler.post(() -> Toast.makeText(TvDataUpdateService.this, R.string.synchronize_reminder_down_done, Toast.LENGTH_SHORT).show());
+              mHandler.post(() -> ToastCompat.makeText(TvDataUpdateService.this, R.string.synchronize_reminder_down_done, ToastCompat.LENGTH_SHORT).show());
             }
           }
           else {
             if(info) {
-              mHandler.post(() -> Toast.makeText(TvDataUpdateService.this, R.string.synchronize_reminder_down_nothing, Toast.LENGTH_SHORT).show());
+              mHandler.post(() -> ToastCompat.makeText(TvDataUpdateService.this, R.string.synchronize_reminder_down_nothing, ToastCompat.LENGTH_SHORT).show());
             }
           }
         }
@@ -2735,7 +2736,7 @@ public class TvDataUpdateService extends Service {
     mDontWantToSeeValues = null;
     
     // Data update complete inform user
-    mHandler.post(() -> Toast.makeText(TvDataUpdateService.this, R.string.update_complete, Toast.LENGTH_LONG).show());
+    mHandler.post(() -> ToastCompat.makeText(TvDataUpdateService.this, R.string.update_complete, ToastCompat.LENGTH_LONG).show());
     
     doLog("Unsuccessful downloads: " + String.valueOf(mUnsuccessfulDownloads));
         
