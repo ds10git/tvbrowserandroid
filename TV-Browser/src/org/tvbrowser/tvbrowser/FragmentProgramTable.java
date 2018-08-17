@@ -719,7 +719,9 @@ public class FragmentProgramTable extends Fragment {
                 mCategoryIndex = cursor.getColumnIndex(TvBrowserContentProvider.DATA_KEY_CATEGORIES);
 
                 while(cursor.moveToNext()) {
-                  addPanel(cursor, mProgramPanelLayout);
+                  try {
+                    addPanel(cursor, mProgramPanelLayout);
+                  }catch(IllegalStateException lse) {}
                 }
               }
             }finally {
@@ -1002,8 +1004,8 @@ public class FragmentProgramTable extends Fragment {
     }
   }
 
-  private void addPanel(final Cursor cursor, final ProgramTableLayout layout) {
-    if(IOUtils.isCursorAccessable(cursor)) {
+  private void addPanel(final Cursor cursor, final ProgramTableLayout layout) throws IllegalStateException {
+    if(IOUtils.isCursorAccessable(cursor) && cursor.getColumnIndex(TvBrowserContentProvider.KEY_ID) != -1) {
       final long programId = cursor.getLong(mKeyIndex);
       final long startTime = cursor.getLong(mStartTimeIndex);
       final long endTime = cursor.getLong(mEndTimeIndex);
