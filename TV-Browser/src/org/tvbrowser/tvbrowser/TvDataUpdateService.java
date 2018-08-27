@@ -1210,41 +1210,44 @@ public class TvDataUpdateService extends Service {
 
         if (fav != null && fav.contains(";") && fav.contains(":")) {
           int index = fav.indexOf(";");
+          int index2 = fav.lastIndexOf(";");
 
-          final String timePart = fav.substring(0,index);
-          final String[] idParts = fav.substring(index + 1, fav.lastIndexOf(";")).split(":");
+          if(index != -1 && index2 > index) {
+            final String timePart = fav.substring(0, index);
+            final String[] idParts = fav.substring(index + 1, index2).split(":");
 
-          final String startTime = String.valueOf(Integer.parseInt(timePart)*60000L);
+            final String startTime = String.valueOf(Integer.parseInt(timePart) * 60000L);
 
-          if(!setTimes.contains(startTime)) {
-            setTimes.add(startTime);
-          }
-
-          Object groupInfo = null;
-          String groupKey = null;
-          String channelIdKey = null;
-
-          if (idParts[0].equals(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_FREE_KEY))) {
-            groupKey = getGroupsKey(SettingConstants.EPG_FREE_KEY, idParts[1]);
-            groupInfo = currentGroups.get(groupKey);
-            channelIdKey = idParts[2];
-          } else if (idParts[0].equals(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_DONATE_KEY))) {
-            groupKey = getGroupsKey(SettingConstants.EPG_DONATE_KEY, SettingConstants.EPG_DONATE_GROUP_KEY);
-            groupInfo = currentGroups.get(groupKey);
-            channelIdKey = idParts[1];
-          }
-
-          if (groupInfo != null) {
-            final String groupId = String.valueOf(((Object[]) groupInfo)[0]);
-
-            QueryChannelCreator queryChannelCreator = channelQueryTable.get(groupId);
-
-            if (queryChannelCreator == null) {
-              queryChannelCreator = new QueryChannelCreator(groupId);
-              channelQueryTable.put(groupId, queryChannelCreator);
+            if (!setTimes.contains(startTime)) {
+              setTimes.add(startTime);
             }
 
-            queryChannelCreator.addChannelId(channelIdKey);
+            Object groupInfo = null;
+            String groupKey = null;
+            String channelIdKey = null;
+
+            if (idParts[0].equals(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_FREE_KEY))) {
+              groupKey = getGroupsKey(SettingConstants.EPG_FREE_KEY, idParts[1]);
+              groupInfo = currentGroups.get(groupKey);
+              channelIdKey = idParts[2];
+            } else if (idParts[0].equals(SettingConstants.getNumberForDataServiceKey(SettingConstants.EPG_DONATE_KEY))) {
+              groupKey = getGroupsKey(SettingConstants.EPG_DONATE_KEY, SettingConstants.EPG_DONATE_GROUP_KEY);
+              groupInfo = currentGroups.get(groupKey);
+              channelIdKey = idParts[1];
+            }
+
+            if (groupInfo != null) {
+              final String groupId = String.valueOf(((Object[]) groupInfo)[0]);
+
+              QueryChannelCreator queryChannelCreator = channelQueryTable.get(groupId);
+
+              if (queryChannelCreator == null) {
+                queryChannelCreator = new QueryChannelCreator(groupId);
+                channelQueryTable.put(groupId, queryChannelCreator);
+              }
+
+              queryChannelCreator.addChannelId(channelIdKey);
+            }
           }
         }
         else {

@@ -825,9 +825,13 @@ public class FragmentProgramTable extends Fragment {
 
     ViewGroup layout = getView().findViewWithTag("LAYOUT");
 
-    mOldScrollX = getView().findViewById(R.id.horizontal_program_table_scroll).getScrollX();
+    View scroll = getView().findViewById(R.id.horizontal_program_table_scroll);
 
-    updateView(getActivity().getLayoutInflater(), layout);
+    if(layout != null && scroll != null) {
+      mOldScrollX = scroll.getScrollX();
+
+      updateView(getActivity().getLayoutInflater(), layout);
+    }
   }
 
   private void changeDay(int count) {
