@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.5</h2>
+        <h2>0.7</h2>
             &bull; Thema im Sendungsinfodialog beachten, wenn dieser aus einem Widget geöffnet wird<br>
             &bull; fehlende Aktualisierung der Einstellungen bei Änderungen auf älteren Android-Versionen korrigiert<br>
             &bull; zeige Sendernamen und Sortierungsnummer in Erinnerer-Benachrichtigung<br>

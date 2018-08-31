@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.6.5</h2>
+        <h2>0.7</h2>
             &bull; take theme into account for program info dialog opened from widget<br>
             &bull; fixed missing update of preferences on change for older Android versions<br>
             &bull; show channel name and order number in Reminder notification<br>
