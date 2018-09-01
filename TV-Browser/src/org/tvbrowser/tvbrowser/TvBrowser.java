@@ -2242,6 +2242,8 @@ public class TvBrowser extends AppCompatActivity {
 
       // get spinner for category selection and add listener to react to user category selection
       Spinner category = channelSelectionView.findViewById(R.id.channel_category_value);
+      UiUtils.createAdapterForSpinner(TvBrowser.this, category, R.array.channel_category);
+
       category.setOnItemSelectedListener(new AdapterView.OnItemSelectedListener() {
         @Override
         public void onItemSelected (AdapterView<?> parent, View view, int position, long id) {
