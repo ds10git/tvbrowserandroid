@@ -444,7 +444,8 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
     View view = inflater.inflate(R.layout.fragment_program_list, container, false);
     
     mListView = view.findViewById(R.id.program_list_fragment_list_view);
-    
+    mListView.setItemsCanFocus(true);
+
     initialize(view);
     
     return view;

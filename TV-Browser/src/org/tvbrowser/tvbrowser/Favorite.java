@@ -348,7 +348,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
   }
   
   public void setSearchValue(String search) {
-    mSearch = search;
+    mSearch = search.replaceAll(";{2,}",";");
   }
   
   public String getSearchValue() {
@@ -433,7 +433,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     
   public void setValues(String name, String search, int type, boolean remind, int timeRestrictionStart, int timeRestrictionEnd, int[] days, int[] channelIDs, String[] exclusions, int durationRestrictionMinimum, int durationRestrictionMaximum, int[] attributeRestriction, long[] uniqueProgramIds) {
     mName = name;
-    mSearch = search;//.replace("\"", "");
+    mSearch = search.replaceAll(";{2,}",";");
     mType = type;
     mRemind = remind;
     mTimeRestrictionStart = timeRestrictionStart;

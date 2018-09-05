@@ -8,6 +8,7 @@
      android:orientation="vertical"
      android:layout_alignParentLeft="true"
      android:layout_centerVertical="true"
+	 android:focusable="true"
      android:layout_marginTop="2dp"
      android:layout_marginBottom="2dp">
      <ImageView 
@@ -28,6 +29,7 @@
     <RelativeLayout android:id="@id/running_compact_previous"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+		android:focusable="true"
         android:layout_toRightOf="@id/running_list_channel_info">
 		<TextView 
 		    android:id="@id/running_compact_previous_start"
@@ -70,6 +72,7 @@
     <RelativeLayout android:id="@id/running_compact_now"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
+		android:focusable="true"
 	    android:layout_toRightOf="@id/running_list_channel_info"
 	    android:layout_below="@id/running_compact_previous">
 		<TextView 
@@ -115,6 +118,7 @@
 	</RelativeLayout>
 	
     <RelativeLayout android:id="@id/running_compact_next"
+		android:focusable="true"
 	    android:layout_width="match_parent"
 	    android:layout_height="wrap_content"
 	    android:layout_toRightOf="@id/running_list_channel_info"

@@ -32,6 +32,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_alignParentTop="true"
+	android:focusable="true"
     android:layout_toRightOf="@id/program_list_channel_info"
     android:layout_toEndOf="@id/program_list_channel_info"
     >

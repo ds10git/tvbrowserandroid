@@ -674,7 +674,8 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         
         viewHolder.mChannelInfo.setTag(block.mChannelID);
         viewHolder.mChannelInfo.setOnClickListener(mChannelSwitchListener);
-        
+        CompatUtils.setBackground(viewHolder.mChannelInfo, ContextCompat.getDrawable(getActivity(), android.R.drawable.list_selector_background));
+
         channelSet = true;
       }
       
@@ -803,7 +804,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
       }
       
       channelSet = fillCompactLayout(viewHolder, CompactLayoutViewHolder.NOW, block, timeFormat, DEFAULT_TEXT_COLOR, channelSet);
-      channelSet = fillCompactLayout(viewHolder, CompactLayoutViewHolder.NEXT, block, timeFormat, DEFAULT_TEXT_COLOR, channelSet);
+      fillCompactLayout(viewHolder, CompactLayoutViewHolder.NEXT, block, timeFormat, DEFAULT_TEXT_COLOR, channelSet);
       
       ViewGroup group = (ViewGroup)convertView;
       
@@ -1005,6 +1006,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
     View view = inflater.inflate(R.layout.fragment_running_programs, container, false);
     
     mListView = view.findViewById(R.id.running_list_fragment_list_view);
+    mListView.setItemsCanFocus(true);
     mTimeBar = view.findViewById(R.id.runnning_time_bar);
     
     initialize(view);

@@ -25,9 +25,11 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.database.DataSetObserver;
+import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LayerDrawable;
+import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -349,7 +351,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
           }
 
           if(!mContainsListViewFavoriteSelection) {
-            Drawable draw = ContextCompat.getDrawable(getContext(),android.R.drawable.list_selector_background);
+            Drawable selector = ContextCompat.getDrawable(getContext(),android.R.drawable.list_selector_background);
+            Drawable draw = selector;
 
             if(!entry.containsFavorite()) {
               if(name.equals(getString(R.string.marking_value_marked))) {
@@ -363,12 +366,13 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
               }
             }
 
-            if(background != null && popup) {
-              layerDrawable = new LayerDrawable(new Drawable[] {background,draw});
-            }
-            else {
-              layerDrawable = draw;
-            }
+            final StateListDrawable listDrawable = new StateListDrawable();
+            listDrawable.addState(new int[] {-android.R.attr.state_pressed, -android.R.attr.state_focused }, draw);
+            listDrawable.addState(new int[] {android.R.attr.state_pressed}, selector);
+            listDrawable.addState(new int[] {android.R.attr.state_focused}, selector);
+            listDrawable.addState(new int[] {}, selector);
+
+            layerDrawable = listDrawable;
           }
           else if(popup) {
             layerDrawable = background;
@@ -487,7 +491,8 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
  
     mFavoriteProgramList = getView().findViewById(R.id.favorite_program_list);
     mFavoriteProgramList.setOnItemClickListener((adapterView, v, position, id) -> mViewAndClickHandler.onListItemClick(null, v, position, id));
-    
+    mFavoriteProgramList.setItemsCanFocus(true);
+
     registerForContextMenu(mFavoriteSelection);
             
     String[] projection = {

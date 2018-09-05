@@ -9,6 +9,7 @@
      android:layout_alignParentStart="true"
      android:layout_alignParentLeft="true"
      android:gravity="center_vertical"
+	 android:focusable="true"
      android:paddingTop="2dp"
      android:paddingBottom="2dp">
 	<ImageView 
@@ -55,6 +56,7 @@
 	        android:layout_height="wrap_content"
 	        android:layout_marginRight="5dp"
 		    android:layout_weight="0.33"
+			android:focusable="true"
 	        >
 			<TextView 
 			    android:id="@id/running_compact_previous_start"
@@ -104,6 +106,7 @@
 		    android:layout_height="wrap_content"
 		    android:layout_marginRight="5dp"
 		    android:layout_weight="0.33"
+			android:focusable="true"
 		    >
 			
 			<TextView 
@@ -156,6 +159,7 @@
 		    android:layout_width="match_parent"
 		    android:layout_height="wrap_content"
 		    android:layout_weight="0.33"
+			android:focusable="true"
 		    >
 			<TextView 
 			    android:id="@id/running_compact_next_start"
