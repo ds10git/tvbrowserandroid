@@ -16,14 +16,6 @@
  */
 package org.tvbrowser.tvbrowser;
 
-import org.tvbrowser.content.TvBrowserContentProvider;
-import org.tvbrowser.devplugin.PluginHandler;
-import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.utils.PrefUtils;
-import org.tvbrowser.utils.ProgramUtils;
-import org.tvbrowser.utils.UiUtils;
-import org.tvbrowser.view.SeparatorDrawable;
-
 import android.app.SearchManager;
 import android.content.ContentUris;
 import android.content.Intent;
@@ -43,12 +35,15 @@ import android.support.v4.content.Loader;
 import android.support.v4.widget.SimpleCursorAdapter;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
-import android.view.ContextMenu;
-import android.view.ContextMenu.ContextMenuInfo;
-import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ListView;
+
+import org.tvbrowser.content.TvBrowserContentProvider;
+import org.tvbrowser.devplugin.PluginHandler;
+import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.utils.PrefUtils;
+import org.tvbrowser.utils.ProgramUtils;
+import org.tvbrowser.utils.UiUtils;
+import org.tvbrowser.view.SeparatorDrawable;
 
 public class ActivityTvBrowserSearchResults extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor>, OnSharedPreferenceChangeListener, ShowDateInterface, MarkingsUpdateListener {
   private SimpleCursorAdapter mProgramsListAdapter;
@@ -56,9 +51,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
   private static final String QUERY_EXTRA_KEY = "QUERY_EXTRA_KEY";
   private static final String QUERY_EXTRA_ID_KEY = "QUERY_EXTRA_ID_KEY";
   public static final String QUERY_EXTRA_EPISODE_KEY = "QUERY_EXTRA_EPISODE_KEY";
-  
-  private ProgramListViewBinderAndClickHandler mViewAndClickHandler;
-  
+
   private ListView mListView;
   private Handler mHandler;
   
@@ -106,15 +99,15 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
     // Create a new Adapter an bind it to the List View
     
     mHandler = new Handler();
-    
-    mViewAndClickHandler = new ProgramListViewBinderAndClickHandler(this,this,mHandler);
-    mProgramsListAdapter = new OrientationHandlingCursorAdapter(this,/*android.R.layout.simple_list_item_1*/R.layout.program_lists_entries,null,
-        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0,false,mHandler);
-    mProgramsListAdapter.setViewBinder(mViewAndClickHandler);
+
+    final ProgramListViewBinderAndClickHandler viewAndClickHandler = new ProgramListViewBinderAndClickHandler(this,this,mHandler);
+    mProgramsListAdapter = new OrientationHandlingCursorAdapter(this,R.layout.program_lists_entries,null,
+        projection,new int[] {R.id.startDateLabelPL,R.id.startTimeLabelPL,R.id.endTimeLabelPL,R.id.channelLabelPL,R.id.titleLabelPL,R.id.episodeLabelPL,R.id.genre_label_pl,R.id.picture_copyright_pl,R.id.info_label_pl},0,true,mHandler);
+    mProgramsListAdapter.setViewBinder(viewAndClickHandler);
     
     getListView().setAdapter(mProgramsListAdapter);
     
-    mListView.setOnItemClickListener((l, v, position, id) -> mViewAndClickHandler.onListItemClick((ListView)l, v, position, id));
+    mListView.setItemsCanFocus(true);
     
     // Initiate the Cursor Loader
     getSupportLoaderManager().initLoader(0, null, this);
@@ -127,14 +120,6 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
     getListView().setDivider(drawable);
     
     setDividerSize(PrefUtils.getStringValue(R.string.PREF_PROGRAM_LISTS_DIVIDER_SIZE, R.string.pref_program_lists_divider_size_default));
-  }
-  
-  @Override
-  public void onCreateContextMenu(ContextMenu menu, View v,
-      ContextMenuInfo menuInfo) {
-    long programID = ((AdapterView.AdapterContextMenuInfo)menuInfo).id;
-    
-    UiUtils.createContextMenu(ActivityTvBrowserSearchResults.this, menu, programID);
   }
   
   @Override
@@ -181,12 +166,16 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
     }
     else if(Intent.ACTION_VIEW.equals(intent.getAction())) {
       try {
-        long key = Long.parseLong(intent.getData().getPathSegments().get(1));
-        
-        Bundle args = new Bundle();
-        args.putLong(QUERY_EXTRA_ID_KEY, key);
-        
-        getSupportLoaderManager().restartLoader(0, args, this);
+        final Uri uri = intent.getData();
+
+        if(uri != null) {
+          long key = Long.parseLong(uri.getPathSegments().get(1));
+
+          Bundle args = new Bundle();
+          args.putLong(QUERY_EXTRA_ID_KEY, key);
+
+          getSupportLoaderManager().restartLoader(0, args, this);
+        }
       }catch(NumberFormatException e) {
         // Ignore
       }
@@ -218,7 +207,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
     
     if(args != null) {
       // Extract the search query from the arguments.
-      if(args.containsKey(QUERY_EXTRA_KEY)) {
+      if(args.containsKey(QUERY_EXTRA_KEY) && args.getString(QUERY_EXTRA_KEY) != null) {
         episodeQuery = query = args.getString(QUERY_EXTRA_KEY);
       }
       
@@ -232,7 +221,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
     
     
     // Construct the new query in form of a Cursor Loader
-    String[] projection = null;
+    String[] projection;
     
     if(PrefUtils.getBooleanValue(R.string.SHOW_PICTURE_IN_LISTS, R.bool.show_pictures_in_lists_default)) {
       projection = new String[14 + TvBrowserContentProvider.MARKING_COLUMNS.length];
@@ -260,7 +249,6 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
     System.arraycopy(TvBrowserContentProvider.MARKING_COLUMNS, 0, projection, 13, TvBrowserContentProvider.MARKING_COLUMNS.length);
         
     String where = "(" + TvBrowserContentProvider.DATA_KEY_TITLE + " LIKE '%" + query.replace("'", "''") + "%' " + operation + TvBrowserContentProvider.DATA_KEY_EPISODE_TITLE + " LIKE '%" + episodeQuery.replace("'", "''") + "%') AND " + TvBrowserContentProvider.DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis();
-    String[] whereArgs = null;
     String sortOrder = TvBrowserContentProvider.DATA_KEY_STARTTIME;
     
     Uri uri = TvBrowserContentProvider.CONTENT_URI_DATA_WITH_CHANNEL;
@@ -274,7 +262,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
     }
     
     // Create the new Cursor loader
-    return new CursorLoader(this, uri, projection, where, whereArgs, sortOrder);
+    return new CursorLoader(this, uri, projection, where, null, sortOrder);
   }
 
   @Override
@@ -303,17 +291,6 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
   public void onLoaderReset(@NonNull Loader<Cursor> loader) {
     mProgramsListAdapter.swapCursor(null);
   }
-
-
-  @Override
-  public boolean onContextItemSelected(MenuItem item) {
-    return mViewAndClickHandler.onContextItemSelected(item);
-  }
-  /*
-  public void onListItemClick(ListView l, View v, int position, long id) {
-    //super.onListItemClick(l, v, position, id);
-    mViewAndClickHandler.onListItemClick(l, v, position, id);
-  }*/
   
   private void setDividerSize(String size) {    
     getListView().setDividerHeight(UiUtils.convertDpToPixel(Integer.parseInt(size), getResources()));

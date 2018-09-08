@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.7.0.2</h2>
+        <h2>0.7.0.3</h2>
+            &bull; fehlendes Kontextmenü für Suchergebnisse wiederhergestellt<br>
+        <h3>0.7.0.2</h3>
             &bull; bessere Bedienbarkeit mit Hardware-Tastatur<br>
         <h3>0.7</h3>
             &bull; Thema im Sendungsinfodialog beachten, wenn dieser aus einem Widget geöffnet wird<br>

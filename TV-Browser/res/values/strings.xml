@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.7.0.2</h2>
+        <h2>0.7.0.3</h2>
+            &bull; fixed missing context menu in search results<br>
+        <h3>0.7.0.2</h3>
             &bull; better access with hardware keyboard<br>
         <h3>0.7</h3>
             &bull; take theme into account for program info dialog opened from widget<br>
