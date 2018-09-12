@@ -3776,7 +3776,7 @@ public class TvDataUpdateService extends Service {
         return result;
       });
 
-      if (dataFiles.length > 0) {
+      if (dataFiles != null && dataFiles.length > 0) {
         mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this, TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE);
 
         final EPGpaidDataHandler handler = new EPGpaidDataHandler();

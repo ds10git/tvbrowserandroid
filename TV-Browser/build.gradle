@@ -72,8 +72,8 @@ android {
         applicationId "org.tvbrowser.tvbrowser"
         minSdkVersion 14
         targetSdkVersion 27
-        versionCode 4265
-        versionName "0.7.0.3"
+        versionCode 4266
+        versionName "0.7.0.4"
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -178,7 +178,7 @@ dependencies {
     implementation 'com.android.support:appcompat-v7:27.1.1'
     implementation 'com.android.support:support-vector-drawable:27.1.1'
     implementation 'com.android.support:design:27.1.1'
-    implementation 'android.arch.work:work-runtime:1.0.0-alpha06'
+    implementation 'android.arch.work:work-runtime:1.0.0-alpha08'
     implementation 'com.android.support.constraint:constraint-layout:1.1.2'
     implementation 'me.drakeet.support:toastcompat:1.1.0'
 }
