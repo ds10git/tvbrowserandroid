@@ -59,22 +59,22 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.util.SparseArrayCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import com.google.android.material.tabs.TabLayout;
+import androidx.fragment.app.Fragment;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.collection.SparseArrayCompat;
+import androidx.viewpager.widget.ViewPager;
+import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html.TagHandler;
 import android.text.Spannable;
@@ -4517,7 +4517,7 @@ public class TvBrowser extends AppCompatActivity {
 
         @Override
         public Cursor swapCursor(Cursor c) {
-          SearchView.SearchAutoComplete mSearchSrcTextView = searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+          SearchView.SearchAutoComplete mSearchSrcTextView = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
           mSearchSrcTextView.setDropDownWidth(getResources().getDisplayMetrics().widthPixels);
           mSearchSrcTextView.setDropDownBackgroundResource(R.color.dark_gray_lighter);
           return super.swapCursor(c);

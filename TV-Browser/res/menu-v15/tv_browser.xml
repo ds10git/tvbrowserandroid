@@ -4,7 +4,7 @@
           android:title="@string/search_title"
           android:icon="@drawable/ic_action_search"
           app:showAsAction="collapseActionView|always"
-          app:actionViewClass="android.support.v7.widget.SearchView"/>
+          app:actionViewClass="androidx.appcompat.widget.SearchView"/>
     <item android:id="@id/action_filter_channels"
           android:title="@string/action_filter_channels"
           android:icon="@drawable/ic_filter_default"

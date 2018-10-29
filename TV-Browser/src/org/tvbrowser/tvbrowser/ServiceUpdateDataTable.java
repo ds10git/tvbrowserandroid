@@ -26,7 +26,7 @@ import android.content.Intent;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
-import android.support.v4.content.LocalBroadcastManager;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 
 public class ServiceUpdateDataTable extends Service {
   private WakeLock mWakeLock;

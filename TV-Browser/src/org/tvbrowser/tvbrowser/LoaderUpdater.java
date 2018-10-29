@@ -17,8 +17,8 @@
 package org.tvbrowser.tvbrowser;
 
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
 
 import java.util.Arrays;
 import java.util.Collections;
