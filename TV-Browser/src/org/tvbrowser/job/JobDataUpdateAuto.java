@@ -24,9 +24,7 @@ import androidx.annotation.NonNull;
 import android.util.Log;
 
 import org.tvbrowser.settings.SettingConstants;
-import org.tvbrowser.tvbrowser.BroadcastReceiverReminder;
 import org.tvbrowser.tvbrowser.BroadcastReceiverUpdateAlarmValue;
-import org.tvbrowser.tvbrowser.InfoActivity;
 import org.tvbrowser.tvbrowser.Logging;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.tvbrowser.TvDataUpdateService;

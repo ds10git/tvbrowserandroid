@@ -8,7 +8,6 @@ import androidx.appcompat.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.widget.Spinner;
 
 /** Spinner extension that calls onItemSelected even when the selection is the same as its previous value 
  * 

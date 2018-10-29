@@ -18,7 +18,6 @@ package org.tvbrowser.settings;
 
 import java.util.HashMap;
 
-import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.IOUtils;
@@ -38,7 +37,6 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.graphics.drawable.LayerDrawable;
 import android.preference.PreferenceManager;
-import android.util.SparseArray;
 import androidx.core.content.ContextCompat;
 import androidx.collection.SparseArrayCompat;
 

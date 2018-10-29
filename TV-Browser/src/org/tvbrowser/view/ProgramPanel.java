@@ -29,7 +29,6 @@ import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.View;
 
-import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.PrefUtils;
 

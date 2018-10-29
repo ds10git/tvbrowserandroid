@@ -11,7 +11,6 @@ import android.widget.TextView;
 import org.tvbrowser.settings.SettingConstants;
 
 import java.util.Calendar;
-import java.util.Locale;
 
 abstract class DonationRatingHelper {
 
