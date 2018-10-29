@@ -43,10 +43,15 @@ import androidx.work.NetworkType;
 import androidx.work.OneTimeWorkRequest;
 import androidx.work.WorkManager;
 import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 public class JobDataUpdateAuto extends Worker {
   public static final String TAG = "job_data_update_auto";
   private static final int ID_ALARM = 5;
+
+  public JobDataUpdateAuto(Context context, WorkerParameters workerParams) {
+    super(context, workerParams);
+  }
 
   @NonNull
   @Override
@@ -243,7 +248,7 @@ public class JobDataUpdateAuto extends Worker {
     }
   }
 
-  public static void cancelJob(final Context context) {
+  public static void cancelJob() {
     WorkManager.getInstance().cancelAllWorkByTag(TAG);
     Log.d("info9","cancelJob");
   }
