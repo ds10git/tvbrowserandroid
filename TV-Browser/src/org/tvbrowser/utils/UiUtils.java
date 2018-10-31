@@ -2601,7 +2601,8 @@ Log.d("info22", pattern);
     int style = R.style.Theme_App;
 
     switch (type) {
-      case TYPE_THEME_DEFAULT: if(useDarkTheme) {style = R.style.Theme_App_Dark;};break;
+      case TYPE_THEME_DEFAULT: if(useDarkTheme) {style = R.style.Theme_App_Dark;}
+        break;
       case TYPE_THEME_TOOLBAR: style = useDarkTheme ? R.style.Theme_Pref_Dark : R.style.Theme_Pref_Light;break;
       case TYPE_THEME_TRANSLUCENT: style = useDarkTheme ? R.style.Theme_TvBrowser_Translucent : R.style.Theme_TvBrowser_Translucent_Light;break;
     }
@@ -3270,11 +3271,11 @@ Log.d("info22", pattern);
             else if(wasActive) {
               if((shortDescriptionValue != null && shortDescriptionValue.contains("omdb.org")) ||
                 (descriptionValue != null && descriptionValue.contains("omdb.org"))) {
-                descriptionValue += context.getString(R.string.EPGpaidData_info_expiredAccessExtend).replace("{0}", java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(new Date(epgPaidUntil)));;
+                descriptionValue += context.getString(R.string.EPGpaidData_info_expiredAccessExtend).replace("{0}", java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(new Date(epgPaidUntil)));
               }
               else if((shortDescriptionValue != null && shortDescriptionValue.contains("wiki.tvbrowser.org/index.php/WirSchauen")) ||
                 (descriptionValue != null && descriptionValue.contains("wiki.tvbrowser.org/index.php/WirSchauen"))) {
-                descriptionValue = context.getString(R.string.EPGpaidData_info_expiredAccess).replace("{0}", java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(new Date(epgPaidUntil)));;
+                descriptionValue = context.getString(R.string.EPGpaidData_info_expiredAccess).replace("{0}", java.text.DateFormat.getDateInstance(java.text.DateFormat.MEDIUM).format(new Date(epgPaidUntil)));
               }
             }
           }

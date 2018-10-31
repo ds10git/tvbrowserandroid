@@ -201,9 +201,9 @@ public class EPGpaidDataConnection {
         Log.d(TAG, "EPGpaidDataConnection login error", t);
         
         result.append("ERROR MESSAGE:\n\n");
-        result.append(t.getMessage()).append("\n");;
-        
-        final StackTraceElement[] els = t.getStackTrace();
+        result.append(t.getMessage()).append("\n");
+
+          final StackTraceElement[] els = t.getStackTrace();
         
         for(StackTraceElement el : els) {
           result.append(el.toString()).append("\n");
