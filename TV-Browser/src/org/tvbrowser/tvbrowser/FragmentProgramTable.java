@@ -718,7 +718,7 @@ public class FragmentProgramTable extends Fragment {
                 while(cursor.moveToNext()) {
                   try {
                     addPanel(cursor, mProgramPanelLayout);
-                  }catch(IllegalStateException lse) {}
+                  }catch(IllegalStateException ignored) {}
                 }
               }
             }finally {
