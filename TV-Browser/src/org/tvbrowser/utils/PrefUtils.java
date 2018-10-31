@@ -290,7 +290,7 @@ public class PrefUtils {
     for(String filterId : filterIds) {
       final FilterValues filter = FilterValues.load(filterId, context);
       
-      if(filter != null && !filterValues.contains(filter)) {
+      if(filter != null) {
         filterValues.add(filter);
       }
     }

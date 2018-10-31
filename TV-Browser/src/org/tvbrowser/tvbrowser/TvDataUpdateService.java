@@ -1218,9 +1218,7 @@ public class TvDataUpdateService extends Service {
 
             final String startTime = String.valueOf(Integer.parseInt(timePart) * 60000L);
 
-            if (!setTimes.contains(startTime)) {
-              setTimes.add(startTime);
-            }
+            setTimes.add(startTime);
 
             Object groupInfo = null;
             String groupKey = null;
