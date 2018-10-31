@@ -3310,7 +3310,7 @@ Log.d("info22", pattern);
             if (textView != null && enabled && !c.isNull(c.getColumnIndex(key))) {
               String text = c.getString(c.getColumnIndex(key));
 
-              if (key.equals(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO) && descriptionValue != null && text.equals(descriptionValue)) {
+              if (key.equals(TvBrowserContentProvider.DATA_KEY_ADDITIONAL_INFO) && text.equals(descriptionValue)) {
                 text = "";
               }
 

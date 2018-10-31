@@ -314,7 +314,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
         Button now = ((ViewGroup) getView().getParent().getParent()).findViewById(R.id.now_button);
         Button next = ((ViewGroup) getView().getParent().getParent()).findViewById(R.id.button_after1);
         
-        if(time != null && !time.equals(now) && (next == null || !time.equals(next))) {
+        if(time != null && !time.equals(now) && (!time.equals(next))) {
           time.performClick();
         }
         else {

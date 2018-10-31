@@ -126,7 +126,7 @@ public final class PluginHandler {
 
       @Override
       public boolean markProgram(Program program) {
-        return program != null && markProgramWithIcon(program, null);
+        return markProgramWithIcon(program, null);
       }
 
       @Override
