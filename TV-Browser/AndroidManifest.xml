@@ -55,13 +55,13 @@
 
         <service
             android:name=".TvDataUpdateService"
-            android:enabled="true"></service>
+            android:enabled="true" />
         <service
             android:name="org.tvbrowser.widgets.ImportantProgramsRemoteViewsService"
-            android:permission="android.permission.BIND_REMOTEVIEWS"></service>
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
         <service
             android:name="org.tvbrowser.widgets.RunningProgramsRemoteViewsService"
-            android:permission="android.permission.BIND_REMOTEVIEWS"></service>
+            android:permission="android.permission.BIND_REMOTEVIEWS" />
 
         <activity
             android:name=".TvBrowser"
@@ -83,16 +83,16 @@
             android:name=".ActivityFavoriteEdit"
             android:configChanges="orientation|screenSize"
             android:label="@string/favorite_edit"
-            android:windowSoftInputMode="adjustResize"></activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="org.tvbrowser.settings.ActivityPluginFragment"
             android:configChanges="orientation|screenSize"
-            android:windowSoftInputMode="adjustResize"></activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name="org.tvbrowser.filter.ActivityFilterListEdit"
             android:configChanges="orientation|screenSize"
             android:label="@string/activity_edit_filter_filter_title"
-            android:windowSoftInputMode="adjustResize"></activity>
+            android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ActivityTvBrowserSearchResults"
             android:configChanges="orientation|screenSize"
@@ -207,7 +207,7 @@
         <receiver
             android:name="org.tvbrowser.widgets.WidgetOnClickReceiver"
             android:enabled="true"
-            android:exported="false"></receiver>
+            android:exported="false" />
         <receiver
             android:name="org.tvbrowser.widgets.WidgetToggleReminderState"
             android:label="@string/widget_toggle_reminder_state_title">
@@ -223,20 +223,20 @@
         <service
             android:name=".ServiceUpdateDataTable"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
         <service
             android:name=".ServiceChannelCleaner"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
         <service
             android:name=".ServiceUpdateRemindersAndAutoUpdate"
             android:enabled="true"
-            android:exported="false"></service>
+            android:exported="false" />
 
         <receiver
             android:name=".BroadcastReceiverReminderToggle"
             android:enabled="true"
-            android:exported="false"></receiver>
+            android:exported="false" />
     </application>
 
 </manifest>
