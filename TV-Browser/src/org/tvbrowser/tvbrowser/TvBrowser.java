@@ -805,25 +805,20 @@ public class TvBrowser extends AppCompatActivity {
           final CheckBox dontShowAgain = view.findViewById(R.id.dialog_epg_donate_dont_show_again);
           dontShowAgain.setOnCheckedChangeListener((buttonView, isChecked) -> reason.setEnabled(isChecked));
 
-          final Runnable saveSetting = new Runnable() {
-            @Override
-            public void run() {
-              SHOWING_DONATION_INFO = false;
-              final Editor edit = pref.edit();
-              edit.putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now);
+          final Runnable saveSetting = () -> {
+            SHOWING_DONATION_INFO = false;
+            final Editor edit = pref.edit();
+            edit.putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now);
 
-              if(dontShowAgain.isChecked()) {
-                edit.putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), year);
-              }
-
-              edit.commit();
+            if(dontShowAgain.isChecked()) {
+              edit.putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), year);
             }
+
+            edit.commit();
           };
 
           builder.setView(view);
-          builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-            saveSetting.run();
-          });
+          builder.setPositiveButton(android.R.string.ok, (dialog, which) -> saveSetting.run());
 
           final DonationRatingHelper donationHelper = new DonationRatingHelperImpl(TvBrowser.this);
 

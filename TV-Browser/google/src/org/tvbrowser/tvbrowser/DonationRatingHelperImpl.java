@@ -225,7 +225,7 @@ class DonationRatingHelperImpl extends DonationRatingHelper {
         if (!result.isSuccess()) {
           showInAppError();
         } else {
-          tvBrowser.getHandler().post(() -> listPurchaseItems());
+          tvBrowser.getHandler().post(this::listPurchaseItems);
         }
       });
 		} else {

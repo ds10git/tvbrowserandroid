@@ -100,12 +100,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   
   private boolean mContainsListViewFavoriteSelection;
 
-  private static final Comparator<FavoriteSpinnerEntry> COMPARATOR_FAVORITES = new Comparator<FavoriteSpinnerEntry>() {
-    @Override
-    public int compare(FavoriteSpinnerEntry o1, FavoriteSpinnerEntry o2) {
-      return UiUtils.getCollator().compare(o1.toString(), o2.toString());
-    }
-  };
+  private static final Comparator<FavoriteSpinnerEntry> COMPARATOR_FAVORITES = (o1, o2) -> UiUtils.getCollator().compare(o1.toString(), o2.toString());
   
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
