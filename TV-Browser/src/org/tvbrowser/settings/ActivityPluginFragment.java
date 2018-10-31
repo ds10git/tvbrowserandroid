@@ -16,13 +16,14 @@
  */
 package org.tvbrowser.settings;
 
-import android.app.Fragment;
-import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.os.Bundle;
 import android.preference.PreferenceActivity;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentTransaction;
+
 import android.view.MenuItem;
 import android.widget.FrameLayout;
 
@@ -69,7 +70,7 @@ public class ActivityPluginFragment extends AppCompatActivity {
     if (header != null) {
       final Fragment f = Fragment.instantiate(this, header.fragment, header.fragmentArguments);
 
-      FragmentTransaction ft = getFragmentManager().beginTransaction();
+      FragmentTransaction ft = getSupportFragmentManager().beginTransaction();
       ft.add(CONTENT_VIEW_ID, f).commit();
     } else {
       finish();
