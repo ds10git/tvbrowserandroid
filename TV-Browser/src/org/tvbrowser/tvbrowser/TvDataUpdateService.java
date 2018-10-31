@@ -1279,7 +1279,7 @@ public class TvDataUpdateService extends Service {
             TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID
         };
 
-        final Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, where.toString(), selectionArgs.toArray(new String[selectionArgs.size()]), null);
+        final Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, where.toString(), selectionArgs.toArray(new String[0]), null);
 
         try {
           if(IOUtils.prepareAccess(channel)) {
@@ -1367,7 +1367,7 @@ public class TvDataUpdateService extends Service {
           columnKeyMark
         };
 
-        final Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, wherePrograms.toString(), selectionArgs.toArray(new String[selectionArgs.size()]), TvBrowserContentProvider.DATA_KEY_STARTTIME +" DESC");
+        final Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, wherePrograms.toString(), selectionArgs.toArray(new String[0]), TvBrowserContentProvider.DATA_KEY_STARTTIME +" DESC");
 
         try {
           if(IOUtils.prepareAccess(program)) {
@@ -2032,7 +2032,7 @@ public class TvDataUpdateService extends Service {
       }
     }
     
-    return mirrorList.toArray(new String[mirrorList.size()]);
+    return mirrorList.toArray(new String[0]);
   }
   
   private class GroupInfo {

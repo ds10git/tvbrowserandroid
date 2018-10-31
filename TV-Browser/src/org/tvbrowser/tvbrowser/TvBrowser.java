@@ -1344,7 +1344,7 @@ public class TvBrowser extends AppCompatActivity {
                 edit.putStringSet(key, exclusions);
                 edit.commit();
 
-                DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
+                DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[0]);
 
                 if(exclusionArr.length > 0) {
                   String where = null;
@@ -1936,7 +1936,7 @@ public class TvBrowser extends AppCompatActivity {
         }
       }
 
-      mValueMap = map.toArray(new Integer[map.size()]);
+      mValueMap = map.toArray(new Integer[0]);
     }
 
     @Override
@@ -3350,7 +3350,7 @@ public class TvBrowser extends AppCompatActivity {
                     int keyColumn = programs.getColumnIndex(TvBrowserContentProvider.KEY_ID);
                     int titleColumn = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
 
-                    DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
+                    DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[0]);
 
                     while(programs.moveToNext()) {
                       int position = programs.getPosition();
@@ -3911,7 +3911,7 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private void clearChannelFilters() {
-    final FilterValues[] filterValues = mCurrentFilter.toArray(new FilterValues[mCurrentFilter.size()]);
+    final FilterValues[] filterValues = mCurrentFilter.toArray(new FilterValues[0]);
 
     for(FilterValues filterValue : filterValues) {
       if(filterValue instanceof FilterValuesChannels) {

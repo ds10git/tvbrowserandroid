@@ -1214,7 +1214,7 @@ public final class UiUtils {
               items.add(favorite.getName());
             }
 
-            builder.setItems(items.toArray(new String[items.size()]), (dialog, which) -> UiUtils.editFavorite(exludeFavorites[which], activity, null));
+            builder.setItems(items.toArray(new String[0]), (dialog, which) -> UiUtils.editFavorite(exludeFavorites[which], activity, null));
 
             builder.setNegativeButton(android.R.string.cancel, null);
 
@@ -1453,7 +1453,7 @@ public final class UiUtils {
                     int keyColumn = c.getColumnIndex(TvBrowserContentProvider.KEY_ID);
                     int titleColumn = c.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
 
-                    DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
+                    DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[0]);
 
                     while (c.moveToNext()) {
                       builder.setProgress(size, count++, false);
@@ -1709,7 +1709,7 @@ public final class UiUtils {
 
     draw.add(ContextCompat.getDrawable(context, android.R.drawable.list_selector_background));
 
-    return new LayerDrawable(draw.toArray(new Drawable[draw.size()]));
+    return new LayerDrawable(draw.toArray(new Drawable[0]));
   }
 
   public static void editFavorite(final Favorite fav, final Context activity, String searchString) {

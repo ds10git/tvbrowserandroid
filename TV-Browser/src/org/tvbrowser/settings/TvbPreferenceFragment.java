@@ -125,8 +125,8 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         }
       }
       
-      path.setEntries(entries.toArray(new String[entries.size()]));
-      path.setEntryValues(entryValues.toArray(new String[entryValues.size()]));
+      path.setEntries(entries.toArray(new String[0]));
+      path.setEntryValues(entryValues.toArray(new String[0]));
       path.setSummary(summary);
     }
     else if(getString(R.string.category_start).equals(category)) {

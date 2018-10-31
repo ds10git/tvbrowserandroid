@@ -662,7 +662,7 @@ public class FragmentProgramTable extends Fragment {
 
           mTimeBlockSize = Integer.parseInt(PrefUtils.getStringValue(R.string.PROG_PANEL_TIME_BLOCK_SIZE, R.string.prog_panel_time_block_size));
 
-          projection = projectionList.toArray(new String[projectionList.size()]);
+          projection = projectionList.toArray(new String[0]);
 
           LinearLayout channelBar = programTable.findViewById(R.id.program_table_channel_bar);
           ArrayList<Integer> channelIDsOrdered = new ArrayList<>();
