@@ -88,7 +88,7 @@ public class EPGpaidDataConnection {
         closeHttpConnection();
         
         if(pageContent.contains("<title>data.epgpaid.de: Anmeldung erforderlich</title>")) {
-          HashMap<String, String> nameValueMap = new HashMap<String, String>();
+          HashMap<String, String> nameValueMap = new HashMap<>();
           
           String[] lines = pageContent.split("\n");
           
