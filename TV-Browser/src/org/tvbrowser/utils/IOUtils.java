@@ -1399,7 +1399,7 @@ public final class IOUtils {
     }.start();
   }
 
-  public static final boolean isConnected(final Context context, ConnectivityManager connMgr, final boolean unmetered) {
+  public static boolean isConnected(final Context context, ConnectivityManager connMgr, final boolean unmetered) {
     boolean result = false;
 
     if(connMgr == null) {

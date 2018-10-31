@@ -2776,7 +2776,7 @@ Log.d("info22", pattern);
     }
   }
 
-  public static final void createAdapterForSpinner(final Context context, final Spinner spinner, final int arrayResId) {
+  public static void createAdapterForSpinner(final Context context, final Spinner spinner, final int arrayResId) {
     final ArrayAdapter<String> adapter = new ArrayAdapter<>(context, android.R.layout.simple_spinner_item);
     adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
     adapter.addAll(context.getResources().getStringArray(arrayResId));

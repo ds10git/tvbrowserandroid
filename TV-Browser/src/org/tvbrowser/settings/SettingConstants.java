@@ -175,7 +175,7 @@ public final class SettingConstants {
   public static final SparseArrayCompat<Drawable> SMALL_LOGO_MAP = new SparseArrayCompat<>();
   public static final SparseArrayCompat<Drawable> MEDIUM_LOGO_MAP = new SparseArrayCompat<>();
 
-  public static final SparseArrayCompat<Drawable> getLogoMap(final boolean medium) {
+  public static SparseArrayCompat<Drawable> getLogoMap(final boolean medium) {
     return (medium ? MEDIUM_LOGO_MAP : SMALL_LOGO_MAP);
   }
 
@@ -351,7 +351,7 @@ public final class SettingConstants {
   public static final int EXPIRED_LIGHT_COLOR = Color.rgb(GRAY_LIGHT_VALUE, GRAY_LIGHT_VALUE, GRAY_LIGHT_VALUE);
   public static final int EXPIRED_DARK_COLOR = Color.rgb(GRAY_DARK_VALUE, GRAY_DARK_VALUE, GRAY_DARK_VALUE);
 
-  public final static synchronized void initialize(final Context context) {
+  public static synchronized void initialize(final Context context) {
     if(SHORT_CHANNEL_NAMES.isEmpty()) {
       final Resources res = context.getResources();
 
