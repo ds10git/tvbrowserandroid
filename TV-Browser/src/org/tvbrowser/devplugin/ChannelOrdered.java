@@ -20,8 +20,8 @@
 package org.tvbrowser.devplugin;
 
 public class ChannelOrdered {
-  private Channel mChannel;
-  private int mOrderNumber;
+  private final Channel mChannel;
+  private final int mOrderNumber;
 
   /**
    * Creates an instance of this class.

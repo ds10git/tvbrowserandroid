@@ -2798,11 +2798,11 @@ Log.d("info22", pattern);
     private long mPreviousId;
     private long mNextId;
 
-    private Context context;
-    private long id;
-    private WeakReference<Activity> finish;
-    private View parent;
-    private Handler handler;
+    private final Context context;
+    private final long id;
+    private final WeakReference<Activity> finish;
+    private final View parent;
+    private final Handler handler;
 
     private AsyncInfo(final Context context, final long id, final Activity finish, final View parent, final Handler handler) {
       this.context = context;

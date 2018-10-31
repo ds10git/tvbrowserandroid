@@ -46,7 +46,7 @@ public class EPGpaidDataConnection {
   private static final String REQUEST_METHOD_POST = "POST";
   
   private HttpURLConnection mHttpConnection;
-  private Authenticator mAuthenticator;
+  private final Authenticator mAuthenticator;
   private CookieHandler mCookieHandlerDefault; 
   
   private String mSessionId;
