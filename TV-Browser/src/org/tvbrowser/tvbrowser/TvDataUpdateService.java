@@ -478,12 +478,12 @@ public class TvDataUpdateService extends Service {
   
   private synchronized void handleWakeLock(boolean acquire) {
     if(mWakeLock != null) {
-      doLog("TVBUPDATE_LOCK isHeld: " + mWakeLock.isHeld());
+      doLog("tvbrowser:UPDATE_LOCK isHeld: " + mWakeLock.isHeld());
       
       if(mWakeLock.isHeld()) {
         mWakeLock.release();
-        doLog("TVBUPDATE_LOCK released");
-        doLog("TVBUPDATE_LOCK isHeld: " + mWakeLock.isHeld());
+        doLog("tvbrowser:UPDATE_LOCK released");
+        doLog("tvbrowser:UPDATE_LOCK isHeld: " + mWakeLock.isHeld());
       }
     }
     
@@ -491,14 +491,13 @@ public class TvDataUpdateService extends Service {
       final PowerManager pm = (PowerManager)getSystemService(Context.POWER_SERVICE);
       
       if(pm != null) {
-        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBUPDATE_LOCK");
+        mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "tvbrowser:UPDATE_LOCK");
         mWakeLock.setReferenceCounted(false);
         mWakeLock.acquire(10*60000L);
-        doLog("TVBUPDATE_LOCK acquired for 2h.");
+        doLog("tvbrowser:UPDATE_LOCK acquired for 2h.");
       }
     }
   }
-  
   
   private void loadEpgPaidChannelIdsForDataUpdate() {
     final String userName = PrefUtils.getStringValue(R.string.PREF_EPGPAID_USER, null);

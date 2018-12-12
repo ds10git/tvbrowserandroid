@@ -64,7 +64,7 @@ public class ServiceUpdateDataTable extends Service {
   private void updateDataTable() {
     PowerManager pm = (PowerManager) getSystemService(Context.POWER_SERVICE);
     mWakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK,
-        "DATA TABLE UPDATE");
+        "tvbrowser:DATA_TABLE_UPDATE");
     mWakeLock.setReferenceCounted(false);
     mWakeLock.acquire(60000);
     

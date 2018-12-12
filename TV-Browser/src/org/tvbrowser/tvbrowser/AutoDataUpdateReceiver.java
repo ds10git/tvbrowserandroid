@@ -43,7 +43,7 @@ public class AutoDataUpdateReceiver extends BroadcastReceiver {
   @Override
   public void onReceive(final Context context, Intent intent) {
     PowerManager pm = (PowerManager)context.getApplicationContext().getSystemService(Context.POWER_SERVICE);
-    final WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "TVBAUTOUPDATE_LOCK");
+    final WakeLock wakeLock = pm.newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, "tvbrowser:AUTO_UPDATE_LOCK");
     wakeLock.setReferenceCounted(false);
     wakeLock.acquire(7500);
     
