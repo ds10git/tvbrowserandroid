@@ -48,7 +48,7 @@ import android.database.sqlite.SQLiteException;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.database.sqlite.SQLiteQueryBuilder;
 import android.net.Uri;
-import android.support.annotation.NonNull;
+import androidx.annotation.NonNull;
 import android.text.TextUtils;
 import android.util.Log;
 
@@ -974,7 +974,7 @@ public class TvBrowserContentProvider extends ContentProvider {
             }
 
             StringBuilder b = new StringBuilder(CHANNEL_TABLE + "." + KEY_ID + "=" + TvBrowserDataBaseHelper.DATA_TABLE + "." + CHANNEL_KEY_CHANNEL_ID + " AND ");
-            b.append("((" + DATA_KEY_TITLE + " LIKE '%" + search + "%' OR " + DATA_KEY_EPISODE_TITLE + " LIKE '%" + search + "%') AND " + DATA_KEY_ENDTIME + ">=" + System.currentTimeMillis() + " AND NOT " + DATA_KEY_DONT_WANT_TO_SEE + ")");
+            b.append("((" + DATA_KEY_TITLE + " LIKE '%").append(search).append("%' OR ").append(DATA_KEY_EPISODE_TITLE).append(" LIKE '%").append(search).append("%') AND ").append(DATA_KEY_ENDTIME).append(">=").append(System.currentTimeMillis()).append(" AND NOT ").append(DATA_KEY_DONT_WANT_TO_SEE).append(")");
 
             qb.setTables(TvBrowserDataBaseHelper.DATA_TABLE + " , " + CHANNEL_TABLE);
             qb.appendWhere(b.toString());

@@ -3,8 +3,8 @@ package org.tvbrowser.tvbrowser;
 import android.content.Intent;
 import android.os.Build;
 import android.preference.PreferenceManager;
-import android.support.v7.app.AlertDialog;
-import android.text.Html;
+import androidx.appcompat.app.AlertDialog;
+
 import android.text.SpannableStringBuilder;
 import android.text.style.ClickableSpan;
 import android.text.style.URLSpan;

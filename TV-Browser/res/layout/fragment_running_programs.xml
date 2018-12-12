@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.FitWindowsLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.FitWindowsLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" 
     android:gravity="center_horizontal">
-    <android.support.v7.widget.LinearLayoutCompat
+    <androidx.appcompat.widget.LinearLayoutCompat
             android:orientation="horizontal"
             android:layout_width="wrap_content"
             android:layout_height="@dimen/running_bar_height"
@@ -18,13 +18,13 @@
 	    <HorizontalScrollView
 	        android:layout_height="wrap_content"
 	        android:layout_width="wrap_content">
-	        <android.support.v7.widget.LinearLayoutCompat
+	        <androidx.appcompat.widget.LinearLayoutCompat
 	            android:id="@id/runnning_time_bar" 
 	            android:orientation="horizontal"
 	            android:layout_width="wrap_content"
 	            android:layout_height="@dimen/running_bar_height"
 	            style="?android:attr/buttonBarStyle">
-		        <android.support.v7.widget.AppCompatButton android:id="@id/button_before1"
+		        <androidx.appcompat.widget.AppCompatButton android:id="@id/button_before1"
 		                android:text="@string/button_before"
 		                style="?buttonBarButtonStyle"
 		                android:layout_width="wrap_content"
@@ -33,12 +33,12 @@
 					    android:layout_marginEnd="15dp"
 		                android:layout_marginLeft="15dp"
 		                android:layout_marginRight="15dp"/>
-	            <android.support.v7.widget.AppCompatButton android:id="@id/now_button"
+	            <androidx.appcompat.widget.AppCompatButton android:id="@id/now_button"
 	                android:text="@string/button_now"
 	                style="?buttonBarButtonStyle"
 	                android:layout_width="wrap_content"
 	                android:layout_height="wrap_content"/>
-	            <android.support.v7.widget.AppCompatButton android:id="@id/button_after1"
+	            <androidx.appcompat.widget.AppCompatButton android:id="@id/button_after1"
 	                android:text="@string/button_after"
 	                style="?buttonBarButtonStyle"
 	                android:layout_width="wrap_content"
@@ -47,13 +47,13 @@
 					android:layout_marginEnd="15dp"
 	                android:layout_marginLeft="15dp"
 	                android:layout_marginRight="15dp"/>
-	        </android.support.v7.widget.LinearLayoutCompat>
+	        </androidx.appcompat.widget.LinearLayoutCompat>
 	    </HorizontalScrollView>
-    </android.support.v7.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
     <ListView 
         android:id="@id/running_list_fragment_list_view"
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="1"
         />
-</android.support.v7.widget.FitWindowsLinearLayout>
+</androidx.appcompat.widget.FitWindowsLinearLayout>

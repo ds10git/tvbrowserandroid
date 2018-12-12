@@ -6,7 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.AsyncTask;
-import android.support.v4.content.FileProvider;
+import androidx.core.content.FileProvider;
 
 import org.tvbrowser.devplugin.PluginDefinition;
 import org.tvbrowser.utils.CompatUtils;

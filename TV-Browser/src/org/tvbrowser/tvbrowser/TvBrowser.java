@@ -59,22 +59,22 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.IntDef;
-import android.support.annotation.NonNull;
-import android.support.design.widget.TabLayout;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.FileProvider;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.util.SparseArrayCompat;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.SearchView;
-import android.support.v7.widget.Toolbar;
+import androidx.annotation.IntDef;
+import androidx.annotation.NonNull;
+import com.google.android.material.tabs.TabLayout;
+import androidx.fragment.app.Fragment;
+import androidx.core.app.NotificationCompat;
+import androidx.core.content.ContextCompat;
+import androidx.core.content.FileProvider;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.collection.SparseArrayCompat;
+import androidx.viewpager.widget.ViewPager;
+import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import android.text.Editable;
 import android.text.Html.TagHandler;
 import android.text.Spannable;
@@ -805,25 +805,20 @@ public class TvBrowser extends AppCompatActivity {
           final CheckBox dontShowAgain = view.findViewById(R.id.dialog_epg_donate_dont_show_again);
           dontShowAgain.setOnCheckedChangeListener((buttonView, isChecked) -> reason.setEnabled(isChecked));
 
-          final Runnable saveSetting = new Runnable() {
-            @Override
-            public void run() {
-              SHOWING_DONATION_INFO = false;
-              final Editor edit = pref.edit();
-              edit.putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now);
+          final Runnable saveSetting = () -> {
+            SHOWING_DONATION_INFO = false;
+            final Editor edit = pref.edit();
+            edit.putLong(getString(R.string.EPG_DONATE_LAST_DONATION_INFO_SHOWN), now);
 
-              if(dontShowAgain.isChecked()) {
-                edit.putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), year);
-              }
-
-              edit.commit();
+            if(dontShowAgain.isChecked()) {
+              edit.putString(getString(R.string.EPG_DONATE_DONT_SHOW_AGAIN_YEAR), year);
             }
+
+            edit.commit();
           };
 
           builder.setView(view);
-          builder.setPositiveButton(android.R.string.ok, (dialog, which) -> {
-            saveSetting.run();
-          });
+          builder.setPositiveButton(android.R.string.ok, (dialog, which) -> saveSetting.run());
 
           final DonationRatingHelper donationHelper = new DonationRatingHelperImpl(TvBrowser.this);
 
@@ -1349,7 +1344,7 @@ public class TvBrowser extends AppCompatActivity {
                 edit.putStringSet(key, exclusions);
                 edit.commit();
 
-                DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
+                DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[0]);
 
                 if(exclusionArr.length > 0) {
                   String where = null;
@@ -1941,7 +1936,7 @@ public class TvBrowser extends AppCompatActivity {
         }
       }
 
-      mValueMap = map.toArray(new Integer[map.size()]);
+      mValueMap = map.toArray(new Integer[0]);
     }
 
     @Override
@@ -3355,7 +3350,7 @@ public class TvBrowser extends AppCompatActivity {
                     int keyColumn = programs.getColumnIndex(TvBrowserContentProvider.KEY_ID);
                     int titleColumn = programs.getColumnIndex(TvBrowserContentProvider.DATA_KEY_TITLE);
 
-                    DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[exclusionList.size()]);
+                    DontWantToSeeExclusion[] exclusionArr = exclusionList.toArray(new DontWantToSeeExclusion[0]);
 
                     while(programs.moveToNext()) {
                       int position = programs.getPosition();
@@ -3916,7 +3911,7 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   private void clearChannelFilters() {
-    final FilterValues[] filterValues = mCurrentFilter.toArray(new FilterValues[mCurrentFilter.size()]);
+    final FilterValues[] filterValues = mCurrentFilter.toArray(new FilterValues[0]);
 
     for(FilterValues filterValue : filterValues) {
       if(filterValue instanceof FilterValuesChannels) {
@@ -4517,7 +4512,7 @@ public class TvBrowser extends AppCompatActivity {
 
         @Override
         public Cursor swapCursor(Cursor c) {
-          SearchView.SearchAutoComplete mSearchSrcTextView = searchView.findViewById(android.support.v7.appcompat.R.id.search_src_text);
+          SearchView.SearchAutoComplete mSearchSrcTextView = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
           mSearchSrcTextView.setDropDownWidth(getResources().getDisplayMetrics().widthPixels);
           mSearchSrcTextView.setDropDownBackgroundResource(R.color.dark_gray_lighter);
           return super.swapCursor(c);

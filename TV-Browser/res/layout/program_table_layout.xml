@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<android.support.v7.widget.FitWindowsLinearLayout
+<androidx.appcompat.widget.FitWindowsLinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
@@ -18,7 +18,7 @@
         app:elevation="4dp"
         tools:targetApi="lollipop" />
 
-    <android.support.v7.widget.LinearLayoutCompat
+    <androidx.appcompat.widget.LinearLayoutCompat
         android:id="@id/button_panel"
         style="?buttonBarStyle"
         android:layout_width="match_parent"
@@ -28,7 +28,7 @@
         android:background="?colorBackgroundFloating"
         android:orientation="horizontal">
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@id/switch_to_previous_day"
             style="?buttonBarButtonStyle"
             android:layout_width="wrap_content"
@@ -38,7 +38,7 @@
             android:drawableStart="?attr/ic_back_icon"
             android:text="@string/previous_day" />
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             style="?buttonBarButtonStyle"
             android:id="@id/show_current_day"
             android:layout_width="0dp"
@@ -49,7 +49,7 @@
             android:textStyle="bold"
             tools:text="Donnerstag, 27. Dezember 2018" />
 
-        <android.support.v7.widget.AppCompatButton
+        <androidx.appcompat.widget.AppCompatButton
             android:id="@id/switch_to_next_day"
             style="?buttonBarButtonStyle"
             android:layout_width="wrap_content"
@@ -59,6 +59,6 @@
             android:drawableRight="?attr/ic_forward_icon"
             android:text="@string/next_day" />
 
-    </android.support.v7.widget.LinearLayoutCompat>
+    </androidx.appcompat.widget.LinearLayoutCompat>
 
-</android.support.v7.widget.FitWindowsLinearLayout>
+</androidx.appcompat.widget.FitWindowsLinearLayout>

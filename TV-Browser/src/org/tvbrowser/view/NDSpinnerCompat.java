@@ -3,12 +3,11 @@ package org.tvbrowser.view;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.support.v4.app.Fragment;
-import android.support.v7.widget.AppCompatSpinner;
+import androidx.fragment.app.Fragment;
+import androidx.appcompat.widget.AppCompatSpinner;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
-import android.widget.Spinner;
 
 /** Spinner extension that calls onItemSelected even when the selection is the same as its previous value 
  * 

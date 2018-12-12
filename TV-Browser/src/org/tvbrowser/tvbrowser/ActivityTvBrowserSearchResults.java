@@ -28,13 +28,13 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.app.AlertDialog;
-import android.support.v7.app.AppCompatActivity;
+import androidx.annotation.NonNull;
+import androidx.loader.app.LoaderManager;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.appcompat.app.AlertDialog;
+import androidx.appcompat.app.AppCompatActivity;
 import android.widget.ListView;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -110,7 +110,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
     mListView.setItemsCanFocus(true);
     
     // Initiate the Cursor Loader
-    getSupportLoaderManager().initLoader(0, null, this);
+    LoaderManager.getInstance(this).initLoader(0, null, this);
     
     // Get the launch Intent
     parseIntent(getIntent());
@@ -162,7 +162,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
       }
       
       // Restart the Cursor Loader to execute the new query
-      getSupportLoaderManager().restartLoader(0, args, this);
+      LoaderManager.getInstance(this).restartLoader(0, args, this);
     }
     else if(Intent.ACTION_VIEW.equals(intent.getAction())) {
       try {
@@ -174,7 +174,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
           Bundle args = new Bundle();
           args.putLong(QUERY_EXTRA_ID_KEY, key);
 
-          getSupportLoaderManager().restartLoader(0, args, this);
+          LoaderManager.getInstance(this).restartLoader(0, args, this);
         }
       }catch(NumberFormatException e) {
         // Ignore
@@ -192,7 +192,7 @@ public class ActivityTvBrowserSearchResults extends AppCompatActivity implements
       }
       
       // Restart the Cursor Loader to execute the new query
-      getSupportLoaderManager().restartLoader(0, args, this);
+      LoaderManager.getInstance(this).restartLoader(0, args, this);
     }
   }
   

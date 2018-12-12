@@ -70,7 +70,7 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Environment;
 import android.os.PowerManager;
-import android.support.annotation.Nullable;
+import androidx.annotation.Nullable;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
@@ -616,8 +616,8 @@ public final class IOUtils {
     }*/
   }
   
-  public static synchronized void removeDataUpdateTime(Context context, SharedPreferences pref) {
-    JobDataUpdateAuto.cancelJob(context);
+  public static synchronized void removeDataUpdateTime(SharedPreferences pref) {
+    JobDataUpdateAuto.cancelJob();
     /*AlarmManager alarmManager = (AlarmManager)context.getSystemService(Context.ALARM_SERVICE);
     
     Intent dataUpdate = new Intent(context, AutoDataUpdateReceiver.class);
@@ -1399,7 +1399,7 @@ public final class IOUtils {
     }.start();
   }
 
-  public static final boolean isConnected(final Context context, ConnectivityManager connMgr, final boolean unmetered) {
+  public static boolean isConnected(final Context context, ConnectivityManager connMgr, final boolean unmetered) {
     boolean result = false;
 
     if(connMgr == null) {

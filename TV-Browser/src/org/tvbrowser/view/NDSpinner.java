@@ -3,7 +3,7 @@ package org.tvbrowser.view;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
-import android.support.v4.app.Fragment;
+import androidx.fragment.app.Fragment;
 import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;

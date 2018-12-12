@@ -20,8 +20,8 @@
 package org.tvbrowser.devplugin;
 
 public final class ProgramOrdered {
-  private Program mProgram;
-  private ChannelOrdered mChannel;
+  private final Program mProgram;
+  private final ChannelOrdered mChannel;
 
   public ProgramOrdered(final Program program, final ChannelOrdered channel) {
     mProgram = program;

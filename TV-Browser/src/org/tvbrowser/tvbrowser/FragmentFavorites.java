@@ -25,22 +25,20 @@ import android.content.SharedPreferences;
 import android.content.SharedPreferences.OnSharedPreferenceChangeListener;
 import android.database.Cursor;
 import android.database.DataSetObserver;
-import android.graphics.Color;
 import android.graphics.drawable.ColorDrawable;
 import android.graphics.drawable.Drawable;
-import android.graphics.drawable.LayerDrawable;
 import android.graphics.drawable.StateListDrawable;
 import android.os.Bundle;
 import android.os.Handler;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.CursorLoader;
-import android.support.v4.content.Loader;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.widget.SimpleCursorAdapter;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
+import androidx.core.content.ContextCompat;
+import androidx.loader.content.CursorLoader;
+import androidx.loader.content.Loader;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.cursoradapter.widget.SimpleCursorAdapter;
+import androidx.appcompat.app.AlertDialog;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -102,12 +100,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   
   private boolean mContainsListViewFavoriteSelection;
 
-  private static final Comparator<FavoriteSpinnerEntry> COMPARATOR_FAVORITES = new Comparator<FavoriteSpinnerEntry>() {
-    @Override
-    public int compare(FavoriteSpinnerEntry o1, FavoriteSpinnerEntry o2) {
-      return UiUtils.getCollator().compare(o1.toString(), o2.toString());
-    }
-  };
+  private static final Comparator<FavoriteSpinnerEntry> COMPARATOR_FAVORITES = (o1, o2) -> UiUtils.getCollator().compare(o1.toString(), o2.toString());
   
   @Override
   public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,

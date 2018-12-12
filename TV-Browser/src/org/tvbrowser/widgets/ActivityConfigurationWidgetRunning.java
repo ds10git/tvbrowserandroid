@@ -16,12 +16,10 @@
  */
 package org.tvbrowser.widgets;
 
-import android.app.Activity;
 import android.appwidget.AppWidgetManager;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import androidx.appcompat.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 
 import org.tvbrowser.tvbrowser.InfoActivity;
 import org.tvbrowser.tvbrowser.R;
@@ -31,7 +29,6 @@ import org.tvbrowser.utils.PrefUtils;
 public class ActivityConfigurationWidgetRunning extends AppCompatActivity {
   private int mAppWidgetId = AppWidgetManager.INVALID_APPWIDGET_ID;
   private static final int REQUEST_CODE = 1;
-  private boolean mFinish;
 
   @Override
   protected void onCreate(Bundle savedInstanceState) {
@@ -48,7 +45,6 @@ public class ActivityConfigurationWidgetRunning extends AppCompatActivity {
         info.putExtra(AppWidgetManager.EXTRA_APPWIDGET_ID, mAppWidgetId);
         info.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivityForResult(info,REQUEST_CODE);
-        mFinish = false;
       }
       else {
         finish();

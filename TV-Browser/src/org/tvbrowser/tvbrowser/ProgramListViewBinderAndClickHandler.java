@@ -16,9 +16,7 @@
  */
 package org.tvbrowser.tvbrowser;
 
-import java.text.SimpleDateFormat;
 import java.util.Date;
-import java.util.Locale;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.settings.SettingConstants;
@@ -34,7 +32,7 @@ import android.database.StaleDataException;
 import android.graphics.Bitmap;
 import android.graphics.drawable.Drawable;
 import android.os.Handler;
-import android.support.v4.widget.SimpleCursorAdapter;
+import androidx.cursoradapter.widget.SimpleCursorAdapter;
 import android.text.Spannable;
 import android.text.format.DateFormat;
 import android.util.Log;

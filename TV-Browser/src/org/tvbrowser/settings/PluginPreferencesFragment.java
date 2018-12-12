@@ -35,7 +35,6 @@ import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.PreferenceManager;
 import android.preference.PreferenceScreen;
-import android.text.Html;
 
 /**
  * The preferences fragment for the plugins.

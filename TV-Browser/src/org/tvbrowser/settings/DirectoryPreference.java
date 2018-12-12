@@ -20,7 +20,7 @@ import org.tvbrowser.tvbrowser.R;
 
 import android.content.Context;
 import android.preference.ListPreference;
-import android.support.v7.app.AlertDialog;
+import androidx.appcompat.app.AlertDialog;
 import android.util.AttributeSet;
 
 public class DirectoryPreference extends ListPreference {

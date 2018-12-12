@@ -14,8 +14,6 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Method;
 import java.net.Authenticator;
 import java.net.CookieHandler;
 import java.net.HttpURLConnection;
@@ -46,7 +44,7 @@ public class EPGpaidDataConnection {
   private static final String REQUEST_METHOD_POST = "POST";
   
   private HttpURLConnection mHttpConnection;
-  private Authenticator mAuthenticator;
+  private final Authenticator mAuthenticator;
   private CookieHandler mCookieHandlerDefault; 
   
   private String mSessionId;
@@ -90,7 +88,7 @@ public class EPGpaidDataConnection {
         closeHttpConnection();
         
         if(pageContent.contains("<title>data.epgpaid.de: Anmeldung erforderlich</title>")) {
-          HashMap<String, String> nameValueMap = new HashMap<String, String>();
+          HashMap<String, String> nameValueMap = new HashMap<>();
           
           String[] lines = pageContent.split("\n");
           
@@ -120,7 +118,7 @@ public class EPGpaidDataConnection {
               value = password;
             }
             
-            postParameters.append(key + "=" + URLEncoder.encode(value, "UTF-8"));
+            postParameters.append(key).append("=").append(URLEncoder.encode(value, "UTF-8"));
           }
           
           // post login data
@@ -201,9 +199,9 @@ public class EPGpaidDataConnection {
         Log.d(TAG, "EPGpaidDataConnection login error", t);
         
         result.append("ERROR MESSAGE:\n\n");
-        result.append(t.getMessage()).append("\n");;
-        
-        final StackTraceElement[] els = t.getStackTrace();
+        result.append(t.getMessage()).append("\n");
+
+          final StackTraceElement[] els = t.getStackTrace();
         
         for(StackTraceElement el : els) {
           result.append(el.toString()).append("\n");

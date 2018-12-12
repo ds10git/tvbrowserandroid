@@ -19,7 +19,6 @@ package org.tvbrowser.devplugin;
 import java.util.ArrayList;
 import java.util.Arrays;
 
-import org.tvbrowser.settings.SettingConstants;
 import org.tvbrowser.tvbrowser.Logging;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.PrefUtils;

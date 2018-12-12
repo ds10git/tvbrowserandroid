@@ -90,10 +90,10 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
-import android.support.v4.app.NotificationCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v4.util.LongSparseArray;
-import android.support.v4.util.SparseArrayCompat;
+import androidx.core.app.NotificationCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.collection.LongSparseArray;
+import androidx.collection.SparseArrayCompat;
 import android.text.TextUtils;
 import android.util.Base64;
 import android.util.Log;
@@ -805,7 +805,7 @@ public class TvDataUpdateService extends Service {
       final SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
       
       if(pref.getString(getString(R.string.PREF_AUTO_UPDATE_TYPE), getString(R.string.pref_auto_update_type_default)).equals("2")) {
-        JobDataUpdateAuto.cancelJob(getApplicationContext());
+        JobDataUpdateAuto.cancelJob();
         JobDataUpdateAuto.scheduleJob(getApplicationContext(),true);
       }
     }
@@ -1218,9 +1218,7 @@ public class TvDataUpdateService extends Service {
 
             final String startTime = String.valueOf(Integer.parseInt(timePart) * 60000L);
 
-            if (!setTimes.contains(startTime)) {
-              setTimes.add(startTime);
-            }
+            setTimes.add(startTime);
 
             Object groupInfo = null;
             String groupKey = null;
@@ -1279,7 +1277,7 @@ public class TvDataUpdateService extends Service {
             TvBrowserContentProvider.CHANNEL_KEY_CHANNEL_ID
         };
 
-        final Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, where.toString(), selectionArgs.toArray(new String[selectionArgs.size()]), null);
+        final Cursor channel = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_CHANNELS_WITH_GROUP, projection, where.toString(), selectionArgs.toArray(new String[0]), null);
 
         try {
           if(IOUtils.prepareAccess(channel)) {
@@ -1367,7 +1365,7 @@ public class TvDataUpdateService extends Service {
           columnKeyMark
         };
 
-        final Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, wherePrograms.toString(), selectionArgs.toArray(new String[selectionArgs.size()]), TvBrowserContentProvider.DATA_KEY_STARTTIME +" DESC");
+        final Cursor program = getContentResolver().query(TvBrowserContentProvider.CONTENT_URI_DATA, projection, wherePrograms.toString(), selectionArgs.toArray(new String[0]), TvBrowserContentProvider.DATA_KEY_STARTTIME +" DESC");
 
         try {
           if(IOUtils.prepareAccess(program)) {
@@ -2032,7 +2030,7 @@ public class TvDataUpdateService extends Service {
       }
     }
     
-    return mirrorList.toArray(new String[mirrorList.size()]);
+    return mirrorList.toArray(new String[0]);
   }
   
   private class GroupInfo {

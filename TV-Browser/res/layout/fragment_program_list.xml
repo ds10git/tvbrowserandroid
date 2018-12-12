@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.FitWindowsLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.appcompat.widget.FitWindowsLinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
@@ -7,7 +7,7 @@
     <HorizontalScrollView android:layout_height="wrap_content"
 		android:layout_width="wrap_content">
     
-    	<android.support.v7.widget.LinearLayoutCompat android:orientation="horizontal"
+    	<androidx.appcompat.widget.LinearLayoutCompat android:orientation="horizontal"
     	    android:layout_width="wrap_content"
     	    android:layout_height="@dimen/running_bar_height"
 			android:background="?colorBackgroundFloating"
@@ -17,7 +17,7 @@
 				android:id="@id/date_selection"
 		        android:layout_width="wrap_content"
 		        android:layout_height="match_parent"/>
-    	   	<android.support.v7.widget.AppCompatButton android:id="@id/channel_minus"
+    	   	<androidx.appcompat.widget.AppCompatButton android:id="@id/channel_minus"
     	   	    android:layout_width="wrap_content"
     	   	    android:layout_height="match_parent"
     	   	    android:text="@string/channel_minus"
@@ -27,7 +27,7 @@
 				android:id="@id/channel_selection"
 		        android:layout_width="wrap_content"
 		        android:layout_height="match_parent"/>
-    	   	<android.support.v7.widget.AppCompatButton android:id="@id/channel_plus"
+    	   	<androidx.appcompat.widget.AppCompatButton android:id="@id/channel_plus"
     	   	    android:layout_width="wrap_content"
     	   	    android:layout_height="match_parent"
     	   	    android:text="@string/channel_plus"
@@ -37,7 +37,7 @@
 				android:id="@id/program_selection"
 		        android:layout_width="wrap_content"
 		        android:layout_height="match_parent"/>
-	        </android.support.v7.widget.LinearLayoutCompat>
+	        </androidx.appcompat.widget.LinearLayoutCompat>
         </HorizontalScrollView>
     <ListView
         android:id="@id/program_list_fragment_list_view"
@@ -49,4 +49,4 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
     />  -->
-</android.support.v7.widget.FitWindowsLinearLayout>
+</androidx.appcompat.widget.FitWindowsLinearLayout>

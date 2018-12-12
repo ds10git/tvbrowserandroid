@@ -17,8 +17,8 @@
 package org.tvbrowser.tvbrowser;
 
 import android.os.Handler;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.LoaderManager;
+import androidx.fragment.app.Fragment;
+import androidx.loader.app.LoaderManager;
 
 import java.util.Arrays;
 import java.util.Collections;
@@ -108,15 +108,15 @@ public class LoaderUpdater {
               ((Callback) mFragment).handleCallback(callbackObjects);
             }
             
-            if(mFragment.getLoaderManager().hasRunningLoaders()) {
+            if(LoaderManager.getInstance(mFragment).hasRunningLoaders()) {
               try {
-                mFragment.getLoaderManager().getLoader(0).stopLoading();
+                LoaderManager.getInstance(mFragment).getLoader(0).stopLoading();
               }catch(Throwable ignored) {}
             }
 
             mHandler.post(() -> {
               if(!mFragment.isDetached() && mFragment.getActivity() != null && mIsRunning) {
-                mFragment.getLoaderManager().restartLoader(0, null, (LoaderManager.LoaderCallbacks<?>)mFragment);
+                LoaderManager.getInstance(mFragment).restartLoader(0, null, (LoaderManager.LoaderCallbacks<?>)mFragment);
               }
             });
           }

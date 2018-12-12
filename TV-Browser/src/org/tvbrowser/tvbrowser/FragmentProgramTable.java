@@ -21,7 +21,6 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.IllegalFormatConversionException;
 import java.util.TimeZone;
 
 import org.tvbrowser.content.TvBrowserContentProvider;
@@ -41,11 +40,9 @@ import org.tvbrowser.view.TimeBlockProgramTableLayout;
 import android.content.BroadcastReceiver;
 import android.content.ContentUris;
 import android.content.Context;
-import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
@@ -54,11 +51,11 @@ import android.os.Build.VERSION_CODES;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.LocalBroadcastManager;
-import android.support.v7.app.AlertDialog;
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+import androidx.core.content.ContextCompat;
+import androidx.localbroadcastmanager.content.LocalBroadcastManager;
+import androidx.appcompat.app.AlertDialog;
 import android.text.Spannable;
 import android.text.TextUtils;
 import android.util.Log;
@@ -665,7 +662,7 @@ public class FragmentProgramTable extends Fragment {
 
           mTimeBlockSize = Integer.parseInt(PrefUtils.getStringValue(R.string.PROG_PANEL_TIME_BLOCK_SIZE, R.string.prog_panel_time_block_size));
 
-          projection = projectionList.toArray(new String[projectionList.size()]);
+          projection = projectionList.toArray(new String[0]);
 
           LinearLayout channelBar = programTable.findViewById(R.id.program_table_channel_bar);
           ArrayList<Integer> channelIDsOrdered = new ArrayList<>();
@@ -721,7 +718,7 @@ public class FragmentProgramTable extends Fragment {
                 while(cursor.moveToNext()) {
                   try {
                     addPanel(cursor, mProgramPanelLayout);
-                  }catch(IllegalStateException lse) {}
+                  }catch(IllegalStateException ignored) {}
                 }
               }
             }finally {

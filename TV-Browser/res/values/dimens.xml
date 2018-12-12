@@ -11,8 +11,8 @@
     <dimen name="picture_copyright_font_size">10sp</dimen>
     <item name="favorite_list_weight" format="float" type="dimen">0.7</item>
     <item name="favorite_program_weight" format="float" type="dimen">0.3</item>
-    <item name="expired_tag" format="integer" type="id">1000</item>
-    <item name="on_air_tag" format="integer" type="id">2000</item>
+    <item name="expired_tag" format="integer" type="id"/>
+    <item name="on_air_tag" format="integer" type="id"/>
     <item name="prog_table_default" type="bool" format="boolean">false</item>
     <item name="pref_favorite_tab_layout_default" type="string" format="string">0</item>
     <item name="prog_lists_show_end_time_default" type="bool" format="boolean">false</item>

@@ -18,7 +18,6 @@ package org.tvbrowser.settings;
 
 import java.util.HashMap;
 
-import org.tvbrowser.App;
 import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.IOUtils;
@@ -38,9 +37,8 @@ import android.graphics.drawable.GradientDrawable;
 import android.graphics.drawable.GradientDrawable.Orientation;
 import android.graphics.drawable.LayerDrawable;
 import android.preference.PreferenceManager;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.util.SparseArrayCompat;
-import android.util.SparseArray;
+import androidx.core.content.ContextCompat;
+import androidx.collection.SparseArrayCompat;
 
 public final class SettingConstants {
 
@@ -177,7 +175,7 @@ public final class SettingConstants {
   public static final SparseArrayCompat<Drawable> SMALL_LOGO_MAP = new SparseArrayCompat<>();
   public static final SparseArrayCompat<Drawable> MEDIUM_LOGO_MAP = new SparseArrayCompat<>();
 
-  public static final SparseArrayCompat<Drawable> getLogoMap(final boolean medium) {
+  public static SparseArrayCompat<Drawable> getLogoMap(final boolean medium) {
     return (medium ? MEDIUM_LOGO_MAP : SMALL_LOGO_MAP);
   }
 
@@ -353,7 +351,7 @@ public final class SettingConstants {
   public static final int EXPIRED_LIGHT_COLOR = Color.rgb(GRAY_LIGHT_VALUE, GRAY_LIGHT_VALUE, GRAY_LIGHT_VALUE);
   public static final int EXPIRED_DARK_COLOR = Color.rgb(GRAY_DARK_VALUE, GRAY_DARK_VALUE, GRAY_DARK_VALUE);
 
-  public final static synchronized void initialize(final Context context) {
+  public static synchronized void initialize(final Context context) {
     if(SHORT_CHANNEL_NAMES.isEmpty()) {
       final Resources res = context.getResources();
 
