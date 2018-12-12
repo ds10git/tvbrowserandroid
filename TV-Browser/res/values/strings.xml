@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.7.0.4</h2>
+        <h2>0.7.0.5</h2>
+            &bull; fixed update frequency for automatically update<br>
+        	&bull; improvements/bug fixes of Thorsten1976<br>
+        <h3>0.7.0.4</h3>
             &bull; fixed possible crash<br>
         <h3>0.7.0.3</h3>
             &bull; fixed missing context menu in search results<br>

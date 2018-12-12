@@ -127,12 +127,12 @@ public class JobDataUpdateAuto extends Worker {
         builder.setBackoffCriteria(BackoffPolicy.LINEAR, 10, TimeUnit.MINUTES);
 
         long timeCurrent = PrefUtils.getLongValue(R.string.AUTO_UPDATE_CURRENT_START_TIME, 0);
+        final int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default));
 
         if (timeUpdateType) {
           final Calendar last = Calendar.getInstance();
           last.setTimeInMillis(lastUpdate);
 
-          int days = Integer.parseInt(PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_FREQUENCY, R.string.pref_auto_update_frequency_default));
           int time = PrefUtils.getIntValue(R.string.PREF_AUTO_UPDATE_START_TIME, R.integer.pref_auto_update_start_time_default);
 
           last.add(Calendar.DAY_OF_YEAR, days + 1);
@@ -189,7 +189,7 @@ public class JobDataUpdateAuto extends Worker {
             builder.setInitialDelay(timeCurrent - System.currentTimeMillis(), TimeUnit.MILLISECONDS);
           }
         } else {
-          long possibleFirst = (reschedule ? System.currentTimeMillis() : lastUpdate) + 12 * 60 * 60000L;
+          long possibleFirst = (reschedule ? System.currentTimeMillis() : (lastUpdate + (days*24*60*60000L))) + 12 * 60 * 60000L;
 
           long start = 30000L;
 
