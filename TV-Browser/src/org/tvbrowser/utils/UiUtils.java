@@ -32,6 +32,7 @@ import android.content.OperationApplicationException;
 import android.content.SharedPreferences;
 import android.content.SharedPreferences.Editor;
 import android.content.res.Resources;
+import android.content.res.TypedArray;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.Config;
@@ -76,6 +77,7 @@ import android.text.style.ImageSpan;
 import android.text.style.LeadingMarginSpan;
 import android.text.style.StyleSpan;
 import android.text.style.UnderlineSpan;
+import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.ContextMenu;
@@ -127,6 +129,7 @@ import org.tvbrowser.widgets.WidgetToggleReminderState;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
+import java.lang.reflect.Field;
 import java.text.Collator;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -3592,5 +3595,29 @@ Log.d("info22", pattern);
         }
       }.start();
     }
+  }
+
+  public static final View applyColorToHeader(String name, Context context, AttributeSet attrs, Resources.Theme theme) {
+    View result = null;
+
+    if ("android.app.FragmentBreadCrumbs".equals(name))
+    {
+      result = new android.app.FragmentBreadCrumbs(context, attrs);
+
+      try {
+        int[] attrs1 = new int[] { android.R.attr.textColorSecondary };
+        TypedArray a = theme.obtainStyledAttributes(UiUtils.getThemeResourceId(UiUtils.TYPE_THEME_DEFAULT, PrefUtils.isDarkTheme()), attrs1);
+        int DEFAULT_TEXT_COLOR = a.getColor(0, Color.WHITE);
+        a.recycle();
+
+        final Field titleColor = result.getClass().getDeclaredField("mTextColor");
+        titleColor.setAccessible(true);
+        titleColor.setInt(result,DEFAULT_TEXT_COLOR);
+      } catch (final Exception ignored) {
+        // Nothing to do
+      }
+    }
+
+    return result;
   }
 }

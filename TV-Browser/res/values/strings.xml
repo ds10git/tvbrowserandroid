@@ -2,6 +2,9 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.7.0.5</h2>
+            &bull; fixed notification channel names<br>
+            &bull; added option to uninstall plugin directly from plugin settings<br>
+            &bull; fixed inaccessible plugin settings<br>
             &bull; fixed update frequency for automatically update<br>
         	&bull; improvements/bug fixes of Thorsten1976<br>
         <h3>0.7.0.4</h3>
@@ -1330,5 +1333,6 @@
     <string name="widget_settings_button">Settings</string>
     <string name="widget_open_app_button">Open app</string>
     <string name="widget_toggle_reminder_state">Activate/deactive reminders</string>
+    <string name="uninstall">Uninstall</string>
 
 </resources>

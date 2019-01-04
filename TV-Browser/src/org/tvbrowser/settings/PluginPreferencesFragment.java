@@ -16,7 +16,13 @@
  */
 package org.tvbrowser.settings;
 
-import java.util.concurrent.atomic.AtomicReference;
+import android.content.Context;
+import android.content.Intent;
+import android.content.SharedPreferences;
+import android.net.Uri;
+import android.os.Bundle;
+import android.os.RemoteException;
+import android.util.Log;
 
 import org.tvbrowser.devplugin.Plugin;
 import org.tvbrowser.devplugin.PluginManager;
@@ -24,24 +30,21 @@ import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
-import org.tvbrowser.view.InfoPreference;
+import org.tvbrowser.view.InfoPreferenceCompat;
 
-import android.content.Context;
-import android.content.SharedPreferences;
-import android.os.Bundle;
-import android.os.RemoteException;
-import android.preference.CheckBoxPreference;
-import android.preference.Preference;
-import android.preference.PreferenceFragment;
-import android.preference.PreferenceManager;
-import android.preference.PreferenceScreen;
+import java.util.concurrent.atomic.AtomicReference;
+
+import androidx.preference.CheckBoxPreference;
+import androidx.preference.Preference;
+import androidx.preference.PreferenceFragmentCompat;
+import androidx.preference.PreferenceManager;
 
 /**
  * The preferences fragment for the plugins.
  * 
  * @author René Mach
  */
-public class PluginPreferencesFragment extends PreferenceFragment {
+public class PluginPreferencesFragment extends PreferenceFragmentCompat {
 
   @Override
   public void onDetach() {
@@ -64,9 +67,10 @@ public class PluginPreferencesFragment extends PreferenceFragment {
       // Orientation Change
       mPluginId = savedInstanceState.getString("pluginId");
     }
-
+    Log.d("info9",""+mPluginId);
     // Load the preferences from an XML resource
-    PreferenceScreen preferenceScreen = getPreferenceManager().createPreferenceScreen(getActivity());
+
+    androidx.preference.PreferenceScreen preferenceScreen = getPreferenceManager().createPreferenceScreen(getActivity());
     // add preferences using preferenceScreen.addPreference()
     this.setPreferenceScreen(preferenceScreen);
     preferenceScreen.setTitle("ccccc");
@@ -91,8 +95,20 @@ public class PluginPreferencesFragment extends PreferenceFragment {
 
         String description = pluginConnection.getPluginDescription();
 
+        InfoPreferenceCompat uninstall = new InfoPreferenceCompat(getActivity());
+        uninstall.setTitle(R.string.uninstall);
+        uninstall.setOnPreferenceClickListener(preference -> {
+          final Intent intent = new Intent(Intent.ACTION_UNINSTALL_PACKAGE);
+          intent.setData(Uri.parse("package:"+pluginConnection.getPackageId()));
+          intent.putExtra(Intent.EXTRA_RETURN_RESULT, true);
+          startActivityForResult(intent, PluginPreferencesActivity.REQUEST_CODE_UNINSTALL);
+
+          return false;
+        });
+        preferenceScreen.addPreference(uninstall);
+
         if (description != null) {
-          InfoPreference descriptionPref = new InfoPreference(getActivity());
+          InfoPreferenceCompat descriptionPref = new InfoPreferenceCompat(getActivity());
           descriptionPref.setTitle(R.string.pref_plugins_description);
           descriptionPref.setSummary(description);
           preferenceScreen.addPreference(descriptionPref);
@@ -179,13 +195,35 @@ public class PluginPreferencesFragment extends PreferenceFragment {
         String license = pluginConnection.getPluginLicense();
 
         if (license != null) {
-          InfoPreference licensePref = new InfoPreference(getActivity());
+          InfoPreferenceCompat licensePref = new InfoPreferenceCompat(getActivity());
           licensePref.setTitle(R.string.pref_plugins_license);
           licensePref.setSummary(CompatUtils.fromHtml(license));
 
           preferenceScreen.addPreference(licensePref);
         }
       }
+    }
+  }
+
+  @Override
+  public void onCreatePreferences(Bundle savedInstanceState, String rootKey) {
+
+  }
+
+
+  @Override
+  public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if(requestCode == PluginPreferencesActivity.REQUEST_CODE_UNINSTALL) {
+      if(getActivity() instanceof  ActivityPluginFragment) {
+        getActivity().finish();
+      }
+
+      PluginPreferencesActivity.getInstance().onActivityResult(requestCode, resultCode, data);
+      Log.d("info9",""+getActivity());
+   //   ((PluginPreferencesActivity) getActivity()).onActivityResult(requestCode, resultCode, data);
+    }
+    else {
+      super.onActivityResult(requestCode, resultCode, data);
     }
   }
 }

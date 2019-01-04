@@ -2,6 +2,9 @@
 <resources>
     <string name="info_version_new"><![CDATA[
         <h2>0.7.0.5</h2>
+            &bull; Namen der Benachrichtigungskanäle korrigiert<br>
+            &bull; Option zum direkten Deinstallieren eines Plugins zu den Plugin-Einstellungen hinzugefügt<br>
+            &bull; Zugriff auf Plugin-Einstellungen wiederhergestellt<br>
             &bull; Häufigkeit des Autoupdates bei Internetverbindung wird berücksichtigt<br>
         	&bull; Verbesserungen/bug fixes von Thorsten1976<br>
         <h3>0.7.0.4</h3>
@@ -1310,5 +1313,6 @@
 	<string name="widget_settings_button">Einstellungen</string>
 	<string name="widget_open_app_button">App öffnen</string>
 	<string name="widget_toggle_reminder_state">Erinnerungen aktivieren/deaktivieren</string>
+    <string name="uninstall">Deinstallieren</string>
 
 </resources>
