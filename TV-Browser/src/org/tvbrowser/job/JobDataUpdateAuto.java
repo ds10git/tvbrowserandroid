@@ -58,7 +58,7 @@ public class JobDataUpdateAuto extends Worker {
   public Worker.Result doWork() {
     PrefUtils.initialize(getApplicationContext());
     Log.d("info9","onRunJob");
-    Result result = Result.RETRY;
+    Result result = Result.retry();
 
     final String updateType = PrefUtils.getStringValue(R.string.PREF_AUTO_UPDATE_TYPE, R.string.pref_auto_update_type_default);
     final boolean autoUpdate = !updateType.equals("0");
@@ -83,7 +83,7 @@ public class JobDataUpdateAuto extends Worker {
       Logging.closeLogForDataUpdate();
 
       if(CompatUtils.startForegroundService(context,startDownload)) {
-        result = Result.SUCCESS;
+        result = Result.success();
       }
     }
 

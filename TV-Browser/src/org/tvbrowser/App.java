@@ -45,7 +45,7 @@ public final class App extends Application {
 		SettingConstants.initialize(getApplicationContext());
 
 		if (CompatUtils.isAtLeastAndroidO()) {
-			createNotificationChannel();
+			createNotificationChannel(false);
 			UiUtils.updateImportantProgramsWidget(getApplicationContext());
 			UiUtils.updateRunningProgramsWidget(getApplicationContext());
 		}
@@ -99,7 +99,7 @@ public final class App extends Application {
 	 * @see <a href="https://developer.android.com/about/versions/oreo/android-8.0.html#notifications">Android 8.0 Features and APIs</a>
 	 */
 	@RequiresApi(Build.VERSION_CODES.O)
-	private void createNotificationChannel() {
+	private void createNotificationChannel(final boolean update) {
 		final NotificationManager service = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
 		if (service != null) {
@@ -115,9 +115,9 @@ public final class App extends Application {
 			notificationChannelDefault.setSound(null, attributes);
 			service.createNotificationChannel(notificationChannelDefault);
 
-			if(service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_DAY)) == null
+			if(update || (service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_DAY)) == null
 				|| service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_WORK)) == null
-				|| service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_NIGHT)) == null) {
+				|| service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_NIGHT)) == null)) {
 				final String soundDefault = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString();
 				PrefUtils.initialize(getApplicationContext());
 				final int colorLED = PrefUtils.getIntValue(R.string.PREF_REMINDER_COLOR_LED, ContextCompat.getColor(getApplicationContext(), R.color.pref_reminder_color_led_default));
@@ -161,7 +161,7 @@ public final class App extends Application {
 		final boolean led = PrefUtils.getBooleanValue(prefIdLED, idDefaultLED);
 		final boolean vibrate = PrefUtils.getBooleanValue(prefIdVibrate, idDefaultVibrate);
 
-		final NotificationChannel notificationChannel = new NotificationChannel(getNotificationChannelId(type), getNotificationChannelName(TYPE_NOTIFICATION_REMINDER_NIGHT), NotificationManager.IMPORTANCE_DEFAULT);
+		final NotificationChannel notificationChannel = new NotificationChannel(getNotificationChannelId(type), getNotificationChannelName(type), NotificationManager.IMPORTANCE_DEFAULT);
 		notificationChannel.setVibrationPattern(vibrationPattern);
 		notificationChannel.setSound(tone, attributes);
 		notificationChannel.setLightColor(colorLED);
@@ -169,5 +169,11 @@ public final class App extends Application {
 		notificationChannel.enableVibration(vibrate);
 
 		return notificationChannel;
+	}
+
+	public void updateNotificationChannels() {
+		if (CompatUtils.isAtLeastAndroidO()) {
+			createNotificationChannel(true);
+		}
 	}
 }

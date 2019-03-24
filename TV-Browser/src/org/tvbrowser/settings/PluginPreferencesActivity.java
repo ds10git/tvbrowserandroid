@@ -16,18 +16,23 @@
  */
 package org.tvbrowser.settings;
 
-import java.util.List;
+import android.annotation.TargetApi;
+import android.content.Context;
+import android.content.Intent;
+import android.os.Build;
+import android.os.Bundle;
+import android.os.Handler;
+import android.util.AttributeSet;
+import android.view.View;
 
 import org.tvbrowser.devplugin.PluginHandler;
 import org.tvbrowser.devplugin.PluginManager;
 import org.tvbrowser.devplugin.PluginServiceConnection;
 import org.tvbrowser.tvbrowser.R;
 
-import android.annotation.TargetApi;
-import android.content.Intent;
-import android.os.Build;
-import android.os.Bundle;
-import android.os.Handler;
+import java.util.List;
+
+import androidx.preference.Preference;
 
 /**
  * The preferences activity for the plugins.
@@ -35,6 +40,7 @@ import android.os.Handler;
  * @author René Mach
  */
 public class PluginPreferencesActivity extends ToolbarPreferencesActivity {
+  static final int REQUEST_CODE_UNINSTALL = 3;
   private static PluginServiceConnection[] PLUGIN_SERVICE_CONNECTIONS;
   private static PluginManager PLUGIN_MANAGER;
   
@@ -49,7 +55,7 @@ public class PluginPreferencesActivity extends ToolbarPreferencesActivity {
     Intent intent = getIntent();
     
     if(intent != null && intent.hasExtra(EXTRA_SHOW_FRAGMENT_ARGUMENTS)) {
-      getDelegate().getSupportActionBar().setTitle(intent.getBundleExtra(EXTRA_SHOW_FRAGMENT_ARGUMENTS).getString("category"));
+      //getDelegate().getSupportActionBar().setTitle(intent.getBundleExtra(EXTRA_SHOW_FRAGMENT_ARGUMENTS).getString("category"));
     }
 
     INSTANCE = this;
@@ -101,6 +107,9 @@ public class PluginPreferencesActivity extends ToolbarPreferencesActivity {
       PLUGIN_MANAGER = PluginHandler.getPluginManager();
       PLUGIN_SERVICE_CONNECTIONS = PluginHandler.getAvailablePlugins();
     }
+    else {
+      finish();
+    }
     
     if(PLUGIN_SERVICE_CONNECTIONS != null) {
       for(PluginServiceConnection pluginConnection : PLUGIN_SERVICE_CONNECTIONS) {
@@ -108,7 +117,7 @@ public class PluginPreferencesActivity extends ToolbarPreferencesActivity {
         
         if(pluginConnection != null) {
           Header header = new Header();
-          
+
           header.title = pluginConnection.getPluginName() + " " + pluginConnection.getPluginVersion();
           
           if(pluginConnection.getPluginAuthor() != null) {
@@ -165,5 +174,28 @@ public class PluginPreferencesActivity extends ToolbarPreferencesActivity {
   @Override
   protected boolean isValidFragment(String fragmentName) {
     return fragmentName.equals(PluginPreferencesFragment.class.getCanonicalName()) || super.isValidFragment(fragmentName);
+  }
+
+  @Override
+  protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+    if(requestCode == REQUEST_CODE_UNINSTALL) {
+      if (resultCode == RESULT_OK) {
+        invalidateHeaders();
+      }
+    }
+    else {
+      super.onActivityResult(requestCode,resultCode,data);
+    }
+  }
+
+  @Override
+  public boolean onIsMultiPane() {
+    return false;
+  }
+
+  @Override
+  public View onCreateView(String name, Context context, AttributeSet attrs)
+  {
+    return super.onCreateView(name, context, attrs);
   }
 }
