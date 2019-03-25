@@ -148,6 +148,7 @@ import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -1111,7 +1112,7 @@ public class TvBrowser extends AppCompatActivity {
 
               connection.setRequestProperty ("Authorization", basicAuth);
 
-              BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+              BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()), Charset.defaultCharset()));
 
               String line = null;
 
@@ -1299,7 +1300,7 @@ public class TvBrowser extends AppCompatActivity {
 
               connection.setRequestProperty ("Authorization", basicAuth);
 
-              BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+              BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()), Charset.defaultCharset()));
 
               String line = null;
 
@@ -1550,7 +1551,7 @@ public class TvBrowser extends AppCompatActivity {
 
               connection.setRequestProperty ("Authorization", basicAuth);
 
-              read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+              read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()), Charset.defaultCharset()));
 
               String line;
               Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();

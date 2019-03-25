@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -34,6 +35,8 @@ import org.tvbrowser.utils.UiUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
+
+import static org.tvbrowser.utils.IOUtils.UTF_8;
 
 /**
  * A class that contains information about a certain Plugin.
@@ -171,7 +174,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
     try {
       XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
       Log.d("info6","openURL: "+PLUGIN_INFO_URL+url);
-      in = new InputStreamReader(IOUtils.decompressStream(new ByteArrayInputStream(IOUtils.loadUrl(PLUGIN_INFO_URL+url, 15000))),"UTF-8");
+      in = new InputStreamReader(IOUtils.decompressStream(new ByteArrayInputStream(IOUtils.loadUrl(PLUGIN_INFO_URL+url, 15000))), Charset.defaultCharset());
       
       XmlPullParser parser = factory.newPullParser();
       parser.setInput(in);
@@ -198,7 +201,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
                 String author = parser.getAttributeValue(null, XML_ATTRIBUTE_AUTHOR);
 
                 if (author != null) {
-                  author = URLDecoder.decode(author, "UTF-8");
+                  author = URLDecoder.decode(author, UTF_8);
                 } else {
                   author = "Unknown";
                 }
@@ -226,19 +229,19 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
             if(current != null) {
               switch (tagName) {
                 case XML_ELEMENT_NAME_EN:
-                  current.mNameEn = URLDecoder.decode(parser.getText(), "UTF-8");
+                  current.mNameEn = URLDecoder.decode(parser.getText(), UTF_8);
                   break;
                 case XML_ELEMENT_NAME_DE:
-                  current.mNameDe = URLDecoder.decode(parser.getText(), "UTF-8");
+                  current.mNameDe = URLDecoder.decode(parser.getText(), UTF_8);
                   break;
                 case XML_ELEMENT_DESCRIPTION_EN:
-                  current.mDescriptionEn = URLDecoder.decode(parser.getText(), "UTF-8");
+                  current.mDescriptionEn = URLDecoder.decode(parser.getText(), UTF_8);
                   break;
                 case XML_ELEMENT_DESCRIPTION_DE:
-                  current.mDescriptionDe = URLDecoder.decode(parser.getText(), "UTF-8");
+                  current.mDescriptionDe = URLDecoder.decode(parser.getText(), UTF_8);
                   break;
                 default:
-                  current.mUnknownValues.put(tagName, URLDecoder.decode(parser.getText(), "UTF-8"));
+                  current.mUnknownValues.put(tagName, URLDecoder.decode(parser.getText(), UTF_8));
                   break;
               }
             }

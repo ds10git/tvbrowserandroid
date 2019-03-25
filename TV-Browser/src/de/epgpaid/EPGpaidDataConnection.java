@@ -28,6 +28,8 @@ import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import static org.tvbrowser.utils.IOUtils.UTF_8;
+
 public class EPGpaidDataConnection {
   private static final String TAG = "EPGpaid";
 
@@ -118,7 +120,7 @@ public class EPGpaidDataConnection {
               value = password;
             }
             
-            postParameters.append(key).append("=").append(URLEncoder.encode(value, "UTF-8"));
+            postParameters.append(key).append("=").append(URLEncoder.encode(value, UTF_8));
           }
           
           // post login data

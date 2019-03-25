@@ -30,6 +30,8 @@ import java.lang.reflect.Method;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -82,6 +84,11 @@ import android.util.Log;
  * @author René Mach
  */
 public final class IOUtils {
+
+  public static final Charset ISO_8859_1 = Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT ? StandardCharsets.ISO_8859_1 : Charset.forName("ISO-8859-1");
+  public static final String ISO_8859_15 = "ISO-8859-15";
+  public static final String UTF_8 = Charset.defaultCharset().name(); // always UTF-8 on Android
+
   private static final int REQUEST_CODE_DATA_TABLE_UPDATE = 1235;
   private static final float MIN_BATTERY_LEVEL = 0.1f;
 

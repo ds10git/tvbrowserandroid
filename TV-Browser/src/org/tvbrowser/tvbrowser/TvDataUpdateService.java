@@ -33,6 +33,7 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -934,7 +935,7 @@ public class TvDataUpdateService extends Service {
 
           //String postData = "";
 
-          byte[] xmlData = value == null ? getBytesForReminders() : IOUtils.getCompressedData(value.getBytes("UTF-8"));
+          byte[] xmlData = value == null ? getBytesForReminders() : IOUtils.getCompressedData(value.getBytes(Charset.defaultCharset()));
 
           String message1 = "";
           message1 += "-----------------------------4664151417711" + CrLf;
@@ -1097,15 +1098,10 @@ public class TvDataUpdateService extends Service {
           dat.append(startTime).append(";").append(info.mDataServiceID).append(groupId).append(":").append(baseCountry).append(":").append(channelID);
           
           crc.reset();
-          
-          try {
-            crc.update(programs.getString(columnIndexTitle).getBytes("UTF-8"));
-            dat.append(";").append(crc.getValue());
-          } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-          
+
+          crc.update(programs.getString(columnIndexTitle).getBytes(Charset.defaultCharset()));
+          dat.append(";").append(crc.getValue());
+
           dat.append("\n");
         }
       }
@@ -1142,7 +1138,7 @@ public class TvDataUpdateService extends Service {
           
           connection.setRequestProperty ("Authorization", basicAuth);
           
-          read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+          read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()), Charset.defaultCharset()));
           
           String reminder = null;
 
@@ -1393,7 +1389,7 @@ public class TvDataUpdateService extends Service {
                       crc.reset();
 
                       try {
-                        crc.update(title.getBytes("UTF-8"));
+                        crc.update(title.getBytes(Charset.defaultCharset()));
 
                         if (Long.parseLong(parts[2]) == crc.getValue()) {
                           title = null;
@@ -2088,7 +2084,7 @@ public class TvDataUpdateService extends Service {
     if(group.isFile()) {
       BufferedReader read = null;
       try {
-        read = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(new FileInputStream(group)),"ISO-8859-1"));
+        read = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(new FileInputStream(group)), IOUtils.ISO_8859_1));
         
         String line;
         
@@ -2357,15 +2353,10 @@ public class TvDataUpdateService extends Service {
           crc.reset();
           
           dat.append(startTime).append(";").append(info.mDataServiceID).append(groupId).append(":").append(baseCountry).append(":").append(channelID);
-          
-          try {
-            crc.update(programs.getString(columnIndexTitle).getBytes("UTF-8"));
-            dat.append(";").append(crc.getValue());
-          } catch (UnsupportedEncodingException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
-          }
-          
+
+          crc.update(programs.getString(columnIndexTitle).getBytes(Charset.defaultCharset()));
+          dat.append(";").append(crc.getValue());
+
           dat.append("\n");
         }
       }
@@ -2503,7 +2494,7 @@ public class TvDataUpdateService extends Service {
         
         connection.setRequestProperty ("Authorization", basicAuth);
         
-        read = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(connection.getInputStream()),"UTF-8"));
+        read = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(connection.getInputStream()), Charset.defaultCharset()));
         
         String dateValue = read.readLine();
         
@@ -3446,7 +3437,7 @@ public class TvDataUpdateService extends Service {
     BufferedReader channelsIn = null;
     
     try {
-      channelsIn = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(channels)),"UTF-8"));
+      channelsIn = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(channels)), Charset.defaultCharset()));
       
       String line = null;
       
@@ -3580,7 +3571,7 @@ public class TvDataUpdateService extends Service {
           BufferedReader channelsIn = null;
 
           try {
-            channelsIn = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(channels)), "UTF-8"));
+            channelsIn = new BufferedReader(new InputStreamReader(new GZIPInputStream(new FileInputStream(channels)), Charset.defaultCharset()));
 
             String line = null;
 
@@ -3951,7 +3942,7 @@ public class TvDataUpdateService extends Service {
   private void updateMirror(File mirrorFile) {
     if(mirrorFile.isFile()) {
       try {
-        BufferedReader in = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(new FileInputStream(mirrorFile)),"ISO-8859-1"));
+        BufferedReader in = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(new FileInputStream(mirrorFile)), IOUtils.ISO_8859_1));
         
         StringBuilder mirrors = new StringBuilder();
         
