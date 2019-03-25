@@ -128,14 +128,14 @@ final class TvBrowserPagerAdapter extends FragmentPagerAdapter {
 
   @NonNull
   @Override
-  public synchronized Object instantiateItem(final ViewGroup container, final int position) {
+  public synchronized Object instantiateItem(@NonNull final ViewGroup container, final int position) {
       final Fragment fragment = (Fragment) super.instantiateItem(container, position);
       registeredFragments.put(position, fragment);
       return fragment;
   }
 
   @Override
-  public void destroyItem(final ViewGroup container, final int position, final Object object) {
+  public void destroyItem(@NonNull final ViewGroup container, final int position, @NonNull final Object object) {
       registeredFragments.remove(position);
       super.destroyItem(container, position, object);
   }

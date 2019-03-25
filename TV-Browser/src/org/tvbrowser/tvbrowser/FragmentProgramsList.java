@@ -1044,6 +1044,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
       return mLogo;
     }
     
+    @NonNull
     @Override
     public String toString() {
       return mName;

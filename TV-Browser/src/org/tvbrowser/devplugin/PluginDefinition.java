@@ -36,6 +36,8 @@ import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
 
+import androidx.annotation.NonNull;
+
 import static org.tvbrowser.utils.IOUtils.UTF_8;
 
 /**
@@ -289,6 +291,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
     return mIsUpdate;
   }
   
+  @NonNull
   @Override
   public String toString() {
     if (isGermanLocale()) {

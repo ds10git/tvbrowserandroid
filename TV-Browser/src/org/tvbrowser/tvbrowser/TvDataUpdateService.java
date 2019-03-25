@@ -91,6 +91,8 @@ import android.os.PowerManager;
 import android.os.PowerManager.WakeLock;
 import android.os.RemoteException;
 import android.preference.PreferenceManager;
+
+import androidx.annotation.NonNull;
 import androidx.core.app.NotificationCompat;
 import androidx.localbroadcastmanager.content.LocalBroadcastManager;
 import androidx.collection.LongSparseArray;
@@ -5373,6 +5375,7 @@ public class TvDataUpdateService extends Service {
       }
     }
         
+    @NonNull
     @Override
     public String toString() {
       return "ChannelID: " + mChannelID + " " + new Date(mDate) + " TimeZone: " + mTimeZone;

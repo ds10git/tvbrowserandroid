@@ -482,6 +482,7 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     mExclusions = exclusions;
   }
   
+  @NonNull
   public String toString() {
     return mName + (mUniqueProgramIds == null ? "" : " ["+ mUniqueProgramIds.length+"]");
   }

@@ -23,6 +23,8 @@ import android.graphics.PorterDuff;
 import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.os.Handler;
+
+import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import android.text.Spannable;
 import android.text.TextPaint;
@@ -467,6 +469,7 @@ public class ProgramPanel extends View {
     mTitle = null;
   }
   
+  @NonNull
   @Override
   public String toString() {
     return mStartTime + " '" + mTitle + "' on " + mChannelID;

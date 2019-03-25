@@ -62,6 +62,7 @@ import android.preference.PreferenceManager;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import com.google.android.material.tabs.TabLayout;
+
 import androidx.fragment.app.Fragment;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -1873,6 +1874,7 @@ public class TvBrowser extends AppCompatActivity {
       return mChannelLogo;
     }
 
+    @NonNull
     public String toString() {
       return mName;
     }
@@ -2014,6 +2016,7 @@ public class TvBrowser extends AppCompatActivity {
       mLocale = locale;
     }
 
+    @NonNull
     public String toString() {
       if(mLocale == null) {
         return ALL_VALUE;
@@ -2434,6 +2437,7 @@ public class TvBrowser extends AppCompatActivity {
       return mSortNumber;
     }
 
+    @NonNull
     public String toString() {
       return (mSortNumber == 0 ? "-" : mSortNumber) + ". " + mName;
     }
@@ -3228,6 +3232,7 @@ public class TvBrowser extends AppCompatActivity {
       mIsCaseSensitive = parts[1].equals("1");
     }
 
+    @NonNull
     @Override
     public String toString() {
       return mExclusion;

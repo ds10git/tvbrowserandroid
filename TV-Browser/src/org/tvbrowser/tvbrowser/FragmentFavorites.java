@@ -1004,6 +1004,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       return mEntryWhereClause;
     }
     
+    @NonNull
     @Override
     public String toString() {
       if(containsFavorite()) {

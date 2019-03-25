@@ -23,6 +23,8 @@ import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 public final class NamedFields {
   public static final Comparator<NamedFields> COMPARATOR = (lhs, rhs) -> UiUtils.getCollator().compare(lhs.mName, rhs.mName);
   
@@ -150,6 +152,7 @@ public final class NamedFields {
     mName = mName.replace(":", "").replace("\n", "");
   }
   
+  @NonNull
   @Override
   public final String toString() {
     return mName;

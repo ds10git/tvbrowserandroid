@@ -20,6 +20,8 @@ import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
+
 class DateSelection {
   public static final int VALUE_DATE_ALL = -1;
   public static final int VALUE_DATE_TODAY_TOMORROW = -2;
@@ -32,6 +34,7 @@ class DateSelection {
     mContext = context;
   }
   
+  @NonNull
   @Override
   public String toString() {
     if(mTime >= 0) {
