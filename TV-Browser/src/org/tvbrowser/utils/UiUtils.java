@@ -3597,7 +3597,7 @@ Log.d("info22", pattern);
     }
   }
 
-  public static final View applyColorToHeader(String name, Context context, AttributeSet attrs, Resources.Theme theme) {
+  public static View applyColorToHeader(String name, Context context, AttributeSet attrs, Resources.Theme theme) {
     View result = null;
 
     if ("android.app.FragmentBreadCrumbs".equals(name))
