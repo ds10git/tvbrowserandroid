@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="epg_donate_current_donation_amount_default" type="string" format="string">3\u20AC</item>
+</resources>

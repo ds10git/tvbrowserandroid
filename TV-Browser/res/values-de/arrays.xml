@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="pref_news_type_none">Keine</string>
+    <string name="pref_news_type_all">Alle</string>
+    <string name="pref_news_type_tvbrowser">TV-Browser</string>
+    <string name="pref_news_type_android">Android</string>
+    <string name="pref_news_type_desktop">Desktop</string>
+    <string name="pref_news_type_website">Website</string>
+</resources>
