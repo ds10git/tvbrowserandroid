@@ -32,8 +32,6 @@ import org.tvbrowser.tvbrowser.R;
 
 import java.util.List;
 
-import androidx.preference.Preference;
-
 /**
  * The preferences activity for the plugins.
  * 
