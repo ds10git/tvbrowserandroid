@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="4dp" >
@@ -20,7 +21,7 @@
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_below="@id/dialog_favorite_selection_id_selection_duration_minimum"
-        />
+        tools:targetApi="lollipop" />
     <CheckBox
         android:id="@id/dialog_favorite_selection_id_selection_duration_maximum"
         android:layout_width="wrap_content"
@@ -36,5 +37,6 @@
         android:timePickerMode="spinner"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_below="@id/dialog_favorite_selection_id_selection_duration_maximum"/>
+        android:layout_below="@id/dialog_favorite_selection_id_selection_duration_maximum"
+        tools:targetApi="lollipop" />
 </RelativeLayout>
