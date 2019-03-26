@@ -9,6 +9,7 @@
         android:layout_height="wrap_content"
         android:textSize="@dimen/edit_favorite_font_size"
         android:text="@string/channel_selection_label_text_name"
+		android:labelFor="@id/dialog_filter_categories_input_name"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
         android:layout_alignBaseline="@id/dialog_filter_categories_input_name"
