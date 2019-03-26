@@ -411,7 +411,7 @@ public class ProgramUtils {
       Set<String> keys = prefMap.keySet();
       
       for(String key : keys) {
-        Long id = Long.parseLong(key);
+        long id = Long.parseLong(key);
         
         if(id < firstProgramId || (lastProgramId > firstProgramId && id > lastProgramId)) {
           edit.remove(key);
