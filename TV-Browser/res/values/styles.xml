@@ -1,37 +1,43 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <style name="Theme.App.Light" parent="Theme.AppCompat.Light.NoActionBar">
-        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
+    <style name="Theme.App.Light" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
+        <item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Light</item>
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
         <item name="ic_back_icon">@drawable/ic_action_back_light</item>
         <item name="ic_forward_icon">@drawable/ic_action_forward_light</item>
+        <item name="colorSecondary">@color/colorAccent</item>
         <item name="color_background">@color/background_list_light</item>
         <!-- NEVER REMOVE THIS ENTRIES: Darker text for text views -->
         <item name="android:textColorSecondary">@color/text_appcompat_light</item>
         <item name="android:textColorTertiary">@color/text_appcompat_light</item>
     </style>
 
-    <style name="Theme.App.Dark" parent="Theme.AppCompat.NoActionBar">
-        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
+    <style name="Theme.App.Dark" parent="Theme.MaterialComponents.NoActionBar.Bridge">
+        <item name="popupTheme">@style/ThemeOverlay.MaterialComponents.Dark.ActionBar</item>
         <item name="ic_back_icon" >@drawable/ic_action_back</item>
     	<item name="ic_forward_icon" >@drawable/ic_action_forward</item>
         <item name="colorPrimary">@color/colorPrimary</item>
         <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+        <item name="colorSecondary">@color/colorAccent</item>
         <item name="color_background">@color/background_list_dark</item>
     </style>
 
-    <style name="Theme.Pref.Dark" parent="Theme.AppCompat" />
+    <style name="Theme.Pref.Dark" parent="Theme.MaterialComponents.Bridge">
+        <item name="colorSecondary">@color/colorAccent</item>
+    </style>
 
     <style name="Theme.App" parent="Theme.App.Light" />
 
-    <style name="Theme.Pref.Light" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="Theme.Pref.Light" parent="Theme.MaterialComponents.Light.DarkActionBar.Bridge">
+        <item name="colorSecondary">@color/colorAccent</item>
         <!-- NEVER REMOVE THIS ENTRIES: Darker text for text views -->
         <item name="android:textColorSecondary">@color/text_appcompat_light</item>
         <item name="android:textColorTertiary">@color/text_appcompat_light</item>
     </style>
 
-    <style name="Theme.TvBrowser.Translucent" parent="Theme.AppCompat.NoActionBar">
+    <style name="Theme.TvBrowser.Translucent" parent="Theme.MaterialComponents.NoActionBar.Bridge">
+        <item name="colorSecondary">@color/colorAccent</item>
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
@@ -39,10 +45,11 @@
         <item name="android:windowAnimationStyle">@android:style/Animation</item>
     </style>
 
-    <style name="Theme.TvBrowser.Translucent.Light" parent="Theme.AppCompat.Light.NoActionBar">
+    <style name="Theme.TvBrowser.Translucent.Light" parent="Theme.MaterialComponents.Light.NoActionBar.Bridge">
         <item name="android:windowNoTitle">true</item>
         <item name="android:windowBackground">@android:color/transparent</item>
         <item name="android:colorBackgroundCacheHint">@null</item>
+        <item name="colorSecondary">@color/colorAccent</item>
         <item name="android:windowIsTranslucent">true</item>
         <item name="android:windowAnimationStyle">@android:style/Animation</item>
         <!-- NEVER REMOVE THIS ENTRIES: Darker text for text views -->

@@ -46,6 +46,7 @@
     <color name="activeReminderToolbarBackground">#4e0002</color>
     <color name="colorPrimary">#222222</color>
     <color name="colorPrimaryDark">#111111</color>
+    <color name="colorSecondary">#26a69a</color>
     <color name="colorAccent">#26a69a</color>
 
     <color name="pref_first_deleted_channels">#ff5a00</color>
