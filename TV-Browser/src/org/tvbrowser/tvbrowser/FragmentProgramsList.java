@@ -190,7 +190,7 @@ public class FragmentProgramsList extends Fragment implements LoaderManager.Load
   
   @SuppressWarnings("ConstantConditions")
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
     super.onAttach(context);
     
     mDayStart = 0;

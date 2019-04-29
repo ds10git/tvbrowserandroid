@@ -49,6 +49,7 @@ final class TvBrowserPagerAdapter extends FragmentPagerAdapter {
     this.tvBrowser = tvBrowser;
   }
 
+  @NonNull
   @Override
   public synchronized Fragment getItem(final int position) {
     Fragment fragment = registeredFragments.get(position);
@@ -62,8 +63,6 @@ final class TvBrowserPagerAdapter extends FragmentPagerAdapter {
               ((FragmentProgramsListRunning) fragment).setStartTime(TvBrowser.START_TIME + 1);
               TvBrowser.START_TIME = Integer.MIN_VALUE;
             }
-          } else {
-            fragment = new Fragment();
           }
           break;
         case 1:
@@ -84,7 +83,7 @@ final class TvBrowserPagerAdapter extends FragmentPagerAdapter {
       }
     }
 
-    return fragment;
+    return fragment == null ? new Fragment() : fragment;
   }
 
   @Override

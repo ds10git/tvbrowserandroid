@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.format.DateFormat;
@@ -57,7 +58,7 @@ public class InfoActivity extends AppCompatActivity {
   private ViewGroup mViewParent;
   
   @Override
-  public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+  public View onCreateView(View parent, @NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
     mViewParent = (ViewGroup)parent;
     return super.onCreateView(parent, name, context, attrs);
   }

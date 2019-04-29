@@ -559,7 +559,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
   
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
     super.onAttach(context);
     
     if(handler == null) {
@@ -891,7 +891,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   private FavoriteSpinnerEntry mCurrentSelection;
   
   @Override
-  public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+  public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenuInfo menuInfo) {
     int pos = mFavoriteSelection.getSelectedItemPosition();
     
     if(pos == -1 && menuInfo instanceof AdapterContextMenuInfo) {
@@ -907,7 +907,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
   
   @Override
-  public boolean onContextItemSelected(MenuItem item) {
+  public boolean onContextItemSelected(@NonNull MenuItem item) {
     if(getUserVisibleHint()) {
       if(mCurrentSelection != null) {
         if(item.getItemId() == R.id.delete_favorite) {

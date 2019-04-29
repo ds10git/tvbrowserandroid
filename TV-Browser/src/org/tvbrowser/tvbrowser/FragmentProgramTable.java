@@ -276,7 +276,7 @@ public class FragmentProgramTable extends Fragment {
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
     super.onAttach(context);
 
     mUpdateMarkingsReceiver = new BroadcastReceiver() {
@@ -909,8 +909,7 @@ public class FragmentProgramTable extends Fragment {
   }
 
   @Override
-  public void onCreateContextMenu(ContextMenu menu, View v,
-                                  ContextMenuInfo menuInfo) {
+  public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenuInfo menuInfo) {
     mMenuView = v;
     long programID = ((Long)v.getTag());
 
@@ -919,7 +918,7 @@ public class FragmentProgramTable extends Fragment {
 
 
   @Override
-  public boolean onContextItemSelected(MenuItem item) {
+  public boolean onContextItemSelected(@NonNull MenuItem item) {
     if(mMenuView != null) {
       View temp = mMenuView;
       mMenuView = null;

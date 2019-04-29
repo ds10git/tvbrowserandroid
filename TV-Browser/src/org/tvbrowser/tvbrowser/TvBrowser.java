@@ -260,7 +260,7 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   @Override
-  protected void onSaveInstanceState(Bundle outState) {
+  protected void onSaveInstanceState(@NonNull Bundle outState) {
     outState.putBoolean(SettingConstants.UPDATE_RUNNING_KEY, updateRunning);
     outState.putBoolean(SettingConstants.SELECTION_CHANNELS_KEY, selectingChannels);
 
@@ -4917,7 +4917,7 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   @Override
-  public void onConfigurationChanged(Configuration newConfig) {
+  public void onConfigurationChanged(@NonNull Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
 
     SettingConstants.ORIENTATION = newConfig.orientation;

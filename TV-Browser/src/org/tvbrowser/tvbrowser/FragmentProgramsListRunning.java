@@ -166,7 +166,7 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
   }
   
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
     super.onAttach(context);
     
     mDataUpdateReceiver = new BroadcastReceiver() {
@@ -1625,8 +1625,7 @@ String mPreviousEpisode;
   }
   
   @Override
-  public void onCreateContextMenu(ContextMenu menu, View v,
-      ContextMenuInfo menuInfo) {
+  public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenuInfo menuInfo) {
     Long test = (Long)v.getTag();
     
     if(test != null) {
@@ -1637,7 +1636,7 @@ String mPreviousEpisode;
   }
   
   @Override
-  public boolean onContextItemSelected(MenuItem item) {
+  public boolean onContextItemSelected(@NonNull MenuItem item) {
     if(getUserVisibleHint() && mContextProgramID >= 0) {
       UiUtils.handleContextMenuSelection(getActivity(), item, mContextProgramID, mContextView, getActivity().getCurrentFocus());
       
