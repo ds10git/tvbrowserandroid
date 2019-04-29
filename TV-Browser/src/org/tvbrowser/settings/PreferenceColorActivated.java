@@ -129,7 +129,7 @@ public class PreferenceColorActivated extends DialogPreference {
         persistInt(mColor);
       }
       else{
-        String value = String.valueOf(mActivated) + ";" + String.valueOf(mColor);
+        String value = mActivated + ";" + mColor;
         
         if (callChangeListener(value)) {          
           persistString(value);
@@ -343,7 +343,7 @@ public class PreferenceColorActivated extends DialogPreference {
       persistInt(color);
     }
     else {
-      persistString(String.valueOf(mActivated) + ";" + String.valueOf(mColor));
+      persistString(mActivated + ";" + mColor);
     }
     
     mDefaultColor = defaultColor;

@@ -216,7 +216,7 @@ public class InfoActivity extends AppCompatActivity {
             }
             
             if(filteredChannelIds.length > 0) {
-              value.append(String.valueOf(filteredChannelIds[filteredChannelIds.length - 1]));
+              value.append(filteredChannelIds[filteredChannelIds.length - 1]);
             }
           }
           

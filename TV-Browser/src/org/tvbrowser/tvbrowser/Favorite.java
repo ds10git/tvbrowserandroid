@@ -806,9 +806,9 @@ public class Favorite implements Serializable, Cloneable, Comparable<Favorite> {
     saveString.append(";;");
     saveString.append(mSearch);
     saveString.append(";;");
-    saveString.append(String.valueOf(mType));
+    saveString.append(mType);
     saveString.append(";;");
-    saveString.append(String.valueOf(mRemind));
+    saveString.append(mRemind);
     saveString.append(";;");
     
     if(isTimeRestricted()) {

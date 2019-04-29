@@ -169,7 +169,7 @@ public class ImportantProgramsRemoteViewsService extends RemoteViewsService {
         String limit = "";
         
         if(pref.getBoolean(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT), false)) {
-          limit = " LIMIT " + String.valueOf(pref.getInt(mAppWidgetId+"_"+mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT), 15));
+          limit = " LIMIT " + pref.getInt(mAppWidgetId + "_" + mContext.getString(R.string.WIDGET_CONFIG_IMPORTANT_LIMIT_COUNT), 15);
         }
         
         if(type == 1) {

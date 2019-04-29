@@ -2730,7 +2730,7 @@ public class TvDataUpdateService extends Service {
     // Data update complete inform user
     mHandler.post(() -> ToastCompat.makeText(TvDataUpdateService.this, R.string.update_complete, ToastCompat.LENGTH_LONG).show());
     
-    doLog("Unsuccessful downloads: " + String.valueOf(mUnsuccessfulDownloads));
+    doLog("Unsuccessful downloads: " + mUnsuccessfulDownloads);
         
     Editor edit = PreferenceManager.getDefaultSharedPreferences(TvDataUpdateService.this).edit();
     edit.putLong(getString(R.string.LAST_DATA_UPDATE), System.currentTimeMillis());

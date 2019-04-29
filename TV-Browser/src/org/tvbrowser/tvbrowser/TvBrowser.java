@@ -2681,7 +2681,7 @@ public class TvBrowser extends AppCompatActivity {
                   View line = channelSort.getChildAt(i-firstVisible);
 
                   if(line != null) {
-                    ((TextView)line.findViewById(R.id.row_of_channel_sort_number)).setText(String.valueOf(previousNumber)+".");
+                    ((TextView)line.findViewById(R.id.row_of_channel_sort_number)).setText(previousNumber +".");
                   }
                 }
               }
