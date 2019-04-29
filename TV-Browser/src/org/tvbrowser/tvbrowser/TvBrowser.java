@@ -405,13 +405,10 @@ public class TvBrowser extends AppCompatActivity {
         }
 
         if (mScrollTimeItem != null) {
-          switch (position) {
-            case 2:
-              mScrollTimeItem.setVisible(false);
-              break;
-            default:
-              mScrollTimeItem.setVisible(!mSearchExpanded);
-              break;
+          if (position == 2) {
+            mScrollTimeItem.setVisible(false);
+          } else {
+            mScrollTimeItem.setVisible(!mSearchExpanded);
           }
         }
       }
