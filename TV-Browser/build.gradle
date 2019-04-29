@@ -82,11 +82,13 @@ android {
         free {
             dimension "default"
             applicationIdSuffix ""
+            signingConfig signingConfigs.free
         }
         google {
             dimension "default"
             versionNameSuffix "vP"
             applicationIdSuffix ".play"
+            signingConfig signingConfigs.google
         }
     }
 
@@ -94,14 +96,11 @@ android {
         debug {
             debuggable true
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
+            // proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
             versionNameSuffix "-debug"
             applicationIdSuffix ".debug"
         }
         release {
-            productFlavors.free.signingConfig signingConfigs.free
-            productFlavors.google.signingConfig signingConfigs.google
-
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }
@@ -175,9 +174,9 @@ if (project.hasProperty("AndroidProject.signing")
 }
 
 dependencies {
-    implementation 'android.arch.work:work-runtime:1.0.0'
+    implementation 'android.arch.work:work-runtime:1.0.1'
     implementation 'androidx.appcompat:appcompat:1.0.2'
-    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha3'
+    implementation 'androidx.constraintlayout:constraintlayout:2.0.0-alpha5'
     implementation 'androidx.legacy:legacy-preference-v14:1.0.0'
     implementation 'androidx.vectordrawable:vectordrawable:1.0.1'
     implementation 'com.google.android.material:material:1.1.0-alpha05'
