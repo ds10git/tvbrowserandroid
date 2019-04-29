@@ -218,7 +218,7 @@ public class FragmentProgramTable extends Fragment {
                   final ScrollView scroll = getView().findViewById(R.id.vertical_program_table_scroll);
 
                   scroll.post(() -> {
-                    int location[] = new int[2];
+                    int[] location = new int[2];
                     view.getLocationInWindow(location);
 
                     scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]);

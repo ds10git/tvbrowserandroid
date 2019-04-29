@@ -394,8 +394,8 @@ public final class IOUtils {
       }
       
       in = new BufferedInputStream(connection.getInputStream());
-      
-      byte temp[] = new byte[1024];
+
+      byte[] temp = new byte[1024];
       int count;
       
       while ((count = in.read(temp, 0, 1024)) != -1) {
@@ -1292,8 +1292,8 @@ public final class IOUtils {
         fOut.getChannel().truncate(0);
         
         out = new BufferedOutputStream(fOut);
-        
-        byte temp[] = new byte[1024];
+
+        byte[] temp = new byte[1024];
         int count;
         
         while ((count = in.read(temp, 0, 1024)) != -1) {
