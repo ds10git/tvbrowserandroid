@@ -320,19 +320,7 @@ public class TvBrowser extends AppCompatActivity {
       }
     }
 
-    /*
-     * Hack to force overflow menu button to be shown from:
-     * http://stackoverflow.com/questions/9286822/how-to-force-use-of-overflow-menu-on-devices-with-menu-button
-     */
-    try {
-      ViewConfiguration config = ViewConfiguration.get(this);
-      Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-      if(menuKeyField != null) {
-          menuKeyField.setAccessible(true);
-          menuKeyField.setBoolean(config, false);
-      }
-    } catch (Exception ignored) {
-    }
+    CompatUtils.forceOverflowMenu(this);
 
     applyUpdates(this);
 
