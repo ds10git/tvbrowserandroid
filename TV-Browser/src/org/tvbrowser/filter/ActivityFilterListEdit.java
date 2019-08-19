@@ -24,6 +24,8 @@ import org.tvbrowser.tvbrowser.R;
 import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.UiUtils;
 
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.res.Resources.Theme;
 import android.os.Bundle;
@@ -159,12 +161,20 @@ public class ActivityFilterListEdit extends AppCompatActivity {
         }, mFilterList);
       }
       else if(item.getItemId() == R.id.activity_edit_filter_list_action_delete) {
-        mFilterListAdapter.remove(mCurrentFilter);
-        mFilterListAdapter.notifyDataSetChanged();
-        
-        FilterValues.deleteFilter(getApplicationContext(), mCurrentFilter);
-                
-        mCurrentFilter = null;
+        final AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setTitle(R.string.dialog_warning_filter_title);
+        builder.setMessage(getString(R.string.dialog_warning_filter_message).replace("{0}",mCurrentFilter.getName()));
+        builder.setPositiveButton(android.R.string.yes, (DialogInterface dialog, int which) -> {
+          mFilterListAdapter.remove(mCurrentFilter);
+          mFilterListAdapter.notifyDataSetChanged();
+
+          FilterValues.deleteFilter(getApplicationContext(), mCurrentFilter);
+
+          mCurrentFilter = null;
+        });
+        builder.setNegativeButton(android.R.string.cancel, null);
+
+        builder.show();
       }
       
       return true;

@@ -72,7 +72,8 @@ public class ActivityPluginFragment extends AppCompatActivity {
 
     if (header != null) {
       final FragmentManager fragmentManager = getSupportFragmentManager();
-      final Fragment fragment = fragmentManager.getFragmentFactory().instantiate(getClassLoader(), header.fragment, header.fragmentArguments);
+      final Fragment fragment = fragmentManager.getFragmentFactory().instantiate(getClassLoader(), header.fragment);
+      fragment.setArguments(header.fragmentArguments);
       fragmentManager.beginTransaction().add(CONTENT_VIEW_ID, fragment).commit();
     } else {
       finish();

@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.7.0.5</h2>
+        <h2>0.7.0.7</h2>
+            &bull; klarere Einstellungen für Synchronisation<br>
+            &bull; Warnung vorm Löschen von Filtern hinzugefügt<br>
+        	&bull; Verbesserungen/bug fixes von Thorsten1976<br>
+        <h3>0.7.0.5</h3>
             &bull; Namen der Benachrichtigungskanäle korrigiert<br>
             &bull; Option zum direkten Deinstallieren eines Plugins zu den Plugin-Einstellungen hinzugefügt<br>
             &bull; Zugriff auf Plugin-Einstellungen wiederhergestellt<br>
@@ -502,6 +506,8 @@
     <string name="button_at">Genaue Zeit</string>
     <string name="no_channels">Keine Sender vorhanden.</string>
     <string name="select_channels">Sender jetzt\nauswählen</string>
+    <string name="dialog_warning_filter_title">Filter löschen?</string>
+    <string name="dialog_warning_filter_message">Wollen Sie den Filter {0} wirklich löschen?</string>
     <string name="dialog_select_channels_update_title">Es wurden neue Sender gefunden oder vorhandene aktualisiert</string>
     <string name="dialog_select_channels_update_help">Sie können hier neue Sender auswählen. (Aktualisierte abonnierte Sender sind vorausgewählt.)</string>
     <string name="dialog_select_channels_delete_title">Sender nicht länger verfügbar</string>
@@ -808,7 +814,11 @@
 	<string name="pref_prog_table_grow">Sendungen über den Block verteilen</string>
 	<string name="pref_layout_colors_categories">Sendungskategorie-Farben</string>
 	<string name="pref_layout_colors_categories_summary">Sendungskategorien mit benutzerdefinierten Farben hervorheben</string>
-	<string name="customInfo">Beliebige Informationen:\n</string>
+    <string name="pref_sync_down">Einstellungen für Herunterladen</string>
+    <string name="pref_sync_down_summary">Vom Server in diesen TV-Browser synchronisieren.</string>
+    <string name="pref_sync_up">Einstellungen für Hochladen</string>
+    <string name="pref_sync_up_summary">Von diesem TV-Browser zum Server synchronisieren.</string>
+    <string name="customInfo">Beliebige Informationen:\n</string>
 	<string name="actors">Schauspieler:\n</string>
 	<string name="regie">Regie:</string>
 	<string name="ageLimit">Alterbeschränkung:</string>
@@ -953,6 +963,8 @@
     <string name="channel_plus">P+</string>
     <string name="all_programs">Alle Sendungen</string>
     <string name="action_synchronize">Synchronisierung</string>
+    <string name="action_synchronize_down">Herunterladen&#8230;</string>
+    <string name="action_synchronize_up">Hochladen&#8230;</string>
     <string name="action_synchronize_channels">Sender herunterladen</string>
     <string name="action_synchronize_channels_up">Sender hochladen</string>
     <string name="action_synchronize_favorites">Lieblingssendungen</string>

@@ -574,6 +574,8 @@
         <item type="id" name="action_sort_channels" />
         <item type="id" name="action_synchronize" />
         <item type="id" name="action_username_password" />
+        <item type="id" name="action_synchronize_up" />
+        <item type="id" name="action_synchronize_down" />
         <item type="id" name="action_synchronize_channels_up" />
         <item type="id" name="action_synchronize_channels" />
         <item type="id" name="action_synchronize_favorites" />

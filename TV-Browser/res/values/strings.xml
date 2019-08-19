@@ -1,7 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.7.0.5</h2>
+        <h2>0.7.0.7</h2>
+            &bull; clearer settings for synchronisation<br>
+            &bull; added warning dialog to deletion of filters<br>
+        	&bull; improvements/bug fixes of Thorsten1976<br>
+        <h3>0.7.0.5</h3>
             &bull; fixed notification channel names<br>
             &bull; added option to uninstall plugin directly from plugin settings<br>
             &bull; fixed inaccessible plugin settings<br>
@@ -506,6 +510,8 @@
     <string name="button_at">At time</string>
     <string name="no_channels">No channels selected</string>
     <string name="select_channels">Select channels\nnow</string>
+    <string name="dialog_warning_filter_title">Delete filter?</string>
+    <string name="dialog_warning_filter_message">Do you really want to delete the filter {0}?</string>
     <string name="dialog_select_channels_update_title">New channel were found or existing channels were updated</string>
     <string name="dialog_select_channels_update_help">You can select channels new channels here. (Updated subscribed channels are preselected.)</string>
     <string name="dialog_select_channels_delete_title">Channel are no longer available</string>
@@ -821,6 +827,10 @@
     <string name="pref_prog_table_grow">Spread programs over block size</string>
     <string name="pref_layout_colors_categories">Program category colors</string>
     <string name="pref_layout_colors_categories_summary">Color program categories with user defined colors</string>
+    <string name="pref_sync_down">Settings for download</string>
+    <string name="pref_sync_down_summary">Synchronizing from server to this TV-Browser.</string>
+    <string name="pref_sync_up">Settings for upload</string>
+    <string name="pref_sync_up_summary">Synchronizing from this TV-Browser to server.</string>
     <string name="customInfo">Custom Information:\n</string>
     <string name="actors">Cast:\n</string>
     <string name="regie">Director:</string>
@@ -967,6 +977,8 @@
     <string name="channel_plus">CH+</string>
     <string name="all_programs">All programs</string>
     <string name="action_synchronize">Synchronization</string>
+    <string name="action_synchronize_down">Download&#8230;</string>
+    <string name="action_synchronize_up">Upload&#8230;</string>
     <string name="action_synchronize_channels">Download channels</string>
     <string name="action_synchronize_channels_up">Upload channels</string>
     <string name="action_synchronize_favorites">Favorites</string>

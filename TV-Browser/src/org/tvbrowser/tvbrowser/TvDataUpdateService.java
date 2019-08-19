@@ -51,6 +51,7 @@ import java.util.Set;
 import java.util.TimeZone;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.RejectedExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.zip.CRC32;
@@ -5049,23 +5050,25 @@ public class TvDataUpdateService extends Service {
         }
       }
       
-      if(!mDataUpdatePool.isShutdown()) {
-        mDataUpdatePool.execute(new Thread("CHANNEL UPDATE HANDLE DOWNLOAD") {
-          @Override
-          public void run() {
-            for(UrlFileHolder updateFile : downloadList) {
-              handleDownload(updateFile);
-              
-              if(mShowNotification) {
-                mCurrentDownloadCount++;
-                mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
-                notification.notify(ID_NOTIFY, mBuilder.build());
+      if(!mDataUpdatePool.isShutdown() && !mDataUpdatePool.isTerminated()) {
+        try {
+          mDataUpdatePool.execute(new Thread("CHANNEL UPDATE HANDLE DOWNLOAD") {
+            @Override
+            public void run() {
+              for (UrlFileHolder updateFile : downloadList) {
+                handleDownload(updateFile);
+
+                if (mShowNotification) {
+                  mCurrentDownloadCount++;
+                  mBuilder.setProgress(downloadCount, mCurrentDownloadCount, false);
+                  notification.notify(ID_NOTIFY, mBuilder.build());
+                }
               }
+
+              handleData();
             }
-            
-            handleData();
-          }
-        });
+          });
+        }catch(RejectedExecutionException rje) {}
       }
     }
     
@@ -5102,20 +5105,20 @@ public class TvDataUpdateService extends Service {
                }
                
                if(j < mInsertValuesList.size()) {
-                 long nextStart = mInsertValuesList.get(j).getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
-                 
-                 if((nextStart - meStart) >= (12 * 60 * 60000)) {
+                 Long nextStart = mInsertValuesList.get(j).getAsLong(TvBrowserContentProvider.DATA_KEY_STARTTIME);
+
+                 if(nextStart == null || ((nextStart - meStart) >= (12 * 60 * 60000))) {
                    nextStart = meStart + (long)(2.5 * 60 * 60000);
                  }
-                 
+
                  cal.setTimeInMillis(nextStart);
-                 
+
                  int startHour = cal.get(Calendar.HOUR_OF_DAY);
                  int startMinute = cal.get(Calendar.MILLISECOND);
-                 
+
                  // Normalize start hour and minute to 2014-12-31 to have the same time base on all occasions
                  utc.setTimeInMillis((IOUtils.normalizeTime(cal, startHour, startMinute, 30).getTimeInMillis() / 60000 * 60000));
-                 
+
                  toAdd.put(TvBrowserContentProvider.DATA_KEY_UTC_END_MINUTE_AFTER_MIDNIGHT, utc.get(Calendar.HOUR_OF_DAY)*60 + utc.get(Calendar.MINUTE));
                  toAdd.put(TvBrowserContentProvider.DATA_KEY_DURATION_IN_MINUTES, (int)((nextStart - meStart)/60000));
                  toAdd.put(TvBrowserContentProvider.DATA_KEY_ENDTIME, nextStart);
