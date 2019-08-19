@@ -10,7 +10,7 @@
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
  * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
@@ -62,6 +62,7 @@ import android.preference.PreferenceManager;
 import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import com.google.android.material.tabs.TabLayout;
+
 import androidx.fragment.app.Fragment;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -148,6 +149,7 @@ import java.lang.reflect.Field;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLConnection;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Collections;
@@ -258,7 +260,7 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   @Override
-  protected void onSaveInstanceState(Bundle outState) {
+  protected void onSaveInstanceState(@NonNull Bundle outState) {
     outState.putBoolean(SettingConstants.UPDATE_RUNNING_KEY, updateRunning);
     outState.putBoolean(SettingConstants.SELECTION_CHANNELS_KEY, selectingChannels);
 
@@ -318,19 +320,7 @@ public class TvBrowser extends AppCompatActivity {
       }
     }
 
-    /*
-     * Hack to force overflow menu button to be shown from:
-     * http://stackoverflow.com/questions/9286822/how-to-force-use-of-overflow-menu-on-devices-with-menu-button
-     */
-    try {
-      ViewConfiguration config = ViewConfiguration.get(this);
-      Field menuKeyField = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
-      if(menuKeyField != null) {
-          menuKeyField.setAccessible(true);
-          menuKeyField.setBoolean(config, false);
-      }
-    } catch (Exception ignored) {
-    }
+    CompatUtils.forceOverflowMenu(this);
 
     applyUpdates(this);
 
@@ -403,13 +393,10 @@ public class TvBrowser extends AppCompatActivity {
         }
 
         if (mScrollTimeItem != null) {
-          switch (position) {
-            case 2:
-              mScrollTimeItem.setVisible(false);
-              break;
-            default:
-              mScrollTimeItem.setVisible(!mSearchExpanded);
-              break;
+          if (position == 2) {
+            mScrollTimeItem.setVisible(false);
+          } else {
+            mScrollTimeItem.setVisible(!mSearchExpanded);
           }
         }
       }
@@ -1111,7 +1098,7 @@ public class TvBrowser extends AppCompatActivity {
 
               connection.setRequestProperty ("Authorization", basicAuth);
 
-              BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+              BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()), Charset.defaultCharset()));
 
               String line = null;
 
@@ -1299,7 +1286,7 @@ public class TvBrowser extends AppCompatActivity {
 
               connection.setRequestProperty ("Authorization", basicAuth);
 
-              BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+              BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()), Charset.defaultCharset()));
 
               String line = null;
 
@@ -1550,7 +1537,7 @@ public class TvBrowser extends AppCompatActivity {
 
               connection.setRequestProperty ("Authorization", basicAuth);
 
-              read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()),"UTF-8"));
+              read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()), Charset.defaultCharset()));
 
               String line;
               Editor edit = PreferenceManager.getDefaultSharedPreferences(getApplicationContext()).edit();
@@ -1872,6 +1859,7 @@ public class TvBrowser extends AppCompatActivity {
       return mChannelLogo;
     }
 
+    @NonNull
     public String toString() {
       return mName;
     }
@@ -2013,6 +2001,7 @@ public class TvBrowser extends AppCompatActivity {
       mLocale = locale;
     }
 
+    @NonNull
     public String toString() {
       if(mLocale == null) {
         return ALL_VALUE;
@@ -2433,6 +2422,7 @@ public class TvBrowser extends AppCompatActivity {
       return mSortNumber;
     }
 
+    @NonNull
     public String toString() {
       return (mSortNumber == 0 ? "-" : mSortNumber) + ". " + mName;
     }
@@ -2679,7 +2669,7 @@ public class TvBrowser extends AppCompatActivity {
                   View line = channelSort.getChildAt(i-firstVisible);
 
                   if(line != null) {
-                    ((TextView)line.findViewById(R.id.row_of_channel_sort_number)).setText(String.valueOf(previousNumber)+".");
+                    ((TextView)line.findViewById(R.id.row_of_channel_sort_number)).setText(previousNumber +".");
                   }
                 }
               }
@@ -3227,6 +3217,7 @@ public class TvBrowser extends AppCompatActivity {
       mIsCaseSensitive = parts[1].equals("1");
     }
 
+    @NonNull
     @Override
     public String toString() {
       return mExclusion;
@@ -4911,7 +4902,7 @@ public class TvBrowser extends AppCompatActivity {
   }
 
   @Override
-  public void onConfigurationChanged(Configuration newConfig) {
+  public void onConfigurationChanged(@NonNull Configuration newConfig) {
     super.onConfigurationChanged(newConfig);
 
     SettingConstants.ORIENTATION = newConfig.orientation;

@@ -23,7 +23,7 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
 	private File mCurrentDownloadPlugin;
 	private Runnable mInstallRunnable;
 
-	private static final boolean canRequestPackageInstalls(final Context context) {
+	private static boolean canRequestPackageInstalls(final Context context) {
 		return !CompatUtils.isAtLeastAndroidO() || context.getPackageManager().canRequestPackageInstalls();
 	}
 

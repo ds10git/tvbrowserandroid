@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="org.tvbrowser.tvbrowser"
     android:installLocation="internalOnly">
 
@@ -30,7 +31,8 @@
         android:largeHeap="true"
         android:supportsRtl="false"
         android:usesCleartextTraffic="true"
-        android:theme="@style/Theme.App.Dark">
+        android:theme="@style/Theme.App.Dark"
+        tools:targetApi="m">
         <meta-data
             android:name="android.max_aspect"
             android:value="2.1" />
@@ -72,10 +74,8 @@
             android:windowSoftInputMode="stateUnspecified|adjustPan">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
@@ -101,10 +101,8 @@
             android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.SEARCH" />
-
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-
             <meta-data
                 android:name="android.app.searchable"
                 android:resource="@xml/searchable" />
@@ -112,7 +110,8 @@
         <activity
             android:name="org.tvbrowser.settings.TvbPreferencesActivity"
             android:label="@string/pref_summary"
-            android:parentActivityName=".TvBrowser">
+            android:parentActivityName=".TvBrowser"
+            tools:targetApi="jelly_bean">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.tvbrowser.tvbrowser.TvBrowser" />
@@ -120,7 +119,8 @@
         <activity
             android:name="org.tvbrowser.settings.PluginPreferencesActivity"
             android:label="@string/menu_tvbrowser_title_settings_plugins"
-            android:parentActivityName=".TvBrowser">
+            android:parentActivityName=".TvBrowser"
+            tools:targetApi="jelly_bean">
             <meta-data
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value="org.tvbrowser.tvbrowser.TvBrowser" />

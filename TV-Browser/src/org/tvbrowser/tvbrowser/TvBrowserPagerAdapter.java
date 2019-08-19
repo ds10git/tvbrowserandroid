@@ -49,6 +49,7 @@ final class TvBrowserPagerAdapter extends FragmentPagerAdapter {
     this.tvBrowser = tvBrowser;
   }
 
+  @NonNull
   @Override
   public synchronized Fragment getItem(final int position) {
     Fragment fragment = registeredFragments.get(position);
@@ -62,8 +63,6 @@ final class TvBrowserPagerAdapter extends FragmentPagerAdapter {
               ((FragmentProgramsListRunning) fragment).setStartTime(TvBrowser.START_TIME + 1);
               TvBrowser.START_TIME = Integer.MIN_VALUE;
             }
-          } else {
-            fragment = new Fragment();
           }
           break;
         case 1:
@@ -84,7 +83,7 @@ final class TvBrowserPagerAdapter extends FragmentPagerAdapter {
       }
     }
 
-    return fragment;
+    return fragment == null ? new Fragment() : fragment;
   }
 
   @Override
@@ -128,14 +127,14 @@ final class TvBrowserPagerAdapter extends FragmentPagerAdapter {
 
   @NonNull
   @Override
-  public synchronized Object instantiateItem(final ViewGroup container, final int position) {
+  public synchronized Object instantiateItem(@NonNull final ViewGroup container, final int position) {
       final Fragment fragment = (Fragment) super.instantiateItem(container, position);
       registeredFragments.put(position, fragment);
       return fragment;
   }
 
   @Override
-  public void destroyItem(final ViewGroup container, final int position, final Object object) {
+  public void destroyItem(@NonNull final ViewGroup container, final int position, @NonNull final Object object) {
       registeredFragments.remove(position);
       super.destroyItem(container, position, object);
   }

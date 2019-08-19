@@ -10,7 +10,7 @@
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
  * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
@@ -559,7 +559,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
   
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
     super.onAttach(context);
     
     if(handler == null) {
@@ -891,7 +891,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   private FavoriteSpinnerEntry mCurrentSelection;
   
   @Override
-  public void onCreateContextMenu(ContextMenu menu, View v, ContextMenuInfo menuInfo) {
+  public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenuInfo menuInfo) {
     int pos = mFavoriteSelection.getSelectedItemPosition();
     
     if(pos == -1 && menuInfo instanceof AdapterContextMenuInfo) {
@@ -907,7 +907,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
   }
   
   @Override
-  public boolean onContextItemSelected(MenuItem item) {
+  public boolean onContextItemSelected(@NonNull MenuItem item) {
     if(getUserVisibleHint()) {
       if(mCurrentSelection != null) {
         if(item.getItemId() == R.id.delete_favorite) {
@@ -1004,6 +1004,7 @@ public class FragmentFavorites extends Fragment implements LoaderManager.LoaderC
       return mEntryWhereClause;
     }
     
+    @NonNull
     @Override
     public String toString() {
       if(containsFavorite()) {

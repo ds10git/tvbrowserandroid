@@ -87,12 +87,11 @@ public abstract class ToolbarPreferencesActivity extends PreferenceActivity {
 
   @Override
   public boolean onOptionsItemSelected(final MenuItem item) {
-    switch (item.getItemId()) {
-      case android.R.id.home:
-        // Navigates to the parent activity following the style guide (up action/ up navigation).
-        // Simple back navigation is done by the back button (e. g. previous preference screen).
-        onBackPressed();
-        return true;
+    if (item.getItemId() == android.R.id.home) {
+      // Navigates to the parent activity following the style guide (up action/ up navigation).
+      // Simple back navigation is done by the back button (e. g. previous preference screen).
+      onBackPressed();
+      return true;
     }
     return super.onOptionsItemSelected(item);
   }

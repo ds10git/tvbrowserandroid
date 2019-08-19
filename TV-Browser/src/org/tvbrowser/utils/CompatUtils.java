@@ -10,18 +10,20 @@
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
  * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
 package org.tvbrowser.utils;
 
 import java.io.File;
+import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.IllegalFormatConversionException;
 import java.util.Locale;
 import java.util.regex.Pattern;
 
+import android.view.ViewConfiguration;
 import org.tvbrowser.tvbrowser.R;
 
 import android.annotation.SuppressLint;
@@ -314,6 +316,28 @@ public final class CompatUtils {
     }
 
     return context;
+  }
+
+  /**
+   * Hack to force overflow menu button to be shown from:
+   * http://stackoverflow.com/questions/9286822/how-to-force-use-of-overflow-menu-on-devices-with-menu-button
+   *
+   * Access to sHasPermanentMenuKey is restricted starting with Android 9.0 Pie (SDK28):
+   * https://developer.android.com/about/versions/pie/restrictions-non-sdk-interfaces
+   */
+  @SuppressWarnings("JavaReflectionMemberAccess")
+  public static void forceOverflowMenu(@NonNull final Context context) {
+    if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+      final ViewConfiguration viewConfiguration = ViewConfiguration.get(context);
+      if (viewConfiguration!=null && viewConfiguration.hasPermanentMenuKey()) {
+        try {
+          final Field hasPermanentMenuKey = ViewConfiguration.class.getDeclaredField("sHasPermanentMenuKey");
+          hasPermanentMenuKey.setAccessible(true);
+          hasPermanentMenuKey.setBoolean(viewConfiguration, false);
+        } catch (Exception ignored) {
+        }
+      }
+    }
   }
 
   /**

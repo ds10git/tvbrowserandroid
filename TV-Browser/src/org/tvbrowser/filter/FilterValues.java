@@ -17,6 +17,8 @@ import android.content.SharedPreferences.Editor;
 import android.util.Log;
 import android.view.ViewGroup;
 
+import androidx.annotation.NonNull;
+
 public abstract class FilterValues {
   public static final String SEPARATOR_CLASS = "§§_§§";
   private static final String SEPARATOR = "##_##";
@@ -43,6 +45,7 @@ public abstract class FilterValues {
   protected abstract String getSaveString();
   public abstract void edit(Context context, Runnable callback, ViewGroup parent);
   
+  @NonNull
   @Override
   public String toString() {
     return getName();

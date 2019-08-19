@@ -10,7 +10,7 @@
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
  * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
@@ -218,7 +218,7 @@ public class FragmentProgramTable extends Fragment {
                   final ScrollView scroll = getView().findViewById(R.id.vertical_program_table_scroll);
 
                   scroll.post(() -> {
-                    int location[] = new int[2];
+                    int[] location = new int[2];
                     view.getLocationInWindow(location);
 
                     scroll.scrollTo(scroll.getScrollX(), scroll.getScrollY()+location[1]);
@@ -276,7 +276,7 @@ public class FragmentProgramTable extends Fragment {
   }
 
   @Override
-  public void onAttach(Context context) {
+  public void onAttach(@NonNull Context context) {
     super.onAttach(context);
 
     mUpdateMarkingsReceiver = new BroadcastReceiver() {
@@ -909,8 +909,7 @@ public class FragmentProgramTable extends Fragment {
   }
 
   @Override
-  public void onCreateContextMenu(ContextMenu menu, View v,
-                                  ContextMenuInfo menuInfo) {
+  public void onCreateContextMenu(@NonNull ContextMenu menu, @NonNull View v, ContextMenuInfo menuInfo) {
     mMenuView = v;
     long programID = ((Long)v.getTag());
 
@@ -919,7 +918,7 @@ public class FragmentProgramTable extends Fragment {
 
 
   @Override
-  public boolean onContextItemSelected(MenuItem item) {
+  public boolean onContextItemSelected(@NonNull MenuItem item) {
     if(mMenuView != null) {
       View temp = mMenuView;
       mMenuView = null;

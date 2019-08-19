@@ -10,7 +10,7 @@
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
  * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
@@ -25,6 +25,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
 import android.preference.PreferenceManager;
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import android.text.format.DateFormat;
@@ -57,7 +58,7 @@ public class InfoActivity extends AppCompatActivity {
   private ViewGroup mViewParent;
   
   @Override
-  public View onCreateView(View parent, String name, Context context, AttributeSet attrs) {
+  public View onCreateView(View parent, @NonNull String name, @NonNull Context context, @NonNull AttributeSet attrs) {
     mViewParent = (ViewGroup)parent;
     return super.onCreateView(parent, name, context, attrs);
   }
@@ -215,7 +216,7 @@ public class InfoActivity extends AppCompatActivity {
             }
             
             if(filteredChannelIds.length > 0) {
-              value.append(String.valueOf(filteredChannelIds[filteredChannelIds.length - 1]));
+              value.append(filteredChannelIds[filteredChannelIds.length - 1]);
             }
           }
           

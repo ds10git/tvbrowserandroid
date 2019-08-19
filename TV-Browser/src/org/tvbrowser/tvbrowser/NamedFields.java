@@ -10,7 +10,7 @@
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
  * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
@@ -22,6 +22,8 @@ import org.tvbrowser.content.TvBrowserContentProvider;
 import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;
+
+import androidx.annotation.NonNull;
 
 public final class NamedFields {
   public static final Comparator<NamedFields> COMPARATOR = (lhs, rhs) -> UiUtils.getCollator().compare(lhs.mName, rhs.mName);
@@ -150,6 +152,7 @@ public final class NamedFields {
     mName = mName.replace(":", "").replace("\n", "");
   }
   
+  @NonNull
   @Override
   public final String toString() {
     return mName;

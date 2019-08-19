@@ -10,7 +10,7 @@
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
  * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
@@ -22,6 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URLDecoder;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -34,6 +35,10 @@ import org.tvbrowser.utils.UiUtils;
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
 import org.xmlpull.v1.XmlPullParserFactory;
+
+import androidx.annotation.NonNull;
+
+import static org.tvbrowser.utils.IOUtils.UTF_8;
 
 /**
  * A class that contains information about a certain Plugin.
@@ -171,7 +176,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
     try {
       XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
       Log.d("info6","openURL: "+PLUGIN_INFO_URL+url);
-      in = new InputStreamReader(IOUtils.decompressStream(new ByteArrayInputStream(IOUtils.loadUrl(PLUGIN_INFO_URL+url, 15000))),"UTF-8");
+      in = new InputStreamReader(IOUtils.decompressStream(new ByteArrayInputStream(IOUtils.loadUrl(PLUGIN_INFO_URL+url, 15000))), Charset.defaultCharset());
       
       XmlPullParser parser = factory.newPullParser();
       parser.setInput(in);
@@ -198,7 +203,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
                 String author = parser.getAttributeValue(null, XML_ATTRIBUTE_AUTHOR);
 
                 if (author != null) {
-                  author = URLDecoder.decode(author, "UTF-8");
+                  author = URLDecoder.decode(author, UTF_8);
                 } else {
                   author = "Unknown";
                 }
@@ -226,19 +231,19 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
             if(current != null) {
               switch (tagName) {
                 case XML_ELEMENT_NAME_EN:
-                  current.mNameEn = URLDecoder.decode(parser.getText(), "UTF-8");
+                  current.mNameEn = URLDecoder.decode(parser.getText(), UTF_8);
                   break;
                 case XML_ELEMENT_NAME_DE:
-                  current.mNameDe = URLDecoder.decode(parser.getText(), "UTF-8");
+                  current.mNameDe = URLDecoder.decode(parser.getText(), UTF_8);
                   break;
                 case XML_ELEMENT_DESCRIPTION_EN:
-                  current.mDescriptionEn = URLDecoder.decode(parser.getText(), "UTF-8");
+                  current.mDescriptionEn = URLDecoder.decode(parser.getText(), UTF_8);
                   break;
                 case XML_ELEMENT_DESCRIPTION_DE:
-                  current.mDescriptionDe = URLDecoder.decode(parser.getText(), "UTF-8");
+                  current.mDescriptionDe = URLDecoder.decode(parser.getText(), UTF_8);
                   break;
                 default:
-                  current.mUnknownValues.put(tagName, URLDecoder.decode(parser.getText(), "UTF-8"));
+                  current.mUnknownValues.put(tagName, URLDecoder.decode(parser.getText(), UTF_8));
                   break;
               }
             }
@@ -286,6 +291,7 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
     return mIsUpdate;
   }
   
+  @NonNull
   @Override
   public String toString() {
     if (isGermanLocale()) {

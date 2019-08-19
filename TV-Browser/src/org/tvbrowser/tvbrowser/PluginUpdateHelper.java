@@ -3,6 +3,8 @@ package org.tvbrowser.tvbrowser;
 import android.content.Intent;
 import android.os.Build;
 import android.preference.PreferenceManager;
+
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 
 import android.text.SpannableStringBuilder;
@@ -165,7 +167,7 @@ abstract class PluginUpdateHelper {
 		int end = strBuilder.getSpanEnd(span);
 		int flags = strBuilder.getSpanFlags(span);
 		ClickableSpan clickable = new ClickableSpan() {
-			public void onClick(View view) {
+			public void onClick(@NonNull View view) {
 				if (!mLoadingPlugin) {
 					mLoadingPlugin = true;
 					loadPlugin(span.getURL());

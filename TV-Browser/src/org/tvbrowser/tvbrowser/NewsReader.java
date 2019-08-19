@@ -10,7 +10,7 @@
  * The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
  *
  * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
- * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE
  * LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR
  * IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
  */
@@ -35,6 +35,8 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.text.format.DateFormat;
 
+import static org.tvbrowser.utils.IOUtils.ISO_8859_15;
+
 /**
  * A class to read news of TV-Browser.
  * <p>
@@ -57,7 +59,7 @@ class NewsReader {
     try {
       XmlPullParserFactory xmlPullParserFactory = XmlPullParserFactory.newInstance();
       XmlPullParser myParser = xmlPullParserFactory.newPullParser();
-      myParser.setInput(new InputStreamReader(new ByteArrayInputStream(IOUtils.loadUrl(NEWS_URL, 10000)),"ISO-8859-15"));
+      myParser.setInput(new InputStreamReader(new ByteArrayInputStream(IOUtils.loadUrl(NEWS_URL, 10000)), ISO_8859_15));
       
       ArrayList<News> newsList = new ArrayList<>();
       
@@ -103,16 +105,16 @@ class NewsReader {
           case XmlPullParser.TEXT:
             switch (name) {
               case "title":
-                currentNews.mDeNewsTitle = URLDecoder.decode(myParser.getText(), "ISO-8859-15");
+                currentNews.mDeNewsTitle = URLDecoder.decode(myParser.getText(), ISO_8859_15);
                 break;
               case "title-en":
-                currentNews.mEnNewsTitle = URLDecoder.decode(myParser.getText(), "ISO-8859-15");
+                currentNews.mEnNewsTitle = URLDecoder.decode(myParser.getText(), ISO_8859_15);
                 break;
               case "text":
-                currentNews.mDeNewsText = URLDecoder.decode(myParser.getText(), "ISO-8859-15");
+                currentNews.mDeNewsText = URLDecoder.decode(myParser.getText(), ISO_8859_15);
                 break;
               case "text-en":
-                currentNews.mEnNewsText = URLDecoder.decode(myParser.getText(), "ISO-8859-15");
+                currentNews.mEnNewsText = URLDecoder.decode(myParser.getText(), ISO_8859_15);
                 break;
             }
             break;

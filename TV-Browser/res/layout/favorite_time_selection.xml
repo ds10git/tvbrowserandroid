@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_margin="5dp" >
@@ -21,7 +22,7 @@
         android:layout_alignParentTop="true"
         android:layout_toRightOf="@id/favorite_time_selection_from_label"
         android:layout_toEndOf="@id/favorite_time_selection_from_label"
-        />
+        tools:targetApi="lollipop" />
     <TextView
         android:id="@id/favorite_time_selection_to_label"
         android:layout_width="wrap_content"
@@ -42,5 +43,6 @@
         android:layout_marginTop="15dp"
         android:layout_toRightOf="@id/favorite_time_selection_to_label"
         android:layout_toEndOf="@id/favorite_time_selection_to_label"
-        android:layout_below="@id/favorite_time_selection_from"/>
+        android:layout_below="@id/favorite_time_selection_from"
+        tools:targetApi="lollipop" />
 </RelativeLayout>
