@@ -199,26 +199,30 @@ public class FragmentProgramsListRunning extends Fragment implements LoaderManag
                 ViewGroup list = getListView();
                 
                 for(int i = 0; i < list.getChildCount(); i++) {
-                  CompactLayoutViewHolder holder = (CompactLayoutViewHolder) list.getChildAt(i).getTag();
-                  
-                  if(holder.mPrevious.getVisibility() == View.VISIBLE) {
-                    if(holder.mPreviousStartTimeValue <= System.currentTimeMillis()) {
-                      String[] markedColumns = mMarkingsMap.get(holder.mPreviousProgramID);
-                      
-                      UiUtils.handleMarkings(getActivity(), null, holder.mPreviousStartTimeValue, holder.mPreviousEndTimeValue, holder.mPrevious, markedColumns, handler);
+                  View child = list.getChildAt(i);
+
+                  if(child != null) {
+                    CompactLayoutViewHolder holder = (CompactLayoutViewHolder) child.getTag();
+
+                    if (holder.mPrevious.getVisibility() == View.VISIBLE) {
+                      if (holder.mPreviousStartTimeValue <= System.currentTimeMillis()) {
+                        String[] markedColumns = mMarkingsMap.get(holder.mPreviousProgramID);
+
+                        UiUtils.handleMarkings(getActivity(), null, holder.mPreviousStartTimeValue, holder.mPreviousEndTimeValue, holder.mPrevious, markedColumns, handler);
+                      }
                     }
-                  }
-                  
-                  if(holder.mNowStartTimeValue <= System.currentTimeMillis()) {
-                    String[] markedColumns = mMarkingsMap.get(holder.mNowProgramID);
-                    
-                    UiUtils.handleMarkings(getActivity(), null, holder.mNowStartTimeValue, holder.mNowEndTimeValue, holder.mNow, markedColumns, handler);
-                  }
-  
-                  if(holder.mNextStartTimeValue <= System.currentTimeMillis()) {
-                    String[] markedColumns = mMarkingsMap.get(holder.mNextProgramID);
-                    
-                    UiUtils.handleMarkings(getActivity(), null, holder.mNextStartTimeValue, holder.mNextEndTimeValue, holder.mNext, markedColumns, handler);
+
+                    if (holder.mNowStartTimeValue <= System.currentTimeMillis()) {
+                      String[] markedColumns = mMarkingsMap.get(holder.mNowProgramID);
+
+                      UiUtils.handleMarkings(getActivity(), null, holder.mNowStartTimeValue, holder.mNowEndTimeValue, holder.mNow, markedColumns, handler);
+                    }
+
+                    if (holder.mNextStartTimeValue <= System.currentTimeMillis()) {
+                      String[] markedColumns = mMarkingsMap.get(holder.mNextProgramID);
+
+                      UiUtils.handleMarkings(getActivity(), null, holder.mNextStartTimeValue, holder.mNextEndTimeValue, holder.mNext, markedColumns, handler);
+                    }
                   }
                 }
               }

@@ -136,7 +136,13 @@ final class TvBrowserPagerAdapter extends FragmentPagerAdapter {
   @Override
   public void destroyItem(@NonNull final ViewGroup container, final int position, @NonNull final Object object) {
       registeredFragments.remove(position);
-      super.destroyItem(container, position, object);
+
+      if(object != null) {
+        try {
+          super.destroyItem(container, position, object);
+        } catch (NullPointerException npe) {
+        }
+      }
   }
 
   Fragment getRegisteredFragment(final int position) {

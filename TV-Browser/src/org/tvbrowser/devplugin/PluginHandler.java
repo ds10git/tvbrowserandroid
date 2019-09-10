@@ -315,16 +315,19 @@ public final class PluginHandler {
       doLog(context, "do Plugin shutdown");
       if(PLUGIN_LIST != null) {
         context = context.getApplicationContext();
-        
-        for(PluginServiceConnection plugin : PLUGIN_LIST) {
-          if(plugin.isActivated()) {
-            plugin.callOnDeactivation();
+
+        synchronized (PLUGIN_LIST) {
+          for (PluginServiceConnection plugin : PLUGIN_LIST) {
+            if (plugin.isActivated()) {
+              plugin.callOnDeactivation();
+            }
+
+            plugin.unbindPlugin(context);
           }
-          
-          plugin.unbindPlugin(context);
+
+          PLUGIN_LIST.clear();
         }
-      
-        PLUGIN_LIST.clear();
+        
         PLUGIN_LIST = null;
       }
       

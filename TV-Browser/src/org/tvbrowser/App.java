@@ -100,33 +100,35 @@ public final class App extends Application {
 	 */
 	@RequiresApi(Build.VERSION_CODES.O)
 	private void createNotificationChannel(final boolean update) {
-		final NotificationManager service = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
+		try {
+			final NotificationManager service = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
 
-		if (service != null) {
-			final long[] vibrationPattern = new long[] {1000,200,1000,400,1000,600};
+			if (service != null) {
+				final long[] vibrationPattern = new long[]{1000, 200, 1000, 400, 1000, 600};
 
-			final AudioAttributes attributes = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build();
+				final AudioAttributes attributes = new AudioAttributes.Builder().setUsage(AudioAttributes.USAGE_NOTIFICATION).build();
 
-			final NotificationChannel notificationChannelDefault = new NotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_DEFAULT), getNotificationChannelName(TYPE_NOTIFICATION_DEFAULT), NotificationManager.IMPORTANCE_DEFAULT);
-			notificationChannelDefault.setDescription(getString(R.string.notification_channel_default_description));
-			notificationChannelDefault.setVibrationPattern(null);
-			notificationChannelDefault.enableVibration(false);
-			notificationChannelDefault.enableLights(false);
-			notificationChannelDefault.setSound(null, attributes);
-			service.createNotificationChannel(notificationChannelDefault);
+				final NotificationChannel notificationChannelDefault = new NotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_DEFAULT), getNotificationChannelName(TYPE_NOTIFICATION_DEFAULT), NotificationManager.IMPORTANCE_DEFAULT);
+				notificationChannelDefault.setDescription(getString(R.string.notification_channel_default_description));
+				notificationChannelDefault.setVibrationPattern(null);
+				notificationChannelDefault.enableVibration(false);
+				notificationChannelDefault.enableLights(false);
+				notificationChannelDefault.setSound(null, attributes);
+				service.createNotificationChannel(notificationChannelDefault);
 
-			if(update || (service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_DAY)) == null
-				|| service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_WORK)) == null
-				|| service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_NIGHT)) == null)) {
-				final String soundDefault = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString();
-				PrefUtils.initialize(getApplicationContext());
-				final int colorLED = PrefUtils.getIntValue(R.string.PREF_REMINDER_COLOR_LED, ContextCompat.getColor(getApplicationContext(), R.color.pref_reminder_color_led_default));
+				if (update || (service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_DAY)) == null
+					|| service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_WORK)) == null
+					|| service.getNotificationChannel(getNotificationChannelId(TYPE_NOTIFICATION_REMINDER_NIGHT)) == null)) {
+					final String soundDefault = RingtoneManager.getDefaultUri(RingtoneManager.TYPE_NOTIFICATION).toString();
+					PrefUtils.initialize(getApplicationContext());
+					final int colorLED = PrefUtils.getIntValue(R.string.PREF_REMINDER_COLOR_LED, ContextCompat.getColor(getApplicationContext(), R.color.pref_reminder_color_led_default));
 
-				service.createNotificationChannel(createReminderNotificationChannel(TYPE_NOTIFICATION_REMINDER_DAY, vibrationPattern, soundDefault, attributes, colorLED));
-				service.createNotificationChannel(createReminderNotificationChannel(TYPE_NOTIFICATION_REMINDER_WORK, vibrationPattern, null, attributes, colorLED));
-				service.createNotificationChannel(createReminderNotificationChannel(TYPE_NOTIFICATION_REMINDER_NIGHT, vibrationPattern, null, attributes, colorLED));
+					service.createNotificationChannel(createReminderNotificationChannel(TYPE_NOTIFICATION_REMINDER_DAY, vibrationPattern, soundDefault, attributes, colorLED));
+					service.createNotificationChannel(createReminderNotificationChannel(TYPE_NOTIFICATION_REMINDER_WORK, vibrationPattern, null, attributes, colorLED));
+					service.createNotificationChannel(createReminderNotificationChannel(TYPE_NOTIFICATION_REMINDER_NIGHT, vibrationPattern, null, attributes, colorLED));
+				}
 			}
-		}
+		}catch(RuntimeException re) {}
 	}
 
 	@RequiresApi(api = Build.VERSION_CODES.O)

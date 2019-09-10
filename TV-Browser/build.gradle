@@ -3,7 +3,7 @@ apply plugin: 'com.android.application'
 import groovy.swing.SwingBuilder
 
 System.setProperty('java.awt.headless', 'false')
-
+/*
 gradle.taskGraph.whenReady { taskGraph ->
     if (taskGraph.hasTask(':' + project.name + ':validateSigningFreeRelease') ||
             taskGraph.hasTask(':' + project.name + ':validateSigningGoogleRelease')) {
@@ -53,7 +53,7 @@ gradle.taskGraph.whenReady { taskGraph ->
         android.signingConfigs.free.storePassword = passwordKeyStore
         android.signingConfigs.free.keyPassword = password
     }
-}
+}*/
 
 android {
     signingConfigs {
@@ -72,8 +72,8 @@ android {
         applicationId "org.tvbrowser.tvbrowser"
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 4269
-        versionName "0.7.0.7"
+        versionCode 4270
+        versionName "0.7.0.8"
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -101,6 +101,55 @@ android {
             applicationIdSuffix ".debug"
         }
         release {
+          /*  def password = ""
+            def passwordKeyStore = ""
+
+            if (System.console() == null) {
+                new SwingBuilder().edt {
+                    dialog(modal: true,
+                            title: "Enter password",
+                            alwaysOnTop: true,
+                            resizable: false,
+                            locationRelativeTo: null,
+                            pack: true,
+                            show: true
+                    ) {
+                        vbox {
+                            label(text: "Enter store password: ")
+                            input1 = passwordField()
+                            label(text: "Enter key password: ")
+                            input = passwordField()
+                            button(defaultButton: true,
+                                    text: 'OK',
+                                    actionPerformed: {
+                                        passwordKeyStore = new String(input1.password);
+                                        password = new String(input.password);
+                                        dispose();
+                                    })
+                        }
+                    }
+                }
+            } else {
+                password = System.console().readPassword("\nEnter keystore password: ")
+                password = new String(password)
+                passwordKeyStore = System.console().readPassword("\nEnter key password: ")
+                passwordKeyStore = new String(passwordKeyStore)
+            }
+
+            if (password.size() <= 0 || passwordKeyStore.size() <= 0) {
+                throw new InvalidUserDataException("Empty password")
+            }
+
+            // set signing config key passwords
+            android.signingConfigs.google.storePassword = passwordKeyStore
+            android.signingConfigs.google.keyPassword = password
+
+            android.signingConfigs.free.storePassword = passwordKeyStore
+            android.signingConfigs.free.keyPassword = password
+
+            productFlavors.google.signingConfig = signingConfigs.google
+            productFlavors.free.signingConfig = signingConfigs.free*/
+
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-project.txt'
         }

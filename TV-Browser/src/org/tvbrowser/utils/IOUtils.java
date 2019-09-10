@@ -1180,16 +1180,18 @@ public final class IOUtils {
 
             return result;
           });
-          
-          for(final File file : toDelete) {
-            if(file.getName().endsWith("_base.gz")) {
-              int index = file.getName().lastIndexOf("base.gz");
-              
-              currentProperties.remove(file.getName().substring(0, index));
-            }
-            
-            if(!file.delete()) {
-              file.deleteOnExit();
+
+          if(toDelete != null) {
+            for (final File file : toDelete) {
+              if (file.getName().endsWith("_base.gz")) {
+                int index = file.getName().lastIndexOf("base.gz");
+
+                currentProperties.remove(file.getName().substring(0, index));
+              }
+
+              if (!file.delete()) {
+                file.deleteOnExit();
+              }
             }
           }
           

@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
-        <h2>0.7.0.7</h2>
+        <h2>0.7.0.8</h2>
+            &bull; fixed possible crash<br>
+            &bull; extended runtime to 2024-12-31<br>
+        <h3>0.7.0.7</h3>
             &bull; clearer settings for synchronisation<br>
             &bull; added warning dialog to deletion of filters<br>
         	&bull; improvements/bug fixes of Thorsten1976<br>
