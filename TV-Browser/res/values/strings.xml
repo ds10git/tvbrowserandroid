@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+        <h2>0.7.0.9</h2>
+            &bull; extended runtime to 2029-12-31<br>
         <h2>0.7.0.8</h2>
             &bull; fixed possible crash<br>
             &bull; extended runtime to 2024-12-31<br>

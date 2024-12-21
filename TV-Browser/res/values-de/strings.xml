@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+        <h2>0.7.0.9</h2>
+            &bull; Laufzeit verlängert bis zum 31.12.2029<br>
         <h2>0.7.0.8</h2>
             &bull; möglichen Absturz beseitigt<br>
             &bull; Laufzeit verlängert bis zum 31.12.2024<br>
