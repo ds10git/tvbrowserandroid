@@ -3,7 +3,7 @@
     <string name="pref_category_key" translatable="false">PREF_CATEGORY</string>
     <string name="category_download" translatable="false">DOWNLOAD</string>
     <string name="category_epgpaid" translatable="false">EPGPAID</string>
-    <string name="category_database" translatable="false">DATABASE</string>
+    <string name="category_degender" translatable="false">DEGENDER</string>
     <string name="category_start" translatable="false">START</string>
     <string name="category_theme" translatable="false">THEME</string>
     <string name="category_reminder" translatable="false">REMINDER</string>

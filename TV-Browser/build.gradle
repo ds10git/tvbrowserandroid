@@ -72,8 +72,8 @@ android {
         applicationId "org.tvbrowser.tvbrowser"
         minSdkVersion 14
         targetSdkVersion 28
-        versionCode 4271
-        versionName "0.7.0.9"
+        versionCode 4272
+        versionName "0.7.0.10beta"
         vectorDrawables.useSupportLibrary = true
     }
 
@@ -230,4 +230,5 @@ dependencies {
     implementation 'androidx.vectordrawable:vectordrawable:1.0.1'
     implementation 'com.google.android.material:material:1.1.0-alpha09'
     implementation 'me.drakeet.support:toastcompat:1.1.0'
+    implementation 'com.google.android.gms:play-services-auth:20.7.0'
 }

@@ -562,10 +562,12 @@ public class TvDataUpdateService extends Service {
         }finally {
           IOUtils.close(groupCursor);
         }
-        
+
+        DegenderPlugin degender = new DegenderPlugin();
+        degender.handleTvDataUpdateStarted();
         DataHandler epgFreeDataHandler = new EPGfreeDataHandler();
         DataHandler epgDoanteDataHandler = new EPGdonateDataHandler();
-        
+
         for(int i = 0; i < oldDataFiles.length; i++) {
           mBuilder.setProgress(oldDataFiles.length, i+1, false);
           notification.notify(ID_NOTIFY, mBuilder.build());
@@ -626,7 +628,7 @@ public class TvDataUpdateService extends Service {
                       toUse = epgDoanteDataHandler;
                     }
                     
-                    update = new ChannelUpdate(toUse, channelIntId, timezone, date.getTimeInMillis());
+                    update = new ChannelUpdate(toUse, channelIntId, timezone, date.getTimeInMillis(), degender);
                     
                     updateMap.put(key.toString(), update);
                   } catch (Exception e) {
@@ -674,8 +676,8 @@ public class TvDataUpdateService extends Service {
           
           mDataUpdatePool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
           
-          mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE);
-          mVersionDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_VERSION,10);
+          mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, degender);
+          mVersionDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_VERSION,10, null);
          /* mDataInsertList = new ArrayList<ContentValues>();
           mDataUpdateList = new ArrayList<ContentProviderOperation>();
           */
@@ -731,10 +733,11 @@ public class TvDataUpdateService extends Service {
           }
           
           updateMap.clear();
+          degender.handleTvDataUpdateFinished();
         }
       }
     }
-    
+
     calculateMissingEnds(notification, true, syncAllowed);
   }
   
@@ -921,10 +924,10 @@ public class TvDataUpdateService extends Service {
         String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
 
         URLConnection conn = null;
-        OutputStream os = null;
-        InputStream is = null;
 
         try {
+          NetHelper.prepareConnection(getApplicationContext());
+
           URL url = new URL(address);
 
           conn = url.openConnection();
@@ -960,45 +963,47 @@ public class TvDataUpdateService extends Service {
               .length() + message2.length() + xmlData.length)));
 
           Log.d("info8", "open os");
-          os = conn.getOutputStream();
+          try(OutputStream os = conn.getOutputStream()) {
 
-          Log.d("info8", message1);
-          os.write(message1.getBytes());
+            Log.d("info8", message1);
+            os.write(message1.getBytes());
 
-          // SEND THE IMAGE
-          int index = 0;
-          int size = 1024;
-          do {
-            Log.d("info8", "write:" + index);
-            if ((index + size) > xmlData.length) {
-              size = xmlData.length - index;
-            }
-            os.write(xmlData, index, size);
-            index += size;
-          } while (index < xmlData.length);
+            // SEND THE IMAGE
+            int index = 0;
+            int size = 1024;
+            do {
+              Log.d("info8", "write:" + index);
+              if ((index + size) > xmlData.length) {
+                size = xmlData.length - index;
+              }
+              os.write(xmlData, index, size);
+              index += size;
+            } while (index < xmlData.length);
 
-          Log.d("info8", "written:" + index);
+            Log.d("info8", "written:" + index);
 
-          Log.d("info8", message2);
-          os.write(message2.getBytes());
-          os.flush();
+            Log.d("info8", message2);
+            os.write(message2.getBytes());
+            os.flush();
+          }
 
           Log.d("info8", "open is");
-          is = conn.getInputStream();
+          try(InputStream is = conn.getInputStream()) {
 
-          char buff = 512;
-          int len;
-          byte[] data = new byte[buff];
-          do {
-            Log.d("info8", "READ");
-            len = is.read(data);
+            char buff = 512;
+            int len;
+            byte[] data = new byte[buff];
+            do {
+              Log.d("info8", "READ");
+              len = is.read(data);
 
-            if (len > 0) {
-              Log.d("info8", new String(data, 0, len));
-            }
-          } while (len > 0);
+              if (len > 0) {
+                Log.d("info8", new String(data, 0, len));
+              }
+            } while (len > 0);
 
-          Log.d("info8", "DONE");
+            Log.d("info8", "DONE");
+          }
         } catch (Exception e) {
         /*int response = 0;
         
@@ -1011,12 +1016,12 @@ public class TvDataUpdateService extends Service {
           }
         }*/
 
-          Log.d("info8", "", e);
+            Log.d("info8", "", e);
+
         } finally {
           Log.d("info8", "Close connection");
-          IOUtils.close(os);
-          IOUtils.close(is);
           IOUtils.disconnect(conn);
+          NetHelper.finishConnection();
         }
       }
 
@@ -1121,10 +1126,11 @@ public class TvDataUpdateService extends Service {
       mBuilder.setProgress(100, 0, true);
       mBuilder.setContentText(getResources().getText(R.string.update_data_notification_synchronize_remiders));
       notification.notify(ID_NOTIFY, mBuilder.build());
-      
+
       URLConnection connection = null;
-      BufferedReader read = null;
       try {
+        NetHelper.prepareConnection(getApplicationContext());
+
         final URL documentUrl = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/syncDown.php?type=reminderFromDesktop");
         connection = documentUrl.openConnection();
         
@@ -1140,37 +1146,36 @@ public class TvDataUpdateService extends Service {
           
           connection.setRequestProperty ("Authorization", basicAuth);
           
-          read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()), Charset.defaultCharset()));
-          
-          String reminder = null;
+          try(BufferedReader read = new BufferedReader(new InputStreamReader(new GZIPInputStream(connection.getInputStream()), Charset.defaultCharset()))) {
+            String reminder = null;
 
-          final ArrayList<String> dataSyncValues = new ArrayList<>();
-          
-          while((reminder = read.readLine()) != null) {
-            if(reminder != null && reminder.contains(";") && reminder.contains(":")) {
-              dataSyncValues.add(reminder);
+            final ArrayList<String> dataSyncValues = new ArrayList<>();
+
+            while ((reminder = read.readLine()) != null) {
+              if (reminder != null && reminder.contains(";") && reminder.contains(":")) {
+                dataSyncValues.add(reminder);
+              }
             }
-          }
 
-          if(!dataSyncValues.isEmpty()) {
-            syncPrograms(notification, R.string.update_data_notification_synchronize_remiders, dataSyncValues, TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, null);
-            dataSyncValues.clear();
+            if (!dataSyncValues.isEmpty()) {
+              syncPrograms(notification, R.string.update_data_notification_synchronize_remiders, dataSyncValues, TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, TvBrowserContentProvider.DATA_KEY_MARKING_REMINDER, null);
+              dataSyncValues.clear();
 
-            if(info) {
-              mHandler.post(() -> ToastCompat.makeText(TvDataUpdateService.this, R.string.synchronize_reminder_down_done, ToastCompat.LENGTH_SHORT).show());
-            }
-          }
-          else {
-            if(info) {
-              mHandler.post(() -> ToastCompat.makeText(TvDataUpdateService.this, R.string.synchronize_reminder_down_nothing, ToastCompat.LENGTH_SHORT).show());
+              if (info) {
+                mHandler.post(() -> ToastCompat.makeText(TvDataUpdateService.this, R.string.synchronize_reminder_down_done, ToastCompat.LENGTH_SHORT).show());
+              }
+            } else {
+              if (info) {
+                mHandler.post(() -> ToastCompat.makeText(TvDataUpdateService.this, R.string.synchronize_reminder_down_nothing, ToastCompat.LENGTH_SHORT).show());
+              }
             }
           }
         }
       }catch(Exception e) {
         Log.d("info", "", e);
       } finally {
-    	  IOUtils.close(read);
-    	  IOUtils.disconnect(connection);
+        NetHelper.finishConnection();
+    	IOUtils.disconnect(connection);
       }
       
       SettingConstants.UPDATING_REMINDERS = false;
@@ -1839,7 +1844,7 @@ public class TvDataUpdateService extends Service {
       if(!channelMirrors.isEmpty()) {
         mThreadPool = Executors.newFixedThreadPool(Math.max(Runtime.getRuntime().availableProcessors(), 2));
         mCurrentDownloadCount = 0;
-        mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(getApplicationContext(), TvBrowserContentProvider.CONTENT_URI_CHANNELS);
+        mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(getApplicationContext(), TvBrowserContentProvider.CONTENT_URI_CHANNELS, null);
         mBuilder.setProgress(channelMirrors.size(), 0, false);
         notification.notify(ID_NOTIFY, mBuilder.build());
         
@@ -2389,10 +2394,9 @@ public class TvDataUpdateService extends Service {
       String basicAuth = "basic " + Base64.encodeToString(userpass.getBytes(), Base64.NO_WRAP);
       
       URLConnection conn = null;
-      OutputStream os = null;
-      InputStream is = null;
-      
+
       try {
+          NetHelper.prepareConnection(getApplicationContext());
           URL url = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/syncUp.php?type=favortiesFromApp");
           
           conn = url.openConnection();
@@ -2426,52 +2430,51 @@ public class TvDataUpdateService extends Service {
                   .length() + message2.length() + xmlData.length)));
 
           Log.d("info8","open os");
-          os = conn.getOutputStream();
+          try(OutputStream os = conn.getOutputStream()) {
+            Log.d("info8", message1);
+            os.write(message1.getBytes());
 
-          Log.d("info8",message1);
-          os.write(message1.getBytes());
-          
-          // SEND THE IMAGE
-          int index = 0;
-          int size = 1024;
-          do {
-            Log.d("info8","write:" + index);
+            // SEND THE IMAGE
+            int index = 0;
+            int size = 1024;
+            do {
+              Log.d("info8", "write:" + index);
               if ((index + size) > xmlData.length) {
-                  size = xmlData.length - index;
+                size = xmlData.length - index;
               }
               os.write(xmlData, index, size);
               index += size;
-          } while (index < xmlData.length);
-          
-          Log.d("info8","written:" + index);
+            } while (index < xmlData.length);
 
-          Log.d("info8",message2);
-          os.write(message2.getBytes());
-          os.flush();
+            Log.d("info8", "written:" + index);
+
+            Log.d("info8", message2);
+            os.write(message2.getBytes());
+            os.flush();
+          }
 
           Log.d("info8","open is");
-          is = conn.getInputStream();
-
-          char buff = 512;
-          int len;
-          byte[] data = new byte[buff];
-          do {
-            Log.d("info8","READ");
+          try(InputStream is = conn.getInputStream()) {
+            char buff = 512;
+            int len;
+            byte[] data = new byte[buff];
+            do {
+              Log.d("info8", "READ");
               len = is.read(data);
 
               if (len > 0) {
-                Log.d("info8",new String(data, 0, len));
+                Log.d("info8", new String(data, 0, len));
               }
-          } while (len > 0);
+            } while (len > 0);
 
-          Log.d("info8","DONE");
+            Log.d("info8", "DONE");
+          }
       } catch (Exception e) {
           Log.d("info8", "" ,e);
       } finally {
         Log.d("info8","Close connection");
-          IOUtils.close(os);
-          IOUtils.close(is);
           IOUtils.disconnect(conn);
+          NetHelper.finishConnection();
       }
     }
     
@@ -2480,8 +2483,9 @@ public class TvDataUpdateService extends Service {
   
   private void loadAccessAndFavoriteSync() {
 	URLConnection connection = null;
-	BufferedReader read = null;
+
 	try {
+      NetHelper.prepareConnection(getApplicationContext());
       URL documentUrl = new URL(SettingConstants.URL_SYNC_BASE + "data/scripts/syncDown.php?type=favoritesFromDesktop");
       connection = documentUrl.openConnection();
       
@@ -2496,55 +2500,54 @@ public class TvDataUpdateService extends Service {
         
         connection.setRequestProperty ("Authorization", basicAuth);
         
-        read = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(connection.getInputStream()), Charset.defaultCharset()));
-        
-        String dateValue = read.readLine();
-        
-        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd", Locale.US);
-        Date syncDate = dateFormat.parse(dateValue.trim());
-        
-        if(syncDate.getTime() > System.currentTimeMillis()) {
-          mSyncFavorites = new ArrayList<>();
-          
-          String line = null;
-          
-          while((line = read.readLine()) != null) {
-            mSyncFavorites.add(line);
+        try(BufferedReader read = new BufferedReader(new InputStreamReader(IOUtils.decompressStream(connection.getInputStream()), Charset.defaultCharset()))) {
+
+          String dateValue = read.readLine();
+
+          SimpleDateFormat dateFormat = new SimpleDateFormat("yyyyMMdd", Locale.US);
+          Date syncDate = dateFormat.parse(dateValue.trim());
+
+          if (syncDate.getTime() > System.currentTimeMillis()) {
+            mSyncFavorites = new ArrayList<>();
+
+            String line = null;
+
+            while ((line = read.readLine()) != null) {
+              mSyncFavorites.add(line);
+            }
+
+            Collections.sort(mSyncFavorites, (o1, o2) -> {
+              int result = 0;
+
+              int index1 = o1.indexOf(";");
+              int index2 = o2.indexOf(";");
+
+              if (index1 > 0 && index2 <= 0) {
+                result = 1;
+              } else if (index1 <= 0 && index2 > 0) {
+                result = -1;
+              } else {
+                try {
+                  int value1 = Integer.parseInt(o1.substring(0, index1));
+                  int value2 = Integer.parseInt(o2.substring(0, index2));
+
+                  if (value1 < value2) {
+                    result = 1;
+                  } else if (value1 > value2) {
+                    result = -1;
+                  }
+                } catch (NumberFormatException ignored) {
+                }
+              }
+
+              return result;
+            });
           }
-
-          Collections.sort(mSyncFavorites, (o1, o2) -> {
-            int result = 0;
-
-            int index1 = o1.indexOf(";");
-            int index2 = o2.indexOf(";");
-
-            if(index1 > 0 && index2 <= 0) {
-              result = 1;
-            }
-            else if(index1 <= 0 && index2 > 0) {
-              result = -1;
-            }
-            else {
-              try {
-                int value1 = Integer.parseInt(o1.substring(0, index1));
-                int value2 = Integer.parseInt(o2.substring(0, index2));
-
-                if(value1 < value2) {
-                  result = 1;
-                }
-                else if(value1 > value2) {
-                  result = -1;
-                }
-              }catch(NumberFormatException ignored) {}
-            }
-
-            return  result;
-          });
         }
       }
     }catch(Throwable ignored) {
     }finally {
-		IOUtils.close(read);
+        NetHelper.finishConnection();
 		IOUtils.disconnect(connection);
 	}
   }
@@ -2970,7 +2973,9 @@ public class TvDataUpdateService extends Service {
     int downloadCountTemp = 0;
     doLog("readCurrentVersionIDs()");
     readCurrentVersionIDs();
-    
+
+    DegenderPlugin degender = new DegenderPlugin();
+    degender.handleTvDataUpdateStarted();
     DataHandler epgFreeDataHandler = new EPGfreeDataHandler();
     DataHandler epgDonateDataHandler = new EPGdonateDataHandler();
     
@@ -3162,7 +3167,7 @@ public class TvDataUpdateService extends Service {
                       
                       String versionKey = channelKey + "_" + daysSince1970;
                                           
-                      ChannelUpdate channelUpdate = new ChannelUpdate(epgFreeDataHandler, channelKey, timeZone, startDate.getTimeInMillis());
+                      ChannelUpdate channelUpdate = new ChannelUpdate(epgFreeDataHandler, channelKey, timeZone, startDate.getTimeInMillis(), degender);
                       
                       for(int level : levels) {
                         int testVersion = 0;
@@ -3241,7 +3246,7 @@ public class TvDataUpdateService extends Service {
                     long startMilliseconds = Long.parseLong(stringKey.substring(0,stringKey.indexOf("_"))) * 60000L;
                     //Log.d("info21", "onTime " + ((startMilliseconds >= now.getTimeInMillis() && startMilliseconds <= to.getTimeInMillis())));
                     if(startMilliseconds >= now.getTimeInMillis() && startMilliseconds <= to.getTimeInMillis()) {
-                      ChannelUpdate channelUpdate = new ChannelUpdate(epgDonateDataHandler, channelKey, timeZone, startMilliseconds);
+                      ChannelUpdate channelUpdate = new ChannelUpdate(epgDonateDataHandler, channelKey, timeZone, startMilliseconds, degender);
 
                       long daysSince1970 = startMilliseconds / 24 / 60 / 60000L;
                       
@@ -3336,8 +3341,8 @@ public class TvDataUpdateService extends Service {
     //mDontWantToSeeValues = null;
     Log.d("info5", "updateCount " + downloadCountTemp);
     
-    mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE);
-    mVersionDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_VERSION,10);
+    mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, degender);
+    mVersionDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this,TvBrowserContentProvider.CONTENT_URI_DATA_VERSION,10, null);
    /* mDataInsertList = new ArrayList<ContentValues>();
     mDataUpdateList = new ArrayList<ContentProviderOperation>();*/
     
@@ -3382,7 +3387,8 @@ public class TvDataUpdateService extends Service {
     }
     
     doLog("WAIT FOR DATA UPDATE FOR DONE, DOWNLOAD: " + mThreadPool.isTerminated() + " DATA: " + mDataUpdatePool.isTerminated());
-    
+
+    degender.handleTvDataUpdateFinished();
     mShowNotification = false;
     
     if(mDataDatabaseOperation != null) {
@@ -3424,7 +3430,7 @@ public class TvDataUpdateService extends Service {
       to.set(Calendar.SECOND, 59);
       to.set(Calendar.MILLISECOND, 999);
       
-      updateEpgPaidData(path, notification, to.getTimeInMillis());
+      updateEpgPaidData(path, notification, to.getTimeInMillis(), degender);
     }
     
     if(updateList.size() > 0) {
@@ -3497,7 +3503,7 @@ public class TvDataUpdateService extends Service {
     }
   }
   
-  private void updateEpgPaidData(File pathBase, NotificationManager notification, long endDateTime) {
+  private void updateEpgPaidData(File pathBase, NotificationManager notification, long endDateTime, DegenderPlugin degenderPlugin) {
     if(PrefUtils.getBooleanValue(R.string.PREF_PRIVACY_TERMS_ACCEPTED_EPGPAID,R.bool.pref_privacy_terms_default)) {
       final Calendar utc = Calendar.getInstance(TimeZone.getTimeZone("UTC"));
       utc.set(Calendar.HOUR_OF_DAY, 0);
@@ -3528,7 +3534,7 @@ public class TvDataUpdateService extends Service {
       mBuilder.setContentText(getResources().getText(R.string.update_data_notification_epgpaid_prepare));
       notification.notify(ID_NOTIFY, mBuilder.build());
 
-      final EPGpaidDataConnection epgPaidConnection = new EPGpaidDataConnection();
+      final EPGpaidDataConnection epgPaidConnection = new EPGpaidDataConnection(getApplicationContext());
 
       final Hashtable<String, Long> currentDataIds = new Hashtable<>();
       final File fileSummaryCurrent = new File(epgPaidPath, "summary.gz");
@@ -3767,9 +3773,9 @@ public class TvDataUpdateService extends Service {
       });
 
       if (dataFiles != null && dataFiles.length > 0) {
-        mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this, TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE);
+        mDataDatabaseOperation = new MemorySizeConstrictedDatabaseOperation(TvDataUpdateService.this, TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, null);
 
-        final EPGpaidDataHandler handler = new EPGpaidDataHandler();
+        final EPGpaidDataHandler handler = new EPGpaidDataHandler(degenderPlugin);
 
         int count = 0;
 
@@ -4480,6 +4486,10 @@ public class TvDataUpdateService extends Service {
   }
   
   private class EPGpaidDataHandler {
+    private DegenderPlugin mDegenderPlugin;
+    private EPGpaidDataHandler(DegenderPlugin degender) {
+      mDegenderPlugin = degender;
+    }
     final EPGpaidResult readContentValues(File file, Hashtable<String, Long> currentDataIds) {
       DataInputStream in = null;
       final EPGpaidResult result = new EPGpaidResult((byte)0);
@@ -4647,9 +4657,11 @@ public class TvDataUpdateService extends Service {
             Long programId = currentDataIds.remove(key);
             
             if(programId != null) {
+              mDegenderPlugin.handleData(values);
+
               ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, programId));
               opBuilder.withValues(values);
-           
+
               mDataDatabaseOperation.addUpdate(opBuilder.build());
             }
             else {
@@ -4671,7 +4683,6 @@ public class TvDataUpdateService extends Service {
   }
   
   private class EPGdonateDataHandler implements DataHandler {
-    
     @Override
     public Object[] readValuesFromDataFile(ChannelUpdate update, DataInputStream in, int level) throws IOException {
       String id = in.readUTF();
@@ -4938,13 +4949,16 @@ public class TvDataUpdateService extends Service {
     private boolean mContainsPicture;
     private boolean mContainsDescription;
     private final DataHandler mDataHandler;
+
+    private DegenderPlugin mDegenderPlugin;
     
     /**
      * @param date Start time in milliseconds since 1970 for UTC 0 o'clock.
      */
-    ChannelUpdate(DataHandler dataHandler, long channelID, String timezone, long date) {
+    ChannelUpdate(DataHandler dataHandler, long channelID, String timezone, long date, DegenderPlugin degenderPlugin) {
       mDataHandler = dataHandler;
       mChannelID = channelID;
+      mDegenderPlugin = degenderPlugin;
       
       if(timezone.startsWith("GMT+01:00")) {
         mTimeZone = "CET";
@@ -5148,6 +5162,8 @@ public class TvDataUpdateService extends Service {
            ContentValues value = mUpdateValueMap.get(programID);
            
            if(value != null && mDataDatabaseOperation != null) {
+             mDegenderPlugin.handleData(value);
+
              ContentProviderOperation.Builder opBuilder = ContentProviderOperation.newUpdate(ContentUris.withAppendedId(TvBrowserContentProvider.CONTENT_URI_DATA_UPDATE, programID));
              opBuilder.withValues(value);
           

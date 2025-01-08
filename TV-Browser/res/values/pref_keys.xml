@@ -16,7 +16,18 @@
     	<string name="PREF_DATABASE_OLD_PATH" translatable="false">PREF_DATABASE_OLD_PATH</string>
     	<string name="PREF_DATABASE_PATH" translatable="false">PREF_DATABASE_PATH</string>
 	    <item name="pref_database_path_default" type="string" format="string" translatable="false">internal</item>
-    
+
+	<!-- Degender settings -->
+
+		<string name="PREF_DEGENDER_ENABLED" translatable="false">PREF_DEGENDER_ENABLED</string>
+	    <item name="pref_degender_enabled_default" type="bool" format="boolean">false</item>
+		<string name="PREF_DEGENDER_LONG_ENABLED" translatable="false">PREF_DEGENDER_LONG_ENABLED</string>
+		<item name="pref_degender_long_enabled_default" type="bool" format="boolean">false</item>
+		<string name="PREF_DEGENDER_PARTIZIP_ENABLED" translatable="false">PREF_DEGENDER_PARTIZIP_ENABLED</string>
+		<item name="pref_degender_partizip_enabled_default" type="bool" format="boolean">false</item>
+		<string name="PREF_DEGENDER_COUNT_SHORT" translatable="false">PREF_DEGENDER_COUNT_SHORT</string>
+		<string name="PREF_DEGENDER_COUNT_LONG" translatable="false">PREF_DEGENDER_COUNT_LONG</string>
+		<string name="PREF_DEGENDER_COUNT_PARTIZIP" translatable="false">PREF_DEGENDER_COUNT_PARTIZIP</string>
     <!-- Download settings -->
     
 	    <string name="DAYS_TO_DOWNLOAD" translatable="false">DAYS_TO_DOWNLOAD</string>

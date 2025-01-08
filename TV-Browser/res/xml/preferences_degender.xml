@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto"
+	xmlns:android="http://schemas.android.com/apk/res/android" >
+	<CheckBoxPreference
+		android:key="@string/PREF_DEGENDER_ENABLED"
+		android:title="@string/pref_degender_enabled"
+		app:defaultValue="@bool/pref_degender_enabled_default"/>
+	<CheckBoxPreference
+		android:key="@string/PREF_DEGENDER_LONG_ENABLED"
+		android:title="@string/pref_degender_long_enabled"
+		app:defaultValue="@bool/pref_degender_long_enabled_default" />
+	<CheckBoxPreference
+		android:key="@string/PREF_DEGENDER_PARTIZIP_ENABLED"
+		android:title="@string/pref_degender_partizip_enabled"
+		app:defaultValue="@bool/pref_degender_partizip_enabled_default" />
+	<org.tvbrowser.view.InfoPreference
+		android:key="@string/PREF_DEGENDER_COUNT_SHORT"
+		android:title="@string/pref_degender_count_short" />
+	<org.tvbrowser.view.InfoPreference
+		android:key="@string/PREF_DEGENDER_COUNT_LONG"
+		android:title="@string/pref_degender_count_long" />
+	<org.tvbrowser.view.InfoPreference
+		android:key="@string/PREF_DEGENDER_COUNT_PARTIZIP"
+		android:title="@string/pref_degender_count_partizip" />
+</PreferenceScreen>

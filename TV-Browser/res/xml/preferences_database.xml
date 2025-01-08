@@ -1,6 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android" >
-	<org.tvbrowser.settings.DirectoryPreference android:key="@string/PREF_DATABASE_PATH"
-		android:title="@string/pref_database_selection_title"
-		android:defaultValue="@string/pref_database_path_default"/>
-</PreferenceScreen>

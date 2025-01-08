@@ -101,7 +101,6 @@ public final class SettingConstants {
   public static final String SYNCHRONIZE_SHOW_INFO_EXTRA = "SYNCHRONIZE_SHOW_INFO_EXTRA";
   public static final String SYNCHRONIZE_UP_URL_EXTRA = "SYNCHRONIZE_UP_URL_EXTRA";
   public static final String SYNCHRONIZE_UP_VALUE_EXTRA = "SYNCHRONIZE_UP_STRING_EXTRA";
-  
   public static final String WIDGET_CHANNEL_SELECTION_EXTRA = "WIDGET_CHANNEL_SELECTION_EXTRA";
 
   public static final String START_WITH_TIME_WIDGET_RUNNING = "org.tvbrowser.START_WITH_TIME";

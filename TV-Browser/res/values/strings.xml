@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+        <h2>0.7.0.10</h2>
+            &bull; added DeGender functionality<br>
+            &bull; added workaround to support synchronising with Android prior to 7.1<br>
+            &bull; removed setting for database storage location<br>
         <h2>0.7.0.9</h2>
             &bull; extended runtime to 2029-12-31<br>
         <h2>0.7.0.8</h2>
@@ -770,8 +774,13 @@
     <string name="pref_epgpaid_purchase_title">Purchase access</string>
     <string name="pref_epgpaid_purchase_summary">(Opens web site: https://www.epgpaid.de)</string>
     <string name="pref_epgpaid_info">Since 2008 many private TV and radio stations are request a fee for the display of descriptions and pictures in electronic program guides like TV-Browser.\n\nThat is the reason why that information cannot be provided for free. But it is possible to get descriptions and most times also pictures with EPGpaid for a small amount every year.\n\nHow much yu need to pay and how it works you can read at: https://www.epgpaid.de\n\n(Click here to open the site.)</string>
-    <string name="pref_database_category">Database</string>
-    <string name="pref_database_selection_title">Storage location</string>
+    <string name="pref_degender">DeGender</string>
+    <string name="pref_degender_enabled">Remove gender forms (*,:,I,_) from programs</string>
+    <string name="pref_degender_long_enabled">include long forms</string>
+    <string name="pref_degender_partizip_enabled">include Partizip forms</string>
+    <string name="pref_degender_count_short">Replaced short forms (*,:,I,_): {1}</string>
+    <string name="pref_degender_count_long">Replaced long forms: {1}</string>
+    <string name="pref_degender_count_partizip">Replaced Partizipien: {1}</string>
     <string name="pref_database_selection_unavailable">UNAVAILABLE</string>
     <string name="pref_database_selection_warning_unavailable">The database is currently not available, if you change this setting now, you will lose all data.</string>
     <string name="pref_database_selection_warning_unavailable_ok">Change it\nanyway</string>

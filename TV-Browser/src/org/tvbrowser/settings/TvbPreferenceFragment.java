@@ -25,6 +25,7 @@ import org.tvbrowser.tvbrowser.ServiceUpdateRemindersAndAutoUpdate;
 import org.tvbrowser.tvbrowser.TvDataUpdateService;
 import org.tvbrowser.utils.CompatUtils;
 import org.tvbrowser.utils.IOUtils;
+import org.tvbrowser.utils.PrefUtils;
 import org.tvbrowser.utils.UiUtils;
 
 import android.content.Context;
@@ -79,55 +80,10 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
 
       onSharedPreferenceChanged(pref,getString(R.string.PREF_PRIVACY_TERMS_ACCEPTED_EPGPAID));
     }
-    else if(getString(R.string.category_database).equals(category)) {
-      addPreferencesFromResource(R.xml.preferences_database);
-      
-      ListPreference path = (ListPreference)findPreference(getString(R.string.PREF_DATABASE_PATH));
-      
-      path.setEnabled(!TvDataUpdateService.isRunning());
-      
-      File external = Environment.getExternalStorageDirectory();
-      Log.d("info22", "external "+external);
-      final ArrayList<String> entries = new ArrayList<>();
-      final ArrayList<String> entryValues = new ArrayList<>();
-      
-      String defaultValue = getString(R.string.pref_database_path_default);
-      
-      entries.add(getString(R.string.pref_database_selection_internal));
-      entryValues.add(defaultValue);
-      
-      String currentValue = pref.getString(getString(R.string.PREF_DATABASE_PATH), defaultValue);
-      String summary = getString(R.string.pref_database_selection_unavailable);
-      
-      if(currentValue.equals(defaultValue)) {
-        summary = entries.get(0);
-      }
-      
-      if(external != null && external.isDirectory()) {
-        File[] sdcards = new File(external.getAbsolutePath().substring(0, external.getAbsolutePath().indexOf(File.separator, 1))).listFiles(CompatUtils::acceptFileAsSdCard);
-        
-        File appExternal = getActivity().getExternalFilesDir(null);
-        String appFilePathPart = appExternal.getAbsolutePath().replace(external.getAbsolutePath(), "") + File.separator;
-        
-        Arrays.sort(sdcards);
-        
-        for(File sdcard : sdcards) {
-          File test = new File(sdcard,appFilePathPart);
-          
-          if(test.isDirectory() || test.mkdirs()) {
-            entries.add(sdcard.getAbsolutePath());
-            entryValues.add(test.getAbsolutePath());
-            
-            if(test.getAbsolutePath().equals(currentValue)) {
-              summary = sdcard.getAbsolutePath();
-            }
-          }
-        }
-      }
-      
-      path.setEntries(entries.toArray(new String[0]));
-      path.setEntryValues(entryValues.toArray(new String[0]));
-      path.setSummary(summary);
+    else if(getString(R.string.category_degender).equals(category)) {
+      addPreferencesFromResource(R.xml.preferences_degender);
+
+      onSharedPreferenceChanged(pref,getString(R.string.PREF_DEGENDER_ENABLED));
     }
     else if(getString(R.string.category_start).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_start);
@@ -136,7 +92,7 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
     }
     else if(getString(R.string.category_theme).equals(category)) {
       addPreferencesFromResource(R.xml.preferences_layout);
-      
+
       onSharedPreferenceChanged(pref, getString(R.string.PREF_SHOW_PROGRESS));
       onSharedPreferenceChanged(pref, getString(R.string.PREF_COLOR_STYLE));
       onSharedPreferenceChanged(pref, getString(R.string.PREF_LOGO_BORDER));
@@ -687,6 +643,33 @@ public class TvbPreferenceFragment extends PreferenceFragment implements OnShare
         if(picturesInDetails != null && pictureZoom != null && pictureDescPos != null) {
           pictureZoom.setEnabled(picturesInDetails.isChecked());
           pictureDescPos.setEnabled(picturesInDetails.isChecked());
+        }
+      }
+      else if(key.equals(getResources().getString(R.string.PREF_DEGENDER_ENABLED))) {
+        CheckBoxPreference degenderEnabled = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_DEGENDER_ENABLED));
+        CheckBoxPreference degenderLongEnabled = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_DEGENDER_LONG_ENABLED));
+        CheckBoxPreference degenderPartizipEnabled = (CheckBoxPreference) findPreference(getResources().getString(R.string.PREF_DEGENDER_PARTIZIP_ENABLED));
+
+        final Preference shortInfo = findPreference(getString(R.string.PREF_DEGENDER_COUNT_SHORT));
+        final Preference longInfo = findPreference(getString(R.string.PREF_DEGENDER_COUNT_LONG));
+        final Preference partizipInfo = findPreference(getString(R.string.PREF_DEGENDER_COUNT_PARTIZIP));
+
+        if(shortInfo != null) {
+          shortInfo.setTitle(getString(R.string.pref_degender_count_short).replace("{1}", String.valueOf(PrefUtils.getIntValue(R.string.PREF_DEGENDER_COUNT_SHORT,0))));
+          shortInfo.setEnabled(degenderEnabled.isChecked());
+        }
+        if(longInfo != null) {
+          longInfo.setTitle(getString(R.string.pref_degender_count_long).replace("{1}", String.valueOf(PrefUtils.getIntValue(R.string.PREF_DEGENDER_COUNT_LONG,0))));
+          longInfo.setEnabled(degenderEnabled.isChecked());
+        }
+        if(partizipInfo != null) {
+          partizipInfo.setTitle(getString(R.string.pref_degender_count_partizip).replace("{1}", String.valueOf(PrefUtils.getIntValue(R.string.PREF_DEGENDER_COUNT_PARTIZIP,0))));
+          partizipInfo.setEnabled(degenderEnabled.isChecked());
+        }
+
+        if(degenderEnabled != null) {
+          degenderLongEnabled.setEnabled(degenderEnabled.isChecked());
+          degenderPartizipEnabled.setEnabled(degenderEnabled.isChecked());
         }
       }
       else if(key.equals(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_ACTIVATED)) || key.equals(getResources().getString(R.string.PREF_REMINDER_NIGHT_MODE_NO_REMINDER))) {

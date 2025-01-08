@@ -4,8 +4,10 @@
  */
 package de.epgpaid;
 
+import android.content.Context;
 import android.util.Log;
 
+import org.tvbrowser.tvbrowser.NetHelper;
 import org.tvbrowser.utils.IOUtils;
 
 import java.io.BufferedReader;
@@ -50,8 +52,10 @@ public class EPGpaidDataConnection {
   private CookieHandler mCookieHandlerDefault; 
   
   private String mSessionId;
+  private Context mContext;
   
-  public EPGpaidDataConnection() {
+  public EPGpaidDataConnection(Context context) {
+    mContext = context;
     //if(!(CookieHandler.getDefault() instanceof CookieManager)) {
       //CookieHandler.setDefault(new CookieManager());
     //}
@@ -210,6 +214,9 @@ public class EPGpaidDataConnection {
         }
       }
     }
+    finally {
+      NetHelper.finishConnection();
+    }
     
     Authenticator.setDefault(null);
     
@@ -261,6 +268,9 @@ public class EPGpaidDataConnection {
         result.append(el.toString()).append("\n");
       }
     }
+    finally {
+      NetHelper.finishConnection();
+    }
     
     Authenticator.setDefault(null);
     
@@ -273,6 +283,7 @@ public class EPGpaidDataConnection {
     Authenticator.setDefault(mAuthenticator);
     
     try {
+
       if(openGetConnection(DOMAIN+file) == HttpURLConnection.HTTP_OK) {
         InputStream in = null;
         
@@ -323,10 +334,12 @@ public class EPGpaidDataConnection {
   }
   
   private int openPostConnection(String url, String parameter) throws Throwable {
+    NetHelper.prepareConnection(mContext);
     return openConnection(url, REQUEST_METHOD_POST, parameter);
   }
   
   private int openGetConnection(String url) throws Throwable {
+    NetHelper.prepareConnection(mContext);
     return openConnection(url, REQUEST_METHOD_GET, null);
   }
   
@@ -419,6 +432,7 @@ public class EPGpaidDataConnection {
     if(mHttpConnection != null) {
       mHttpConnection.disconnect();
       mHttpConnection = null;
+      NetHelper.finishConnection();
     }
   }
   

@@ -49,9 +49,10 @@ class MemorySizeConstrictedDatabaseOperation {
   private boolean mOperationsAvailable;
   private boolean mOperationsAdded;
   private final AtomicBoolean mSuccess;
-  
-  public MemorySizeConstrictedDatabaseOperation(Context context, Uri insertUri) {
-    this(context,insertUri,1);
+  private DegenderPlugin mDegenderPlugin;
+
+  public MemorySizeConstrictedDatabaseOperation(Context context, Uri insertUri, DegenderPlugin degenderPlugin) {
+    this(context,insertUri,1, degenderPlugin);
   }
   
   /**
@@ -59,11 +60,12 @@ class MemorySizeConstrictedDatabaseOperation {
    * @param insertUri The content URI for the insert operations
    * @param minOperationDivider The divider for the number of entries before starting database operation.
    */
-  public MemorySizeConstrictedDatabaseOperation(Context context, Uri insertUri, int minOperationDivider) {
+  public MemorySizeConstrictedDatabaseOperation(Context context, Uri insertUri, int minOperationDivider, DegenderPlugin degenderPlugin) {
     mContext = context;
     mInsertUri = insertUri;
     mSuccess = new AtomicBoolean(true);
     mOperationsAdded = false;
+    mDegenderPlugin = degenderPlugin;
     
     if(mMinOperationDivider > 0) {
       mMinOperationDivider = minOperationDivider;
@@ -113,6 +115,10 @@ class MemorySizeConstrictedDatabaseOperation {
   
   public synchronized void addInsert(ContentValues insert) {
     if(mInsertList != null) {
+      if(mDegenderPlugin != null) {
+        mDegenderPlugin.handleData(insert);
+      }
+
       mOperationsAvailable = true;
       mInsertList.add(insert);
       mOperationsAdded = true;

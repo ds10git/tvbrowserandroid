@@ -1,6 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="info_version_new"><![CDATA[
+        <h2>0.7.0.10</h2>
+            &bull; DeGender-Option hinzugefügt<br>
+            &bull; Workaround für Synchronisierung unter Android 7 und älter hinzugefügt<br>
+            &bull; Einstellungen für Speicherort der Datenbank entfernt<br>
         <h2>0.7.0.9</h2>
             &bull; Laufzeit verlängert bis zum 31.12.2029<br>
         <h2>0.7.0.8</h2>
@@ -763,8 +767,13 @@
 	<string name="pref_epgpaid_purchase_title">Zugang erwerben</string>
 	<string name="pref_epgpaid_purchase_summary">(Öffnet Internetseite: https://www.epgpaid.de)</string>
 	<string name="pref_epgpaid_info">Seit 2008 verlangen viele Privatsender eine Gebühr für die Darstellung von Beschreibungen und Bildern in elektronischen Programmzeitschriften wie TV-Browser.\n\nDeshalb können diese Informationen nicht kostenlos angeboten werden, es gibt aber die Möglichkeit mit EPGpaid für einen geringen jährlichen Betrag auch für diese Sender Beschreibungen und meistens auch Bilder zu erhalten.\n\nWie hoch genau der Betrag ist und wie es funktioniert lesen Sie unter: https://www.epgpaid.de\n\n(Hier klicken um diese Seite zu öffnen.)</string>
-	<string name="pref_database_category">Datenbank</string>
-	<string name="pref_database_selection_title">Speicherort</string>
+	<string name="pref_degender">DeGender</string>
+	<string name="pref_degender_enabled">Genderformen entfernen (*,:,I,_)</string>
+    <string name="pref_degender_long_enabled">Langformen einschließen (z.B. Nutzerinnen und Nutzer)</string>
+    <string name="pref_degender_partizip_enabled">Häufig verwendete Partizipien einschließen (z.B. Studierende)</string>
+    <string name="pref_degender_count_short">Ersetzte Kurzformen (*,:,I,_): {1}</string>
+    <string name="pref_degender_count_long">Ersetzte Langformen: {1}</string>
+    <string name="pref_degender_count_partizip">Ersetzte Partizipien: {1}</string>
 	<string name="pref_database_selection_unavailable">NICHT VERFÜGBAR</string>
 	<string name="pref_database_selection_warning_unavailable">Die Datenbank ist zur Zeit nicht verfügbar, wenn Sie diese Einstellung jetzt ändern, werden Sie Daten verlieren.</string>
 	<string name="pref_database_selection_warning_unavailable_ok">Trotzdem\nändern</string>
