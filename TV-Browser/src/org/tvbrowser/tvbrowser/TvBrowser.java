@@ -63,6 +63,7 @@ import androidx.annotation.IntDef;
 import androidx.annotation.NonNull;
 import com.google.android.material.tabs.TabLayout;
 
+import androidx.appcompat.widget.AppCompatAutoCompleteTextView;
 import androidx.fragment.app.Fragment;
 import androidx.core.app.NotificationCompat;
 import androidx.core.content.ContextCompat;
@@ -96,7 +97,6 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.SubMenu;
 import android.view.View;
-import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 import android.view.WindowManager.BadTokenException;
 import android.widget.AdapterView;
@@ -885,6 +885,10 @@ public class TvBrowser extends AppCompatActivity {
     return result;
   }
 
+  private boolean isRuntimeExpired() {
+    return (Build.VERSION.SDK_INT > Build.VERSION_CODES.P) && mRundate.getTimeInMillis() < System.currentTimeMillis();
+  }
+
   private void handleResume() {
     /*new Thread() {
       public void run() {
@@ -904,7 +908,7 @@ public class TvBrowser extends AppCompatActivity {
     }.start();
     */
     // Don't allow use of version after date
-    if (mRundate.getTimeInMillis() < System.currentTimeMillis()) {
+    if (isRuntimeExpired()) {
       donationsRatingHelper.handleExpiredVersion(mRundate);
       return;
     }
@@ -3754,7 +3758,12 @@ public class TvBrowser extends AppCompatActivity {
     TextView dataRange = about.findViewById(R.id.data_range);
     dataRange.setText(DateFormat.getMediumDateFormat(TvBrowser.this).format(new Date(PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_FIRST_KNOWN, R.integer.meta_data_date_known_default))) + " - " + DateFormat.getMediumDateFormat(TvBrowser.this).format(new Date(PrefUtils.getLongValueWithDefaultKey(R.string.META_DATA_DATE_LAST_KNOWN, R.integer.meta_data_date_known_default))));
 
-    ((TextView)about.findViewById(R.id.rundate_value)).setText(DateFormat.getLongDateFormat(getApplicationContext()).format(mRundate.getTime()));
+    TextView rundate = about.findViewById(R.id.rundate_value);
+    rundate.setText(DateFormat.getLongDateFormat(getApplicationContext()).format(mRundate.getTime()));
+
+    if(Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
+      rundate.setText(getString(R.string.unrestricted));
+    }
 
     builder.setTitle(R.string.action_about);
     builder.setView(about);
@@ -4505,7 +4514,7 @@ public class TvBrowser extends AppCompatActivity {
 
         @Override
         public Cursor swapCursor(Cursor c) {
-          SearchView.SearchAutoComplete mSearchSrcTextView = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
+          AppCompatAutoCompleteTextView mSearchSrcTextView = searchView.findViewById(androidx.appcompat.R.id.search_src_text);
           mSearchSrcTextView.setDropDownWidth(getResources().getDisplayMetrics().widthPixels);
           mSearchSrcTextView.setDropDownBackgroundResource(R.color.dark_gray_lighter);
           return super.swapCursor(c);

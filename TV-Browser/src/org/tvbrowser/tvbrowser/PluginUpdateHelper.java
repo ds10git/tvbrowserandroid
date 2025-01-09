@@ -39,7 +39,7 @@ abstract class PluginUpdateHelper {
 				@Override
 				public void run() {
 					tvBrowser.updateProgressIcon(true);
-					PluginDefinition[] availablePlugins = PluginDefinition.loadAvailablePluginDefinitions(PluginUpdateHelperImpl.URL);
+					PluginDefinition[] availablePlugins = PluginDefinition.loadAvailablePluginDefinitions(PluginUpdateHelperImpl.URL, tvBrowser.getApplicationContext());
 
 					final List<PluginDefinition> newPlugins = new ArrayList<>();
 					final PluginServiceConnection[] connections = PluginHandler.getAvailablePlugins();

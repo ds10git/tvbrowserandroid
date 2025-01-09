@@ -102,7 +102,14 @@ class PluginUpdateHelperImpl extends PluginUpdateHelper {
           protected Boolean doInBackground(String... params) {
             mPluginFile = new File(params[0]);
 
-            return IOUtils.saveUrl(params[0], params[1], 15000);
+			try {
+				NetHelper.prepareConnection(tvBrowser.getApplicationContext());
+				boolean result = IOUtils.saveUrl(params[0], params[1], 15000);
+
+				return result;
+			}finally {
+				NetHelper.finishConnection();
+			}
           }
 
           protected void onPostExecute(Boolean result) {

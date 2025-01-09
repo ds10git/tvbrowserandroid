@@ -5,6 +5,8 @@
             &bull; added DeGender functionality<br>
             &bull; added workaround to support synchronising with Android prior to 7.1<br>
             &bull; removed setting for database storage location<br>
+            &bull; fixed context menu background for light theme<br>
+            &bull; removed runtime deadline for Android prior to 10<br>
         <h2>0.7.0.9</h2>
             &bull; extended runtime to 2029-12-31<br>
         <h2>0.7.0.8</h2>
@@ -459,6 +461,7 @@
 			&bull; added workaround for channel timezone GMT+01:00 instead of CET<br>
         <br>
         ]]></string>
+    <string name="unrestricted">unrestricted</string>
     <string name="authority_file_provider" translatable="false">org.tvbrowser.tvbrowser.provider</string>
     <string name="info_version">What is new in this version?</string>
     <string name="info_version_dont_show_again">Don\'t show\nagain</string>
@@ -672,12 +675,12 @@
     <string name="version">Version:</string>
     <string name="author">Author:</string>
     <string name="android">Android:</string>
-    <string name="last_data_update">Last data update:</string>
-    <string name="next_data_update">Next data update:</string>
+    <string name="last_data_update">Last\ndata update:</string>
+    <string name="next_data_update">Next\ndata update:</string>
     <string name="data_range_label">Data range:</string>
     <string name="next_data_update_manually">When manually started</string>
     <string name="next_data_update_connection">When connected to Internet</string>
-    <string name="copyright">Copyright &#169; 2013, René Mach.</string>
+    <string name="copyright">Copyright &#169; 2013-2025, René Mach.</string>
     <string name="license"><![CDATA[<p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software
   and associated documentation files (the "Software"), to use, copy, modify or merge the Software,
   furthermore to publish and distribute the Software free of charge without modifications and to permit persons

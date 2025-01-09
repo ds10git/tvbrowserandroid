@@ -16,6 +16,7 @@
  */
 package org.tvbrowser.devplugin;
 
+import android.content.Context;
 import android.util.Log;
 
 import java.io.ByteArrayInputStream;
@@ -30,6 +31,7 @@ import java.util.Locale;
 import java.util.concurrent.TimeoutException;
 
 import org.tvbrowser.settings.SettingConstants;
+import org.tvbrowser.tvbrowser.NetHelper;
 import org.tvbrowser.utils.IOUtils;
 import org.tvbrowser.utils.UiUtils;
 import org.xmlpull.v1.XmlPullParser;
@@ -168,16 +170,14 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
     return mServices;
   }
     
-  public static PluginDefinition[] loadAvailablePluginDefinitions(String url) {
+  public static PluginDefinition[] loadAvailablePluginDefinitions(String url, Context context) {
     ArrayList<PluginDefinition> pluginList = new ArrayList<>();
-    
-    InputStreamReader in = null;
-        
-    try {
+
+    NetHelper.prepareConnection(context);
+    try(InputStreamReader in = new InputStreamReader(IOUtils.decompressStream(new ByteArrayInputStream(IOUtils.loadUrl(PLUGIN_INFO_URL+url, 15000))), Charset.defaultCharset())) {
       XmlPullParserFactory factory = XmlPullParserFactory.newInstance();
       Log.d("info6","openURL: "+PLUGIN_INFO_URL+url);
-      in = new InputStreamReader(IOUtils.decompressStream(new ByteArrayInputStream(IOUtils.loadUrl(PLUGIN_INFO_URL+url, 15000))), Charset.defaultCharset());
-      
+
       XmlPullParser parser = factory.newPullParser();
       parser.setInput(in);
       
@@ -269,6 +269,9 @@ public class PluginDefinition implements Comparable<PluginDefinition> {
     } catch (TimeoutException e) {
       // TODO Auto-generated catch block
       Log.d("info6","",e);
+    }
+    finally {
+      NetHelper.finishConnection();
     }
     
     return pluginList.toArray(new PluginDefinition[0]);

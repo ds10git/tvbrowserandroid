@@ -9,7 +9,7 @@ import com.google.android.gms.security.ProviderInstaller;
 
 public final class NetHelper {
     public static void prepareConnection(Context context) {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
             try {
                 ProviderInstaller.installIfNeeded(context);
             } catch (GooglePlayServicesRepairableException e) {
@@ -22,7 +22,7 @@ public final class NetHelper {
     }
 
     public static void finishConnection() {
-        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP_MR1) {
+        if(Build.VERSION.SDK_INT < Build.VERSION_CODES.N_MR1) {
             SSLTool.resetCertificateValidation();
         }
     }

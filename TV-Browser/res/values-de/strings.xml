@@ -5,6 +5,8 @@
             &bull; DeGender-Option hinzugefügt<br>
             &bull; Workaround für Synchronisierung unter Android 7 und älter hinzugefügt<br>
             &bull; Einstellungen für Speicherort der Datenbank entfernt<br>
+            &bull; fehlerhafter Hintergrund des Kontextmenü im hellen Thema behoben<br>
+            &bull; Entfristung für Installation auf Android 9 und älter<br>
         <h2>0.7.0.9</h2>
             &bull; Laufzeit verlängert bis zum 31.12.2029<br>
         <h2>0.7.0.8</h2>
@@ -462,6 +464,7 @@
         	&bull; Workaround für Sender mit Zeitzone GMT+01:00 anstatt MEZ hinzugefügt<br>
         <br>
         ]]></string>
+    <string name="unrestricted">unbeschränkt</string>
     <string name="info_version">Was ist neu in dieser Version?</string>
     <string name="info_version_dont_show_again">Nicht wieder\nanzeigen</string>
     <string name="info_version_show">Änderungen anzeigen</string>
@@ -666,9 +669,9 @@
     <string name="version">Version:</string>
     <string name="author">Autor:</string>
     <string name="android">Android:</string>
-    <string name="copyright">Copyright &#169; 2013, René Mach.</string>
-    <string name="last_data_update">Letztes Datenupdate:</string>
-	<string name="next_data_update">Nächstes Datenupdate:</string>
+    <string name="copyright">Copyright &#169; 2013-2025, René Mach.</string>
+    <string name="last_data_update">Letztes\nDatenupdate:</string>
+	<string name="next_data_update">Nächstes\nDatenupdate:</string>
 	<string name="data_range_label">Datenbereich:</string>
     <string name="next_data_update_manually">Wenn manuell ausgelöst</string>
     <string name="next_data_update_connection">Wenn Internetverbindung besteht</string>

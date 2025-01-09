@@ -67,7 +67,10 @@
 			android:id="@id/rundate_value"
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
-			android:layout_below="@id/rundate_label"
+			android:layout_toRightOf="@id/rundate_label"
+			android:layout_toEndOf="@id/rundate_label"
+			android:layout_alignBaseline="@id/rundate_label"
+			android:layout_below="@id/android_label"
 			android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"/>
@@ -75,6 +78,7 @@
 		<TextView
 			android:layout_marginRight="8dp"
 			android:layout_marginEnd="8dp"
+			android:layout_marginTop="8dp"
 			android:id="@id/data_update_label"
 			android:layout_below="@id/rundate_value"
 			android:labelFor="@id/data_update"
@@ -88,16 +92,20 @@
 			android:id="@id/data_update"
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
-			android:layout_below="@id/data_update_label"
+			android:layout_toRightOf="@id/data_update_label"
+			android:layout_toEndOf="@id/data_update_label"
+			android:layout_alignBottom="@id/data_update_label"
 			android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
 			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"/>
+			android:layout_height="match_parent"/>
 
 		<TextView
 			android:layout_marginRight="8dp"
 			android:layout_marginEnd="8dp"
+			android:layout_marginTop="8dp"
+			android:layout_marginBottom="8dp"
 			android:id="@id/next_data_update_label"
-			android:layout_below="@id/data_update"
+			android:layout_below="@id/data_update_label"
 			android:labelFor="@id/next_data_update"
 			android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
 			android:layout_width="wrap_content"
@@ -107,18 +115,22 @@
 
 		<TextView
 			android:id="@id/next_data_update"
+			android:layout_width="wrap_content"
+			android:layout_height="wrap_content"
+			android:layout_alignBottom="@id/next_data_update_label"
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
-			android:layout_below="@id/next_data_update_label"
-			android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
-			android:layout_width="wrap_content"
-			android:layout_height="wrap_content"/>
+			android:layout_marginEnd="8dp"
+			android:layout_marginRight="8dp"
+			android:layout_toEndOf="@+id/next_data_update_label"
+			android:layout_toRightOf="@+id/next_data_update_label"
+			android:textAppearance="@style/TextAppearance.AppCompat.Subhead" />
 
 		<TextView
 			android:layout_marginRight="8dp"
 			android:layout_marginEnd="8dp"
 			android:id="@id/data_range_label"
-			android:layout_below="@id/next_data_update"
+			android:layout_below="@id/next_data_update_label"
 			android:labelFor="@id/data_range"
 			android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
 			android:layout_width="wrap_content"
@@ -128,9 +140,12 @@
 
 		<TextView
 			android:id="@id/data_range"
+			android:layout_marginBottom="8dp"
 			android:layout_alignParentEnd="true"
 			android:layout_alignParentRight="true"
-			android:layout_below="@id/data_range_label"
+			android:layout_alignTop="@id/data_range_label"
+			android:layout_toRightOf="@id/data_range_label"
+			android:layout_toEndOf="@id/data_range_label"
 			android:textAppearance="@style/TextAppearance.AppCompat.Subhead"
 			android:layout_width="wrap_content"
 			android:layout_height="wrap_content"/>
